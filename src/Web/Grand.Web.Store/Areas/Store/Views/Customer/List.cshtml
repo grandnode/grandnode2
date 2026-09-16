@@ -1,5 +1,4 @@
 @model CustomerListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     ViewBag.Title = Loc["Admin.Customers.Customers"];
 }
@@ -101,7 +100,40 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <div id="customers-grid"></div>
+                    <admin-grid id="customers-grid"
+                                read-url="@Url.Action("CustomerList", "Customer", new { area = Constants.AreaStore })"
+                                additional-data="additionalData">
+                        <grid-column field="Email" title="@Loc["Admin.Customers.Customers.Fields.Email"]" width="200">
+                            <cell-template>
+                                <a class="k-link" href="Edit/{{ Id }}">{{ Email }}</a>
+                            </cell-template>
+                        </grid-column>
+                        @if (Model.UsernamesEnabled)
+                        {
+                            <grid-column field="Username" title="@Loc["Admin.Customers.Customers.Fields.Username"]" width="200"/>
+                        }
+                        <grid-column field="FullName" title="@Loc["Admin.Customers.Customers.Fields.FullName"]" width="200"/>
+                        @if (Model.CompanyEnabled)
+                        {
+                            <grid-column field="Company" title="@Loc["Admin.Customers.Customers.Fields.Company"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.PhoneEnabled)
+                        {
+                            <grid-column field="Phone" title="@Loc["Admin.Customers.Customers.Fields.Phone"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.ZipPostalCodeEnabled)
+                        {
+                            <grid-column field="ZipPostalCode" title="@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]" width="200" min-screen-width="770"/>
+                        }
+                        <grid-column field="Active" title="@Loc["Admin.Customers.Customers.Fields.Active"]" width="100" align="Center">
+                            <cell-template>
+                                <i data-if="Active" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Fields.CreatedOn"]" width="200" format="{0:G}" min-screen-width="770"/>
+                        <grid-column field="LastActivityDate" title="@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]" width="200" format="{0:G}"/>
+                    </admin-grid>
                 </div>
             </div>
         </div>
@@ -109,104 +141,6 @@
 
     <script>
         $(document).ready(function () {
-            $("#customers-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("CustomerList", "Customer", new { area = Constants.AreaStore }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                scrollable: false,
-                columns: [{
-                        field: "Email",
-                        title: "@Loc["Admin.Customers.Customers.Fields.Email"]",
-                        width: 200,
-                        template: '<a class="k-link" href="Edit/#=Id#">#=Email#</a>'
-                    },
-                    @if (Model.UsernamesEnabled)
-                    {
-                        <text>{
-                            field: "Username",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Username"]",
-                            width: 200
-                        },</text>
-                    }
-                    {
-                        field: "FullName",
-                        title: "@Loc["Admin.Customers.Customers.Fields.FullName"]",
-                        width: 200,
-                        encoded: true
-                    },
-                    @if (Model.CompanyEnabled)
-                    {
-                        <text>{
-                            field: "Company",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Company"]",
-                            width: 200,
-                            minScreenWidth: 770
-                        },</text>
-                    }
-                    @if (Model.PhoneEnabled)
-                    {
-                        <text>{
-                            field: "Phone",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Phone"]",
-                            width: 200,
-                            minScreenWidth: 770
-                        },</text>
-                    }
-                    @if (Model.ZipPostalCodeEnabled)
-                    {
-                        <text>{
-                            field: "ZipPostalCode",
-                            title: "@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]",
-                            width: 200,
-                            minScreenWidth: 770
-                        },</text>
-                    }
-                    {
-                        field: "Active",
-                        title: "@Loc["Admin.Customers.Customers.Fields.Active"]",
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    }, {
-                        field: "CreatedOn",
-                        title: "@Loc["Admin.Customers.Customers.Fields.CreatedOn"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}",
-                        minScreenWidth: 770
-                    }, {
-                        field: "LastActivityDate",
-                        title: "@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}"
-                    }]
-            });
 
             $('#search-customers').click(function () {
                 var grid = $('#customers-grid').data('kendoGrid');

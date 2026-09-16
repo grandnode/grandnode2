@@ -18,54 +18,18 @@
                 </div>
             </div>
             <div class="x_content form">
-                <div id="email-accounts-grid"></div>
+                <admin-grid id="email-accounts-grid"
+                            read-url="@Url.Action("List", "EmailAccount", new { area = Constants.AreaStore })"
+                            pager="Compact">
+                    <grid-column field="Email" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ Email }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayName" title="@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"/>
+                    <grid-column field="Host" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"/>
+                </admin-grid>
             </div>
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $("#email-accounts-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "EmailAccount", new { area = Constants.AreaStore }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            scrollable: false,
-            columns: [{
-                field: "Email",
-                title: "@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=Email#</a>'
-            }, {
-                field: "DisplayName",
-                title: "@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"
-            }, {
-                field: "Host",
-                title: "@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"
-            }]
-        });
-    });
-</script>

@@ -21,7 +21,16 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="deliverydate-grid"></div>
+                            <admin-grid id="deliverydate-grid"
+                                        read-url="@Url.Action("DeliveryDatesListData", "Shipping", new { area = Constants.AreaStore })"
+                                        pager="Compact">
+                                <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="k-link" href="@Url.Action("EditDeliveryDate", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.DisplayOrder"]" width="120"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -30,50 +39,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#deliverydate-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("DeliveryDatesListData", "Shipping", new { area = Constants.AreaStore }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    this.cancelChanges();
-                },
-                serverPaging: false,
-                serverFiltering: false,
-                serverSorting: false
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            scrollable: false,
-            columns: [
-                {
-                    field: "Name",
-                    title: "@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Name"]",
-                    template: '<a class="k-link" href="@Url.Action("EditDeliveryDate", "Shipping", new { area = Constants.AreaStore })/#=Id#">#=kendo.htmlEncode(Name)#</a>'
-                },
-                {
-                    field: "DisplayOrder",
-                    title: "@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.DisplayOrder"]",
-                    width: 120
-                }
-            ]
-        });
-    });
-</script>

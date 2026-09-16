@@ -1,5 +1,4 @@
 ﻿@model ProductListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.Manage"];
@@ -109,7 +108,36 @@
                         </div>
                         <div class="clearfix"></div>
                         <div class="x_content">
-                            <div id="products-grid"></div>
+                            <admin-grid id="products-grid"
+                                        read-url="@Url.Action("ProductList", "Product", new { area = Constants.AreaStore })"
+                                        additional-data="additionalData"
+                                        selectable="Checkbox"
+                                        on-change="onProductsSelectionChange">
+                                <grid-column field="PictureThumbnailUrl" title="@Loc["Admin.Catalog.Products.Fields.PictureThumbnailUrl"]" width="92">
+                                    <cell-template>
+                                        <a class="k-link" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="Name" title="@Loc["Admin.Catalog.Products.Fields.Name"]" width="270">
+                                    <cell-template>
+                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="Sku" title="@Loc["Admin.Catalog.Products.Fields.Sku"]" width="80" align="Center"/>
+                                <grid-column field="Price" title="@Loc["Admin.Catalog.Products.Fields.Price"]" width="100" align="Right">
+                                    <cell-template>
+                                        <span data-if="ProductTypeId != @((int)ProductType.GroupedProduct)">{{ Price }}</span>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="StockQuantityStr" title="@Loc["Admin.Catalog.Products.Fields.StockQuantity"]" width="80" align="Right" min-screen-width="750"/>
+                                <grid-column field="ProductTypeName" title="@Loc["Admin.Catalog.Products.Fields.ProductType"]" width="100" align="Center" min-screen-width="1050"/>
+                                <grid-column field="Published" title="@Loc["Admin.Catalog.Products.Fields.Published"]" width="85" align="Center">
+                                    <cell-template>
+                                        <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -127,105 +155,6 @@
                 $('.filter-text-close').toggle();
             });
             
-            $("#products-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("ProductList", "Product", new { area = Constants.AreaStore }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true,
-                    requestStart: function () {
-                        kendo.ui.progress($('#products-grid'), true);
-                    },
-                    requestEnd: function () {
-                        kendo.ui.progress($('#products-grid'), false);
-
-                    },
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                dataBound: onDataBound,
-                columns: [
-                    {
-                        field: "Id",
-                        headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox mt-NoMargin'><input id='mastercheckbox' type='checkbox'/><div class='control__indicator control__indicator_custom mt-top2 rtlabel'></div></label>",
-                        template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox mt-NoMargin'><input type='checkbox' value='#=Id#' class='checkboxGroups'/><div class='control__indicator control__indicator_custom mt-top2'></div></label>",
-                        width: 50
-                    },
-                    {
-                        field: "PictureThumbnailUrl",
-                        title: "@Loc["Admin.Catalog.Products.Fields.PictureThumbnailUrl"]",
-                        template: '<a class="k-link" href="Edit/#=Id#"><img src="#=PictureThumbnailUrl#" /></a>',
-                        width: 92
-                    },
-                    {
-                        field: "Name",
-                        title: "@Loc["Admin.Catalog.Products.Fields.Name"]",
-                        encoded: false,
-                        template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-                        width: 270
-                    }, {
-                        field: "Sku",
-                        title: "@Loc["Admin.Catalog.Products.Fields.Sku"]",
-						headerAttributes: { style: "text-align:center" },
-						attributes: { style: "text-align:center" },
-                        width: 80
-                    }, {
-                        field: "Price",
-                        title: "@Loc["Admin.Catalog.Products.Fields.Price"]",
-						headerAttributes: { style: "text-align:right" },
-						attributes: { style: "text-align:right" },
-                        width: 100,
-                        //if not a grouped product, then display
-                        template: "# if(ProductTypeId != @((int)ProductType.GroupedProduct)) {# #:Price# #}  #"
-                    }, {
-                        field: "StockQuantityStr",
-                        title: "@Loc["Admin.Catalog.Products.Fields.StockQuantity"]",
-						headerAttributes: { style: "text-align:right" },
-						attributes: { style: "text-align:right" },
-						minScreenWidth: 750,
-                        width: 80
-                    }, {
-                        field: "ProductTypeName",
-                        title: "@Loc["Admin.Catalog.Products.Fields.ProductType"]",
-						headerAttributes: { style: "text-align:center" },
-						attributes: { style: "text-align:center" },
-                        width: 100,
-						minScreenWidth: 1050
-                    }, {
-                        field: "Published",
-                        title: "@Loc["Admin.Catalog.Products.Fields.Published"]",
-                        width: 85,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    }
-                ]
-            });
 
         });
     </script>
@@ -234,6 +163,10 @@
 
         var selectedIds = [];
 
+        function onProductsSelectionChange(e) {
+            selectedIds = e.selectedIds;
+        }
+
         $(document).ready(function () {
 
             //search button
@@ -241,8 +174,7 @@
                 //search
                 var grid = $('#products-grid').data('kendoGrid');
                 grid.dataSource.page(1);
-                $('.checkboxGroups').prop('checked', false).change();
-                selectedIds = [];
+                $('#products-grid').data('kendoGrid').clearSelection();
                 return false;
             });
 
@@ -259,27 +191,6 @@
                 }
             });
 
-            $('#mastercheckbox').click(function () {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
-            $('#products-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
-                var $check = $(this);
-                if ($check.is(":checked") == true) {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked == -1) {
-                        selectedIds.push($check.val());
-                    }
-                }
-                else {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked > -1) {
-                        selectedIds = $.grep(selectedIds, function (item, index) {
-                            return item != $check.val();
-                        });
-                    }
-                }
-                updateMasterCheckbox();
-            });
         });
 
         function additionalData() {
@@ -297,20 +208,6 @@
             return data;
         }
 
-        function onDataBound(e) {
-            $('#products-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
-                var currentId = $(this).val();
-                var checked = jQuery.inArray(currentId, selectedIds);
-                $(this).prop('checked', checked > -1);
-            });
 
-            updateMasterCheckbox();
-        }
-
-        function updateMasterCheckbox() {
-            var numChkBoxes = $('#products-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#products-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-        }
     </script>
 </form>

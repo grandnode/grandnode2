@@ -1,60 +1,10 @@
-﻿<div id="average-order-report-grid"></div>
-<script>
-    $(document).ready(function () {
-        $("#average-order-report-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("OrderAverageReportList", "Reports", new { area = Constants.AreaStore }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "OrderStatus",
-                title: "@Loc["Admin.Reports.Average.OrderStatus"]"
-            }, {
-                field: "SumTodayOrders",
-                title: "@Loc["Admin.Reports.Average.SumTodayOrders"]"
-            }, {
-                field: "SumThisWeekOrders",
-                title: "@Loc["Admin.Reports.Average.SumThisWeekOrders"]"
-            }, {
-                field: "SumThisMonthOrders",
-                title: "@Loc["Admin.Reports.Average.SumThisMonthOrders"]"
-            }, {
-                field: "SumThisYearOrders",
-                title: "@Loc["Admin.Reports.Average.SumThisYearOrders"]"
-            }, {
-                field: "SumAllTimeOrders",
-                title: "@Loc["Admin.Reports.Average.SumAllTimeOrders"]"
-            }]
-        });
-    });
-</script>
+﻿<admin-grid id="average-order-report-grid"
+            read-url="@Url.Action("OrderAverageReportList", "Reports", new { area = Constants.AreaStore })"
+            pager="Compact">
+    <grid-column field="OrderStatus" title="@Loc["Admin.Reports.Average.OrderStatus"]"/>
+    <grid-column field="SumTodayOrders" title="@Loc["Admin.Reports.Average.SumTodayOrders"]"/>
+    <grid-column field="SumThisWeekOrders" title="@Loc["Admin.Reports.Average.SumThisWeekOrders"]"/>
+    <grid-column field="SumThisMonthOrders" title="@Loc["Admin.Reports.Average.SumThisMonthOrders"]"/>
+    <grid-column field="SumThisYearOrders" title="@Loc["Admin.Reports.Average.SumThisYearOrders"]"/>
+    <grid-column field="SumAllTimeOrders" title="@Loc["Admin.Reports.Average.SumAllTimeOrders"]"/>
+</admin-grid>

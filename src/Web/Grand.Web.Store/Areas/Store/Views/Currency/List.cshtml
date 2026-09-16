@@ -13,105 +13,53 @@
                 </div>
             </div>
             <div class="x_content form">
-                <div id="currencies-grid"></div>
+                <admin-grid id="currencies-grid"
+                            read-url="@Url.Action("ListData", "Currency", new { area = Constants.AreaStore })"
+                            pager="None">
+                    <grid-text name="isPrimaryStoreCurrency" value="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"/>
+                    <grid-text name="assignStore" value="@Loc["Admin.Configuration.Currencies.AssignStore"]"/>
+                    <grid-text name="unassignStore" value="@Loc["Admin.Configuration.Currencies.UnassignStore"]"/>
+                    <grid-text name="setDefaultCurrency" value="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"/>
+                    <grid-text name="unsetDefaultCurrency" value="@Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]"/>
+                    <grid-column field="Name" title="@Loc["Admin.Configuration.Currencies.Fields.Name"]" width="200">
+                        <cell-template>
+                            {{ Name }}
+                            <span data-if="IsPrimaryStoreCurrency" class="badge badge-warning" title="{{ $texts.isPrimaryStoreCurrency }}"><i class="fa fa-star"></i></span>
+                            <span data-if="IsAssignedToCurrentStore" class="badge badge-success" title="{{ $texts.assignStore }}"><i class="fa fa-check"></i></span>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="CurrencyCode" title="@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]" width="100"/>
+                    <grid-column field="LimitedToStores" title="@Loc["Admin.Configuration.Currencies.Fields.LimitedToStores"]" width="120" align="Center">
+                        <cell-template>
+                            <i data-if="LimitedToStores" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="IsDefaultStoreCurrency" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]" width="180" align="Center">
+                        <cell-template>
+                            <span data-if="IsDefaultStoreCurrency" class="badge badge-info"><i class="fa fa-home"></i> {{ $texts.setDefaultCurrency }}</span>
+                            <a data-if="IsDefaultStoreCurrency" data-grid-click="unsetDefaultCurrency" class="btn btn-sm btn-warning" title="{{ $texts.unsetDefaultCurrency }}"><i class="fa fa-home"></i> {{ $texts.unsetDefaultCurrency }}</a>
+                            <a data-if="!IsDefaultStoreCurrency && IsAssignedToCurrentStore" data-grid-click="setDefaultCurrency" class="btn btn-sm btn-info" title="{{ $texts.setDefaultCurrency }}"><i class="fa fa-home"></i> {{ $texts.setDefaultCurrency }}</a>
+                            <span data-if="!IsDefaultStoreCurrency && !IsAssignedToCurrentStore" class="text-muted">-</span>
+                        </cell-template>
+                    </grid-column>
+                    @* the store manager may only assign currencies the server lets it manage (CanManage) *@
+                    <grid-column title="@Loc["Admin.Common.Actions"]" width="220" align="Center">
+                        <cell-template>
+                            <span data-if="!CanManage" class="text-muted">-</span>
+                            <a data-if="CanManage && IsAssignedToCurrentStore" data-grid-click="unassignStore" class="btn btn-sm btn-danger" title="{{ $texts.unassignStore }}"><i class="fa fa-minus"></i> {{ $texts.unassignStore }}</a>
+                            <a data-if="CanManage && !IsAssignedToCurrentStore" data-grid-click="assignStore" class="btn btn-sm btn-success" title="{{ $texts.assignStore }}"><i class="fa fa-plus"></i> {{ $texts.assignStore }}</a>
+                        </cell-template>
+                    </grid-column>
+                </admin-grid>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    $(document).ready(function () {
-        $("#currencies-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("ListData", "Currency", new { area = Constants.AreaStore }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    this.cancelChanges();
-                },
-                serverPaging: false,
-                serverFiltering: false,
-                serverSorting: false
-            },
-            scrollable: false,
-            columns: [
-                {
-                    field: "Name",
-                    title: "@Loc["Admin.Configuration.Currencies.Fields.Name"]",
-                    width: 200,
-                    template: function (dataItem) {
-                        var name = kendo.htmlEncode(dataItem.Name);
-                        if (dataItem.IsPrimaryStoreCurrency) {
-                            name += ' <span class="badge badge-warning" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"><i class="fa fa-star"></i></span>';
-                        }
-                        if (dataItem.IsAssignedToCurrentStore) {
-                            name += ' <span class="badge badge-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-check"></i></span>';
-                        }
-                        return name;
-                    }
-                },
-                {
-                    field: "CurrencyCode",
-                    title: "@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]",
-                    width: 100
-                },
-                {
-                    field: "LimitedToStores",
-                    title: "@Loc["Admin.Configuration.Currencies.Fields.LimitedToStores"]",
-                    width: 120,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(LimitedToStores) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                },
-                {
-                    field: "IsDefaultStoreCurrency",
-                    title: "@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]",
-                    width: 180,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: function (dataItem) {
-                        if (dataItem.IsDefaultStoreCurrency) {
-                            return '<span class="badge badge-info"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</span> ' +
-                                   '<a onclick="unsetDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-warning" title="@Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]</a>';
-                        }
-                        if (dataItem.IsAssignedToCurrentStore) {
-                            return '<a onclick="setDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</a>';
-                        }
-                        return '<span class="text-muted">-</span>';
-                    }
-                },
-                {
-                    title: "@Loc["Admin.Common.Actions"]",
-                    width: 220,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: function (dataItem) {
-                        if (!dataItem.CanManage) {
-                            return '<span class="text-muted">-</span>';
-                        }
-                        if (dataItem.IsAssignedToCurrentStore) {
-                            return '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</a>';
-                        }
-                        return '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</a>';
-                    }
-                }
-            ]
-        });
-    });
-
-    function assignStore(id) {
-        var postData = { id: id };
+    function assignStore(currency) {
+        var postData = { id: currency.Id };
         addAntiForgeryToken(postData);
         $.ajax({
             cache: false,
@@ -132,9 +80,9 @@
         });
     }
 
-    function unassignStore(id) {
+    function unassignStore(currency) {
         if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
-        var postData = { id: id };
+        var postData = { id: currency.Id };
         addAntiForgeryToken(postData);
         $.ajax({
             cache: false,
@@ -155,8 +103,8 @@
         });
     }
 
-    function setDefaultCurrency(id) {
-        var postData = { id: id };
+    function setDefaultCurrency(currency) {
+        var postData = { id: currency.Id };
         addAntiForgeryToken(postData);
         $.ajax({
             cache: false,
@@ -177,9 +125,9 @@
         });
     }
 
-    function unsetDefaultCurrency(id) {
+    function unsetDefaultCurrency(currency) {
         if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
-        var postData = { id: id };
+        var postData = { id: currency.Id };
         addAntiForgeryToken(postData);
         $.ajax({
             cache: false,
