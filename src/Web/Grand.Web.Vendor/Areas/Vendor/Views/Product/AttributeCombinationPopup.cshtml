@@ -245,7 +245,18 @@
                                 @Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices"] [@Model.PrimaryStoreCurrencyCode]
                             </div>
                             <div class="panel-body">
-                                <div id="tierprices-grid"></div>
+                                <admin-grid id="tierprices-grid"
+                                            read-url="@Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                                            create-url="@Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                                            update-url="@Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                                            destroy-url="@Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                                            pager="Compact"
+                                            edit-mode="Inline">
+                                    <grid-toolbar-create text="@Loc["Vendor.Common.AddNewRecord"]"/>
+                                    <grid-column field="Quantity" title="@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]" width="150" format="{0:0}" editor="Integer" default-value="0"/>
+                                    <grid-column field="Price" title="@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]" width="150" editor="Numeric" decimals="4" default-value="0"/>
+                                    <grid-commands edit="true" destroy="true" width="200"/>
+                                </admin-grid>
                             </div>
                         </div>
                     }
@@ -287,108 +298,5 @@
     </script>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <script>
-                    $("#tierprices-grid").kendoGrid({
-                        dataSource: {
-                            transport: {
-                                read: {
-                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                create: {
-                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                update: {
-                                    url:"@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                destroy: {
-                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                }
-                            },
-                            schema: {
-                                data: "Data",
-                                total: "Total",
-                                errors: "Errors",
-                                model: {
-                                    id: "Id",
-                                    fields: {
-                                        Quantity: { editable: true, type: "number" },
-                                        Price: { editable: true, type: "number" },
-                                        Id: { editable: false, type: "string" },
-                                    }
-                                }
-                            },
-                            requestEnd: function (e) {
-                                if (e.type == "create" || e.type == "update") {
-                                    this.read();
-                                }
-                            },
-                            error: function (e) {
-                                display_kendoui_grid_error(e);
-                                // Cancel the changes
-                                this.cancelChanges();
-                            },
-                            serverPaging: true,
-                            serverFiltering: true,
-                            serverSorting: true
-                        },
-                        pageable: {
-                            refresh: true,
-                            numeric: false,
-                            previousNext: false,
-                            info: false
-                        },
-                        toolbar: [{ name: "create", text: "@Loc["Vendor.Common.AddNewRecord"]" }],
-                        editable: {
-                            confirmation: false,
-                            mode: "inline"
-                        },
-                        scrollable: false,
-                        columns: [
-                        {
-                            field: "Quantity",
-                            title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]",
-                            width: 150,
-                            format: "{0:0}"
-                        }, {
-                            field: "Price",
-                            title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]",
-                            width: 150,
-                            editor: function (container, options) {
-                                $('<input name="' + options.field + '"/>')
-                                        .appendTo(container)
-                                        .kendoNumericTextBox({
-                                            format: "{0:n4}",
-                                            decimals: 4
-                                        });
-                            }
-                        },{
-                            command: [{
-                                name: "edit",
-                                text: {
-                                    edit: "@Loc["Vendor.Common.Edit"]",
-                                    update: "@Loc["Vendor.Common.Update"]",
-                                    cancel: "@Loc["Vendor.Common.Cancel"]"
-                                }
-                            }, {
-                                name: "destroy",
-                                text: "@Loc["Vendor.Common.Delete"]"
-                            }],
-                            width: 200
-                        }]
-                    });
-
-        </script>
 }
 </form>
