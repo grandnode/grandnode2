@@ -240,10 +240,13 @@ function columnOf(node, ctx, grid, fields, editing) {
         }
         if (editor) {
             const code = normalize(ctx.masked.text.slice(editor.start, editor.end))
-            const numeric = /kendoNumericTextBox\(\{(?:[^{}]|\{\d+:[^{}]*\})*decimals\s*:\s*(\d+)/.exec(code)
-            if (numeric && !/kendoDropDownList/.test(code)) {
+            const numericBox = /kendoNumericTextBox/.test(code) && !/kendoDropDownList/.test(code)
+            //decimals: n when it is set, otherwise the decimals of the widget's own {0:nN} format
+            const decimals = /kendoNumericTextBox\(\{(?:[^{}]|\{\d+:[^{}]*\})*decimals\s*:\s*(\d+)/.exec(code)
+                ?? /kendoNumericTextBox\(\{(?:[^{}]|\{\d+:[^{}]*\})*format\s*:\s*["']\{0:[a-z](\d+)\}["']/i.exec(code)
+            if (numericBox) {
                 column.editor = 'Numeric'
-                column.decimals = Number(numeric[1])
+                if (decimals) column.decimals = Number(decimals[1])
             } else {
                 column.markers.push(`custom Kendo editor (${editor.type === 'Identifier' ? editor.name : 'inline function'}) needs a Select/Custom editor by hand`)
             }

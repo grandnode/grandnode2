@@ -260,6 +260,38 @@ export function singleElement(html) {
     return false
 }
 
+const TAG = /<(\/?)([a-zA-Z][\w-]*)((?:"[^"]*"|'[^']*'|[^>"'])*?)\s*(\/?)>/g
+
+/**
+ * Resolves a self-closed non-void element. Kendo templates write `<a/>` as a typo for `</a>`
+ * (a browser reads it as a start tag that closes the open anchor); Razor reads it as a closed
+ * element, leaving the real `<a>` open, and the tag helper nesting around the cell template
+ * then breaks the view. So `<x/>` closes an open `<x>` when there is one, and becomes an
+ * empty `<x></x>` otherwise - either way the markup is balanced and compiles.
+ */
+export function balanceSelfClosing(html) {
+    const open = []
+    TAG.lastIndex = 0
+    return String(html).replace(TAG, (match, closing, name, attributes, selfClosing) => {
+        const lower = name.toLowerCase()
+        const drop = () => {
+            const index = open.lastIndexOf(lower)
+            if (index >= 0) open.splice(index, 1)
+            return index >= 0
+        }
+        if (closing) {
+            drop()
+            return match
+        }
+        if (VOID.has(lower)) return match
+        if (!selfClosing) {
+            open.push(lower)
+            return match
+        }
+        return drop() ? `</${name}>` : `<${name}${attributes}></${name}>`
+    })
+}
+
 function addAttribute(html, attribute) {
     const text = html.trim()
     return text.replace(/^<([a-zA-Z][\w-]*)/, `<$1 ${attribute}`)
@@ -348,7 +380,7 @@ export function convertKendoTemplate(template, { restore = s => s, textFor = () 
         flush()
         return chunks
     }
-    const lines = render(tree.children)
+    const lines = render(tree.children).map(balanceSelfClosing)
     if (failure) return { lines: [], markers: [failure], ok: false, rawFields }
     for (const field of rawFields) {
         markers.push(`#=${field}# was raw HTML in Kendo and is encoded now; use {{{ ${field} }}} only if the server builds it as markup`)

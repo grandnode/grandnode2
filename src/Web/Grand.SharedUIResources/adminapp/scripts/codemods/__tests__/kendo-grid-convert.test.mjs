@@ -204,6 +204,49 @@ describe('convertCshtml fixtures', () => {
         expect(grids[0].markers).toEqual([])
     })
 
+    it('closes a self-closed non-void element so the view compiles', () => {
+        //Widgets.Slider writes <a/> as a typo for </a>; a browser reads it as an opening tag,
+        //Razor reads it as a closed element and the <grid-column> nesting around it breaks
+        const src = [
+            '<div id="g"></div>',
+            '<script>',
+            '    $("#g").kendoGrid({',
+            '        dataSource: { transport: { read: { url: "/r" } }, schema: { model: { id: "Id" } } },',
+            '        columns: [',
+            `            { field: "PictureUrl", template: '#if(PictureUrl) {#<a href="#=PictureUrl#"><img src="#=PictureUrl#" width="150" /><a/># } #' },`,
+            '            { field: "Name" }',
+            '        ]',
+            '    });',
+            '</script>'
+        ].join('\n')
+        const { output } = convertCshtml(src)
+        expect(output).toContain('<a href="{{ PictureUrl }}"><img src="{{ PictureUrl }}" width="150" /></a>')
+        expect(output).not.toContain('<a/>')
+    })
+
+    it('makes a numeric editor without decimals Numeric, with the decimals of its format', () => {
+        //the plugin views write kendoNumericTextBox({ format: "{0:n4}", doubles: 4 }); "doubles"
+        //is not a Kendo option, so only the format says how many decimals were meant - and the
+        //field is missing from schema.model.fields, which used to leave the column a Text editor
+        const src = [
+            '<div id="g"></div>',
+            '<script>',
+            '    $("#g").kendoGrid({',
+            '        dataSource: { transport: { read: { url: "/r" }, update: { url: "/u" } }, schema: { model: { id: "Id", fields: { Zip: { editable: true, type: "string" } } } } },',
+            '        editable: { mode: "inline" },',
+            '        columns: [',
+            '            { field: "Zip" },',
+            `            { field: "Percentage", editor: function (container, options) { $('<input name="' + options.field + '"/>').appendTo(container).kendoNumericTextBox({ format: "{0:n4}", doubles: 4 }); } },`,
+            '            { command: ["edit"] }',
+            '        ]',
+            '    });',
+            '</script>'
+        ].join('\n')
+        const { output, grids } = convertCshtml(src)
+        expect(output).toContain('<grid-column field="Percentage" editor="Numeric" decimals="4"/>')
+        expect(grids[0].markers).toEqual([])
+    })
+
     it('names popup checkboxes, keeps a pager without page sizes and refuses data objects', () => {
         const src = [
             '<div id="g"></div>',
