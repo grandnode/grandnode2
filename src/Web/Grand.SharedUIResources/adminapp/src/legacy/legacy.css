@@ -1,0 +1,325 @@
+/*
+ * Transitional styles for the Kendo class names the admin views still carry.
+ *
+ * `kendo.common-material.min.css` and `kendo.material.min.css` are no longer loaded, but
+ * around 800 elements across the three panels are still marked up with `k-button`,
+ * `k-link` and `k-icon`. This sheet reproduces exactly what those stylesheets painted for
+ * them - box model, states and the icon glyphs - and nothing else. It is not a place to
+ * restyle the panel: the classes themselves are replaced with Bootstrap ones in Phase 5,
+ * and this file goes away with them.
+ *
+ * Load order: this sheet ships in `admin.legacy.css`, which the `Head*` partials link with
+ * `asp-src`, so it is written after the plain `<link>` of `custom.css` / `custom-rtl.css` -
+ * later in the cascade than the Kendo sheets were. It therefore repeats only the Kendo
+ * declarations those two did not already override; where they did (the `.form-control`
+ * padding and height of `custom.css`, for one) reproducing the Kendo value here would
+ * change the look rather than preserve it.
+ *
+ * Icons: the Kendo `WebComponentsIcons` font is gone, so each `k-i-*` in the views is
+ * mapped onto the Font Awesome 4.6 glyph the panel already loads. An unmapped `k-i-*`
+ * renders an empty box of the same size rather than a missing-glyph square.
+ */
+
+/* --- buttons: kendo.common-material .k-button + kendo.material .k-button ------------ */
+
+.k-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 8px 14px;
+    border-width: 0;
+    border-style: solid;
+    border-color: #f5f5f5;
+    border-radius: 2px;
+    background-color: #f5f5f5;
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
+    color: #444;
+    font: inherit;
+    font-weight: 500;
+    line-height: 1.42857143;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    vertical-align: middle;
+    user-select: none;
+    cursor: pointer;
+    outline: 0;
+    box-shadow: none;
+    -webkit-appearance: none;
+}
+
+.k-button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+    outline: 0;
+}
+
+.k-button:hover,
+.k-button.k-state-hover {
+    border-color: #ebebeb;
+    background-color: #ebebeb;
+    color: #444;
+    text-decoration: none;
+    outline: 0;
+}
+
+.k-button:focus,
+.k-button.k-state-focused {
+    border-color: #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .2), 0 2px 3px rgba(0, 0, 0, .05);
+    text-decoration: none;
+    outline: 0;
+}
+
+.k-button:active,
+.k-button.k-state-active,
+.k-button.k-state-selected {
+    border-color: #d6d6d6;
+    background-color: #d6d6d6;
+    color: #000;
+}
+
+.k-button[disabled],
+.k-button.k-state-disabled,
+.k-state-disabled .k-button {
+    box-shadow: none;
+    opacity: .6;
+    pointer-events: none;
+    cursor: default;
+    outline: 0;
+}
+
+.k-button .k-icon,
+.k-button .k-image,
+.k-button .k-sprite {
+    align-self: center;
+    color: inherit;
+    pointer-events: none;
+}
+
+.k-button-icontext {
+    overflow: visible;
+}
+
+/* logical properties so the RTL panel flips the gap without a second rule */
+.k-button-icontext .k-icon,
+.k-button-icontext .k-image,
+.k-button-icontext .k-sprite {
+    margin-inline-end: .1875em;
+    margin-inline-start: -.125em;
+}
+
+/* the accent button of the user-field editors (kendo.material .k-primary) */
+.k-primary {
+    border-color: #3f51b5;
+    background-color: #3f51b5;
+    color: #fff;
+}
+
+.k-primary:hover,
+.k-primary.k-state-hover {
+    border-color: #5e6cbf;
+    background-color: #5e6cbf;
+    color: #fff;
+}
+
+.k-primary:active,
+.k-primary.k-state-active {
+    border-color: #273895;
+    background-color: #273895;
+    color: #fff;
+}
+
+.k-primary:focus,
+.k-primary.k-state-focused {
+    border-color: #273895;
+}
+
+/* --- links: kendo.common-material .k-link ------------------------------------------ */
+
+.k-link {
+    outline: 0;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.k-link:hover,
+.k-link:focus {
+    text-decoration: none;
+}
+
+.k-state-disabled,
+.k-state-disabled .k-icon,
+.k-state-disabled .k-link {
+    pointer-events: none;
+    outline: 0;
+    cursor: default !important;
+}
+
+/* --- icons: the k-i-* glyphs the views use, on Font Awesome 4.6 --------------------- */
+
+.k-icon,
+.k-tool-icon {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    width: 1em;
+    height: 1em;
+    background-image: none;
+    color: inherit;
+    font: normal normal normal 16px/1 FontAwesome;
+    font-variant: normal;
+    text-align: center;
+    text-indent: 0;
+    text-transform: none;
+    vertical-align: middle;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.k-icon::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: inline-block;
+    margin: auto;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+}
+
+/* a button whose only child is an icon hid the text the same way */
+.k-button.k-button-icon .k-icon,
+.k-grid-filter .k-icon,
+.k-header .k-icon {
+    overflow: hidden;
+    text-indent: -99999px;
+}
+
+.k-button.k-button-icon .k-icon::before,
+.k-grid-filter .k-icon::before,
+.k-header .k-icon::before {
+    text-indent: 0;
+}
+
+.k-icon.k-i-edit::before,
+.k-icon.k-i-pencil::before { content: "\f040"; }
+.k-icon.k-i-delete::before,
+.k-icon.k-i-trash::before { content: "\f014"; }
+.k-icon.k-i-cancel::before,
+.k-icon.k-i-close::before,
+.k-icon.k-i-x::before { content: "\f00d"; }
+.k-icon.k-i-save::before,
+.k-icon.k-i-floppy::before { content: "\f0c7"; }
+.k-icon.k-i-eye::before,
+.k-icon.k-i-preview::before { content: "\f06e"; }
+.k-icon.k-i-email::before,
+.k-icon.k-i-envelop::before { content: "\f003"; }
+.k-icon.k-i-notification::before,
+.k-icon.k-i-bell::before { content: "\f0a2"; }
+.k-icon.k-i-style-builder::before { content: "\f0d0"; }
+.k-icon.k-i-cut::before { content: "\f0c4"; }
+.k-icon.k-i-rotate::before,
+.k-icon.k-i-reload::before,
+.k-icon.k-i-refresh::before { content: "\f021"; }
+.k-icon.k-i-check-outline::before { content: "\f05d"; }
+.k-icon.k-i-close-outline::before { content: "\f05c"; }
+.k-icon.k-i-check::before { content: "\f00c"; }
+.k-icon.k-i-plus::before,
+.k-icon.k-i-add::before { content: "\f067"; }
+.k-icon.k-i-search::before { content: "\f002"; }
+.k-icon.k-i-download::before { content: "\f019"; }
+.k-icon.k-i-upload::before { content: "\f093"; }
+.k-icon.k-i-arrow-60-left::before { content: "\f104"; }
+.k-icon.k-i-arrow-60-right::before { content: "\f105"; }
+.k-icon.k-i-arrow-60-up::before { content: "\f106"; }
+.k-icon.k-i-arrow-60-down::before { content: "\f107"; }
+.k-icon.k-i-none::before { content: ""; }
+
+/* --- text colour and input metrics the Material theme carried ----------------------- */
+
+/*
+ * The Material theme painted its own text colour on every element marked with one of
+ * these classes. The admin views still mark form controls with `k-input` and the tab
+ * strip still marks the shown pane with `k-state-active`, so without these the text of a
+ * tab pane and of those controls would shift from #444 to the panel's own #333 - a change
+ * of look in a step that must not have one.
+ */
+.k-block,
+.k-content,
+.k-popup,
+.k-widget,
+.k-state-active,
+.k-input,
+.k-textbox,
+.k-textbox > input,
+.k-textarea {
+    color: #444;
+}
+
+.k-content,
+.k-input,
+.k-textbox,
+.k-textbox > input {
+    background-color: #fff;
+}
+
+/* the Material theme's own control border, lighter than the Bootstrap one */
+.k-input,
+.k-content,
+.k-textbox,
+.k-textbox > input,
+.k-textarea,
+.k-header,
+.k-widget {
+    border-color: #e6e6e6;
+}
+
+/*
+ * `.k-input` also pulled the control font back to the page font size, which is why the
+ * shared editor templates' selects and text boxes lay out the way the forms around them
+ * expect. Its padding is deliberately not reproduced: `custom.css` sets the padding of
+ * `.form-control` after the Kendo sheets, so Kendo never won that one.
+ */
+.k-input {
+    font-size: inherit;
+    outline: 0;
+}
+
+.k-input[type="text"],
+.k-input[type="number"],
+.k-textarea,
+.k-textarea > textarea,
+.k-textbox,
+.k-textbox > input {
+    border-width: 1px;
+    border-style: solid;
+    font-family: inherit;
+    font-size: 100%;
+    -webkit-appearance: none;
+}
+
+/* --- containers a third-party plugin view may still be marked up with --------------- */
+
+.k-widget {
+    position: relative;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #e6e6e6;
+    background-color: #fff;
+    line-height: normal;
+    outline: 0;
+}
+
+.k-header {
+    border-color: #e6e6e6;
+    font-weight: 500;
+}

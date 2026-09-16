@@ -1,4 +1,5 @@
 import { compileKendoTemplate } from './kendo-template.js'
+import { deprecate } from './kendo-widget-shims.js'
 
 //$.fn.kendoGrid shim: maps the subset of the Kendo grid configuration the panels and
 //plugins use onto GrandGrid, so a plugin view that still calls $('#x').kendoGrid({...})
@@ -269,6 +270,7 @@ export function installKendoGridShim(win) {
     let editorCount = 0
 
     $.fn.kendoGrid = function (options) {
+        deprecate('$.fn.kendoGrid', 'the <admin-grid> tag helper')
         return this.each(function () {
             if ($.data(this, 'kendoGrid')) return
             const element = this
