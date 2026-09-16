@@ -65,7 +65,9 @@ body.grand-modal-open {
 .grand-modal {
     position: fixed;
     inset: 0;
-    z-index: 1060;
+    /* above the admin chrome: custom.css goes up to 12312 (the fixed top bar and the
+       sidebar sit at 9998-10003), and the Kendo Window this replaces was above them too */
+    z-index: 12400;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -136,5 +138,5 @@ input.grand-dateinput {
 }
 
 .ts-dropdown {
-    z-index: 1070;
+    z-index: 12500;
 }
