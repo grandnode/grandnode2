@@ -14,6 +14,7 @@
 import TomSelect from 'tom-select'
 import { getJson } from '../grid/transport.js'
 import { filteredOptionsUrl } from '../grid/editors.js'
+import { collect } from './culture.js'
 
 const instances = new WeakMap()
 
@@ -174,9 +175,8 @@ function parseConfig(element) {
 
 /** Upgrades every element carrying data-grand-select under a root. */
 export function initSelects(root) {
-    const scope = root?.querySelectorAll ? root : globalThis.document
     const created = []
-    for (const element of scope.querySelectorAll('[data-grand-select]')) {
+    for (const element of collect(root, '[data-grand-select]')) {
         if (instances.has(element)) continue
         const config = parseConfig(element)
         if (element.tagName === 'SELECT') {

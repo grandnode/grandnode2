@@ -11,6 +11,7 @@
 //culture-formatted date in the browser.
 
 import { formatDate, normalizeCulture } from '../grid/format.js'
+import { collect } from './culture.js'
 
 const instances = new WeakMap()
 
@@ -131,9 +132,8 @@ export function getDateInput(element) {
 
 /** Upgrades every <input data-grand-date="date|datetime|time"> under a root. */
 export function initDateInputs(root, culture) {
-    const scope = root?.querySelectorAll ? root : globalThis.document
     const created = []
-    for (const element of scope.querySelectorAll('input[data-grand-date]')) {
+    for (const element of collect(root, 'input[data-grand-date]')) {
         if (instances.has(element)) continue
         created.push(createDateInput(element, {
             culture,

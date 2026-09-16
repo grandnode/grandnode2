@@ -11,6 +11,7 @@
 //The named element is hidden, as Kendo hid it, so jquery.validate keeps ignoring it.
 
 import { formatNumber, parseNumber, normalizeCulture } from '../grid/format.js'
+import { collect } from './culture.js'
 
 const instances = new WeakMap()
 
@@ -133,9 +134,8 @@ export function getNumeric(element) {
  * The culture comes from the page island unless the attribute carries its own.
  */
 export function initNumeric(root, culture) {
-    const scope = root?.querySelectorAll ? root : globalThis.document
     const created = []
-    for (const element of scope.querySelectorAll('input[data-grand-numeric]')) {
+    for (const element of collect(root, 'input[data-grand-numeric]')) {
         if (instances.has(element)) continue
         let options = {}
         try {

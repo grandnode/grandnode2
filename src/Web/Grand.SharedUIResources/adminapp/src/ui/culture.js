@@ -27,3 +27,12 @@ export function pageCulture(doc = globalThis.document) {
 export function resetCulture() {
     cached = null
 }
+
+/** The elements under a root that match a selector, the root itself included. */
+export function collect(root, selector) {
+    const scope = root?.querySelectorAll ? root : globalThis.document
+    const found = []
+    if (scope.matches?.(selector)) found.push(scope)
+    found.push(...scope.querySelectorAll(selector))
+    return found
+}

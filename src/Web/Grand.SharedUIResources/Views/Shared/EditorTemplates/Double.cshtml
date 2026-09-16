@@ -1,15 +1,10 @@
 @model double
-<input asp-for="@Model"/>
+<input asp-for="@Model" data-grand-numeric='{"format":"n2","decimals":2}'/>
 <script>
     $(document).ready(function () {
        try {
         $("#@Html.IdForModel()").rules("remove", 'number');
        }
        catch {}
-         $("#@Html.IdForModel()").kendoNumericTextBox({
-            culture: "@CultureInfo.CurrentCulture.Name",
-            format: 'n2',
-            decimals: 2
-        });
     });
 </script>

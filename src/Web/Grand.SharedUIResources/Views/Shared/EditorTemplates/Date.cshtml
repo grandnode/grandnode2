@@ -1,9 +1,6 @@
 ﻿@model DateTime
-<input asp-for="@Model"/>
-<script>
-    $(document).ready(function () {
-        $("#@Html.IdForModel()").kendoDatePicker({
-           culture: "@CultureInfo.CurrentCulture.Name"
-        });
-    });
-</script>
+@*GrandAdmin.dateInput (adminapp/src/ui/datetime.js) in place of the Kendo DatePicker: this
+    input is hidden and keeps posting the culture short date, a native date input edits it.
+    The seed is an ISO value, so the browser never parses a culture-formatted date.*@
+<input asp-for="@Model" data-grand-date="date"
+       data-grand-date-value="@Model.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture)"/>

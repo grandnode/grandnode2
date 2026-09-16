@@ -45,11 +45,23 @@ if (!GrandAdmin.ui) {
         }
     }
 
+    const SELECTOR = '[data-grand-tabstrip], input[data-grand-numeric], input[data-grand-date], [data-grand-select]'
+    const observe = () => {
+        if (typeof MutationObserver === 'undefined' || !document.body) return
+        //widgets inside content added later: popups, appended tabs, ajax-loaded partials
+        new MutationObserver(mutations => {
+            for (const mutation of mutations)
+                for (const node of mutation.addedNodes)
+                    if (node.nodeType === 1 && (node.matches(SELECTOR) || node.querySelector(SELECTOR))) GrandAdmin.ui.init(node)
+        }).observe(document.body, { childList: true, subtree: true })
+    }
+
     let started = false
     const start = () => {
         if (started) return
         started = true
         GrandAdmin.ui.init(document)
+        observe()
     }
     //this bundle is in <head>, so a jQuery ready handler registered here runs before the
     //views' own; the DOMContentLoaded listener is the fallback when an earlier ready
