@@ -8,11 +8,11 @@ const pl = {
 }
 const en = {
     name: 'en-US',
-    calendar: { shortDate: 'M/d/yyyy', shortTime: 'h:mm tt', dateSeparator: '/', timeSeparator: ':', am: 'AM', pm: 'PM' }
+    calendar: { shortDate: 'MM/dd/yyyy', shortTime: 'h:mm tt', dateSeparator: '/', timeSeparator: ':', am: 'AM', pm: 'PM' }
 }
 
-function build(mode, value, culture) {
-    document.body.innerHTML = `<input id="d" name="StartDate" value="ignored" data-grand-date="${mode}" data-grand-date-value="${value}">`
+function build(mode, value, culture, rendered = 'rendered by the server') {
+    document.body.innerHTML = `<input id="d" name="StartDate" value="${rendered}" data-grand-date="${mode}" data-grand-date-value="${value}">`
     const element = document.getElementById('d')
     return { element, widget: createDateInput(element, { culture, mode, value }) }
 }
@@ -28,35 +28,38 @@ describe('date input', () => {
         expect(postPattern('time', pl)).toBe('HH:mm')
     })
 
-    it('posts the culture short date and edits in a native date input', () => {
-        const { element, widget } = build('date', '2026-09-16T00:00:00', pl)
+    it('leaves the value the server rendered alone, as the Kendo pickers did', () => {
+        const { element, widget } = build('datetime', '2026-09-16T14:05:09', en, '09/16/2026 2:05:09 PM')
         expect(element.style.display).toBe('none')
-        expect(element.value).toBe('16.09.2026')
+        expect(element.value).toBe('09/16/2026 2:05:09 PM')
+        expect(widget.picker.type).toBe('datetime-local')
+        expect(widget.picker.value).toBe('2026-09-16T14:05')
+    })
+
+    it('seeds a native date input from the ISO value', () => {
+        const { widget } = build('date', '2026-09-16T00:00:00', pl)
         expect(widget.picker.type).toBe('date')
         expect(widget.picker.value).toBe('2026-09-16')
     })
 
-    it('posts the culture short date and time for a datetime editor', () => {
-        const { element } = build('datetime', '2026-09-16T14:05:00', en)
-        expect(element.value).toBe('9/16/2026 2:05 PM')
-    })
-
-    it('posts HH:mm for a time editor', () => {
-        const { element, widget } = build('time', '2026-09-16T08:07:00', en)
-        expect(element.value).toBe('08:07')
-        expect(widget.picker.type).toBe('time')
-        expect(widget.picker.value).toBe('08:07')
-    })
-
-    it('writes the new value into the named input when the picker changes', () => {
+    it('posts the culture short date once the picker changes', () => {
         const { element, widget } = build('date', '2026-09-16T00:00:00', pl)
         widget.picker.value = '2027-01-02'
         widget.picker.dispatchEvent(new window.Event('change'))
         expect(element.value).toBe('02.01.2027')
     })
 
-    it('keeps the day when only the time changes', () => {
+    it('posts the culture short date and time for a datetime editor', () => {
+        const { element, widget } = build('datetime', '2026-09-16T14:05:00', en)
+        widget.picker.value = '2026-09-16T14:05'
+        widget.picker.dispatchEvent(new window.Event('change'))
+        expect(element.value).toBe('09/16/2026 2:05 PM')
+    })
+
+    it('posts HH:mm for a time editor and keeps the day', () => {
         const { element, widget } = build('time', '2026-09-16T08:07:00', en)
+        expect(widget.picker.type).toBe('time')
+        expect(widget.picker.value).toBe('08:07')
         widget.picker.value = '23:45'
         widget.picker.dispatchEvent(new window.Event('change'))
         expect(element.value).toBe('23:45')
@@ -71,9 +74,10 @@ describe('date input', () => {
     })
 
     it('leaves an empty nullable editor empty', () => {
-        document.body.innerHTML = '<input id="d" name="X" data-grand-date="date" data-grand-date-value="">'
+        document.body.innerHTML = '<input id="d" name="X" value="" data-grand-date="date" data-grand-date-value="">'
         initDateInputs(document, pl)
         expect(document.getElementById('d').value).toBe('')
+        expect(document.querySelector('.grand-dateinput').value).toBe('')
     })
 
     it('upgrades each marked input once', () => {

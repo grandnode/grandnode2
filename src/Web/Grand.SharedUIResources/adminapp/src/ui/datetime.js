@@ -68,9 +68,11 @@ export class DateInput {
         element.parentNode.insertBefore(this.picker, element.nextSibling)
         element.style.display = 'none'
 
-        const seed = options.value != null && options.value !== '' ? parseLocal(options.value) : null
-        this.value(seed)
-        //Kendo did not raise change while it normalized the server value on load
+        //The Kendo pickers left the value the server rendered alone until the user picked a
+        //new one, so the posted string only changes when the value does. Only the native
+        //picker is seeded here; the named input keeps exactly what the server wrote.
+        this._value = options.value != null && options.value !== '' ? parseLocal(options.value) : null
+        this.picker.value = nativeValue(this._value, this.mode)
         this.ready = true
 
         this.picker.addEventListener('change', () => {
