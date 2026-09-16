@@ -1,5 +1,4 @@
 ﻿@model OrderListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Vendor.Orders"];
@@ -153,7 +152,24 @@
                             </div>
                         </div>
                         <div class="x_content">
-                            <div id="orders-grid"></div>
+                            <admin-grid id="orders-grid"
+                                        read-url="@Url.Action("OrderList", "Order", new { area = Constants.AreaVendor })"
+                                        additional-data="additionalData"
+                                        selectable="Checkbox"
+                                        on-change="onOrdersSelectionChange">
+                                <grid-column field="OrderNumber" title="@Loc["Vendor.Orders.Fields.Id"]" width="50">
+                                    <cell-template>
+                                        <a class="k-link" href="Edit/{{ Id }}">{{ OrderNumber }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="PaymentStatus" title="@Loc["Vendor.Orders.Fields.PaymentStatus"]" width="120">
+                                    <cell-template>
+                                        <a class="k-link" href="Edit/{{ Id }}">{{ PaymentStatus }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="CustomerEmail" title="@Loc["Vendor.Orders.Fields.Customer"]" width="220"/>
+                                <grid-column field="CreatedOn" title="@Loc["Vendor.Orders.Fields.CreatedOn"]" width="180" format="{0:G}"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -171,86 +187,6 @@
             });
 
 
-            $("#orders-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("OrderList", "Order", new { area = Constants.AreaVendor }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Id: { editable: false, type: "string" },
-                                CreatedOn: { type: "Date" },
-                                PaymentStatus: { editable: false, type: "string" },
-                                CustomerEmail: { editable: false, type: "string" },
-                                CustomerFullName: { editable: false, type: "string" },
-                            }
-                        }
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                dataBound: onDataBound,
-                columns: [
-                    {
-                        field: "Id",
-                        headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Id#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
-                        width: 40
-                    },
-                    {
-                        field: "OrderNumber",
-                        title: "@Loc["Vendor.Orders.Fields.Id"]",
-                        width: 50,
-                        template: '<a class="k-link" href="Edit/#=Id#">#=OrderNumber#</a>'
-                    },
-                    {
-                        field: "PaymentStatus",
-                        title: "@Loc["Vendor.Orders.Fields.PaymentStatus"]",
-                        width: 120,
-                        template: '<a class="k-link" href="Edit/#=Id#">#=PaymentStatus#</a>'
-                    }, 
-                    {
-                        field: "CustomerEmail",
-                        title: "@Loc["Vendor.Orders.Fields.Customer"]",
-                        width: 220
-                    },
-                        {
-                        field: "CreatedOn",
-                        title: "@Loc["Vendor.Orders.Fields.CreatedOn"]",
-                        width: 180,
-                        type: "date",
-                        format: "{0:G}",
-                    }
-                ]
-            } );
         });
     </script>
 
@@ -266,9 +202,8 @@
                 var grid = $('#orders-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
-                //clear selected checkboxes
-                $('.checkboxGroups').prop('checked', false).change();
-                selectedIds = [];
+                //clear the selection
+                grid.clearSelection();
                 return false;
             });
 
@@ -345,31 +280,6 @@
                 return false;
             });
 
-            $('#mastercheckbox').click(function () {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
-
-            //wire up checkboxes.
-            $('#orders-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
-                var $check = $(this);
-                if ($check.is(":checked") == true) {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked == -1) {
-                        //add id to selectedIds.
-                        selectedIds.push($check.val());
-                    }
-                }
-                else {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked > -1) {
-                        //remove id from selectedIds.
-                        selectedIds = $.grep(selectedIds, function (item, index) {
-                            return item != $check.val();
-                        });
-                    }
-                }
-                updateMasterCheckbox();
-            });
         });
 
         function additionalData() {
@@ -391,22 +301,8 @@
             return data;
         }
 
-        function onDataBound(e) {
-
-            $('#orders-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
-                var currentId = $(this).val();
-                var checked = jQuery.inArray(currentId, selectedIds);
-                //set checked based on if current checkbox's value is in selectedIds.
-                $(this).prop('checked', checked > -1);
-            });
-
-            updateMasterCheckbox();
-
-        }
-        function updateMasterCheckbox() {
-            var numChkBoxes = $('#orders-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#orders-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-            $('#mastercheckbox').prop('checked', numChkBoxes === numChkBoxesChecked && numChkBoxes > 0);
+        function onOrdersSelectionChange(e) {
+            selectedIds = e.selectedIds;
         }
     </script>
 </form>

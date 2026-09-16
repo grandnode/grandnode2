@@ -1,6 +1,4 @@
-﻿@inject AdminAreaSettings adminAreaSettings
-
-@model CustomerReportsModel
+﻿@model CustomerReportsModel
 @{
     //page title
     ViewBag.Title = Loc["Vendor.Reports.Customer"];
@@ -64,7 +62,13 @@
                                     </div>
                                 </div>
                                 <div class="x_content">
-                                    <div id="bestsellers-byamount-grid"></div>
+                                    <admin-grid id="bestsellers-byamount-grid"
+                                                read-url="@Url.Action("ReportBestCustomersByOrderTotalList", "Reports", new { area = Constants.AreaVendor })"
+                                                additional-data="additionalData">
+                                        <grid-column field="CustomerName" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.Customer"]"/>
+                                        <grid-column field="OrderTotal" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderTotal"]"/>
+                                        <grid-column field="OrderCount" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderCount"]"/>
+                                    </admin-grid>
                                 </div>
                             </div>
                         </div>
@@ -75,55 +79,6 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#bestsellers-byamount-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("ReportBestCustomersByOrderTotalList", "Reports", new { area = Constants.AreaVendor }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "CustomerName",
-                title: "@Loc["Vendor.Reports.Customer.BestBy.Fields.Customer"]",                
-            }, {
-                field: "OrderTotal",
-                title: "@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderTotal"]"
-            }, {
-                field: "OrderCount",
-                title: "@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderCount"]"
-            }]
-        });
-    });
-</script>
 <script>
 
         $(document).ready(function () {
