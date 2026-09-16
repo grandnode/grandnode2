@@ -5,7 +5,7 @@
             @Loc["Admin.Common.DeleteConfirmation"]
         </p>
         <div class="form-actions">
-            <span id="" class="k-button" onclick="$('#@Model.WindowId').data('kendoWindow').close();">@Loc["Admin.Common.NoCancel"]</span>
+            <span id="" class="k-button" onclick="GrandAdmin.modal.close('#@Model.WindowId');">@Loc["Admin.Common.NoCancel"]</span>
             <input type="submit" class="k-button" value="@Loc["Admin.Common.Delete"]"/>
         </div>
     </div>

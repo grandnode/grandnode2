@@ -83,15 +83,7 @@
         $(document).ready(function () {
             $("#importfile").click(function (e) {
                 e.preventDefault();
-                var window = $("#importfile-window");
-                if (!window.data("kendoWindow")) {
-                    window.kendoWindow({
-                        modal: true,
-                        title: "@Loc["Admin.Plugins.Upload"]",
-                        actions: ["Close"]
-                    });
-                }
-                window.data('kendoWindow').center().open();
+                GrandAdmin.modal.open("#importfile-window", { title: "@Loc["Admin.Plugins.Upload"]", actions: ["Close"] });
             });
             $("#plugins-grid").on("click", ".install-plugin-link", function (e) {
                 showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Install.Progress"]))');

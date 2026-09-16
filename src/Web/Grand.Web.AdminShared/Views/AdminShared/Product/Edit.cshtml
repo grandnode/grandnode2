@@ -86,16 +86,7 @@
     $(document).ready(function () {
         $("#copyproduct").click(function (e) {
             e.preventDefault();
-            var window = $("#copyproduct-window");
-            if (!window.data("kendoWindow")) {
-                window.kendoWindow({
-                    modal: true,
-                    width: "400px",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]",
-                    actions: ["Close"]
-                });
-            }
-            window.data('kendoWindow').center().open();
+            GrandAdmin.modal.open("#copyproduct-window", { width: "400px", title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]", actions: ["Close"] });
         });
     });
     </script>

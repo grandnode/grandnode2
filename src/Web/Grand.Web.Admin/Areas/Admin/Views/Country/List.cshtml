@@ -185,16 +185,7 @@
     $(document).ready(function () {
         $("#importexcel").click(function (e) {
             e.preventDefault();
-            var window = $("#importexcel-window");
-            if (!window.data("kendoWindow")) {
-                window.kendoWindow({
-                    modal: true,
-                    width: "400px",
-                    title: "@Loc["Admin.Common.ImportFromExcel"]",
-                    actions: ["Close"]
-                });
-            }
-            window.data('kendoWindow').center().open();
+            GrandAdmin.modal.open("#importexcel-window", { width: "400px", title: "@Loc["Admin.Common.ImportFromExcel"]", actions: ["Close"] });
         });
     });
 </script>

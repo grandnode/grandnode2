@@ -80,15 +80,7 @@
     $(document).ready(function () {
         $("#importxml").click(function (e) {
             e.preventDefault();
-            var window = $("#importxml-window");
-            if (!window.data("kendoWindow")) {
-                window.kendoWindow({
-                    modal: true,
-                    title: "@Loc["Admin.Configuration.Languages.Import"]",
-                    actions: ["Close"]
-                });
-            }
-            window.data('kendoWindow').center().open();
+            GrandAdmin.modal.open("#importxml-window", { title: "@Loc["Admin.Configuration.Languages.Import"]", actions: ["Close"] });
         });
     });
     </script>

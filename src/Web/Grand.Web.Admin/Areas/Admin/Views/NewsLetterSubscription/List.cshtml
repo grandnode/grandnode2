@@ -157,16 +157,7 @@
     $(document).ready(function () {
         $("#importcsv").click(function (e) {
             e.preventDefault();
-            var window = $("#importcsv-window");
-            if (!window.data("kendoWindow")) {
-                window.kendoWindow({
-                    modal: true,
-                    width: "400px",
-                    title: "@Loc["Admin.Common.ImportFromCsv"]",
-                    actions: ["Close"]
-                });
-            }
-            window.data('kendoWindow').center().open();
+            GrandAdmin.modal.open("#importcsv-window", { width: "400px", title: "@Loc["Admin.Common.ImportFromCsv"]", actions: ["Close"] });
         });
     });
     </script>

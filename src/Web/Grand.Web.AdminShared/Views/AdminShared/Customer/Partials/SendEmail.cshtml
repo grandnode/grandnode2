@@ -49,16 +49,7 @@
     $(document).ready(function () {
         $("#sendemail").click(function (e) {
             e.preventDefault();
-            var window = $("#sendemail-window");
-            if (!window.data("kendoWindow")) {
-                window.kendoWindow({
-                    modal: true,
-                    width: "650px",
-                    title: "@Loc["Admin.Customers.Customers.SendEmail"]",
-                    actions: ["Close"]
-                });
-            }
-            window.data('kendoWindow').center().open();
+            GrandAdmin.modal.open("#sendemail-window", { width: "650px", title: "@Loc["Admin.Customers.Customers.SendEmail"]", actions: ["Close"] });
         });
 
 
