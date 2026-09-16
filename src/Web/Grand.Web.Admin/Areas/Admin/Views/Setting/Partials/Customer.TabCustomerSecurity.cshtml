@@ -117,18 +117,21 @@
                 <span asp-validation-for="CustomerSettings.FailedPasswordAllowedAttempts"></span>
                 <script>
 	                $(document).ready(function () {
-	                    $("#@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)").blur(toggleFailedPasswordAllowedAttempts);
+	                    var attempts = document.getElementById("@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)");
+	                    // the numeric widget edits in its own input, so the blur happens there
+	                    var editable = attempts.grandNumeric ? attempts.grandNumeric.text : attempts;
+	                    editable.addEventListener('blur', toggleFailedPasswordAllowedAttempts);
 			                toggleFailedPasswordAllowedAttempts();
-		                });
 
-		                function toggleFailedPasswordAllowedAttempts() {
-		                    var failedPasswordAllowedAttempts = $("#@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)").data("kendoNumericTextBox");
-			                if (failedPasswordAllowedAttempts.value($("#value").val()) > 0) {
+		                    function toggleFailedPasswordAllowedAttempts() {
+			                    var value = attempts.grandNumeric ? attempts.grandNumeric.value() : parseInt(attempts.value, 10);
+			                    if (value > 0) {
 				                $('#pnlFailedPasswordLockoutMinutes').show();
-			                } else {
+			                    } else {
 				                $('#pnlFailedPasswordLockoutMinutes').hide();
-			                }
-		                }
+			                    }
+		                    }
+		                });
                 </script>
             </div>
         </div>

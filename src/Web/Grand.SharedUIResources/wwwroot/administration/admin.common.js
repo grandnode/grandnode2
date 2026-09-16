@@ -33,24 +33,29 @@ function checkOverriddenStoreValue(obj, selector) {
     var elementsArray = selector.split(",");
     if (!$(obj).is(':checked')) {
         $(selector).attr('disabled', true);
-        //Kendo UI elements are enabled/disabled some other way
-        $.each(elementsArray, function(key, value) {
-            var kenoduiElement = $(value).data("kendoNumericTextBox");
-            if (kenoduiElement !== undefined && kenoduiElement !== null) {
-                kenoduiElement.enable(false);
-            }
-        }); 
+        setWidgetsEnabled(elementsArray, false);
     }
     else {
         $(selector).removeAttr('disabled');
-        //Kendo UI elements are enabled/disabled some other way
-        $.each(elementsArray, function(key, value) {
-            var kenoduiElement = $(value).data("kendoNumericTextBox");
-            if (kenoduiElement !== undefined && kenoduiElement !== null) {
-                kenoduiElement.enable();
+        setWidgetsEnabled(elementsArray, true);
+    };
+}
+
+// The numeric, date and list widgets of admin.ui.js edit in a second element, so disabling
+// the named input alone leaves that one usable (the Kendo widgets behaved the same way).
+function setWidgetsEnabled(selectors, enable) {
+    $.each(selectors, function (key, value) {
+        $(value).each(function () {
+            var widget = this.grandNumeric || this.grandDateInput;
+            if (widget) {
+                widget.enable(enable);
+            }
+            // Tom Select has no argument, one method each way
+            if (this.grandSelect) {
+                if (enable) this.grandSelect.enable(); else this.grandSelect.disable();
             }
         });
-    };
+    });
 }
 
 function tabstrip_on_tab_select(e) {

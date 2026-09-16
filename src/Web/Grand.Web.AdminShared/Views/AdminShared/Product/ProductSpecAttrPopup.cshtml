@@ -154,7 +154,7 @@
                             if ('@Model.SpecificationAttributeOptionId' == option.id) {
                                 selected = ' selected '
                             }
-                            ddlSpecOptions.append($('<option ' + selected+'></option>').val(option.id).html(kendo.htmlEncode(option.name)));
+                            ddlSpecOptions.append($('<option ' + selected+'></option>').val(option.id).text(option.name));
                         });
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
