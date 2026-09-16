@@ -188,7 +188,37 @@
             @Loc["Admin.Catalog.Products.TierPrices"]
         </div>
         <div class="panel-body">
-            <div id="tierprices-grid"></div>
+            @* Delete posts the whole row; the Kendo parameterMap posted only Id and ProductId, which are the
+               fields TierPriceDeleteModel binds *@
+            <admin-grid id="tierprices-grid"
+                        read-url="@Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaStore })"
+                        destroy-url="@Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaStore })"
+                        pager="Compact"
+                        auto-bind="false"
+                        on-data-bound="onTierPricesGridDataBound">
+                <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+                @if (!adminAreaSettings.HideStoreColumn)
+                {
+                    <grid-column field="StoreId" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Store"]">
+                        <cell-template>{{ Store }}</cell-template>
+                    </grid-column>
+                }
+                <grid-column field="CustomerGroupId" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup"]">
+                    <cell-template>{{ CustomerGroup }}</cell-template>
+                </grid-column>
+                <grid-column field="Quantity" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Quantity"]" format="{0:0}"/>
+                <grid-column field="Price" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Price"]">
+                    <cell-template>{{ Price }} [{{ CurrencyCode }}]</cell-template>
+                </grid-column>
+                <grid-column field="StartDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.StartDateTime"]" format="{0:G}"/>
+                <grid-column field="EndDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]" format="{0:G}"/>
+                <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
+                    <cell-template>
+                        <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaStore })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="k-icon k-i-edit"></span>&nbsp;{{ $texts.edit }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]"/>
+            </admin-grid>
         </div>
         <div class="panel-footer">
             <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaStore }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
@@ -211,132 +241,23 @@
                     }
                 }
             });
-            $("#tierprices-grid").kendoGrid({
-                dataBound: function () {
-                    $('.tierpriceedit').magnificPopup({
-                        type: 'ajax',
-                        settings: { cache: false, async: false },
-                        midClick: true,
-                        callbacks: {
-                            parseAjax: function (mfpResponse) {
-                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                            },
-                            ajaxContentAdded: function () {
-                                $('.mfp-wrap').removeAttr('tabindex');
-                            }
-                        }
-                    });
-                },
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaStore }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaStore }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        parameterMap: function (data, operation) {                            
-                            if (operation === "destroy") 
-                            {
-                                return { 
-                                    id: data.Id, 
-                                    productId: data.ProductId,
-                                    __RequestVerificationToken: data.__RequestVerificationToken
-                                };
-                            }
-                            return data;
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                ProductId: { editable: false, type: "string" },
-                                Store: { editable: true, type: "string" },
-                                StoreId: { editable: true, type: "string" },
-                                CustomerGroup: { editable: true, type: "string" },
-                                CustomerGroupId: { editable: true, type: "string" },
-                                Quantity: { editable: true, type: "number" },
-                                Price: { editable: true, type: "number" },
-                                StartDateTime: { editable: false, type: "date" },
-                                EndDateTime: { editable: false, type: "date" },
-                                Id: { editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                autoBind: false,
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [
-                @if (!adminAreaSettings.HideStoreColumn)
-                {
-                    <text>
-                    {
-                        field: "StoreId",
-                        title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Store"]",
-                        template: "#:Store#"
-                    },
-                    </text>
-                }
-                {
-                    field: "CustomerGroupId",
-                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup"]",
-                    template: "#:CustomerGroup#"
-                },
-                {
-                    field: "Quantity",
-                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Quantity"]",
-                    //integer format
-                    format: "{0:0}"
-                }, {
-                    field: "Price",
-                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Price"]",
-                    template: "#:Price# [#:CurrencyCode#]"
-                }, {
-                    field: "StartDateTime",
-                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.StartDateTime"]",
-                    format: "{0:G}"
-                }, {
-                    field: "EndDateTime",
-                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]",
-                    format: "{0:G}"
-                }, {
-                    field: "Id",
-                    title: "@Loc["Admin.Common.Edit"]",
-                    template: "<a class='tierpriceedit' href=\"@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaStore })/#=Id#?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form\" class=\"k-button\"><span class=\"k-icon k-i-edit\"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>"
-                }, {
-                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                    title: "@Loc["Admin.Common.Delete"]"
-                }]
-            });
         });
+
+        function onTierPricesGridDataBound() {
+            $('.tierpriceedit').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+        }
 
         $(document).ready(function () {
             $('#btnRefreshTierPrices').click(function () {

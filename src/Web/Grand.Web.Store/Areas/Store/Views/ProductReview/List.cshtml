@@ -1,5 +1,4 @@
 ﻿@model ProductReviewListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.ProductReviews"];
@@ -97,7 +96,36 @@
                         </div>
                     </div>
                     <div class="x_content">
-                        <div id="productreviews-grid"></div>
+                        <admin-grid id="productreviews-grid"
+                                    key="Ids"
+                                    read-url="@Url.Action("List", "ProductReview", new { area = Constants.AreaStore })"
+                                    additional-data="additionalData"
+                                    selectable="Checkbox"
+                                    on-change="onProductReviewsSelectionChange">
+                            <grid-column field="ProductName" title="@Loc["Admin.Catalog.ProductReviews.Fields.Product"]" width="200">
+                                <cell-template>
+                                    <a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/{{ ProductId }}">{{ ProductName }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CustomerId" title="@Loc["Admin.Catalog.ProductReviews.Fields.Customer"]" width="200" min-screen-width="750">
+                                <cell-template>
+                                    <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Title" title="@Loc["Admin.Catalog.ProductReviews.Fields.Title"]" width="200">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}?ProductId={{ ProductId }}">{{ Title }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Rating" title="@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="750"/>
+                            <grid-column field="IsApproved" title="@Loc["Admin.Catalog.ProductReviews.Fields.IsApproved"]" width="80" align="Center">
+                                <cell-template>
+                                    <i data-if="IsApproved" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CreatedOn" title="@Loc["Admin.Catalog.ProductReviews.Fields.CreatedOn"]" width="120" format="{0:G}"/>
+                        </admin-grid>
                     </div>
 
                 </div>
@@ -107,87 +135,12 @@
 </div>
 
 <script>
-$(document).ready(function () {
-    $("#productreviews-grid").kendoGrid({
-        dataSource: {
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("List", "ProductReview", new { area = Constants.AreaStore }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: additionalData
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors"
-            },
-            error: function(e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            pageSize: @(adminAreaSettings.DefaultGridPageSize),
-            serverPaging: true,
-            serverFiltering: true,
-            serverSorting: true
-        },
-        pageable: {
-            refresh: true,
-            pageSizes: [@(adminAreaSettings.GridPageSizes)]
-        },
-        scrollable: false,
-        dataBound: onDataBound,
-        columns: [{
-            field: "Ids",
-            headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
-            headerAttributes: { style: "text-align:center" },
-            attributes: { style: "text-align:center" },
-            template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Ids#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
-            width: 40
-        },
-        {
-            field: "ProductName",
-            title: "@Loc["Admin.Catalog.ProductReviews.Fields.Product"]",
-            width: 200,
-            template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/#=ProductId#">#:kendo.htmlEncode(ProductName)#</a>'
-        }, {
-            field: "CustomerId",
-            title: "@Loc["Admin.Catalog.ProductReviews.Fields.Customer"]",
-            width: 200,
-            minScreenWidth: 750,
-            template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
-        }, {
-            field: "Title",
-            title: "@Loc["Admin.Catalog.ProductReviews.Fields.Title"]",
-            width: 200,
-            template: '<a class="k-link" href="Edit/#=Id#?ProductId=#=ProductId#">#:kendo.htmlEncode(Title)#</a>'
-        }, {
-            field: "Rating",
-            title: "@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]",
-            width: 60,
-            minScreenWidth: 750,
-        }, {
-            field: "IsApproved",
-            title: "@Loc["Admin.Catalog.ProductReviews.Fields.IsApproved"]",
-            width: 80,
-            headerAttributes: { style: "text-align:center" },
-            attributes: { style: "text-align:center" },
-            template: '# if(IsApproved) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-        }, {
-            field: "CreatedOn",
-            title: "@Loc["Admin.Catalog.ProductReviews.Fields.CreatedOn"]",
-            width: 120,
-            type: "date",
-            format: "{0:G}"
-        }]
-    });
-});
-</script>
-<script>
 
     var selectedIds = [];
+
+    function onProductReviewsSelectionChange(e) {
+        selectedIds = e.selectedIds;
+    }
 
     $(document).ready(function () {
 
@@ -197,9 +150,7 @@ $(document).ready(function () {
             var grid = $('#productreviews-grid').data('kendoGrid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
-            //clear selected checkboxes
-            $('.checkboxGroups').prop('checked', false).change();
-            selectedIds = [];
+            $('#productreviews-grid').data('kendoGrid').clearSelection();
             return false;
         });
 
@@ -258,31 +209,7 @@ $(document).ready(function () {
         });
 
 
-        $('#mastercheckbox').click(function () {
-            $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-        });
 
-        //wire up checkboxes.
-        $('#productreviews-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
-            var $check = $(this);
-            if ($check.is(":checked") == true) {
-                var checked = jQuery.inArray($check.val(), selectedIds);
-                if (checked == -1) {
-                    //add id to selectedIds.
-                    selectedIds.push($check.val());
-                }
-            }
-            else {
-                var checked = jQuery.inArray($check.val(), selectedIds);
-                if (checked > -1) {
-                    //remove id from selectedIds.
-                    selectedIds = $.grep(selectedIds, function (item, index) {
-                        return item != $check.val();
-                    });
-                }
-            }
-            updateMasterCheckbox();
-        });
     });
 
     function additionalData() {
@@ -296,22 +223,6 @@ $(document).ready(function () {
         return data;
     }
 
-    function onDataBound(e) {
 
-        $('#productreviews-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
-            var currentId = $(this).val();
-            var checked = jQuery.inArray(currentId, selectedIds);
-            //set checked based on if current checkbox's value is in selectedIds.
-            $(this).prop('checked', checked > -1);
-        });
-
-        updateMasterCheckbox();
-    }
-
-    function updateMasterCheckbox() {
-        var numChkBoxes = $('#productreviews-grid input[type=checkbox][id!=mastercheckbox]').length;
-        var numChkBoxesChecked = $('#productreviews-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-        $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-    }
 
 </script>
