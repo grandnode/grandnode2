@@ -25,14 +25,14 @@ export default defineConfig({
     projects: [
         ...LOCALES.map(locale => ({
             name: locale.name,
-            testIgnore: /har\.record\.spec\.js/,
+            testIgnore: /(har|payload)\.record\.spec\.js/,
             use: { locale: locale.browserLocale, languageCode: locale.languageCode, rtl: locale.rtl }
         })),
         {
-            //records HAR files for later request parity checks; run explicitly with
-            //npm run e2e:har
+            //records HAR files and form payloads for later request parity checks; run
+            //explicitly with npm run e2e:har or npm run e2e:payloads
             name: 'har',
-            testMatch: /har\.record\.spec\.js/,
+            testMatch: /(har|payload)\.record\.spec\.js/,
             use: { locale: 'en-US', languageCode: env.languageCodes.en, rtl: false }
         }
     ]
