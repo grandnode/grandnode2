@@ -54,7 +54,7 @@ Do not use this skill as the primary review for payment correctness, security, M
 1. Prefer modifying the smallest existing template that owns the UI.
 2. Prefer theme overrides over changing base storefront templates when the change is theme-specific.
 3. Prefer plugin views over core views when the UI belongs to a plugin.
-4. Prefer existing Bootstrap, admin tag helper, and GrandNode component patterns. Admin grids use `<admin-grid>` (`.ai/standards/razor-frontend.md`, Admin grids); Kendo grids remain only in views that have not been converted.
+4. Prefer existing Bootstrap, admin tag helper, and GrandNode component patterns. Admin grids use `<admin-grid>` and the admin widgets are `window.GrandAdmin` from `admin.ui.js` (`.ai/standards/razor-frontend.md`, Admin views and Admin grids); nothing calls Kendo UI.
 5. Prefer localized text over hardcoded display text.
 6. Prefer accessible labels, alt text, button text, and validation messages.
 7. Prefer deterministic IDs for dynamic form controls and grid elements.

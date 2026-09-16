@@ -158,8 +158,9 @@ npm project for the Admin, Store and Vendor panels, following the `vueapp` conve
 
 Current state:
 
-- `npm run build` (`scripts/build.mjs`) runs one IIFE build per shipped entry. Entries: `admin.grid` (the `<admin-grid>` runtime on Tabulator, `window.GrandAdmin.grids`), `admin.legacy` (the `$.fn.kendoGrid` shim) and `admin.core` (reserves `window.GrandAdmin`).
-- `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` load `bundles/admin.grid.js` and `bundles/admin.grid.css` after `admin.common.js`, next to Kendo. **`admin.grid.js` and `admin.grid.css` are committed** and follow the commit rules above: rebuild and stage them with every change under `adminapp/src/grid`.
+- `npm run build` (`scripts/build.mjs`) runs one IIFE build per shipped entry. Entries: `admin.grid` (the `<admin-grid>` runtime on Tabulator, `window.GrandAdmin.grids`), `admin.ui` (the widgets that used to be Kendo UI - `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format`, on Tom Select), `admin.legacy` (the `$.fn.kendoGrid` shim) and `admin.core` (reserves `window.GrandAdmin`).
+- `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` load `bundles/admin.grid.js`, `bundles/admin.grid.css`, `bundles/admin.ui.js` and `bundles/admin.ui.css` after `admin.common.js`, and render `<admin-culture/>` (the request culture as a JSON island both bundles read). **These four files are committed** and follow the commit rules above: rebuild and stage them with every change under `adminapp/src/grid` or `adminapp/src/ui`.
+- Nothing calls Kendo any more; the Kendo `<script>` and `<link>` tags are still in the `Head*` partials and are removed in the next step.
 - `admin.core.js` and `admin.legacy.js` are not loaded by any panel: a plain `npm run build` does not write them (`npm run build -- admin.legacy` does, on request), and they are not committed until a `Head*` partial references them.
 - Everything else in `wwwroot/administration/` is still the vendored libraries the panels load directly.
 - `Grand.SharedUIResources.csproj` excludes `adminapp\**` from its items, so sources, `package.json` and `node_modules` never become content or static web assets.
@@ -177,5 +178,6 @@ Commands (run from `adminapp/`):
 | `npm run codemod:grids -- --path <text> [--write]` | converts `kendoGrid` scripts into `<admin-grid>` markup (dry run prints a diff); resolve and remove every `CODEMOD-REVIEW` marker before committing |
 | `npm run e2e` | Playwright smoke specs for the three panels (needs `GRAND_ADMIN_URL` and panel credentials, see README) |
 | `npm run e2e:har` | records HAR files of representative grid pages into git-ignored `e2e/har/` |
+| `npm run e2e:payloads` | records what the admin forms would post into git-ignored `e2e/payloads/` (`GRAND_PAYLOAD_DIR` picks the directory), for comparing two builds |
 
 Never commit `reports/`, `e2e/har/`, `e2e/test-results/` or `e2e/playwright-report/` — HAR files contain session cookies and store data.

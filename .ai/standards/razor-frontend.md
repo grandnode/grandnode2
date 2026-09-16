@@ -34,13 +34,15 @@ Rules for `.cshtml`, storefront JavaScript, and theme assets. Complementary to `
 ## Admin views
 
 - Use the admin tag helpers for labels, inputs, validation, cards, tabs, and grids rather than raw Bootstrap markup.
-- New and reworked grids use `<admin-grid>` (see [Admin grids](#admin-grids)). Views that have not been converted still build Kendo grids in script; do not add new `kendoGrid({...})` calls.
+- New and reworked grids use `<admin-grid>` (see [Admin grids](#admin-grids)). No view builds a Kendo grid any more; do not add new `kendoGrid({...})` calls.
+- No view calls Kendo UI at all. The widgets live in `admin.ui.js` (`Grand.SharedUIResources/adminapp/src/ui`) as `window.GrandAdmin`: `modal.open(target, { title, width })` / `modal.close(target)` for popups and confirmations, `tabs` behind `<admin-tabstrip>`, and `format` / `formatDate` / `formatNumber` / `htmlEncode` in place of `kendo.toString` and `kendo.htmlEncode`.
+- Editors come from the shared templates, which post exactly what the request culture binds: `data-grand-numeric` hides the named input and keeps the posted number in it while a second input shows the formatted one; `data-grand-date` does the same next to a native `date`/`datetime-local`/`time` picker and is seeded with an ISO value from the server; `data-grand-select` is Tom Select over the `Search` endpoints. Do not write the posted value of these fields from a view - read it, or go through the widget (`element.grandNumeric.value()`).
 - Keep tab partials named `CreateOrUpdate.Tab{Name}.cshtml` next to `CreateOrUpdate.cshtml`.
 - Never render an action the controller's permission attribute does not allow — the view is not the security boundary, but a mismatch is a bug.
 
 ## Admin grids
 
-`<admin-grid>` (`Grand.Web.Common/TagHelpers/Admin/AdminGridTagHelper.cs`) renders `<div id data-role="grid" data-grand-grid='{json}'>` plus inert `<template>` elements; `admin.grid.js` (an adapter over Tabulator 6, built from `Grand.SharedUIResources/adminapp/src/grid`) turns it into the grid. `HeadAdmin`, `HeadStore` and `HeadVendor` load it next to Kendo, which still serves every grid that has not been converted.
+`<admin-grid>` (`Grand.Web.Common/TagHelpers/Admin/AdminGridTagHelper.cs`) renders `<div id data-role="grid" data-grand-grid='{json}'>` plus inert `<template>` elements; `admin.grid.js` (an adapter over Tabulator 6, built from `Grand.SharedUIResources/adminapp/src/grid`) turns it into the grid. `HeadAdmin`, `HeadStore` and `HeadVendor` load it next to `admin.ui.js`.
 
 ```cshtml
 <admin-grid id="measureweight-grid"
