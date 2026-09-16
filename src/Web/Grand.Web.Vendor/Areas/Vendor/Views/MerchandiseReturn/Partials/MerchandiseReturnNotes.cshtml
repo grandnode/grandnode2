@@ -2,95 +2,29 @@
 <div class="panel panel-default">
     <vc:vendor-widget widget-zone="vendor_merchandisereturn_details_notes_top" additional-data="Model"/>
     <div class="panel-body">
-        <div id="merchandisereturnnotes-grid"></div>
+        <admin-grid id="merchandisereturnnotes-grid"
+                    read-url="@Url.Action("MerchandiseReturnNotesSelect", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaVendor })"
+                    destroy-url="@Url.Action("MerchandiseReturnNoteDelete", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaVendor })"
+                    pager="Compact">
+            <grid-column field="CreatedOn" title="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedOn"]" width="180" format="{0:G}"/>
+            <grid-column field="Note" title="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Note"]" width="350"/>
+            <grid-column field="CreatedByCustomer" title="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedByCustomer"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="CreatedByCustomer" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayToCustomer" title="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.DisplayToCustomer"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="DisplayToCustomer" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" title="@Loc["Vendor.Common.Delete"]" width="100"/>
+        </admin-grid>
     </div>
     <vc:vendor-widget widget-zone="vendor_merchandisereturn_details_notes_bottom" additional-data="Model"/>
 </div>
-<script>
-        $(document).ready(function () {
-            $("#merchandisereturnnotes-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("MerchandiseReturnNotesSelect", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaVendor }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("MerchandiseReturnNoteDelete", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaVendor }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                //do not implicitly specify all fields
-                                //we do it only for fields which implicitly require it
-                                //otherwise, they'll be formatted wrong way
-                                CreatedOn: {type: "date" }
-                            }
-                        }
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "CreatedOn",
-                    title: "@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedOn"]",
-                    width: 180,
-                    type: "date",
-                    format: "{0:G}"
-                }, {
-                    field: "Note",
-                    title: "@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Note"]",
-                    width: 350,
-                    encoded: false
-                }, {
-                    field: "CreatedByCustomer",
-                    title: "@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedByCustomer"]",
-                    width: 100,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(CreatedByCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                }, {
-                    field: "DisplayToCustomer",
-                    title: "@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.DisplayToCustomer"]",
-                    width: 100,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(DisplayToCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                }, {
-                    command: { name: "destroy", text: "@Loc["Vendor.Common.Delete"]" },
-                    title: "@Loc["Vendor.Common.Delete"]",
-                    width: 100
-                }]
-            });
-        });
-</script>
 <p>
     <strong>
         @Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddTitle"]
