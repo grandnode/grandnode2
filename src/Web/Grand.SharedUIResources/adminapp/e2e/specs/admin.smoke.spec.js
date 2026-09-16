@@ -112,10 +112,24 @@ test.describe('Admin', () => {
         await expect(requirements).toBeVisible()
     })
 
-    test('Shipping.ByWeight configuration', async ({ panelPage: page }) => {
-        const response = await page.goto('/Admin/ShippingByWeight/Configure')
-        test.skip(response?.status() === 404, 'Shipping.ByWeight is not installed')
-        await page.waitForLoadState('networkidle')
-        await waitForGrid(page, 'shipping-byweight-grid')
-    })
+    //Every plugin that ships an admin configuration grid; each is skipped when the plugin
+    //is not installed in the instance the specs run against.
+    const pluginPages = [
+        { plugin: 'Shipping.ByWeight', path: '/Admin/ShippingByWeight/Configure', grid: 'shipping-byweight-grid' },
+        { plugin: 'Shipping.FixedRate', path: '/Admin/ShippingFixedRate/Configure', grid: 'shipping-rate-grid', inlineEdit: true },
+        { plugin: 'Shipping.ShippingPoint', path: '/Admin/ShippingPoint/Configure', grid: 'shipping-points-grid' },
+        { plugin: 'Tax.CountryStateZip', path: '/Admin/TaxCountryStateZip/Configure', grid: 'tax-countrystatezip-grid' },
+        { plugin: 'Tax.FixedRate', path: '/Admin/TaxFixedRate/Configure', grid: 'tax-categories-grid', inlineEdit: true },
+        { plugin: 'Widgets.Slider', path: '/Admin/WidgetsSlider/Configure', grid: 'slider-grid' }
+    ]
+
+    for (const { plugin, path, grid, inlineEdit } of pluginPages) {
+        test(`${plugin} configuration`, async ({ panelPage: page }) => {
+            const response = await page.goto(path)
+            test.skip(response?.status() === 404, `${plugin} is not installed`)
+            await page.waitForLoadState('networkidle')
+            const state = await waitForGrid(page, grid)
+            if (inlineEdit && state.rows > 0) await openInlineEditAndCancel(page, grid)
+        })
+    }
 })
