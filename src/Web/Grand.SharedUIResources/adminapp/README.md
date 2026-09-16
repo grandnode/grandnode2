@@ -13,7 +13,7 @@ What exists today:
 | `src/grid/` | the adapter over Tabulator 6: data source and transport (server contract, `jQuery.param` serialization), row editing and editors, eval-free cell templates, culture formatting, pager, `$(el).data('kendoGrid')` API |
 | `src/admin.ui.js` | bundle entry of the widgets that used to be Kendo UI: `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format` |
 | `src/ui/` | tab strip, modal, numeric text box, date/time inputs, Tom Select lists, and the page culture island the `<admin-culture>` tag helper renders |
-| `src/admin.legacy.js`, `src/legacy/` | `$.fn.kendoGrid` shim and Kendo template compiler; built and tested, not loaded by any panel |
+| `src/admin.legacy.js`, `src/legacy/` | the Kendo compatibility layer the three panels load: the `$.fn.kendoGrid` shim, the Kendo template compiler, the widget mini-shims (`kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`, `kendoMultiSelect`, `kendoTabStrip`) and the transitional stylesheet of the `k-*` classes the views still carry |
 | `src/admin.core.js` | bundle entry; only reserves `window.GrandAdmin` |
 | `scripts/codemods/analyze-kendo-grids.mjs` | read-only inventory and A/B/C classification of every `kendoGrid` in the views |
 | `scripts/codemods/kendo-grid-to-admin-grid.mjs` | codemod converting `kendoGrid` initialisations into `<admin-grid>` markup |
@@ -21,8 +21,21 @@ What exists today:
 | `e2e/` | Playwright smoke specs for the three panels and a HAR recorder |
 
 `HeadAdmin`, `HeadStore` and `HeadVendor` load `admin.grid.js`, `admin.grid.css`,
-`admin.ui.js` and `admin.ui.css`. Every grid runs on `<admin-grid>` and every widget on
-`admin.ui.js`; the Kendo scripts and stylesheets are still linked but nothing calls them.
+`admin.ui.js`, `admin.ui.css`, `admin.legacy.js` and `admin.legacy.css`. Every grid runs on
+`<admin-grid>` and every widget on `admin.ui.js`; **no panel loads Kendo any more**. The
+vendored `wwwroot/administration/kendo/` tree stays in the repository, unreferenced, for one
+major release so an installation that still needs it can link it back, and is deleted after
+that release.
+
+`admin.legacy.js` is there for third-party plugin views written against Kendo. It registers
+`$.fn.kendoGrid` and the `kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`,
+`kendoMultiSelect` and `kendoTabStrip` mini-shims over `window.GrandAdmin`, plus
+`kendo.toString`, `kendo.htmlEncode`, `kendo.culture` and `kendo.parseDate`; each warns once
+that it is a transitional shim. It registers nothing when Kendo itself is loaded, so an
+installation that puts the Kendo tags back keeps the real widgets. `admin.legacy.css`
+reproduces what the Kendo stylesheets painted for the `k-button`, `k-link`, `k-icon` and
+`k-input` classes that around 800 elements still carry, with the `k-i-*` glyphs mapped onto
+the Font Awesome 4.6 the panel already loads. Both halves go away with those classes.
 
 Dependencies bundled into the panels: Tabulator 6 (MIT), Vue 3 (MIT) and
 Tom Select 2 (Apache-2.0). No asset is loaded from a CDN.
@@ -42,14 +55,13 @@ npm run build
 `scripts/build.mjs` runs one Vite build per entry (an IIFE build cannot be split across
 inputs) into `../wwwroot/administration/bundles/`, each loaded by a plain `<script src>`.
 A plain `npm run build` writes only the bundles a panel loads (`admin.grid.js`,
-`admin.grid.css`, `admin.ui.js`, `admin.ui.css`); `npm run build -- admin.legacy` or
-`-- admin.core` builds an unused entry on request. `emptyOutDir` is off because the output
+`admin.grid.css`, `admin.ui.js`, `admin.ui.css`, `admin.legacy.js`, `admin.legacy.css`);
+`npm run build -- admin.core` builds the unused entry on request. `emptyOutDir` is off because the output
 directory sits inside the vendored `wwwroot/administration` tree, and `vue` is aliased to
 the esm-bundler build that includes the template compiler.
 
-`admin.grid.js` and `admin.grid.css` are committed together with the source that produced
-them, as in `vueapp`. Do not commit `admin.core.js` or `admin.legacy.js` built on request
-until a panel loads them.
+The six shipped files are committed together with the source that produced them, as in
+`vueapp`. Do not commit `admin.core.js` built on request until a panel loads it.
 
 ## Lint and test
 
@@ -155,6 +167,11 @@ npx playwright test --config e2e/playwright.config.js --list
 ```
 
 Tests run on one worker: every locale project switches the same account's language.
+
+`npm run e2e:visual` records one full-page screenshot per entry of
+`e2e/support/visual-pages.js` into `e2e/screenshots/<GRAND_SHOT_DIR>` (default `current`),
+so the look of two builds can be compared page by page. `e2e/screenshots/` is git-ignored:
+the pages show real store data.
 
 `npm run e2e:har` records one HAR per page listed in `e2e/support/har-pages.js`. For
 grids marked `captureUpdate` it opens inline edit, clicks Update without changes and

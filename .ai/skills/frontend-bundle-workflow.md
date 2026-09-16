@@ -159,9 +159,10 @@ npm project for the Admin, Store and Vendor panels, following the `vueapp` conve
 Current state:
 
 - `npm run build` (`scripts/build.mjs`) runs one IIFE build per shipped entry. Entries: `admin.grid` (the `<admin-grid>` runtime on Tabulator, `window.GrandAdmin.grids`), `admin.ui` (the widgets that used to be Kendo UI - `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format`, on Tom Select), `admin.legacy` (the `$.fn.kendoGrid` shim) and `admin.core` (reserves `window.GrandAdmin`).
-- `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` load `bundles/admin.grid.js`, `bundles/admin.grid.css`, `bundles/admin.ui.js` and `bundles/admin.ui.css` after `admin.common.js`, and render `<admin-culture/>` (the request culture as a JSON island both bundles read). **These four files are committed** and follow the commit rules above: rebuild and stage them with every change under `adminapp/src/grid` or `adminapp/src/ui`.
-- Nothing calls Kendo any more; the Kendo `<script>` and `<link>` tags are still in the `Head*` partials and are removed in the next step.
-- `admin.core.js` and `admin.legacy.js` are not loaded by any panel: a plain `npm run build` does not write them (`npm run build -- admin.legacy` does, on request), and they are not committed until a `Head*` partial references them.
+- `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` load `bundles/admin.grid.js`, `bundles/admin.grid.css`, `bundles/admin.ui.js`, `bundles/admin.ui.css`, `bundles/admin.legacy.js` and `bundles/admin.legacy.css` after `admin.common.js`, and render `<admin-culture/>` (the request culture as a JSON island the bundles read). **These six files are committed** and follow the commit rules above: rebuild and stage them with every change under `adminapp/src/grid`, `adminapp/src/ui` or `adminapp/src/legacy`.
+- **No panel loads Kendo any more.** The `<script>` and `<link>` tags are gone from the three `Head*` partials. `wwwroot/administration/kendo/` stays in the repository for one major release so an installation that pins an older plugin can put the tags back; delete it after that release.
+- `admin.legacy.js` is the Kendo compatibility layer for third-party plugin views: it registers `$.fn.kendoGrid`, `kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`, `kendoMultiSelect` and `kendoTabStrip` over `window.GrandAdmin`, plus `kendo.toString` / `htmlEncode` / `culture` / `parseDate`, each warning once that it is transitional. It registers nothing when Kendo itself is loaded. `admin.legacy.css` carries the look the Kendo stylesheets gave the `k-button`, `k-link`, `k-icon` and `k-input` classes the views still use; both go away with those classes in the Bootstrap 5 step.
+- `admin.core.js` is not loaded by any panel: a plain `npm run build` does not write it (`npm run build -- admin.core` does, on request), and it is not committed until a `Head*` partial references it.
 - Everything else in `wwwroot/administration/` is still the vendored libraries the panels load directly.
 - `Grand.SharedUIResources.csproj` excludes `adminapp\**` from its items, so sources, `package.json` and `node_modules` never become content or static web assets.
 - Playwright is not part of `azure-pipelines.yml`; the e2e specs run locally against a running instance.
@@ -179,5 +180,6 @@ Commands (run from `adminapp/`):
 | `npm run e2e` | Playwright smoke specs for the three panels (needs `GRAND_ADMIN_URL` and panel credentials, see README) |
 | `npm run e2e:har` | records HAR files of representative grid pages into git-ignored `e2e/har/` |
 | `npm run e2e:payloads` | records what the admin forms would post into git-ignored `e2e/payloads/` (`GRAND_PAYLOAD_DIR` picks the directory), for comparing two builds |
+| `npm run e2e:visual` | records a full-page screenshot per page of `e2e/support/visual-pages.js` into git-ignored `e2e/screenshots/` (`GRAND_SHOT_DIR` picks the directory), for comparing the look of two builds |
 
-Never commit `reports/`, `e2e/har/`, `e2e/test-results/` or `e2e/playwright-report/` — HAR files contain session cookies and store data.
+Never commit `reports/`, `e2e/har/`, `e2e/payloads/`, `e2e/screenshots/`, `e2e/test-results/` or `e2e/playwright-report/` — they hold session cookies, form payloads and store data.
