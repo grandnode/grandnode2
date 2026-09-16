@@ -25,6 +25,7 @@
 
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/farbtastic/farbtastic.css"/>
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.css" asp-append-version="true"/>
+    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.ui.css" asp-append-version="true"/>
 
     //CSS
     if (supportRtl)
@@ -47,8 +48,12 @@
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/jquery.validate.min.js"></script>
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/jquery.validate.unobtrusive.min.js"></script>
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/admin.common.js"></script>
-    @*<admin-grid> runtime; Kendo below keeps serving the grids not converted yet*@
+    @*formatting data of the request culture for admin.grid.js and admin.ui.js*@
+    <admin-culture/>
+    @*<admin-grid> runtime*@
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.js" asp-append-version="true"></script>
+    @*tab strip, modal, numeric, date and select widgets; replaces the Kendo widgets below*@
+    <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.ui.js" asp-append-version="true"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/kendo.ui.core.min.js", kendoVersion)"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/kendo.grid.js", kendoVersion)"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/cultures/kendo.culture.{1}.js", kendoVersion, CultureInfo.CurrentCulture.Name)"></script>

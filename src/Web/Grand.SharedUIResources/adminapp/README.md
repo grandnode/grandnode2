@@ -11,6 +11,8 @@ What exists today:
 | --- | --- |
 | `src/admin.grid.js` | bundle entry of the `<admin-grid>` runtime: registers `window.GrandAdmin.grids` |
 | `src/grid/` | the adapter over Tabulator 6: data source and transport (server contract, `jQuery.param` serialization), row editing and editors, eval-free cell templates, culture formatting, pager, `$(el).data('kendoGrid')` API |
+| `src/admin.ui.js` | bundle entry of the widgets that used to be Kendo UI: `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format` |
+| `src/ui/` | tab strip, modal, numeric text box, date/time inputs, Tom Select lists, and the page culture island the `<admin-culture>` tag helper renders |
 | `src/admin.legacy.js`, `src/legacy/` | `$.fn.kendoGrid` shim and Kendo template compiler; built and tested, not loaded by any panel |
 | `src/admin.core.js` | bundle entry; only reserves `window.GrandAdmin` |
 | `scripts/codemods/analyze-kendo-grids.mjs` | read-only inventory and A/B/C classification of every `kendoGrid` in the views |
@@ -18,9 +20,12 @@ What exists today:
 | `scripts/codemods/lib/` | Razor masking, grid analysis, template and grid conversion used by the analyzer and the codemod (unit tested) |
 | `e2e/` | Playwright smoke specs for the three panels and a HAR recorder |
 
-`HeadAdmin`, `HeadStore` and `HeadVendor` load `admin.grid.js` and `admin.grid.css` next
-to Kendo; the grids declared with `<admin-grid>` (see `.ai/standards/razor-frontend.md`)
-run on it and every other grid still runs on Kendo.
+`HeadAdmin`, `HeadStore` and `HeadVendor` load `admin.grid.js`, `admin.grid.css`,
+`admin.ui.js` and `admin.ui.css`. Every grid runs on `<admin-grid>` and every widget on
+`admin.ui.js`; the Kendo scripts and stylesheets are still linked but nothing calls them.
+
+Dependencies bundled into the panels: Tabulator 6 (MIT), Vue 3 (MIT) and
+Tom Select 2 (Apache-2.0). No asset is loaded from a CDN.
 
 ## Setup
 
@@ -37,8 +42,8 @@ npm run build
 `scripts/build.mjs` runs one Vite build per entry (an IIFE build cannot be split across
 inputs) into `../wwwroot/administration/bundles/`, each loaded by a plain `<script src>`.
 A plain `npm run build` writes only the bundles a panel loads (`admin.grid.js`,
-`admin.grid.css`); `npm run build -- admin.legacy` or `-- admin.core` builds an unused
-entry on request. `emptyOutDir` is off because the output
+`admin.grid.css`, `admin.ui.js`, `admin.ui.css`); `npm run build -- admin.legacy` or
+`-- admin.core` builds an unused entry on request. `emptyOutDir` is off because the output
 directory sits inside the vendored `wwwroot/administration` tree, and `vue` is aliased to
 the esm-bundler build that includes the template compiler.
 

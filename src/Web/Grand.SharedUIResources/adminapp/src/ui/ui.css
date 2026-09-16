@@ -1,0 +1,137 @@
+/* Styles of the widgets in admin.ui.js. Deliberately self-contained: the panels are on
+   Bootstrap 4.5 until phase 5 and on Bootstrap 5 after it, so nothing here depends on a
+   class only one of the two defines. The markup does use the nav-tabs / tab-content class
+   names both versions share, so the panel theme keeps styling the tabs. */
+
+/* ---------------------------------------------------------------- tab strip */
+
+.grand-tabstrip > .tab-content > .tab-pane {
+    display: none;
+}
+
+.grand-tabstrip > .tab-content > .tab-pane.active {
+    display: block;
+}
+
+.grand-tabstrip > ul.nav {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.grand-tabstrip > ul.nav > li > .nav-link {
+    cursor: pointer;
+}
+
+/* tab-position="left": the list beside the panes, as the Kendo tabPosition: 'left' was */
+.grand-tabstrip-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.grand-tabstrip-left > ul.nav {
+    flex: 0 0 auto;
+    flex-direction: column;
+    max-width: 16rem;
+}
+
+.grand-tabstrip-left > .tab-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+    .grand-tabstrip-left {
+        display: block;
+    }
+
+    .grand-tabstrip-left > ul.nav {
+        max-width: none;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+/* ------------------------------------------------------------------- modal */
+
+body.grand-modal-open {
+    overflow: hidden;
+}
+
+.grand-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, .5);
+}
+
+.grand-modal[hidden] {
+    display: none;
+}
+
+.grand-modal-dialog {
+    width: 100%;
+    max-width: 40rem;
+    background: #fff;
+    border-radius: .25rem;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .3);
+}
+
+.grand-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+}
+
+.grand-modal-title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.grand-modal-close {
+    padding: 0 .25rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    opacity: .6;
+}
+
+.grand-modal-close:hover {
+    opacity: 1;
+}
+
+.grand-modal-body {
+    padding: 1rem;
+}
+
+/* ------------------------------------------------------- numeric and dates */
+
+input.grand-numeric,
+input.grand-dateinput {
+    max-width: 100%;
+}
+
+/* ------------------------------------------------------------- Tom Select */
+
+.ts-wrapper.form-control,
+.ts-wrapper.form-select {
+    padding: 0;
+    height: auto;
+}
+
+.ts-dropdown {
+    z-index: 1070;
+}
