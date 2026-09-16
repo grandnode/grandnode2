@@ -12,6 +12,7 @@
     "e2e": "playwright test --config e2e/playwright.config.js",
     "e2e:har": "playwright test --config e2e/playwright.config.js --project=har e2e/specs/har.record.spec.js",
     "e2e:payloads": "playwright test --config e2e/playwright.config.js --project=har e2e/specs/payload.record.spec.js",
+    "e2e:visual": "playwright test --config e2e/playwright.config.js --project=visual e2e/specs/visual.record.spec.js",
     "audit:prod": "npm audit --omit=dev --audit-level=moderate"
   },
   "dependencies": {

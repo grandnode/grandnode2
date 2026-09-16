@@ -25,7 +25,7 @@ export default defineConfig({
     projects: [
         ...LOCALES.map(locale => ({
             name: locale.name,
-            testIgnore: /(har|payload)\.record\.spec\.js/,
+            testIgnore: /(har|payload|visual)\.record\.spec\.js/,
             use: { locale: locale.browserLocale, languageCode: locale.languageCode, rtl: locale.rtl }
         })),
         {
@@ -33,6 +33,13 @@ export default defineConfig({
             //explicitly with npm run e2e:har or npm run e2e:payloads
             name: 'har',
             testMatch: /(har|payload)\.record\.spec\.js/,
+            use: { locale: 'en-US', languageCode: env.languageCodes.en, rtl: false }
+        },
+        {
+            //records a full-page screenshot per page for before/after comparison of a
+            //stylesheet change; run explicitly with npm run e2e:visual
+            name: 'visual',
+            testMatch: /visual\.record\.spec\.js/,
             use: { locale: 'en-US', languageCode: env.languageCodes.en, rtl: false }
         }
     ]
