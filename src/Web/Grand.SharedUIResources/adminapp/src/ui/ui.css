@@ -9,8 +9,11 @@
     display: none;
 }
 
+/* flow-root, not block: the panel layout inside a tab floats (x_panel and the Bootstrap 4
+   grid), and a plain block pane collapses to zero height around it - which is what the
+   Kendo .k-content the panes replace avoided by establishing its own formatting context */
 .grand-tabstrip > .tab-content > .tab-pane.active {
-    display: block;
+    display: flow-root;
 }
 
 .grand-tabstrip > ul.nav {

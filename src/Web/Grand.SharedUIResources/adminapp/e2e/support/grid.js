@@ -93,17 +93,21 @@ export async function expandFirstDetail(page, gridId) {
 
 /** Selects a tab of an <admin-tabstrip> by index (language independent). */
 export async function openTab(page, tabStripName, index) {
-    //Kendo 2021 wraps the items in .k-tabstrip-items-wrapper
-    const tab = page.locator(`#${tabStripName} > .k-tabstrip-items-wrapper > ul.k-tabstrip-items > li, #${tabStripName} > ul.k-tabstrip-items > li`).nth(index)
-    //the Kendo TabStrip ignores a click while the previous tab is still fading in
+    const tab = page.locator(`#${tabStripName} > ul.nav > li`).nth(index)
     await expect(async () => {
         await tab.click()
         await expect(tab).toHaveClass(/k-state-active/, { timeout: 1_000 })
     }).toPass({ timeout: 15_000 })
     await page.waitForLoadState('networkidle')
-    const content = page.locator(`#${tabStripName} > .k-content.k-state-active`)
+    const content = page.locator(`#${tabStripName} > .tab-content > .tab-pane.active`)
     await expect(content).toBeVisible()
     return content
+}
+
+/** The index of the active tab, as the strip records it in #selected-tab-index. */
+export async function selectedTabIndex(page, tabStripName) {
+    return page.locator(`#${tabStripName} > ul.nav > li.k-state-active`).evaluate(
+        li => Array.from(li.parentElement.children).indexOf(li))
 }
 
 /**
