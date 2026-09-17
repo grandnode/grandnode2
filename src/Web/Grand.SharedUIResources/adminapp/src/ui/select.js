@@ -32,6 +32,18 @@ export function fetchOptions(url, query, { textField = 'Name', valueField = 'Id'
     })))
 }
 
+/**
+ * The chosen value, drawn in the field. The empty choice is the placeholder:
+ * allowEmptyOption is what keeps it in the list - a filter has to be clearable - but it
+ * must not be drawn as a chosen value. It used to sit in front of the caret, so clicking
+ * the field and typing read as "Select category...Comp". Drawn with nothing in it, the
+ * stylesheet hides it, the placeholder shows until the field is used, and what is typed
+ * starts at the start of the field.
+ */
+export function renderItem(data, escape) {
+    return data.value === '' ? '<div></div>' : `<div>${escape(data.text)}</div>`
+}
+
 function baseSettings(options) {
     const texts = options.texts || {}
     return {
@@ -44,7 +56,7 @@ function baseSettings(options) {
         score: () => () => 1,
         render: {
             option: (data, escape) => `<div>${escape(data.text)}</div>`,
-            item: (data, escape) => `<div>${escape(data.text)}</div>`,
+            item: renderItem,
             //texts come from the culture island, so a list says the same as a grid does
             no_results: () => `<div class="no-results">${escapeHtml(texts.noRecords || '')}</div>`,
             loading: () => '<div class="spinner"></div>'

@@ -532,6 +532,12 @@ input.grand-dateinput {
     color: var(--bs-secondary-color, #6c757d);
 }
 
+/* The item of the empty choice, which ui/select.js renders with nothing in it: the field
+   shows its placeholder instead, and what is typed starts at the start of the field. */
+.ts-control > .item:empty {
+    display: none;
+}
+
 /* the list is read from the server, so there is a moment with nothing in it */
 .ts-wrapper.loading .ts-control::after {
     content: "";

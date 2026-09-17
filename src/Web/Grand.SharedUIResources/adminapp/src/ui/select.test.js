@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { fetchOptions, remote } from './select.js'
+import { fetchOptions, remote, renderItem } from './select.js'
 
 describe('fetchOptions', () => {
     it('reads the Data rows of a DataSourceResult', async () => {
@@ -104,5 +104,21 @@ describe('a list read from the server', () => {
         expect(answers[0]).toEqual([{ value: 'new', text: 'ab' }])
         expect(spied.score('ab')({ value: 'new' })).toBe(1)
         expect(spied.score('ab')({ value: 'old' })).toBe(0)
+    })
+})
+
+describe('the chosen value in the field', () => {
+    const escape = text => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+
+    it('draws nothing for the empty choice, so the placeholder and the caret have the field', () => {
+        expect(renderItem({ value: '', text: 'Select category...' }, escape)).toBe('<div></div>')
+    })
+
+    it('draws a real choice', () => {
+        expect(renderItem({ value: '7', text: 'Computers' }, escape)).toBe('<div>Computers</div>')
+    })
+
+    it('escapes what it draws', () => {
+        expect(renderItem({ value: '7', text: '<img src=x>' }, escape)).toBe('<div>&lt;img src=x></div>')
     })
 })
