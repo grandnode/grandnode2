@@ -14,7 +14,7 @@ What exists today:
 | `src/admin.grid.js` | bundle entry of the `<admin-grid>` runtime: registers `window.GrandAdmin.grids` |
 | `src/grid/` | the adapter over Tabulator 6: data source and transport (server contract, `jQuery.param` serialization), row editing and editors, eval-free cell templates, culture formatting, pager, `$(el).data('kendoGrid')` API |
 | `src/admin.ui.js` | bundle entry of the widgets that used to be Kendo UI: `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format` |
-| `src/ui/` | tab strip, modal, numeric text box, date/time inputs, Tom Select lists, and the page culture island the `<admin-culture>` tag helper renders |
+| `src/ui/` | tab strip, modal, numeric text box, the date/time picker and the pattern parser behind it, Tom Select lists, and the page culture island the `<admin-culture>` tag helper renders |
 | `src/admin.legacy.js`, `src/legacy/` | what keeps a third-party plugin view working: the `$.fn.kendoGrid` shim, the Kendo template compiler, the widget mini-shims (`kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`, `kendoMultiSelect`, `kendoTabStrip`), the stylesheet of the `k-*` classes such a view renders, and the rename of the Bootstrap 4 `data-toggle`/`data-target`/`data-dismiss` attributes |
 | `src/admin.core.js` | bundle entry; only reserves `window.GrandAdmin` |
 | `scripts/codemods/analyze-kendo-grids.mjs` | read-only inventory and A/B/C classification of every `kendoGrid` in the views |
@@ -63,9 +63,28 @@ the panel looks like today, with the `k-i-*` glyphs drawn from bootstrap-icons. 
 Bootstrap 4 data attributes are renamed here too, for the same reason and including markup
 a plugin loads over AJAX. All of it goes when the shim does.
 
+## The culture comes from the server, never from the browser
+
+Everything the widgets format or parse is decided by `<admin-culture>`
+(`Grand.Web.Common/TagHelpers/Admin/AdminCultureTagHelper.cs`), which writes the request
+culture into a JSON island once per page: the number and date patterns, the month and day
+names in both the spelling a date uses and the spelling a heading uses, the day the week
+starts on, and the handful of translated texts the widgets show. `src/ui/culture.js` reads
+it; `src/grid/format.js` formats with it and `src/ui/dateparse.js` parses with it.
+
+Nothing may fall back to `navigator.language`, `Intl`, `Date#toLocaleString` or a native
+`<input type="date">`: those follow the person's browser, and what the panels post is read
+by the MVC model binder in the **store's** request culture. That is why the date picker is
+hand-written rather than native. The `foreign-locale` Playwright project exists to keep it
+honest - it drives the widget spec from an ar-SA browser whatever culture the store uses.
+
+A resource an installation never imported is left out of the island rather than emitted as
+a raw key, so a widget falls back to its own neutral English default.
+
 Dependencies bundled into the panels: Bootstrap 5.3 (MIT), bootstrap-icons (MIT),
 Tabulator 6 (MIT), Vue 3 (MIT) and Tom Select 2 (Apache-2.0); sass and rtlcss (both MIT)
-build the stylesheet. No asset is loaded from a CDN.
+build the stylesheet. No asset is loaded from a CDN. The tab strip, the numeric field and
+the date picker are this repository's own code, on plain DOM and Bootstrap 5 markup.
 
 ## Setup
 
@@ -222,6 +241,7 @@ A panel whose credentials are not set is skipped.
 ```
 npm run e2e                       # all locale projects
 npm run e2e -- --project=en-US    # one locale
+npm run e2e -- --project=foreign-locale   # the widgets under a browser locale that is not the store's
 npm run e2e:har                   # record HAR files into e2e/har/
 npx playwright test --config e2e/playwright.config.js --list
 ```
