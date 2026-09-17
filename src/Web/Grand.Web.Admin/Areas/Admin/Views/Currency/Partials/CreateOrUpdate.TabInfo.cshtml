@@ -4,7 +4,7 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Name"/>
@@ -18,7 +18,7 @@
 <div class="form-horizontal">
     <localized-editor localized-template="@template" name="currency-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Name"/>
@@ -29,21 +29,21 @@
     </localized-editor>
 
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="CurrencyCode"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="CurrencyCode"/>
                 <span asp-validation-for="CurrencyCode"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Rate"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Rate"/>
                 <span asp-validation-for="Rate"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayLocale"/>
             <div class="col-md-9 col-sm-9">
                 @{
@@ -65,14 +65,14 @@
                 <span asp-validation-for="DisplayLocale"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="CustomFormatting"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="CustomFormatting"/>
                 <span asp-validation-for="CustomFormatting"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -82,35 +82,35 @@
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="RoundingTypeId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="RoundingTypeId" asp-items="EnumTranslationService.ToSelectList((RoundingType)Model.RoundingTypeId)"/>
                 <span asp-validation-for="RoundingTypeId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="MidpointRoundId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="MidpointRoundId" asp-items="EnumTranslationService.ToSelectList((MidpointRounding)Model.MidpointRoundId)"/>
                 <span asp-validation-for="MidpointRoundId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="NumberDecimal"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="NumberDecimal"/>
                 <span asp-validation-for="NumberDecimal"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Stores"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Stores"/>
@@ -119,7 +119,7 @@
         </div>
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CreatedOn"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.CreatedOn</label>

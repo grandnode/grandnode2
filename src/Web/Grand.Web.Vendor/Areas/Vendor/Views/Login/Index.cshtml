@@ -13,10 +13,10 @@
         <div class="card-body">
             <div class="row">
                 <div asp-validation-summary="All" class="message-error text-center"></div>
-                <div class="col-12 form-group mb-0">
+                <div class="col-12 mb-0">
                     @if (Model.UsernamesEnabled)
                     {
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class="col-lg-3 col-12 d-flex align-items-start justify-content-sm-start">
                                 <label asp-for="Username" class="h5 m-0">@Loc["Vendor.Login.UserName"]:</label>
                             </div>
@@ -28,7 +28,7 @@
                     }
                     else
                     {
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class="col-lg-3 col-12 d-flex align-items-start justify-content-start">
                                 <label asp-for="Email" class="h5 m-0">@Loc["Vendor.Login.Email"]:</label>
                             </div>
@@ -38,7 +38,7 @@
                             </div>
                         </div>
                     }
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <div class="col-lg-3 col-12 d-flex align-items-center justify-content-start">
                             <label asp-for="Password" class="h5 m-0">@Loc["Vendor.Login.Password"]:</label>
                         </div>
@@ -48,13 +48,12 @@
                         </div>
                     </div>
                     <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
-                        <label class="custom-control custom-checkbox">
-                            <input class="custom-control-input" asp-for="RememberMe"/>
-                            <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
-                            <span class="custom-control-label"></span>
-                            <span class="custom-control-description">@Loc["Vendor.Login.RememberMe"]</span>
-                        </label>
-                        <span class="ml-3 forgot-password">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="RememberMe"/>
+                            <input name="RememberMe" type="hidden" value="false">
+                            <label class="form-check-label" asp-for="RememberMe">@Loc["Vendor.Login.RememberMe"]</label>
+                        </div>
+                        <span class="ms-3 forgot-password">
                             <a asp-route="PasswordRecovery">@Loc["Vendor.Login.ForgotPassword"]</a>
                         </span>
                     </div>

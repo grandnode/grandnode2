@@ -42,8 +42,8 @@
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.CustomerAttributes.Fields.DisplayOrder"]" width="100" min-screen-width="750"/>
                                 <grid-column field="IsGlobalAttribute" title="@Loc["Admin.Common.View"]" width="120" align="Center">
                                     <cell-template>
-                                        <a data-if="IsGlobalAttribute" class="k-link" href="Edit/{{ Id }}"><span class="badge badge-secondary">{{ $texts.view }}</span></a>
-                                        <a data-else class="k-link" href="Edit/{{ Id }}"><span class="badge badge-success">{{ $texts.edit }}</span></a>
+                                        <a data-if="IsGlobalAttribute" class="k-link" href="Edit/{{ Id }}"><span class="badge text-bg-secondary">{{ $texts.view }}</span></a>
+                                        <a data-else class="k-link" href="Edit/{{ Id }}"><span class="badge text-bg-success">{{ $texts.edit }}</span></a>
                                     </cell-template>
                                 </grid-column>
                             </admin-grid>

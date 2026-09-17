@@ -24,14 +24,14 @@ function togglePassword() {
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Title"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Title"/>
                     <span asp-validation-for="@Model.Locales[item].Title"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Body"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Body" asp-template="Editor"/>
@@ -45,14 +45,14 @@ function togglePassword() {
 <div class="form-horizontal">
     <localized-editor localized-template="@template" name="page-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Title"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Title"/>
                     <span asp-validation-for="Title"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Body"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Body" asp-template="Editor"/>
@@ -63,7 +63,7 @@ function togglePassword() {
     </localized-editor>
 
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="SystemName"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="SystemName"/>
@@ -72,7 +72,7 @@ function togglePassword() {
         </div>
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Url"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">
@@ -81,7 +81,7 @@ function togglePassword() {
                 </div>
             </div>
         }
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IsPasswordProtected"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -91,14 +91,14 @@ function togglePassword() {
                 <span asp-validation-for="IsPasswordProtected"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlPasswordEnabled">
+        <div class="mb-3" id="pnlPasswordEnabled">
             <admin-label asp-for="Password"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Password" autocomplete="off"/>
                 <span asp-validation-for="Password"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IncludeInSitemap"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -108,7 +108,7 @@ function togglePassword() {
                 <span asp-validation-for="IncludeInSitemap"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IncludeInMenu"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -118,7 +118,7 @@ function togglePassword() {
                 <span asp-validation-for="IncludeInMenu"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IncludeInFooterRow1"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -128,7 +128,7 @@ function togglePassword() {
                 <span asp-validation-for="IncludeInFooterRow1"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IncludeInFooterRow2"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -138,7 +138,7 @@ function togglePassword() {
                 <span asp-validation-for="IncludeInFooterRow2"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IncludeInFooterRow3"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -148,7 +148,7 @@ function togglePassword() {
                 <span asp-validation-for="IncludeInFooterRow3"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder"/>
@@ -157,14 +157,14 @@ function togglePassword() {
         </div>
         @if (area == "Admin")
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CustomerGroups"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="CustomerGroups"/>
                     <span asp-validation-for="CustomerGroups"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Stores"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Stores"/>
@@ -172,7 +172,7 @@ function togglePassword() {
                 </div>
             </div>
         }
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AccessibleWhenStoreClosed"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -182,14 +182,14 @@ function togglePassword() {
                 <span asp-validation-for="AccessibleWhenStoreClosed"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="PageLayoutId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="PageLayoutId" asp-items="Model.AvailablePageLayouts"/>
                 <span asp-validation-for="PageLayoutId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -199,13 +199,13 @@ function togglePassword() {
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="StartDateUtc"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="StartDateUtc"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="EndDateUtc"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="EndDateUtc"/>

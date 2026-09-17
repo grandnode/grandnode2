@@ -10,8 +10,8 @@
     <div class="form-horizontal">
         <h2>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Calendarconfiguration"]</h2>
         <div class="form-body">
-            <div class="form-group">
-                <div class="form-group">
+            <div class="mb-3">
+                <div class="mb-3">
                     <admin-label asp-for="CalendarModel.StartDate"/>
                     <div class="col-md-3 col-sm-3">
                         <admin-input asp-for="CalendarModel.StartDate"/>
@@ -24,7 +24,7 @@
                     </div>
 
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <admin-label asp-for="CalendarModel.EndDate"/>
                     <div class="col-md-3 col-sm-3">
                         <admin-input asp-for="CalendarModel.EndDate"/>
@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" id="pnlIncludeBothDates">
+                <div class="mb-3" id="pnlIncludeBothDates">
                     <admin-label asp-for="CalendarModel.IncBothDate"/>
                     <div class="col-md-9 col-sm-9">
                         <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CalendarModel.Interval"/>
                 <div class="col-md-9 col-sm-9">
                     <span id="pnlInterval">
@@ -55,21 +55,21 @@
                     <admin-select asp-for="CalendarModel.IntervalUnit" asp-items="EnumTranslationService.ToSelectList((IntervalUnit)Model.CalendarModel.IntervalUnit)" class="form-control input-xsmall" style="height: 30px;padding: 0px; margin-bottom: 3px; margin-top: 3px; "/>
                 </div>
             </div>
-            <div class="form-group" id="pnlQuantity">
+            <div class="mb-3" id="pnlQuantity">
                 <admin-label asp-for="CalendarModel.Quantity"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="CalendarModel.Quantity"/>
                 </div>
             </div>
 
-            <div class="form-group" id="pnlResource">
+            <div class="mb-3" id="pnlResource">
                 <admin-label asp-for="CalendarModel.Resource"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="CalendarModel.Resource"/>
                 </div>
             </div>
 
-            <div class="form-group" id="pnlParameter">
+            <div class="mb-3" id="pnlParameter">
                 <admin-label asp-for="CalendarModel.Parameter"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="CalendarModel.Parameter"/>
@@ -80,7 +80,7 @@
                     <div class="caption">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.WeekDay"]</div>
                 </div>
                 <div class="x_content">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="mt-checkbox-inline ">
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Monday"/>

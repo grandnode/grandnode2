@@ -1394,7 +1394,7 @@ body.nav-md .nav.side-menu > li.current-page, body.nav-md .nav.side-menu > li.ac
     border-right: 0
 }
 
-.top_search .input-group-append button {
+.top_search .input-group > button {
     border-radius: 0px 25px 25px 0px;
     border: 1px solid rgba(221, 226, 232, 0.49);
     border-left: 0;
@@ -2121,7 +2121,6 @@ table.display thead th:active, table.display thead td:active {
 }
 
 .dataTables_scrollBody {
-    *margin-top: -1px;
     -webkit-overflow-scrolling: touch
 }
 
@@ -3110,10 +3109,6 @@ legend {
 
 .form-control.has-feedback-right {
     padding-right: 45px
-}
-
-.form-group {
-    margin-bottom: 10px
 }
 
 .validate {
@@ -4285,13 +4280,8 @@ ul.project_files li a i {
     transition-delay: 0.1s
 }
 
-.form-group.has-feedback span {
+.mb-3.has-feedback span {
     display: block !important;
-}
-
-.form-inline:after {
-    content: '';
-    clear: both;
 }
 
 /*!
@@ -5634,7 +5624,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     background-color: #FFFFFF;
 }
 
-.form-horizontal .form-group {
+.form-horizontal > .mb-3 {
     display: inline-block;
     width: 100%;
     margin-right: 0;
@@ -5992,7 +5982,7 @@ a span.username {
     background: #f6f9fc;
 }
 
-.form .form-bordered .form-group>div {
+.form .form-bordered .mb-3>div {
     padding: 15px;
 }
 
@@ -6041,7 +6031,7 @@ a span.username {
 .k-input.text-box {
     padding: 6px 12px;
 }
-.form-group.popup .k-input.text-box {
+.mb-3.popup .k-input.text-box {
     height: 40px;
 }
 
@@ -6184,10 +6174,9 @@ label {
     color: #333;
 }
 
-.input-group .input-group-append {
-    height: 36px;
-}
-.input-group .input-group-append input {
+.input-group > .btn,
+.input-group > input[type="button"],
+.input-group > input[type="submit"] {
     height: 36px;
     padding: 0 18px;
     line-height: 1;
@@ -6699,7 +6688,7 @@ form>h4 {
         left: 3px;
         margin-left: 0px;
     }
-    .col-sm-9>.input-group>.input-group-append>.btn {
+    .col-sm-9>.input-group>.btn {
         margin-top: -5px;
     }
     .caption {
@@ -6994,10 +6983,10 @@ table.tableFixHead {
     .table > thead > th {
         white-space: nowrap;
     }
-    .k-content .form-horizontal .form-body .form-group .col-8.col-md-4.col-sm-4,
-    .k-content .form-horizontal .form-body .form-group .col-4.col-md-8.col-sm-8,
-    .k-content .form-horizontal .form-body .form-group .col-xs-4.col-md-8.col-sm-8,
-    .k-content .form-horizontal .form-body .form-group .col-xs-8.col-md-4.col-sm-4 {
+    .k-content .form-horizontal .form-body .mb-3 .col-8.col-md-4.col-sm-4,
+    .k-content .form-horizontal .form-body .mb-3 .col-4.col-md-8.col-sm-8,
+    .k-content .form-horizontal .form-body .mb-3 .col-xs-4.col-md-8.col-sm-8,
+    .k-content .form-horizontal .form-body .mb-3 .col-xs-8.col-md-4.col-sm-4 {
         -ms-flex: 0 0 100%;
         flex: 0 0 100%;
         max-width: 100%;
@@ -7014,54 +7003,36 @@ table.tableFixHead {
 
 /* Dark Mode */
 
+/* The switch used to be drawn by the Bootstrap 4 .custom-control-label pseudo-elements,
+   with a Font Awesome sun and moon in the knob. Bootstrap 5 draws the knob on the control
+   itself, so the switch is now Bootstrap's own and only its colour and the hidden label
+   are set here. */
 .light-dark-switch {
     display: flex;
     align-items: center;
     overflow: hidden;
     justify-content: center;
-    padding-left: 40px;
+    padding-inline-start: 40px;
 }
-.light-dark-switch .custom-control-label {
+
+.light-dark-switch .form-check-input {
+    margin-inline-start: -2.5em;
+    cursor: pointer;
+}
+
+.light-dark-switch .form-check-input:checked {
+    border-color: #1ABB9C;
+    background-color: #1ABB9C;
+}
+
+/* the text is swapped by script between "Enable" and "Disable Dark Mode" and read by
+   assistive technology, but the header has no room to show it */
+.light-dark-switch .form-check-label {
     font-weight: 500;
     cursor: pointer;
     text-indent: -9999999px;
     color: transparent;
     width: 0;
-}
-.light-dark-switch .custom-control-label::after {
-    top: 10px;
-}
-.light-dark-switch .custom-control-label::before {
-    top: 8px;
-}
-.light-dark-switch input:checked ~ .custom-control-label::before {
-    border-color: #1ABB9C !important;
-    background-color: #1ABB9C !important;
-    text-indent: 1px !important;
-}
-.light-dark-switch input ~ .custom-control-label::after {
-    content: "\f185";
-    left: calc(-2.25rem + 4px);
-    font: normal normal normal 14px/1 FontAwesome;
-    color: #1ABB9C;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent !important;
-    text-indent: 1px !important;
-}
-.light-dark-switch input:checked ~ .custom-control-label::after {
-    content: "\f186";
-    font: normal normal normal 14px/1 FontAwesome;
-    color: #fff;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent !important;
-    transform: translateX(.65rem) !important;
-    text-indent: 1px !important;
 }
 
 /* modal */
@@ -7363,7 +7334,7 @@ table.tableFixHead {
     padding: 0 0 15px 0;
     border-bottom: 1px solid #e6e6e6;
 }
-.popup-window .form-horizontal .drop-filters-container .form-group {
+.popup-window .form-horizontal .drop-filters-container .mb-3 {
     -ms-flex: 0 0 50%;
     flex: 0 0 50%;
     max-width: 50%;

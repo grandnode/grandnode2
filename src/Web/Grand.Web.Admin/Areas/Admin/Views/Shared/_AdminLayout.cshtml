@@ -110,10 +110,10 @@
                                 </a>
                             </li>
                             <li role="presentation" class="dropdown">
-                                <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                                <a href="javascript:;" class="dropdown-toggle info-number" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="icon-info"></i>
                                 </a>
-                                <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
+                                <ul id="menu1" class="dropdown-menu dropdown-menu-end list-unstyled msg_list overflow-h" role="menu">
                                     <li>
                                         <a href="http://docs.grandnode.com/" target="_blank">
                                             <i class="icon-book-open"></i>
@@ -137,10 +137,10 @@
                             @if (canManageSystem)
                             {
                                 <li role="presentation" class="dropdown">
-                                    <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                                    <a href="javascript:;" class="dropdown-toggle info-number" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="icon-settings"></i>
                                     </a>
-                                    <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
+                                    <ul id="menu1" class="dropdown-menu dropdown-menu-end list-unstyled msg_list overflow-h" role="menu">
                                         <li>
                                             <a href="@Url.Action("ClearCache", "System", new { memory = true, returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
                                                 <i class="icon-refresh"></i>
@@ -159,7 +159,7 @@
                                 </li>
                             }
                             <li>
-                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/build/images/avatar.png" alt="">
 
                                     @if (currentCustomer != null && await groupService.IsRegistered(currentCustomer))
@@ -171,7 +171,7 @@
                                     <span class="fa fa-angle-down"></span>
                                 </a>
 
-                                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-default">
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-default">
                                     @if (await groupService.IsAdmin(currentCustomer))
                                     {
                                         <li>
@@ -196,7 +196,7 @@
                                 </span>
                             </li>
                             <li class="dropdown version-check" role="presentation" id="version_check">
-                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <a class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="icon-bell"></i>
                                 </a>
                                 <script>
@@ -204,15 +204,15 @@
                                             var items = [];
 
                                             if (data == '@currentVersion') {
-                                                items.push("<li><a><span class='badge badge-success'>The application is up to date<span></a></li>");
+                                                items.push("<li><a><span class='badge text-bg-success'>The application is up to date<span></a></li>");
                                                 $("<span class='success info-indicator'></span>").appendTo("#version_check .dropdown-toggle");
                                             } else {
-                                                items.push("<li><a><span class='badge badge-danger'>There is a new version of the application<span></a></li>");
+                                                items.push("<li><a><span class='badge text-bg-danger'>There is a new version of the application<span></a></li>");
                                                 $("<span class='danger info-indicator'></span>").appendTo("#version_check .dropdown-toggle");
                                             }
 
                                             $("<ul/>", {
-                                                "class": "dropdown-menu dropdown-menu-right dropdown-menu-default",
+                                                "class": "dropdown-menu dropdown-menu-end dropdown-menu-default",
                                                 html: items.join("")
                                             }).appendTo("#version_check");
                                         });
@@ -220,9 +220,9 @@
                             </li>
                             <li role="presentation">
                                 <a>
-                                    <div class="custom-control custom-switch light-dark-switch">
-                                        <input type="checkbox" class="custom-control-input" id="DarkLight">
-                                        <label class="custom-control-label" for="DarkLight">Enable Dark Mode</label>
+                                    <div class="form-check form-switch light-dark-switch">
+                                        <input type="checkbox" class="form-check-input" id="DarkLight">
+                                        <label class="form-check-label" for="DarkLight">Enable Dark Mode</label>
                                     </div>
                                 </a>
                                 <script>

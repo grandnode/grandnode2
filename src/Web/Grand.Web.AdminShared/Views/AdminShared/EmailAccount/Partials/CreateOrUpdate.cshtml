@@ -13,42 +13,42 @@
 <div class="form-horizontal">
     <partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Email"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Email"/>
                 <span asp-validation-for="Email"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayName"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayName"/>
                 <span asp-validation-for="DisplayName"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Host"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Host"/>
                 <span asp-validation-for="Host"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Port"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Port"/>
                 <span asp-validation-for="Port"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Username"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Username"/>
                 <span asp-validation-for="Username"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Password"/>
             <div class="col-md-9 col-sm-9">
                 <div class="input-group">
@@ -59,7 +59,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="UseServerCertificateValidation"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -69,7 +69,7 @@
                 <span asp-validation-for="UseServerCertificateValidation"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="SecureSocketOptionsId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="SecureSocketOptionsId" asp-items="EnumTranslationService.ToSelectList((SecureSocketOptions)Model.SecureSocketOptionsId)"/>
@@ -77,7 +77,7 @@
         </div>
         @if (area == "Admin")
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="StoreId"/>
                 <div class="col-md-9 col-sm-9">
                     <select asp-for="StoreId" asp-items="Model.AvailableStores" class="form-control"></select>
@@ -86,18 +86,18 @@
         }
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="note note-info">
                     @Loc["Admin.Configuration.EmailAccounts.SendTestEmail"]
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="SendTestEmailTo"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="SendTestEmailTo"/>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="col-md-9 col-sm-9 offset-md-3">
                     <input type="submit" name="sendtestemail" asp-action="SendTestEmail" class="k-button" value="@Loc["Admin.Configuration.EmailAccounts.SendTestEmail.Button"]"/>
                 </div>

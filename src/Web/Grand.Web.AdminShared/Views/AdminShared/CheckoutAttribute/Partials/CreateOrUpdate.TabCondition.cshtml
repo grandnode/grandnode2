@@ -20,7 +20,7 @@
 
         <div class="form-horizontal">
             <div class="form-body">
-                <div class="form-group">
+                <div class="mb-3">
                     <admin-label asp-for="ConditionModel.EnableCondition"/>
                     <div class="col-md-9 col-sm-9">
                         <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -37,7 +37,7 @@
             {
                 <div class="form-horizontal">
                     <div class="form-body">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="ConditionModel.SelectedAttributeId"/>
                             <div class="col-md-9 col-sm-9">
                                 <admin-select asp-for="ConditionModel.SelectedAttributeId" asp-items="Model.ConditionModel.ConditionAttributes.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })"/>
@@ -54,7 +54,7 @@
                                 </script>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="control-label col-md-3"></label>
                             <div class="col-md-9 col-sm-9">
                                 @for (var i = 0; i < Model.ConditionModel.ConditionAttributes.Count; i++)

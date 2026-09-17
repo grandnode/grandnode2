@@ -26,7 +26,7 @@
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="SearchEmail" class="control-label"/>
                                             <admin-input asp-for="SearchEmail"/>
                                         </div>
@@ -37,7 +37,7 @@
                                                 <button class="btn btn-success filter-submit" id="search-subscriptions">
                                                     <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                                                     <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
@@ -48,19 +48,19 @@
                         </div>
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="ActiveId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="ActiveId" asp-items="Model.ActiveList"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="StoreId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchCategoryIds" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="SearchCategoryIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCategories"/>

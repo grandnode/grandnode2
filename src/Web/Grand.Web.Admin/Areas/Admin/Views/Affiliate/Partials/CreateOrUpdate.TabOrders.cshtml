@@ -2,31 +2,31 @@
 
 <div class="form-horizontal">
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="StartDate"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="StartDate"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="EndDate"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="EndDate"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="OrderStatusId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="PaymentStatusId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ShippingStatusId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses"/>

@@ -6,20 +6,20 @@
 
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Id"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.Id</label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Url"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.Url</label>
                 </div>
             </div>
         }
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Active"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -41,7 +41,7 @@
 <admin-input asp-for="Address" asp-template="Address"/>
 <div class="form-horizontal">
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AdminComment"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AdminComment"></admin-textarea>

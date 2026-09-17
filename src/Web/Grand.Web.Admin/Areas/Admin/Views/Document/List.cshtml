@@ -29,13 +29,13 @@
                         <div class="main-header col-12 px-0">
                             <div class="row align-items-end">
                                 <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="form-group mb-0">
+                                    <div class="mb-0">
                                         <admin-label asp-for="SearchName" class="control-label"/>
                                         <admin-input asp-for="SearchName"/>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="form-group mb-0">
+                                    <div class="mb-0">
                                         <admin-label asp-for="SearchNumber" class="control-label"/>
                                         <admin-input asp-for="SearchNumber"/>
                                     </div>
@@ -46,7 +46,7 @@
                                             <button class="btn btn-success filter-submit" id="search-documents">
                                                 <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
                                             </button>
-                                            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                            <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                                                 <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                             </button>
                                         </div>
@@ -56,13 +56,13 @@
                         </div>
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchEmail" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="SearchEmail"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="StatusId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         @Html.DropDownList("StatusId", selectedList, new { @class = "form-control" })

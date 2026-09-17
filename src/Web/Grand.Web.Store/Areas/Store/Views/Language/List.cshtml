@@ -23,7 +23,7 @@
                     <grid-column field="Name" title="@Loc["Admin.Configuration.Languages.Fields.Name"]" width="200">
                         <cell-template>
                             {{ Name }}
-                            <span data-if="IsAssignedToCurrentStore" class="badge badge-success" title="{{ $texts.assignStore }}"><i class="fa fa-check"></i></span>
+                            <span data-if="IsAssignedToCurrentStore" class="badge text-bg-success" title="{{ $texts.assignStore }}"><i class="fa fa-check"></i></span>
                         </cell-template>
                     </grid-column>
                     <grid-column field="LanguageCulture" title="@Loc["Admin.Configuration.Languages.Fields.LanguageCulture"]" width="120"/>
@@ -41,7 +41,7 @@
                     </grid-column>
                     <grid-column field="IsDefaultStoreLanguage" title="@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]" width="200" align="Center">
                         <cell-template>
-                            <span data-if="IsDefaultStoreLanguage" class="badge badge-info"><i class="fa fa-home"></i> {{ $texts.setDefaultLanguage }}</span>
+                            <span data-if="IsDefaultStoreLanguage" class="badge text-bg-info"><i class="fa fa-home"></i> {{ $texts.setDefaultLanguage }}</span>
                             <a data-if="IsDefaultStoreLanguage" data-grid-click="unsetDefaultLanguage" class="btn btn-sm btn-warning" title="{{ $texts.unsetDefaultLanguage }}"><i class="fa fa-home"></i> {{ $texts.unsetDefaultLanguage }}</a>
                             <a data-if="!IsDefaultStoreLanguage && IsAssignedToCurrentStore" data-grid-click="setDefaultLanguage" class="btn btn-sm btn-info" title="{{ $texts.setDefaultLanguage }}"><i class="fa fa-home"></i> {{ $texts.setDefaultLanguage }}</a>
                             <span data-if="!IsDefaultStoreLanguage && !IsAssignedToCurrentStore" class="text-muted">-</span>

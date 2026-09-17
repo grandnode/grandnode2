@@ -5,7 +5,7 @@
 <div>
     <div class="form-horizontal">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="OrderId"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">
@@ -13,14 +13,14 @@
                     </label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="TrackingNumber"/>
                 <div class="col-md-6">
                     <div class="input-group">
                         <div class="input-group-control">
                             <admin-input asp-for="TrackingNumber"/>
                         </div>
-                        <div class="input-group-append">
+                        <div class="">
                             <input type="submit" name="settrackingnumber" asp-action="SetTrackingNumber" value="@Loc["Admin.Orders.Shipments.TrackingNumber.Button"]" class="btn default"/>
                             @if (!string.IsNullOrEmpty(Model.TrackingNumberUrl))
                             {
@@ -30,26 +30,26 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AdminComment"/>
                 <div class="col-md-6">
                     <div class="input-group">
                         <div class="input-group-control">
                             <admin-input asp-for="AdminComment"/>
                         </div>
-                        <div class="input-group-append">
+                        <div class="">
                             <input type="submit" name="setadmincomment" asp-action="SetShipmentAdminComment" value="@Loc["Admin.Orders.Shipments.AdminComment.Button"]" class="btn default"/>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="TotalWeight"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.TotalWeight</label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="ShippedDate"/>
                 <div class="col-md-9 col-sm-9">
                     <span id="lblShippedDate">
@@ -75,7 +75,7 @@
                     }
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="DeliveryDate"/>
                 <div class="col-md-9 col-sm-9">
                     <span id="lblDeliveryDate">
@@ -193,7 +193,7 @@
             @Loc["Admin.Orders.Shipments.ShipmentStatusEvents"]
         </div>
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
                     <tr>

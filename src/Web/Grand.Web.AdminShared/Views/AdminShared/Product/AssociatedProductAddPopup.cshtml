@@ -27,7 +27,7 @@
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
                                     <div class="col-md col-ms-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="SearchProductName" class="control-label"/>
                                             <admin-input asp-for="SearchProductName"/>
                                         </div>
@@ -38,7 +38,7 @@
                                                 <button class="btn btn-success filter-submit" id="search-products">
                                                     <i class="fa fa-search"></i>&nbsp; @Loc[$"{Scope.ResourceKeyPrefix}.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                                                     <i class="fa fa-filter"></i>&nbsp; @Loc[$"{Scope.ResourceKeyPrefix}.Common.Filters"]
                                                 </button>
                                             </div>
@@ -49,19 +49,19 @@
                             </div>
                             <div class="collapse" id="filterCollapse">
                                 <div class="drop-filters-container">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-input asp-for="SearchCategoryId"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9  col-sm-9">
                                             <admin-input asp-for="SearchBrandId"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9  col-sm-9">
                                             <admin-input asp-for="SearchCollectionId"/>
@@ -69,20 +69,20 @@
                                     </div>
                                     @if (area == "Admin")
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchVendorId" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-select asp-for="SearchVendorId" asp-items="Model.AvailableVendors"/>
                                             </div>
                                         </div>
                                     }
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>

@@ -82,8 +82,8 @@
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="PricesIncludeTax" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -94,8 +94,8 @@
                                     <span asp-validation-for="PricesIncludeTax"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="AllowCustomersToSelectTaxDisplayType" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -106,8 +106,8 @@
                                     <span asp-validation-for="AllowCustomersToSelectTaxDisplayType"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlTaxDisplayType">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlTaxDisplayType">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="TaxDisplayType" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -115,8 +115,8 @@
                                     <span asp-validation-for="TaxDisplayType"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="DisplayTaxRates" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -127,8 +127,8 @@
                                     <span asp-validation-for="DisplayTaxRates"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="HideZeroTax" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -139,8 +139,8 @@
                                     <span asp-validation-for="HideZeroTax"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="HideTaxInOrderSummary" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -151,8 +151,8 @@
                                     <span asp-validation-for="HideTaxInOrderSummary"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="ForceTaxExclusionFromOrderSubtotal" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -163,8 +163,8 @@
                                     <span asp-validation-for="ForceTaxExclusionFromOrderSubtotal"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="TaxBasedOn" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -173,19 +173,19 @@
                                 </div>
                             </div>
                             <div class="form-horizontal portlet light bg-inverse form-fit">
-                                <div class="form-group" style="padding-top:15px;margin-bottom: 0px;">
-                                    <div class="col-8 col-md-4 col-sm-4 text-right">
+                                <div class="mb-3" style="padding-top:15px;margin-bottom: 0px;">
+                                    <div class="col-8 col-md-4 col-sm-4 text-end">
                                         <strong>@Loc["Admin.Configuration.Tax.DefaultTaxAddress"]</strong>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div id="pnlDefaultTaxAddress">
                                         <admin-input asp-for="DefaultTaxAddress" asp-template="Address"/>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="DefaultTaxCategoryId" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -193,8 +193,8 @@
                                     <span asp-validation-for="DefaultTaxCategoryId"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="ShippingIsTaxable" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -205,8 +205,8 @@
                                     <span asp-validation-for="ShippingIsTaxable"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlShippingPriceIncludesTax">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlShippingPriceIncludesTax">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="ShippingPriceIncludesTax" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -217,8 +217,8 @@
                                     <span asp-validation-for="ShippingPriceIncludesTax"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlShippingTaxClass">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlShippingTaxClass">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="ShippingTaxCategoryId" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -226,8 +226,8 @@
                                     <span asp-validation-for="ShippingTaxCategoryId"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="PaymentMethodAdditionalFeeIsTaxable" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -238,8 +238,8 @@
                                     <span asp-validation-for="PaymentMethodAdditionalFeeIsTaxable"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlPaymentMethodAdditionalFeeIncludesTax">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlPaymentMethodAdditionalFeeIncludesTax">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="PaymentMethodAdditionalFeeIncludesTax" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -250,8 +250,8 @@
                                     <span asp-validation-for="PaymentMethodAdditionalFeeIncludesTax"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlPaymentMethodAdditionalFeeTaxCategory">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlPaymentMethodAdditionalFeeTaxCategory">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="PaymentMethodAdditionalFeeTaxCategoryId" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -259,8 +259,8 @@
                                     <span asp-validation-for="PaymentMethodAdditionalFeeTaxCategoryId"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="EuVatEnabled" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -271,8 +271,8 @@
                                     <span asp-validation-for="EuVatEnabled"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlEuVatShopCountry">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlEuVatShopCountry">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="EuVatShopCountryId" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -280,8 +280,8 @@
                                     <span asp-validation-for="EuVatShopCountryId"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlEuVatAllowVATExemption">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlEuVatAllowVATExemption">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="EuVatAllowVatExemption" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -292,8 +292,8 @@
                                     <span asp-validation-for="EuVatAllowVatExemption"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlEuVatAssumeValid">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlEuVatAssumeValid">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="EuVatAssumeValid" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -304,8 +304,8 @@
                                     <span asp-validation-for="EuVatAssumeValid"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlEuVatUseWebService">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3" id="pnlEuVatUseWebService">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="EuVatUseWebService" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
@@ -316,21 +316,21 @@
                                     <span asp-validation-for="EuVatUseWebService"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlEuVatNote">
+                            <div class="mb-3" id="pnlEuVatNote">
                                 <div class="note note-info">
                                     If you want to use EU VAT Web Service to validate the EU VAT numbers, please add EuropaCheckVat plugin to your store.
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="CalculateRoundPrice" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <admin-input asp-for="CalculateRoundPrice"/>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                            <div class="mb-3">
+                                <div class="col-8 col-md-4 col-sm-4 text-end">
                                     <admin-label asp-for="MidpointRounding" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">

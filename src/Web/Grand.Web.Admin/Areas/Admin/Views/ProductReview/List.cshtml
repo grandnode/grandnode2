@@ -25,7 +25,7 @@
                         <div class="main-header col-12 px-0">
                             <div class="row align-items-end">
                                 <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="form-group mb-0">
+                                    <div class="mb-0">
                                         <admin-label asp-for="SearchProductId" class="control-label"/>
                                         <div>
                                             <input type="text" class="form-control text-box single-line" id="search-product-name" autocomplete="off"/>
@@ -59,7 +59,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="form-group mb-0">
+                                    <div class="mb-0">
                                         <admin-label asp-for="SearchText" class="control-label"/>
                                         <admin-input asp-for="SearchText"/>
                                     </div>
@@ -70,7 +70,7 @@
                                             <button class="btn btn-success filter-submit" id="search-productreviews">
                                                 <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
                                             </button>
-                                            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                            <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                                                 <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                             </button>
                                         </div>
@@ -80,19 +80,19 @@
                         </div>
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="CreatedOnFrom" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="CreatedOnFrom"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="CreatedOnTo" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="CreatedOnTo"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>

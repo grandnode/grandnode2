@@ -53,7 +53,7 @@
                         }
                         else
                         {
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label class="control-label col-sm-3">
                                     @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]
                                 </label>
@@ -69,14 +69,14 @@
                     <div class="form-body">
                         @if (!Model.UseMultipleWarehouses)
                         {
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="StockQuantity" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="StockQuantity"/>
                                     <span asp-validation-for="StockQuantity"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="ReservedQuantity" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="ReservedQuantity"/>
@@ -86,7 +86,7 @@
                         }
                         else
                         {
-                            <div class="form-group" id="pnlMultipleWarehouses">
+                            <div class="mb-3" id="pnlMultipleWarehouses">
 
                                 <div class="col-md-9 col-sm-9">
                                     @if (Model.WarehouseInventoryModels.Count > 0)
@@ -143,7 +143,7 @@
                                 </div>
                             </div>
                         }
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="AllowOutOfStockOrders" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -153,49 +153,49 @@
                                 <span asp-validation-for="AllowOutOfStockOrders"></span>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="Text" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <admin-input asp-for="Text"/>
                                 <span asp-validation-for="Text"></span>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="Sku" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <admin-input asp-for="Sku"/>
                                 <span asp-validation-for="Sku"></span>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="Mpn" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <admin-input asp-for="Mpn"/>
                                 <span asp-validation-for="Mpn"></span>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="Gtin" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <admin-input asp-for="Gtin"/>
                                 <span asp-validation-for="Gtin"></span>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="OverriddenPrice" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <admin-input asp-for="OverriddenPrice"/> [@Model.PrimaryStoreCurrencyCode]
                                 <span asp-validation-for="OverriddenPrice"></span>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="NotifyAdminForQuantityBelow" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <admin-input asp-for="NotifyAdminForQuantityBelow"/>
                                 <span asp-validation-for="NotifyAdminForQuantityBelow"></span>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <admin-label asp-for="PictureId" class="col-sm-3 control-label"/>
                             <div class="col-md-9 col-sm-9">
                                 <ul style="list-style: none;">
@@ -233,7 +233,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                 <button class="btn btn-success" type="submit" name="save">
                                     <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]

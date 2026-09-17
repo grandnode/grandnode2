@@ -314,7 +314,7 @@
                 }
                 @if (Model.PickupAddress != null)
                 {
-                    <div class="form-group">
+                    <div class="mb-3">
                         <admin-label asp-for="PickupAddress"/>
                         <div class="col-md-9 col-sm-9">
                             <table class="table table-bordered table-striped table-hover">
@@ -372,7 +372,7 @@
                     <div class="form-horizontal">
                         <div class="form-body">
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="ShippingMethod"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="control-label" id="lblShippingMethod">@Model.ShippingMethod</label>
@@ -415,7 +415,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="ShippingStatus"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="control-label">@Model.ShippingStatus</label>

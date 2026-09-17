@@ -3,45 +3,45 @@
 <vc:admin-widget widget-zone="product_details_prices_top" additional-data="Model"/>
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Price"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Price"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="Price"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <partial name="Partials/CreateOrUpdate.ProductPrices" model="Model"/>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="OldPrice"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="OldPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="OldPrice"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="CatalogPrice"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="CatalogPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="CatalogPrice"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlStartPrice">
+        <div class="mb-3" id="pnlStartPrice">
             <admin-label asp-for="StartPrice"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="StartPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="StartPrice"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ProductCost"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="ProductCost"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="ProductCost"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisableBuyButton"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -51,7 +51,7 @@
                 <span asp-validation-for="DisableBuyButton"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisableWishlistButton"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -61,7 +61,7 @@
                 <span asp-validation-for="DisableWishlistButton"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AvailableForPreOrder"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -71,14 +71,14 @@
                 <span asp-validation-for="AvailableForPreOrder"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlPreOrderDateTime">
+        <div class="mb-3" id="pnlPreOrderDateTime">
             <admin-label asp-for="PreOrderDateTime"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="PreOrderDateTime"/>
                 <span asp-validation-for="PreOrderDateTime"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="CallForPrice"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -88,7 +88,7 @@
                 <span asp-validation-for="CallForPrice"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="EnteredPrice"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -98,21 +98,21 @@
                 <span asp-validation-for="EnteredPrice"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlMinEnteredPrice">
+        <div class="mb-3" id="pnlMinEnteredPrice">
             <admin-label asp-for="MinEnteredPrice"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="MinEnteredPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="MinEnteredPrice"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlMaxEnteredPrice">
+        <div class="mb-3" id="pnlMaxEnteredPrice">
             <admin-label asp-for="MaxEnteredPrice"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="MaxEnteredPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="MaxEnteredPrice"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="BasepriceEnabled"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -122,35 +122,35 @@
                 <span asp-validation-for="BasepriceEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlBasepriceAmount">
+        <div class="mb-3" id="pnlBasepriceAmount">
             <admin-label asp-for="BasepriceAmount"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="BasepriceAmount"/>
                 <span asp-validation-for="BasepriceAmount"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlBasepriceUnit">
+        <div class="mb-3" id="pnlBasepriceUnit">
             <admin-label asp-for="BasepriceUnitId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="BasepriceUnitId" asp-items="Model.AvailableBasepriceUnits"/>
                 <span asp-validation-for="BasepriceUnitId"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlBasepriceBaseAmount">
+        <div class="mb-3" id="pnlBasepriceBaseAmount">
             <admin-label asp-for="BasepriceBaseAmount"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="BasepriceBaseAmount"/>
                 <span asp-validation-for="BasepriceBaseAmount"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlBasepriceBaseUnit">
+        <div class="mb-3" id="pnlBasepriceBaseUnit">
             <admin-label asp-for="BasepriceBaseUnitId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="BasepriceBaseUnitId" asp-items="Model.AvailableBasepriceBaseUnits"/>
                 <span asp-validation-for="BasepriceBaseUnitId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IsTaxExempt"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -160,14 +160,14 @@
                 <span asp-validation-for="IsTaxExempt"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlTaxCategory">
+        <div class="mb-3" id="pnlTaxCategory">
             <admin-label asp-for="TaxCategoryId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="TaxCategoryId" asp-items="Model.AvailableTaxCategories"/>
                 <span asp-validation-for="TaxCategoryId"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlIsTelecommunicationsOrBroadcastingOrElectronicServices">
+        <div class="mb-3" id="pnlIsTelecommunicationsOrBroadcastingOrElectronicServices">
             <admin-label asp-for="IsTele"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox white-bg">

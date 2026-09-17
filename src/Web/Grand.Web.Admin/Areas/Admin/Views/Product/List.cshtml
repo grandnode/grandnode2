@@ -18,7 +18,7 @@
                             <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                         </a>
                         <div class="btn-group btn-group-devided">
-                            <a class="btn default" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <a class="btn default" href="javascript:;" data-bs-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                                 <i class="fa fa-download"></i>
                                 @Loc["Admin.Common.Export"]
                                 <i class="fa fa-angle-down"></i>
@@ -50,7 +50,7 @@
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="SearchProductName" class="control-label"/>
                                             <admin-input asp-for="SearchProductName"/>
                                         </div>
@@ -61,7 +61,7 @@
                                                 <button class="btn btn-success filter-submit" id="search-products">
                                                     <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                                                     <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
@@ -72,42 +72,42 @@
                         </div>
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchPublishedId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="SearchPublishedId" asp-items="Model.AvailablePublishedOptions"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchWarehouseId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="GoDirectlyToSku" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <div class="input-group" style="text-align:left">
                                             <admin-input asp-for="GoDirectlyToSku"/>
-                                            <span class="input-group-append">
+                                            <span class="">
                                                 <input type="submit" id="go-to-product-by-sku" asp-action="GoToSku" name="go-to-product-by-sku" class="btn default" value="@Loc["Admin.Common.Go"]"/>
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="SearchCategoryId"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchIncludeSubCategories" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -116,25 +116,25 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="SearchBrandId"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="SearchCollectionId"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchVendorId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="SearchVendorId"/>
@@ -275,10 +275,10 @@
     <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ImportExcel" method="post" enctype="multipart/form-data">
 
         <em>@Loc["Admin.Catalog.Products.List.ImportFromExcelTip"]</em>
-        <div class="form-group">
+        <div class="mb-3">
             &nbsp;
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="col-md-2" style="margin-top: 2px; height: 34px; padding-left: 25px;">
                 <label class="control-label">
                     @Loc["Admin.Common.ExcelFile"]
@@ -288,14 +288,14 @@
                 <input type="file" id="importexcelfile" name="importexcelfile"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             &nbsp;
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="col-md-2">
                 &nbsp;
             </div>
-            <div class="col-md-10 text-right mt-10">
+            <div class="col-md-10 text-end mt-10">
                 <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]"/>
             </div>
         </div>

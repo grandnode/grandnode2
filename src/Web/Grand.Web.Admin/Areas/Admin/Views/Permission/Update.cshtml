@@ -19,27 +19,27 @@
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="Name"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="Name"/>
                                     <span asp-validation-for="Name"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="SystemName"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="SystemName" asp-disabled="true"/>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="Area"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="Area"/>
                                     <span asp-validation-for="Area"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="Category"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="Category"/>
@@ -47,7 +47,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                     <button class="btn btn-success" type="submit" name="save">
                                         <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]

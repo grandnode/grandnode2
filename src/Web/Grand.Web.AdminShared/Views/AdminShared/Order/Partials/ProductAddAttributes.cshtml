@@ -3,7 +3,7 @@
 {
     foreach (var attribute in Model)
     {
-        <div class="form-group">
+        <div class="mb-3">
             @{
                 var controlId = $"attributes[{attribute.Id}]";
                 var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;

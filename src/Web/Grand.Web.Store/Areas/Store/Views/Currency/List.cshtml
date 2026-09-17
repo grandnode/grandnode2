@@ -24,8 +24,8 @@
                     <grid-column field="Name" title="@Loc["Admin.Configuration.Currencies.Fields.Name"]" width="200">
                         <cell-template>
                             {{ Name }}
-                            <span data-if="IsPrimaryStoreCurrency" class="badge badge-warning" title="{{ $texts.isPrimaryStoreCurrency }}"><i class="fa fa-star"></i></span>
-                            <span data-if="IsAssignedToCurrentStore" class="badge badge-success" title="{{ $texts.assignStore }}"><i class="fa fa-check"></i></span>
+                            <span data-if="IsPrimaryStoreCurrency" class="badge text-bg-warning" title="{{ $texts.isPrimaryStoreCurrency }}"><i class="fa fa-star"></i></span>
+                            <span data-if="IsAssignedToCurrentStore" class="badge text-bg-success" title="{{ $texts.assignStore }}"><i class="fa fa-check"></i></span>
                         </cell-template>
                     </grid-column>
                     <grid-column field="CurrencyCode" title="@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]" width="100"/>
@@ -37,7 +37,7 @@
                     </grid-column>
                     <grid-column field="IsDefaultStoreCurrency" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]" width="180" align="Center">
                         <cell-template>
-                            <span data-if="IsDefaultStoreCurrency" class="badge badge-info"><i class="fa fa-home"></i> {{ $texts.setDefaultCurrency }}</span>
+                            <span data-if="IsDefaultStoreCurrency" class="badge text-bg-info"><i class="fa fa-home"></i> {{ $texts.setDefaultCurrency }}</span>
                             <a data-if="IsDefaultStoreCurrency" data-grid-click="unsetDefaultCurrency" class="btn btn-sm btn-warning" title="{{ $texts.unsetDefaultCurrency }}"><i class="fa fa-home"></i> {{ $texts.unsetDefaultCurrency }}</a>
                             <a data-if="!IsDefaultStoreCurrency && IsAssignedToCurrentStore" data-grid-click="setDefaultCurrency" class="btn btn-sm btn-info" title="{{ $texts.setDefaultCurrency }}"><i class="fa fa-home"></i> {{ $texts.setDefaultCurrency }}</a>
                             <span data-if="!IsDefaultStoreCurrency && !IsAssignedToCurrentStore" class="text-muted">-</span>

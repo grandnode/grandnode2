@@ -30,14 +30,14 @@
                     <div class="form-body">
                         <div class="row align-items-end">
                             <div class="col-md-6 col-sm-12 col-12">
-                                <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchCollectionName" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                <div class="mb-0">
+                                    <admin-label asp-for="SearchCollectionName" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
                                     <admin-input asp-for="SearchCollectionName"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12">
-                                <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                <div class="mb-0">
+                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
                                     <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
                                 </div>
                             </div>
@@ -116,10 +116,10 @@
     <form asp-area="@Constants.AreaAdmin" asp-controller="Collection" asp-action="ImportFromXlsx" method="post" enctype="multipart/form-data">
 
         <em>@Loc["Admin.Catalog.Collection.List.ImportFromExcelTip"]</em>
-        <div class="form-group">
+        <div class="mb-3">
             &nbsp;
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="col-md-3" style="margin-top: 2px; height: 34px; padding-left: 25px;">
                 <label class="control-label">
                     @Loc["Admin.Common.ExcelFile"]:
@@ -129,14 +129,14 @@
                 <input type="file" id="importexcelfile" name="importexcelfile"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             &nbsp;
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="col-md-2">
                 &nbsp;
             </div>
-            <div class="col-md-10 text-right mt-10">
+            <div class="col-md-10 text-end mt-10">
                 <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]"/>
             </div>
         </div>

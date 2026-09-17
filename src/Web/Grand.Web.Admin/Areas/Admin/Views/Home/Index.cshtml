@@ -28,7 +28,7 @@
 <vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null"/>
 @if (canManageOrders)
 {
-    <div class="form-row top_tiles">
+    <div class="row g-2 top_tiles">
         <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
             <div class="tile-stats">
                 <div class="icon">
@@ -98,7 +98,7 @@
                             $.getJSON("https://grandnode.com/news.json", function (data) {
                                 var newsitems = [];
                                 $.each(data, function (key, value) {
-                                    newsitems.push("<li id='news-" + key + "' class='media'><div class='media-body note note-info'><h5><a href='" + value.Url + "' target='_blank' >" + value.Name + "</a></h5>" + value.Message + "</div></li>");
+                                    newsitems.push("<li id='news-" + key + "' class='d-flex'><div class='flex-grow-1 note note-info'><h5><a href='" + value.Url + "' target='_blank' >" + value.Name + "</a></h5>" + value.Message + "</div></li>");
                                 });
 
                                 $("<ul/>", {

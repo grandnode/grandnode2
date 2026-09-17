@@ -15,21 +15,21 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
-                       <div class="form-group">
+                       <div class="mb-3">
                            <admin-label asp-for="@Model.Locales[item].BccEmailAddresses"/>
                            <div class="col-md-9 col-sm-9">
                                <admin-input asp-for="@Model.Locales[item].BccEmailAddresses"/>
                                <span asp-validation-for="@Model.Locales[item].BccEmailAddresses"></span>
                            </div>
                        </div>
-                       <div class="form-group">
+                       <div class="mb-3">
                            <admin-label asp-for="@Model.Locales[item].Subject"/>
                            <div class="col-md-9 col-sm-9">
                                <admin-input asp-for="@Model.Locales[item].Subject"/>
                                <span asp-validation-for="@Model.Locales[item].Subject"></span>
                            </div>
                        </div>
-                       <div class="form-group">
+                       <div class="mb-3">
                            <admin-label asp-for="@Model.Locales[item].Body"/>
                            <div class="col-md-9 col-sm-9">
                                <div>
@@ -46,7 +46,7 @@
                                <span asp-validation-for="@Model.Locales[item].Body"></span>
                            </div>
                        </div>
-                       <div class="form-group">
+                       <div class="mb-3">
                            <admin-label asp-for="@Model.Locales[item].EmailAccountId"/>
                            <div class="col-md-9 col-sm-9">
                                <admin-select asp-for="@Model.Locales[item].EmailAccountId" asp-items="@(new SelectList(Model.AvailableEmailAccounts, "Id", "DisplayName", Model.Locales[item].EmailAccountId))"/>
@@ -59,7 +59,7 @@
 
 <div class="form-horizontal">
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Name"/>
             <div class="col-md-9 col-sm-9">
                 @if (!string.IsNullOrEmpty(Model.Id))
@@ -73,7 +73,7 @@
                 }
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IsActive"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -87,21 +87,21 @@
 
     <localized-editor localized-template="@template" name="messagetemplate-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="BccEmailAddresses"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="BccEmailAddresses"/>
                     <span asp-validation-for="BccEmailAddresses"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Subject"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Subject"/>
                     <span asp-validation-for="Subject"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Body"/>
                 <div class="col-md-9 col-sm-9">
                     <div>
@@ -118,7 +118,7 @@
                     <span asp-validation-for="Body"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="EmailAccountId"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-select asp-for="EmailAccountId" asp-items="@(new SelectList(Model.AvailableEmailAccounts, "Id", "DisplayName"))"/>
@@ -129,7 +129,7 @@
     </localized-editor>
 
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="SendImmediately"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -139,7 +139,7 @@
                 <span asp-validation-for="SendImmediately"></span>
             </div>
         </div>
-        <div class="form-group" id="pnl-send-after">
+        <div class="mb-3" id="pnl-send-after">
             <admin-label asp-for="DelayBeforeSend"/>
             <div class="col-md-9 col-sm-9">
                 <div class="col-md-3 col-sm-3">
@@ -154,7 +154,7 @@
         </div>
         @if (area == "Admin")
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Stores"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Stores"/>
@@ -162,7 +162,7 @@
                 </div>
             </div>
         }
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AttachedDownloadId"/>
             <div class="col-md-9 col-sm-9">
                 @{
@@ -175,7 +175,7 @@
                     <div class="d-inline-flex flex-row-reverse">
                         <admin-input asp-for="HasAttachedDownload"/>
                         @Loc["Admin.Content.MessageTemplates.Fields.AttachedDownload.Exists"]
-                        <div class="control__indicator mr-3"></div>
+                        <div class="control__indicator me-3"></div>
                     </div>
                 </label>
                 <div id="pnlAttachedDownload">
@@ -223,7 +223,7 @@
 
     function SearchTokens(e) {
         var searchVal = $(e.target).val();
-        var TokensPnl = $(e.target).closest(".form-group").find(".AllowedTokens");
+        var TokensPnl = $(e.target).closest(".mb-3").find(".AllowedTokens");
         $(TokensPnl).find(".btn").show()
             .each(function (i, c) {
                 var Token = $(c).text();
