@@ -104,17 +104,53 @@ function checkboxEditor(ctx) {
 
 const pad = n => String(n).padStart(2, '0')
 
+/**
+ * The picker the forms use (ui/datetime.js), so a date is edited the same way in a row as on
+ * a screen and is read in the store's culture rather than the browser's locale. It is taken
+ * off GrandAdmin at the moment the cell is opened rather than imported: admin.ui.js is loaded
+ * next to admin.grid.js on every panel page, and importing it would put a second copy of the
+ * picker in this bundle. Without it - a page that loads only the grid - the native input is
+ * still what the cell gets, exactly as before.
+ * What the row posts does not change either way: the ISO string the server sent goes back.
+ */
 function dateEditor(ctx, withTime) {
-    const element = input(ctx.doc, withTime ? 'datetime-local' : 'date', ctx.column)
+    const factory = globalThis.GrandAdmin?.dateInput?.create
     const raw = ctx.value == null ? '' : String(ctx.value)
-    //server values are ISO strings; the input wants yyyy-MM-dd or yyyy-MM-ddTHH:mm
+    let iso = ''
     const match = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?/.exec(raw)
-    if (match) element.value = withTime ? `${match[1]}T${match[2] || '00:00'}` : match[1]
+    if (match) iso = `${match[1]}T${match[2] || '00:00'}:00`
     else if (ctx.value instanceof Date) {
         const d = ctx.value
-        const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-        element.value = withTime ? `${date}T${pad(d.getHours())}:${pad(d.getMinutes())}` : date
+        iso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`
     }
+
+    if (typeof factory !== 'function') return nativeDateEditor(ctx, withTime, iso)
+
+    const element = input(ctx.doc, 'text', ctx.column)
+    const holder = ctx.doc.createElement('div')
+    holder.className = 'grand-grid-date'
+    holder.appendChild(element)
+    const widget = factory(element, { culture: ctx.culture, mode: withTime ? 'datetime' : 'date', value: iso })
+    //a row has no server-rendered text to preserve, so the seed is written out at once
+    widget.value(iso === '' ? null : iso)
+    keyHandlers(element, ctx)
+    const isoValue = () => {
+        const date = widget.value()
+        if (!date) return null
+        const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+        return withTime ? `${day}T${pad(date.getHours())}:${pad(date.getMinutes())}:00` : day
+    }
+    return {
+        element: holder,
+        getValue: isoValue,
+        validate: () => markValidity(element, ctx.column.required && isoValue() == null ? 'required' : null),
+        focus: () => element.focus()
+    }
+}
+
+function nativeDateEditor(ctx, withTime, iso) {
+    const element = input(ctx.doc, withTime ? 'datetime-local' : 'date', ctx.column)
+    if (iso) element.value = withTime ? iso.slice(0, 16) : iso.slice(0, 10)
     keyHandlers(element, ctx)
     return {
         element,
@@ -159,7 +195,8 @@ export function filteredOptionsUrl(url, { text, operator = 'startswith', field =
 function selectEditor(ctx) {
     const { column, doc } = ctx
     const element = doc.createElement('select')
-    element.className = 'form-control form-control-sm'
+    //Bootstrap 5 draws a select's chevron for form-select only; form-control leaves it bare
+    element.className = 'form-select form-select-sm'
     element.dataset.field = column.field
     if (column.required) element.required = true
     const stored = ctx.value == null ? '' : String(ctx.value)
