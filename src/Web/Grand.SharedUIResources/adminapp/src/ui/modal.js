@@ -8,6 +8,14 @@
 
 const instances = new WeakMap()
 
+//Bootstrap's own modal classes on an element this widget adopts. `.modal-dialog` carries
+//`pointer-events: none` - Bootstrap gives the clickability back on `.modal-content`, which
+//these windows never had - so an adopted element keeping the class swallowed every click
+//inside it: the file field of an import window could not be opened at all. This widget
+//draws its own header, dialog and body, so none of these names has anything left to say
+//here; they are dropped when the element is adopted, once, for every window.
+const BOOTSTRAP_MODAL_CLASSES = ['modal', 'modal-dialog', 'modal-content', 'modal-dialog-centered', 'modal-dialog-scrollable', 'fade']
+
 function resolve(target, doc) {
     if (!target) return null
     if (typeof target === 'string') return doc.querySelector(target.startsWith('#') || target.startsWith('.') ? target : `#${target}`)
@@ -57,6 +65,7 @@ class Modal {
 
         //the element carried style="display:none" while it waited on the page
         element.style.display = ''
+        element.classList.remove(...BOOTSTRAP_MODAL_CLASSES)
         this.body.appendChild(element)
 
         this.overlay.addEventListener('mousedown', e => {

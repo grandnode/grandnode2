@@ -189,6 +189,16 @@ body.grand-modal-open {
     padding: 1rem;
 }
 
+/* Bootstrap's .modal-dialog is `pointer-events: none` and hands the clicks back on
+   .modal-content; outside a .modal that pair is only a way to make a subtree unclickable.
+   ui/modal.js strips both names off the element it adopts - this catches one nested deeper
+   inside a window, which would otherwise swallow every click in it. */
+.grand-modal-body .modal-dialog {
+    pointer-events: auto;
+    max-width: none;
+    margin: 0;
+}
+
 /* ----------------------------------------------------------- numeric field */
 
 /* The spinner the Kendo NumericTextBox drew, in Bootstrap's input group. The buttons are

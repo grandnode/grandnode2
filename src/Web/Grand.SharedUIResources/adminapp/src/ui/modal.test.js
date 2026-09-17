@@ -47,6 +47,17 @@ describe('modal', () => {
         expect(getModal('#confirm').isOpen).toBe(false)
     })
 
+    //Bootstrap's .modal-dialog is `pointer-events: none`; the class on a window this widget
+    //adopts made everything inside it - the file field of an import window - unclickable.
+    it('drops the Bootstrap modal classes from the element it adopts', () => {
+        document.body.innerHTML = '<div id="win" class="modal-dialog fade extra" style="display:none"><input type="file"></div>'
+        openModal('#win')
+        const element = document.getElementById('win')
+        expect(element.classList.contains('modal-dialog')).toBe(false)
+        expect(element.classList.contains('fade')).toBe(false)
+        expect(element.classList.contains('extra')).toBe(true)
+    })
+
     it('answers null for an element that is not on the page', () => {
         expect(openModal('#missing')).toBeNull()
         expect(closeModal('#missing')).toBeNull()
