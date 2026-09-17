@@ -14,7 +14,7 @@
 import TomSelect from 'tom-select'
 import { getJson } from '../grid/transport.js'
 import { filteredOptionsUrl } from '../grid/editors.js'
-import { collect } from './culture.js'
+import { collect, pageTexts } from './culture.js'
 
 const instances = new WeakMap()
 
@@ -33,20 +33,29 @@ export function fetchOptions(url, query, { textField = 'Name', valueField = 'Id'
 }
 
 function baseSettings(options) {
+    const texts = options.texts || {}
     return {
         valueField: 'value',
         labelField: 'text',
         searchField: 'text',
-        placeholder: options.placeholder || undefined,
+        placeholder: options.placeholder || texts.select || undefined,
         allowEmptyOption: true,
         //the lists are server-filtered; scoring locally would hide rows the server returned
         score: () => () => 1,
         render: {
             option: (data, escape) => `<div>${escape(data.text)}</div>`,
             item: (data, escape) => `<div>${escape(data.text)}</div>`,
-            no_results: () => '<div class="no-results"></div>'
+            //texts come from the culture island, so a list says the same as a grid does
+            no_results: () => `<div class="no-results">${escapeHtml(texts.noRecords || '')}</div>`,
+            loading: () => '<div class="spinner"></div>'
         }
     }
+}
+
+function escapeHtml(text) {
+    return String(text ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 }
 
 function remote(options) {
@@ -97,7 +106,10 @@ export function createLookup(element, options = {}) {
     if (widget) return widget
     const doc = element.ownerDocument
     const select = doc.createElement('select')
-    select.className = element.className
+    //Bootstrap 5 styles a select with form-select, not form-control; Tom Select reads the
+    //class off the element it enhances and puts it on the wrapper it builds
+    select.className = element.className.replace(/\bform-control\b/g, 'form-select')
+    if (!select.classList.contains('form-select')) select.classList.add('form-select')
     select.setAttribute('style', element.getAttribute('style') || '')
     if (element.id) select.id = `${element.id}-select`
     if (element.hasAttribute('disabled')) select.disabled = true
@@ -174,12 +186,14 @@ function parseConfig(element) {
 }
 
 /** Upgrades every element carrying data-grand-select under a root. */
-export function initSelects(root) {
+export function initSelects(root, texts) {
     const created = []
+    const widgetTexts = texts || pageTexts()
     for (const element of collect(root, '[data-grand-select]')) {
         if (instances.has(element)) continue
-        const config = parseConfig(element)
+        const config = { texts: widgetTexts, ...parseConfig(element) }
         if (element.tagName === 'SELECT') {
+            if (!element.classList.contains('form-select')) element.classList.add('form-select')
             const widget = createSelect(element, config)
             if (config.url) preselect(widget, config)
             created.push(widget)

@@ -87,3 +87,45 @@ describe('tab strip', () => {
         expect(tabs.all().length).toBe(1)
     })
 })
+
+describe('tab strip keyboard and aria', () => {
+    beforeEach(() => {
+        document.body.innerHTML = markup({ config: '{"bindGrid":false,"selectedIndex":0}' })
+    })
+
+    const key = (target, name) =>
+        target.dispatchEvent(new window.KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }))
+
+    it('points each tab at its pane and back', () => {
+        createTabs({}).init(document)
+        const link = document.querySelectorAll('.nav-link')[1]
+        const pane = document.querySelectorAll('.tab-pane')[1]
+        expect(link.getAttribute('aria-controls')).toBe(pane.id)
+        expect(pane.getAttribute('aria-labelledby')).toBe(link.id)
+        expect(pane.id).toBe('strip-pane-1')
+    })
+
+    it('moves between the tabs with the arrows, wrapping at the ends', () => {
+        const tabs = createTabs({})
+        tabs.init(document)
+        const strip = tabs.get('strip')
+        const links = document.querySelectorAll('.nav-link')
+        key(links[0], 'ArrowRight')
+        expect(strip.select()).toBe(1)
+        expect(document.activeElement).toBe(links[1])
+        key(links[1], 'End')
+        expect(strip.select()).toBe(2)
+        key(links[2], 'ArrowRight')
+        expect(strip.select()).toBe(0)
+        key(links[0], 'Home')
+        expect(strip.select()).toBe(0)
+    })
+
+    it('keeps one tab stop in the strip', () => {
+        const tabs = createTabs({})
+        tabs.init(document)
+        tabs.get('strip').select(2)
+        const tabIndexes = Array.from(document.querySelectorAll('.nav-link')).map(l => l.getAttribute('tabindex'))
+        expect(tabIndexes).toEqual(['-1', '-1', '0'])
+    })
+})

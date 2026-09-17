@@ -44,11 +44,28 @@ export class TabStrip {
             this.select(this.items.indexOf(item))
         })
         this.list?.addEventListener('keydown', e => {
-            if (e.key !== 'Enter' && e.key !== ' ') return
             const item = e.target.closest('li')
             if (!item || !this.items.includes(item)) return
+            const at = this.items.indexOf(item)
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                this.select(at)
+                return
+            }
+            //a tablist is one tab stop: the arrows move between the tabs inside it
+            const mirror = this.rtl ? -1 : 1
+            let next = -1
+            if (e.key === 'ArrowRight') next = at + mirror
+            else if (e.key === 'ArrowLeft') next = at - mirror
+            else if (e.key === 'ArrowDown' && this.vertical) next = at + 1
+            else if (e.key === 'ArrowUp' && this.vertical) next = at - 1
+            else if (e.key === 'Home') next = 0
+            else if (e.key === 'End') next = this.items.length - 1
+            else return
             e.preventDefault()
-            this.select(this.items.indexOf(item))
+            next = (next + this.items.length) % this.items.length
+            this.select(next)
+            this.items[next].querySelector('.nav-link')?.focus()
         })
 
         this.appendPending()
@@ -71,6 +88,36 @@ export class TabStrip {
         }
     }
 
+    /** true while the strip is laid out right to left, so the arrow keys mirror. */
+    get rtl() {
+        const view = this.element.ownerDocument?.defaultView
+        if (!view?.getComputedStyle) return false
+        return view.getComputedStyle(this.element).direction === 'rtl'
+    }
+
+    /** tab-position="left": the list is beside the panes, so up and down move between tabs. */
+    get vertical() {
+        return this.element.classList.contains('grand-tabstrip-left')
+    }
+
+    /**
+     * Points each tab at its pane and back. The tag helper cannot do it - it renders the
+     * items and the panes in two passes and neither carries an id - so a screen reader had
+     * no way to tell which panel a tab opened.
+     */
+    linkPanes() {
+        const base = this.element.id || 'grand-tabstrip'
+        this.items.forEach((item, i) => {
+            const link = item.querySelector('.nav-link')
+            const pane = this.panes[i]
+            if (!link || !pane) return
+            if (!link.id) link.id = `${base}-tab-${i}`
+            if (!pane.id) pane.id = `${base}-pane-${i}`
+            link.setAttribute('aria-controls', pane.id)
+            pane.setAttribute('aria-labelledby', link.id)
+        })
+    }
+
     eventArgs(index) {
         return { item: this.items[index], contentElement: this.panes[index], index, sender: this }
     }
@@ -89,6 +136,7 @@ export class TabStrip {
 
     activate(index) {
         this.selectedIndex = index
+        this.linkPanes()
         this.items.forEach((item, i) => {
             const active = i === index
             item.classList.toggle('active', active)
@@ -108,6 +156,9 @@ export class TabStrip {
             //.tab-content > .active { display: block }
             pane.setAttribute('aria-hidden', String(!active))
         })
+        //a screen full of tabs scrolls sideways rather than wrapping (see ui.css), so the
+        //one that has just become active is brought into view
+        this.items[index]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
     }
 
     /** Tabulator measures nothing while its pane is hidden, so shown grids are redrawn. */
