@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { fetchOptions } from './select.js'
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import { fetchOptions, remote } from './select.js'
 
 describe('fetchOptions', () => {
     it('reads the Data rows of a DataSourceResult', async () => {
@@ -27,5 +27,82 @@ describe('fetchOptions', () => {
     it('answers an empty list for a body that carries none', async () => {
         const fetchJson = vi.fn().mockResolvedValue(null)
         await expect(fetchOptions('/x', '', { fetchJson })).resolves.toEqual([])
+    })
+})
+
+describe('a list read from the server', () => {
+    afterEach(() => { vi.useRealTimers() })
+
+    const settingsFor = rowsByQuery => remote({
+        url: '/Search/Category',
+        fetchJson: url => {
+            const match = /value%5D=([^&]*)/.exec(url)
+            const query = match ? decodeURIComponent(match[1]) : ''
+            return Promise.resolve({ Data: rowsByQuery[query] ?? [] })
+        }
+    })
+
+    const load = async (settings, query) => {
+        vi.useFakeTimers()
+        const answer = new Promise(resolve => settings.load(query, resolve))
+        await vi.advanceTimersByTimeAsync(300)
+        vi.useRealTimers()
+        return answer
+    }
+
+    it('shows the answer to the query and not the rows of the wider list', async () => {
+        const settings = settingsFor({
+            '': [{ Id: '1', Name: 'Computers' }, { Id: '2', Name: 'Sport' }],
+            'Sp': [{ Id: '2', Name: 'Sport' }]
+        })
+        await load(settings, '')
+        await load(settings, 'Sp')
+
+        const score = settings.score('Sp')
+        expect(score({ value: '2' })).toBe(1)
+        expect(score({ value: '1' })).toBe(0)
+    })
+
+    it('shows the unfiltered list again when the query is cleared', async () => {
+        const settings = settingsFor({
+            '': [{ Id: '1', Name: 'Computers' }, { Id: '2', Name: 'Sport' }],
+            'Sp': [{ Id: '2', Name: 'Sport' }]
+        })
+        await load(settings, '')
+        await load(settings, 'Sp')
+
+        //Tom Select does not ask again for a query it has already loaded, so what the
+        //server answered has to keep deciding the list after the box is emptied
+        const score = settings.score('')
+        expect(score({ value: '1' })).toBe(1)
+        expect(score({ value: '2' })).toBe(1)
+    })
+
+    it('shows what is there while the answer is still on its way', () => {
+        const settings = settingsFor({})
+        const score = settings.score('anything')
+        expect(score({ value: 'whatever' })).toBe(1)
+    })
+
+    it('keeps only the newest query when they are typed one after another', async () => {
+        const seen = []
+        const answers = []
+        const settings = settingsFor({
+            'a': [{ Id: 'old', Name: 'a' }],
+            'ab': [{ Id: 'new', Name: 'ab' }]
+        })
+        const spied = { ...settings }
+        vi.useFakeTimers()
+        spied.load('a', rows => { seen.push('a'); answers.push(rows) })
+        spied.load('ab', rows => { seen.push('ab'); answers.push(rows) })
+        await vi.advanceTimersByTimeAsync(1000)
+        vi.useRealTimers()
+
+        //the debounce drops the request for "a" before it is sent, and the guard in load
+        //means that even an answer that arrives late cannot put its rows back
+        expect(seen).toEqual(['ab'])
+        expect(answers[0]).toEqual([{ value: 'new', text: 'ab' }])
+        expect(spied.score('ab')({ value: 'new' })).toBe(1)
+        expect(spied.score('ab')({ value: 'old' })).toBe(0)
     })
 })

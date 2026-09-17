@@ -58,17 +58,35 @@ function escapeHtml(text) {
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 }
 
-function remote(options) {
+/** The Tom Select settings of a list that is read from a server endpoint. */
+export function remote(options) {
     if (!options.url) return {}
     let timer = null
+    let latest = 0
+    //The values the server answered with, per query. Tom Select keeps every option it has
+    //ever been given, and these lists are filtered on the server and scored as 1 here, so
+    //without this the rows of the wider query stayed in the list next to the answer to the
+    //narrower one. The grid's own remote select editor rebuilds its list the same way.
+    const answered = new Map()
     return {
         load(query, callback) {
             clearTimeout(timer)
+            const request = ++latest
             timer = setTimeout(() => {
                 fetchOptions(options.url, query, options)
-                    .then(callback)
+                    .then(loaded => {
+                        //a slower earlier request must not put its rows back over a newer one
+                        if (request !== latest) return callback()
+                        answered.set(query, new Set(loaded.map(row => row.value)))
+                        callback(loaded)
+                    })
                     .catch(() => callback())
             }, query ? 250 : 0)
+        },
+        /** Shows the answer to the query in the box; until it arrives, what is there now. */
+        score(search) {
+            const allowed = answered.get(search ?? '')
+            return option => !allowed || allowed.has(option.value) ? 1 : 0
         },
         //the endpoints answer the whole (limited) list, so the first list is asked for once
         preload: 'focus',
