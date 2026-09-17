@@ -81,10 +81,6 @@
     <script>
 
         $(document).ready(function () {
-            $("#importfile").click(function (e) {
-                e.preventDefault();
-                GrandAdmin.modal.open("#importfile-window", { title: "@Loc["Admin.Plugins.Upload"]", actions: ["Close"] });
-            });
             $("#plugins-grid").on("click", ".install-plugin-link", function (e) {
                 showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Install.Progress"]))');
                 $("html, body").animate({ scrollTop: 0 }, 400);
@@ -166,37 +162,20 @@
     </script>
 </form>
 
-<div class="modal-dialog" id="importfile-window" style="display:none; padding: 0 10px;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="UploadPlugin" method="post" enctype="multipart/form-data">
-
-        <ul class="common-list">
-            <li>
-                <strong>NOTE: It can take up to several minutes.</strong>
-            </li>
-            <li>
-                <strong>NOTE: DO NOT click twice.</strong>
-            </li>
-        </ul>
-        <div class="mb-3">
-            <div class="col-md-2" style="margin-top: 7px; height: 34px; padding-left: 25px;">
-                <label class="control-label">
-                    Zip file
-                </label>
-            </div>
-            <div class="col-md-10">
-                <input id="importfiledialog" name="zippedFile" class="form-control" type="file">
-            </div>
-        </div>
-        <div class="mb-3">
-            &nbsp;
-        </div>
-        <div class="mb-3">
-            <div class="col-md-2">
-                &nbsp;
-            </div>
-            <div class="col-md-10 text-end mt-10">
-                <input id="importfilesubmit" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]" type="submit">
-            </div>
-        </div>
-    </form>
-</div>
+<admin-import-window id="importfile-window" button-id="importfile"
+                     title="@Loc["Admin.Plugins.Upload"]"
+                     controller="Plugin" action="UploadPlugin"
+                     file-id="importfiledialog" file-name="zippedFile"
+                     file-label-key="Admin.Common.ZipFile" file-label="Zip file"
+                     accept=".zip"
+                     submit-id="importfilesubmit"
+                     submit-text="@Loc["Admin.Plugins.Upload"]">
+    <ul class="common-list">
+        <li>
+            <strong>NOTE: It can take up to several minutes.</strong>
+        </li>
+        <li>
+            <strong>NOTE: DO NOT click twice.</strong>
+        </li>
+    </ul>
+</admin-import-window>

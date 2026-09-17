@@ -161,34 +161,12 @@
 
 </script>
 
-<div id="importexcel-window" style="display:none;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="ImportExcel" method="post" enctype="multipart/form-data">
-
-        <table style="text-align:left;">
-            <tr>
-                <td>
-                    @Loc["Admin.Common.ExcelFile"]:
-                </td>
-                <td>
-                    <input type="file" id="importexcelfile" name="importexcelfile"/>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="submit" class="btn btn-default btn-sm" value="@Loc["Admin.Common.ImportFromExcel"]"/>
-                </td>
-            </tr>
-        </table>
-    </form>
-</div>
-<script>
-    $(document).ready(function () {
-        $("#importexcel").click(function (e) {
-            e.preventDefault();
-            GrandAdmin.modal.open("#importexcel-window", { width: "400px", title: "@Loc["Admin.Common.ImportFromExcel"]", actions: ["Close"] });
-        });
-    });
-</script>
+<admin-import-window id="importexcel-window" button-id="importexcel"
+                     title="@Loc["Admin.Common.ImportFromExcel"]"
+                     controller="Country" action="ImportExcel"
+                     file-name="importexcelfile" file-label="@Loc["Admin.Common.ExcelFile"]"
+                     accept=".xlsx,.xls"
+                     submit-text="@Loc["Admin.Common.ImportFromExcel"]"/>
 
 <script>
 

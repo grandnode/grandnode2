@@ -357,4 +357,7 @@
 	<Resource Name="admin.common.today" Area="Admin">
 		<Value>Today</Value>
 	</Resource>
+	<Resource Name="admin.common.zipfile" Area="Admin">
+		<Value>Zip file</Value>
+	</Resource>
 </Language>

@@ -133,31 +133,9 @@
         }
     </script>
 </form>
-<div id="importcsv-window" style="display:none;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="NewsLetterSubscription" asp-action="ImportCsv" method="post" enctype="multipart/form-data">
-
-        <table style="text-align:left;">
-            <tr>
-                <td>
-                    @Loc["Admin.Common.CsvFile"]:
-                </td>
-                <td>
-                    <input type="file" id="importcsvfile" name="importcsvfile"/>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="submit" class="btn btn-default btn-sm" value="@Loc["Admin.Common.ImportFromCsv"]"/>
-                </td>
-            </tr>
-        </table>
-    </form>
-</div>
-<script>
-    $(document).ready(function () {
-        $("#importcsv").click(function (e) {
-            e.preventDefault();
-            GrandAdmin.modal.open("#importcsv-window", { width: "400px", title: "@Loc["Admin.Common.ImportFromCsv"]", actions: ["Close"] });
-        });
-    });
-    </script>
+<admin-import-window id="importcsv-window" button-id="importcsv"
+                     title="@Loc["Admin.Common.ImportFromCsv"]"
+                     controller="NewsLetterSubscription" action="ImportCsv"
+                     file-name="importcsvfile" file-label="@Loc["Admin.Common.CsvFile"]"
+                     accept=".csv,.txt"
+                     submit-text="@Loc["Admin.Common.ImportFromCsv"]"/>

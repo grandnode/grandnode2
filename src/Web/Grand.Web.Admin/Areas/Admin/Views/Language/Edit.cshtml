@@ -41,46 +41,19 @@
     </div>
 </form>
 <admin-delete-confirmation button-id="language-delete"/>
-<div class="modal-dialog" id="importxml-window" style="display:none; padding: 0 10px;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Language" asp-action="ImportXml" method="post" enctype="multipart/form-data" asp-route-id="Id">
-        <input type="hidden" asp-for="Id"/>
-
-        <ul class="common-list">
-            <li>
-                <strong>NOTE: It can take up to several minutes.</strong>
-            </li>
-            <li>
-                <strong>NOTE: DO NOT click twice.</strong>
-            </li>
-        </ul>
-        <div class="mb-3">
-            <div class="col-md-2" style="margin-top: 7px; height: 34px; padding-left: 25px;">
-                <label class="control-label">
-                    Xml file
-                </label>
-            </div>
-            <div class="col-md-10">
-                <input id="importxmlfile" name="importxmlfile" class="form-control" type="file">
-            </div>
-        </div>
-        <div class="mb-3">
-            &nbsp;
-        </div>
-        <div class="mb-3">
-            <div class="col-md-2">
-                &nbsp;
-            </div>
-            <div class="col-md-10 text-end mt-10">
-                <input id="importxmlsubmit" class="btn blue" value="@Loc["Admin.Configuration.Languages.Import"]" type="submit">
-            </div>
-        </div>
-    </form>
-</div>
-<script>
-    $(document).ready(function () {
-        $("#importxml").click(function (e) {
-            e.preventDefault();
-            GrandAdmin.modal.open("#importxml-window", { title: "@Loc["Admin.Configuration.Languages.Import"]", actions: ["Close"] });
-        });
-    });
-    </script>
+<admin-import-window id="importxml-window" button-id="importxml"
+                     title="@Loc["Admin.Configuration.Languages.Import"]"
+                     controller="Language" action="ImportXml" route-id="@Model.Id"
+                     file-name="importxmlfile" file-label="@Loc["Admin.Configuration.Languages.XmlFile"]"
+                     accept=".xml"
+                     submit-id="importxmlsubmit"
+                     submit-text="@Loc["Admin.Configuration.Languages.Import"]">
+    <ul class="common-list">
+        <li>
+            <strong>@Loc["Admin.Configuration.Languages.XmlFile.Note1"]</strong>
+        </li>
+        <li>
+            <strong>@Loc["Admin.Configuration.Languages.XmlFile.Note2"]</strong>
+        </li>
+    </ul>
+</admin-import-window>
