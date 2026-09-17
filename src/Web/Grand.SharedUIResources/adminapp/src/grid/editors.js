@@ -243,7 +243,12 @@ export function filteredOptionsUrl(url, { text, operator = 'startswith', field =
     return url + (url.includes('?') ? '&' : '?') + query
 }
 
-function selectEditor(ctx) {
+/**
+ * The <select> under a Select cell editor, with the list-filling the two editors share.
+ * Whatever draws the list, this element is what holds the chosen value, so getValue and
+ * getText read the same thing they have always read and the row posts what it posted.
+ */
+function buildSelect(ctx) {
     const { column, doc } = ctx
     const element = doc.createElement('select')
     //Bootstrap 5 draws a select's chevron for form-select only; form-control leaves it bare
@@ -294,6 +299,120 @@ function selectEditor(ctx) {
             .catch(() => { })
             .finally(() => { if (request === loading) element.disabled = false })
     }
+    return { element, fill, load, textField }
+}
+
+/**
+ * The list the forms use (ui/select.js): what is typed goes into the field itself, a column
+ * with options-filter asks the server for the rows as they are typed, and the placeholder and
+ * the "no records" line are the texts a screen shows. Like the date and the numeric editor it
+ * is taken off GrandAdmin at the moment the cell opens rather than imported - admin.ui.js is
+ * loaded next to admin.grid.js on every panel page, and an import would put a second copy of
+ * the list control in this bundle. Without it - a page that loads only the grid - the cell
+ * keeps the plain select with a search box above it that it had.
+ * What the row posts does not change either way: the same <select> underneath holds the value.
+ */
+function selectEditor(ctx) {
+    const parts = buildSelect(ctx)
+    const factory = globalThis.GrandAdmin?.select?.create
+    return typeof factory === 'function' ? panelSelectEditor(ctx, parts, factory) : nativeSelectEditor(ctx, parts)
+}
+
+//Lists whose cell has been closed. Tom Select hangs the dropdown of a cell on <body> so no
+//table, card or modal can clip it, and the grid throws the cell away without telling anyone;
+//the ones whose wrapper has left the page are taken down when the next cell opens.
+const closedLists = new Set()
+
+function sweepClosedLists() {
+    for (const widget of closedLists) {
+        if (widget.wrapper?.isConnected) continue
+        closedLists.delete(widget)
+        try {
+            widget.destroy()
+        } catch {
+            //the cell is gone either way; a dropdown left hanging is hidden
+        }
+    }
+}
+
+function panelSelectEditor(ctx, { element, fill, textField }, factory) {
+    const { column, doc } = ctx
+    sweepClosedLists()
+    const holder = doc.createElement('div')
+    holder.className = 'grand-grid-select'
+    holder.appendChild(element)
+    //a column that names an operator is filtered by the server as the person types, like the
+    //search box did; one with fixed options - or a remote one that never filtered - is
+    //searched in the browser over the rows it was given
+    const serverFiltered = Boolean(column.optionsUrl && column.optionsFilter)
+    fill(column.options || [])
+
+    const widget = factory(element, {
+        mode: 'single',
+        placeholder: column.optionLabel || undefined,
+        //the list of a cell hangs on <body>: inside the cell the table, a card or a modal
+        //body would cut it off at its own edge
+        dropdownParent: 'body',
+        ...(serverFiltered
+            ? { url: column.optionsUrl, textField, valueField: column.optionValueField || 'Id', filter: column.optionsFilter }
+            : {})
+    })
+    //the dropdown is on <body>, outside every stylesheet scoped to the grid, and a panel
+    //modal sits above the z-index of the theme's
+    widget.dropdown.classList.add('grand-grid-dropdown')
+    closedLists.add(widget)
+
+    if (column.optionsUrl && !serverFiltered) {
+        //one request for the whole list, the one this column has always made
+        ctx.loadOptions(column.optionsUrl, { textField, valueField: column.optionValueField })
+            .then(options => {
+                for (const option of options) {
+                    if (widget.options[option.value]) widget.updateOption(option.value, option)
+                    else widget.addOption(option)
+                }
+                widget.refreshOptions(false)
+            })
+            .catch(() => { })
+    }
+
+    //Escape belongs to the cell, not to the list: Tom Select stops the event when it closes
+    //its dropdown, so the cell is only reached from the capture phase. Enter is the other way
+    //round - the list gets it first to take the row under the cursor, and what is left over
+    //(the list closed, nothing to take) saves the row.
+    holder.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return
+        e.preventDefault()
+        e.stopPropagation()
+        ctx.cancel?.()
+    }, true)
+    holder.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' || e.defaultPrevented) return
+        e.preventDefault()
+        ctx.commit?.()
+    })
+
+    const text = () => {
+        const value = element.value
+        if (value === '') return ''
+        return widget.options[value]?.text ?? (element.selectedIndex >= 0 ? element.options[element.selectedIndex].textContent : '')
+    }
+    return {
+        element: holder,
+        select: element,
+        widget,
+        getValue: () => element.value,
+        getText: text,
+        validate: () => {
+            const message = markValidity(element, column.required && element.value === '' ? 'required' : null)
+            widget.wrapper.classList.toggle('is-invalid', Boolean(message))
+            return message
+        },
+        focus: () => widget.focus()
+    }
+}
+
+function nativeSelectEditor(ctx, { element, fill, load }) {
+    const { column, doc } = ctx
     if (column.options) {
         fill(column.options)
     } else if (column.optionsUrl) {

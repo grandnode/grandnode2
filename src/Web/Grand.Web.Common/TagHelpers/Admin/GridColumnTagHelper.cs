@@ -47,9 +47,9 @@ public class GridColumnTagHelper : TagHelper
     public string OptionLabel { get; set; }
 
     /// <summary>
-    ///     Remote Select only: shows a search box that reloads options-url filtered on the option
+    ///     Remote Select only: what is typed in the cell reloads options-url filtered on the option
     ///     text field with this operator (startswith, contains), the query a Kendo DropDownList
-    ///     with serverFiltering sends.
+    ///     with serverFiltering sends. Without it the list is read once and searched in the browser.
     /// </summary>
     public string OptionsFilter { get; set; }
 

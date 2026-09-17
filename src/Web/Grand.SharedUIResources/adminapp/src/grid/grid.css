@@ -314,3 +314,26 @@
     gap: 2px;
     width: 100%;
 }
+
+/* The select editor of a cell: the list of ui/select.js in the size of a row. The wrapper
+   Tom Select builds carries the classes of the select it enhanced (form-select form-select-sm),
+   so the field is the small variant of the one a screen shows. */
+.grand-grid .grand-grid-select {
+    width: 100%;
+}
+
+.grand-grid .grand-grid-select .ts-wrapper {
+    width: 100%;
+    min-width: 6rem;
+}
+
+.grand-grid .grand-grid-select .ts-control {
+    min-height: 0;
+}
+
+/* The dropdown of a cell hangs on <body> rather than inside the table, which nothing can
+   clip; there it is outside .grand-grid, and it has to clear a panel modal (1055). */
+.ts-dropdown.grand-grid-dropdown {
+    z-index: 1065;
+}
+

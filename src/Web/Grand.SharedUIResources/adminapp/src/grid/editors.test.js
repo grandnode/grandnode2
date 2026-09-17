@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { createEditor, serializeValue } from './editors.js'
 import { createDateInput } from '../ui/datetime.js'
 import { createNumeric } from '../ui/numeric.js'
+import { createSelect } from '../ui/select.js'
 
 const pl = {
     name: 'pl-PL',
@@ -50,16 +51,191 @@ describe('the date editor of a row', () => {
 })
 
 describe('the select editor of a row', () => {
-    it('is a Bootstrap 5 select, so it draws its chevron', () => {
+    afterEach(() => { delete globalThis.GrandAdmin })
+
+    it('is a Bootstrap 5 select, so it draws its chevron, when only the grid bundle is loaded', () => {
         const editor = createEditor({
             column: { field: 'CategoryId', editor: 'Select', options: [{ value: '1', text: 'One' }] },
             value: '1',
             culture: pl
         })
+        expect(editor.element.tagName).toBe('SELECT')
         expect(editor.element.className).toContain('form-select')
         expect(editor.element.className).not.toContain('form-control')
+        expect(editor.getValue()).toBe('1')
+    })
+
+    it('keeps the search box above the list of a remote column without the panel bundle', async () => {
+        const loadOptions = vi.fn(async () => [{ value: 'c1', text: 'Computers' }])
+        const editor = createEditor({
+            column: { field: 'CategoryId', editor: 'Select', optionsUrl: '/Search/Category', optionsFilter: 'startswith' },
+            value: '',
+            loadOptions
+        })
+        expect(editor.element.querySelector('input[type=search]')).not.toBeNull()
+        expect(editor.element.querySelector('select')).not.toBeNull()
     })
 })
+
+const texts = { select: 'Select...', noRecords: 'No records' }
+
+/** admin.ui.js as a panel page loads it, with the server of the test behind the lists. */
+const withSelectWidget = fetchJson => {
+    globalThis.GrandAdmin = { select: { create: (el, o) => createSelect(el, { texts, fetchJson, ...o }) } }
+}
+
+/** Opens the list of a cell the way a person does, and types into the field itself. */
+const openList = async (editor, query) => {
+    const input = editor.element.querySelector('.ts-control input')
+    editor.focus()
+    //jsdom does not focus an element that is only .focus()-ed, so the list is asked to open
+    editor.widget.open()
+    if (query != null) {
+        input.value = query
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    //Tom Select redraws the list on a throttle
+    await vi.waitFor(() => expect(editor.widget.dropdown.querySelector('.option, .no-results')).not.toBeNull())
+    return input
+}
+
+const shown = editor => Array.from(editor.widget.dropdown.querySelectorAll('.ts-dropdown-content .option')).map(o => o.textContent)
+
+describe('the select editor of a row, with admin.ui.js loaded', () => {
+    beforeEach(() => { document.body.innerHTML = '' })
+    afterEach(() => {
+        delete globalThis.GrandAdmin
+        document.querySelectorAll('.ts-dropdown').forEach(node => node.remove())
+    })
+
+    const fixed = (extra = {}) => {
+        const editor = createEditor({
+            column: {
+                field: 'CustomerGroupId', editor: 'Select', optionLabel: 'All',
+                options: [{ value: '1', text: 'Administrators' }, { value: '2', text: 'Registered' }],
+                ...extra
+            },
+            value: '2',
+            culture: pl
+        })
+        document.body.appendChild(editor.element)
+        return editor
+    }
+
+    it('is the list of the forms, in the size of a row, with no search box of its own', () => {
+        withSelectWidget()
+        const editor = fixed()
+        expect(editor.element.className).toBe('grand-grid-select')
+        expect(editor.element.querySelector('input[type=search]')).toBeNull()
+        expect(editor.element.querySelector('.ts-wrapper').className).toContain('form-select-sm')
+        //the value the row carries is the one in the field, and it is the one that is posted
+        expect(editor.getValue()).toBe('2')
+        expect(editor.getText()).toBe('Registered')
+    })
+
+    it('hangs the list on the body, so no table or modal can clip it', () => {
+        withSelectWidget()
+        const editor = fixed()
+        expect(editor.widget.dropdown.parentElement).toBe(document.body)
+        expect(editor.widget.dropdown.classList.contains('grand-grid-dropdown')).toBe(true)
+    })
+
+    it('narrows a fixed list on what is typed in the field itself', async () => {
+        withSelectWidget()
+        const editor = fixed()
+        await openList(editor, 'Reg')
+        expect(shown(editor)).toEqual(['Registered'])
+    })
+
+    it('asks the server for the rows of a filtered column, with the query it always sent', async () => {
+        const fetchJson = vi.fn(async () => ({ Data: [{ Id: 'c2', Name: 'Notebooks' }] }))
+        withSelectWidget(fetchJson)
+        const editor = createEditor({
+            column: {
+                field: 'CategoryId', editor: 'Select', optionsUrl: '/Search/Category',
+                optionsFilter: 'startswith', textField: 'Category', optionLabel: 'Select category...'
+            },
+            item: { CategoryId: 'c9', Category: 'Old one' },
+            value: 'c9',
+            culture: pl
+        })
+        document.body.appendChild(editor.element)
+        //the row keeps its value and its text until something else is chosen
+        expect(editor.getValue()).toBe('c9')
+        expect(editor.getText()).toBe('Old one')
+
+        await openList(editor, 'Note')
+        //the query DataSourceRequestFilterBinder parses, the one the search box above the
+        //list sent before and the one a lookup on a screen sends
+        await vi.waitFor(() => expect(fetchJson.mock.calls.some(([url]) => url.includes('Note'))).toBe(true))
+        const url = fetchJson.mock.calls.find(([called]) => called.includes('Note'))[0]
+        expect(url.startsWith('/Search/Category?')).toBe(true)
+        expect(url).toContain('filter%5Blogic%5D=and')
+        expect(url).toContain('filter%5Bfilters%5D%5B0%5D%5Bvalue%5D=Note')
+        expect(url).toContain('filter%5Bfilters%5D%5B0%5D%5Boperator%5D=startswith')
+        expect(url).toContain('filter%5Bfilters%5D%5B0%5D%5Bfield%5D=Name')
+        expect(url).toContain('filter%5Bfilters%5D%5B0%5D%5BignoreCase%5D=true')
+    })
+
+    it('asks a remote column without an operator for its list once, as it always did', async () => {
+        withSelectWidget()
+        const loadOptions = vi.fn(async () => [{ value: 's1', text: 'Store one' }])
+        const editor = createEditor({
+            column: { field: 'StoreId', editor: 'Select', optionsUrl: '/Store/List' },
+            value: '',
+            loadOptions
+        })
+        document.body.appendChild(editor.element)
+        await vi.waitFor(() => expect(editor.widget.options.s1).toBeTruthy())
+        expect(loadOptions).toHaveBeenCalledTimes(1)
+        expect(loadOptions.mock.calls[0][0]).toBe('/Store/List')
+    })
+
+    it('is chosen with the arrows and Enter, and Enter with the list closed saves the row', async () => {
+        withSelectWidget()
+        let saved = 0
+        const editor = createEditor({
+            column: { field: 'CustomerGroupId', editor: 'Select', options: [{ value: '1', text: 'One' }, { value: '2', text: 'Two' }] },
+            value: '1',
+            culture: pl,
+            commit: () => { saved += 1 }
+        })
+        document.body.appendChild(editor.element)
+        const input = await openList(editor)
+        const press = key => input.dispatchEvent(new KeyboardEvent('keydown', { key, keyCode: { ArrowDown: 40, Enter: 13, Escape: 27 }[key], bubbles: true, cancelable: true }))
+        press('ArrowDown')
+        press('Enter')
+        expect(editor.getValue()).toBe('2')
+        expect(saved).toBe(0)
+        press('Enter')
+        expect(saved).toBe(1)
+    })
+
+    it('cancels the cell on Escape, even while the list is open', async () => {
+        withSelectWidget()
+        let cancelled = 0
+        const editor = createEditor({
+            column: { field: 'CustomerGroupId', editor: 'Select', options: [{ value: '1', text: 'One' }] },
+            value: '1',
+            culture: pl,
+            cancel: () => { cancelled += 1 }
+        })
+        document.body.appendChild(editor.element)
+        const input = await openList(editor)
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true, cancelable: true }))
+        expect(cancelled).toBe(1)
+    })
+
+    it('refuses an empty choice in a required column and marks the field a screen shows', () => {
+        withSelectWidget()
+        const editor = fixed({ required: true })
+        editor.widget.clear()
+        expect(editor.getValue()).toBe('')
+        expect(editor.validate()).toBe('required')
+        expect(editor.widget.wrapper.classList.contains('is-invalid')).toBe(true)
+    })
+})
+
 
 const plNumbers = {
     name: 'pl-PL',

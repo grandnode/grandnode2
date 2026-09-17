@@ -52,8 +52,9 @@ function baseSettings(options) {
         searchField: 'text',
         placeholder: options.placeholder || texts.select || undefined,
         allowEmptyOption: true,
-        //the lists are server-filtered; scoring locally would hide rows the server returned
-        score: () => () => 1,
+        //a list that is not read from a server is searched here, over the rows it was given;
+        //a server-filtered one is scored by remote() instead, which keeps every row the
+        //server answered with
         render: {
             option: (data, escape) => `<div>${escape(data.text)}</div>`,
             item: renderItem,
@@ -117,6 +118,8 @@ export function createSelect(element, options = {}) {
     const multiple = options.mode === 'multiple' || element.multiple
     const settings = { ...baseSettings(options), ...remote(options), maxItems: multiple ? null : 1 }
     if (multiple) settings.plugins = ['remove_button']
+    //'body' for a list inside a grid cell: the dropdown must not be clipped by the table
+    if (options.dropdownParent) settings.dropdownParent = options.dropdownParent
     if (options.onChange) settings.onChange = options.onChange
     widget = new TomSelect(element, settings)
     if (multiple && options.emptyValue != null) applyEmptyValue(widget, String(options.emptyValue))
