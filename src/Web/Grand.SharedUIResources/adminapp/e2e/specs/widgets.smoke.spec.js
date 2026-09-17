@@ -128,23 +128,122 @@ test.describe('Admin widgets', () => {
         expect(result.restored).toBe(result.before)
     })
 
-    test('date editors keep a native picker next to the posted value', async ({ panelPage: page }) => {
+    test('date editors are read and written in the store culture, not the browser locale', async ({ panelPage: page }) => {
         const id = await firstId(page, '/Admin/Discount/List', 'discounts-grid')
         await openPage(page, `/Admin/Discount/Edit/${id}`)
+
         const state = await page.evaluate(() => {
             const element = document.querySelector('input[data-grand-date]')
             if (!element) return null
+            const widget = element.grandDateInput
+            const culture = window.GrandAdmin.culture()
+            const before = element.value
+            //what a calendar has to be told and a date pattern does not say
+            widget.openPanel()
+            const weekdays = Array.from(widget.panel.querySelectorAll('thead th')).map(th => th.textContent)
+            const heading = widget.panel.querySelector('.grand-cal-label')?.textContent
+            //choose a day and read back what the form would post
+            const day = widget.panel.querySelector('[data-grand-day]:not(.grand-cal-other)')
+            const chosen = day?.dataset.grandDay
+            day?.click()
+            const posted = element.value
+            //nothing is saved: the rendered value goes back exactly as it came
+            widget.value(null)
+            element.value = before
+            widget.closePanel()
             return {
-                mode: element.getAttribute('data-grand-date'),
-                hidden: element.style.display === 'none',
-                pickerType: element.grandDateInput.picker.type,
-                pickerHasNoName: element.grandDateInput.picker.name === ''
+                before, posted, chosen, weekdays, heading,
+                named: !!element.name,
+                visible: element.style.display !== 'none',
+                isFormControl: element.classList.contains('form-control'),
+                noNativePicker: !widget.picker,
+                shortDate: culture.calendar.shortDate,
+                firstDayOfWeek: culture.calendar.firstDayOfWeek,
+                daysAbbr: culture.calendar.daysAbbr,
+                monthsStandalone: culture.calendar.monthsStandalone,
+                browserLocale: navigator.language
             }
         })
         expect(state, 'a date editor is on the page').not.toBeNull()
-        expect(state.hidden).toBe(true)
-        expect(state.pickerHasNoName).toBe(true)
-        expect(['date', 'datetime-local', 'time']).toContain(state.pickerType)
+
+        //the control is the named field itself now - there is no native input to render
+        //and parse the value in whatever locale the browser happens to be in
+        expect(state.named).toBe(true)
+        expect(state.visible).toBe(true)
+        expect(state.isFormControl).toBe(true)
+        expect(state.noNativePicker).toBe(true)
+
+        //the calendar starts the week where the STORE culture starts it
+        const expectedWeekdays = Array.from({ length: 7 },
+            (_, i) => state.daysAbbr[(state.firstDayOfWeek + i) % 7])
+        expect(state.weekdays).toEqual(expectedWeekdays)
+
+        //and heads the month with the store culture's standalone month name
+        const [year, month] = state.chosen.split('-').map(Number)
+        expect(state.heading).toBe(`${state.monthsStandalone[month - 1]} ${year}`)
+
+        //what a chosen day writes into the field follows the store culture's short date,
+        //whatever the browser locale is - the two are deliberately different in this run
+        const parts = { yyyy: String(year), M: String(month), d: String(Number(state.chosen.split('-')[2])) }
+        const expectedDate = state.shortDate
+            .replace(/yyyy/g, parts.yyyy)
+            .replace(/MM/g, String(month).padStart(2, '0')).replace(/\bM\b/g, parts.M)
+            .replace(/dd/g, state.chosen.split('-')[2]).replace(/\bd\b/g, parts.d)
+        expect(state.posted.startsWith(expectedDate),
+            `posted "${state.posted}" should start with "${expectedDate}" (shortDate ${state.shortDate}, browser ${state.browserLocale})`).toBe(true)
+    })
+
+    test('the numeric editor is a Bootstrap control with a working spinner', async ({ panelPage: page }) => {
+        const id = await firstId(page, '/Admin/Product/List', 'products-grid')
+        await openPage(page, `/Admin/Product/Edit/${id}`)
+        await openTab(page, 'product-edit', 1)
+
+        const state = await page.evaluate(() => {
+            const element = Array.from(document.querySelectorAll('input[data-grand-numeric]'))
+                .find(input => input.grandNumeric?.decimals > 0)
+            if (!element) return null
+            const widget = element.grandNumeric
+            const before = element.value
+            widget.up.click()
+            const afterUp = element.value
+            widget.down.click()
+            return {
+                before,
+                afterUp,
+                restored: element.value,
+                formControl: widget.text.classList.contains('form-control'),
+                inGroup: widget.group.classList.contains('input-group'),
+                spinnerHidden: widget.spin.getAttribute('aria-hidden'),
+                spinnerNotTabbable: widget.up.tabIndex === -1 && widget.down.tabIndex === -1,
+                role: widget.text.getAttribute('role')
+            }
+        })
+        expect(state, 'a decimal editor is on the page').not.toBeNull()
+        expect(state.formControl).toBe(true)
+        expect(state.inGroup).toBe(true)
+        expect(state.spinnerHidden).toBe('true')
+        expect(state.spinnerNotTabbable).toBe(true)
+        expect(state.role).toBe('spinbutton')
+        expect(state.afterUp).not.toBe(state.before)
+        expect(state.restored).toBe(state.before)
+    })
+
+    test('the tab strip is reachable from the keyboard', async ({ panelPage: page }) => {
+        const id = await firstId(page, '/Admin/Product/List', 'products-grid')
+        await openPage(page, `/Admin/Product/Edit/${id}`)
+
+        const linked = await page.evaluate(() => {
+            const link = document.querySelector('#product-edit > ul.nav > li > .nav-link')
+            const pane = document.querySelector('#product-edit > .tab-content > .tab-pane')
+            return { controls: link?.getAttribute('aria-controls'), paneId: pane?.id }
+        })
+        expect(linked.controls, 'each tab points at its pane').toBe(linked.paneId)
+
+        await page.locator('#product-edit > ul.nav > li.active > .nav-link').focus()
+        await page.keyboard.press('ArrowRight')
+        await expect(page.locator('#selected-tab-index').first()).toHaveValue('1')
+        await page.keyboard.press('Home')
+        await expect(page.locator('#selected-tab-index').first()).toHaveValue('0')
     })
 
     test('store and customer group multiselects load their options', async ({ panelPage: page }) => {

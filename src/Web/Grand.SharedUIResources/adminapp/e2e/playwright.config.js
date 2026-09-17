@@ -36,6 +36,16 @@ export default defineConfig({
             use: { locale: 'en-US', languageCode: env.languageCodes.en, rtl: false }
         },
         {
+            //The widgets, driven by a browser locale that is deliberately NOT the store's.
+            //The account's working language is left alone, so whatever the store culture is,
+            //the browser disagrees with it about how a date is written - which is the whole
+            //point: nothing on the page may fall back to navigator.language. ar-SA also
+            //writes its AM/PM designators in Arabic and its digits in a browser's own way.
+            name: 'foreign-locale',
+            testMatch: /widgets\.smoke\.spec\.js/,
+            use: { locale: 'ar-SA', timezoneId: 'Asia/Riyadh', languageCode: undefined, rtl: false }
+        },
+        {
             //records a full-page screenshot per page for before/after comparison of a
             //stylesheet change; run explicitly with npm run e2e:visual
             name: 'visual',

@@ -21,6 +21,17 @@ export const VISUAL_PAGES = [
         panel: 'admin', name: 'customer-edit', tabs: ['customer-edit', 0],
         lookup: { path: '/Admin/Customer/List', grid: 'customers-grid', url: id => `/Admin/Customer/Edit/${id}` }
     },
+    {
+        //the date pickers: a discount carries a start and an end date
+        panel: 'admin', name: 'discount-edit',
+        lookup: { path: '/Admin/Discount/List', grid: 'discounts-grid', url: id => `/Admin/Discount/Edit/${id}` }
+    },
+    {
+        //the numeric fields: the prices tab is a column of them
+        panel: 'admin', name: 'product-prices', tabs: ['product-edit', 1],
+        lookup: { path: '/Admin/Product/List', grid: 'products-grid', url: id => `/Admin/Product/Edit/${id}` }
+    },
+    { panel: 'admin', name: 'campaign-list', path: '/Admin/Campaign/List', grid: 'campaigns-grid' },
     { panel: 'admin', name: 'measures', path: '/Admin/Measure/Index', tabs: ['measures-list', 2], grid: 'measureweight-grid' },
     { panel: 'admin', name: 'tax-categories', path: '/Admin/Tax/Categories', grid: 'tax-categories-grid' },
     { panel: 'admin', name: 'vendor-reviews', path: '/Admin/VendorReview/List', grid: 'vendorreviews-grid' },
