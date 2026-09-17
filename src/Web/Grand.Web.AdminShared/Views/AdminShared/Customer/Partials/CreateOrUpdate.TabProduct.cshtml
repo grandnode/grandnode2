@@ -22,7 +22,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
+            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
             <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none"/>
         </div>
         <partial name="Partials/WidgetZone.ProductBottom" model="Model"/>

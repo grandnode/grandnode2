@@ -300,7 +300,7 @@ $(document).ready(function () {
             $BOportlet.css('height', 'auto');
         }
 
-        $ICON.toggleClass('fa-chevron-up fa-chevron-down');
+        $ICON.toggleClass('bi-chevron-up bi-chevron-down');
     });
 
     $('.close-link').click(function () {
@@ -1601,13 +1601,13 @@ function init_CustomNotification() {
     var cnt = 10;
 
     TabbedNotification = function (options) {
-        var message = "<div id='ntf" + cnt + "' class='text alert-" + options.type + "' style='display:none'><h2><i class='fa fa-bell'></i> " + options.title +
-            "</h2><div class='close'><a href='javascript:;' class='notification_close'><i class='fa fa-close'></i></a></div><p>" + options.text + "</p></div>";
+        var message = "<div id='ntf" + cnt + "' class='text alert-" + options.type + "' style='display:none'><h2><i class='bi bi-bell'></i> " + options.title +
+            "</h2><div class='close'><a href='javascript:;' class='notification_close'><i class='bi bi-x-lg'></i></a></div><p>" + options.text + "</p></div>";
 
         if (!document.getElementById('custom_notifications')) {
             alert('doesnt exists');
         } else {
-            $('#custom_notifications ul.notifications').append("<li><a id='ntlink" + cnt + "' class='alert-" + options.type + "' href='#ntf" + cnt + "'><i class='fa fa-bell animated shake'></i></a></li>");
+            $('#custom_notifications ul.notifications').append("<li><a id='ntlink" + cnt + "' class='alert-" + options.type + "' href='#ntf" + cnt + "'><i class='bi bi-bell animated shake'></i></a></li>");
             $('#custom_notifications #notif-group').append(message);
             cnt++;
             CustomTabs(options);

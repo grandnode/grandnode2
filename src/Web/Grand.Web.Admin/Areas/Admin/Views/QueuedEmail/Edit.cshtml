@@ -10,23 +10,23 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-envelope"></i>
+                        <i class="bi bi-envelope"></i>
                         @Loc["Admin.System.QueuedEmails.EditQueuedEmailDetails"]
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.System.QueuedEmails.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.System.QueuedEmails.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
                             <input type="submit" name="requeue" asp-action="Requeue" class="btn blue" value="@Loc["Admin.System.QueuedEmails.Requeue"]"/>
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                             </button>
                             <span id="queuedEmail-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                             </span>
                             <vc:admin-widget widget-zone="queued_email_details_buttons" additional-data="Model"/>
                         </div>

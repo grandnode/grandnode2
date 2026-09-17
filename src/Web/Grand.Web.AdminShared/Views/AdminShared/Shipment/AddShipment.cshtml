@@ -16,20 +16,20 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-truck"></i>
+                    <i class="bi bi-truck"></i>
                     @string.Format(Loc[$"{prefix}.Orders.Shipments.AddNew.Title"], Model.OrderNumber)
                     <small>
-                        <i class="fa fa-arrow-circle-left"></i>
+                        <i class="bi bi-arrow-left-circle"></i>
                         @Html.ActionLink(Loc[$"{prefix}.Orders.Shipments.BackToOrder"], "Edit", "Order", new { Id = Model.OrderId })
                     </small>
                 </div>
                 <div class="actions">
                     <div class="btn-group btn-group-devided">
                         <button class="btn btn-success" type="submit" id="shipment-save" name="save">
-                            <i class="fa fa-check"></i> @Loc[$"{prefix}.Common.Save"]
+                            <i class="bi bi-check-lg"></i> @Loc[$"{prefix}.Common.Save"]
                         </button>
                         <button class="btn btn-success" type="submit" id="shipment-save-continue" name="save-continue">
-                            <i class="fa fa-check-circle"></i> @Loc[$"{prefix}.Common.SaveContinue"]
+                            <i class="bi bi-check-circle"></i> @Loc[$"{prefix}.Common.SaveContinue"]
                         </button>
                         <partial name="Partials/WidgetZone.AddButtons" model="Model"/>
                     </div>

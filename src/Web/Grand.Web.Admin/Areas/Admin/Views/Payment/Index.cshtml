@@ -8,7 +8,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-money"></i>
+                    <i class="bi bi-cash"></i>
                     @Loc["Admin.Configuration.Payment.Methods"]
                 </div>
             </div>
@@ -39,33 +39,33 @@
                     </grid-column>
                     <grid-column field="SupportCapture" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportCapture"]" align="Center">
                         <cell-template>
-                            <i data-if="SupportCapture" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="SupportCapture" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="SupportRefund" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportRefund"]" align="Center">
                         <cell-template>
-                            <i data-if="SupportRefund" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="SupportRefund" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="SupportPartiallyRefund" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportPartiallyRefund"]" align="Center">
                         <cell-template>
-                            <i data-if="SupportPartiallyRefund" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="SupportPartiallyRefund" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="SupportVoid" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportVoid"]" align="Center">
                         <cell-template>
-                            <i data-if="SupportVoid" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="SupportVoid" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Payment.Methods.Fields.DisplayOrder"]" format="{0:0}"/>
                     <grid-column field="IsActive" title="@Loc["Admin.Configuration.Payment.Methods.Fields.IsActive"]" align="Center" editor="Checkbox">
                         <cell-template>
-                            <i data-if="IsActive" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>

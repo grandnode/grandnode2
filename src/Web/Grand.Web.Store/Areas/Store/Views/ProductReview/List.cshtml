@@ -9,7 +9,7 @@
         <div class="x_panel light form-fit popup-window">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-cubes"></i>
+                    <i class="bi bi-boxes"></i>
                     @Loc["Admin.Catalog.ProductReviews"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
@@ -68,10 +68,10 @@
                                     <div class="form-actions">
                                         <div class="btn-group">
                                             <button class="btn btn-success filter-submit" id="search-productreviews">
-                                                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                             </button>
                                             <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                                <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                             </button>
                                         </div>
                                     </div>
@@ -120,8 +120,8 @@
                             <grid-column field="Rating" title="@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="750"/>
                             <grid-column field="IsApproved" title="@Loc["Admin.Catalog.ProductReviews.Fields.IsApproved"]" width="80" align="Center">
                                 <cell-template>
-                                    <i data-if="IsApproved" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    <i data-if="IsApproved" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="CreatedOn" title="@Loc["Admin.Catalog.ProductReviews.Fields.CreatedOn"]" width="120" format="{0:G}"/>

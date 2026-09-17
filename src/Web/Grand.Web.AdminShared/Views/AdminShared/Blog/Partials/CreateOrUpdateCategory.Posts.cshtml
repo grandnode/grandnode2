@@ -19,7 +19,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
+            <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
             <input type="submit" id="btnRefreshPosts" style="display: none"/>
         </div>
     </div>

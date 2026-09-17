@@ -21,8 +21,8 @@
                     <grid-column field="WeightAdjustmentStr" title="@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment"]" width="150"/>
                     <grid-column field="IsPreSelected" title="@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.IsPreSelected"]" width="100" align="Center">
                         <cell-template>
-                            <i data-if="IsPreSelected" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsPreSelected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.DisplayOrder"]" width="100"/>
@@ -30,7 +30,7 @@
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewValue" href="@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new { productAttributeId = Model.Id, area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</a>
+                <a id="btnAddNewValue" href="@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new { productAttributeId = Model.Id, area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display:none"/>
             </div>
             <partial name="Partials/WidgetZone.PredefinedValues.Bottom" model="Model"/>

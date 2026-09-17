@@ -27,14 +27,14 @@
                 </grid-column>
                 <grid-column field="AllowFiltering" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering"]" align="Center">
                     <cell-template>
-                        <i data-if="AllowFiltering" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        <i data-if="AllowFiltering" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                     </cell-template>
                 </grid-column>
                 <grid-column field="ShowOnProductPage" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Fields.ShowOnProductPage"]" align="Center">
                     <cell-template>
-                        <i data-if="ShowOnProductPage" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        <i data-if="ShowOnProductPage" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true"/>
@@ -42,7 +42,7 @@
         </div>
         <partial name="Partials/WidgetZone.SpecificationAttributes.Bottom" model="Model"/>
         <div class="panel-footer">
-            <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddButton"]</a>
+            <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddButton"]</a>
         </div>
     </div>
 

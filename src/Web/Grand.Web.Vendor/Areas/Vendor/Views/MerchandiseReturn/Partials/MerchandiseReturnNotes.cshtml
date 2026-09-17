@@ -10,14 +10,14 @@
             <grid-column field="Note" title="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Note"]" width="350"/>
             <grid-column field="CreatedByCustomer" title="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedByCustomer"]" width="100" align="Center">
                 <cell-template>
-                    <i data-if="CreatedByCustomer" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                    <i data-if="CreatedByCustomer" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                 </cell-template>
             </grid-column>
             <grid-column field="DisplayToCustomer" title="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.DisplayToCustomer"]" width="100" align="Center">
                 <cell-template>
-                    <i data-if="DisplayToCustomer" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                    <i data-if="DisplayToCustomer" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                 </cell-template>
             </grid-column>
             <grid-commands destroy="true" title="@Loc["Vendor.Common.Delete"]" width="100"/>
@@ -52,7 +52,7 @@
         </div>
         <div class="form-actions">
             <div class="offset-md-3 col-md-9 col-sm-9">
-                <button type="button" id="addMerchandiseReturnNote" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddButton"]</button>
+                <button type="button" id="addMerchandiseReturnNote" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddButton"]</button>
             </div>
         </div>
     </div>

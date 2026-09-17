@@ -10,12 +10,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-tags"></i>
+                    <i class="bi bi-tags"></i>
                     @Loc["admin.marketing.Discounts"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = area })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <partial name="Partials/WidgetZone.ListButtons"/>
                 </div>
@@ -45,7 +45,7 @@
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
                                 <div class="form-actions">
                                     <button class="btn btn-success filter-submit" id="search-discounts">
-                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                     </button>
                                 </div>
                             </div>
@@ -73,8 +73,8 @@
                     <grid-column field="TimesUsed" title="@Loc["admin.marketing.Discounts.Fields.TimesUsed"]" width="200"/>
                     <grid-column field="IsEnabled" title="@Loc["admin.marketing.Discounts.Fields.IsEnabled"]" width="100" align="Center">
                         <cell-template>
-                            <i data-if="IsEnabled" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsEnabled" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                 </admin-grid>

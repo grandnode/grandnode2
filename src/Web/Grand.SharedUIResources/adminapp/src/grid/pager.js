@@ -68,7 +68,7 @@ export function renderPager(container, { mode, dataSource, pageSizes, texts, cul
     const refresh = button(doc, {
         className: 'grand-grid-refresh',
         label: t.refresh,
-        icon: 'fa fa-refresh',
+        icon: 'bi bi-arrow-clockwise',
         onClick: () => dataSource.read()
     })
 
@@ -83,8 +83,8 @@ export function renderPager(container, { mode, dataSource, pageSizes, texts, cul
     nav.className = 'grand-grid-pager-nav'
     nav.setAttribute('role', 'navigation')
     const go = p => dataSource.page(p)
-    nav.appendChild(button(doc, { className: 'grand-grid-first', label: t.firstPage, icon: 'fa fa-angle-double-left', disabled: page <= 1, onClick: () => go(1) }))
-    nav.appendChild(button(doc, { className: 'grand-grid-previous', label: t.previousPage, icon: 'fa fa-angle-left', disabled: page <= 1, onClick: () => go(page - 1) }))
+    nav.appendChild(button(doc, { className: 'grand-grid-first', label: t.firstPage, icon: 'bi bi-chevron-double-left', disabled: page <= 1, onClick: () => go(1) }))
+    nav.appendChild(button(doc, { className: 'grand-grid-previous', label: t.previousPage, icon: 'bi bi-chevron-left', disabled: page <= 1, onClick: () => go(page - 1) }))
     const numbers = doc.createElement('span')
     numbers.className = 'grand-grid-pager-numbers'
     for (const p of pageWindow(page, totalPages)) {
@@ -96,8 +96,8 @@ export function renderPager(container, { mode, dataSource, pageSizes, texts, cul
         }))
     }
     nav.appendChild(numbers)
-    nav.appendChild(button(doc, { className: 'grand-grid-next', label: t.nextPage, icon: 'fa fa-angle-right', disabled: page >= totalPages, onClick: () => go(page + 1) }))
-    nav.appendChild(button(doc, { className: 'grand-grid-last', label: t.lastPage, icon: 'fa fa-angle-double-right', disabled: page >= totalPages, onClick: () => go(totalPages) }))
+    nav.appendChild(button(doc, { className: 'grand-grid-next', label: t.nextPage, icon: 'bi bi-chevron-right', disabled: page >= totalPages, onClick: () => go(page + 1) }))
+    nav.appendChild(button(doc, { className: 'grand-grid-last', label: t.lastPage, icon: 'bi bi-chevron-double-right', disabled: page >= totalPages, onClick: () => go(totalPages) }))
     container.appendChild(nav)
 
     if (pageSizes && pageSizes.length > 0) {

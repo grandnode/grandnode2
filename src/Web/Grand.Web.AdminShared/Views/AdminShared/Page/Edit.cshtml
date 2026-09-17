@@ -12,10 +12,10 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-fw fa-file-o"></i>
+                        <i class="bi bi-fw bi-file-earmark"></i>
                         @Loc["Admin.Content.Pages.EditPageDetails"] - @Model.SystemName
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Content.Pages.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Content.Pages.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
@@ -23,23 +23,23 @@
                             @if (!string.IsNullOrEmpty(Model.SeName))
                             {
                                 <button type="button" onclick="window.open('@Url.RouteUrl("Page", new { Model.SeName })','_blank');" class="btn purple">
-                                    <i class="fa fa-eye"></i>
+                                    <i class="bi bi-eye"></i>
                                     @Loc["Admin.Common.Preview"]
                                 </button>
                             }
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                             </button>
                             <span id="page-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                             </span>
                             @if (area == "Store" && Model.ShowCopyButton)
                             {
                                 <button type="submit" form="page-copy-form" class="btn blue">
-                                    <i class="fa fa-copy"></i> @Loc["Admin.Common.Copy"]
+                                    <i class="bi bi-files"></i> @Loc["Admin.Common.Copy"]
                                 </button>
                             }
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>

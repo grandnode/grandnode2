@@ -19,8 +19,8 @@
             <grid-column field="Rating" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="500"/>
             <grid-column field="IsApproved" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.IsApproved"]" width="80" align="Center" min-screen-width="500">
                 <cell-template>
-                    <i data-if="IsApproved" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                    <i data-if="IsApproved" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                 </cell-template>
             </grid-column>
             <grid-column field="CreatedOn" title="@Loc[$"{Scope.ResourceKeyPrefix}.Orders.Fields.CreatedOn"]" width="150" format="{0:G}" min-screen-width="500"/>

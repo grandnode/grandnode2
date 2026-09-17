@@ -461,7 +461,7 @@ label.required::after {
     float: left;
 }
 
-.main_menu span.fa {
+.main_menu span.bi {
     float: right;
     text-align: center;
     margin-top: 5px;
@@ -504,12 +504,12 @@ label.required::after {
     border-bottom-left-radius: 3px;
 }
 
-.active a span.fa {
+.active a span.bi {
     margin-right: 4px;
     text-align: right !important;
 }
 
-.main_menu li.active > a > span.fa {
+.main_menu li.active > a > span.bi {
     -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
 } 
@@ -518,11 +518,11 @@ label.required::after {
     margin: 0;
 }
 
-.nav-sm span.fa, .nav-sm .menu_section h3 {
+.nav-sm span.bi, .nav-sm .menu_section h3 {
     display: none;
 }
 
-.nav-sm li li span.fa {
+.nav-sm li li span.bi {
     display: inline-block;
 }
 
@@ -898,24 +898,24 @@ table.no-margin .progress {
     display: flex;
     justify-content: center;
     font-size: 165px;
-    font-family: FontAwesome;
+    font-family: bootstrap-icons;
     z-index: 0;
     opacity: .5;
 }
 .order-status-block.Cancelled::before {
-    content: "\f05e";
+    content: "\f567";
     color: rgba(231, 76, 60, 1);
 }
 .order-status-block.Complete::before {
-    content: "\f046";
+    content: "\f271";
     color: rgba(38, 185, 154, 1);
 }
 .order-status-block.Processing::before {
-    content: "\f021";
+    content: "\f116";
     color: #d1ecf1;
 }
 .order-status-block.Pending::before {
-    content: "\f017";
+    content: "\f293";
     color: rgba(243, 156, 18, 1);
 }
 .order-status-block .alert::before {
@@ -2630,33 +2630,6 @@ h4.graph_title {
     text-align: center
 }
 
-.fontawesome-icon-list .fa-hover a:hover {
-    background-color: #ddd;
-    color: #fff;
-    text-decoration: none
-}
-
-.fontawesome-icon-list .fa-hover a {
-    display: block;
-    line-height: 32px;
-    height: 32px;
-    padding-left: 10px;
-    border-radius: 4px
-}
-
-.fontawesome-icon-list .fa-hover a:hover .fa {
-    font-size: 28px;
-    vertical-align: -6px
-}
-
-.fontawesome-icon-list .fa-hover a .fa {
-    width: 32px;
-    font-size: 16px;
-    display: inline-block;
-    text-align: right;
-    margin-right: 10px
-}
-
 .nav-sm .nav.side-menu li a i {
     width: 26px;
     opacity: .99;
@@ -2666,10 +2639,6 @@ h4.graph_title {
     font-size: 18px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale
-}
-
-.main_menu .fa {
-    font-family: FontAwesome;
 }
 
 .tile-stats {
@@ -3299,7 +3268,7 @@ a.btn-success, a.btn-primary, a.btn-warning, a.btn-danger {
     font-size: 12px
 }
 
-.btn.btn-app>.fa, .btn.btn-app>.glyphicon, .btn.btn-app>.ion {
+.btn.btn-app>.bi {
     font-size: 20px;
     display: block
 }
@@ -6107,7 +6076,7 @@ a span.username {
     clear: both;
 }
 
-.help.icon-question {
+.help.bi-question-circle {
     padding-left: 4px;
 }
 
@@ -7259,40 +7228,42 @@ table.tableFixHead {
     top: -17px;
     left: -10px;
 }
-.icon-home {
+/* the top level of the side menu, coloured per section; the class names come from
+   AdminSiteMap.IconClass, which the 2.4 icon migration moved to bootstrap-icons */
+.bi-house {
     color: #F94144;
 }
-.fa-sitemap {
+.bi-diagram-3 {
     color: #F3722C;
 }
-.icon-basket {
+.bi-basket {
     color: #F8961E;
 }
-.icon-users {
+.bi-people {
     color: #F9844A;
 }
-.icon-bulb {
-    color: #F9C74F;   
+.bi-lightbulb {
+    color: #F9C74F;
 }
-.icon-layers {
+.bi-layers {
     color: #90BE6D;
 }
-.icon-bar-chart {
+.bi-bar-chart {
     color: #43AA8B;
 }
-.icon-settings {
+.bi-gear {
     color: #4D908E;
 }
-.icon-wrench {
+.bi-wrench {
     color: #B9FFB7;
 }
-.icon-puzzle {
+.bi-puzzle {
     color: #98D9C2;
 }
-.icon-info {
+.bi-info-circle {
     color: #3C91E6;
 }
-.icon-question {
+.bi-question-circle {
     color: #BEDCFE;
 }
 .popup-window {
@@ -7420,7 +7391,7 @@ table.tableFixHead {
     height: 1px;
     background-color: #dee2e6;
 }
-.permissions-table .title .fa {
+.permissions-table .title .bi {
     font-size: 12px;
     margin: 0 0 0 auto;
     -webkit-transform: rotate(0);
@@ -7428,7 +7399,7 @@ table.tableFixHead {
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out
 }
-.permissions-table .title:not(.collapsed) .fa {
+.permissions-table .title:not(.collapsed) .bi {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
 }

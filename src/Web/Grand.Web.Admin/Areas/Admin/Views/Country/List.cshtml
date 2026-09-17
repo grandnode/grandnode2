@@ -9,12 +9,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-globe"></i>
+                    <i class="bi bi-globe"></i>
                     @Loc["Admin.Configuration.Countries"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <input type="button" id="publish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.PublishSelected"]"/>
                     <input type="button" id="unpublish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.UnpublishSelected"]"/>
@@ -36,7 +36,7 @@
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
                                 <div class="form-actions">
                                     <button class="btn btn-success filter-submit" id="search-countries">
-                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                     </button>
                                 </div>
                             </div>
@@ -56,14 +56,14 @@
                             </grid-column>
                             <grid-column field="AllowsBilling" title="@Loc["Admin.Configuration.Countries.Fields.AllowsBilling"]" width="100" align="Center">
                                 <cell-template>
-                                    <i data-if="AllowsBilling" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    <i data-if="AllowsBilling" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="AllowsShipping" title="@Loc["Admin.Configuration.Countries.Fields.AllowsShipping"]" width="100" align="Center">
                                 <cell-template>
-                                    <i data-if="AllowsShipping" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    <i data-if="AllowsShipping" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="TwoLetterIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.TwoLetterIsoCode"]" width="100"/>
@@ -71,15 +71,15 @@
                             <grid-column field="NumericIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.NumericIsoCode"]" width="100"/>
                             <grid-column field="SubjectToVat" title="@Loc["Admin.Configuration.Countries.Fields.SubjectToVat"]" width="100" align="Center">
                                 <cell-template>
-                                    <i data-if="SubjectToVat" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    <i data-if="SubjectToVat" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Countries.Fields.DisplayOrder"]" width="100"/>
                             <grid-column field="Published" title="@Loc["Admin.Configuration.Countries.Fields.Published"]" width="100" align="Center">
                                 <cell-template>
-                                    <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                 </cell-template>
                             </grid-column>
                         </admin-grid>

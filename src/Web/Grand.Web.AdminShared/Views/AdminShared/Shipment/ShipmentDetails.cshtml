@@ -56,20 +56,20 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-truck"></i>
+                        <i class="bi bi-truck"></i>
                         @Loc["Admin.Orders.Shipments.ViewDetails"] - @Model.ShipmentNumber
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>
+                            <i class="bi bi-arrow-left-circle"></i>
                             @Html.ActionLink(Loc["Admin.Orders.Shipments.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
                             <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = area })" class="btn purple">
-                                <i class="fa fa-file-pdf-o"></i> @Loc["Admin.Orders.Shipments.PrintPackagingSlip"]
+                                <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.Shipments.PrintPackagingSlip"]
                             </a>
                             <span id="shipment-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                             </span>
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>

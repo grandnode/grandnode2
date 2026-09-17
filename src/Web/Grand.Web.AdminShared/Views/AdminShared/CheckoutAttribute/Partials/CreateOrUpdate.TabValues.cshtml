@@ -21,8 +21,8 @@
                     <grid-column field="WeightAdjustment" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.WeightAdjustment"]" width="150" min-screen-width="750"/>
                     <grid-column field="IsPreSelected" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.IsPreSelected"]" width="100" align="Center" min-screen-width="500">
                         <cell-template>
-                            <i data-if="IsPreSelected" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsPreSelected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="DisplayOrder" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.DisplayOrder"]" width="100" align="Center"/>
@@ -30,7 +30,7 @@
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]</a>
+                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
         </div>

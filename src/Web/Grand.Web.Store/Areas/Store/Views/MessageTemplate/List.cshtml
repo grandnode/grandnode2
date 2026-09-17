@@ -8,12 +8,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-envelope-o"></i>
+                    <i class="bi bi-envelope"></i>
                     @Loc["Admin.Content.MessageTemplates"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <vc:store-widget widget-zone="store_message_template_list_buttons" additional-data="null"/>
                 </div>
@@ -32,8 +32,8 @@
                                     <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>
                                     <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="80" align="Center">
                                         <cell-template>
-                                            <i data-if="IsActive" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                            <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                         </cell-template>
                                     </grid-column>
                                 </admin-grid>
@@ -51,14 +51,14 @@
                                     <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>
                                     <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="80" align="Center">
                                         <cell-template>
-                                            <i data-if="IsActive" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                            <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                         </cell-template>
                                     </grid-column>
                                     @* the Kendo cell posted a form of its own; the row now fills the form below *@
                                     <grid-column title="@Loc["Admin.Common.Copy"]" width="100" align="Center">
                                         <cell-template>
-                                            <button type="button" class="btn btn-sm btn-info" data-grid-click="copyMessageTemplate" title="{{ $texts.copy }}"><i class="fa fa-copy"></i></button>
+                                            <button type="button" class="btn btn-sm btn-info" data-grid-click="copyMessageTemplate" title="{{ $texts.copy }}"><i class="bi bi-files"></i></button>
                                         </cell-template>
                                     </grid-column>
                                 </admin-grid>

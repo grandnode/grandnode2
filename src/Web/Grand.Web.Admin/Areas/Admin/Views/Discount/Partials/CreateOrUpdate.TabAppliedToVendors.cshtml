@@ -19,7 +19,7 @@
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewVendor" href="@(Url.Action("VendorAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshVendors", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]</a>
+                <a id="btnAddNewVendor" href="@(Url.Action("VendorAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshVendors", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]</a>
                 <input type="button" id="btnRefreshVendors" style="display: none"/>
             </div>
             <vc:admin-widget widget-zone="discount_details_applied_to_vendors_bottom" additional-data="Model"/>

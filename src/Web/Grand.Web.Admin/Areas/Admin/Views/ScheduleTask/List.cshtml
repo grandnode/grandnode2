@@ -9,7 +9,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-tasks"></i>
+                    <i class="bi bi-list-task"></i>
                     @Loc["Admin.System.ScheduleTasks"]
                 </div>
                 <vc:admin-widget widget-zone="schedule_task_list_buttons" additional-data="null"/>
@@ -32,14 +32,14 @@
                                 </grid-column>
                                 <grid-column field="Enabled" title="@Loc["Admin.System.ScheduleTasks.Enabled"]" width="100" align="Center">
                                     <cell-template>
-                                        <i data-if="Enabled" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                        <i data-if="Enabled" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="StopOnError" title="@Loc["Admin.System.ScheduleTasks.StopOnError"]" width="100" align="Center">
                                     <cell-template>
-                                        <i data-if="StopOnError" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                        <i data-if="StopOnError" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="LastStartUtc" title="@Loc["Admin.System.ScheduleTasks.LastStart"]" width="200" format="{0:G}"/>
@@ -47,7 +47,7 @@
                                 <grid-column field="LastEndUtc" title="@Loc["Admin.System.ScheduleTasks.LastEnd"]" width="200" format="{0:G}"/>
                                 <grid-column field="Id" title="@Loc["Admin.System.ScheduleTasks.RunNow"]" width="100">
                                     <cell-template>
-                                        <a href="@Url.Action("RunNow", "ScheduleTask", new { area = Constants.AreaAdmin })/{{ Id }}" class="k-button run-now k-button-icontext"><i class="fa fa-forward"></i> {{ $texts.runNow }}</a>
+                                        <a href="@Url.Action("RunNow", "ScheduleTask", new { area = Constants.AreaAdmin })/{{ Id }}" class="k-button run-now k-button-icontext"><i class="bi bi-fast-forward"></i> {{ $texts.runNow }}</a>
                                     </cell-template>
                                 </grid-column>
                             </admin-grid>

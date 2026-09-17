@@ -11,19 +11,19 @@
             <div class="x_panel light form-fit popup-window">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-users"></i>
+                        <i class="bi bi-people"></i>
                         @Loc["Admin.Customers.Customers"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
                         <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                            <i class="fa fa-plus"></i><span class="d-none d-sm-inline">@Loc["Admin.Common.AddNew"] </span>
+                            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline">@Loc["Admin.Common.AddNew"] </span>
                         </a>
 
                         <div class="btn-group btn-group-devided">
                             <a class="btn default" href="javascript:;" data-bs-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                                <i class="fa fa-download"></i>
+                                <i class="bi bi-download"></i>
                                 @Loc["Admin.Common.Export"]
-                                <i class="fa fa-angle-down"></i>
+                                <i class="bi bi-chevron-down"></i>
                             </a>
                             <ul class="dropdown-menu pull-right">
                                 <li>
@@ -36,7 +36,7 @@
                             <vc:admin-widget widget-zone="customer_list_buttons" additional-data="null"/>
                         </div>
                         <button type="button" name="delete-selected" id="delete-selected" class="btn red">
-                            <i class="fa fa-trash-o"></i>
+                            <i class="bi bi-trash"></i>
                             @Loc["Admin.Common.Delete.Selected"]
                         </button>
                     </div>
@@ -56,10 +56,10 @@
                                         <div class="form-actions">
                                             <div class="btn-group">
                                                 <button class="btn btn-success filter-submit" id="search-customers">
-                                                    <i class="fa fa-search"></i>&nbsp; @Loc["Admin.Common.Search"]
+                                                    <i class="bi bi-search"></i>&nbsp; @Loc["Admin.Common.Search"]
                                                 </button>
                                                 <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
                                         </div>
@@ -164,8 +164,8 @@
                         }
                         <grid-column field="Active" title="@Loc["Admin.Customers.Customers.Fields.Active"]" width="100" align="Center">
                             <cell-template>
-                                <i data-if="Active" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                             </cell-template>
                         </grid-column>
                         <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Fields.CreatedOn"]" width="200" format="{0:G}" min-screen-width="770"/>

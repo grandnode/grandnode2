@@ -14,16 +14,16 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cube"></i>
+                        <i class="bi bi-box"></i>
                         @Loc["Admin.Orders.Address.EditAddress"]
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>
+                            <i class="bi bi-arrow-left-circle"></i>
                             @Html.ActionLink(Loc["Admin.Orders.Address.BackToOrder"], "Edit", new { id = Model.OrderId })
                         </small>
                     </div>
                     <div class="actions">
                         <button class="btn btn-success" type="submit" name="save">
-                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                         </button>
                         <partial name="Partials/WidgetZone.AddressEditButtons" model="Model"/>
                     </div>

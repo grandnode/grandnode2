@@ -10,22 +10,22 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-user"></i>
+                        <i class="bi bi-person"></i>
                         @Loc["Admin.Customers.Customers.EditCustomerDetails"] - @Model.LastName @Model.FirstName
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Customers.Customers.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Customers.Customers.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                             </button>
-                            <button class="btn btn-info" type="submit" id="sendemail"><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;@Loc["Admin.Customers.Customers.SendEmail"] </button>
-                            <button class="btn btn-info" type="submit" name="impersonate" asp-action="Impersonate"><i class="fa fa-shopping-cart" aria-hidden="true"></i>&nbsp;@Loc["Admin.Customers.Customers.Impersonate.Button"]</button>
+                            <button class="btn btn-info" type="submit" id="sendemail"><i class="bi bi-send" aria-hidden="true"></i> &nbsp;@Loc["Admin.Customers.Customers.SendEmail"] </button>
+                            <button class="btn btn-info" type="submit" name="impersonate" asp-action="Impersonate"><i class="bi bi-cart" aria-hidden="true"></i>&nbsp;@Loc["Admin.Customers.Customers.Impersonate.Button"]</button>
                             @if (Model.AllowSendingOfWelcomeMessage)
                             {
                                 <button class="btn btn-primary" type="submit" name="send-welcome-message" asp-action="SendWelcomeMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.SendWelcomeMessage"] </button>
@@ -35,7 +35,7 @@
                                 <button class="btn btn-primary" type="submit" name="resend-activation-message" asp-action="ReSendActivationMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.ReSendActivationMessage"] </button>
                             }
                             <span id="customer-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span>
+                                <i class="bi bi-trash"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span>
                             </span>
                             <vc:admin-widget widget-zone="customer_details_buttons" additional-data="Model"/>
                         </div>

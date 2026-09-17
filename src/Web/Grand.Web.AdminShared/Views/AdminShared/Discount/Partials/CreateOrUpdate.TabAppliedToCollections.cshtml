@@ -20,7 +20,7 @@
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
+                <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
                 <input type="submit" id="btnRefreshCollections" style="display: none"/>
             </div>
             <partial name="Partials/WidgetZone.AppliedToCollections.Bottom" model="Model"/>

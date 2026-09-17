@@ -12,7 +12,7 @@
     <grid-column field="TotalAmount" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"/>
     <grid-column field="ProductId" title="@Loc["Admin.Common.View"]" width="100">
         <cell-template>
-            <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}"><i class="fa fa-search"></i> {{ $texts.view }}</a>
+            <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
         </cell-template>
     </grid-column>
 </admin-grid>

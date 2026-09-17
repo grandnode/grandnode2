@@ -31,8 +31,8 @@
             <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity"]" align="Center" format="{0:0}"/>
             <grid-column field="AllowOutOfStockOrders" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.AllowOutOfStockOrders"]" align="Center">
                 <cell-template>
-                    <i data-if="AllowOutOfStockOrders" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                    <i data-if="AllowOutOfStockOrders" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                 </cell-template>
             </grid-column>
             <grid-column field="Sku" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Sku"]"/>
@@ -41,7 +41,7 @@
         </admin-grid>
     </div>
     <div class="panel-footer">
-        <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
+        <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
         <button type="submit" id="btnGenerateAllCombinations" class="k-button"><span class="k-icon k-i-style-builder"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
         <button type="submit" id="btnClearAllCombinations" class="k-button"><span class="k-icon k-i-cut"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
         <input type="submit" id="btnRefreshCombinations" style="display: none"/>

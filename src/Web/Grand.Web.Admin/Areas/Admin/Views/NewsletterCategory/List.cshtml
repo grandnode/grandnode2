@@ -8,12 +8,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-tags"></i>
+                    <i class="bi bi-tags"></i>
                     @Loc["admin.marketing.NewsletterCategory"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                 </div>
             </div>
@@ -31,8 +31,8 @@
                                 </grid-column>
                                 <grid-column field="Selected" title="@Loc["admin.marketing.NewsletterCategory.Fields.Selected"]" width="100" align="Center">
                                     <cell-template>
-                                        <i data-if="Selected" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                        <i data-if="Selected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="DisplayOrder" title="@Loc["admin.marketing.NewsletterCategory.Fields.DisplayOrder"]" width="120"/>

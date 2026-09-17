@@ -28,7 +28,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
+            <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
             <input type="submit" id="btnRefreshSimilarProducts" style="display: none"/>
         </div>
     </div>

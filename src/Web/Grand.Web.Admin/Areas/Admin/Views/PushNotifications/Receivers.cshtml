@@ -11,7 +11,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-cubes"></i>
+                    <i class="bi bi-boxes"></i>
                     @Loc["Admin.PushNotifications.Receivers"]
                 </div>
             </div>
@@ -38,8 +38,8 @@
                                 </grid-column>
                                 <grid-column field="Allowed" title="@Loc["Admin.PushNotifications.Message.Fields.Allowed"]" width="100" align="Center">
                                     <cell-template>
-                                        <i data-if="Allowed" class="fa fa-check true-icon" style="color:green"></i>
-                                        <i data-else class="fa fa-close false-icon" style="color:red"></i>
+                                        <i data-if="Allowed" class="bi bi-check-lg true-icon" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg false-icon" style="color:red"></i>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="RegisteredOn" title="@Loc["Admin.PushNotifications.Message.Fields.RegisteredOn"]" width="200" format="{0:G}"/>

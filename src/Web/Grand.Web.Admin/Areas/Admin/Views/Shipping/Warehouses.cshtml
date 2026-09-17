@@ -8,12 +8,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="bi bi-card-list"></i>
                     @Loc["Admin.Configuration.Shipping.Warehouses"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("CreateWarehouse", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <vc:admin-widget widget-zone="warehouse_list_buttons" additional-data="null"/>
                 </div>

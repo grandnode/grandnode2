@@ -8,7 +8,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-tasks"></i>
+                    <i class="bi bi-list-task"></i>
                     @Loc["Admin.System.APIUsers"]
                 </div>
                 <vc:admin-widget widget-zone="api_user_list_buttons" additional-data="null"/>
@@ -33,8 +33,8 @@
                                 </grid-column>
                                 <grid-column field="IsActive" title="@Loc["Admin.System.UserApi.IsActive"]" width="100" editor="Checkbox">
                                     <cell-template>
-                                        <i data-if="IsActive" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                        <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                     </cell-template>
                                 </grid-column>
                                 <grid-commands edit="true" destroy="true" width="200"/>

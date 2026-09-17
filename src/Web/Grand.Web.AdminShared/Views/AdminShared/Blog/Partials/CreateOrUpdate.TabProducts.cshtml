@@ -23,7 +23,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Blog", new { blogPostId = Model.Id, btnId = "btnRefreshProducts", formId = "blog-edit", area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Content.Blog.BlogPosts.Products.AddNew"]</a>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Blog", new { blogPostId = Model.Id, btnId = "btnRefreshProducts", formId = "blog-edit", area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Blog.BlogPosts.Products.AddNew"]</a>
             <input type="button" id="btnRefreshProducts" style="display: none"/>
         </div>
         <partial name="Partials/WidgetZone.Products.Bottom" model="Model"/>

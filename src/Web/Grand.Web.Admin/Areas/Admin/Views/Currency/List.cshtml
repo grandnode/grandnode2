@@ -11,16 +11,16 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-globe"></i>
+                        <i class="bi bi-globe"></i>
                         @Loc["Admin.Configuration.Currencies"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
                         <button class="btn btn-success" type="submit" name="save">
-                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                         </button>
                         <a href="@Url.Action("List", "Currency", new { liveRates = true, area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Configuration.Currencies.GetLiveRates"]</a>
                         <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                            <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                         </a>
                         <vc:admin-widget widget-zone="currency_list_buttons" additional-data="null"/>
                     </div>
@@ -67,23 +67,23 @@
                                     <grid-column field="Id" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency"]">
                                         <cell-template>
                                             <a class="k-button" data-grid-click="markAsPrimaryExchangeRateCurrency">
-                                            <i data-if="IsPrimaryExchangeRateCurrency" class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i>
-                                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i>
+                                            <i data-if="IsPrimaryExchangeRateCurrency" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
+                                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
                                             {{ $texts.markAsPrimaryExchangeRateCurrency }}</a>
                                         </cell-template>
                                     </grid-column>
                                     <grid-column field="Id" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]">
                                         <cell-template>
                                             <a class="k-button" data-grid-click="markAsPrimaryStoreCurrency">
-                                            <i data-if="IsPrimaryStoreCurrency" class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i>
-                                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i>
+                                            <i data-if="IsPrimaryStoreCurrency" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
+                                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
                                             {{ $texts.markAsPrimaryStoreCurrency }}</a>
                                         </cell-template>
                                     </grid-column>
                                     <grid-column field="Published" title="@Loc["Admin.Configuration.Currencies.Fields.Published"]" width="100" align="Center">
                                         <cell-template>
-                                            <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                            <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                         </cell-template>
                                     </grid-column>
                                     <grid-column field="DisplayOrder" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.DisplayOrder"]" width="50"/>

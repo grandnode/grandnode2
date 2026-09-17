@@ -14,22 +14,22 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cube"></i>
+                        <i class="bi bi-box"></i>
                         @Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.EditVendorReviewDetails"]
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+                                <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
                             </button>
                             <span id="vendorreview-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
                             </span>
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>

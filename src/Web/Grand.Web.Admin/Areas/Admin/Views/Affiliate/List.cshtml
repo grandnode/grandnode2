@@ -9,12 +9,12 @@
         <div class="x_panel light form-fit popup-window">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-cube"></i>
+                    <i class="bi bi-box"></i>
                     @Loc["Admin.Affiliates"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                 </div>
             </div>
@@ -40,10 +40,10 @@
                                     <div class="form-actions">
                                         <div class="btn-group">
                                             <button class="btn btn-success filter-submit" id="search-affiliates">
-                                                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                             </button>
                                             <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                                <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                             </button>
                                         </div>
                                     </div>
@@ -97,8 +97,8 @@
                     <grid-column field="Address.LastName" title="@Loc["Admin.Address.Fields.LastName"]" width="200"/>
                     <grid-column field="Active" title="@Loc["Admin.Affiliates.Fields.Active"]" width="100" align="Center">
                         <cell-template>
-                            <i data-if="Active" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                 </admin-grid>

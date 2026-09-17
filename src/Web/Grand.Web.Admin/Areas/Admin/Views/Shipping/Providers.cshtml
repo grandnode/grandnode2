@@ -8,7 +8,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="bi bi-card-list"></i>
                     @Loc["Admin.Configuration.Shipping.Providers"]
                 </div>
                 <vc:admin-widget widget-zone="shipping_provider_list_buttons" additional-data="null"/>
@@ -43,8 +43,8 @@
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.Providers.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
                                 <grid-column field="IsActive" title="@Loc["Admin.Configuration.Shipping.Providers.Fields.IsActive"]" width="100" align="Center" editor="Checkbox">
                                     <cell-template>
-                                        <i data-if="IsActive" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                        <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                     </cell-template>
                                 </grid-column>
                                 <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>

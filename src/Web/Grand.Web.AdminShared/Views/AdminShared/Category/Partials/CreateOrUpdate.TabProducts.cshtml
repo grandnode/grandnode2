@@ -20,8 +20,8 @@
                 </grid-column>
                 <grid-column field="IsFeaturedProduct" title="@Loc["Admin.Catalog.Categories.Products.Fields.IsFeaturedProduct"]" width="175" align="Center" min-screen-width="750" editor="Checkbox">
                     <cell-template>
-                        <i data-if="IsFeaturedProduct" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        <i data-if="IsFeaturedProduct" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Categories.Products.Fields.DisplayOrder"]" width="125" align="Center" format="{0:0}" min-screen-width="750" editor="Integer"/>
@@ -29,7 +29,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
             <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
     </div>

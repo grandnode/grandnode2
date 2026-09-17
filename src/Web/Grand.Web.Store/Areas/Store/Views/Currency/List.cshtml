@@ -8,7 +8,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-money"></i>
+                    <i class="bi bi-cash"></i>
                     @Loc["Admin.Configuration.Currencies"]
                 </div>
             </div>
@@ -24,22 +24,22 @@
                     <grid-column field="Name" title="@Loc["Admin.Configuration.Currencies.Fields.Name"]" width="200">
                         <cell-template>
                             {{ Name }}
-                            <span data-if="IsPrimaryStoreCurrency" class="badge text-bg-warning" title="{{ $texts.isPrimaryStoreCurrency }}"><i class="fa fa-star"></i></span>
-                            <span data-if="IsAssignedToCurrentStore" class="badge text-bg-success" title="{{ $texts.assignStore }}"><i class="fa fa-check"></i></span>
+                            <span data-if="IsPrimaryStoreCurrency" class="badge text-bg-warning" title="{{ $texts.isPrimaryStoreCurrency }}"><i class="bi bi-star"></i></span>
+                            <span data-if="IsAssignedToCurrentStore" class="badge text-bg-success" title="{{ $texts.assignStore }}"><i class="bi bi-check-lg"></i></span>
                         </cell-template>
                     </grid-column>
                     <grid-column field="CurrencyCode" title="@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]" width="100"/>
                     <grid-column field="LimitedToStores" title="@Loc["Admin.Configuration.Currencies.Fields.LimitedToStores"]" width="120" align="Center">
                         <cell-template>
-                            <i data-if="LimitedToStores" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="LimitedToStores" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="IsDefaultStoreCurrency" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]" width="180" align="Center">
                         <cell-template>
-                            <span data-if="IsDefaultStoreCurrency" class="badge text-bg-info"><i class="fa fa-home"></i> {{ $texts.setDefaultCurrency }}</span>
-                            <a data-if="IsDefaultStoreCurrency" data-grid-click="unsetDefaultCurrency" class="btn btn-sm btn-warning" title="{{ $texts.unsetDefaultCurrency }}"><i class="fa fa-home"></i> {{ $texts.unsetDefaultCurrency }}</a>
-                            <a data-if="!IsDefaultStoreCurrency && IsAssignedToCurrentStore" data-grid-click="setDefaultCurrency" class="btn btn-sm btn-info" title="{{ $texts.setDefaultCurrency }}"><i class="fa fa-home"></i> {{ $texts.setDefaultCurrency }}</a>
+                            <span data-if="IsDefaultStoreCurrency" class="badge text-bg-info"><i class="bi bi-house"></i> {{ $texts.setDefaultCurrency }}</span>
+                            <a data-if="IsDefaultStoreCurrency" data-grid-click="unsetDefaultCurrency" class="btn btn-sm btn-warning" title="{{ $texts.unsetDefaultCurrency }}"><i class="bi bi-house"></i> {{ $texts.unsetDefaultCurrency }}</a>
+                            <a data-if="!IsDefaultStoreCurrency && IsAssignedToCurrentStore" data-grid-click="setDefaultCurrency" class="btn btn-sm btn-info" title="{{ $texts.setDefaultCurrency }}"><i class="bi bi-house"></i> {{ $texts.setDefaultCurrency }}</a>
                             <span data-if="!IsDefaultStoreCurrency && !IsAssignedToCurrentStore" class="text-muted">-</span>
                         </cell-template>
                     </grid-column>
@@ -47,8 +47,8 @@
                     <grid-column title="@Loc["Admin.Common.Actions"]" width="220" align="Center">
                         <cell-template>
                             <span data-if="!CanManage" class="text-muted">-</span>
-                            <a data-if="CanManage && IsAssignedToCurrentStore" data-grid-click="unassignStore" class="btn btn-sm btn-danger" title="{{ $texts.unassignStore }}"><i class="fa fa-minus"></i> {{ $texts.unassignStore }}</a>
-                            <a data-if="CanManage && !IsAssignedToCurrentStore" data-grid-click="assignStore" class="btn btn-sm btn-success" title="{{ $texts.assignStore }}"><i class="fa fa-plus"></i> {{ $texts.assignStore }}</a>
+                            <a data-if="CanManage && IsAssignedToCurrentStore" data-grid-click="unassignStore" class="btn btn-sm btn-danger" title="{{ $texts.unassignStore }}"><i class="bi bi-dash-lg"></i> {{ $texts.unassignStore }}</a>
+                            <a data-if="CanManage && !IsAssignedToCurrentStore" data-grid-click="assignStore" class="btn btn-sm btn-success" title="{{ $texts.assignStore }}"><i class="bi bi-plus-lg"></i> {{ $texts.assignStore }}</a>
                         </cell-template>
                     </grid-column>
                 </admin-grid>

@@ -11,30 +11,30 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cube"></i>
+                        <i class="bi bi-box"></i>
                         @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"] - @Model.Name
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
                             <button type="button" onclick="window.open('@Url.RouteUrl("Product", new { Model.SeName })','_blank');" class="btn purple">
-                                <i class="fa fa-eye"></i>
+                                <i class="bi bi-eye"></i>
                                 @Loc[$"{Scope.ResourceKeyPrefix}.Common.Preview"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+                                <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
                             </button>
                             <button type="button" name="copyproduct" class="btn blue" id="copyproduct">
-                                <i class="fa fa-clone"></i>
+                                <i class="bi bi-files"></i>
                                 @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]
                             </button>
                             <span id="product-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
                             </span>
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>

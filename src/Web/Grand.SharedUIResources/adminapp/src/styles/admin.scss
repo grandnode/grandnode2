@@ -20,6 +20,7 @@
 
 // 3. the icon font that replaced Font Awesome 4 and simple-line-icons
 @import "bootstrap-icons/font/bootstrap-icons";
+@import "icons";
 
 // 4. the Bootstrap 4 class names the views still carry; deleted as the codemod
 //    works through them (see _bs4-compat.scss)

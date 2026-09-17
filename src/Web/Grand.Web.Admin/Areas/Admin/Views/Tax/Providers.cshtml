@@ -9,7 +9,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-money"></i>
+                    <i class="bi bi-cash"></i>
                     @Loc["Admin.Configuration.Tax.Providers"]
                 </div>
                 <vc:admin-widget widget-zone="tax_provider_list_buttons" additional-data="null"/>
@@ -42,8 +42,8 @@
                                 <grid-column field="SystemName" title="@Loc["Admin.Configuration.Tax.Providers.Fields.IsPrimaryTaxProvider"]" width="200">
                                     <cell-template>
                                         <a href="@Url.Action("MarkAsPrimaryProvider", "Tax", new { area = Constants.AreaAdmin })/?systemName={{ SystemName }}" class="k-button">
-                                        <i data-if="IsPrimaryTaxProvider" class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i>
-                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i>
+                                        <i data-if="IsPrimaryTaxProvider" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
                                         {{ $texts.markAsPrimaryProvider }}</a>
                                     </cell-template>
                                 </grid-column>

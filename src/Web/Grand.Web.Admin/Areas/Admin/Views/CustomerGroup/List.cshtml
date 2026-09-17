@@ -9,12 +9,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-users"></i>
+                    <i class="bi bi-people"></i>
                     @Loc["Admin.Customers.CustomerGroups"]
                 </div>
                 <div class="actions">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <vc:admin-widget widget-zone="customer_group_list_buttons" additional-data="null"/>
                 </div>
@@ -28,26 +28,26 @@
                     </grid-column>
                     <grid-column field="FreeShipping" title="@Loc["Admin.Customers.CustomerGroups.Fields.FreeShipping"]" width="100" align="Center">
                         <cell-template>
-                            <i data-if="FreeShipping" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="FreeShipping" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="TaxExempt" title="@Loc["Admin.Customers.CustomerGroups.Fields.TaxExempt"]" width="80" align="Center">
                         <cell-template>
-                            <i data-if="TaxExempt" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="TaxExempt" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="Active" title="@Loc["Admin.Customers.CustomerGroups.Fields.Active"]" width="80" align="Center">
                         <cell-template>
-                            <i data-if="Active" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="IsSystem" title="@Loc["Admin.Customers.CustomerGroups.Fields.IsSystem"]" width="80" align="Center">
                         <cell-template>
-                            <i data-if="IsSystem" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsSystem" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                         </cell-template>
                     </grid-column>
                 </admin-grid>

@@ -9,12 +9,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-envelope-o"></i>
+                    <i class="bi bi-envelope"></i>
                     @Loc["Admin.Content.MessageTemplates"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <vc:admin-widget widget-zone="message_template_list_buttons" additional-data="null"/>
                 </div>
@@ -39,7 +39,7 @@
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
                                 <div class="form-actions">
                                     <button class="btn btn-success filter-submit" id="search-templates">
-                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                     </button>
                                 </div>
                             </div>
@@ -57,8 +57,8 @@
                             <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="100"/>
                             <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="50" align="Center">
                                 <cell-template>
-                                    <i data-if="IsActive" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                                 </cell-template>
                             </grid-column>
                         </admin-grid>

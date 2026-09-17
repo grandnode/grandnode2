@@ -141,7 +141,7 @@
                 <grid-column field="Duration" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Duration"]" width="200"/>
                 <grid-column field="OrderId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.OrderId"]" width="200">
                     <cell-template>
-                        <a data-if="OrderId" class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="fa fa-search"></i> {{ $texts.view }}</a>
+                        <a data-if="OrderId" class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true" width="100"/>

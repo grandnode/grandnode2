@@ -16,31 +16,31 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-sitemap"></i>
+                        <i class="bi bi-diagram-3"></i>
                         @Loc["Admin.Configuration.Menu.Edit"] - @Model.SystemName
                         @if (parent != null && parent.Id != Model.Id)
                         {
                             <small>
-                                <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[parent.ResourceName], "Edit", new { parent.Id, area = Constants.AreaAdmin })
+                                <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc[parent.ResourceName], "Edit", new { parent.Id, area = Constants.AreaAdmin })
                             </small>
                         }
                         else
                         {
                             <small>
-                                <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Menu.BackToList"], "Index")
+                                <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Configuration.Menu.BackToList"], "Index")
                             </small>
                         }
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                             </button>
                             <span id="menu-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                             </span>
                         </div>
                     </div>

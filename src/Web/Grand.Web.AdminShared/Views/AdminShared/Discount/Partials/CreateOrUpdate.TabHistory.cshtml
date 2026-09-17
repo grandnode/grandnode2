@@ -9,7 +9,7 @@
         <grid-column field="CreatedOn" title="@Loc["admin.marketing.Discounts.History.CreatedOn"]" width="200" format="{0:G}"/>
         <grid-column field="OrderId" title="@Loc["admin.marketing.Discounts.History.Order"]" width="200">
             <cell-template>
-                <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="fa fa-search"></i> {{ OrderNumber }} - {{ $texts.view }}</a>
+                <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="bi bi-search"></i> {{ OrderNumber }} - {{ $texts.view }}</a>
             </cell-template>
         </grid-column>
         <grid-column field="OrderTotal" title="@Loc["admin.marketing.Discounts.History.OrderTotal"]" width="200"/>

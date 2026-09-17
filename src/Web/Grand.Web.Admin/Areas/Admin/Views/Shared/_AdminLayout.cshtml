@@ -106,29 +106,29 @@
 
                             <li class="dropdown" role="presentation">
                                 <a href="@Url.Action("Index", "Home", new { area = "" })" class="dropdown-toggle">
-                                    <i class="icon-home"></i>
+                                    <i class="bi bi-house"></i>
                                 </a>
                             </li>
                             <li role="presentation" class="dropdown">
                                 <a href="javascript:;" class="dropdown-toggle info-number" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="icon-info"></i>
+                                    <i class="bi bi-info-circle"></i>
                                 </a>
                                 <ul id="menu1" class="dropdown-menu dropdown-menu-end list-unstyled msg_list overflow-h" role="menu">
                                     <li>
                                         <a href="http://docs.grandnode.com/" target="_blank">
-                                            <i class="icon-book-open"></i>
+                                            <i class="bi bi-book"></i>
                                             @Loc["Admin.Header.Documentation"]
                                         </a>
                                     </li>
                                     <li>
                                         <a href="https://grandnode.com/boards" target="_blank">
-                                            <i class="icon-bubbles"></i>
+                                            <i class="bi bi-chat-dots"></i>
                                             @Loc["Admin.Header.Community"]
                                         </a>
                                     </li>
                                     <li>
                                         <a href="https://grandnode.com/release-notes" target="_blank">
-                                            <i class="fa fa-dot-circle-o"></i>
+                                            <i class="bi bi-record-circle"></i>
                                             grandnode @currentVersion
                                         </a>
                                     </li>
@@ -138,19 +138,19 @@
                             {
                                 <li role="presentation" class="dropdown">
                                     <a href="javascript:;" class="dropdown-toggle info-number" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="icon-settings"></i>
+                                        <i class="bi bi-gear"></i>
                                     </a>
                                     <ul id="menu1" class="dropdown-menu dropdown-menu-end list-unstyled msg_list overflow-h" role="menu">
                                         <li>
                                             <a href="@Url.Action("ClearCache", "System", new { memory = true, returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
-                                                <i class="icon-refresh"></i>
+                                                <i class="bi bi-arrow-repeat"></i>
                                                 @Loc["Admin.Header.ClearCacheMemory"]
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="@Url.Action("RestartApplication", "System", new { returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
-                                                <i class="icon-reload"></i>
+                                                <i class="bi bi-arrow-clockwise"></i>
                                                 @Loc["Admin.Header.RestartApplication"]
                                             </a>
                                         </li>
@@ -168,7 +168,7 @@
                                             @(usernamesEnabled ? currentCustomer.Username : currentCustomer.Email)
                                         </div>
                                     }
-                                    <span class="fa fa-angle-down"></span>
+                                    <span class="bi bi-chevron-down"></span>
                                 </a>
 
                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-default">
@@ -176,13 +176,13 @@
                                     {
                                         <li>
                                             <a href="@Url.Action("Edit", "Customer", new { currentCustomer!.Id, area = Constants.AreaAdmin })">
-                                                <i class="icon-user"></i> @Loc["Admin.Header.Profile"]
+                                                <i class="bi bi-person"></i> @Loc["Admin.Header.Profile"]
                                             </a>
                                         </li>
                                     }
                                     <li>
                                         <a href="@Url.Action("Logout", "Home", new { area = Constants.AreaAdmin }, null)">
-                                            <i class="icon-logout"></i> @Loc["Admin.Header.Logout"]
+                                            <i class="bi bi-box-arrow-right"></i> @Loc["Admin.Header.Logout"]
                                         </a>
                                     </li>
                                 </ul>
@@ -192,12 +192,12 @@
                             @await Component.InvokeAsync("AdminLanguageSelector")
                             <li class="dropdown" role="presentation">
                                 <span id="searchIcon" class="searchIcon dropdown-toggle">
-                                    <i class="icon-magnifier"></i>
+                                    <i class="bi bi-search"></i>
                                 </span>
                             </li>
                             <li class="dropdown version-check" role="presentation" id="version_check">
                                 <a class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="icon-bell"></i>
+                                    <i class="bi bi-bell"></i>
                                 </a>
                                 <script>
                                         $.getJSON("https://grandnode.com/version.json", function (data) {

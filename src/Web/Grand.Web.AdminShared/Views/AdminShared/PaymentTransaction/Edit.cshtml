@@ -11,10 +11,10 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-truck"></i>
+                        <i class="bi bi-truck"></i>
                         @Loc["Admin.Orders.PaymentTransaction.Details"]
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i> @Html.ActionLink(Loc["Admin.Orders.PaymentTransaction.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i> @Html.ActionLink(Loc["Admin.Orders.PaymentTransaction.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
@@ -29,7 +29,7 @@
                             {
                                 <button type="submit" id="markpaymenttransactionaspaid" name="markpaymenttransactionaspaid" asp-action="MarkPaymentTransactionAsPaid"
                                         onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button">
-                                    <i class="fa fa-money" aria-hidden="true"></i>&nbsp;@Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]
+                                    <i class="bi bi-cash" aria-hidden="true"></i>&nbsp;@Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]
                                 </button>
                             }
                             @if (Model.CanPartiallyPaidOffline)
@@ -87,7 +87,7 @@
                                 <text>&nbsp;</text>
                             }
                             <span id="paymenttransaction-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                             </span>
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>

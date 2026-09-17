@@ -198,9 +198,9 @@ export class GrandGrid {
         const hasBatchButtons = this.editMode === 'Batch' && (toolbarConfig.save || toolbarConfig.cancel)
         if (hasCreate || hasBatchButtons) {
             const toolbar = el(doc, 'div', 'grand-grid-toolbar')
-            if (hasCreate) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-success grand-grid-add', 'fa fa-plus', toolbarConfig.create, () => this.addRow()))
-            if (hasBatchButtons && toolbarConfig.save) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-primary grand-grid-save-changes', 'fa fa-check', toolbarConfig.save, () => this.saveChanges()))
-            if (hasBatchButtons && toolbarConfig.cancel) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel-changes', 'fa fa-ban', toolbarConfig.cancel, () => this.cancelChanges()))
+            if (hasCreate) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-success grand-grid-add', 'bi bi-plus-lg', toolbarConfig.create, () => this.addRow()))
+            if (hasBatchButtons && toolbarConfig.save) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-primary grand-grid-save-changes', 'bi bi-check-lg', toolbarConfig.save, () => this.saveChanges()))
+            if (hasBatchButtons && toolbarConfig.cancel) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel-changes', 'bi bi-slash-circle', toolbarConfig.cancel, () => this.cancelChanges()))
             element.appendChild(toolbar)
         }
         this.tableElement = el(doc, 'div', 'grand-grid-table')
@@ -343,7 +343,7 @@ export class GrandGrid {
         if (column.textField) value = readPath(item, column.textField)
         else if (column.optionText && value != null) value = column.optionText.get(String(value)) ?? value
         if (column.editor === 'Checkbox' && typeof value === 'boolean' && !column.format) {
-            const icon = el(this.doc, 'i', value ? 'fa fa-check grand-grid-true' : 'fa fa-times grand-grid-false')
+            const icon = el(this.doc, 'i', value ? 'bi bi-check-lg grand-grid-true' : 'bi bi-x-lg grand-grid-false')
             icon.setAttribute('aria-label', String(value))
             return icon
         }
@@ -391,16 +391,16 @@ export class GrandGrid {
         const item = row.getData()
         const holder = el(doc, 'div', 'grand-grid-command-buttons')
         if (this._isEditing(row)) {
-            holder.appendChild(iconButton(doc, 'btn btn-sm btn-primary grand-grid-update', 'fa fa-check', texts.update, () => this.saveRow()))
-            holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel', 'fa fa-ban', texts.cancel, () => this.cancelEdit()))
+            holder.appendChild(iconButton(doc, 'btn btn-sm btn-primary grand-grid-update', 'bi bi-check-lg', texts.update, () => this.saveRow()))
+            holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel', 'bi bi-slash-circle', texts.cancel, () => this.cancelEdit()))
             return holder
         }
         const visible = this._commandVisible ? this._commandVisible(item, { texts }) : true
         if (visible && this.commands.edit && this.editMode === 'Inline') {
-            holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-edit', 'fa fa-pencil', texts.edit, () => this.editRow(item)))
+            holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-edit', 'bi bi-pencil', texts.edit, () => this.editRow(item)))
         }
         if (visible && this.commands.destroy) {
-            holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-delete', 'fa fa-trash-o', texts.delete, () => this.destroyRow(item)))
+            holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-delete', 'bi bi-trash', texts.delete, () => this.destroyRow(item)))
         }
         for (const command of this.commands.custom || []) {
             if (command.visibleIf && !compileCondition(command.visibleIf)(item, { texts })) continue
@@ -489,7 +489,7 @@ export class GrandGrid {
         //detail visible-if: rows without details get no expander (Kendo views removed it in dataBound)
         if (this._detailVisible && !this._detailVisible(item, { texts: this.texts })) return ''
         const expanded = this._expanded.has(item)
-        const button = iconButton(this.doc, 'grand-grid-detail-toggle', expanded ? 'fa fa-minus-square-o' : 'fa fa-plus-square-o', null, () => this.toggleDetail(item))
+        const button = iconButton(this.doc, 'grand-grid-detail-toggle', expanded ? 'bi bi-dash-square' : 'bi bi-plus-square', null, () => this.toggleDetail(item))
         button.setAttribute('aria-expanded', String(expanded))
         if (this.texts.toggleDetail) {
             button.title = this.texts.toggleDetail

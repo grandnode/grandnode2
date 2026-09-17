@@ -16,14 +16,14 @@
             <grid-column field="Rating" title="@Loc["Admin.VendorReviews.Fields.Rating"]" width="100"/>
             <grid-column field="IsApproved" title="@Loc["Admin.VendorReviews.Fields.IsApproved"]" width="100" align="Center">
                 <cell-template>
-                    <i data-if="IsApproved" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                    <i data-if="IsApproved" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                 </cell-template>
             </grid-column>
             <grid-column field="CreatedOn" title="@Loc["Admin.Orders.Fields.CreatedOn"]" width="200" format="{0:G}"/>
             <grid-column field="Id" title="@Loc["Admin.Common.View"]" width="100">
                 <cell-template>
-                    <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "VendorReview", new { area = Constants.AreaAdmin })/{{ Id }}"><i class="fa fa-search"></i> {{ $texts.view }}</a>
+                    <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "VendorReview", new { area = Constants.AreaAdmin })/{{ Id }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
                 </cell-template>
             </grid-column>
         </admin-grid>

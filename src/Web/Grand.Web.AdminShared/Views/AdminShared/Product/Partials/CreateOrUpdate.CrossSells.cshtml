@@ -24,7 +24,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
+            <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
             <input type="submit" id="btnRefreshCrossSellProducts" style="display: none"/>
         </div>
         <partial name="Partials/WidgetZone.CrossSells.Bottom" model="Model"/>

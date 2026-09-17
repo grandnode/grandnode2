@@ -10,10 +10,10 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-cube"></i>
+                    <i class="bi bi-box"></i>
                     @string.Format(Loc["Admin.Orders.Products.AddNew.Title1"], Model.OrderNumber)
                     <small>
-                        <i class="fa fa-arrow-circle-left"></i>
+                        <i class="bi bi-arrow-left-circle"></i>
                         @Html.ActionLink(Loc["Admin.Orders.Products.AddNew.BackToOrder"], "Edit", new { id = Model.OrderId })
                     </small>
                 </div>
@@ -30,13 +30,13 @@
                             <div class="col-8 col-md-6 col-sm-4 mt-mobile-10">
                                 <div class="btn-group btn-group-devided">
                                     <button class="btn btn-success filter-submit" id="search-products">
-                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                     </button>
                                     <button type="button" class="btn btn-default filter-extend-button">
-                                        <i class="fa fa-filter"></i>
+                                        <i class="bi bi-funnel"></i>
                                     </button>
                                     <button class="btn btn-success" type="submit" name="save">
-                                        <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                        <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                                     </button>
                                 </div>
                             </div>

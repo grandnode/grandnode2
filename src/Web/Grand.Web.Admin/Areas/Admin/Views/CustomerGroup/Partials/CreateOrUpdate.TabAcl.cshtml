@@ -20,13 +20,13 @@
                 <grid-column field="Name" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Name"]" width="300"/>
                 <grid-column field="Access" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Access"]" width="100" align="Center" editor="Checkbox">
                     <cell-template>
-                        <i data-if="Access" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        <i data-if="Access" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                     </cell-template>
                 </grid-column>
                 <grid-column field="Actions" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Actions"]" width="10" align="Center">
                     <cell-template>
-                        <a data-if="Actions.length > 0" class="k-link permissionlink" href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname={{ SystemName }}&customeGroupId=@Model.Id"><i class="icon-settings"></i></a>
+                        <a data-if="Actions.length > 0" class="k-link permissionlink" href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname={{ SystemName }}&customeGroupId=@Model.Id"><i class="bi bi-gear"></i></a>
                     </cell-template>
                 </grid-column>
                 <grid-commands edit="true" width="200"/>

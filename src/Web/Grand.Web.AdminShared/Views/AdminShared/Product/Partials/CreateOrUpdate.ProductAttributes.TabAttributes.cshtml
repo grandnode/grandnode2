@@ -23,8 +23,8 @@
             <grid-column field="TextPrompt" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]" width="120"/>
             <grid-column field="IsRequired" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.IsRequired"]" width="50" align="Center">
                 <cell-template>
-                    <i data-if="IsRequired" class="fa fa-check" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                    <i data-if="IsRequired" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
                 </cell-template>
             </grid-column>
             <grid-column field="AttributeControlTypeId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]" width="140">
@@ -58,7 +58,7 @@
     </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Bottom" model="Model"/>
     <div class="panel-footer">
-        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
+        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
     </div>
 </div>
 
