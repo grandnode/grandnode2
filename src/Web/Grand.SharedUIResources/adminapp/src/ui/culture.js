@@ -6,26 +6,42 @@
 import { normalizeCulture } from '../grid/format.js'
 
 let cached = null
+let cachedTexts = null
+
+function read(doc) {
+    const element = doc?.getElementById?.('grand-admin-culture')
+    if (!element) return null
+    try {
+        return JSON.parse(element.textContent)
+    } catch (error) {
+        console.error('[admin-ui] invalid culture data', error)
+        return null
+    }
+}
 
 /** Reads the page culture, falling back to the invariant defaults when the island is absent. */
 export function pageCulture(doc = globalThis.document) {
     if (cached) return cached
-    let data = null
-    const element = doc?.getElementById?.('grand-admin-culture')
-    if (element) {
-        try {
-            data = JSON.parse(element.textContent)
-        } catch (error) {
-            console.error('[admin-ui] invalid culture data', error)
-        }
-    }
-    cached = normalizeCulture(data)
+    cached = normalizeCulture(read(doc))
     return cached
+}
+
+/**
+ * The widget texts the island carries (today, clear, cancel, the calendar's labels), by the
+ * name the tag helper writes them under. A resource an installation never imported is simply
+ * missing, and the caller falls back to its own neutral default.
+ */
+export function pageTexts(doc = globalThis.document) {
+    if (cachedTexts) return cachedTexts
+    const data = read(doc)
+    cachedTexts = data && typeof data.texts === 'object' && data.texts ? data.texts : {}
+    return cachedTexts
 }
 
 /** Test seam: forgets the culture read from the document. */
 export function resetCulture() {
     cached = null
+    cachedTexts = null
 }
 
 /** The elements under a root that match a selector, the root itself included. */

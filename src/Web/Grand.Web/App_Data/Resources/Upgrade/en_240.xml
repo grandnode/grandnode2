@@ -345,4 +345,16 @@
 	<Resource Name="admin.vendors.discounts.nodiscounts" Area="Admin">
 		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
 	</Resource>
+	<Resource Name="admin.common.calendar.nextmonth" Area="Admin">
+		<Value>Next month</Value>
+	</Resource>
+	<Resource Name="admin.common.calendar.open" Area="Admin">
+		<Value>Open the calendar</Value>
+	</Resource>
+	<Resource Name="admin.common.calendar.previousmonth" Area="Admin">
+		<Value>Previous month</Value>
+	</Resource>
+	<Resource Name="admin.common.today" Area="Admin">
+		<Value>Today</Value>
+	</Resource>
 </Language>

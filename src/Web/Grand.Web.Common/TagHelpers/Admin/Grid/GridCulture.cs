@@ -52,9 +52,12 @@ public class GridCulture
                 Am = dateTimeFormat.AMDesignator,
                 Pm = dateTimeFormat.PMDesignator,
                 Months = dateTimeFormat.MonthGenitiveNames.Take(12).ToArray(),
+                MonthsStandalone = dateTimeFormat.MonthNames.Take(12).ToArray(),
                 MonthsAbbr = dateTimeFormat.AbbreviatedMonthNames.Take(12).ToArray(),
                 Days = dateTimeFormat.DayNames,
-                DaysAbbr = dateTimeFormat.AbbreviatedDayNames
+                DaysAbbr = dateTimeFormat.AbbreviatedDayNames,
+                //0 = Sunday, as JavaScript's Date#getDay counts it
+                FirstDayOfWeek = (int)dateTimeFormat.FirstDayOfWeek
             }
         };
     }
@@ -116,8 +119,19 @@ public class GridCalendar
     public string TimeSeparator { get; set; }
     public string Am { get; set; }
     public string Pm { get; set; }
+    /// <summary>Month names as a date is written with them (genitive where a culture has one).</summary>
     public string[] Months { get; set; }
+
+    /// <summary>
+    ///     Month names on their own, which is what a calendar heading shows. Several cultures
+    ///     write the two differently - Polish has "stycznia" in a date and "styczeń" alone.
+    /// </summary>
+    public string[] MonthsStandalone { get; set; }
+
     public string[] MonthsAbbr { get; set; }
     public string[] Days { get; set; }
     public string[] DaysAbbr { get; set; }
+
+    /// <summary>Day the calendar week starts on: 0 = Sunday ... 6 = Saturday.</summary>
+    public int FirstDayOfWeek { get; set; }
 }

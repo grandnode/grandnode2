@@ -26,7 +26,9 @@ export const invariantCulture = {
         months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         monthsAbbr: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        daysAbbr: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        daysAbbr: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        //0 = Sunday, as Date#getDay counts it; the calendar of the date picker starts here
+        firstDayOfWeek: 0
     }
 }
 
@@ -36,10 +38,14 @@ export function normalizeCulture(culture) {
     const nf = { ...invariantCulture.numberFormat, ...(c.numberFormat || {}) }
     nf.currency = { ...invariantCulture.numberFormat.currency, ...(c.numberFormat?.currency || {}) }
     nf.percent = { ...invariantCulture.numberFormat.percent, ...(c.numberFormat?.percent || {}) }
+    const calendar = { ...invariantCulture.calendar, ...(c.calendar || {}) }
+    //a heading shows a month on its own; only some cultures write that differently from the
+    //name a date is written with, and the island leaves the field out when they are the same
+    if (!calendar.monthsStandalone) calendar.monthsStandalone = calendar.months
     return {
         name: c.name || '',
         numberFormat: nf,
-        calendar: { ...invariantCulture.calendar, ...(c.calendar || {}) }
+        calendar
     }
 }
 
