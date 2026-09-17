@@ -416,7 +416,8 @@ export class GrandGrid {
     _createHeaderCheckbox() {
         const input = this.doc.createElement('input')
         input.type = 'checkbox'
-        input.className = 'grand-grid-select-all'
+        //the tick of a header is the control a screen uses, like the one of a row
+        input.className = 'form-check-input grand-grid-select-all'
         if (this.texts.selectAll) input.setAttribute('aria-label', this.texts.selectAll)
         input.addEventListener('click', e => e.stopPropagation())
         input.addEventListener('change', () => this._selectPage(input.checked))
@@ -429,7 +430,9 @@ export class GrandGrid {
         const id = String(item[this.key])
         const input = this.doc.createElement('input')
         input.type = 'checkbox'
-        input.className = 'grand-grid-select checkboxGroups'
+        //grand-grid-select still marks it for the select-all, checkboxGroups for the views
+        //that count ticked rows; form-check-input is what draws it
+        input.className = 'form-check-input grand-grid-select checkboxGroups'
         input.value = id
         //selection-name: ticked rows of the page are posted with the grid's form, like the
         //Kendo checkbox templates named SelectedProductIds

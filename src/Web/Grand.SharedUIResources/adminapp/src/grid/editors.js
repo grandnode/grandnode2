@@ -22,7 +22,9 @@ export function registerEditor(name, factory) {
 function input(doc, type, column) {
     const element = doc.createElement('input')
     element.type = type
-    element.className = type === 'checkbox' ? 'grand-grid-checkbox' : 'form-control form-control-sm'
+    //a tick in a row is the same control as a tick on a screen: Bootstrap 5 draws a checkbox
+    //for form-check-input only, and grand-grid-checkbox was styled by nothing at all
+    element.className = type === 'checkbox' ? 'form-check-input' : 'form-control form-control-sm'
     //no name: grids often sit inside the page's <form>, and an editor must never be posted
     //with it (a resource "Name" editor would overwrite the language's Name)
     element.dataset.field = column.field

@@ -337,3 +337,9 @@
     z-index: 1065;
 }
 
+/* A tick in a row is the form control now, so it needs the vertical rhythm of a cell rather
+   than the baseline an input gets by default. */
+.grand-grid .form-check-input {
+    margin: 0;
+    vertical-align: middle;
+}

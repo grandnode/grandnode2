@@ -237,6 +237,14 @@ describe('the select editor of a row, with admin.ui.js loaded', () => {
 })
 
 
+describe('the checkbox editor of a row', () => {
+    it('is the checkbox of a form', () => {
+        const editor = createEditor({ column: { field: 'Published', editor: 'Checkbox' }, value: true, culture: pl })
+        expect(editor.element.className).toBe('form-check-input')
+        expect(editor.getValue()).toBe(true)
+    })
+})
+
 const plNumbers = {
     name: 'pl-PL',
     numberFormat: { decimal: ',', group: ' ', groupSizes: [3], negativeSign: '-', decimals: 2 },
