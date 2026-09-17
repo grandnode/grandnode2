@@ -61,6 +61,26 @@ function textEditor(ctx) {
     }
 }
 
+/**
+ * The display pattern of the field while it is not focused. Never a grouping one: what the
+ * cell editor showed before the spinner was the raw number, and a group separator that is a
+ * space in several cultures only makes the value harder to read back.
+ */
+function editPattern(decimals) {
+    if (decimals == null) return '#.##########'
+    return decimals > 0 ? `#.${'#'.repeat(decimals)}` : '#'
+}
+
+/**
+ * The numeric control the forms use (ui/numeric.js), in the size of a row: a cell is edited
+ * with the same field and the same two arrows as a screen. Like the date editor it is taken
+ * off GrandAdmin when the cell opens rather than imported - admin.ui.js is loaded next to
+ * admin.grid.js on every panel page, and an import would put a second copy of the control in
+ * this bundle. Without it - a page that loads only the grid - the cell keeps the plain text
+ * box it had.
+ * What the row posts does not change either way: the value is still read out of the text the
+ * person typed, rounded to the column decimals and serialized by serializeValue.
+ */
 function numberEditor(ctx, integer) {
     const { column, culture } = ctx
     const element = input(ctx.doc, 'text', column)
@@ -68,9 +88,40 @@ function numberEditor(ctx, integer) {
     element.autocomplete = 'off'
     const decimals = integer ? 0 : column.decimals
     element.value = typeof ctx.value === 'number' ? toServerNumber(ctx.value, null, culture) : (ctx.value ?? '')
-    keyHandlers(element, ctx)
+
+    const factory = globalThis.GrandAdmin?.numeric?.create
+    let holder = element
+    let field = element
+    if (typeof factory === 'function') {
+        holder = ctx.doc.createElement('div')
+        holder.className = 'grand-grid-numeric'
+        holder.appendChild(element)
+        const widget = factory(element, {
+            culture,
+            format: editPattern(decimals),
+            decimals,
+            min: column.min,
+            max: column.max,
+            step: column.step
+        })
+        //denser than on a screen: the control has to fit the cell, not widen the row
+        widget.group.classList.add('input-group-sm')
+        field = widget.text
+        field.dataset.field = column.field
+        if (column.required) field.required = true
+        //the arrows write the value straight into the field, so the row is told the way
+        //typing tells it - without this an inline draft would miss a click on an arrow
+        const notify = () => field.dispatchEvent(new (ctx.doc.defaultView?.Event || Event)('input', { bubbles: true }))
+        widget.spin.addEventListener('click', notify)
+        //added after the widget's own handler, so the step has already been taken
+        field.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') notify()
+        })
+    }
+    keyHandlers(holder, ctx)
+
     const read = () => {
-        const parsed = parseNumber(element.value, culture)
+        const parsed = parseNumber(field.value, culture)
         if (parsed == null || Number.isNaN(parsed)) return parsed
         if (decimals != null) {
             const factor = Math.pow(10, decimals)
@@ -79,7 +130,7 @@ function numberEditor(ctx, integer) {
         return parsed
     }
     return {
-        element,
+        element: holder,
         getValue: read,
         validate: () => {
             const value = read()
@@ -89,9 +140,9 @@ function numberEditor(ctx, integer) {
             else if (integer && !Number.isInteger(value)) message = 'integer'
             else if (column.min != null && value < column.min) message = 'min'
             else if (column.max != null && value > column.max) message = 'max'
-            return markValidity(element, message)
+            return markValidity(field, message)
         },
-        focus: () => element.focus()
+        focus: () => field.focus()
     }
 }
 

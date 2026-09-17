@@ -284,6 +284,30 @@
     border-color: #e53935 transparent transparent transparent;
 }
 
+/* The numeric editor of a cell: the control of ui/numeric.js in the size of a row. On a
+   screen it is inline and 22rem wide; in a cell it takes the width it is given, and the
+   arrows are narrower so the column does not have to grow to hold them. The geometry is
+   written with logical properties, so the arrows sit at the end of the field in both
+   directions without a rule of their own. */
+.grand-grid .grand-grid-numeric {
+    width: 100%;
+}
+
+.grand-grid .grand-grid-numeric .grand-numeric-group {
+    width: 100%;
+    min-width: 4.5rem;
+}
+
+.grand-grid .grand-grid-numeric .grand-numeric-spin {
+    width: 1.25rem;
+    border-end-end-radius: var(--bs-border-radius-sm, .25rem);
+    border-start-end-radius: var(--bs-border-radius-sm, .25rem);
+}
+
+.grand-grid .grand-grid-numeric .grand-numeric-spin > button {
+    font-size: .5rem;
+}
+
 .grand-grid .grand-grid-select-filter {
     display: flex;
     flex-direction: column;
