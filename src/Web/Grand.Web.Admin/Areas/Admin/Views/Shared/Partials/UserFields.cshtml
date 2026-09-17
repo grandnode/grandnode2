@@ -41,7 +41,7 @@
                 <input type="hidden" id="UserFields_${id}__Key" name="UserFields[${id}].Key" value="${key}">
             </div>
             <div class="col-md-3 col-sm-3 input-group custom-input-group">
-                <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-control valid">
+                <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-select valid">
                     @foreach (var store in stores)
                     {
                         <option value="@store.Value">@store.Text</option>

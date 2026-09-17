@@ -37,7 +37,7 @@
         <div class="mb-3">
             <admin-label asp-for="FlagImageFileName"/>
             <div class="col-md-3 col-sm-3">
-                <select id="FlagImageFileName" class="form-control" Name="FlagImageFileName">
+                <select id="FlagImageFileName" class="form-select" Name="FlagImageFileName">
                     @foreach (var fileName in Model.FlagFileNames.OrderBy(x => x))
                     {
                         <option value="@fileName" img="@Url.Content("~/assets/images/flags/" + fileName)">

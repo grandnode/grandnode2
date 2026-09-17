@@ -104,7 +104,9 @@ export function renderPager(container, { mode, dataSource, pageSizes, texts, cul
         const label = doc.createElement('label')
         label.className = 'grand-grid-page-size'
         const select = doc.createElement('select')
-        select.className = 'form-control form-control-sm'
+        //Bootstrap 5 styles a select with form-select; form-control resets its appearance
+        //and takes the native arrow with it
+        select.className = 'form-select form-select-sm'
         const sizes = pageSizes.includes(dataSource.pageSize()) ? pageSizes : [...pageSizes, dataSource.pageSize()].sort((a, b) => a - b)
         for (const size of sizes) {
             const option = doc.createElement('option')

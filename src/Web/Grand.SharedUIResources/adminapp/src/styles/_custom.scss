@@ -957,7 +957,7 @@ table.no-margin .progress {
     display: inline-flex;
     flex-wrap: wrap;
 }
-.order-table .btn-group .k-button {
+.order-table .btn-group .btn {
     margin: 0 5px 5px 0;
 }
 .order-table .order-edit td {
@@ -5614,7 +5614,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     background-color: #FFFFFF;
 }
 
-.form-horizontal > .mb-3 {
+.form-horizontal .mb-3 {
     display: inline-block;
     width: 100%;
     margin-inline-end: 0;
@@ -5624,7 +5624,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 .tableFixHead td {
     position: relative;
 }
-.tableFixHead td .mt-checkbox + .k-link {
+.tableFixHead td .mt-checkbox + .permissionlink {
     position: absolute;
     top: 14px;
 }
@@ -5634,7 +5634,7 @@ select.form-control {
     box-sizing: border-box;
 }
 
-.k-grid label.mt-checkbox.mt-checkbox-outline {
+.grand-grid label.mt-checkbox.mt-checkbox-outline {
     margin-top: 6px;
     padding-inline-start: 20px;
 }
@@ -6018,10 +6018,10 @@ a span.username {
     margin-inline-start: auto;
 }
 
-.k-input.text-box {
+.form-control.text-box {
     padding: 6px 12px;
 }
-.mb-3.popup .k-input.text-box {
+.mb-3.popup .form-control.text-box {
     height: 40px;
 }
 
@@ -6101,7 +6101,7 @@ a span.username {
     padding-inline-start: 4px;
 }
 
-textarea.form-control.k-input {
+textarea.form-control {
     padding: 6px 12px;
 }
 .label {
@@ -6696,7 +6696,7 @@ form>h4 {
     .k-numerictextbox {
         margin-bottom: 5px;
     }
-    .k-input.text-box {
+    .form-control.text-box {
         margin-bottom: 5px;
     }
 }
@@ -7468,7 +7468,7 @@ table.tableFixHead {
 .permissions-table.tableFixHead td .mt-checkbox.no-action, .permissions-table.tableFixHead th .mt-checkbox.no-action {
     inset-inline-start: -7px;
 }
-.permissions-table.tableFixHead td .mt-checkbox + .k-link {
+.permissions-table.tableFixHead td .mt-checkbox + .permissionlink {
     position: relative;
     top: 2px;
     inset-inline-end: 0;
