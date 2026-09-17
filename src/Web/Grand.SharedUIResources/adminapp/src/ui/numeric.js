@@ -46,7 +46,10 @@ export class NumericInput {
         this.text.type = 'text'
         this.text.autocomplete = 'off'
         this.text.inputMode = this.decimals === 0 ? 'numeric' : 'decimal'
-        this.text.className = element.className
+        //the visible control is a Bootstrap form control whatever the editor template put on
+        //the named element (most put nothing, which is why these fields looked unstyled)
+        this.text.className = element.className.replace(/\b(input-validation-error|valid|text-box|single-line)\b/g, '').trim()
+        if (!this.text.classList.contains('form-control')) this.text.classList.add('form-control')
         this.text.setAttribute('style', element.getAttribute('style') || '')
         this.text.classList.add('grand-numeric')
         if (element.placeholder) this.text.placeholder = element.placeholder
@@ -54,8 +57,25 @@ export class NumericInput {
         if (element.hasAttribute('readonly')) this.text.readOnly = true
         if (element.hasAttribute('disabled')) this.text.disabled = true
         this.text.setAttribute('role', 'spinbutton')
+        if (this.min != null) this.text.setAttribute('aria-valuemin', String(this.min))
+        if (this.max != null) this.text.setAttribute('aria-valuemax', String(this.max))
+        if (element.id) this.text.setAttribute('aria-labelledby', `${element.id}-label`)
 
-        element.parentNode.insertBefore(this.text, element.nextSibling)
+        //the spinner Kendo drew, in Bootstrap's input group: the arrows are not tab stops,
+        //because the field itself answers ArrowUp and ArrowDown
+        this.group = doc.createElement('div')
+        this.group.className = 'grand-numeric-group input-group'
+        this.spin = doc.createElement('span')
+        this.spin.className = 'grand-numeric-spin'
+        this.spin.setAttribute('aria-hidden', 'true')
+        this.up = this.spinButton(doc, 'grand-numeric-up', 'bi bi-caret-up-fill', 1)
+        this.down = this.spinButton(doc, 'grand-numeric-down', 'bi bi-caret-down-fill', -1)
+        this.spin.appendChild(this.up)
+        this.spin.appendChild(this.down)
+
+        element.parentNode.insertBefore(this.group, element.nextSibling)
+        this.group.appendChild(this.text)
+        this.group.appendChild(this.spin)
         element.style.display = 'none'
 
         this.value(parseNumber(element.value, this.culture))
@@ -68,19 +88,46 @@ export class NumericInput {
         this.text.addEventListener('keydown', e => {
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                 e.preventDefault()
-                const current = parseNumber(this.text.value, this.culture)
-                const base = current == null || Number.isNaN(current) ? 0 : current
-                this.value(base + (e.key === 'ArrowUp' ? this.step : -this.step))
-                this.text.value = toPostValue(this._value, this.decimals, this.culture)
+                this.stepBy(e.key === 'ArrowUp' ? 1 : -1)
             }
         })
+    }
+
+    spinButton(doc, className, icon, direction) {
+        const button = doc.createElement('button')
+        button.type = 'button'
+        button.className = className
+        button.tabIndex = -1
+        const glyph = doc.createElement('i')
+        glyph.className = icon
+        button.appendChild(glyph)
+        button.addEventListener('mousedown', e => e.preventDefault())
+        button.addEventListener('click', () => {
+            if (this.text.disabled || this.text.readOnly) return
+            this.text.focus()
+            this.stepBy(direction)
+        })
+        return button
+    }
+
+    /** One step up or down from what is in the field right now. */
+    stepBy(direction) {
+        const current = parseNumber(this.text.value, this.culture)
+        const base = current == null || Number.isNaN(current) ? 0 : current
+        this.value(base + direction * this.step)
+        this.text.value = toPostValue(this._value, this.decimals, this.culture)
+        return this
     }
 
     /** Reads or writes the number, updating both the posted and the displayed value. */
     value(next) {
         if (next === undefined) return this._value
         let value = typeof next === 'number' ? next : parseNumber(next, this.culture)
-        if (value != null && Number.isNaN(value)) value = this._value ?? null
+        //text that is not a number in this culture falls back to the value it had, and the
+        //control says so rather than silently changing under the user
+        const refused = value != null && Number.isNaN(value)
+        this.text.classList.toggle('is-invalid', refused)
+        if (refused) value = this._value ?? null
         if (value != null) {
             value = round(value, this.decimals)
             if (this.min != null && value < this.min) value = this.min
@@ -95,6 +142,7 @@ export class NumericInput {
 
     enable(enable = true) {
         this.text.disabled = !enable
+        this.group.classList.toggle('grand-numeric-disabled', !enable)
         if (enable) this.element.removeAttribute('disabled')
         else this.element.setAttribute('disabled', 'disabled')
         return this
@@ -102,11 +150,12 @@ export class NumericInput {
 
     readonly(readonly = true) {
         this.text.readOnly = readonly
+        this.group.classList.toggle('grand-numeric-readonly', readonly)
         return this
     }
 
     destroy() {
-        this.text.remove()
+        this.group.remove()
         this.element.style.display = ''
         instances.delete(this.element)
     }

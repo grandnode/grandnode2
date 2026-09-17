@@ -99,3 +99,80 @@ describe('numeric input', () => {
         expect(document.querySelector('.grand-numeric').value).toBe('1.0000')
     })
 })
+
+describe('the Bootstrap control around the value', () => {
+    beforeEach(() => { document.body.innerHTML = '' })
+
+    function build(options = {}, value = '1234,5') {
+        document.body.innerHTML = `<input id="n" name="Price" value="${value}">`
+        const element = document.getElementById('n')
+        return { element, widget: createNumeric(element, { culture: pl, format: 'n2', decimals: 2, ...options }) }
+    }
+
+    it('gives the visible field the Bootstrap class whatever the editor template put on it', () => {
+        const { widget } = build()
+        expect(widget.text.classList.contains('form-control')).toBe(true)
+        expect(widget.group.classList.contains('input-group')).toBe(true)
+    })
+
+    it('draws a spinner whose buttons are not tab stops', () => {
+        const { widget } = build()
+        expect(widget.up.tabIndex).toBe(-1)
+        expect(widget.down.tabIndex).toBe(-1)
+        expect(widget.spin.getAttribute('aria-hidden')).toBe('true')
+    })
+
+    it('steps the value from the spinner and posts it unchanged in shape', () => {
+        const { element, widget } = build({ step: 0.5 })
+        widget.up.click()
+        expect(widget.value()).toBe(1235)
+        //the posted string is still the culture separator with no grouping
+        expect(element.value).toBe('1235')
+        widget.down.click()
+        widget.down.click()
+        expect(element.value).toBe('1234')
+    })
+
+    it('does not step a disabled or read-only control', () => {
+        const { element, widget } = build()
+        widget.enable(false)
+        widget.up.click()
+        expect(element.value).toBe('1234,5')
+        widget.enable(true)
+        widget.readonly(true)
+        widget.up.click()
+        expect(element.value).toBe('1234,5')
+    })
+
+    it('marks text that is not a number in this culture invalid and keeps the value', () => {
+        const { element, widget } = build()
+        widget.text.value = 'abc'
+        widget.text.dispatchEvent(new window.Event('blur'))
+        expect(widget.text.classList.contains('is-invalid')).toBe(true)
+        expect(element.value).toBe('1234,5')
+        widget.text.value = '12'
+        widget.text.dispatchEvent(new window.Event('blur'))
+        expect(widget.text.classList.contains('is-invalid')).toBe(false)
+        expect(element.value).toBe('12')
+    })
+
+    it('tells a screen reader what it is and what its bounds are', () => {
+        const { widget } = build({ min: 0, max: 100 })
+        expect(widget.text.getAttribute('role')).toBe('spinbutton')
+        expect(widget.text.getAttribute('aria-valuemin')).toBe('0')
+        expect(widget.text.getAttribute('aria-valuemax')).toBe('100')
+    })
+
+    it('puts the named element back where it was when it is destroyed', () => {
+        const { element, widget } = build()
+        widget.destroy()
+        expect(document.querySelector('.grand-numeric-group')).toBeNull()
+        expect(element.style.display).toBe('')
+    })
+
+    it('upgrades each marked input once', () => {
+        document.body.innerHTML = '<input id="n" value="2" data-grand-numeric=\'{"format":"n2","decimals":2}\'>'
+        expect(initNumeric(document, en).length).toBe(1)
+        expect(initNumeric(document, en).length).toBe(0)
+    })
+})
