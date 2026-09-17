@@ -6,7 +6,7 @@
                 auto-bind="false">
         <grid-column field="Name" title="@Loc["Admin.Affiliates.Customers.Name"]">
             <cell-template>
-                <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
             </cell-template>
         </grid-column>
     </admin-grid>

@@ -48,22 +48,22 @@
                 auto-bind="false">
         <grid-column field="OrderNumber" title="@Loc["Admin.Affiliates.Orders.Order"]" width="80">
             <cell-template>
-                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderNumber }}</a>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderNumber }}</a>
             </cell-template>
         </grid-column>
         <grid-column field="OrderStatus" title="@Loc["Admin.Affiliates.Orders.OrderStatus"]">
             <cell-template>
-                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderStatus }}</a>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderStatus }}</a>
             </cell-template>
         </grid-column>
         <grid-column field="PaymentStatus" title="@Loc["Admin.Affiliates.Orders.PaymentStatus"]">
             <cell-template>
-                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ PaymentStatus }}</a>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ PaymentStatus }}</a>
             </cell-template>
         </grid-column>
         <grid-column field="ShippingStatus" title="@Loc["Admin.Affiliates.Orders.ShippingStatus"]">
             <cell-template>
-                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ ShippingStatus }}</a>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ ShippingStatus }}</a>
             </cell-template>
         </grid-column>
         <grid-column field="OrderTotal" title="@Loc["Admin.Affiliates.Orders.OrderTotal"]"/>

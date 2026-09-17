@@ -90,32 +90,32 @@
                                     additional-data="additionalData">
                             <grid-column field="ReturnNumber" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]" width="50">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ ReturnNumber }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ ReturnNumber }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ Quantity }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Quantity }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="Total" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]" width="100">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ Total }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Total }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="CustomerId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]" width="200">
                                 <cell-template>
-                                    <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="OrderId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]" width="80">
                                 <cell-template>
-                                    <a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="MerchandiseReturnStatusStr" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]" width="130">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ MerchandiseReturnStatusStr }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ MerchandiseReturnStatusStr }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="CreatedOn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]" width="100" format="{0:G}"/>

@@ -50,7 +50,7 @@
                             auto-bind="false">
                     <grid-column field="Subject" title="@Loc["Admin.System.QueuedEmails.Fields.Subject"]" width="300">
                         <cell-template>
-                            <a class="k-link" href="@Url.Action("Edit", "QueuedEmail", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Subject }}</a>
+                            <a class="text-decoration-none" href="@Url.Action("Edit", "QueuedEmail", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Subject }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="CreatedOn" title="@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]" width="100" format="{0:G}"/>

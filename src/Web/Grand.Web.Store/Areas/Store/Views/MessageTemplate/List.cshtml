@@ -26,7 +26,7 @@
                                 <admin-grid id="store-templates-grid" read-url="@Url.Action("ListStore", "MessageTemplate", new { area = Constants.AreaStore })">
                                     <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="300">
                                         <cell-template>
-                                            <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                         </cell-template>
                                     </grid-column>
                                     <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>
@@ -45,7 +45,7 @@
                                     <grid-text name="copy" value="@Loc["Admin.Content.MessageTemplates.Copy"]"/>
                                     <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="300">
                                         <cell-template>
-                                            <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                         </cell-template>
                                     </grid-column>
                                     <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>

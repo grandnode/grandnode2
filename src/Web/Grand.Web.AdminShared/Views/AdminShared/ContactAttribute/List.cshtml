@@ -29,7 +29,7 @@
                                 <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
                                 <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Fields.Name"]">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="AttributeControlTypeName" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Fields.AttributeControlType"]" width="200" align="Center" min-screen-width="750"/>
@@ -42,8 +42,8 @@
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Fields.DisplayOrder"]" width="100" min-screen-width="750"/>
                                 <grid-column field="IsReadOnly" title="@Loc["Admin.Common.View"]" width="120" align="Center">
                                     <cell-template>
-                                        <a data-if="IsReadOnly" class="k-link" href="Edit/{{ Id }}"><span class="badge text-bg-secondary">{{ $texts.view }}</span></a>
-                                        <a data-else class="k-link" href="Edit/{{ Id }}"><span class="badge text-bg-success">{{ $texts.edit }}</span></a>
+                                        <a data-if="IsReadOnly" class="text-decoration-none" href="Edit/{{ Id }}"><span class="badge text-bg-secondary">{{ $texts.view }}</span></a>
+                                        <a data-else class="text-decoration-none" href="Edit/{{ Id }}"><span class="badge text-bg-success">{{ $texts.edit }}</span></a>
                                     </cell-template>
                                 </grid-column>
                             </admin-grid>

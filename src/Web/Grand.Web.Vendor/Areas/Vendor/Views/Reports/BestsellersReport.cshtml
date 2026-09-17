@@ -73,7 +73,7 @@
                                                 additional-data="additionalData">
                                         <grid-column field="ProductName" title="@Loc["Vendor.Reports.Bestsellers.Fields.Name"]">
                                             <cell-template>
-                                                <a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/{{ ProductId }}">{{ ProductName }}</a>
+                                                <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/{{ ProductId }}">{{ ProductName }}</a>
                                             </cell-template>
                                         </grid-column>
                                         <grid-column field="TotalQuantity" title="@Loc["Vendor.Reports.Bestsellers.Fields.TotalQuantity"]"/>

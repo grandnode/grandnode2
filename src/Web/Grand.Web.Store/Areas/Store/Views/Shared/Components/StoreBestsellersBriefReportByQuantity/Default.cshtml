@@ -7,7 +7,7 @@
             page-sizes="">
     <grid-column field="ProductName" title="@Loc["Admin.Reports.Bestsellers.Fields.Name"]">
         <cell-template>
-            <a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/{{ ProductId }}">{{ ProductName }}</a>
+            <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/{{ ProductId }}">{{ ProductName }}</a>
         </cell-template>
     </grid-column>
     <grid-column field="TotalQuantity" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"/>

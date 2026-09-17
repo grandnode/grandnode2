@@ -8,12 +8,12 @@
                     auto-bind="false">
             <grid-column field="OrderNumber" title="@Loc["Admin.Orders.Fields.ID"]" width="80">
                 <cell-template>
-                    <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderNumber }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderNumber }}</a>
                 </cell-template>
             </grid-column>
             <grid-column field="CustomerEmail" title="@Loc["Admin.Orders.Fields.CustomerEmail"]" width="200" min-screen-width="500">
                 <cell-template>
-                    <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerEmail }}</a>
                 </cell-template>
             </grid-column>
             <grid-column field="OrderStatus" title="@Loc["Admin.Orders.Fields.OrderStatus"]" width="100" min-screen-width="500">

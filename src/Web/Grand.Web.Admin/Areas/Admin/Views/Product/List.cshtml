@@ -151,12 +151,12 @@
                                         on-change="onProductSelectionChange">
                                 <grid-column field="PictureThumbnailUrl" title="@Loc["Admin.Catalog.Products.Fields.PictureThumbnailUrl"]" width="92">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Name" title="@Loc["Admin.Catalog.Products.Fields.Name"]" width="270">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Sku" title="@Loc["Admin.Catalog.Products.Fields.Sku"]" width="80" align="Center"/>
@@ -296,7 +296,7 @@
                 &nbsp;
             </div>
             <div class="col-md-10 text-end mt-10">
-                <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]"/>
+                <input type="submit" class="btn btn-default btn-sm" value="@Loc["Admin.Common.ImportFromExcel"]"/>
             </div>
         </div>
     </form>

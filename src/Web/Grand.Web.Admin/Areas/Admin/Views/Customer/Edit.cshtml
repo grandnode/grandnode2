@@ -28,11 +28,11 @@
                             <button class="btn btn-info" type="submit" name="impersonate" asp-action="Impersonate"><i class="bi bi-cart" aria-hidden="true"></i>&nbsp;@Loc["Admin.Customers.Customers.Impersonate.Button"]</button>
                             @if (Model.AllowSendingOfWelcomeMessage)
                             {
-                                <button class="btn btn-primary" type="submit" name="send-welcome-message" asp-action="SendWelcomeMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.SendWelcomeMessage"] </button>
+                                <button class="btn btn-primary" type="submit" name="send-welcome-message" asp-action="SendWelcomeMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="bi bi-arrow-clockwise"></span> &nbsp;@Loc["Admin.Customers.Customers.SendWelcomeMessage"] </button>
                             }
                             @if (Model.AllowReSendingOfActivationMessage)
                             {
-                                <button class="btn btn-primary" type="submit" name="resend-activation-message" asp-action="ReSendActivationMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.ReSendActivationMessage"] </button>
+                                <button class="btn btn-primary" type="submit" name="resend-activation-message" asp-action="ReSendActivationMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="bi bi-arrow-clockwise"></span> &nbsp;@Loc["Admin.Customers.Customers.ReSendActivationMessage"] </button>
                             }
                             <span id="customer-delete" class="btn red">
                                 <i class="bi bi-trash"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span>

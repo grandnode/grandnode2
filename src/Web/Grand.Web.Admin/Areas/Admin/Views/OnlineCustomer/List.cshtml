@@ -17,7 +17,7 @@
                 <admin-grid id="onlinecustomers-grid" read-url="@Url.Action("List", "OnlineCustomer")">
                     <grid-column field="Id" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.CustomerInfo"]" width="220">
                         <cell-template>
-                            <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ CustomerInfo }}</a>
+                            <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ CustomerInfo }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="LastIpAddress" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.IPAddress"]" width="100"/>

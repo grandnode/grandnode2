@@ -13,7 +13,7 @@
                             on-data-bound="onStatesGridDataBound">
                     <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.States.Fields.Name"]" width="300">
                         <cell-template>
-                            <a class="k-link editstate" href="@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/{{ Id }}?countryId=@(Model.Id)">{{ Name }}</a>
+                            <a class="text-decoration-none editstate" href="@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/{{ Id }}?countryId=@(Model.Id)">{{ Name }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="Abbreviation" title="@Loc["Admin.Configuration.Countries.States.Fields.Abbreviation"]" width="150"/>
@@ -28,7 +28,7 @@
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</a>
+                <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
         </div>

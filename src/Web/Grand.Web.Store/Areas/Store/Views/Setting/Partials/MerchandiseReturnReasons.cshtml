@@ -10,14 +10,14 @@
                     pager="Compact">
             <grid-column field="Name" title="@Loc["Admin.Settings.Order.MerchandiseReturnReasons.Name"]" width="300">
                 <cell-template>
-                    <a class="k-link" href="@Url.Action("MerchandiseReturnReasonEdit", "Setting", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("MerchandiseReturnReasonEdit", "Setting", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
                 </cell-template>
             </grid-column>
             <grid-column field="DisplayOrder" title="@Loc["Admin.Settings.Order.MerchandiseReturnReasons.DisplayOrder"]" width="100"/>
         </admin-grid>
     </div>
     <div class="panel-footer">
-        <a href="@Url.Action("MerchandiseReturnReasonCreate", new { area = Constants.AreaStore })" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Common.AddNew"]</a>
+        <a href="@Url.Action("MerchandiseReturnReasonCreate", new { area = Constants.AreaStore })" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Common.AddNew"]</a>
     </div>
 </div>
 

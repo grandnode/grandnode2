@@ -332,8 +332,8 @@
     <div class="mb-3">
         <admin-label asp-for="AffiliateId"/>
         <div class="col-md-9 col-sm-9">
-            <a class="k-button" href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId, area = area })"><span class="k-icon k-i-eye"></span>&nbsp;@Model.AffiliateName - @Loc["Admin.Common.View"]</a>
-            <button type="submit" name="remove-affiliate" asp-action="RemoveAffiliate" class="k-button red"><span class="k-icon k-i-delete"></span>&nbsp;@Loc["Admin.Customers.Customers.Fields.Affiliate.Remove"]</button>
+            <a class="btn btn-default btn-sm" href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId, area = area })"><span class="bi bi-eye"></span>&nbsp;@Model.AffiliateName - @Loc["Admin.Common.View"]</a>
+            <button type="submit" name="remove-affiliate" asp-action="RemoveAffiliate" class="btn btn-default btn-sm red"><span class="bi bi-trash"></span>&nbsp;@Loc["Admin.Customers.Customers.Fields.Affiliate.Remove"]</button>
         </div>
     </div>
 }

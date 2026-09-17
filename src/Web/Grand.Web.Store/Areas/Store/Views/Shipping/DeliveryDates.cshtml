@@ -26,7 +26,7 @@
                                         pager="Compact">
                                 <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Name"]">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("EditDeliveryDate", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("EditDeliveryDate", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.DisplayOrder"]" width="120"/>

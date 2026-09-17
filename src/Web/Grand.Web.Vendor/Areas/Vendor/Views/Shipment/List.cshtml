@@ -92,17 +92,17 @@
                                         on-change="onShipmentSelectionChange">
                                 <grid-column field="ShipmentNumber" title="@Loc["Vendor.Orders.Shipments.ID"]" width="100">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ ShipmentNumber }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ ShipmentNumber }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="OrderNumber" title="@Loc["Vendor.Orders.Shipments.OrderID"]" width="100">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/{{ OrderId }}">{{ OrderNumber }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/{{ OrderId }}">{{ OrderNumber }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="TrackingNumber" title="@Loc["Vendor.Orders.Shipments.TrackingNumber"]" width="100">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ TrackingNumber }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ TrackingNumber }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="TotalWeight" title="@Loc["Vendor.Orders.Shipments.TotalWeight"]" width="80" min-screen-width="770"/>

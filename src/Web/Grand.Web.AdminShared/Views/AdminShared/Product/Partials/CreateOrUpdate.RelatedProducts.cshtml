@@ -19,7 +19,7 @@
                         edit-mode="Inline">
                 <grid-column field="Product2Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.Fields.Product"]">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = area })/{{ ProductId2 }}">{{ Product2Name }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { id = "", area = area })/{{ ProductId2 }}">{{ Product2Name }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.Fields.DisplayOrder"]" width="120" align="Center" format="{0:0}" editor="Integer"/>
@@ -27,7 +27,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewRelatedProduct" href="@(Url.Action("RelatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRelatedProducts", formId = "product-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.AddNew"]</a>
+            <a id="btnAddNewRelatedProduct" href="@(Url.Action("RelatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRelatedProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.AddNew"]</a>
             <input type="submit" id="btnRefreshRelatedProducts" style="display: none"/>
         </div>
     </div>

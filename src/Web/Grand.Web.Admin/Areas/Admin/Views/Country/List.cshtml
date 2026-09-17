@@ -51,7 +51,7 @@
                                     on-change="onCountriesSelectionChange">
                             <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.Fields.Name"]" width="300">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="AllowsBilling" title="@Loc["Admin.Configuration.Countries.Fields.AllowsBilling"]" width="100" align="Center">
@@ -175,7 +175,7 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]"/>
+                    <input type="submit" class="btn btn-default btn-sm" value="@Loc["Admin.Common.ImportFromExcel"]"/>
                 </td>
             </tr>
         </table>

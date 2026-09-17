@@ -57,7 +57,7 @@
                             on-change="onSeNameSelectionChange">
                     <grid-column field="Name" title="@Loc["admin.configuration.senames.Name"]" width="300">
                         <cell-template>
-                            <a data-if="DetailsUrl && DetailsUrl.length > 0" class="k-link" href="{{ DetailsUrl }}">{{ Name }}</a>
+                            <a data-if="DetailsUrl && DetailsUrl.length > 0" class="text-decoration-none" href="{{ DetailsUrl }}">{{ Name }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="EntityName" title="@Loc["admin.configuration.senames.EntityName"]" width="100"/>

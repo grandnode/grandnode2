@@ -16,7 +16,7 @@
                             destroy-url="@Url.Action("CustomerDelete", "CustomerTag", new { customerTagId = Model.Id, area = Constants.AreaAdmin })">
                     <grid-column field="Email" title="@Loc["Admin.Customers.CustomerTags.Fields.Email"]" width="300">
                         <cell-template>
-                            <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Email }}</a>
+                            <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Email }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>

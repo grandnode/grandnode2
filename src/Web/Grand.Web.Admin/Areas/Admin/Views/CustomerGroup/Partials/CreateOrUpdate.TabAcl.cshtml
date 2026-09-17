@@ -26,7 +26,7 @@
                 </grid-column>
                 <grid-column field="Actions" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Actions"]" width="10" align="Center">
                     <cell-template>
-                        <a data-if="Actions.length > 0" class="k-link permissionlink" href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname={{ SystemName }}&customeGroupId=@Model.Id"><i class="bi bi-gear"></i></a>
+                        <a data-if="Actions.length > 0" class="text-decoration-none permissionlink" href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname={{ SystemName }}&customeGroupId=@Model.Id"><i class="bi bi-gear"></i></a>
                     </cell-template>
                 </grid-column>
                 <grid-commands edit="true" width="200"/>

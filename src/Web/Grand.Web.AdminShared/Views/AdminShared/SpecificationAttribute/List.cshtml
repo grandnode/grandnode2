@@ -27,7 +27,7 @@
                             <admin-grid id="specificationattributes-grid" read-url="@Url.Action("List", "SpecificationAttribute", new { area })">
                                 <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name"]" width="300">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Fields.DisplayOrder"]" width="100" align="Center"/>

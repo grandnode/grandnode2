@@ -10,14 +10,14 @@
                         pager="None">
                 <grid-column field="SystemName" title="@Loc["Admin.Configuration.Menu.Fields.SystemName"]" width="400">
                     <cell-template>
-                        <a class="k-link" href="../Edit/{{ Id }}">{{ SystemName }}</a>
+                        <a class="text-decoration-none" href="../Edit/{{ Id }}">{{ SystemName }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Menu.Fields.DisplayOrder"]" width="125" align="Center"/>
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <button type="button" class="k-button" onclick="location.href='@Url.Action("Create", "Menu", new { parentId = Model.Id, area = Constants.AreaAdmin })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Common.AddNew"]</button>
+            <button type="button" class="btn btn-default btn-sm" onclick="location.href='@Url.Action("Create", "Menu", new { parentId = Model.Id, area = Constants.AreaAdmin })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Common.AddNew"]</button>
         </div>
         <vc:admin-widget widget-zone="menu_details_documents_bottom" additional-data="Model"/>
     </div>

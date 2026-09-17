@@ -105,7 +105,7 @@
                                 additional-data="additionalData">
                         <grid-column field="Email" title="@Loc["Admin.Customers.Customers.Fields.Email"]" width="200">
                             <cell-template>
-                                <a class="k-link" href="Edit/{{ Id }}">{{ Email }}</a>
+                                <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
                             </cell-template>
                         </grid-column>
                         @if (Model.UsernamesEnabled)

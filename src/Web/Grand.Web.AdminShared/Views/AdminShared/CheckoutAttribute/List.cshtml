@@ -29,7 +29,7 @@
                                         pager="Compact">
                                 <grid-column field="Name" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.Name"]">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("Edit", "CheckoutAttribute", new { area })/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("Edit", "CheckoutAttribute", new { area })/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="AttributeControlTypeName" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.AttributeControlType"]" width="200" align="Center" min-screen-width="750"/>

@@ -19,7 +19,7 @@
                         <cell-template>
                             @if (!isReadOnly)
                             {
-                                <a class="k-link editvalue" href="@Url.Action("ValueEditPopup", "ContactAttribute", new { area })/{{ Id }}?contactAttributeId=@Model.Id">{{ Name }}</a>
+                                <a class="text-decoration-none editvalue" href="@Url.Action("ValueEditPopup", "ContactAttribute", new { area })/{{ Id }}?contactAttributeId=@Model.Id">{{ Name }}</a>
                             }
                             else
                             {
@@ -43,7 +43,7 @@
             @if (!isReadOnly)
             {
                 <div class="panel-footer">
-                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "ContactAttribute", new { contactAttributeId = Model.Id, area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.AddNew"]</a>
+                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "ContactAttribute", new { contactAttributeId = Model.Id, area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.AddNew"]</a>
                     <input type="submit" id="btnRefresh" style="display: none"/>
                 </div>
             }

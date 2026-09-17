@@ -45,7 +45,7 @@ public class SiteMapNode
     public IList<SiteMapNode> ChildNodes { get; set; }
 
     /// <summary>
-    ///     Gets or sets the icon class (Font Awesome: http://fontawesome.io/)
+    ///     Gets or sets the icon class (bootstrap-icons: https://icons.getbootstrap.com/, e.g. "bi bi-house")
     /// </summary>
     public string IconClass { get; set; }
 

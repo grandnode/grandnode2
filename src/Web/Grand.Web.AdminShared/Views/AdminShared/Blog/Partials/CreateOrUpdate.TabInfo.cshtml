@@ -109,7 +109,7 @@
             @if (!string.IsNullOrEmpty(Model.PictureId))
             {
                 <label class="control-label">
-                    <a class='k-link picturelink' href='@Url.Action("PicturePopup", "Blog", new { area })/?blogpostId=@(Model.Id)'>@Loc["Admin.Common.Picture.Attributes"]</a>
+                    <a class='text-decoration-none picturelink' href='@Url.Action("PicturePopup", "Blog", new { area })/?blogpostId=@(Model.Id)'>@Loc["Admin.Common.Picture.Attributes"]</a>
                 </label>
                 <script>
                     $(document).ready(function () {

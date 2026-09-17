@@ -13,8 +13,8 @@
                     @Loc["Vendor.VendorReviews"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <button type="button" id="approve-selected" class="k-button"><span class="k-icon k-i-check-outline"></span>&nbsp;@Loc["Vendor.VendorReviews.ApproveSelected"]</button>
-                    <button type="button" id="disapprove-selected" class="k-button"><span class="k-icon k-i-close-outline"></span>&nbsp;@Loc["Vendor.VendorReviews.DisapproveSelected"]</button>
+                    <button type="button" id="approve-selected" class="btn btn-default btn-sm"><span class="bi bi-check-circle"></span>&nbsp;@Loc["Vendor.VendorReviews.ApproveSelected"]</button>
+                    <button type="button" id="disapprove-selected" class="btn btn-default btn-sm"><span class="bi bi-x-circle"></span>&nbsp;@Loc["Vendor.VendorReviews.DisapproveSelected"]</button>
                     <vc:vendor-widget widget-zone="vendor_review_list_buttons" additional-data="Model"/>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                             </grid-column>
                             <grid-column field="Title" title="@Loc["Vendor.VendorReviews.Fields.Title"]" width="200">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ Title }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="Rating" title="@Loc["Vendor.VendorReviews.Fields.Rating"]" width="100"/>

@@ -131,7 +131,7 @@
                 @if (!string.IsNullOrEmpty(Model.PictureId))
                 {
                     <label class="control-label">
-                        <a class='k-link editpicture' href="@Url.Action("PicturePopup", "Category", new { area = Constants.AreaStore })/?categoryId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
+                        <a class='text-decoration-none editpicture' href="@Url.Action("PicturePopup", "Category", new { area = Constants.AreaStore })/?categoryId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
                     </label>
                     <script>
                         $(document).ready(function () {

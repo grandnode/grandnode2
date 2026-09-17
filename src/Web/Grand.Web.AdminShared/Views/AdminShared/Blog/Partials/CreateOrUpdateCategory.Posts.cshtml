@@ -12,14 +12,14 @@
                         destroy-url="@Url.Action("CategoryPostDelete", "Blog", new { categoryId = Model.Id, area })">
                 <grid-column field="Name" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.Post"]">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Blog", new { area })/{{ BlogPostId }}">{{ Name }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Blog", new { area })/{{ BlogPostId }}">{{ Name }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true"/>
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
+            <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
             <input type="submit" id="btnRefreshPosts" style="display: none"/>
         </div>
     </div>

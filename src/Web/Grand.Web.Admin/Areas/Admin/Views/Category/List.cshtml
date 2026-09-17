@@ -60,7 +60,7 @@
                             additional-data="additionalData">
                     <grid-column field="Breadcrumb" title="@Loc["Admin.Catalog.Categories.Fields.Name"]">
                         <cell-template>
-                            <a class="k-link" href="Edit/{{ Id }}">{{ Breadcrumb }}</a>
+                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Breadcrumb }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="ShowOnHomePage" title="@Loc["Admin.Catalog.Categories.Fields.ShowOnHomePage"]" width="175" align="Center" min-screen-width="750">
@@ -140,7 +140,7 @@
                 &nbsp;
             </div>
             <div class="col-md-10 text-end mt-10">
-                <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]"/>
+                <input type="submit" class="btn btn-default btn-sm" value="@Loc["Admin.Common.ImportFromExcel"]"/>
             </div>
         </div>
     </form>

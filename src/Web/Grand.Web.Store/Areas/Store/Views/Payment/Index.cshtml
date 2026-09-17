@@ -24,13 +24,13 @@
                                         edit-mode="Inline">
                                 <grid-column field="FriendlyName" title="@Loc["Admin.Configuration.Payment.Methods.Fields.FriendlyName"]">
                                     <cell-template>
-                                        <a data-if="ConfigurationUrl" class="k-link" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
+                                        <a data-if="ConfigurationUrl" class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
                                         <span data-else>{{ FriendlyName }}</span>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="SystemName" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SystemName"]">
                                     <cell-template>
-                                        <a data-if="ConfigurationUrl" class="k-link" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
+                                        <a data-if="ConfigurationUrl" class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
                                         <span data-else>{{ SystemName }}</span>
                                     </cell-template>
                                 </grid-column>

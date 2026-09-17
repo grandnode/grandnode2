@@ -10,12 +10,12 @@
                         auto-bind="false">
                 <grid-column field="OrderNumber" title="@Loc["Admin.Customers.Customers.Orders.ID"]" width="90">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/{{ Id }}">{{ OrderNumber }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ Id }}">{{ OrderNumber }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="OrderTotal" title="@Loc["Admin.Customers.Customers.Orders.OrderTotal"]" width="120">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/{{ Id }}">{{ OrderTotal }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ Id }}">{{ OrderTotal }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="OrderStatus" title="@Loc["Admin.Customers.Customers.Orders.OrderStatus"]" width="160">
@@ -39,7 +39,7 @@
                 <grid-detail read-url="@Url.Action("OrderDetails", "Customer", new { area = area })" param="orderId:Id">
                     <grid-column field="ProductName" title="@Loc["Admin.Orders.Products.ProductName"]" width="400">
                         <cell-template>
-                            <a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                            <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="Quantity" title="@Loc["Admin.Orders.Products.Quantity"]" width="100"/>

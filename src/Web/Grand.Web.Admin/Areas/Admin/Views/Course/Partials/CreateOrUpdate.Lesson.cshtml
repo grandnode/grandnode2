@@ -12,14 +12,14 @@
                         pager="Compact">
                 <grid-column field="Name" title="@Loc["Admin.Courses.Course.Lesson.Fields.Name"]">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("EditLesson", "Course", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("EditLesson", "Course", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Courses.Course.Lesson.Fields.DisplayOrder"]" width="80" align="Center" format="{0:0}"/>
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <button type="submit" id="btnAddNewLesson" name="btnAddNewLesson" onclick="javascript:setLocation('@(Url.Action("CreateLesson", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin }))'); return false;" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Courses.Course.Lesson.AddNew"]</button>
+            <button type="submit" id="btnAddNewLesson" name="btnAddNewLesson" onclick="javascript:setLocation('@(Url.Action("CreateLesson", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin }))'); return false;" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Courses.Course.Lesson.AddNew"]</button>
         </div>
     </div>
 

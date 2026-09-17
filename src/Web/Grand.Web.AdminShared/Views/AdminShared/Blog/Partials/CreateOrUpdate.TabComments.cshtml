@@ -13,7 +13,7 @@
                         confirm-destroy="true">
                 <grid-column field="CustomerId" title="@Loc["Admin.Content.Blog.Comments.Fields.Customer"]" width="200">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
                     </cell-template>
                 </grid-column>
                 @*Comment is encoded and has its line breaks turned into <br /> by the server (FormatText)*@

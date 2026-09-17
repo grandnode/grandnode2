@@ -15,7 +15,7 @@
                         edit-mode="Inline">
                 <grid-column field="ProductName" title="@Loc["Admin.Catalog.Categories.Products.Fields.Product"]">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="IsFeaturedProduct" title="@Loc["Admin.Catalog.Categories.Products.Fields.IsFeaturedProduct"]" width="175" align="Center" min-screen-width="750" editor="Checkbox">
@@ -29,7 +29,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
             <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
     </div>

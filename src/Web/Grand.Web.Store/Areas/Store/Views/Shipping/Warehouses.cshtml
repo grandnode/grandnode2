@@ -26,12 +26,12 @@
                                         pager="Compact">
                                 <grid-column field="Code" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Code"]">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Code }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Code }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Name"]">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder"]" width="120"/>

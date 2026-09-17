@@ -9,20 +9,14 @@
     var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl &&
                      !languageSettings.IgnoreRtlPropertyForAdminArea;
 
-    @*Font Awesome 4 and simple-line-icons, still carried by the views; replaced by the
-      bootstrap-icons in admin.bootstrap.css in the next step of the migration*@
-    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/build/css/font-awesome.min.css"/>
-    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/simple-line-icons/simple-line-icons.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bootstrap/css/daterangepicker.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/magnific-popup/magnific-popup.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/summernote/summernote.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css"/>
 
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/farbtastic/farbtastic.css"/>
-    @*the look the Kendo stylesheets gave the k-button, k-link, k-icon and k-input classes
-      the views still carry, and nothing else; removed together with those classes in the
-      Bootstrap 5 step. asp-src links are written after the plain ones above, so it only
-      repeats the Kendo declarations that custom.css did not already override.*@
+    @*the Kendo class names a third-party plugin view may still render, mapped onto the
+      Bootstrap 5 look of the panel; no view in this repository carries one*@
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.legacy.css" asp-append-version="true"/>
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.css" asp-append-version="true"/>
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.ui.css" asp-append-version="true"/>

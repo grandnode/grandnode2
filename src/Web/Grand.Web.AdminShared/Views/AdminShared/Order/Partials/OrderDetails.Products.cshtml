@@ -138,7 +138,7 @@
                                             @Loc["Admin.Orders.Products.MerchandiseReturns"]<text>:</text>
                                             @for (var i = 0; i < item.MerchandiseReturnIds.Count; i++)
                                             {
-                                                <a href="@Url.Action("Edit", "MerchandiseReturn", new { id = item.MerchandiseReturnIds[i], area = area })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Orders.MerchandiseReturns.View"]</a>
+                                                <a href="@Url.Action("Edit", "MerchandiseReturn", new { id = item.MerchandiseReturnIds[i], area = area })" class="btn btn-default btn-sm"><span class="bi bi-eye"></span>&nbsp;@Loc["Admin.Orders.MerchandiseReturns.View"]</a>
                                                 if (i != item.MerchandiseReturnIds.Count - 1)
                                                 {
                                                     <text>,</text>
@@ -152,7 +152,7 @@
                                             @Loc["Admin.Orders.Products.GiftVouchers"]<text>:</text>
                                             @for (var i = 0; i < item.PurchasedGiftVoucherIds.Count; i++)
                                             {
-                                                <a href="@Url.Action("Edit", "GiftVoucher", new { id = item.PurchasedGiftVoucherIds[i], area = area })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Orders.Products.GiftVoucher.View"]</a>
+                                                <a href="@Url.Action("Edit", "GiftVoucher", new { id = item.PurchasedGiftVoucherIds[i], area = area })" class="btn btn-default btn-sm"><span class="bi bi-eye"></span>&nbsp;@Loc["Admin.Orders.Products.GiftVoucher.View"]</a>
                                                 if (i != item.PurchasedGiftVoucherIds.Count - 1)
                                                 {
                                                     <text>,</text>
@@ -168,7 +168,7 @@
                                                 <div>
                                                     @string.Format(Loc["Admin.Orders.Products.Download.DownloadCount"], item.DownloadCount)
                                                     <input type="submit" asp-action="ResetDownloadCount" asp-route-orderItemId="@(item.Id)"
-                                                           name="btnResetDownloadCount@(item.Id)" value="@Loc["Admin.Orders.Products.Download.ResetDownloadCount"]" title="@Loc["Admin.Orders.Products.Download.ResetDownloadCount.Title"]" id="btnResetDownloadCount@(item.Id)" class="k-button"/>
+                                                           name="btnResetDownloadCount@(item.Id)" value="@Loc["Admin.Orders.Products.Download.ResetDownloadCount"]" title="@Loc["Admin.Orders.Products.Download.ResetDownloadCount.Title"]" id="btnResetDownloadCount@(item.Id)" class="btn btn-default btn-sm"/>
                                                     <hr/>
                                                 </div>
                                                 if (item.DownloadActivationType == DownloadActivationType.Manually)
@@ -176,7 +176,7 @@
                                                     <div>
                                                         <input type="submit" name="btnPvActivateDownload@(item.Id)" 
                                                             value="@(item.IsDownloadActivated ? Loc["Admin.Orders.Products.Download.Deactivate"] : Loc["Admin.Orders.Products.Download.Activate"])"
-                                                            id="btnPvActivateDownload@(item.Id)" class="k-button" asp-action="ActivateDownloadItem" asp-route-orderItemId="@(item.Id)"/>
+                                                            id="btnPvActivateDownload@(item.Id)" class="btn btn-default btn-sm" asp-action="ActivateDownloadItem" asp-route-orderItemId="@(item.Id)"/>
                                                         <hr/>
                                                     </div>
                                                 }
@@ -191,7 +191,7 @@
                                                         <a href="@Url.Action("DownloadFile", "Download", new { downloadGuid = item.LicenseDownloadGuid, area = area })" class="btn purple">@Loc["Admin.Orders.Products.License.DownloadLicense"]</a>
                                                     }
                                                     <br/>
-                                                    <a id="pvlicensefile" name="pvlicensefile" href="@(Url.Action("UploadLicenseFilePopup", "Order", new { id = Model.Id, orderItemId = item.Id, btnId = "btnRefreshPage", formId = "order-form", area = area }))" class="k-button">
+                                                    <a id="pvlicensefile" name="pvlicensefile" href="@(Url.Action("UploadLicenseFilePopup", "Order", new { id = Model.Id, orderItemId = item.Id, btnId = "btnRefreshPage", formId = "order-form", area = area }))" class="btn btn-default btn-sm">
                                                         @Loc["Admin.Orders.Products.License.UploadFile"]
                                                     </a>
                                                 </div>
@@ -320,20 +320,20 @@
 
                             <td align="center">
                                 <div class="btn-group">
-                                    <button type="submit" name="btnEditOrderItem@(item.Id)" id="btnEditOrderItem@(item.Id)" onclick="toggleOrderItemEdit@(item.Id)(true);return false; " class="k-button" title="@Loc["Admin.Common.Edit"]">
-                                        <span class="k-icon k-i-edit"></span>
+                                    <button type="submit" name="btnEditOrderItem@(item.Id)" id="btnEditOrderItem@(item.Id)" onclick="toggleOrderItemEdit@(item.Id)(true);return false; " class="btn btn-default btn-sm" title="@Loc["Admin.Common.Edit"]">
+                                        <span class="bi bi-pencil"></span>
                                     </button>
-                                    <button type="submit" name="btnDeleteOrderItem@(item.Id)" asp-action="DeleteOrderItem" asp-route-orderItemId="@(item.Id)" id="btnDeleteOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Delete"]">
-                                        <span class="k-icon k-i-delete"></span>
+                                    <button type="submit" name="btnDeleteOrderItem@(item.Id)" asp-action="DeleteOrderItem" asp-route-orderItemId="@(item.Id)" id="btnDeleteOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm" title="@Loc["Admin.Common.Delete"]">
+                                        <span class="bi bi-trash"></span>
                                     </button>
-                                    <button type="submit" name="btnCancelOrderItem@(item.Id)" asp-action="CancelOrderItem" asp-route-orderItemId="@(item.Id)" id="btnCancelOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Cancel"]">
-                                        <span class="k-icon k-i-cancel"></span>
+                                    <button type="submit" name="btnCancelOrderItem@(item.Id)" asp-action="CancelOrderItem" asp-route-orderItemId="@(item.Id)" id="btnCancelOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm" title="@Loc["Admin.Common.Cancel"]">
+                                        <span class="bi bi-x-lg"></span>
                                     </button>
-                                    <button type="submit" name="btnSaveOrderItem@(item.Id)" asp-action="SaveOrderItem" asp-route-orderItemId="@(item.Id)" id="btnSaveOrderItem@(item.Id)" style="display:none;" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Save"]">
-                                        <span class="k-icon k-i-save"></span>
+                                    <button type="submit" name="btnSaveOrderItem@(item.Id)" asp-action="SaveOrderItem" asp-route-orderItemId="@(item.Id)" id="btnSaveOrderItem@(item.Id)" style="display:none;" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm" title="@Loc["Admin.Common.Save"]">
+                                        <span class="bi bi-floppy"></span>
                                     </button>
-                                    <button type="submit" name="btnCancel@(item.Id)" id="btnCancel@(item.Id)" onclick="toggleOrderItemEdit@(item.Id)    (false);return false; " class="k-button">
-                                        <span class="k-icon k-i-cancel" title="@Loc["Admin.Common.Cancel"]"></span>
+                                    <button type="submit" name="btnCancel@(item.Id)" id="btnCancel@(item.Id)" onclick="toggleOrderItemEdit@(item.Id)    (false);return false; " class="btn btn-default btn-sm">
+                                        <span class="bi bi-x-lg" title="@Loc["Admin.Common.Cancel"]"></span>
                                     </button>
                                 </div>
                             </td>
@@ -354,5 +354,5 @@
     </div>
 }
 <div class="form-actions">
-    <button type="submit" id="btnAddNewProduct" name="btnAddNewProduct" onclick=" javascript:setLocation('@(Url.Action("AddProductToOrder", "Order", new { orderId = Model.Id, area = area }))'); return false; " class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.Products.AddNew"]</button>
+    <button type="submit" id="btnAddNewProduct" name="btnAddNewProduct" onclick=" javascript:setLocation('@(Url.Action("AddProductToOrder", "Order", new { orderId = Model.Id, area = area }))'); return false; " class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.Products.AddNew"]</button>
 </div>

@@ -59,14 +59,14 @@
                                     <grid-text name="markAsPrimaryStoreCurrency" value="@Loc["Admin.Configuration.Currencies.Fields.MarkAsPrimaryStoreCurrency"]"/>
                                     <grid-column field="Name" title="@Loc["Admin.Configuration.Currencies.Fields.Name"]">
                                         <cell-template>
-                                            <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                         </cell-template>
                                     </grid-column>
                                     <grid-column field="CurrencyCode" title="@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]" width="50"/>
                                     <grid-column field="Rate" title="@Loc["Admin.Configuration.Currencies.Fields.Rate"]" width="80"/>
                                     <grid-column field="Id" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency"]">
                                         <cell-template>
-                                            <a class="k-button" data-grid-click="markAsPrimaryExchangeRateCurrency">
+                                            <a class="btn btn-default btn-sm" data-grid-click="markAsPrimaryExchangeRateCurrency">
                                             <i data-if="IsPrimaryExchangeRateCurrency" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
                                             <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
                                             {{ $texts.markAsPrimaryExchangeRateCurrency }}</a>
@@ -74,7 +74,7 @@
                                     </grid-column>
                                     <grid-column field="Id" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]">
                                         <cell-template>
-                                            <a class="k-button" data-grid-click="markAsPrimaryStoreCurrency">
+                                            <a class="btn btn-default btn-sm" data-grid-click="markAsPrimaryStoreCurrency">
                                             <i data-if="IsPrimaryStoreCurrency" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
                                             <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
                                             {{ $texts.markAsPrimaryStoreCurrency }}</a>
@@ -155,7 +155,7 @@
                 <grid-column field="Rate" title="@Loc["Admin.Configuration.Currencies.Fields.Rate"]" width="100"/>
                 <grid-column field="CurrencyCode" title="@Loc["Admin.Configuration.Currencies.ApplyRate"]">
                     <cell-template>
-                        <a class="k-button" data-grid-click="applyCurrencyRate">{{ $texts.applyRate }}</a>
+                        <a class="btn btn-default btn-sm" data-grid-click="applyCurrencyRate">{{ $texts.applyRate }}</a>
                     </cell-template>
                 </grid-column>
             </admin-grid>

@@ -214,14 +214,14 @@
                 <grid-column field="EndDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]" format="{0:G}"/>
                 <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
                     <cell-template>
-                        <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaAdmin })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="k-icon k-i-edit"></span>&nbsp;{{ $texts.edit }}</a>
+                        <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaAdmin })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]"/>
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
+            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
             <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
         </div>
     </div>

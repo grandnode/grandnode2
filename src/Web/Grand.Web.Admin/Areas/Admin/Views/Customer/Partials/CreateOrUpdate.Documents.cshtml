@@ -7,12 +7,12 @@
                     auto-bind="false">
             <grid-column field="Number" title="@Loc["Admin.Documents.Document.Fields.Number"]">
                 <cell-template>
-                    <a class="k-link" href="@Url.Action("EditDocument", "Document", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Number }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("EditDocument", "Document", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Number }}</a>
                 </cell-template>
             </grid-column>
             <grid-column field="Name" title="@Loc["Admin.Documents.Document.Fields.Name"]">
                 <cell-template>
-                    <a class="k-link" href="@Url.Action("EditDocument", "Document", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("EditDocument", "Document", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
                 </cell-template>
             </grid-column>
             <grid-column field="Published" title="@Loc["Admin.Documents.Document.Fields.Published"]" width="100" align="Center" min-screen-width="500">
@@ -24,7 +24,7 @@
         </admin-grid>
     </div>
     <div class="panel-footer">
-        <button type="button" class="k-button" onclick="location.href='@Url.Action("CreateDocument", "Document", new { customerId = Model.Id, area = Constants.AreaAdmin })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Marketing.Document.Add"]</button>
+        <button type="button" class="btn btn-default btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { customerId = Model.Id, area = Constants.AreaAdmin })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Marketing.Document.Add"]</button>
     </div>
     <vc:admin-widget widget-zone="customer_details_documents_bottom" additional-data="Model"/>
 </div>

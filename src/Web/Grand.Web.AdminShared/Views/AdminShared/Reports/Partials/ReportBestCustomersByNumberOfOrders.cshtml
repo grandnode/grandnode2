@@ -64,7 +64,7 @@
                 additional-data="bestCustomersNumberOfOrdersAdditionalData">
         <grid-column field="CustomerName" title="@Loc["Admin.Reports.Customers.BestBy.Fields.Customer"]">
             <cell-template>
-                <a class="k-link" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerName }}</a>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerName }}</a>
             </cell-template>
         </grid-column>
         <grid-column field="OrderTotal" title="@Loc["Admin.Reports.Customers.BestBy.Fields.OrderTotal"]"/>

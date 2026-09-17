@@ -19,7 +19,7 @@
                             @*Attributes is markup built by the product attribute formatter*@
                             <grid-column field="Name" title="@Loc["Vendor.Reports.LowStockReport.Fields.Name"]" width="300">
                                 <cell-template>
-                                    <a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/{{ Id }}">{{ Name }}
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/{{ Id }}">{{ Name }}
                                     <span data-if="Attributes != null"><br /><i> {{{ Attributes }}} </i></span>
                                     </a>
                                 </cell-template>

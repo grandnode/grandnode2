@@ -125,10 +125,10 @@
         <div class="mb-3">
             <div class="col-md-3 col-sm-3"></div>
             <div class="col-md-9 col-sm-9">
-                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course", new { productIdInput = Html.IdFor(model => model.ProductId), productNameInput = "purchased-with-product-name", btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="k-button">
+                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course", new { productIdInput = Html.IdFor(model => model.ProductId), productNameInput = "purchased-with-product-name", btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="btn btn-default btn-sm">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Choose"]
                 </a>
-                <button type="button" id="purchased-with-product-name-remove" class="k-button">
+                <button type="button" id="purchased-with-product-name-remove" class="btn btn-default btn-sm">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Remove"]
                 </button>
                 <input type="button" id="btnRefreshPurchasedWithProduct" style="display: none"/>

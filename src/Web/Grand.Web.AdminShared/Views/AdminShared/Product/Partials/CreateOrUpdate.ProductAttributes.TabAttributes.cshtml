@@ -17,7 +17,7 @@
             <grid-text name="edit" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]"/>
             <grid-column field="ProductAttributeId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]" width="190">
                 <cell-template>
-                    <a class="k-link btnMagnificPopup" href="@Url.Action("ProductAttributeMappingPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}">{{ ProductAttribute }}<br/></a>
+                    <a class="text-decoration-none btnMagnificPopup" href="@Url.Action("ProductAttributeMappingPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}">{{ ProductAttribute }}<br/></a>
                 </cell-template>
             </grid-column>
             <grid-column field="TextPrompt" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]" width="120"/>
@@ -48,7 +48,7 @@
                          on-data-bound="bindProductAttributeValuePopups">
                 <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Name"]">
                     <cell-template>
-                        <a class="k-link btnProductAttributeValueEditPopup" data-id="{{ Id }}" onclick="this.classList.add('active')" href="@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = area })/{{ Id }}?productId=@(Model.Id)&productAttributeMappingId={{ ProductAttributeMappingId }}&btnId=btnRefreshProductAttributesValues&formId=product-form">{{ Name }}</a>
+                        <a class="text-decoration-none btnProductAttributeValueEditPopup" data-id="{{ Id }}" onclick="this.classList.add('active')" href="@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = area })/{{ Id }}?productId=@(Model.Id)&productAttributeMappingId={{ ProductAttributeMappingId }}&btnId=btnRefreshProductAttributesValues&formId=product-form">{{ Name }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"/>
@@ -58,7 +58,7 @@
     </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Bottom" model="Model"/>
     <div class="panel-footer">
-        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
+        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
     </div>
 </div>
 
@@ -100,7 +100,7 @@
     function addProductAttributeValueButton(e) {
         var mappingId = e.data.Id;
         $(e.detailElement).attr('data-id', mappingId);
-        var button = $('<a class="k-button btnProductAttributeValueEditPopup" onclick="this.classList.add(\'active\')"></a>')
+        var button = $('<a class="btn btn-default btn-sm btnProductAttributeValueEditPopup" onclick="this.classList.add(\'active\')"></a>')
             .attr('data-id', mappingId)
             .attr('href', '@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = area })/?productAttributeMappingId=' + encodeURIComponent(mappingId) + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues')
             .html('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AddNew"]');

@@ -10,12 +10,12 @@
                         auto-bind="false">
                 <grid-column field="ProductName" title="@Loc["Admin.Customers.Customers.Reviews.Product"]" width="90">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="Title" title="@Loc["Admin.Customers.Customers.Reviews.Title"]" width="120">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "ProductReview", new { area = area })/{{ Id }}">{{ Title }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "ProductReview", new { area = area })/{{ Id }}">{{ Title }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="Rating" title="@Loc["Admin.Customers.Customers.Reviews.Rating"]" width="100">

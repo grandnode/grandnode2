@@ -48,7 +48,7 @@
                                                 additional-data="additionalData">
                                         <grid-column field="ProductName" title="@Loc["Vendor.Reports.NeverSold.Fields.Name"]">
                                             <cell-template>
-                                                <a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/{{ ProductId }}">{{ ProductName }}</a>
+                                                <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/{{ ProductId }}">{{ ProductName }}</a>
                                             </cell-template>
                                         </grid-column>
                                     </admin-grid>

@@ -84,12 +84,12 @@
                         pager="None">
                 <grid-column field="ProductName" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Item"]" width="200">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="ProductSku" title="@Loc["Admin.Catalog.Products.Fields.Sku"]" width="200">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductSku }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductSku }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80"/>

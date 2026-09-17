@@ -92,7 +92,7 @@
                                <text> value="@(download.DownloadUrl)" </text>
                            }/>
                     <div class="">
-                        <input type="button" id="saveDownloadUrl@(randomNumber)" class="k-button" value="@Loc["Admin.Download.SaveDownloadURL"]"/>
+                        <input type="button" id="saveDownloadUrl@(randomNumber)" class="btn btn-default btn-sm" value="@Loc["Admin.Download.SaveDownloadURL"]"/>
                     </div>
                 </div>
 
@@ -153,11 +153,11 @@
                 <div>
                     @if (download != null)
                     {
-                        <span id="@(clientId + "remove")" class="k-button">@Loc["Admin.Download.RemoveDownload"]</span>
+                        <span id="@(clientId + "remove")" class="btn btn-default btn-sm">@Loc["Admin.Download.RemoveDownload"]</span>
                     }
                     else
                     {
-                        <span id="@(clientId + "remove")" class="k-button" style="display:none;">@Loc["Admin.Download.RemoveDownload"]</span>
+                        <span id="@(clientId + "remove")" class="btn btn-default btn-sm" style="display:none;">@Loc["Admin.Download.RemoveDownload"]</span>
                     }
                 </div>
             </div>

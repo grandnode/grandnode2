@@ -26,12 +26,12 @@
                                 <grid-text name="comments" value="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]"/>
                                 <grid-column field="Title" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Title"]" width="400">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ Title }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Comments" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]" width="200">
                                     <cell-template>
-                                        <a class="k-link" href="Comments?filterByBlogPostId={{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
+                                        <a class="text-decoration-none" href="Comments?filterByBlogPostId={{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="StartDate" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.StartDate"]" width="150" format="{0:G}"/>

@@ -55,12 +55,12 @@
                                 <grid-text name="comments" value="@Loc["Admin.Content.News.NewsItems.Fields.Comments"]"/>
                                 <grid-column field="Title" title="@Loc["Admin.Content.News.NewsItems.Fields.Title"]" width="300">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ Title }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Comments" title="@Loc["Admin.Content.News.NewsItems.Fields.Comments"]" width="200">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="StartDate" title="@Loc["Admin.Content.News.NewsItems.Fields.StartDate"]" width="150" format="{0:G}"/>

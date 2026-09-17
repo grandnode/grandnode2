@@ -24,7 +24,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewRelatedArticle" href="@(Url.Action("ArticlesPopup", "Knowledgebase", new { articleId = Model.Id, btnId = "btnRefreshRelatedArticles", formId = "article-form", area = Constants.AreaAdmin }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"]</a>
+            <a id="btnAddNewRelatedArticle" href="@(Url.Action("ArticlesPopup", "Knowledgebase", new { articleId = Model.Id, btnId = "btnRefreshRelatedArticles", formId = "article-form", area = Constants.AreaAdmin }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"]</a>
             <input type="submit" id="btnRefreshRelatedArticles" style="display: none"/>
         </div>
     </div>

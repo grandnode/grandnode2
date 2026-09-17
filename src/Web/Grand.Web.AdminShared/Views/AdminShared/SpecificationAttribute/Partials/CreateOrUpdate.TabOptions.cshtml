@@ -16,7 +16,7 @@
                             on-data-bound="bindSpecificationAttributeOptionPopups">
                     <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name"]">
                         <cell-template>
-                            <a class='k-link editoption' href="@Url.Action("OptionEditPopup", "SpecificationAttribute", new { area })/{{ Id }}">{{ Name }}</a>
+                            <a class='text-decoration-none editoption' href="@Url.Action("OptionEditPopup", "SpecificationAttribute", new { area })/{{ Id }}">{{ Name }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.DisplayOrder"]" width="100"/>
@@ -25,7 +25,7 @@
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
+                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
             <partial name="Partials/WidgetZone.Options.Bottom" model="Model"/>

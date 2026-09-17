@@ -24,7 +24,7 @@
                 <admin-grid id="courses-grid" read-url="@Url.Action("List", "Course", new { area = Constants.AreaAdmin })">
                     <grid-column field="Name" title="@Loc["Admin.Courses.Course.Fields.Name"]">
                         <cell-template>
-                            <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="Published" title="@Loc["Admin.Courses.Course.Fields.Published"]" width="100" align="Center" min-screen-width="500">

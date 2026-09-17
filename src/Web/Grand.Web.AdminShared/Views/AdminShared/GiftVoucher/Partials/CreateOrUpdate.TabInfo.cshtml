@@ -38,7 +38,7 @@
                 <admin-label asp-for="PurchasedWithOrderId"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">
-                        <a href="@Url.Action("Edit", "Order", new { Id = Model.PurchasedWithOrderId, area })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Common.View"] #@Model.PurchasedWithOrderNumber</a>
+                        <a href="@Url.Action("Edit", "Order", new { Id = Model.PurchasedWithOrderId, area })" class="btn btn-default btn-sm"><span class="bi bi-eye"></span>&nbsp;@Loc["Admin.Common.View"] #@Model.PurchasedWithOrderNumber</a>
                     </label>
                 </div>
             </div>
@@ -176,7 +176,7 @@
                 <admin-label asp-for="IsRecipientNotified"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.IsRecipientNotified.ToString()</label>
-                    <button type="submit" name="notifyRecipient" asp-action="NotifyRecipient" class="k-button"><span class="k-icon k-i-notification"></span>&nbsp;@Loc["Admin.GiftVouchers.Fields.IsRecipientNotified.Notify"]</button>
+                    <button type="submit" name="notifyRecipient" asp-action="NotifyRecipient" class="btn btn-default btn-sm"><span class="bi bi-bell"></span>&nbsp;@Loc["Admin.GiftVouchers.Fields.IsRecipientNotified.Notify"]</button>
                 </div>
             </div>
         }

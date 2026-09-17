@@ -26,7 +26,7 @@
                                         pager="Compact">
                                 <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.Name"]">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("EditMethod", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("EditMethod", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Description" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.Description"]"/>

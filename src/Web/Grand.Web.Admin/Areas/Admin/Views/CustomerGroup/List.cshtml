@@ -23,7 +23,7 @@
                 <admin-grid id="customergroups-grid" read-url="@Url.Action("List", "CustomerGroup", new { area = Constants.AreaAdmin })">
                     <grid-column field="Name" title="@Loc["Admin.Customers.CustomerGroups.Fields.Name"]" width="300">
                         <cell-template>
-                            <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="FreeShipping" title="@Loc["Admin.Customers.CustomerGroups.Fields.FreeShipping"]" width="100" align="Center">

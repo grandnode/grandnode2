@@ -27,7 +27,7 @@
                                 <grid-text name="runNow" value="@Loc["Admin.System.ScheduleTasks.RunNow"]"/>
                                 <grid-column field="ScheduleTaskName" title="@Loc["Admin.System.ScheduleTasks.Name"]" width="300">
                                     <cell-template>
-                                        <a class="k-link" href="EditScheduler/{{ Id }}">{{ ScheduleTaskName }}</a>
+                                        <a class="text-decoration-none" href="EditScheduler/{{ Id }}">{{ ScheduleTaskName }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Enabled" title="@Loc["Admin.System.ScheduleTasks.Enabled"]" width="100" align="Center">
@@ -47,7 +47,7 @@
                                 <grid-column field="LastEndUtc" title="@Loc["Admin.System.ScheduleTasks.LastEnd"]" width="200" format="{0:G}"/>
                                 <grid-column field="Id" title="@Loc["Admin.System.ScheduleTasks.RunNow"]" width="100">
                                     <cell-template>
-                                        <a href="@Url.Action("RunNow", "ScheduleTask", new { area = Constants.AreaAdmin })/{{ Id }}" class="k-button run-now k-button-icontext"><i class="bi bi-fast-forward"></i> {{ $texts.runNow }}</a>
+                                        <a href="@Url.Action("RunNow", "ScheduleTask", new { area = Constants.AreaAdmin })/{{ Id }}" class="btn btn-default btn-sm run-now"><i class="bi bi-fast-forward"></i> {{ $texts.runNow }}</a>
                                     </cell-template>
                                 </grid-column>
                             </admin-grid>

@@ -134,12 +134,12 @@
                                         on-change="onProductSelectionChange">
                                 <grid-column field="PictureThumbnailUrl" title="@Loc["Vendor.Catalog.Products.Fields.PictureThumbnailUrl"]" width="92">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Name" title="@Loc["Vendor.Catalog.Products.Fields.Name"]" width="270">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="Sku" title="@Loc["Vendor.Catalog.Products.Fields.Sku"]" width="80" align="Center"/>

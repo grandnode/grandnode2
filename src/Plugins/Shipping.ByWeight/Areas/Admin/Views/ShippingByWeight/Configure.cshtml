@@ -30,7 +30,7 @@
                 <grid-column field="DataHtml" title="@Loc["Plugins.Shipping.ByWeight.Fields.DataHtml"]" width="200" encoded="false"/>
                 <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
                     <cell-template>
-                        <a href="@Url.Action("EditPopup", "ShippingByWeight")?id={{ Id }}&btnId=btnRefresh&formId=shipping-byweight-form" class="k-button editpopup k-button-icontext">@Loc["Admin.Common.Edit"]</a>
+                        <a href="@Url.Action("EditPopup", "ShippingByWeight")?id={{ Id }}&btnId=btnRefresh&formId=shipping-byweight-form" class="btn btn-default btn-sm editpopup">@Loc["Admin.Common.Edit"]</a>
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>

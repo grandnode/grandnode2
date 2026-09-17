@@ -30,7 +30,7 @@
                                         <div>
                                             <input type="text" class="form-control text-box single-line" id="search-product-name" autocomplete="off"/>
                                             <span id="search-product-friendly-name"></span>
-                                            <input type="button" id="search-product-clear" class="k-button" style="display: none;" value="@Loc["Admin.Common.Clear"]"/>
+                                            <input type="button" id="search-product-clear" class="btn btn-default btn-sm" style="display: none;" value="@Loc["Admin.Common.Clear"]"/>
                                             <admin-textarea asp-for="SearchProductId" autocomplete="off" style="display: none;"></admin-textarea>
                                             <script>
                                                 $(document).ready(function() {
@@ -110,17 +110,17 @@
                                     on-change="onProductReviewsSelectionChange">
                             <grid-column field="ProductName" title="@Loc["Admin.Catalog.ProductReviews.Fields.Product"]" width="200">
                                 <cell-template>
-                                    <a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ ProductId }}">{{ ProductName }}</a>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ ProductId }}">{{ ProductName }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="CustomerId" title="@Loc["Admin.Catalog.ProductReviews.Fields.Customer"]" width="200" min-screen-width="750">
                                 <cell-template>
-                                    <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="Title" title="@Loc["Admin.Catalog.ProductReviews.Fields.Title"]" width="200">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}?ProductId={{ ProductId }}">{{ Title }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}?ProductId={{ ProductId }}">{{ Title }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="Rating" title="@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="750"/>

@@ -14,7 +14,7 @@
                             on-data-bound="bindCheckoutAttributeValuePopups">
                     <grid-column field="Name" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.Name"]">
                         <cell-template>
-                            <a class='k-link editvalue' href="@Url.Action("ValueEditPopup", "CheckoutAttribute", new { area })/{{ Id }}?checkoutAttributeId=@Model.Id">{{ Name }}</a>
+                            <a class='text-decoration-none editvalue' href="@Url.Action("ValueEditPopup", "CheckoutAttribute", new { area })/{{ Id }}?checkoutAttributeId=@Model.Id">{{ Name }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-column field="PriceAdjustment" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.PriceAdjustment"]" width="150" min-screen-width="750"/>
@@ -30,7 +30,7 @@
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]</a>
+                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
         </div>

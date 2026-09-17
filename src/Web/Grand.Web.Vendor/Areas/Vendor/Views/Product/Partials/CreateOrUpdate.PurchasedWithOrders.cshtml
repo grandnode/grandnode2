@@ -8,7 +8,7 @@
                     auto-bind="false">
             <grid-column field="OrderNumber" title="@Loc["Vendor.Orders.Fields.ID"]" width="80">
                 <cell-template>
-                    <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/{{ Id }}">{{ OrderNumber }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/{{ Id }}">{{ OrderNumber }}</a>
                 </cell-template>
             </grid-column>
             <grid-column field="CustomerEmail" title="@Loc["Vendor.Orders.Fields.CustomerEmail"]" width="200" min-screen-width="500"/>

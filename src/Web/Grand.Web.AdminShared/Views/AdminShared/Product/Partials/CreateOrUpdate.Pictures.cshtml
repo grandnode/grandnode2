@@ -16,7 +16,7 @@
                         on-data-bound="bindProductPicturePopups">
                 <grid-column field="PictureUrl" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.Picture"]" width="165">
                     <cell-template>
-                        <a class='k-link editpicture' href="@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
+                        <a class='text-decoration-none editpicture' href="@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="IsDefault" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.IsDefault"]" width="100" align="Center">

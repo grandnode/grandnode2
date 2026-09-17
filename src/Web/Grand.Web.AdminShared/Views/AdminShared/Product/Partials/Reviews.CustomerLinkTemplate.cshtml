@@ -2,4 +2,4 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 @*content of the customer cell template of the product reviews grid*@
-<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+<a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>

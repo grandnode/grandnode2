@@ -98,7 +98,7 @@
                                     <div class="col-md-9 col-sm-9">
                                         <input class="form-control" type="text" id="search-product-name" autocomplete="off"/>
                                         <span id="search-product-friendly-name"></span>
-                                        <input type="button" id="search-product-clear" class="k-button" style="display:none;" value="@Loc["Admin.Common.Clear"]"/>
+                                        <input type="button" id="search-product-clear" class="btn btn-default btn-sm" style="display:none;" value="@Loc["Admin.Common.Clear"]"/>
                                         @Html.TextBoxFor(model => model.ProductId, new { autocomplete = "off", style = "display:none;" })
                                         <script>
                                             $(document).ready(function() {
@@ -178,14 +178,14 @@
                                         on-change="onOrdersSelectionChange">
                                 <grid-column field="OrderNumber" title="@Loc["Admin.Orders.Fields.Id"]" width="50">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ OrderNumber }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ OrderNumber }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="OrderStatus" title="@Loc["Admin.Orders.Fields.OrderStatus"]" width="120">
                                     <cell-template>
                                         @* the Kendo template built the label class in code: one label per status *@
                                         <h4>
-                                            <a class="k-link orderstatuslist" href="Edit/{{ Id }}">
+                                            <a class="text-decoration-none orderstatuslist" href="Edit/{{ Id }}">
                                                 <span data-if="OrderStatusId == 10" class="label label-warning">{{ OrderStatus }}</span>
                                                 <span data-if="OrderStatusId == 20 || OrderStatusId == 25" class="label label-info">{{ OrderStatus }}</span>
                                                 <span data-if="OrderStatusId == 30" class="label label-success">{{ OrderStatus }}</span>
@@ -198,17 +198,17 @@
                                 </grid-column>
                                 <grid-column field="PaymentStatus" title="@Loc["Admin.Orders.Fields.PaymentStatus"]" width="120">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ PaymentStatus }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ PaymentStatus }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="ShippingStatus" title="@Loc["Admin.Orders.Fields.ShippingStatus"]" width="120">
                                     <cell-template>
-                                        <a class="k-link" href="Edit/{{ Id }}">{{ ShippingStatus }}</a>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ ShippingStatus }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="CustomerEmail" title="@Loc["Admin.Orders.Fields.Customer"]" width="220">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerFullName }} ({{ CustomerEmail }})</a>
+                                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerFullName }} ({{ CustomerEmail }})</a>
                                     </cell-template>
                                 </grid-column>
                                 @if (!adminAreaSettings.HideStoreColumn)

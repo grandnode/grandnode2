@@ -13,14 +13,14 @@
                             destroy-url="@Url.Action("ProductDelete", "Discount", new { discountId = Model.Id, area = area })">
                     <grid-column field="ProductName" title="@Loc["admin.marketing.Discounts.AppliedToProducts.Product"]">
                         <cell-template>
-                            <a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                            <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
                         </cell-template>
                     </grid-column>
                     <grid-commands destroy="true" width="150"/>
                 </admin-grid>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshProducts", formId = "discount-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToProducts.AddNew"]</a>
+                <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshProducts", formId = "discount-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToProducts.AddNew"]</a>
                 <input type="submit" id="btnRefreshProducts" style="display: none"/>
             </div>
             <partial name="Partials/WidgetZone.AppliedToProducts.Bottom" model="Model"/>

@@ -19,7 +19,7 @@
                         edit-mode="Inline">
                 <grid-column field="ProductName" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.Fields.Product"]">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = area })/{{ Id }}">{{ ProductName }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { id = "", area = area })/{{ Id }}">{{ ProductName }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.Fields.DisplayOrder"]" width="150" format="{0:0}" editor="Integer"/>
@@ -27,7 +27,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = area }))" class="k-button">
+            <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm">
                 @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.AddNew"]
             </a>
             <input type="submit" id="btnRefreshAssociatedProducts" style="display: none"/>

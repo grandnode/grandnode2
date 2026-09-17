@@ -66,9 +66,9 @@
                     @if (Model.ShippedDateUtc.HasValue)
                     {
                         <div id="divShippedDate" style="display: inline-block;"><admin-input asp-for="ShippedDate"/> &nbsp;@Loc["Vendor.Orders.Shipments.ShippedDate.Enter"]</div>
-                        <button type="submit" id="btnEditShippedDate" onclick=" toggleShippedDate(true);return false; " class="k-button"><span class="k-icon k-i-edit"></span>&nbsp;@Loc["Vendor.Common.Edit"]</button>
-                        <button type="submit" id="btnSaveShippedDate" asp-action="EditShippedDate" name="saveshippeddate" onclick=" return confirm('@Loc["Vendor.Common.AreYouSure"]'); " class="k-button"><span class="k-icon k-i-save"></span>&nbsp;@Loc["Vendor.Common.Save"]</button>
-                        <button type="submit" id="btnCancelShippedDate" onclick=" toggleShippedDate(false);return false; " class="k-button"><span class="k-icon k-i-cancel"></span>&nbsp;@Loc["Vendor.Common.Cancel"]</button>
+                        <button type="submit" id="btnEditShippedDate" onclick=" toggleShippedDate(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Vendor.Common.Edit"]</button>
+                        <button type="submit" id="btnSaveShippedDate" asp-action="EditShippedDate" name="saveshippeddate" onclick=" return confirm('@Loc["Vendor.Common.AreYouSure"]'); " class="btn btn-default btn-sm"><span class="bi bi-floppy"></span>&nbsp;@Loc["Vendor.Common.Save"]</button>
+                        <button type="submit" id="btnCancelShippedDate" onclick=" toggleShippedDate(false);return false; " class="btn btn-default btn-sm"><span class="bi bi-x-lg"></span>&nbsp;@Loc["Vendor.Common.Cancel"]</button>
                     }
                 </div>
             </div>
@@ -92,9 +92,9 @@
                     @if (Model.DeliveryDateUtc.HasValue)
                     {
                         <div id="divDeliveryDate" style="display: inline-block;"><admin-input asp-for="DeliveryDate"/> &nbsp;@Loc["Vendor.Orders.Shipments.DeliveryDate.Enter"]</div>
-                        <button type="submit" id="btnEditDeliveryDate" onclick=" toggleDeliveryDate(true);return false; " class="k-button"><span class="k-icon k-i-edit"></span>&nbsp;@Loc["Vendor.Common.Edit"]</button>
-                        <button type="submit" id="btnSaveDeliveryDate" asp-action="EditDeliveryDate" name="savedeliverydate" onclick=" return confirm('@Loc["Vendor.Common.AreYouSure"]'); " class="k-button"><span class="k-icon k-i-save"></span>&nbsp;@Loc["Vendor.Common.Save"]</button>
-                        <button type="submit" id="btnCancelDeliveryDate" onclick=" toggleDeliveryDate(false);return false; " class="k-button"><span class="k-icon k-i-cancel"></span>&nbsp;@Loc["Vendor.Common.Cancel"]</button>
+                        <button type="submit" id="btnEditDeliveryDate" onclick=" toggleDeliveryDate(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Vendor.Common.Edit"]</button>
+                        <button type="submit" id="btnSaveDeliveryDate" asp-action="EditDeliveryDate" name="savedeliverydate" onclick=" return confirm('@Loc["Vendor.Common.AreYouSure"]'); " class="btn btn-default btn-sm"><span class="bi bi-floppy"></span>&nbsp;@Loc["Vendor.Common.Save"]</button>
+                        <button type="submit" id="btnCancelDeliveryDate" onclick=" toggleDeliveryDate(false);return false; " class="btn btn-default btn-sm"><span class="bi bi-x-lg"></span>&nbsp;@Loc["Vendor.Common.Cancel"]</button>
                     }
                 </div>
             </div>

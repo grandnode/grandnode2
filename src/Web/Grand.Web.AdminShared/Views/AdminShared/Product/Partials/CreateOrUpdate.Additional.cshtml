@@ -125,7 +125,7 @@
                 <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
                 <a id="btnAddNewRequiredProduct"
                    href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = area }))"
-                   class="k-button">
+                   class="btn btn-default btn-sm">
                     @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.AddNew"]
                 </a>
                 <input type="submit" id="btnRefreshRequiredProducts" style="display: none"/>

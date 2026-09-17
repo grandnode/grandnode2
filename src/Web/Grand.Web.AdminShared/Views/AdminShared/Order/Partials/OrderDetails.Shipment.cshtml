@@ -26,12 +26,12 @@
                                         auto-bind="false">
                                 <grid-column field="ShipmentNumber" title="@Loc[$"{prefix}.Orders.Shipments.ID"]" width="50">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ ShipmentNumber }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ ShipmentNumber }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="TrackingNumber" title="@Loc[$"{prefix}.Orders.Shipments.TrackingNumber"]" width="100">
                                     <cell-template>
-                                        <a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ TrackingNumber }}</a>
+                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ TrackingNumber }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="TotalWeight" title="@Loc[$"{prefix}.Orders.Shipments.TotalWeight"]" width="100"/>
@@ -49,7 +49,7 @@
                         <div class="panel-footer">
                             @if (Model.CanAddNewShipments)
                             {
-                                <button type="submit" id="btnAddNewShipment" name="btnAddNewShipment" onclick="javascript:setLocation('@(Url.Action("AddShipment", "Shipment", new { orderId = Model.Id, area = area }))'); return false;" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{prefix}.Orders.Shipments.AddNew"]</button>
+                                <button type="submit" id="btnAddNewShipment" name="btnAddNewShipment" onclick="javascript:setLocation('@(Url.Action("AddShipment", "Shipment", new { orderId = Model.Id, area = area }))'); return false;" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{prefix}.Orders.Shipments.AddNew"]</button>
                             }
                         </div>
                         <partial name="Partials/WidgetZone.Shipment.ShippingBottom" model="Model"/>

@@ -27,7 +27,7 @@
                         <grid-column field="PickupFee" title="@Loc["Shipping.ShippingPoint.Fields.PickupFee"]" width="150"/>
                         <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
                             <cell-template>
-                                <a href="@Url.Action("Edit", "ShippingPoint", new { area = "Store" })?id={{ Id }}&btnId=btnRefresh&formId=shipping-instore-form" class='k-button editpopup k-button-icontext'>{{ $texts.edit }}</a>
+                                <a href="@Url.Action("Edit", "ShippingPoint", new { area = "Store" })?id={{ Id }}&btnId=btnRefresh&formId=shipping-instore-form" class='btn btn-default btn-sm editpopup'>{{ $texts.edit }}</a>
                             </cell-template>
                         </grid-column>
                         <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>

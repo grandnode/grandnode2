@@ -84,32 +84,32 @@
                                     additional-data="additionalData">
                             <grid-column field="PaymentMethodSystemName" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaymentMethodSystemName"]" width="80">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ PaymentMethodSystemName }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ PaymentMethodSystemName }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="TransactionAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.TransactionAmount"]" width="80">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ TransactionAmount | n2 }} {{ CurrencyCode }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ TransactionAmount | n2 }} {{ CurrencyCode }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="PaidAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaidAmount"]" width="100">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ PaidAmount | n2 }} {{ CurrencyCode }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ PaidAmount | n2 }} {{ CurrencyCode }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="CustomerId" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Customer"]" width="200">
                                 <cell-template>
-                                    <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerEmail }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="OrderNumber" title="@Loc["Admin.Orders.PaymentTransaction.Fields.OrderNumber"]" width="80">
                                 <cell-template>
-                                    <a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="Status" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Status"]" width="130">
                                 <cell-template>
-                                    <a class="k-link" href="Edit/{{ Id }}">{{ Status }}</a>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Status }}</a>
                                 </cell-template>
                             </grid-column>
                             <grid-column field="CreatedOn" title="@Loc["Admin.Orders.PaymentTransaction.Fields.CreatedOn"]" width="100" format="{0:G}"/>

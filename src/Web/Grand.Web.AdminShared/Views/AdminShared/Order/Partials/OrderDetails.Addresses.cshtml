@@ -151,7 +151,7 @@
 
                 <tr>
                     <td colspan="2">
-                        <a href="@Url.Action("AddressEdit", new { addressId = Model.BillingAddress.Id, orderId = Model.Id, BillingAddress = true, area = area })" class="k-button"><span class="k-icon k-i-edit"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>
+                        <a href="@Url.Action("AddressEdit", new { addressId = Model.BillingAddress.Id, orderId = Model.Id, BillingAddress = true, area = area })" class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>
                     </td>
                 </tr>
 
@@ -302,7 +302,7 @@
 
                         <tr>
                             <td colspan="2">
-                                <a href="@Url.Action("AddressEdit", new { addressId = Model.ShippingAddress.Id, orderId = Model.Id, area = area })" class="k-button"><span class="k-icon k-i-edit"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>
+                                <a href="@Url.Action("AddressEdit", new { addressId = Model.ShippingAddress.Id, orderId = Model.Id, area = area })" class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>
                             </td>
                         </tr>
 
@@ -403,9 +403,9 @@
                                     <div id="divShippingMethod" style="display: inline-block;">
                                         <admin-input asp-for="ShippingMethod"/>
                                     </div>
-                                    <button type="submit" id="btnEditShippingMethod" onclick=" toggleEditShippingMethod(true);return false; " class="k-button"><span class="k-icon k-i-edit"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
-                                    <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveShippingMethod" asp-action="EditShippingMethod" name="save-shipping-method" class="k-button" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                                    <input type="submit" value="@Loc["Admin.Common.Cancel"]" onclick=" toggleEditShippingMethod(false);return false; " id="btnCancelShippingMethod" class="k-button"/>
+                                    <button type="submit" id="btnEditShippingMethod" onclick=" toggleEditShippingMethod(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
+                                    <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveShippingMethod" asp-action="EditShippingMethod" name="save-shipping-method" class="btn btn-default btn-sm" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
+                                    <input type="submit" value="@Loc["Admin.Common.Cancel"]" onclick=" toggleEditShippingMethod(false);return false; " id="btnCancelShippingMethod" class="btn btn-default btn-sm"/>
 
                                     @if (!string.IsNullOrEmpty(Model.ShippingAdditionDescription))
                                     {

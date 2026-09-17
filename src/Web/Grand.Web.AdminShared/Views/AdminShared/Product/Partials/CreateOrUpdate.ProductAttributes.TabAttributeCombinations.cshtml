@@ -23,7 +23,7 @@
             @*Attributes is markup built by the product attribute formatter; Warnings are plain texts*@
             <grid-column field="Attributes" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]">
                 <cell-template>
-                    <a class='k-link editcombinationlink' href="@Url.Action("AttributeCombinationPopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshCombinations&formId=product-form">{{{ Attributes }}}<br />
+                    <a class='text-decoration-none editcombinationlink' href="@Url.Action("AttributeCombinationPopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshCombinations&formId=product-form">{{{ Attributes }}}<br />
                     <span data-if="Warnings != null" style="color: red">{{ Warnings }}</span>
                     </a>
                 </cell-template>
@@ -41,9 +41,9 @@
         </admin-grid>
     </div>
     <div class="panel-footer">
-        <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
-        <button type="submit" id="btnGenerateAllCombinations" class="k-button"><span class="k-icon k-i-style-builder"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
-        <button type="submit" id="btnClearAllCombinations" class="k-button"><span class="k-icon k-i-cut"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
+        <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
+        <button type="submit" id="btnGenerateAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-palette"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
+        <button type="submit" id="btnClearAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-scissors"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
         <input type="submit" id="btnRefreshCombinations" style="display: none"/>
     </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Bottom" model="Model"/>

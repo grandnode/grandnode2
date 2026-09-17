@@ -25,7 +25,7 @@
                             <admin-grid id="blogcategory-grid" read-url="@Url.Action("CategoryList", "Blog", new { area })">
                                 <grid-column field="Name" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.Name"]" width="600">
                                     <cell-template>
-                                        <a class="k-link" href="CategoryEdit/{{ Id }}">{{ Name }}</a>
+                                        <a class="text-decoration-none" href="CategoryEdit/{{ Id }}">{{ Name }}</a>
                                     </cell-template>
                                 </grid-column>
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.DisplayOrder"]" width="100" align="Center"/>

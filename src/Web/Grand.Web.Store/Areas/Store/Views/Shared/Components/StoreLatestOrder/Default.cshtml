@@ -7,12 +7,12 @@
             page-sizes="5,10,15">
     <grid-column field="OrderNumber" title="@Loc["Admin.Orders.Fields.Id"]" width="50">
         <cell-template>
-            <a class="k-link" href="Store/Order/Edit/{{ Id }}">{{ OrderNumber }}</a>
+            <a class="text-decoration-none" href="Store/Order/Edit/{{ Id }}">{{ OrderNumber }}</a>
         </cell-template>
     </grid-column>
     <grid-column field="CustomerEmail" title="@Loc["Admin.Orders.Fields.Customer"]" width="300">
         <cell-template>
-            <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerFullName }} ({{ CustomerEmail }})</a>
+            <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerFullName }} ({{ CustomerEmail }})</a>
         </cell-template>
     </grid-column>
     @if (!adminAreaSettings.HideStoreColumn)

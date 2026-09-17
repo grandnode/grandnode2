@@ -18,7 +18,7 @@
                         <cell-template>
                             @if (!isReadOnly)
                             {
-                                <a class="k-link editvalue" href="@Url.Action("ValueEditPopup", "CustomerAttribute", new { area })/{{ Id }}?customerAttributeId=@Model.Id&btnId=btnRefresh&formId=customerattribute-form">{{ Name }}</a>
+                                <a class="text-decoration-none editvalue" href="@Url.Action("ValueEditPopup", "CustomerAttribute", new { area })/{{ Id }}?customerAttributeId=@Model.Id&btnId=btnRefresh&formId=customerattribute-form">{{ Name }}</a>
                             }
                             else
                             {
@@ -42,7 +42,7 @@
             @if (!isReadOnly)
             {
                 <div class="panel-footer">
-                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CustomerAttribute", new { customerAttributeId = Model.Id, btnId = "btnRefresh", formId = "customerattribute-form", area }))" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.CustomerAttributes.Values.AddNew"]</a>
+                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CustomerAttribute", new { customerAttributeId = Model.Id, btnId = "btnRefresh", formId = "customerattribute-form", area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.CustomerAttributes.Values.AddNew"]</a>
                     <input type="submit" id="btnRefresh" style="display: none"/>
                 </div>
             }

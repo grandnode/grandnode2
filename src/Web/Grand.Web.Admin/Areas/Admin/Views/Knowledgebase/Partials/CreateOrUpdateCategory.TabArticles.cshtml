@@ -6,7 +6,7 @@
             <admin-grid id="articles-grid" read-url="@Url.Action("ArticleList", "Knowledgebase", new { parentCategoryId = Model.Id, area = Constants.AreaAdmin })">
                 <grid-column field="Name" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name"]" width="400">
                     <cell-template>
-                        <a class="k-link" href="@Url.Action("EditArticle", "Knowledgebase", new { area = Constants.AreaAdmin })/{{ ArticleId }}">{{ Name }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("EditArticle", "Knowledgebase", new { area = Constants.AreaAdmin })/{{ ArticleId }}">{{ Name }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="Published" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Published"]" width="50" align="Center">
@@ -19,7 +19,7 @@
             </admin-grid>
         </div>
         <div class="panel-footer">
-            <button type="button" id="btnAddNewArticle" onclick="window.location.href='@(Url.Action("CreateArticle", "Knowledgebase", new { parentCategoryId = Model.Id, area = Constants.AreaAdmin }))'" class="k-button"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseArticle"]</button>
+            <button type="button" id="btnAddNewArticle" onclick="window.location.href='@(Url.Action("CreateArticle", "Knowledgebase", new { parentCategoryId = Model.Id, area = Constants.AreaAdmin }))'" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseArticle"]</button>
             <input type="submit" id="btnRefreshArticles" style="display: none"/>
         </div>
     </div>
