@@ -16,6 +16,8 @@
     "audit:prod": "npm audit --omit=dev --audit-level=moderate"
   },
   "dependencies": {
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
     "tabulator-tables": "^6.5.2",
     "tom-select": "^2.6.2",
     "vue": "^3.5.13"
@@ -28,6 +30,8 @@
     "globals": "^15.14.0",
     "jquery": "^2.2.4",
     "jsdom": "^27.0.1",
+    "rtlcss": "^4.3.0",
+    "sass": "^1.104.1",
     "vite": "^6.0.7",
     "vitest": "^3.2.4"
   },

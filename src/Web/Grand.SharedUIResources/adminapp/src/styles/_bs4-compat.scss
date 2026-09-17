@@ -1,0 +1,246 @@
+//Bootstrap 4 compatibility layer.
+//
+//The three panels carry roughly four thousand Bootstrap 4 class names across about
+//1 500 views, in this repository and in third-party plugins. Switching the stylesheet
+//and rewriting every view in one commit would be untestable, so this sheet gives the
+//Bootstrap 4 names the Bootstrap 5 declarations while the codemod works through the
+//views (scripts/codemods/bootstrap4-to-bootstrap5.mjs).
+//
+//Everything here is @extend of a real Bootstrap 5 class, so a compatibility alias can
+//never drift from what the class it stands for actually does. Delete a block as soon
+//as the codemod has removed the last use of the names in it; what is left at the end
+//is what third-party plugin views still need, and is listed in the README.
+
+// ---------------------------------------------------------------------------
+// Spacing: ml-* / mr-* / pl-* / pr-* became ms-* / me-* / ps-* / pe-*
+// ---------------------------------------------------------------------------
+$bs4-spacers: (0, 1, 2, 3, 4, 5, auto);
+$bs4-breakpoints: ("", "sm-", "md-", "lg-", "xl-", "xxl-");
+
+@each $bp in $bs4-breakpoints {
+    @each $step in $bs4-spacers {
+        .ml-#{$bp}#{$step} {
+            @extend .ms-#{$bp}#{$step} !optional;
+        }
+        .mr-#{$bp}#{$step} {
+            @extend .me-#{$bp}#{$step} !optional;
+        }
+        @if $step != auto {
+            .pl-#{$bp}#{$step} {
+                @extend .ps-#{$bp}#{$step} !optional;
+            }
+            .pr-#{$bp}#{$step} {
+                @extend .pe-#{$bp}#{$step} !optional;
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Direction-aware utilities
+// ---------------------------------------------------------------------------
+@each $bp in $bs4-breakpoints {
+    .float-#{$bp}left {
+        @extend .float-#{$bp}start !optional;
+    }
+    .float-#{$bp}right {
+        @extend .float-#{$bp}end !optional;
+    }
+    .text-#{$bp}left {
+        @extend .text-#{$bp}start !optional;
+    }
+    .text-#{$bp}right {
+        @extend .text-#{$bp}end !optional;
+    }
+}
+
+.border-left {
+    @extend .border-start;
+}
+
+.border-right {
+    @extend .border-end;
+}
+
+.border-left-0 {
+    @extend .border-start-0;
+}
+
+.border-right-0 {
+    @extend .border-end-0;
+}
+
+.rounded-left {
+    @extend .rounded-start;
+}
+
+.rounded-right {
+    @extend .rounded-end;
+}
+
+.dropdown-menu-right {
+    @extend .dropdown-menu-end;
+}
+
+.dropdown-menu-left {
+    @extend .dropdown-menu-start;
+}
+
+// ---------------------------------------------------------------------------
+// Type utilities renamed in Bootstrap 5
+// ---------------------------------------------------------------------------
+$bs4-weights: (light: light, lighter: lighter, normal: normal, bold: bold, bolder: bolder);
+
+@each $name, $target in $bs4-weights {
+    .font-weight-#{$name} {
+        @extend .fw-#{$target} !optional;
+    }
+}
+
+.font-italic {
+    @extend .fst-italic;
+}
+
+.text-monospace {
+    @extend .font-monospace;
+}
+
+// ---------------------------------------------------------------------------
+// Forms
+// ---------------------------------------------------------------------------
+//.form-group carried the bottom margin every admin field relies on; Bootstrap 5
+//removed it in favour of a margin utility, which is what the codemod writes.
+.form-group {
+    margin-bottom: $form-group-margin-bottom;
+}
+
+.form-row {
+    @extend .row;
+    --#{$prefix}gutter-x: 0.5rem;
+    --#{$prefix}gutter-y: 0;
+}
+
+//.custom-control became .form-check, and the checkbox and radio variants became
+//modifiers of the same element rather than a wrapper class.
+.custom-control {
+    @extend .form-check;
+}
+
+.custom-control-inline {
+    @extend .form-check-inline;
+}
+
+.custom-control-input {
+    @extend .form-check-input;
+}
+
+.custom-control-label {
+    @extend .form-check-label;
+}
+
+.custom-switch {
+    @extend .form-switch;
+}
+
+//.custom-checkbox and .custom-radio only shaped the pseudo-element Bootstrap 4 drew
+//in place of the native control; Bootstrap 5 styles the control itself, so there is
+//nothing left for them to do beyond the .form-check the wrapper already carries.
+.custom-checkbox,
+.custom-radio {
+    //no declarations: kept so a selector list that names them still matches
+    --#{$prefix}bs4-compat: 1;
+}
+
+.custom-select {
+    @extend .form-select;
+}
+
+.custom-select-sm {
+    @extend .form-select-sm;
+}
+
+.custom-select-lg {
+    @extend .form-select-lg;
+}
+
+.custom-range {
+    @extend .form-range;
+}
+
+.custom-file {
+    display: block;
+    width: 100%;
+}
+
+.custom-file-input,
+.custom-file-label {
+    @extend .form-control;
+}
+
+//Bootstrap 5 lays the whole input group out as flex children, so the wrappers are
+//no longer needed; making them display:contents lets an untouched view keep its
+//markup and still get the Bootstrap 5 rounding and borders on the real children.
+.input-group-append,
+.input-group-prepend {
+    display: contents;
+}
+
+.form-inline {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+
+// ---------------------------------------------------------------------------
+// Components
+// ---------------------------------------------------------------------------
+//.badge-* became background utilities, and the pill shape its own class.
+@each $name, $value in $theme-colors {
+    .badge-#{$name} {
+        @extend .badge;
+        @extend .text-bg-#{$name} !optional;
+    }
+}
+
+.badge-pill {
+    @extend .rounded-pill;
+}
+
+//.close became .btn-close, which draws its own glyph instead of the &times; the
+//markup carries, so the text has to be hidden.
+.close {
+    @extend .btn-close;
+
+    span {
+        display: none;
+    }
+}
+
+//.media was dropped; it was a flex row with a growing body.
+.media {
+    display: flex;
+    align-items: flex-start;
+}
+
+.media-body {
+    flex: 1;
+}
+
+.sr-only {
+    @extend .visually-hidden;
+}
+
+.sr-only-focusable {
+    @extend .visually-hidden-focusable;
+}
+
+.no-gutters {
+    @extend .g-0;
+}
+
+.jumbotron {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    background-color: var(--#{$prefix}tertiary-bg);
+    border-radius: var(--#{$prefix}border-radius-lg);
+}
