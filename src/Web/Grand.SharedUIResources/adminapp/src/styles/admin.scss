@@ -24,3 +24,6 @@
 
 // 4. the panel chrome
 @import "custom";
+
+// 5. what stacks above the panel chrome, in terms of Bootstrap's own z-index properties
+@import "zindex";

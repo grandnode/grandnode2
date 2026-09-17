@@ -65,9 +65,9 @@ body.grand-modal-open {
 .grand-modal {
     position: fixed;
     inset: 0;
-    /* above the admin chrome: custom.css goes up to 12312 (the fixed top bar and the
-       sidebar sit at 9998-10003), and the Kendo Window this replaces was above them too */
-    z-index: 12400;
+    /* the same layer a Bootstrap modal is on; the scale is declared in styles/_zindex.scss,
+       and the fallback is what this file used before that scale existed */
+    z-index: var(--grand-zindex-modal, 10300);
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -137,6 +137,8 @@ input.grand-dateinput {
     height: auto;
 }
 
+/* the dropdown is rendered inside the wrapper, so in a modal it is already in the modal's
+   stacking context; on a plain page it only has to clear the panel chrome */
 .ts-dropdown {
-    z-index: 12500;
+    z-index: var(--grand-zindex-dropdown, 10100);
 }

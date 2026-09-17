@@ -1,0 +1,68 @@
+//The one place the panels decide what stacks above what.
+//
+//The panel chrome is older than Bootstrap's scale and sits far above it: the fixed top bar
+//(.nav_menu) is at 9999, the side column at 9998, the collapsed sidebar button at 10002 and
+//magnific-popup at 10001/10003. Bootstrap 5 puts a modal at 1055 and its backdrop at 1050,
+//so a modal opened from an admin screen slid *under* the top bar.
+//
+//Rather than scatter another set of numbers over the sheet, the scale is declared once here
+//and handed to Bootstrap through the custom properties its own components read
+//(--bs-modal-zindex, --bs-backdrop-zindex, --bs-dropdown-zindex, --bs-tooltip-zindex,
+//--bs-popover-zindex, --bs-offcanvas-zindex, --bs-toast-zindex). A component keeps using its
+//variable, so a view or a plugin can still raise one element without knowing these values.
+//
+//Everything the panels layer on top of the chrome starts at --grand-zindex-chrome, which is
+//the highest number the chrome itself uses. Raising a chrome rule means raising that one
+//value, not hunting for the components that must clear it.
+
+:root {
+    //the ceiling of the panel chrome: .nav_menu 9999, .left_col 9998, .sidebar_button 10002,
+    //.mfp-bg 10001, .mfp-wrap 10003
+    --grand-zindex-chrome: 10003;
+
+    --grand-zindex-dropdown: 10100;
+    --grand-zindex-offcanvas-backdrop: 10190;
+    --grand-zindex-offcanvas: 10200;
+    --grand-zindex-modal-backdrop: 10290;
+    --grand-zindex-modal: 10300;
+    --grand-zindex-popover: 10400;
+    --grand-zindex-tooltip: 10500;
+    --grand-zindex-toast: 10600;
+}
+
+.dropdown-menu {
+    --bs-dropdown-zindex: var(--grand-zindex-dropdown);
+}
+
+.modal {
+    --bs-modal-zindex: var(--grand-zindex-modal);
+}
+
+.modal-backdrop {
+    --bs-backdrop-zindex: var(--grand-zindex-modal-backdrop);
+}
+
+.offcanvas,
+.offcanvas-xxl,
+.offcanvas-xl,
+.offcanvas-lg,
+.offcanvas-md,
+.offcanvas-sm {
+    --bs-offcanvas-zindex: var(--grand-zindex-offcanvas);
+}
+
+.offcanvas-backdrop {
+    --bs-backdrop-zindex: var(--grand-zindex-offcanvas-backdrop);
+}
+
+.popover {
+    --bs-popover-zindex: var(--grand-zindex-popover);
+}
+
+.tooltip {
+    --bs-tooltip-zindex: var(--grand-zindex-tooltip);
+}
+
+.toast-container {
+    --bs-toast-zindex: var(--grand-zindex-toast);
+}
