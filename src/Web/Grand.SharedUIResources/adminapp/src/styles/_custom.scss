@@ -504,7 +504,7 @@ label.required::after {
     border-end-start-radius: 3px;
 }
 
-.active a span.bi {
+.side-menu .active a span.bi {
     margin-inline-end: 4px;
     text-align: end !important;
 }
@@ -518,11 +518,11 @@ label.required::after {
     margin: 0;
 }
 
-.nav-sm span.bi, .nav-sm .menu_section h3 {
+.nav-sm .side-menu span.bi, .nav-sm .menu_section h3 {
     display: none;
 }
 
-.nav-sm li li span.bi {
+.nav-sm .side-menu li li span.bi {
     display: inline-block;
 }
 
@@ -6989,6 +6989,18 @@ table.tableFixHead {
     .premium-list li {
         margin: 0 0 15px 0;
     }
+}
+
+/*
+ * jquery.tag-editor marks its hint row with .placeholder, which Bootstrap 5 took for its
+ * own skeleton-loading component - background-color: currentcolor over the hint text.
+ * The tag editor is the only .placeholder element in the panels.
+ */
+.tag-editor li.placeholder {
+    min-height: 0;
+    background-color: transparent;
+    opacity: 1;
+    cursor: text;
 }
 
 /* Dark Mode */

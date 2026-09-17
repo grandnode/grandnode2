@@ -1,4 +1,4 @@
-//Bootstrap 4 data attributes, renamed to data-bs-* in Bootstrap 5.
+//Bootstrap 4 data attributes, renamed to data-bs-* in Bootstrap 5, for third-party plugins.
 //
 //The views of this repository are rewritten by scripts/codemods/bootstrap4-to-bootstrap5.mjs,
 //but a third-party plugin view still ships the Bootstrap 4 spelling, and so does markup a

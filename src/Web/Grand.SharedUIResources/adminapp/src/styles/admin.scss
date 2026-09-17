@@ -22,9 +22,5 @@
 @import "bootstrap-icons/font/bootstrap-icons";
 @import "icons";
 
-// 4. the Bootstrap 4 class names the views still carry; deleted as the codemod
-//    works through them (see _bs4-compat.scss)
-@import "bs4-compat";
-
-// 5. the panel chrome
+// 4. the panel chrome
 @import "custom";

@@ -837,7 +837,7 @@ function init_wysiwyg() {
         } else {
             console.log("error uploading file", reason, detail);
         }
-        $('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        $('<div class="alert alert-dismissible"> <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
             '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
     }
 

@@ -291,4 +291,58 @@
 	<Resource Name="admin.common.grid.toggledetail" Area="Admin">
 		<Value>Show or hide details</Value>
 	</Resource>
+	<Resource Name="admin.catalog.brands.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.brands.fields.collectionlayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the brand. Product layouts may be defined in the &lt;a href="/Admin/Layout/CollectionLayouts" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Layouts section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.categories.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.categories.fields.categorylayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the category. Category layouts may be defined in the &lt;a href="/Admin/Layout/CategoryLayouts" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Layouts section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.collections.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.collections.fields.collectionlayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the collection. Product layouts may be defined in the &lt;a href="/Admin/Layout/CollectionLayouts" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Layouts section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.productlayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the product. Product layouts may be defined in the &lt;a href="/Admin/Layout/ProductLayouts" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Layouts section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.taxcategory.hint" Area="Admin">
+		<Value>Select the tax category for this product. Tax categories may be defined in &lt;a href="/Admin/Tax/Categories" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Tax section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.vendor.hint" Area="Admin">
+		<Value>Select a vendor that manages this product. You can manage them in the &lt;a href="/Admin/Vendor/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Vendors section.&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.specificationattributes.fields.specificationattribute.hint" Area="Admin">
+		<Value>Choose a product specification attribute. Specification attributes may be defined in the &lt;a href="/Admin/SpecificationAttribute/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt;Specification Attributes section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.customers.customergroups.products.info" Area="Admin">
+		<Value>To increase the general performance of the larger stores, recommended products are ignored by default. You can enable them in the Performance tab of &lt;a href="/Admin/Setting/Catalog" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Catalog settings - section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.seid.hint" Area="Admin">
+		<Value>Choose a sales employee associated to this customer account. You can manage them in the &lt;a href="/Admin/SalesEmployee" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Sales employees section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customertags.products.info" Area="Admin">
+		<Value>To increase the general performance of the larger stores, suggested products are ignored by default. You can enable them in the Performance tab of &lt;a href="/Admin/Setting/Catalog" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Catalog settings - section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.documents.document.fields.seid.hint" Area="Admin">
+		<Value>Choose a sales employee associated to this customer account. You can manage them in the &lt;a href="/Admin/SalesEmployee" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Sales employees section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.settings.catalog.savesearchautocomplete.hint" Area="Admin">
+		<Value>If checked, you will be able to see the most popular search keywords in the &lt;a href="/Admin/Home/Statistics" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Statistics section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.settings.generalcommon.displaycookieinformation.hint" Area="Admin">
+		<Value>Enable the cookie bar notification. You can customize it by editing the cookie.description2 resource string in &lt;a href="/Admin/Language/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Languages section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.vendors.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
 </Language>

@@ -45,6 +45,8 @@ export const FA_MAP = {
     'fa-database': 'bi-database',
     'fa-dot-circle-o': 'bi-record-circle',
     'fa-download': 'bi-download',
+    //the pencil-in-a-square of the admin hint resources
+    'fa-edit': 'bi-pencil-square',
     'fa-envelope': 'bi-envelope',
     'fa-envelope-o': 'bi-envelope',
     'fa-exclamation-triangle': 'bi-exclamation-triangle',

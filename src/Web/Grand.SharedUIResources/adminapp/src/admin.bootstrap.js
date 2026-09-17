@@ -10,7 +10,6 @@
 //variant from that file with rtlcss.
 
 import * as bootstrap from 'bootstrap'
-import { watchBootstrap4Attributes } from './compat/bs4-attributes.js'
 import './styles/admin.scss'
 
 //Views and third-party plugins reach the components through window.bootstrap.
@@ -35,11 +34,4 @@ if (jquery) {
             return component.jQueryInterface
         }
     }
-}
-
-//Bootstrap 4 spelled the data attributes without the bs- infix; see compat/bs4-attributes.js.
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', watchBootstrap4Attributes)
-} else {
-    watchBootstrap4Attributes()
 }
