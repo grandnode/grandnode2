@@ -195,9 +195,15 @@ body.grand-modal-open {
    not tab stops - the field answers ArrowUp and ArrowDown - so they are drawn as part of
    the control rather than as two more buttons beside it. */
 
+/* Inline, and no wider than it has to be. Several views write the unit as plain text after
+   the field - "<admin-input asp-for="Price"/> [USD]" - so a block-level, full-width control
+   drops that unit onto a line of its own and adds a row to every price on the screen. */
 .grand-numeric-group {
+    display: inline-flex;
     flex-wrap: nowrap;
+    width: 22rem;
     max-width: 100%;
+    vertical-align: middle;
 }
 
 input.grand-numeric {
@@ -287,12 +293,27 @@ input.grand-dateinput {
     flex: 0 0 auto;
 }
 
+/* Bootstrap rounds the outer ends of an input group with :first-child / :last-child, and
+   the last child here is the (absolutely positioned) panel, so neither end was rounded. */
+.grand-datepicker > input.grand-dateinput:first-child {
+    border-start-start-radius: var(--bs-border-radius, .25rem);
+    border-end-start-radius: var(--bs-border-radius, .25rem);
+}
+
+.grand-datepicker > .grand-datepicker-toggle {
+    border-start-end-radius: var(--bs-border-radius, .25rem);
+    border-end-end-radius: var(--bs-border-radius, .25rem);
+}
+
 .grand-datepicker-panel {
     position: absolute;
     top: 100%;
     inset-inline-start: 0;
     z-index: var(--grand-zindex-dropdown, 10100);
-    min-width: 17rem;
+    /* a calendar is its own size. Without this the panel is a shrink-to-fit box inside a
+       full-width field and stretches to it, which turned a month into a 850px banner. */
+    width: 19rem;
+    max-width: 100%;
     margin-top: .125rem;
     padding: .5rem;
     color: var(--bs-body-color, #212529);
