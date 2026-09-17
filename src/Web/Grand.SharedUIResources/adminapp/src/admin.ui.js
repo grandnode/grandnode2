@@ -1,9 +1,9 @@
 //Entry point of admin.ui.js: the admin widgets that used to be Kendo UI - the tab strip,
 //the window, the numeric text box, the date/time pickers and the drop-down and multiselect
 //lists. Loaded by HeadAdmin, HeadStore and HeadVendor next to admin.grid.js.
-import 'tom-select/dist/css/tom-select.bootstrap4.css'
+import 'tom-select/dist/css/tom-select.bootstrap5.css'
 import './ui/ui.css'
-import { pageCulture } from './ui/culture.js'
+import { pageCulture, pageTexts } from './ui/culture.js'
 import { modal } from './ui/modal.js'
 import { createTabs } from './ui/tabs.js'
 import { createNumeric, getNumeric, initNumeric } from './ui/numeric.js'
@@ -15,6 +15,7 @@ const GrandAdmin = (window.GrandAdmin = window.GrandAdmin || {})
 
 if (!GrandAdmin.ui) {
     const culture = () => pageCulture()
+    const texts = () => pageTexts()
 
     GrandAdmin.culture = culture
     //kendo.toString(value, format) - the culture is the page culture unless one is passed
@@ -31,17 +32,22 @@ if (!GrandAdmin.ui) {
 
     GrandAdmin.modal = modal
     GrandAdmin.tabs = createTabs({})
+    GrandAdmin.texts = texts
     GrandAdmin.numeric = { create: (el, o) => createNumeric(el, { culture: culture(), ...o }), get: getNumeric }
-    GrandAdmin.dateInput = { create: (el, o) => createDateInput(el, { culture: culture(), ...o }), get: getDateInput }
-    GrandAdmin.select = { create: createSelect, lookup: createLookup, get: getSelect }
+    GrandAdmin.dateInput = { create: (el, o) => createDateInput(el, { culture: culture(), texts: texts(), ...o }), get: getDateInput }
+    GrandAdmin.select = {
+        create: (el, o) => createSelect(el, { texts: texts(), ...o }),
+        lookup: (el, o) => createLookup(el, { texts: texts(), ...o }),
+        get: getSelect
+    }
 
     GrandAdmin.ui = {
         /** Upgrades the widgets of a freshly inserted fragment (popups, appended tabs). */
         init(root = document) {
             GrandAdmin.tabs.init(root)
             initNumeric(root, culture())
-            initDateInputs(root, culture())
-            initSelects(root)
+            initDateInputs(root, culture(), texts())
+            initSelects(root, texts())
         }
     }
 

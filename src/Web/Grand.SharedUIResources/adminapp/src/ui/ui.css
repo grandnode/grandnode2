@@ -22,8 +22,53 @@
     list-style: none;
 }
 
+/* A product screen has fourteen tabs and a narrow panel. Wrapping them onto three rows is
+   what made the strip look like a list of links; they scroll sideways instead, and the tab
+   that becomes active is scrolled into view (tabs.js). */
+.grand-tabstrip > ul.nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.grand-tabstrip > ul.nav-tabs > li {
+    flex: 0 0 auto;
+}
+
 .grand-tabstrip > ul.nav > li > .nav-link {
     cursor: pointer;
+    white-space: nowrap;
+    border-bottom-width: 2px;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.grand-tabstrip > ul.nav-tabs > li > .nav-link:hover {
+    color: var(--bs-body-color, #212529);
+    background-color: var(--bs-tertiary-bg, #f8f9fa);
+    border-color: transparent transparent var(--bs-border-color, #dee2e6);
+}
+
+.grand-tabstrip > ul.nav-tabs > li > .nav-link.active {
+    color: var(--bs-body-color, #212529);
+    font-weight: 600;
+    border-bottom-color: var(--bs-primary, #0d6efd);
+}
+
+.grand-tabstrip > ul.nav > li > .nav-link:focus-visible {
+    outline: 2px solid var(--bs-primary, #0d6efd);
+    outline-offset: -2px;
+}
+
+/* the flag of a language tab (LocalizedEditorTagHelper) */
+.grand-tabstrip .nav-link .k-image {
+    vertical-align: -.125em;
+}
+
+/* the strip sits inside x_panel, which has no border of its own; the rule under the tabs is
+   what separates them from the pane */
+.grand-tabstrip > .tab-content {
+    padding-top: 1rem;
 }
 
 /* tab-position="left": the list beside the panes, as the Kendo tabPosition: 'left' was */
@@ -37,6 +82,28 @@
     flex: 0 0 auto;
     flex-direction: column;
     max-width: 16rem;
+    overflow-x: visible;
+}
+
+.grand-tabstrip-left > ul.nav-tabs {
+    border-bottom: 0;
+    border-inline-end: var(--bs-border-width, 1px) solid var(--bs-border-color, #dee2e6);
+}
+
+.grand-tabstrip-left > ul.nav-tabs > li > .nav-link {
+    border-bottom-width: var(--bs-border-width, 1px);
+    border-inline-end-width: 2px;
+    border-radius: 0;
+    text-align: start;
+}
+
+.grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active {
+    border-inline-end-color: var(--bs-primary, #0d6efd);
+    border-bottom-color: transparent;
+}
+
+.grand-tabstrip-left > .tab-content {
+    padding-top: 0;
 }
 
 .grand-tabstrip-left > .tab-content {
@@ -122,19 +189,343 @@ body.grand-modal-open {
     padding: 1rem;
 }
 
-/* ------------------------------------------------------- numeric and dates */
+/* ----------------------------------------------------------- numeric field */
 
-input.grand-numeric,
+/* The spinner the Kendo NumericTextBox drew, in Bootstrap's input group. The buttons are
+   not tab stops - the field answers ArrowUp and ArrowDown - so they are drawn as part of
+   the control rather than as two more buttons beside it. */
+
+.grand-numeric-group {
+    flex-wrap: nowrap;
+    max-width: 100%;
+}
+
+input.grand-numeric {
+    max-width: 100%;
+    /* the group draws the whole control's outline, so the field inside it has none */
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
+    border-inline-end: 0;
+}
+
+.grand-numeric-spin {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    width: 1.6rem;
+    overflow: hidden;
+    background-color: var(--bs-tertiary-bg, #f8f9fa);
+    border: var(--bs-border-width, 1px) solid var(--bs-border-color, #ced4da);
+    border-end-end-radius: var(--bs-border-radius, .25rem);
+    border-start-end-radius: var(--bs-border-radius, .25rem);
+}
+
+.grand-numeric-spin > button {
+    display: flex;
+    flex: 1 1 50%;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: .625rem;
+    line-height: 1;
+    color: var(--bs-secondary-color, #6c757d);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.grand-numeric-spin > button:hover {
+    color: var(--bs-body-color, #212529);
+    background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.grand-numeric-up {
+    border-bottom: var(--bs-border-width, 1px) solid var(--bs-border-color, #ced4da);
+}
+
+/* the focus ring belongs to the control, not to the field inside it */
+.grand-numeric-group:focus-within input.grand-numeric {
+    box-shadow: none;
+}
+
+.grand-numeric-group:focus-within {
+    border-radius: var(--bs-border-radius, .25rem);
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb, 13, 110, 253), .25);
+}
+
+.grand-numeric-group:focus-within input.grand-numeric,
+.grand-numeric-group:focus-within .grand-numeric-spin {
+    border-color: var(--bs-primary-border-subtle, #86b7fe);
+}
+
+.grand-numeric-group:has(input.grand-numeric.is-invalid) .grand-numeric-spin {
+    border-color: var(--bs-form-invalid-border-color, #dc3545);
+}
+
+.grand-numeric-disabled .grand-numeric-spin,
+.grand-numeric-readonly .grand-numeric-spin {
+    pointer-events: none;
+    opacity: .65;
+}
+
+/* -------------------------------------------------------------- date picker */
+
+/* The calendar is this file's own: a native date input renders and parses in the browser's
+   locale, and what the panel posts has to be the store culture's short date. */
+
+.grand-datepicker {
+    position: relative;
+    flex-wrap: nowrap;
+    max-width: 100%;
+}
+
 input.grand-dateinput {
     max-width: 100%;
 }
 
+.grand-datepicker-toggle {
+    flex: 0 0 auto;
+}
+
+.grand-datepicker-panel {
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    z-index: var(--grand-zindex-dropdown, 10100);
+    min-width: 17rem;
+    margin-top: .125rem;
+    padding: .5rem;
+    color: var(--bs-body-color, #212529);
+    background-color: var(--bs-body-bg, #fff);
+    border: var(--bs-border-width, 1px) solid var(--bs-border-color-translucent, rgba(0, 0, 0, .175));
+    border-radius: var(--bs-border-radius, .25rem);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+}
+
+.grand-cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .25rem;
+}
+
+.grand-cal-label {
+    flex: 1 1 auto;
+    font-weight: 600;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.grand-cal-nav {
+    padding: .125rem .375rem;
+    color: var(--bs-secondary-color, #6c757d);
+    text-decoration: none;
+}
+
+/* the chevrons are drawn towards the earlier and the later month, which swap in right to
+   left; rtlcss cannot see this because the glyph is in a class name, not in a property */
+[dir="rtl"] .grand-cal-nav .bi-chevron-left::before {
+    content: "\f285";
+}
+
+[dir="rtl"] .grand-cal-nav .bi-chevron-right::before {
+    content: "\f284";
+}
+
+.grand-cal-grid {
+    width: 100%;
+    margin-top: .25rem;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.grand-cal-grid th {
+    padding: .25rem 0;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--bs-secondary-color, #6c757d);
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.grand-cal-grid td {
+    padding: 0;
+    text-align: center;
+}
+
+.grand-cal-day {
+    width: 100%;
+    padding: .3rem 0;
+    line-height: 1.2;
+    color: inherit;
+    background: none;
+    border: 0;
+    border-radius: var(--bs-border-radius-sm, .2rem);
+    cursor: pointer;
+}
+
+.grand-cal-day:hover {
+    background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.grand-cal-day:focus-visible {
+    outline: 2px solid var(--bs-primary, #0d6efd);
+    outline-offset: -2px;
+}
+
+.grand-cal-other {
+    color: var(--bs-secondary-color, #6c757d);
+    opacity: .55;
+}
+
+.grand-cal-today {
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--bs-primary, #0d6efd);
+}
+
+.grand-cal-selected,
+.grand-cal-selected:hover {
+    color: #fff;
+    background-color: var(--bs-primary, #0d6efd);
+}
+
+.grand-cal-time {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .5rem;
+    padding-top: .5rem;
+    border-top: var(--bs-border-width, 1px) solid var(--bs-border-color, #dee2e6);
+}
+
+.grand-cal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: .25rem;
+}
+
+.grand-cal-actions .btn {
+    text-decoration: none;
+}
+
+/* a time-only field gets the half-hour list the Kendo TimePicker showed */
+.grand-time-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 15rem;
+    overflow-y: auto;
+}
+
+.grand-time-option {
+    padding: .25rem .5rem;
+    color: inherit;
+    text-align: start;
+    background: none;
+    border: 0;
+    border-radius: var(--bs-border-radius-sm, .2rem);
+    cursor: pointer;
+}
+
+.grand-time-option:hover {
+    background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.grand-time-option:focus-visible {
+    outline: 2px solid var(--bs-primary, #0d6efd);
+    outline-offset: -2px;
+}
+
+.grand-time-selected,
+.grand-time-selected:hover {
+    color: #fff;
+    background-color: var(--bs-primary, #0d6efd);
+}
+
+/* the same control inside a grid row, one size down */
+.grand-grid-date .grand-datepicker-toggle,
+.grand-grid-date input.grand-dateinput {
+    padding: .25rem .5rem;
+    font-size: .875em;
+}
+
 /* ------------------------------------------------------------- Tom Select */
+
+/* tom-select.bootstrap5.css draws the wrapper as a form control; these are the parts it
+   leaves to the host - the height of a single line, the tags of a multiselect, the empty
+   and the loading states. */
 
 .ts-wrapper.form-control,
 .ts-wrapper.form-select {
     padding: 0;
     height: auto;
+    min-height: calc(1.5em + .75rem + calc(var(--bs-border-width, 1px) * 2));
+}
+
+.ts-wrapper.form-select .ts-control,
+.ts-wrapper.form-control .ts-control {
+    min-height: calc(1.5em + .75rem + calc(var(--bs-border-width, 1px) * 2));
+    border-radius: inherit;
+}
+
+.ts-wrapper.focus .ts-control {
+    border-color: var(--bs-primary-border-subtle, #86b7fe);
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb, 13, 110, 253), .25);
+}
+
+.ts-wrapper.is-invalid .ts-control {
+    border-color: var(--bs-form-invalid-border-color, #dc3545);
+}
+
+/* the chips of a multiselect, as Bootstrap would draw a subtle badge */
+.ts-wrapper.multi .ts-control > .item {
+    margin: .125rem;
+    padding: .0625rem .375rem;
+    color: var(--bs-primary-text-emphasis, #052c65);
+    background-color: var(--bs-primary-bg-subtle, #cfe2ff);
+    border: var(--bs-border-width, 1px) solid var(--bs-primary-border-subtle, #9ec5fe);
+    border-radius: var(--bs-border-radius-sm, .2rem);
+}
+
+.ts-wrapper.multi .ts-control > .item.active {
+    color: #fff;
+    background-color: var(--bs-primary, #0d6efd);
+}
+
+.ts-dropdown .option.active {
+    color: var(--bs-primary-text-emphasis, #052c65);
+    background-color: var(--bs-primary-bg-subtle, #cfe2ff);
+}
+
+.ts-dropdown .no-results {
+    padding: .5rem .75rem;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+/* the list is read from the server, so there is a moment with nothing in it */
+.ts-wrapper.loading .ts-control::after {
+    content: "";
+    display: inline-block;
+    width: .875rem;
+    height: .875rem;
+    margin-inline-start: .375rem;
+    vertical-align: -.125rem;
+    border: .125rem solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    opacity: .5;
+    animation: grand-spin .75s linear infinite;
+}
+
+@keyframes grand-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ts-wrapper.loading .ts-control::after {
+        animation: none;
+    }
 }
 
 /* the dropdown is rendered inside the wrapper, so in a modal it is already in the modal's
