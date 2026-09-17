@@ -54,7 +54,7 @@ label.required::after {
 }
 
 .daterangepicker select.monthselect {
-    margin-right: 2%;
+    margin-inline-end: 2%;
 }
 
 .daterangepicker td.in-range {
@@ -198,14 +198,14 @@ label.required::after {
 
 .nav-sm .container.body .right_col {
     padding: 15px 15px 0px 15px;
-    margin-left: 90px;
+    margin-inline-start: 90px;
     z-index: 2;
 }
 .nav-sm.no-sidebar .container.body .right_col {
-    margin-left: 0;
+    margin-inline-start: 0;
 }
 .row.top_tiles {
-    padding-left: 10px;
+    padding-inline-start: 10px;
 }
 .nav-sm .navbar.nav_title {
     width: 90px;
@@ -234,7 +234,7 @@ label.required::after {
 
 .nav-sm .main_container .top_nav {
     display: block;
-    margin-left: 90px;
+    margin-inline-start: 90px;
     z-index: 2;
 }
 
@@ -247,11 +247,11 @@ label.required::after {
 
 .nav-sm .nav.side-menu li ul li a {
     font-size: 15px;
-    text-align: left;
+    text-align: start;
 }
 
 .nav-sm .nav.side-menu li.active-sm {
-/*    border-right: 5px solid #1ABB9C;*/
+/*    border-inline-end: 5px solid #1ABB9C;*/
     background: #416B8E;
 }
 
@@ -278,7 +278,7 @@ label.required::after {
     position: absolute;
     top: 0;
     bottom: 5%;
-    left: 0;
+    inset-inline-start: 0;
     padding: 0;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -294,7 +294,7 @@ label.required::after {
 .nav-sm .side-menu > li > ul.nav.child_menu {
     margin: 0;
     padding: 30px;
-    left: 89px;
+    inset-inline-start: 89px;
     overflow: auto;
 }
 .nav-sm .side-menu .menu-header {
@@ -303,8 +303,8 @@ label.required::after {
 .nav-sm .side-menu > li > ul.nav.child_menu > .menu-header {
     position: absolute;
     top: 30px;
-    left: 30px;
-    right: 30px;
+    inset-inline-start: 30px;
+    inset-inline-end: 30px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -317,7 +317,7 @@ label.required::after {
 .nav-sm .side-menu > li > ul.nav.child_menu {
     min-width: 345px;
     padding: 75px 30px 30px 30px;
-    border-right: 1px solid #3d4957;
+    border-inline-end: 1px solid #3d4957;
     border-bottom: 1px solid #3d4957;
 }
 .nav-sm .side-menu > li > ul.nav.child_menu > li:not(.has-submenu) + li.has-submenu {
@@ -341,7 +341,7 @@ label.required::after {
     content: "";
     position: absolute;
     top: 9px;
-    right: 0;
+    inset-inline-end: 0;
     width: 20px;
     height: 3px;
     background: #aaa;
@@ -391,7 +391,7 @@ label.required::after {
 }
 
 .menu_section h3 {
-    padding-left: 15px;
+    padding-inline-start: 15px;
     color: #fff;
     text-transform: uppercase;
     letter-spacing: .5px;
@@ -414,7 +414,7 @@ label.required::after {
 .img-circle.profile_img {
     width: 70%;
     background: #fff;
-    margin-left: 15%;
+    margin-inline-start: 15%;
     z-index: 1000;
     position: inherit;
     margin-top: 10px;
@@ -484,8 +484,8 @@ label.required::after {
 .panel-heading {
     padding: 10px 15px;
     border-bottom: 1px solid transparent;
-    border-top-right-radius: 3px;
-    border-top-left-radius: 3px;
+    border-start-end-radius: 3px;
+    border-start-start-radius: 3px;
 }
 .panel-default > .panel-heading {
     color: #333;
@@ -500,13 +500,13 @@ label.required::after {
     padding: 10px 15px;
     background-color: #f5f5f5;
     border-top: 1px solid #ddd;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
+    border-end-end-radius: 3px;
+    border-end-start-radius: 3px;
 }
 
 .active a span.bi {
-    margin-right: 4px;
-    text-align: right !important;
+    margin-inline-end: 4px;
+    text-align: end !important;
 }
 
 .main_menu li.active > a > span.bi {
@@ -556,7 +556,7 @@ body .container.body .right_col {
 
 .nav-md .container.body .right_col {
     padding: 15px 15px 0px 15px;
-    margin-left: 230px;
+    margin-inline-start: 230px;
 }
 
 .nav_title {
@@ -588,7 +588,7 @@ body .container.body .right_col {
     }
     .nav-md .container.body .right_col {
         width: 100%;
-        padding-right: 0;
+        padding-inline-end: 0;
     }
     .right_col {
         padding: 10px !important;
@@ -601,8 +601,8 @@ body .container.body .right_col {
     }
     .nav-sm .side-menu > li > ul.nav.child_menu > .menu-header {
         top: 10px;
-        left: 10px;
-        right: 10px;
+        inset-inline-start: 10px;
+        inset-inline-end: 10px;
     }
     .nav-sm .side-menu .menu-header .title {
         padding: 0;
@@ -786,7 +786,7 @@ body {
 }
 .main_container .top_nav {
     display: block;
-    margin-left: 230px;
+    margin-inline-start: 230px;
 }
 
 .no-padding {
@@ -883,7 +883,7 @@ table.no-margin .progress {
 
 @media (min-width: 192px) and (max-width: 1270px) {
     table.tile_info span.right {
-        margin-right: 7px;
+        margin-inline-end: 7px;
         float: left;
     }
 }
@@ -894,7 +894,7 @@ table.no-margin .progress {
 .order-status-block::before {
     position: absolute;
     top: 0;
-    right: 23px;
+    inset-inline-end: 23px;
     display: flex;
     justify-content: center;
     font-size: 165px;
@@ -922,9 +922,9 @@ table.no-margin .progress {
     content: "";
     position: absolute;
     top: 2px;
-    right: 2px;
+    inset-inline-end: 2px;
     bottom: 2px;
-    left: 2px;
+    inset-inline-start: 2px;
     border: 1px solid#fff;
 }
 .order-status-block.Cancelled .alert {
@@ -974,13 +974,13 @@ table.no-margin .progress {
     position: relative;
     float: left;
     min-height: 1px;
-    padding-right: 10px;
-    padding-left: 10px;
+    padding-inline-end: 10px;
+    padding-inline-start: 10px;
 }
 
 .row {
-    margin-right: -10px;
-    margin-left: -10px;
+    margin-inline-end: -10px;
+    margin-inline-start: -10px;
 }
 
 .grid_slider .col-md-6 {
@@ -1014,7 +1014,7 @@ a:hover, a:focus {
 }
 
 .navbar-right {
-    margin-right: 20px
+    margin-inline-end: 20px
 }
 
 .top_nav .navbar-right {
@@ -1036,7 +1036,7 @@ a:hover, a:focus {
 .note {
     margin: 0 0 20px 0;
     padding: 15px 30px 15px 15px;
-    border-left: 5px solid #eee;
+    border-inline-start: 5px solid #eee;
     -webkit-border-radius: 0 4px 4px 0;
     -moz-border-radius: 0 4px 4px 0;
     -ms-border-radius: 0 4px 4px 0;
@@ -1049,7 +1049,7 @@ a:hover, a:focus {
 }
 
 .note h1 .close, .note h2 .close, .note h3 .close, .note h4 .close, .note h5 .close, .note h6 .close {
-    margin-right: -10px;
+    margin-inline-end: -10px;
 }
 
 .note p {
@@ -1229,7 +1229,7 @@ a:hover, a:focus {
 }
 
 .nav.child_menu li {
-    padding-left: 36px
+    padding-inline-start: 36px
 }
 
 .nav-md ul.nav.child_menu li:before {
@@ -1237,10 +1237,10 @@ a:hover, a:focus {
     bottom: auto;
     content: "";
     height: 8px;
-    left: 23px;
+    inset-inline-start: 23px;
     margin-top: 13px;
     position: absolute;
-    right: auto;
+    inset-inline-end: auto;
     width: 8px;
     z-index: 1;
     border-radius: 50%
@@ -1250,10 +1250,10 @@ a:hover, a:focus {
 }
 
 .nav-md ul.nav.child_menu li:after {
-    border-left: 1px solid #425668;
+    border-inline-start: 1px solid #425668;
     bottom: 0;
     content: "";
-    left: 27px;
+    inset-inline-start: 27px;
     position: absolute;
     top: 0
 }
@@ -1281,7 +1281,7 @@ a:hover, a:focus {
 }
 
 /*.nav.side-menu>li.current-page, .nav.side-menu>li.active {
-    border-right: 5px solid #1ABB9C;
+    border-inline-end: 5px solid #1ABB9C;
 }*/
 .nav.side-menu > li.current-page, .nav.side-menu > li.active > ul {
     display: flex;
@@ -1292,15 +1292,15 @@ body.nav-md .nav.side-menu > li.current-page, body.nav-md .nav.side-menu > li.ac
 }
 
 .k-tabstrip-left > .k-tabstrip-items > .k-item, .k-tabstrip-left > .k-tabstrip-items-wrapper > .k-tabstrip-items > .k-item {
-    border-right-width: 5px;
+    border-inline-end-width: 5px;
     border-bottom: 0;
 }
 .k-tabstrip-left > .k-tabstrip-items-wrapper > .k-tabstrip-items > .k-item  {
     white-space: nowrap;
 }
 .k-tabstrip-left > .k-tabstrip-items .k-state-active, .k-tabstrip-left > .k-tabstrip-items .k-tab-on-top, .k-tabstrip-left > .k-tabstrip-items-wrapper > .k-tabstrip-items > .k-state-active.k-item {
-    margin-right: -5px;
-    border-right-color: #1ABB9C;
+    margin-inline-end: -5px;
+    border-inline-end-color: #1ABB9C;
 }
 .k-link .k-image {
     margin: 0 3px 0 0;
@@ -1336,7 +1336,7 @@ body.nav-md .nav.side-menu > li.current-page, body.nav-md .nav.side-menu > li.ac
 .navbar-brand, .navbar-nav>li>a {
     font-weight: 500;
     color: #ECF0F1 !important;
-    margin-left: 0 !important;
+    margin-inline-start: 0 !important;
     line-height: 32px
 }
 
@@ -1348,7 +1348,7 @@ body.nav-md .nav.side-menu > li.current-page, body.nav-md .nav.side-menu > li.ac
     line-height: 1;
     width: 100%;
     color: #ECF0F1 !important;
-    margin-left: 0 !important;
+    margin-inline-start: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1382,22 +1382,22 @@ body.nav-md .nav.side-menu > li.current-page, body.nav-md .nav.side-menu > li.ac
 }
 
 .top_search .form-control {
-    border-right: 0;
+    border-inline-end: 0;
     box-shadow: inset 0 1px 0px rgba(0, 0, 0, 0.075);
     border-radius: 25px 0px 0px 25px;
-    padding-left: 20px;
+    padding-inline-start: 20px;
     border: 1px solid rgba(221, 226, 232, 0.49)
 }
 
 .top_search .form-control:focus {
     border: 1px solid rgba(221, 226, 232, 0.49);
-    border-right: 0
+    border-inline-end: 0
 }
 
 .top_search .input-group > button {
     border-radius: 0px 25px 25px 0px;
     border: 1px solid rgba(221, 226, 232, 0.49);
-    border-left: 0;
+    border-inline-start: 0;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     color: #93A2B2;
     margin-bottom: 0 !important
@@ -1499,30 +1499,30 @@ footer {
 }
 
 .nav-sm footer {
-    margin-left: 70px
+    margin-inline-start: 70px
 }
 
 .footer_fixed footer {
     position: fixed;
-    left: 0px;
+    inset-inline-start: 0px;
     bottom: 0px;
     width: 100%
 }
 
 @media (min-width: 768px) {
     .footer_fixed footer {
-        margin-left: 0
+        margin-inline-start: 0
     }
     .form-horizontal .control-label {
         display: inline;
-        text-align: right;
+        text-align: end;
         margin-bottom: 0;
     }
 }
 
 @media (min-width: 768px) {
     .footer_fixed .nav-sm footer {
-        margin-left: 0;
+        margin-inline-start: 0;
     }
 }
 
@@ -1634,7 +1634,7 @@ h2 {
     border: 1px solid #C0392B;
     padding: 6px 10px 5px;
     font-size: 13px;
-    margin-right: 7px
+    margin-inline-end: 7px
 }
 
 .detail {
@@ -1677,15 +1677,33 @@ h2 {
     margin-bottom: 10px;
 }
 
+/*
+ * x_panel / x_title / x_content are the three names every admin screen is built from -
+ * 1 245 elements carry one of them - and the markup is not changing, so they are defined
+ * here in terms of Bootstrap's card instead of the gentelella values they used to hold.
+ * Everything comes from the card's own custom properties: change --bs-card-* and the
+ * panels follow, and a panel can be turned into a bordered card by setting
+ * --bs-card-border-width on it, without touching a view.
+ *
+ * The border and the shadow are off, which is what keeps the look where it was; that is
+ * the one card property deliberately not taken.
+ */
 .x_panel {
+    --#{$prefix}card-spacer-y: 10px;
+    --#{$prefix}card-spacer-x: 0;
+    --#{$prefix}card-border-width: 0;
+    --#{$prefix}card-border-radius: 0;
+    --#{$prefix}card-bg: #fff;
+
     position: relative;
     width: 100%;
-    padding: 10px 0;
+    padding-block: var(--#{$prefix}card-spacer-y);
+    padding-inline: var(--#{$prefix}card-spacer-x);
     display: inline-block;
-    background: #fff;
-    -webkit-column-break-inside: avoid;
-    -moz-column-break-inside: avoid;
-    column-break-inside: avoid;
+    background-color: var(--#{$prefix}card-bg);
+    border: var(--#{$prefix}card-border-width) solid var(--#{$prefix}card-border-color);
+    border-radius: var(--#{$prefix}card-border-radius);
+    break-inside: avoid;
     opacity: 1;
 }
 
@@ -1699,10 +1717,11 @@ h2 {
     margin: 0;
 }
 
+/* the card header of a panel: the row with the caption, the filter and the actions */
 .x_title {
     padding: 0;
     margin-bottom: 10px;
-    /*background-color: #f7f7f7;*/
+    background-color: var(--#{$prefix}card-cap-bg, transparent);
     align-items: center;
     justify-content: center;
 }
@@ -1718,7 +1737,7 @@ h2 {
 }
 .x_title .filter {
     width: 40%;
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 .x_title h2 {
@@ -1728,15 +1747,17 @@ h2 {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-right: auto;
+    margin-inline-end: auto;
 }
 
 .x_title h2 small {
-    margin-left: 10px
+    margin-inline-start: 10px
 }
 
+/* the card body of a panel */
 .x_content {
-    padding: 0 0px 6px;
+    padding-block: 0 6px;
+    padding-inline: var(--#{$prefix}card-spacer-x, 0);
     position: relative;
     width: 100%;
     float: left;
@@ -1810,7 +1831,7 @@ legend {
 }
 
 .profile_details .profile_view .ratings {
-    text-align: left;
+    text-align: start;
     font-size: 16px
 }
 
@@ -1825,7 +1846,7 @@ legend {
 
 .pagination.pagination-split li {
     display: inline-block;
-    margin-right: 3px
+    margin-inline-end: 3px
 }
 
 .pagination.pagination-split li a {
@@ -1841,9 +1862,9 @@ legend {
     content: "";
     position: fixed;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     display: flex;
     background-color: rgba(0,0,0,.5);
     z-index: -1;
@@ -1869,8 +1890,8 @@ table.tile td {
 }
 
 table.tile td ul {
-    text-align: left;
-    padding-left: 0
+    text-align: start;
+    padding-inline-start: 0
 }
 
 table.tile td ul li {
@@ -1883,9 +1904,9 @@ table.tile td ul li a {
 }
 
 table.tile td ul li a big {
-    right: 0;
+    inset-inline-end: 0;
     float: right;
-    margin-right: 13px
+    margin-inline-end: 13px
 }
 
 table.tile_info {
@@ -1893,7 +1914,7 @@ table.tile_info {
 }
 
 table.tile_info td {
-    text-align: left;
+    text-align: start;
     padding: 1px;
     font-size: 15px
 }
@@ -1907,7 +1928,7 @@ table.tile_info td p {
 }
 
 table.tile_info td i {
-    margin-right: 8px;
+    margin-inline-end: 8px;
     font-size: 17px;
     float: left;
     width: 18px;
@@ -2042,10 +2063,10 @@ table.jambo_table tbody tr.selected td {
 .dataTables_processing {
     position: absolute;
     top: 50%;
-    left: 50%;
+    inset-inline-start: 50%;
     width: 250px;
     height: 30px;
-    margin-left: -125px;
+    margin-inline-start: -125px;
     margin-top: -15px;
     padding: 14px 0 2px 0;
     border: 1px solid #ddd;
@@ -2063,7 +2084,7 @@ table.jambo_table tbody tr.selected td {
 .dataTables_filter {
     width: 50%;
     float: right;
-    text-align: right
+    text-align: end
 }
 
 .dataTables_info {
@@ -2073,7 +2094,7 @@ table.jambo_table tbody tr.selected td {
 
 .dataTables_paginate {
     float: right;
-    text-align: right
+    text-align: end
 }
 
 table.dataTable th.focus, table.dataTable td.focus {
@@ -2226,7 +2247,7 @@ ul.msg_list li a .image img {
     border-radius: 2px 2px 2px 2px;
     -webkit-border-radius: 2px 2px 2px 2px;
     float: left;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     width: 11%
 }
 
@@ -2235,7 +2256,7 @@ ul.msg_list li a .time {
     font-style: italic;
     font-weight: bold;
     position: absolute;
-    right: 35px
+    inset-inline-end: 35px
 }
 
 ul.msg_list li a .message {
@@ -2253,7 +2274,7 @@ ul.msg_list li a .message {
     display: none;
     float: left;
     font-size: 12px;
-    left: 0;
+    inset-inline-start: 0;
     list-style: none outside none;
     padding: 0;
     position: absolute;
@@ -2261,8 +2282,8 @@ ul.msg_list li a .message {
     top: 100%;
     z-index: 9998;
     border: 1px solid #D9DEE4;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0
+    border-start-start-radius: 0;
+    border-start-end-radius: 0
 }
 
 .dropdown-menu>li>a {
@@ -2275,8 +2296,8 @@ ul.msg_list li a .message {
     margin-top: 0;
     border: 1px solid #D9DEE4;
     -webkit-box-shadow: none;
-    right: 0;
-    left: auto;
+    inset-inline-end: 0;
+    inset-inline-start: auto;
     width: 220px
 }
 
@@ -2286,7 +2307,7 @@ ul.msg_list li a .message {
     line-height: 13px;
     padding: 2px 6px;
     position: absolute;
-    right: 2px;
+    inset-inline-end: 2px;
     top: 8px
 }
 
@@ -2328,14 +2349,14 @@ ul.to_do p {
     border-bottom: 1px solid #c1cdcd;
     margin: 0 0 10px 0;
     padding-bottom: 5px;
-    padding-left: 40px;
+    padding-inline-start: 40px;
     line-height: 30px
 }
 
 .dashboard-widget .dashboard-widget-title i {
     font-size: 100%;
-    margin-left: -35px;
-    margin-right: 10px;
+    margin-inline-start: -35px;
+    margin-inline-end: 10px;
     color: #33a1c9;
     padding: 3px 6px;
     border: 1px solid #abd9ea;
@@ -2345,12 +2366,12 @@ ul.to_do p {
 
 ul.quick-list {
     width: 45%;
-    padding-left: 0;
+    padding-inline-start: 0;
     display: inline-block
 }
 
 ul.quick-list li {
-    padding-left: 10px;
+    padding-inline-start: 10px;
     list-style: none;
     margin: 0;
     padding-bottom: 6px;
@@ -2361,7 +2382,7 @@ ul.quick-list li {
 }
 
 ul.quick-list li i {
-    padding-right: 10px;
+    padding-inline-end: 10px;
     color: #757679
 }
 
@@ -2390,7 +2411,7 @@ ul.quick-list li i {
 
 .widget_summary .w_left {
     float: left;
-    text-align: left
+    text-align: start
 }
 
 .widget_summary .w_center {
@@ -2399,7 +2420,7 @@ ul.quick-list li i {
 
 .widget_summary .w_right {
     float: left;
-    text-align: right
+    text-align: end
 }
 
 .widget_summary .w_right span {
@@ -2419,12 +2440,12 @@ ul.quick-list li i {
 }
 
 h5.graph_title {
-    text-align: left;
-    margin-left: 10px
+    text-align: start;
+    margin-inline-start: 10px
 }
 
 h5.graph_title i {
-    margin-right: 10px;
+    margin-inline-end: 10px;
     font-size: 17px
 }
 
@@ -2479,7 +2500,7 @@ span.right {
 
 @media (min-width: 992px) {
     footer {
-        margin-left: 230px
+        margin-inline-start: 230px
     }
 }
 
@@ -2503,15 +2524,15 @@ span.right {
 .tile_count .tile_stats_count:before {
     content: "";
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
     height: 65px;
-    border-left: 2px solid #ADB2B5;
+    border-inline-start: 2px solid #ADB2B5;
     margin-top: 10px
 }
 
 @media (min-width: 992px) {
     .tile_count .tile_stats_count:first-child:before {
-        border-left: 0
+        border-inline-start: 0
     }
 }
 
@@ -2564,7 +2585,7 @@ a.user-profile {
     width: 29px;
     height: 29px;
     border-radius: 50%;
-    margin-right: 10px
+    margin-inline-end: 10px
 }
 
 ul.top_profiles {
@@ -2597,7 +2618,7 @@ ul.top_profiles li:nth-child(odd) {
 .media .date {
     background: #ccc;
     width: 52px;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     border-radius: 10px;
     padding: 5px
 }
@@ -2686,7 +2707,7 @@ h4.graph_title {
     border-radius: 5px !important;
     border: 1px solid #ddd;
     position: absolute;
-    right: 10px;
+    inset-inline-end: 10px;
     top: 9px;
     z-index: 1;
 }
@@ -2708,7 +2729,7 @@ h4.graph_title {
 .tile-stats .count, .tile-stats h3, .tile-stats p {
     position: relative;
     margin: 0;
-    margin-left: 10px;
+    margin-inline-start: 10px;
     z-index: 5;
     padding: 0
 }
@@ -2751,10 +2772,10 @@ table.tile_info {
 }
 
 table.tile_info span.right {
-    margin-right: 0;
+    margin-inline-end: 0;
     float: right;
     position: absolute;
-    right: 4%
+    inset-inline-end: 4%
 }
 
 .tile:hover {
@@ -2777,7 +2798,7 @@ table.tile_info span.right {
     padding: 5px 10px;
     margin-top: 10px;
     background: rgba(194, 194, 194, 0.3);
-    text-align: left
+    text-align: start
 }
 
 #dashboard-report-range {
@@ -2824,26 +2845,26 @@ a.star {
 
 .button-mail {
     margin: 0 0 15px !important;
-    text-align: left;
+    text-align: start;
     width: 100%
 }
 
 button, .buttons, .btn, .modal-footer .btn+.btn {
     margin-bottom: 0px;
-    margin-right: 5px
+    margin-inline-end: 5px
 }
 
 .btn-group-vertical .btn, .btn-group .btn {
     margin-bottom: 0;
-    margin-right: 0
+    margin-inline-end: 0
 }
 
 .mail_list_column {
-    border-left: 1px solid #DBDBDB
+    border-inline-start: 1px solid #DBDBDB
 }
 
 .mail_view {
-    border-left: 1px solid #DBDBDB
+    border-inline-start: 1px solid #DBDBDB
 }
 
 .mail_list {
@@ -2856,7 +2877,7 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 .mail_list .left {
     width: 5%;
     float: left;
-    margin-right: 3%
+    margin-inline-end: 3%
 }
 
 .mail_list .right {
@@ -2904,7 +2925,7 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 .attachment ul {
     width: 100%;
     list-style: none;
-    padding-left: 0;
+    padding-inline-start: 0;
     display: inline-block;
     margin-bottom: 30px
 }
@@ -2912,7 +2933,7 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 .attachment ul li {
     float: left;
     width: 150px;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     margin-bottom: 10px
 }
 
@@ -2940,12 +2961,12 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
     padding: 0;
     position: fixed;
     bottom: 0;
-    right: 0;
+    inset-inline-end: 0;
     background: #fff;
     border: 1px solid #D9DEE4;
-    border-right: 0;
+    border-inline-end: 0;
     border-bottom: 0;
-    border-top-left-radius: 5px;
+    border-start-start-radius: 5px;
     z-index: 9999;
     display: none
 }
@@ -2954,7 +2975,7 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
     padding: 5px;
     background: #169F85;
     color: #fff;
-    border-top-left-radius: 5px
+    border-start-start-radius: 5px
 }
 
 .compose .compose-header .close {
@@ -2971,8 +2992,8 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
     min-height: 50px;
     max-height: 180px;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
+    border-inline-start: none;
+    border-inline-end: none;
     overflow: auto
 }
 
@@ -2994,11 +3015,11 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 
 .custom-input-group.input-group {
     display: inline-flex;
-    padding-right: 10px;
-    padding-left: 10px;
+    padding-inline-end: 10px;
+    padding-inline-start: 10px;
 }
 .custom-input-group.input-group .form-control {
-    margin-right: 5px;
+    margin-inline-end: 5px;
     padding: 6px 12px;
 }
 .custom-input-group.input-group .input-group-addon {
@@ -3010,7 +3031,7 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 .input-group input[type=submit] {
     height: 34px;
     line-height: 1;
-    margin-left: -1px;
+    margin-inline-start: -1px;
 }
 
 .ln_solid {
@@ -3063,21 +3084,21 @@ legend {
 }
 
 .form-control-feedback.left {
-    border-right: 1px solid #ccc;
-    left: 13px
+    border-inline-end: 1px solid #ccc;
+    inset-inline-start: 13px
 }
 
 .form-control-feedback.right {
-    border-left: 1px solid #ccc;
-    right: 13px
+    border-inline-start: 1px solid #ccc;
+    inset-inline-end: 13px
 }
 
 .form-control.has-feedback-left {
-    padding-left: 45px
+    padding-inline-start: 45px
 }
 
 .form-control.has-feedback-right {
-    padding-right: 45px
+    padding-inline-end: 45px
 }
 
 .validate {
@@ -3090,7 +3111,7 @@ legend {
 }
 
 .invalid-form-error-message.filled {
-    border-left: 2px solid #E74C3C
+    border-inline-start: 2px solid #E74C3C
 }
 
 .field-validation-error, .validation-summary-errors {
@@ -3112,7 +3133,7 @@ p.parsley-error {
 ul.parsley-errors-list {
     list-style: none;
     color: #E74C3C;
-    padding-left: 0
+    padding-inline-start: 0
 }
 
 input.parsley-error, textarea.parsley-error, select.parsley-error {
@@ -3128,7 +3149,7 @@ input.parsley-error, textarea.parsley-error, select.parsley-error {
     border: 1px solid #CE5454;
     box-shadow: 0 0 4px -2px #CE5454;
     position: relative;
-    left: 0;
+    inset-inline-start: 0;
     -moz-animation: .7s 1 shake linear;
     -webkit-animation: 0.7s 1 shake linear
 }
@@ -3147,7 +3168,7 @@ input.parsley-error, textarea.parsley-error, select.parsley-error {
     max-width: 170px;
     white-space: pre;
     position: relative;
-    left: -15px;
+    inset-inline-start: -15px;
     opacity: 0;
     z-index: 1;
     transition: 0.15s ease-out
@@ -3162,12 +3183,12 @@ input.parsley-error, textarea.parsley-error, select.parsley-error {
     border-style: solid;
     border-width: 11px 7px;
     position: absolute;
-    left: -13px;
+    inset-inline-start: -13px;
     top: 1px
 }
 
 .item.bad .alert {
-    left: 0;
+    inset-inline-start: 0;
     opacity: 1
 }
 
@@ -3190,7 +3211,7 @@ input.parsley-error, textarea.parsley-error, select.parsley-error {
     content: "Example";
     position: absolute;
     top: 15px;
-    left: 15px;
+    inset-inline-start: 15px;
     font-size: 12px;
     font-weight: bold;
     color: #bbb;
@@ -3286,7 +3307,7 @@ a.btn-success, a.btn-primary, a.btn-warning, a.btn-danger {
 .btn.btn-app>.badge {
     position: absolute;
     top: -3px;
-    right: -10px;
+    inset-inline-end: -10px;
     font-size: 10px;
     font-weight: 400
 }
@@ -3330,7 +3351,7 @@ textarea:focus {
 }
 
 .bs-glyphicons-list {
-    padding-left: 0;
+    padding-inline-start: 0;
     list-style: none
 }
 
@@ -3369,8 +3390,8 @@ textarea:focus {
         margin: 30px auto;
     }
     .bs-glyphicons {
-        margin-right: 0;
-        margin-left: 0
+        margin-inline-end: 0;
+        margin-inline-start: 0
     }
     .bs-glyphicons li {
         width: 12.5%;
@@ -3395,7 +3416,7 @@ span.tag {
     text-decoration: none;
     background: #1ABB9C;
     color: #F1F6F7;
-    margin-right: 5px;
+    margin-inline-end: 5px;
     font-weight: 500;
     margin-bottom: 5px;
     font-family: helvetica
@@ -3445,7 +3466,7 @@ ul.bar_tabs {
     background: #F5F7FA;
     height: 25px;
     margin: 21px 0 14px;
-    padding-left: 14px;
+    padding-inline-start: 14px;
     position: relative;
     z-index: 1;
     width: 100%;
@@ -3456,14 +3477,14 @@ ul.bar_tabs>li {
     border: 1px solid #E6E9ED;
     color: #333 !important;
     margin-top: -17px;
-    margin-left: 8px;
+    margin-inline-start: 8px;
     background: #fff;
     border-bottom: none;
     border-radius: 4px 4px 0 0
 }
 
 ul.bar_tabs>li.active {
-    border-right: 6px solid #D3D6DA;
+    border-inline-end: 6px solid #D3D6DA;
     border-top: 0;
     margin-top: -15px
 }
@@ -3472,7 +3493,7 @@ ul.bar_tabs>li a {
     padding: 10px 17px;
     background: #F5F7FA;
     margin: 0;
-    border-top-right-radius: 0
+    border-start-end-radius: 0
 }
 
 ul.bar_tabs>li a:hover {
@@ -3484,7 +3505,7 @@ ul.bar_tabs>li.active a {
 }
 
 ul.bar_tabs.right {
-    padding-right: 14px
+    padding-inline-end: 14px
 }
 
 ul.bar_tabs.right li {
@@ -3503,10 +3524,10 @@ ul.timeline li {
 
 .timeline .block {
     margin: 0;
-    border-left: 3px solid #e8e8e8;
+    border-inline-start: 3px solid #e8e8e8;
     overflow: visible;
     padding: 10px 15px;
-    margin-left: 105px
+    margin-inline-start: 105px
 }
 
 .timeline.widget {
@@ -3515,13 +3536,13 @@ ul.timeline li {
 }
 
 .timeline.widget .block {
-    margin-left: 5px
+    margin-inline-start: 5px
 }
 
 .timeline .tags {
     position: absolute;
     top: 15px;
-    left: 0;
+    inset-inline-start: 0;
     width: 84px
 }
 
@@ -3551,13 +3572,13 @@ ul.timeline li {
     height: 30px;
     width: 0;
     position: absolute;
-    left: 100%;
+    inset-inline-start: 100%;
     top: 0;
     margin: 0;
     pointer-events: none;
     border-top: 14px solid transparent;
     border-bottom: 14px solid transparent;
-    border-left: 11px solid #1ABB9C
+    border-inline-start: 11px solid #1ABB9C
 }
 
 .timeline h2.title {
@@ -3569,7 +3590,7 @@ ul.timeline li {
 .timeline h2.title:before {
     content: "";
     position: absolute;
-    left: -23px;
+    inset-inline-start: -23px;
     top: 3px;
     display: block;
     width: 14px;
@@ -3672,7 +3693,7 @@ ul.social li {
 .chart canvas {
     position: absolute;
     top: 0;
-    left: 0
+    inset-inline-start: 0
 }
 
 .percent {
@@ -3684,7 +3705,7 @@ ul.social li {
 
 .percent:after {
     content: '%';
-    margin-left: 0.1em;
+    margin-inline-start: 0.1em;
     font-size: .8em
 }
 
@@ -3730,7 +3751,7 @@ ul.widget_tally .month {
 ul.widget_tally .count {
     width: 30%;
     float: left;
-    text-align: right
+    text-align: end
 }
 
 .pie_bg {
@@ -3752,7 +3773,7 @@ ul.widget_profile_box {
     padding: 3px;
     background: #ececec;
     margin-top: 40px;
-    margin-left: 1px
+    margin-inline-start: 1px
 }
 
 ul.widget_profile_box li:first-child {
@@ -3815,7 +3836,7 @@ ul.widget_profile_box li .profile_img {
 }
 
 .widget_tally_box ul.legend p, .widget_tally_box ul.legend span {
-    text-align: left
+    text-align: start
 }
 
 .widget_tally_box ul.legend li .icon {
@@ -3847,10 +3868,10 @@ ul.widget_profile_box li .profile_img {
 
 ul.count2 {
     width: 100%;
-    margin-left: 1px;
+    margin-inline-start: 1px;
     border: 1px solid #ddd;
-    border-left: 0;
-    border-right: 0;
+    border-inline-start: 0;
+    border-inline-end: 0;
     padding: 10px 0
 }
 
@@ -3903,12 +3924,12 @@ ul.messages li img.avatar, img.avatar {
 
 ul.messages li .message_date {
     float: right;
-    text-align: right
+    text-align: end
 }
 
 ul.messages li .message_wrapper {
-    margin-left: 50px;
-    margin-right: 40px
+    margin-inline-start: 50px;
+    margin-inline-end: 40px
 }
 
 ul.messages li .message_wrapper h4.heading {
@@ -3922,7 +3943,7 @@ ul.messages li .message_wrapper h4.heading {
 ul.messages li .message_wrapper blockquote {
     padding: 0px 10px;
     margin: 0;
-    border-left: 5px solid #eee
+    border-inline-start: 5px solid #eee
 }
 
 ul.user_data li {
@@ -3966,11 +3987,11 @@ ul.stats-overview li {
     padding: 0 15px;
     width: 30%;
     font-size: 14px;
-    border-right: 1px solid #e8e8e8
+    border-inline-end: 1px solid #e8e8e8
 }
 
 ul.stats-overview li:last-child {
-    border-right: 0
+    border-inline-end: 0
 }
 
 ul.stats-overview li .name {
@@ -3984,7 +4005,7 @@ ul.stats-overview li .value {
 }
 
 ul.stats-overview li:first-child {
-    padding-left: 0
+    padding-inline-start: 0
 }
 
 ul.project_files li {
@@ -4055,8 +4076,8 @@ ul.project_files li a i {
     background-color: #f5f5f5;
     border-top: 1px solid #ddd;
     text-align: center;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px
+    border-end-end-radius: 3px;
+    border-end-start-radius: 3px
 }
 
 .pricing_footer p {
@@ -4075,7 +4096,7 @@ ul.project_files li a i {
     width: 90px;
     height: 88px;
     top: -3px;
-    right: -3px
+    inset-inline-end: -3px
 }
 
 .ui-ribbon-container.ui-ribbon-primary .ui-ribbon {
@@ -4091,7 +4112,7 @@ ul.project_files li a i {
     color: #fff;
     transform: rotate(45deg);
     padding: 7px 0;
-    left: -5px;
+    inset-inline-start: -5px;
     top: 15px;
     width: 120px;
     line-height: 20px;
@@ -4104,12 +4125,12 @@ ul.project_files li a i {
 }
 
 .ui-ribbon-container .ui-ribbon:before {
-    left: 0;
+    inset-inline-start: 0;
     bottom: -1px
 }
 
 .ui-ribbon-container .ui-ribbon:before {
-    right: 0
+    inset-inline-end: 0
 }
 
 .ui-ribbon-container .ui-ribbon:after, .ui-ribbon-container .ui-ribbon:before {
@@ -4117,8 +4138,8 @@ ul.project_files li a i {
     content: " ";
     line-height: 0;
     border-top: 2px solid #555;
-    border-left: 2px solid transparent;
-    border-right: 2px solid transparent
+    border-inline-start: 2px solid transparent;
+    border-inline-end: 2px solid transparent
 }
 
 .thumbnail .image {
@@ -4153,7 +4174,7 @@ ul.project_files li a i {
     width: 100%;
     overflow: hidden;
     top: 0;
-    left: 0
+    inset-inline-start: 0
 }
 
 .view img {
@@ -4267,11 +4288,11 @@ ul.project_files li a i {
 }
 
 .tabs-left {
-    border-right: 1px solid #F7F7F7
+    border-inline-end: 1px solid #F7F7F7
 }
 
 .tabs-right {
-    border-left: 1px solid #F7F7F7
+    border-inline-start: 1px solid #F7F7F7
 }
 
 .tabs-left>li, .tabs-right>li {
@@ -4280,26 +4301,26 @@ ul.project_files li a i {
 }
 
 .tabs-left>li {
-    margin-right: -1px
+    margin-inline-end: -1px
 }
 
 .tabs-right>li {
-    margin-left: -1px
+    margin-inline-start: -1px
 }
 
 .tabs-left>li.active>a, .tabs-left>li.active>a:hover, .tabs-left>li.active>a:focus {
     border-bottom-color: #F7F7F7;
-    border-right-color: transparent
+    border-inline-end-color: transparent
 }
 
 .tabs-right>li.active>a, .tabs-right>li.active>a:hover, .tabs-right>li.active>a:focus {
     border-bottom: 1px solid #F7F7F7;
-    border-left-color: transparent
+    border-inline-start-color: transparent
 }
 
 .tabs-left>li>a {
     border-radius: 4px 0 0 4px;
-    margin-right: 0;
+    margin-inline-end: 0;
     display: block;
     background: #F7F7F7;
     text-overflow: ellipsis;
@@ -4308,7 +4329,7 @@ ul.project_files li a i {
 
 .tabs-right>li>a {
     border-radius: 0 4px 4px 0;
-    margin-right: 0;
+    margin-inline-end: 0;
     background: #F7F7F7;
     text-overflow: ellipsis;
     overflow: hidden
@@ -4328,23 +4349,23 @@ ul.project_files li a i {
 
 .sideways>li>a {
     border-bottom: 1px solid #ddd;
-    border-right-color: transparent;
+    border-inline-end-color: transparent;
     text-align: center;
     border-radius: 4px 4px 0px 0px
 }
 
 .sideways>li.active>a, .sideways>li.active>a:hover, .sideways>li.active>a:focus {
     border-bottom-color: transparent;
-    border-right-color: #ddd;
-    border-left-color: #ddd
+    border-inline-end-color: #ddd;
+    border-inline-start-color: #ddd
 }
 
 .sideways.tabs-left {
-    left: -50px
+    inset-inline-start: -50px
 }
 
 .sideways.tabs-right {
-    right: -50px
+    inset-inline-end: -50px
 }
 
 .sideways.tabs-right>li {
@@ -4431,7 +4452,7 @@ ul.project_files li a i {
 .info-indicator {
     position: absolute;
     top: 15px;
-    right: 10px;
+    inset-inline-end: 10px;
     width: 10px;
     height: 10px;
     border-radius: 100% !important;
@@ -4471,7 +4492,7 @@ ul.project_files li a i {
     display: flex;
     flex-direction: column;
     border: 1px solid #ddd !important;
-    border-left: 5px solid #8bb4e7 !important;
+    border-inline-start: 5px solid #8bb4e7 !important;
 }
 .store-news h5 {
     margin: 0 0 5px 0;
@@ -4539,7 +4560,7 @@ ul.project_files li a i {
     margin: 20px 0;
     padding: 5px 10px;
     background-color: #FFFFFF;
-    text-align: left;
+    text-align: start;
     border: 2px dashed #E0E0E0
 }
 
@@ -4568,7 +4589,7 @@ a.hiddenanchor {
 }
 
 .login_wrapper {
-    right: 0px;
+    inset-inline-end: 0px;
     margin: 0px auto;
     margin-top: 5%;
     max-width: 350px;
@@ -4630,12 +4651,12 @@ a.hiddenanchor {
 
 .alignleft {
     float: left;
-    margin-right: 15px
+    margin-inline-end: 15px
 }
 
 .alignright {
     float: right;
-    margin-left: 15px
+    margin-inline-start: 15px
 }
 
 .clearfix:after {
@@ -4681,13 +4702,13 @@ a.hiddenanchor {
 .login_content h1:after {
     background: #7e7e7e;
     background: linear-gradient(left, #7e7e7e 0%, #fff 100%);
-    right: 0
+    inset-inline-end: 0
 }
 
 .login_content h1:before {
     background: #7e7e7e;
     background: linear-gradient(right, #7e7e7e 0%, #fff 100%);
-    left: 0
+    inset-inline-start: 0
 }
 
 .login_content h1:before, .login_content h1:after {
@@ -4701,13 +4722,13 @@ a.hiddenanchor {
 .login_content h1:after {
     background: #7e7e7e;
     background: linear-gradient(left, #7e7e7e 0%, #fff 100%);
-    right: 0
+    inset-inline-end: 0
 }
 
 .login_content h1:before {
     background: #7e7e7e;
     background: linear-gradient(right, #7e7e7e 0%, #fff 100%);
-    left: 0
+    inset-inline-start: 0
 }
 
 .login_content form {
@@ -4754,7 +4775,7 @@ a.hiddenanchor {
 
 .login_content div .reset_pass {
     margin-top: 13px !important;
-    margin-right: 39px;
+    margin-inline-end: 39px;
     float: right
 }
 
@@ -4777,7 +4798,7 @@ a.hiddenanchor {
 
 .login_content form input[type="submit"], #content form .submit {
     float: left;
-    margin-left: 38px
+    margin-inline-start: 38px
 }
 
 .button a {
@@ -4808,7 +4829,7 @@ header {
 
 #nprogress .spinner-icon {
     border-top-color: #1ABB9C;
-    border-left-color: #1ABB9C
+    border-inline-start-color: #1ABB9C
 }
 
 .editor-wrapper {
@@ -4819,10 +4840,10 @@ header {
     padding: 4px;
     box-sizing: content-box;
     box-shadow: rgba(0, 0, 0, 0.07451) 0px 1px 1px 0px inset;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    border-top-left-radius: 3px;
+    border-start-end-radius: 3px;
+    border-end-end-radius: 3px;
+    border-end-start-radius: 3px;
+    border-start-start-radius: 3px;
     overflow: scroll;
     outline: none
 }
@@ -4921,12 +4942,12 @@ fieldset {
 }
 
 .cropper .docs-preview {
-    margin-right: -15px
+    margin-inline-end: -15px
 }
 
 .cropper .img-preview {
     float: left;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     margin-bottom: 10px;
     overflow: hidden
 }
@@ -4953,7 +4974,7 @@ fieldset {
 .cropper .preview-xs {
     width: 35px;
     height: 20px;
-    margin-right: 0
+    margin-inline-end: 0
 }
 
 .cropper .docs-data>.input-group {
@@ -4969,7 +4990,7 @@ fieldset {
 }
 
 .cropper .docs-buttons>.btn, .cropper .docs-buttons>.btn-group, .cropper .docs-buttons>.form-control {
-    margin-right: 5px;
+    margin-inline-end: 5px;
     margin-bottom: 10px
 }
 
@@ -5007,17 +5028,17 @@ fieldset {
 
 @media (max-width: 400px) {
     .cropper .btn-group-crop {
-        margin-right: -15px !important
+        margin-inline-end: -15px !important
     }
     .cropper .btn-group-crop>.btn {
-        padding-left: 5px;
-        padding-right: 5px
+        padding-inline-start: 5px;
+        padding-inline-end: 5px
     }
     .cropper .btn-group-crop .docs-tooltip {
-        margin-left: -5px;
-        margin-right: -5px;
-        padding-left: 5px;
-        padding-right: 5px
+        margin-inline-start: -5px;
+        margin-inline-end: -5px;
+        padding-inline-start: 5px;
+        padding-inline-end: 5px
     }
     .x_title h2 {
         padding-top: 10px;
@@ -5095,7 +5116,7 @@ fieldset {
     top: 20px;
     width: 100%;
     z-index: 4;
-    left: 0
+    inset-inline-start: 0
 }
 
 .wizard_horizontal ul.wizard_steps li a.disabled .step_no {
@@ -5126,13 +5147,13 @@ fieldset {
 }
 
 .wizard_horizontal ul.wizard_steps li:first-child a:before {
-    left: 50%
+    inset-inline-start: 50%
 }
 
 .wizard_horizontal ul.wizard_steps li:last-child a:before {
-    right: 50%;
+    inset-inline-end: 50%;
     width: 50%;
-    left: auto
+    inset-inline-start: auto
 }
 
 .wizard_verticle .stepContainer {
@@ -5145,7 +5166,7 @@ fieldset {
     width: 100%;
     border-top: 1px solid #ddd;
     padding: 10px 5px;
-    text-align: right;
+    text-align: end;
     margin-top: 10px
 }
 
@@ -5164,7 +5185,7 @@ fieldset {
 .wizard_verticle .wizard_content {
     width: 80%;
     float: left;
-    padding-left: 20px
+    padding-inline-start: 20px
 }
 
 .wizard_verticle ul.wizard_steps {
@@ -5206,7 +5227,7 @@ fieldset {
     top: 20px;
     width: 4px;
     z-index: 4;
-    left: 49%
+    inset-inline-start: 49%
 }
 
 .wizard_verticle ul.wizard_steps li a.disabled .step_no {
@@ -5237,12 +5258,12 @@ fieldset {
 }
 
 .wizard_verticle ul.wizard_steps li:first-child a:before {
-    left: 49%
+    inset-inline-start: 49%
 }
 
 .wizard_verticle ul.wizard_steps li:last-child a:before {
-    left: 49%;
-    left: auto;
+    inset-inline-start: 49%;
+    inset-inline-start: auto;
     width: 0
 }
 
@@ -5279,12 +5300,12 @@ fieldset {
 }
 
 .progress_summary .more_info span {
-    text-align: right;
+    text-align: end;
     float: right
 }
 
 .progress_summary .data span {
-    text-align: right;
+    text-align: end;
     float: right
 }
 
@@ -5295,12 +5316,12 @@ fieldset {
 
 .progress_title .left {
     float: left;
-    text-align: left
+    text-align: start
 }
 
 .progress_title .right {
     float: right;
-    text-align: right;
+    text-align: end;
     font-weight: 300
 }
 
@@ -5359,7 +5380,7 @@ ul.verticle_bars li {
 .custom-notifications {
     position: fixed;
     margin: 15px;
-    right: 0;
+    inset-inline-end: 0;
     float: right;
     width: 400px;
     z-index: 4000;
@@ -5382,7 +5403,7 @@ ul.notifications {
 }
 
 .notifications li:last-child {
-    margin-left: 0
+    margin-inline-start: 0
 }
 
 .notifications a {
@@ -5484,7 +5505,7 @@ ul.notifications {
 
 /*
 .checkbox-input { display:block;position:relative; }
-.checkbox-input:before { display:block;content:"";position:absolute;top:2px;left:0;height:20px;width:20px;background:red;border-radius:3px; }
+.checkbox-input:before { display:block;content:"";position:absolute;top:2px;inset-inline-start:0;height:20px;width:20px;background:red;border-radius:3px; }
 
 
  #input + label:after {
@@ -5508,20 +5529,20 @@ ul.notifications {
 
 /*
 .checkbox 																										{ display: block;position:relative;cursor:pointer; }
-.checkbox input 																								{ position:absolute;z-index:-1;opacity:0;left:0;top:0; }
-.checkbox div 																									{ position:absolute;top:2px;left:0;height:20px;width:20px;background:#e6e6e6;border-radius:3px; }
+.checkbox input 																								{ position:absolute;z-index:-1;opacity:0;inset-inline-start:0;top:0; }
+.checkbox div 																									{ position:absolute;top:2px;inset-inline-start:0;height:20px;width:20px;background:#e6e6e6;border-radius:3px; }
 .checkbox input:checked ~ div 																			{ background: #1ABC9C; }
 .checkbox:hover input:not([disabled]):checked ~ div,
 .checkbox input:checked:focus ~ div 																	{ background: #1ABC9C; }
 .checkbox input:disabled ~ div 																			{ background: #1ABC9C;opacity: 0.6;pointer-events: none; }
 .checkbox div:after 																							{ content: '';position: absolute;display: none; }
 .checkbox input:checked ~ div:after 																	{ display: block; }
-.checkbox-wp div:after 																					{ left: 7px;top: 3px;width: 7px;height: 11px;border: solid #fff;border-width: 0 2px 2px 0;transform: rotate(40deg); }
+.checkbox-wp div:after 																					{ inset-inline-start: 7px;top: 3px;width: 7px;height: 11px;border: solid #fff;border-width: 0 2px 2px 0;transform: rotate(40deg); }
 .checkbox-wp input:disabled ~ div:after 																{ border-color: #F2F2F2; }
 
 
 .checkbox-radio div 																							{ border-radius: 50%; }
-.checkbox-radio div:after 																					{ left: 7px;top: 7px;height: 6px;width: 6px;border-radius: 50%;background: #fff; }
+.checkbox-radio div:after 																					{ inset-inline-start: 7px;top: 7px;height: 6px;width: 6px;border-radius: 50%;background: #fff; }
 .checkbox-radio input:disabled ~ div:after 															{ background: #F2F2F2; }
 
 
@@ -5596,8 +5617,8 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 .form-horizontal > .mb-3 {
     display: inline-block;
     width: 100%;
-    margin-right: 0;
-    margin-left: 0;
+    margin-inline-end: 0;
+    margin-inline-start: 0;
 }
 
 .tableFixHead td {
@@ -5615,7 +5636,7 @@ select.form-control {
 
 .k-grid label.mt-checkbox.mt-checkbox-outline {
     margin-top: 6px;
-    padding-left: 20px;
+    padding-inline-start: 20px;
 }
 
 .k-grid-header .k-header, .k-grid-header .k-header .k-link, .k-grid-header .k-link, .k-grid-header .k-link:link, .k-pager-info, .k-scheduler-agendaview .k-scheduler-datecolumn, .k-scheduler-header {
@@ -5700,7 +5721,7 @@ a span.username {
 .scroll-to-top {
     display: block;
     bottom: 10px;
-    right: 10px;
+    inset-inline-end: 10px;
     padding: 1px;
     text-align: center;
     position: fixed;
@@ -5728,7 +5749,7 @@ a span.username {
 .customCheckBox {
     position: absolute;
     top: 2px;
-    left: 0;
+    inset-inline-start: 0;
     height: 20px;
     width: 20px;
     background: #E6E6E6;
@@ -5739,7 +5760,7 @@ a span.username {
     position: relative;
     display: inline-block;
     margin-bottom: 15px;
-    padding-left: 30px;
+    padding-inline-start: 30px;
     cursor: pointer;
 }
 
@@ -5752,7 +5773,7 @@ a span.username {
 .control__indicator {
     position: absolute;
     top: 0px;
-    left: 0;
+    inset-inline-start: 0;
      width: 20px; 
      height: 20px; 
     background: #e6e6e6;
@@ -5769,13 +5790,13 @@ a span.username {
 .check-box + .control__indicator::before {
     background-color: #fff;
     border: #adb5bd solid 1px;
-    left: -2.25rem;
+    inset-inline-start: -2.25rem;
     pointer-events: all;
     border-radius: .5rem;
     transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     position: absolute;
     top: 0;
-    left: -30px;
+    inset-inline-start: -30px;
     display: block;
     width: 32px;
     height: 16px;
@@ -5783,7 +5804,7 @@ a span.username {
 }
 .check-box + .control__indicator::after {
     top: calc(.25rem + 2px);
-    left: calc(-2.25rem + 2px);
+    inset-inline-start: calc(-2.25rem + 2px);
     width: calc(1rem - 4px);
     height: calc(1rem - 4px);
     background-color: #adb5bd;
@@ -5793,30 +5814,30 @@ a span.username {
     transition: transform .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-transform .15s ease-in-out;
     position: absolute;
     top: .25rem;
-    left: -1.5rem;
+    inset-inline-start: -1.5rem;
     display: block;
     width: 12px;
     height: 12px;
     content: "";
     top: 2px;
-    left: -27px;
+    inset-inline-start: -27px;
     width: 12px;
     height: 12px;
 }
 .mt-checkbox-inline > .mt-checkbox {
-    padding-left: 40px;
-    margin-right: 10px;
+    padding-inline-start: 40px;
+    margin-inline-end: 10px;
 }
 .mt-checkbox-inline .check-box + .control__indicator {
     position: static;
 }
 .mt-checkbox-inline .check-box + .control__indicator::before {
     top: 2px;
-    left: 0px;
+    inset-inline-start: 0px;
 }
 .mt-checkbox-inline .check-box + .control__indicator::after {
     top: 4px;
-    left: 3px;
+    inset-inline-start: 3px;
 }
 .check-box:checked + .control__indicator::before {
     color: #fff;
@@ -5834,14 +5855,14 @@ a span.username {
 
 .control__indicator_custom {
     top: -20px;
-    margin-left: 17px;
-    left: 0;
+    margin-inline-start: 17px;
+    inset-inline-start: 0;
     background-color: #dddddd;
 }
 
 .control__indicator_custom2 {
     top: -20px;
-    left: 0;
+    inset-inline-start: 0;
     background-color: #dddddd;
 }
 
@@ -5876,7 +5897,7 @@ a span.username {
 
 .control-checkbox input:not(.check-box) ~ .control__indicator:after {
     top: 5px;
-    left: 7px;
+    inset-inline-start: 7px;
     width: 6px;
     height: 9px;
     transform: rotate(45deg);
@@ -5892,7 +5913,7 @@ a span.username {
     width: 16px;
     font-size: 16px;
     text-align: center;
-    left: 0;
+    inset-inline-start: 0;
 }
 
 .control-checkbox input:disabled~.control__indicator:after {
@@ -5902,7 +5923,7 @@ a span.username {
 
 .control--radio .control__indicator:after {
     top: 7px;
-    left: 7px;
+    inset-inline-start: 7px;
     width: 6px;
     height: 6px;
     border-radius: 50%;
@@ -5971,7 +5992,7 @@ a span.username {
     line-height: 18px;
     font-weight: 500;
     align-self: flex-start;
-    margin-right: auto;
+    margin-inline-end: auto;
 }
 
 .x_title>.caption>i {
@@ -5979,22 +6000,22 @@ a span.username {
     font-size: 18px;
     font-weight: 400;
     float: left;
-    margin-right: 10px;
+    margin-inline-end: 10px;
 }
 
 .x_title>.caption>small {
-    margin-left: 10px;
+    margin-inline-start: 10px;
 }
 
 .x_title>.caption>small>i {
-    margin-right: 5px;
+    margin-inline-end: 5px;
 }
 
 .x_title .actions {
     display: inline-block;
     float: right;
     padding: 14px 0 10px;
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 .k-input.text-box {
@@ -6046,7 +6067,7 @@ a span.username {
 }
 
 .btn-group.btn-group-devided>.btn {
-    margin-right: 2px;
+    margin-inline-end: 2px;
 }
 
 .btn {
@@ -6077,7 +6098,7 @@ a span.username {
 }
 
 .help.bi-question-circle {
-    padding-left: 4px;
+    padding-inline-start: 4px;
 }
 
 textarea.form-control.k-input {
@@ -6127,7 +6148,7 @@ label {
     margin: 0 0 20px;
     padding: 15px 30px 15px 15px;
     font-weight: 400;
-    border-left: 5px solid #eee;
+    border-inline-start: 5px solid #eee;
 }
 
 .note.note-info {
@@ -6149,8 +6170,8 @@ label {
     height: 36px;
     padding: 0 18px;
     line-height: 1;
-    margin-left: -1px;
-    margin-right: 0;
+    margin-inline-start: -1px;
+    margin-inline-end: 0;
     box-sizing: border-box;
 }
 .input-group .input-icon {
@@ -6191,7 +6212,7 @@ label {
 .mt-checkbox, .mt-radio {
     display: inline-block;
     position: relative;
-    padding-left: 30px;
+    padding-inline-start: 30px;
     cursor: pointer;
     font-size: 14px;
     transition: 0.3s;
@@ -6223,7 +6244,7 @@ label {
 
 .throbber .curtain {
     position: fixed;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
     width: 100%;
     height: 100%;
@@ -6233,7 +6254,7 @@ label {
 
 .throbber .curtain-content {
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
     width: 100%;
     height: 100%;
@@ -6306,7 +6327,7 @@ label {
 }
 
 form>h4 {
-    padding-left: 10px;
+    padding-inline-start: 10px;
 }
 
 .page-bar {
@@ -6329,7 +6350,7 @@ form>h4 {
 }
 
 .mt-checkbox-inline {
-    margin-left: 15px;
+    margin-inline-start: 15px;
 }
 
 .piechart{
@@ -6467,15 +6488,15 @@ form>h4 {
     }
     .tile-stats .icon {
         top: 6px;
-        right: 6px;
+        inset-inline-end: 6px;
     }
     .control__indicator_custom {
-        margin-left: 12px;
+        margin-inline-start: 12px;
     }
     
     .popup-window .btn-group.btn-group-devided > .btn {
        
-        margin-right: 2px;
+        margin-inline-end: 2px;
     }
 }
 
@@ -6529,7 +6550,7 @@ form>h4 {
         font-size: 16px;
     }
     .control__indicator_custom {
-        margin-left: 5px;
+        margin-inline-start: 5px;
     }
     .x_title {
         display: block;
@@ -6548,7 +6569,7 @@ form>h4 {
     }
     .tile-stats .icon {
         top: 0;
-        right: 0;
+        inset-inline-end: 0;
         width: 60px;
         height: 60px;
         border: 0;
@@ -6591,7 +6612,7 @@ form>h4 {
         max-width: none;
         width: 85%;
         float: right;
-        margin-right: 3%;
+        margin-inline-end: 3%;
     }
     #searchInput {
         width: 100%;
@@ -6610,7 +6631,7 @@ form>h4 {
     .sidebar_button {
         position: fixed;
         top: 0;
-        left: 0;
+        inset-inline-start: 0;
         display: flex;
         justify-content: space-between;
         flex-direction: column;
@@ -6636,7 +6657,7 @@ form>h4 {
         transform: translateX(-100%);
     }
     body .container.body.wide .right_col, .nav-sm .container.body.wide .main_container .top_nav {
-        margin-left: 0;
+        margin-inline-start: 0;
     }
     .container.body.wide .sidebar_button {
         transform: translateX(0);
@@ -6654,8 +6675,8 @@ form>h4 {
     }
     .control__indicator_custom {
         top: -25px;
-        left: 3px;
-        margin-left: 0px;
+        inset-inline-start: 3px;
+        margin-inline-start: 0px;
     }
     .col-sm-9>.input-group>.btn {
         margin-top: -5px;
@@ -6696,7 +6717,7 @@ form>h4 {
         margin-top: 0;
     }
     .top_nav .navbar-right {
-        margin-right: 0;
+        margin-inline-end: 0;
     }
     .caption-flex {
         display: block;
@@ -6728,7 +6749,7 @@ form>h4 {
         padding: 1px 0;
     }
     .top_nav .navbar-right {
-        text-align: right;
+        text-align: end;
     }
     .top_nav .navbar-right li a {
         padding: 13px 10px 12px;
@@ -6742,7 +6763,7 @@ form>h4 {
         display: none;
     }
     .control__indicator_custom {
-        left: 0;
+        inset-inline-start: 0;
     }
     .control__indicator_custom {
         top: -15px;
@@ -6753,7 +6774,7 @@ form>h4 {
     .searchIcon {
         display: block;
         cursor: pointer;
-        margin-right: 5px;
+        margin-inline-end: 5px;
         padding:11px 10px 12px;
     }
     .searchIcon > i{
@@ -6771,7 +6792,7 @@ form>h4 {
         padding: 6px 8px;
     }
     .x_title>.caption>small {
-        margin-left: 0px;
+        margin-inline-start: 0px;
     }
 }
 
@@ -6871,7 +6892,7 @@ a.k-link.orderstatuslist:hover {
 }
 
 .k-pager-wrap .k-pager-refresh {
-    margin-right: 0em; 
+    margin-inline-end: 0em; 
 }
 
 .k-button.k-button-icon .k-icon, .k-grid-filter .k-icon, .k-header .k-icon {
@@ -6912,7 +6933,7 @@ table.tableFixHead {
 
     .list-icon-container a .icon-check {
         font-size: 16px;
-        margin-right: 5px;
+        margin-inline-end: 5px;
     }
 
 .list-datetime {
@@ -7007,7 +7028,7 @@ table.tableFixHead {
 /* modal */
 
 .modal {
-    left: 90px;
+    inset-inline-start: 90px;
     width: calc(100% - 90px);
 }
 
@@ -7051,7 +7072,7 @@ table.tableFixHead {
     color: #fff !important;
 }
 [data-theme="dark"] .container.body .right_col {
-    border-left: 1px solid #666;
+    border-inline-start: 1px solid #666;
 }
 [data-theme="dark"] .tile-stats,
 [data-theme="dark"] .nav_menu {
@@ -7177,7 +7198,7 @@ table.tableFixHead {
 }
 
 .note-editor.note-airframe.fullscreen, .note-editor.note-frame.fullscreen {
-    left: 90px;
+    inset-inline-start: 90px;
     width: calc(100% - 90px) !important;
 }
 
@@ -7222,11 +7243,11 @@ table.tableFixHead {
 
 .stores-checkbox.mt-checkbox {
     width: 100%;
-    padding-left: 40px;
+    padding-inline-start: 40px;
 }
 .stores-checkbox .control__indicator {
     top: -17px;
-    left: -10px;
+    inset-inline-start: -10px;
 }
 /* the top level of the side menu, coloured per section; the class names come from
    AdminSiteMap.IconClass, which the 2.4 icon migration moved to bootstrap-icons */
@@ -7295,7 +7316,7 @@ table.tableFixHead {
     margin: 0 0 0 15px;
 }
 .popup-window .btn-group.btn-group-devided > .btn:last-child {
-    margin-right: 0;
+    margin-inline-end: 0;
 }
 .popup-window .form-horizontal .drop-filters-container {
     display: inline-flex;
@@ -7318,14 +7339,14 @@ table.tableFixHead {
 }
 .permissions-table {
     position: relative;
-    border-left: 0;
-    border-right: 0;
+    border-inline-start: 0;
+    border-inline-end: 0;
 }
 .permissions-table::before {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     height: 100%;
     width: 1px;
     background-color: #dee2e6;
@@ -7335,7 +7356,7 @@ table.tableFixHead {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     height: 100%;
     width: 1px;
     background-color: #dee2e6;
@@ -7346,7 +7367,7 @@ table.tableFixHead {
 }
 .permissions-table thead th strong, .permissions-table .title:not(.btn) > span {
     position: relative;
-    left: -7px;
+    inset-inline-start: -7px;
 }
 .permissions-table .title:not(.btn) > span {
     display: none;
@@ -7355,10 +7376,10 @@ table.tableFixHead {
     padding: 0;
 }
 .permissions-table tbody tr td:first-child {
-    border-left: 0;
+    border-inline-start: 0;
 }
 .permissions-table tbody tr td:last-child {
-    border-right: 0;
+    border-inline-end: 0;
 }
 .permissions-table ul {
     margin: 0;
@@ -7386,7 +7407,7 @@ table.tableFixHead {
     content: "";
     position: absolute;
     bottom: -9px;
-    left: 0;
+    inset-inline-start: 0;
     width: 100%;
     height: 1px;
     background-color: #dee2e6;
@@ -7422,7 +7443,7 @@ table.tableFixHead {
     content: "";
     position: absolute;
     bottom: -1px;
-    left: 0;
+    inset-inline-start: 0;
     width: 100%;
     height: 42px;
     background-color: #efefef;
@@ -7432,7 +7453,7 @@ table.tableFixHead {
     content: "";
     position: absolute;
     bottom: -1px;
-    right: 0;
+    inset-inline-end: 0;
     width: 100vw;
     height: 42px;
     background-color: #efefef;
@@ -7445,12 +7466,12 @@ table.tableFixHead {
     top: -10px;
 }
 .permissions-table.tableFixHead td .mt-checkbox.no-action, .permissions-table.tableFixHead th .mt-checkbox.no-action {
-    left: -7px;
+    inset-inline-start: -7px;
 }
 .permissions-table.tableFixHead td .mt-checkbox + .k-link {
     position: relative;
     top: 2px;
-    right: 0;
+    inset-inline-end: 0;
 }
 .permissions-table.table-hover tbody tr:hover {
     background-color: transparent;
@@ -7501,8 +7522,8 @@ table.tableFixHead {
 }
 .plugins-table ul.main-list {
     background-color: rgba(0,0,0,.02);
-    border-left: 1px solid #e6e6e6;
-    border-right: 1px solid #e6e6e6
+    border-inline-start: 1px solid #e6e6e6;
+    border-inline-end: 1px solid #e6e6e6
 }
 .plugins-table ul.main-list > li {
     display: inline-flex;
