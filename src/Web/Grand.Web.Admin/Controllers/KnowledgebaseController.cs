@@ -43,10 +43,11 @@ public class KnowledgebaseController : BaseAdminController
         return View();
     }
 
-    public async Task<IActionResult> NodeList(DataSourceRequest command)
+    public async Task<IActionResult> NodeList(DataSourceRequest command, string parentCategoryId)
     {
         var (knowledgebaseNodeGridModels, totalCount) =
-            await _knowledgebaseViewModelService.PrepareKnowledgebaseNodeGridModel(command.Page, command.PageSize);
+            await _knowledgebaseViewModelService.PrepareKnowledgebaseNodeGridModel(parentCategoryId, command.Page,
+                command.PageSize);
         var gridModel = new DataSourceResult {
             Data = knowledgebaseNodeGridModels.ToList(),
             Total = totalCount
