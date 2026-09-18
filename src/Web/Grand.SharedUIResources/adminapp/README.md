@@ -30,9 +30,7 @@ What exists today:
 `admin.ui.css`, `admin.legacy.js`, `admin.legacy.css` and, in the footer,
 `admin.bootstrap.js`. Every grid runs on `<admin-grid>` and every widget on `admin.ui.js`;
 **no panel loads Kendo any more**, and none loads Bootstrap 4, Font Awesome or
-simple-line-icons. The vendored `wwwroot/administration/kendo/` tree stays in the
-repository, unreferenced, for one major release so an installation that still needs it can
-link it back, and is deleted after that release.
+simple-line-icons. The vendored `wwwroot/administration/kendo/` tree has been deleted.
 
 `admin.bootstrap.css` replaced six vendored files: `bootstrap.min.css`, its
 `bootstrap-rtl.min.css` copy, the Bootstrap 3 leftover `bootstrap-theme.min.css`,
