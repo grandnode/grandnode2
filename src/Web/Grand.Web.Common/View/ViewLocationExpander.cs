@@ -1,4 +1,4 @@
-using Grand.Web.Common.Themes;
+﻿using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -37,9 +37,24 @@ public class ViewLocationExpander : IViewLocationExpander
         }
 
         if (IsAdminSharedController(context.ActionContext.ActionDescriptor))
-            viewLocations = viewLocations.Append(AdminSharedFallbackLocation);
+            viewLocations = WithAdminSharedLocation(viewLocations);
 
         return viewLocations;
+    }
+
+    /// <summary>Puts the AdminShared location right after the area locations, ahead of the root
+    /// /Views/{1}/{0} and /Views/Shared/{0} ones. Appended last, a partial such as
+    /// "Partials/CreateOrUpdateAddress" resolved to the storefront's /Views/Shared copy (another
+    /// model type) before the AdminShared one was ever tried. Without area locations the list
+    /// only gets the location appended.</summary>
+    internal static IEnumerable<string> WithAdminSharedLocation(IEnumerable<string> viewLocations)
+    {
+        var locations = viewLocations.ToList();
+        var index = locations.FindIndex(l => !l.StartsWith("/Areas/", StringComparison.OrdinalIgnoreCase));
+        if (index <= 0)
+            index = locations.Count;
+        locations.Insert(index, AdminSharedFallbackLocation);
+        return locations;
     }
 
     /// <summary>Whether the executing action's controller type (or any base type) lives in
