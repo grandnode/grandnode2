@@ -44,32 +44,37 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
             });
     }
 
-    public virtual async Task<List<TreeNode>> PrepareTreeNode()
+    public virtual async Task<(IEnumerable<KnowledgebaseNodeGridModel> knowledgebaseNodeGridModels, int totalCount)>
+        PrepareKnowledgebaseNodeGridModel(int pageIndex, int pageSize)
     {
         var categories = await _knowledgebaseService.GetKnowledgebaseCategories();
         var articles = await _knowledgebaseService.GetKnowledgebaseArticles();
-        var nodeList = new List<TreeNode>();
 
-        var list = new List<ITreeNode>();
-        list.AddRange(categories.SortCategoriesForTree());
-        list.AddRange(articles);
+        //categories in tree order, so a subcategory follows its parent; the parent breadcrumb
+        //carries the branch the row belongs to
+        var nodes = TreeOrder(categories).Select(category => new KnowledgebaseNodeGridModel {
+            Id = category.Id,
+            Name = category.Name,
+            IsCategory = true,
+            ParentCategory = ParentBreadCrumb(category, categories),
+            Published = category.Published,
+            DisplayOrder = category.DisplayOrder
+        }).ToList();
 
-        foreach (var node in list)
-            if (string.IsNullOrEmpty(node.ParentCategoryId))
-            {
-                var newNode = new TreeNode {
-                    id = node.Id,
-                    text = node.Name,
-                    isCategory = node.GetType() == typeof(KnowledgebaseCategory),
-                    nodes = new List<TreeNode>()
-                };
+        //articles of a category are the detail rows of that category; the ones without a parent
+        //category have no category to expand, so they are rows of their own
+        nodes.AddRange(articles
+            .Where(article => string.IsNullOrEmpty(article.ParentCategoryId))
+            .Select(article => new KnowledgebaseNodeGridModel {
+                Id = article.Id,
+                Name = article.Name,
+                IsCategory = false,
+                ParentCategory = string.Empty,
+                Published = article.Published,
+                DisplayOrder = article.DisplayOrder
+            }));
 
-                FillChildNodes(newNode, list);
-
-                nodeList.Add(newNode);
-            }
-
-        return nodeList;
+        return (nodes.Skip((pageIndex - 1) * pageSize).Take(pageSize), nodes.Count);
     }
 
     public virtual async
@@ -200,22 +205,44 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
         await _knowledgebaseService.UpdateKnowledgebaseArticle(article);
     }
 
-    protected virtual void FillChildNodes(TreeNode parentNode, IEnumerable<ITreeNode> nodes)
+    /// <summary>
+    ///     Categories depth first, each followed by its subcategories. A root category has no
+    ///     parent id (null or empty) or a parent that no longer exists.
+    /// </summary>
+    protected static List<KnowledgebaseCategory> TreeOrder(IList<KnowledgebaseCategory> categories)
     {
-        var treeNodes = nodes.ToList();
-        var children = treeNodes.Where(x => x.ParentCategoryId == parentNode.id);
-        foreach (var child in children)
+        var ids = categories.Select(x => x.Id).ToHashSet();
+        var children = categories
+            .Where(x => !string.IsNullOrEmpty(x.ParentCategoryId) && ids.Contains(x.ParentCategoryId))
+            .ToLookup(x => x.ParentCategoryId);
+        var result = new List<KnowledgebaseCategory>();
+        var visited = new HashSet<string>();
+
+        void Add(KnowledgebaseCategory category)
         {
-            var newNode = new TreeNode {
-                id = child.Id,
-                text = child.Name,
-                isCategory = child.GetType() == typeof(KnowledgebaseCategory),
-                nodes = new List<TreeNode>()
-            };
-
-            FillChildNodes(newNode, treeNodes);
-
-            parentNode.nodes.Add(newNode);
+            //guards against a circular parent chain
+            if (!visited.Add(category.Id)) return;
+            result.Add(category);
+            foreach (var child in children[category.Id].OrderBy(x => x.DisplayOrder))
+                Add(child);
         }
+
+        foreach (var root in categories
+                     .Where(x => string.IsNullOrEmpty(x.ParentCategoryId) || !ids.Contains(x.ParentCategoryId))
+                     .OrderBy(x => x.DisplayOrder))
+            Add(root);
+
+        //categories caught in a parent cycle have no root; keep them in the list
+        result.AddRange(categories.Where(x => !visited.Contains(x.Id)));
+        return result;
+    }
+
+    /// <summary>Breadcrumb of the category the node hangs under; empty for a node at the root.</summary>
+    protected static string ParentBreadCrumb(KnowledgebaseCategory category,
+        IList<KnowledgebaseCategory> allCategories)
+    {
+        var breadcrumb = category.GetCategoryBreadCrumb(allCategories);
+        //the breadcrumb ends with the category itself
+        return string.Join(" >> ", breadcrumb.Take(breadcrumb.Count - 1).Select(x => x.Name));
     }
 }

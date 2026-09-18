@@ -360,4 +360,13 @@
 	<Resource Name="admin.common.zipfile" Area="Admin">
 		<Value>Zip file</Value>
 	</Resource>
+	<Resource Name="admin.content.knowledgebase.node.type" Area="Admin">
+		<Value>Type</Value>
+	</Resource>
+	<Resource Name="admin.content.knowledgebase.node.category" Area="Admin">
+		<Value>Category</Value>
+	</Resource>
+	<Resource Name="admin.content.knowledgebase.node.article" Area="Admin">
+		<Value>Article</Value>
+	</Resource>
 </Language>
