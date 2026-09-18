@@ -16,6 +16,21 @@
 
 const OPEN_TAB_EVENT = 'grand-tabstrip:show'
 
+/**
+ * The selected-tab-index input a strip owns, or null. <admin-tabstrip> renders the input
+ * straight before its strip, so only the strip it stands in front of remembers its tab: the
+ * page's own. A strip inside a pane (Product > Product attributes) renders a second one the
+ * server never reads - it takes the first value posted - and a localized editor's language
+ * strip has none. Both used to write their own index into the page's input through
+ * $("#selected-tab-index"), so saving the form reopened the page on the wrong tab.
+ * @param {Element} node a strip, or an element inside one (the <li> of a tab)
+ */
+export function selectedTabIndexInput(node) {
+    const strip = node?.closest?.('[data-grand-tabstrip]')
+    const input = strip?.previousElementSibling
+    return input?.matches('input[name="selected-tab-index"]') ? input : null
+}
+
 function call(name, ...args) {
     const fn = globalThis[name]
     if (typeof fn === 'function') return fn(...args)
@@ -93,6 +108,11 @@ export class TabStrip {
         const view = this.element.ownerDocument?.defaultView
         if (!view?.getComputedStyle) return false
         return view.getComputedStyle(this.element).direction === 'rtl'
+    }
+
+    /** The selected-tab-index input of this strip; null for a nested or language strip. */
+    get indexInput() {
+        return selectedTabIndexInput(this.element)
     }
 
     /** tab-position="left": the list is beside the panes, so up and down move between tabs. */
@@ -247,6 +267,8 @@ export function createTabs({ doc = globalThis.document } = {}) {
         init,
         get: id => strips.get(id),
         all: () => Array.from(strips.values()),
+        /** The selected-tab-index input the strip of a tab owns (tabstrip_on_tab_select). */
+        indexInputOf: selectedTabIndexInput,
         /** The strip an element belongs to, as jQuery callers expect to look it up. */
         of: element => jq(element)?.[0]?.grandTabStrip ?? element?.grandTabStrip
     }

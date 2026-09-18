@@ -53,8 +53,16 @@ function setWidgetsEnabled(selectors, enable) {
     });
 }
 
+// Only the page's own strip remembers its tab: the one the selected-tab-index input stands in
+// front of. A strip inside a pane and the language strip of a localized editor fire this hook
+// too, and writing their index into $("#selected-tab-index") reopened the saved form on the
+// wrong tab (English, the second language, sent it back to the second page tab).
 function tabstrip_on_tab_select(e) {
-    $("#selected-tab-index").val($(e.item).index());
+    var tabs = window.GrandAdmin && window.GrandAdmin.tabs;
+    var input = tabs && tabs.indexInputOf ? tabs.indexInputOf((e.sender && e.sender.element) || e.item) : null;
+    if (input) {
+        $(input).val($(e.item).index());
+    }
 }
 
 
