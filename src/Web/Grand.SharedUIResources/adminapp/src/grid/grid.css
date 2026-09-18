@@ -26,6 +26,21 @@
     --grand-grid-false-color: red;
     /* the cell rule Tabulator draws in right-to-left only (.tabulator-rtl) */
     --grand-grid-rtl-cell-border: #dee2e6;
+    /*
+     * The frame: one outline round the header, the rows and the pager, in the colour and
+     * the radius of a form control, so a grid reads as one field of the form it sits in.
+     * The lines inside it (--grand-grid-border) stay lighter than the outline.
+     */
+    --grand-grid-frame: var(--bs-border-color, #dee2e6);
+    --grand-grid-radius: var(--bs-border-radius, .25rem);
+    --grand-grid-hover-bg: #f3f6f9;
+    --grand-grid-footer-bg: var(--grand-grid-header-bg);
+    --grand-grid-edit-marker: #e0a800;
+    /* the current page of the pager: white on it is 5.6:1 */
+    --grand-grid-accent: #0b7285;
+    --grand-grid-accent-color: #fff;
+    /* a detail grid is set in from its master row by this much, past the expander */
+    --grand-grid-detail-indent: 2.25rem;
 
     position: relative;
     width: 100%;
@@ -40,10 +55,17 @@
 
 .grand-grid .tabulator {
     font-size: inherit;
-    border: 1px solid var(--grand-grid-border);
-    border-radius: 0;
+    border: 1px solid var(--grand-grid-frame);
+    border-radius: var(--grand-grid-radius);
     margin: 0;
     background-color: transparent;
+}
+
+/* With a pager below, the table is the top half of the frame and the pager the bottom
+   half: the two share the outline and only the outer corners are rounded. */
+.grand-grid > .grand-grid-table:has(+ .grand-grid-pager:not([hidden])) > .tabulator {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
 }
 
 /* the theme paints the table itself white with #333 text, under the rows */
@@ -53,18 +75,23 @@
 }
 
 /*
- * Admin grids never scroll inside the table (no height option, basic rendering). Tabulator
- * still pins the holder to the height it measured, which would clip detail rows that open
- * or finish loading afterwards.
+ * Admin grids never scroll vertically inside the table (no height option, basic
+ * rendering). Tabulator still pins the holder to the height it measured, which would clip
+ * detail rows that open or finish loading afterwards. Sideways the holder does scroll: when
+ * the columns cannot shrink any further (a phone) the rows move inside the frame, and
+ * Tabulator moves the header with them, instead of the frame clipping the last columns.
  */
 .grand-grid .tabulator .tabulator-tableholder {
     height: auto !important;
     max-height: none !important;
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
 }
 
 .grand-grid .tabulator .tabulator-header {
-    border-bottom: 2px solid var(--grand-grid-border);
+    border-top: 0;
+    border-bottom: 1px solid var(--grand-grid-frame);
     background-color: var(--grand-grid-header-bg);
     color: var(--grand-grid-header-color);
 }
@@ -80,6 +107,7 @@
 
 .grand-grid .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
     white-space: normal;
+    font-weight: 600;
 }
 
 /* A row's background is its --grand-grid-row-bg; the even, edit and selected states below
@@ -129,6 +157,17 @@
     --grand-grid-row-bg: var(--grand-grid-row-alt-bg);
 }
 
+/* the last row ends on the frame (or on the pager's rule), not on a line of its own */
+.grand-grid .tabulator-tableholder > .tabulator-table > .tabulator-row:last-child {
+    border-bottom: 0;
+}
+
+/* A hovered row is lit so a wide row can be followed across; a row whose detail is under
+   the pointer is not - the hover belongs to the rows inside the detail. */
+.grand-grid .tabulator-row:hover:not(:has(.grand-grid-detail:hover)) {
+    --grand-grid-row-bg: var(--grand-grid-hover-bg);
+}
+
 .grand-grid .tabulator-row .tabulator-cell {
     padding: 8px 10px;
     border-right: none;
@@ -138,8 +177,20 @@
     vertical-align: middle;
 }
 
-.grand-grid .tabulator-row.grand-grid-edit-row {
+.grand-grid .tabulator-row.grand-grid-edit-row,
+.grand-grid .tabulator-row.grand-grid-edit-row:hover {
     --grand-grid-row-bg: var(--grand-grid-edit-bg);
+}
+
+/* a row in edit is also marked on its leading edge, which still shows on a striped row */
+.grand-grid .tabulator-row.grand-grid-edit-row::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background-color: var(--grand-grid-edit-marker);
+    z-index: 1;
 }
 
 .grand-grid .tabulator-row.grand-grid-edit-row .tabulator-cell {
@@ -147,11 +198,39 @@
     padding-bottom: 4px;
 }
 
+/* The empty state: a tray glyph over the "no records" text - or on its own where an
+   installation never imported that text - so an empty grid does not read as a broken one. */
 .grand-grid .tabulator .tabulator-tableholder .tabulator-placeholder .tabulator-placeholder-contents {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
     font-size: 1em;
     font-weight: normal;
     color: var(--grand-grid-muted-color);
-    padding: 12px;
+    padding: 20px 12px;
+}
+
+.grand-grid .tabulator .tabulator-tableholder .tabulator-placeholder .tabulator-placeholder-contents::before,
+.grand-grid .tabulator .tabulator-tableholder:not(:has(.tabulator-placeholder)) > .tabulator-table:empty::before {
+    content: "\f42d";
+    font-family: bootstrap-icons, sans-serif;
+    font-size: 1.75rem;
+    line-height: 1;
+    opacity: .7;
+}
+
+/* without the text Tabulator draws no placeholder at all, only an empty table */
+.grand-grid .tabulator .tabulator-tableholder:not(:has(.tabulator-placeholder)) > .tabulator-table:empty::before {
+    display: block;
+    padding: 20px 12px;
+    text-align: center;
+    color: var(--grand-grid-muted-color);
+}
+
+/* a pager that is only the refresh button (pageable="Compact") is a slim footer */
+.grand-grid .grand-grid-pager:has(> .grand-grid-refresh:only-child) {
+    padding-block: 2px;
 }
 
 .grand-grid .tabulator-cell img {
@@ -192,27 +271,41 @@
     cursor: pointer;
 }
 
+/*
+ * A detail row is a recessed band under its master row: the tint and an indent past the
+ * expander tell the levels apart. The detail grid keeps a frame, but in the colour of the
+ * lines inside a grid rather than of the outline, so three levels read as steps and not as
+ * boxes drawn round boxes.
+ */
 .grand-grid .grand-grid-detail {
     display: block;
     flex: 0 0 100%;
     width: 100%;
     box-sizing: border-box;
-    padding: 8px 8px 8px 44px;
+    padding-block: 10px 12px;
+    padding-inline: var(--grand-grid-detail-indent) 12px;
     background-color: var(--grand-grid-detail-bg);
     border-top: 1px solid var(--grand-grid-border);
     clear: both;
 }
 
-.grand-grid[dir="rtl"] .grand-grid-detail {
-    padding: 8px 44px 8px 8px;
+.grand-grid .grand-grid-detail .grand-grid {
+    --grand-grid-frame: var(--grand-grid-border);
 }
 
+/* The pager is the footer of the frame: the outline continues round it and a rule
+   separates it from the last row. */
 .grand-grid .grand-grid-pager {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 16px;
-    padding: 8px 0;
+    gap: 6px 16px;
+    padding: 6px 10px;
+    border: 1px solid var(--grand-grid-frame);
+    border-top: 1px solid var(--grand-grid-border);
+    border-end-start-radius: var(--grand-grid-radius);
+    border-end-end-radius: var(--grand-grid-radius);
+    background-color: var(--grand-grid-footer-bg);
 }
 
 .grand-grid .grand-grid-pager-nav,
@@ -227,7 +320,7 @@
     height: 30px;
     padding: 0 8px;
     border: 1px solid transparent;
-    border-radius: 2px;
+    border-radius: var(--grand-grid-radius);
     background: transparent;
     color: inherit;
     cursor: pointer;
@@ -238,10 +331,17 @@
     background-color: var(--grand-grid-pager-hover-bg);
 }
 
-.grand-grid .grand-grid-pager-button.active {
-    border-color: #32c5d2;
-    background-color: #32c5d2;
-    color: #fff;
+.grand-grid .grand-grid-pager-button:focus-visible {
+    outline: 2px solid var(--grand-grid-accent);
+    outline-offset: 1px;
+}
+
+.grand-grid .grand-grid-pager-button.active,
+.grand-grid .grand-grid-pager-button.active:hover {
+    border-color: var(--grand-grid-accent);
+    background-color: var(--grand-grid-accent);
+    color: var(--grand-grid-accent-color);
+    font-weight: 600;
 }
 
 .grand-grid .grand-grid-pager-button:disabled {
@@ -291,6 +391,11 @@
     --grand-grid-true-color: var(--bs-success-text-emphasis);
     --grand-grid-false-color: var(--bs-danger-text-emphasis);
     --grand-grid-rtl-cell-border: var(--bs-border-color-translucent);
+    --grand-grid-hover-bg: rgba(255, 255, 255, .06);
+    --grand-grid-edit-marker: #ffc94d;
+    /* dark text on it: 8.9:1 */
+    --grand-grid-accent: #66d9e8;
+    --grand-grid-accent-color: #10262b;
 }
 
 /* The yes/no ticks of the cell templates are coloured inline (style="color:green" and
@@ -449,7 +554,7 @@ html[data-bs-theme="dark"] .grand-grid .tabulator {
 
 html[data-bs-theme="dark"] .grand-grid .tabulator:not(.thead-light) .tabulator-header {
     background-color: var(--grand-grid-header-bg);
-    border-color: var(--grand-grid-border);
+    border-color: var(--grand-grid-frame);
     color: var(--grand-grid-header-color);
 }
 
