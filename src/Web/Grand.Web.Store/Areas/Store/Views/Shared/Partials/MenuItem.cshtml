@@ -45,7 +45,7 @@
         <ul class="nav child_menu">
             <li class="menu-header">
                 <span class="title">@Loc[Model.ResourceName]</span>
-                <span class="close-menu" onclick="closeSubMenu(this)"></span>
+                <button type="button" class="close-menu" onclick="closeSubMenu(this)" aria-label="@Loc["Common.Close"]"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
             </li>
             @foreach (var childItem in childNodes)
             {

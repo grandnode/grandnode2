@@ -95,7 +95,10 @@ function init_sidebar() {
                 setContentHeight();
             });
         }
+        syncSidebarExpanded();
     });
+
+    initSidebarKeyboard();
 
     //function setMenuLength(element) {
     //    console.log(element);
@@ -257,7 +260,64 @@ function init_sidebar() {
 }
 
 function closeSubMenu(el) {
-    $(el).closest('.has-submenu.active').removeClass('active');
+    var $li = $(el).closest('.has-submenu.active');
+    $li.removeClass('active');
+    syncSidebarExpanded();
+    //the close button disappears with its sheet; focus goes back to the section it belongs to
+    if ($li.length && $.contains($li[0], document.activeElement)) {
+        $li.children('a').trigger('focus');
+    }
+}
+
+// The section tiles are anchors without an address (Admin.Navigation in admin.search.js and
+// the current-page lookup above both read the anchors of the menu), so they get the role,
+// the tab stop and the keys of a button here, and aria-expanded follows li.active.
+function sectionToggles() {
+    return $SIDEBAR_MENU.find('.side-menu > li.has-submenu > a');
+}
+
+function syncSidebarExpanded() {
+    sectionToggles().each(function () {
+        $(this).attr('aria-expanded', $(this).parent().hasClass('active') ? 'true' : 'false');
+    });
+}
+
+function closeOpenSection(focusToggle) {
+    var $open = $SIDEBAR_MENU.find('.side-menu > li.has-submenu.active');
+    if (!$open.length) return;
+    $open.removeClass('active');
+    syncSidebarExpanded();
+    if (focusToggle) $open.children('a').trigger('focus');
+}
+
+function initSidebarKeyboard() {
+    sectionToggles().each(function (i) {
+        var $toggle = $(this);
+        var $sheet = $toggle.siblings('ul.child_menu');
+        var id = $sheet.attr('id') || 'sidebar-section-' + i;
+        $sheet.attr('id', id);
+        $toggle.attr({ role: 'button', tabindex: '0', 'aria-controls': id, 'aria-expanded': 'false' });
+    });
+
+    sectionToggles().on('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            $(this).trigger('click');
+        }
+    });
+
+    //Escape closes the open sheet and returns to its tile
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && $SIDEBAR_MENU.find('.side-menu > li.has-submenu.active').length) {
+            closeOpenSection(true);
+        }
+    });
+
+    //tabbing out of an open sheet closes it, as a click outside it does
+    $(document).on('focusin', function (e) {
+        var $open = $SIDEBAR_MENU.find('.side-menu > li.has-submenu.active');
+        if ($open.length && !$.contains($open[0], e.target)) closeOpenSection(false);
+    });
 }
 // /Sidebar
 
@@ -269,11 +329,17 @@ $(document).ready(function () {
     if (localStorage.getItem('adminContainerWide') == 'true') {
         $(".container.body").addClass("wide");
     }
+    syncSidebarButton();
 });
 function sidebarToggle() {
     var container = $(".container.body");
     container.toggleClass("wide");
     saveContainer(container);
+    syncSidebarButton();
+}
+//"wide" is the page without the rail; the phone-size button shows and hides the rail
+function syncSidebarButton() {
+    $('#sidebar-button').attr('aria-expanded', $(".container.body").hasClass("wide") ? 'false' : 'true');
 }
 function saveContainer(container) {
     if (container.hasClass("wide")) {
@@ -1929,6 +1995,7 @@ $(document).ready(() => {
 
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             $SIDEBAR_MENU.find('li.active').removeClass('active');
+            syncSidebarExpanded();
         }
     });
 });
