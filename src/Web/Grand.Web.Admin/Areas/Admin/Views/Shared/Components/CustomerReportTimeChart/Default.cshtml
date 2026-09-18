@@ -55,6 +55,9 @@
                 var ctx = document.getElementById('canvasReportCustomerTimeChart').getContext('2d');
 
                 if (first) {
+                    //the switch redraws the chart in the other scheme; the old one has to go, or
+                    //both stay on the canvas and flicker under the pointer
+                    if (window.myReportCustomerTimeChart) window.myReportCustomerTimeChart.destroy();
                     if ($('#DarkLight').is(':checked')) {
                         window.myReportCustomerTimeChart = new Chart(ctx, {
                             type: 'bar',
@@ -75,12 +78,21 @@
                                     mode: 'index',
                                     intersect: true
                                 }, scales: {
+                                    xAxes: [{
+                                        gridLines: {
+                                            color: 'rgba(255,255,255,0.15)'
+                                        },
+                                        ticks: {
+                                            fontColor: 'rgb(255,255,255)'
+                                        }
+                                    }],
                                     yAxes: [{
                                         id: 'L',
                                         type: 'linear',
                                         position: 'left',
                                         gridLines: {
-                                            color: 'rgb(255,255,255)'
+                                            color: 'rgba(255,255,255,0.15)',
+                                            zeroLineColor: 'rgba(255,255,255,0.4)'
                                         },
                                         ticks: {
                                             min: 0,
