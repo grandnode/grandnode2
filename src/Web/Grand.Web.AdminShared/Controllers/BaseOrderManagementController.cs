@@ -224,24 +224,38 @@ public abstract class BaseOrderManagementController(
         var itemModel = model.Items.FirstOrDefault(x => x.Id == model.OrderItemId)
             ?? throw new ArgumentException("No order item model found with the specified id");
 
-        if (itemModel.Quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
+        var (error, message) = await ApplyOrderItemEdit(order, orderItem, itemModel.Quantity,
+            itemModel.UnitPriceExclTaxValue);
+        if (error)
         {
-            Error("You can't change quantity");
+            Error(message);
             return RedirectToAction("Edit", "Order", new { id });
         }
 
-        if (orderItem.Quantity == itemModel.Quantity && orderItem.UnitPriceExclTax == itemModel.UnitPriceExclTaxValue)
-        {
-            Error("Nothing has been changed");
-            return RedirectToAction("Edit", "Order", new { id });
-        }
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
 
-        orderItem.Quantity = itemModel.Quantity;
-        orderItem.OpenQty = itemModel.Quantity;
+    /// <summary>
+    ///     The quantity/unit price rules and the amount arithmetic of an order item edit, shared by
+    ///     the form post (<see cref="SaveOrderItem" />) and the products grid
+    ///     (the products grid). Every amount is still computed here on the server.
+    /// </summary>
+    private async Task<(bool error, string message)> ApplyOrderItemEdit(Order order, OrderItem orderItem,
+        int quantity, double unitPriceExclTax)
+    {
+        if (quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
+            return (true, "You can't change quantity");
 
-        if (orderItem.UnitPriceExclTax != itemModel.UnitPriceExclTaxValue)
+        if (orderItem.Quantity == quantity && orderItem.UnitPriceExclTax == unitPriceExclTax)
+            return (true, "Nothing has been changed");
+
+        orderItem.Quantity = quantity;
+        orderItem.OpenQty = quantity;
+
+        if (orderItem.UnitPriceExclTax != unitPriceExclTax)
         {
-            orderItem.UnitPriceExclTax = itemModel.UnitPriceExclTaxValue;
+            orderItem.UnitPriceExclTax = unitPriceExclTax;
             orderItem.UnitPriceInclTax =
                 Math.Round(orderItem.UnitPriceExclTax * orderItem.TaxRate / 100 + orderItem.UnitPriceExclTax, 2);
             orderItem.PriceInclTax = Math.Round(orderItem.UnitPriceInclTax * orderItem.Quantity, 2);
@@ -258,8 +272,7 @@ public abstract class BaseOrderManagementController(
         }
 
         await mediator.Send(new UpdateOrderItemCommand { Order = order, OrderItem = orderItem });
-        await SaveSelectedTabIndex(persistForTheNextRequest: true);
-        return RedirectToAction("Edit", "Order", new { id });
+        return (false, string.Empty);
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
