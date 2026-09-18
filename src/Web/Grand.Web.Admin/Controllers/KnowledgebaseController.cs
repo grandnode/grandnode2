@@ -43,10 +43,16 @@ public class KnowledgebaseController : BaseAdminController
         return View();
     }
 
-    public async Task<IActionResult> NodeList()
+    public async Task<IActionResult> NodeList(DataSourceRequest command)
     {
-        var model = await _knowledgebaseViewModelService.PrepareTreeNode();
-        return Json(model);
+        var (knowledgebaseNodeGridModels, totalCount) =
+            await _knowledgebaseViewModelService.PrepareKnowledgebaseNodeGridModel(command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = knowledgebaseNodeGridModels.ToList(),
+            Total = totalCount
+        };
+
+        return Json(gridModel);
     }
 
     public async Task<IActionResult> ArticleList(DataSourceRequest command, string parentCategoryId)

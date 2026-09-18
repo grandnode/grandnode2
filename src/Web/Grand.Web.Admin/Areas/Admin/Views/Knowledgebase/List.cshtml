@@ -1,9 +1,19 @@
-﻿@using Constants = Grand.SharedUIResources.Constants
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.Knowledgebase.Manage"];
+
+    //the resources below ship with 2.4; an installation that has not imported them yet
+    //shows the English default instead of the raw resource key
+    string Res(string key, string fallback)
+    {
+        //a missing resource comes back as its own (lowercased) key
+        var resource = Loc[key];
+        return resource.ResourceNotFound || string.IsNullOrEmpty(resource.Value) ||
+               string.Equals(resource.Value, key, StringComparison.OrdinalIgnoreCase)
+            ? fallback
+            : resource.Value;
+    }
 }
-<script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/bootstrap-treeview.js"></script>
 
 <div class="row">
     <div class="col-md-12">
@@ -14,66 +24,55 @@
                     @Loc["Admin.Content.Knowledgebase.Manage"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("CreateCategory", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseCategory"]</a>
-                    <a href="@Url.Action("CreateArticle", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })" class="btn yellow">@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseArticle"]</a>
+                    <a href="@Url.Action("CreateCategory", new { area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseCategory"]</a>
+                    <a href="@Url.Action("CreateArticle", new { area = Constants.AreaAdmin })" class="btn yellow">@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseArticle"]</a>
                 </div>
             </div>
             <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <div id="tree"></div>
-                        </div>
-                    </div>
+                <div class="form-body">
+                    <admin-grid id="knowledgebase-grid" read-url="@Url.Action("NodeList", "Knowledgebase", new { area = Constants.AreaAdmin })">
+                        <grid-text name="category" value="@Res("Admin.Content.Knowledgebase.Node.Category", "Category")"/>
+                        <grid-text name="article" value="@Res("Admin.Content.Knowledgebase.Node.Article", "Article")"/>
+                        <grid-column field="Name" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Name"]" width="400">
+                            <cell-template>
+                                <a data-if="IsCategory" class="text-decoration-none" href="@Url.Action("EditCategory", "Knowledgebase", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+                                <a data-else class="text-decoration-none" href="@Url.Action("EditArticle", "Knowledgebase", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="IsCategory" title="@Res("Admin.Content.Knowledgebase.Node.Type", "Type")" width="120">
+                            <cell-template>
+                                <span data-if="IsCategory"><i class="bi bi-folder2 bi-fw" aria-hidden="true"></i> {{ $texts.category }}</span>
+                                <span data-else><i class="bi bi-file-earmark-text bi-fw" aria-hidden="true"></i> {{ $texts.article }}</span>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="ParentCategory" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.ParentCategoryId"]" width="300"/>
+                        <grid-column field="Published" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Published"]" width="80" align="Center">
+                            <cell-template>
+                                <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
+                        @*the articles of a category are its detail rows; a subcategory is a row of the
+                          table itself, with the branch it belongs to in the parent category column*@
+                        <grid-detail read-url="@Url.Action("ArticleList", "Knowledgebase", new { area = Constants.AreaAdmin })"
+                                     param="parentCategoryId:Id" page-size="10" visible-if="IsCategory">
+                            <grid-column field="Name" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name"]" width="400">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="@Url.Action("EditArticle", "Knowledgebase", new { area = Constants.AreaAdmin })/{{ ArticleId }}">{{ Name }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Published" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Published"]" width="80" align="Center">
+                                <cell-template>
+                                    <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
+                        </grid-detail>
+                    </admin-grid>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function () {
-        $.ajax({
-            cache: false,
-            url: "@(Url.Action("NodeList", "Knowledgebase", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))",
-            dataType: 'json',
-            success: function (data) {
-                $('#tree').treeview({
-                    data: createTree(data),
-                    collapseIcon: "bi bi-folder2-open",
-                    expandIcon: "bi bi-folder",
-                    emptyIcon: "bi bi-folder2-open",
-                    backColor: "#e9ecef",
-                    showTags: true,
-                    levels: 0,
-                    enableLinks: true
-                });
-            },
-            error: function () {
-                alert('Error');
-            }
-        });
-    });
-
-    function createTree(data) {
-        markAsArticle(data);
-        return data;
-    }
-
-    function markAsArticle(nodes) {
-        for (var i = 0; i < nodes.length; i++){
-            if (!nodes[i].isCategory) {
-                nodes[i].backColor = "#ffffff";
-                nodes[i].tags = ['@Url.Action("EditArticle", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })' + '/' + nodes[i].id];
-            } else {
-                nodes[i].tags = ['@Url.Action("EditCategory", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })' + '/' + nodes[i].id];
-            }
-
-            nodes[i].selectable = false;
-
-            if (nodes[i].nodes.length > 0) {
-                markAsArticle(nodes[i].nodes);
-            }
-        }
-    }
-</script>
