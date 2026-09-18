@@ -393,7 +393,7 @@
     --grand-grid-rtl-cell-border: var(--bs-border-color-translucent);
     --grand-grid-hover-bg: rgba(255, 255, 255, .06);
     --grand-grid-edit-marker: #ffc94d;
-    /* dark text on it: 8.9:1 */
+    /* dark text on it: 9.5:1 */
     --grand-grid-accent: #66d9e8;
     --grand-grid-accent-color: #10262b;
 }
