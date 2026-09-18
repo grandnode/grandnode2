@@ -122,3 +122,9 @@ IF you want all numbers in persian use this
 div#graph_donut svg text {
     font-family: IRANSans !important;
 }
+
+/* the dashboard card action ("View more") arrow points along the reading direction */
+.grand-card__action-arrow {
+  display: inline-block;
+  transform: scaleX(-1);
+}

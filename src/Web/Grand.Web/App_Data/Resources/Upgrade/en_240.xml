@@ -378,4 +378,13 @@
 	<Resource Name="admin.orders.products.openqty" Area="Admin">
 		<Value>Open</Value>
 	</Resource>
+	<Resource Name="admin.dashboard.loading" Area="Admin">
+		<Value>Loading...</Value>
+	</Resource>
+	<Resource Name="admin.dashboard.news" Area="Admin">
+		<Value>News from GrandNode</Value>
+	</Resource>
+	<Resource Name="admin.dashboard.welcome.edit" Area="Admin">
+		<Value>Edit this message</Value>
+	</Resource>
 </Language>

@@ -1,0 +1,526 @@
+//The Admin dashboard (Home/Index): a header with the date range, the welcome card read from
+//the AdminPortalInfo page, the stat cards, and the charts, activity list, latest orders and
+//news, each in a card.
+//
+//Everything is scoped to .grand-dashboard, so the Store and Vendor dashboards - which have
+//views of their own - keep their look. Colours come from tokens set once for light and once
+//for dark; geometry on the inline axis uses logical properties. The one thing right-to-left
+//needs beyond that - the arrow of a card action pointing the other way - is in _rtl.scss.
+
+.grand-dashboard {
+    --grand-dash-gap: 1rem;
+    --grand-dash-radius: .75rem;
+    --grand-dash-card-bg: var(--#{$prefix}body-bg);
+    --grand-dash-card-border: #e3e8ee;
+    --grand-dash-card-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 16px rgba(15, 23, 42, .05);
+    --grand-dash-title: var(--#{$prefix}emphasis-color);
+    --grand-dash-muted: var(--#{$prefix}secondary-color);
+    --grand-dash-rule: #edf1f5;
+    --grand-dash-accent: var(--grand-form-accent, #0b7285);
+    --grand-dash-accent-soft: rgba(11, 114, 133, .1);
+    --grand-dash-welcome-from: rgba(11, 114, 133, .09);
+
+    //the tint of each stat and activity icon: foreground on a soft background
+    --grand-dash-teal: #0b7285;
+    --grand-dash-teal-soft: rgba(11, 114, 133, .1);
+    --grand-dash-violet: #5f3dc4;
+    --grand-dash-violet-soft: rgba(95, 61, 196, .1);
+    --grand-dash-amber: #a14d00;
+    --grand-dash-amber-soft: rgba(245, 159, 0, .15);
+    --grand-dash-red: #b02a37;
+    --grand-dash-red-soft: rgba(176, 42, 55, .1);
+    --grand-dash-green: #2b8a3e;
+    --grand-dash-green-soft: rgba(43, 138, 62, .1);
+    --grand-dash-slate: #495057;
+    --grand-dash-slate-soft: rgba(73, 80, 87, .1);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--grand-dash-gap);
+    padding-block: .75rem 1.5rem;
+}
+
+[data-bs-theme="dark"] .grand-dashboard {
+    --grand-dash-card-bg: var(--#{$prefix}tertiary-bg);
+    --grand-dash-card-border: rgba(255, 255, 255, .08);
+    --grand-dash-card-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+    --grand-dash-rule: rgba(255, 255, 255, .08);
+    --grand-dash-accent-soft: rgba(102, 217, 232, .14);
+    --grand-dash-welcome-from: rgba(102, 217, 232, .12);
+
+    --grand-dash-teal: #66d9e8;
+    --grand-dash-teal-soft: rgba(102, 217, 232, .14);
+    --grand-dash-violet: #b197fc;
+    --grand-dash-violet-soft: rgba(177, 151, 252, .14);
+    --grand-dash-amber: #ffc078;
+    --grand-dash-amber-soft: rgba(255, 192, 120, .14);
+    --grand-dash-red: #ffa8a8;
+    --grand-dash-red-soft: rgba(255, 168, 168, .14);
+    --grand-dash-green: #8ce99a;
+    --grand-dash-green-soft: rgba(140, 233, 154, .14);
+    --grand-dash-slate: #ced4da;
+    --grand-dash-slate-soft: rgba(206, 212, 218, .12);
+}
+
+//the rows inside the flex column bring their own gutters; the old tile row indent is not wanted
+.grand-dashboard > .row {
+    margin-block: 0;
+}
+
+.grand-dashboard .row.top_tiles {
+    padding-inline-start: 0;
+    margin-bottom: 0;
+}
+
+/* header */
+
+.grand-dashboard__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem 1rem;
+}
+
+.grand-dashboard__title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--grand-dash-title);
+}
+
+.grand-dashboard .grand-dashboard__range {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    max-width: 100%;
+    padding: .45rem .85rem;
+    font-size: .875rem;
+    color: var(--#{$prefix}body-color);
+    background-color: var(--grand-dash-card-bg);
+    border: 1px solid var(--grand-dash-card-border);
+    border-radius: 999px;
+    box-shadow: var(--grand-dash-card-shadow);
+
+    .bi-calendar3 {
+        color: var(--grand-dash-accent);
+    }
+
+    .bi-chevron-down {
+        font-size: .75rem;
+        color: var(--grand-dash-muted);
+    }
+
+    &:hover,
+    &:focus-visible {
+        border-color: var(--grand-dash-accent);
+        color: var(--#{$prefix}body-color);
+    }
+
+    &:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 .2rem var(--grand-form-ring, rgba(11, 114, 133, .25));
+    }
+}
+
+.grand-dashboard__range-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* welcome card (AdminPortalInfo page) */
+
+.grand-dashboard__welcome {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background:
+        linear-gradient(135deg, var(--grand-dash-welcome-from), transparent 65%),
+        var(--grand-dash-card-bg);
+    border: 1px solid var(--grand-dash-card-border);
+    border-inline-start: 4px solid var(--grand-dash-accent);
+    border-radius: var(--grand-dash-radius);
+    box-shadow: var(--grand-dash-card-shadow);
+}
+
+.grand-dashboard__welcome-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.35rem;
+    color: var(--grand-dash-accent);
+    background-color: var(--grand-dash-accent-soft);
+    border-radius: 50%;
+}
+
+.grand-dashboard__welcome-text {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+
+.grand-dashboard__welcome-title {
+    margin: 0 0 .35rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--grand-dash-title);
+}
+
+.grand-dashboard__welcome-body {
+    color: var(--#{$prefix}body-color);
+
+    > :last-child {
+        margin-bottom: 0;
+    }
+}
+
+.grand-dashboard__welcome-edit {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .35rem;
+    align-self: center;
+    border-radius: 999px;
+}
+
+/* stat cards */
+
+.grand-stat {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    padding: 1.1rem 1.25rem;
+    background-color: var(--grand-dash-card-bg);
+    border: 1px solid var(--grand-dash-card-border);
+    border-radius: var(--grand-dash-radius);
+    box-shadow: var(--grand-dash-card-shadow);
+    transition: border-color .15s ease-in-out, transform .15s ease-in-out;
+
+    &:hover,
+    &:focus-within {
+        border-color: var(--grand-dash-stat-color);
+    }
+
+    &:focus-within {
+        box-shadow: 0 0 0 .2rem var(--grand-form-ring, rgba(11, 114, 133, .25));
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        &:hover {
+            transform: translateY(-2px);
+        }
+    }
+}
+
+.grand-stat--visitors {
+    --grand-dash-stat-color: var(--grand-dash-teal);
+    --grand-dash-stat-soft: var(--grand-dash-teal-soft);
+}
+
+.grand-stat--carts {
+    --grand-dash-stat-color: var(--grand-dash-violet);
+    --grand-dash-stat-soft: var(--grand-dash-violet-soft);
+}
+
+.grand-stat--orders {
+    --grand-dash-stat-color: var(--grand-dash-amber);
+    --grand-dash-stat-soft: var(--grand-dash-amber-soft);
+}
+
+.grand-stat__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.5rem;
+    color: var(--grand-dash-stat-color);
+    background-color: var(--grand-dash-stat-soft);
+    border-radius: .75rem;
+}
+
+.grand-stat__body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.grand-dashboard .grand-stat__label {
+    order: 1;
+    font-size: .8125rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--grand-dash-muted);
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        color: var(--grand-dash-stat-color);
+        outline: 0;
+    }
+}
+
+.grand-stat__value {
+    order: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .35rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--grand-dash-title);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.grand-stat__value-secondary {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--grand-dash-muted);
+}
+
+.grand-stat__hint {
+    order: 3;
+    font-size: .8125rem;
+    color: var(--grand-dash-muted);
+}
+
+/* cards */
+
+.grand-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: var(--grand-dash-card-bg);
+    border: 1px solid var(--grand-dash-card-border);
+    border-radius: var(--grand-dash-radius);
+    box-shadow: var(--grand-dash-card-shadow);
+}
+
+.grand-card__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .6rem;
+    padding: .85rem 1.25rem;
+    border-bottom: 1px solid var(--grand-dash-rule);
+}
+
+.grand-card__icon {
+    font-size: 1.05rem;
+    color: var(--grand-dash-accent);
+}
+
+.grand-card__title {
+    //takes the rest of the row, so a long title wraps beside its icon instead of below it
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--grand-dash-title);
+}
+
+.grand-dashboard .grand-card__action {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--grand-dash-accent);
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        text-decoration: underline;
+    }
+}
+
+.grand-card__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 1rem 1.25rem;
+}
+
+.grand-card__body--flush {
+    padding: .25rem 0;
+}
+
+.grand-dashboard__loading {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem 1.25rem;
+    color: var(--grand-dash-muted);
+}
+
+/* charts */
+
+.grand-dashboard__chart {
+    position: relative;
+    height: 280px;
+}
+
+.grand-dashboard__chart--wide {
+    height: 320px;
+}
+
+//the panel's dark mode paints every canvas; inside a card the card is the background
+[data-theme="dark"] .grand-dashboard__chart canvas,
+.grand-dashboard__chart canvas {
+    background: transparent;
+}
+
+@media (max-width: 575.98px) {
+    .grand-dashboard__chart,
+    .grand-dashboard__chart--wide {
+        height: 240px;
+    }
+}
+
+/* activity overview */
+
+.grand-activity {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.grand-activity__item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 1.25rem;
+
+    & + & {
+        border-top: 1px solid var(--grand-dash-rule);
+    }
+}
+
+.grand-activity__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--grand-dash-activity-color);
+    background-color: var(--grand-dash-activity-soft);
+    border-radius: .5rem;
+}
+
+.grand-activity__label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.grand-activity__count {
+    min-width: 2rem;
+    padding: .1rem .55rem;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--grand-dash-title);
+    background-color: var(--grand-dash-slate-soft);
+    border-radius: 999px;
+}
+
+.grand-activity__item--orders {
+    --grand-dash-activity-color: var(--grand-dash-teal);
+    --grand-dash-activity-soft: var(--grand-dash-teal-soft);
+}
+
+.grand-activity__item--carts {
+    --grand-dash-activity-color: var(--grand-dash-violet);
+    --grand-dash-activity-soft: var(--grand-dash-violet-soft);
+}
+
+.grand-activity__item--stock {
+    --grand-dash-activity-color: var(--grand-dash-red);
+    --grand-dash-activity-soft: var(--grand-dash-red-soft);
+}
+
+.grand-activity__item--customers {
+    --grand-dash-activity-color: var(--grand-dash-green);
+    --grand-dash-activity-soft: var(--grand-dash-green-soft);
+}
+
+.grand-activity__item--returns {
+    --grand-dash-activity-color: var(--grand-dash-amber);
+    --grand-dash-activity-soft: var(--grand-dash-amber-soft);
+}
+
+/* grandnode.com news */
+
+.grand-news {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.grand-news__item {
+    padding: .85rem 1rem;
+    background-color: var(--grand-dash-accent-soft);
+    border-inline-start: 3px solid var(--grand-dash-accent);
+    border-radius: .5rem;
+}
+
+.grand-news__title {
+    margin: 0 0 .3rem;
+    font-size: .9375rem;
+    font-weight: 600;
+
+    a {
+        color: var(--grand-dash-title);
+        text-decoration: none;
+
+        &:hover,
+        &:focus {
+            color: var(--grand-dash-accent);
+            text-decoration: underline;
+        }
+    }
+}
+
+.grand-news__text {
+    margin: 0;
+    font-size: .8125rem;
+    color: var(--#{$prefix}body-color);
+}
+
+@media (max-width: 575.98px) {
+    .grand-dashboard {
+        --grand-dash-gap: .75rem;
+    }
+
+    .grand-dashboard__title {
+        font-size: 1.25rem;
+    }
+
+    .grand-dashboard__welcome {
+        padding: 1rem;
+    }
+
+    .grand-card__header,
+    .grand-card__body {
+        padding-inline: 1rem;
+    }
+
+    .grand-stat__value {
+        font-size: 1.5rem;
+    }
+}
