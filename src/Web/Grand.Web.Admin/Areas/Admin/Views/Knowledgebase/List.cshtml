@@ -6,8 +6,12 @@
     //shows the English default instead of the raw resource key
     string Res(string key, string fallback)
     {
+        //a missing resource comes back as its own (lowercased) key
         var resource = Loc[key];
-        return resource.ResourceNotFound ? fallback : resource.Value;
+        return resource.ResourceNotFound || string.IsNullOrEmpty(resource.Value) ||
+               string.Equals(resource.Value, key, StringComparison.OrdinalIgnoreCase)
+            ? fallback
+            : resource.Value;
     }
 }
 
