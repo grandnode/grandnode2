@@ -29,12 +29,9 @@
     /*
      * The frame: one outline round the header, the rows and the pager, in the colour and
      * the radius of a form control, so a grid reads as one field of the form it sits in.
-     * The colour is the form fields' own token (styles/_forms.scss), light and dark, so a
-     * grid, a tab strip and a field next to them share one edge; the Bootstrap border
-     * colour is only the fallback of a page without admin.bootstrap.css. The lines inside
-     * it (--grand-grid-border) stay lighter than the outline.
+     * The lines inside it (--grand-grid-border) stay lighter than the outline.
      */
-    --grand-grid-frame: var(--grand-form-border, var(--bs-border-color, #dee2e6));
+    --grand-grid-frame: var(--bs-border-color, #dee2e6);
     --grand-grid-radius: var(--bs-border-radius, .25rem);
     --grand-grid-hover-bg: #f3f6f9;
     --grand-grid-footer-bg: var(--grand-grid-header-bg);
@@ -65,13 +62,10 @@
 }
 
 /* With a pager below, the table is the top half of the frame and the pager the bottom
-   half: the two share the outline and only the outer corners are rounded. Where they meet
-   is a line inside the frame, so it is drawn in the colour of the row lines. The table
-   element is the .tabulator itself (a "> .tabulator" here matched nothing). */
-.grand-grid > .grand-grid-table.tabulator:has(+ .grand-grid-pager:not([hidden])) {
+   half: the two share the outline and only the outer corners are rounded. */
+.grand-grid > .grand-grid-table:has(+ .grand-grid-pager:not([hidden])) > .tabulator {
     border-end-start-radius: 0;
     border-end-end-radius: 0;
-    border-bottom-color: var(--grand-grid-border);
 }
 
 /* the theme paints the table itself white with #333 text, under the rows */
@@ -95,10 +89,9 @@
     scrollbar-width: thin;
 }
 
-/* the rule under the header is inside the frame: a row line, not the outline */
 .grand-grid .tabulator .tabulator-header {
     border-top: 0;
-    border-bottom: 1px solid var(--grand-grid-border);
+    border-bottom: 1px solid var(--grand-grid-frame);
     background-color: var(--grand-grid-header-bg);
     color: var(--grand-grid-header-color);
 }
@@ -570,7 +563,7 @@ html[data-bs-theme="dark"] .grand-grid .tabulator {
 
 html[data-bs-theme="dark"] .grand-grid .tabulator:not(.thead-light) .tabulator-header {
     background-color: var(--grand-grid-header-bg);
-    border-color: var(--grand-grid-border);
+    border-color: var(--grand-grid-frame);
     color: var(--grand-grid-header-color);
 }
 
