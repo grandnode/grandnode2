@@ -22,6 +22,9 @@ import { collect, pageTexts } from './culture.js'
 
 const instances = new WeakMap()
 
+//the input types a browser draws a picker of its own into
+const NATIVE_TYPES = new Set(['date', 'datetime-local', 'time', 'month', 'week'])
+
 const pad = n => String(n).padStart(2, '0')
 
 const isoLike = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/
@@ -113,6 +116,14 @@ export class DateInput {
         this.texts = { today: 'Today', clear: 'Clear', previousMonth: 'Previous month', nextMonth: 'Next month', openCalendar: 'Open the calendar', ...(options.texts || {}) }
         this.open = false
 
+        //An asp-for on a DateTime renders <input type="datetime-local">, and the browser then
+        //draws a calendar button of its own inside the field, next to this control's - two
+        //calendars - and refuses the culture's spelling this control writes, so a day picked
+        //from this calendar was dropped. The field is the plain text box it was under Kendo;
+        //the ISO value the browser held is rewritten in the culture below.
+        const native = NATIVE_TYPES.has(element.type)
+        if (native) element.type = 'text'
+
         //the field is the control the user types in, which is what Kendo's was; it is only
         //given the Bootstrap class when the editor template did not (most do not)
         if (!element.classList.contains('form-control') && !element.classList.contains('form-select'))
@@ -145,7 +156,8 @@ export class DateInput {
         //one, so a form that is opened and saved posts back the string it was given
         this._value = options.value != null && options.value !== ''
             ? parseLocal(options.value)
-            : (parseTyped(element.value, this.mode, this.culture) || null)
+            : (parseTyped(element.value, this.mode, this.culture) || (native ? parseLocal(element.value) : null) || null)
+        if (native) element.value = this._value ? formatDate(this._value, this.pattern, this.culture) : ''
         this.view = startOfDay(this._value || new Date())
         this.view.setDate(1)
         this.ready = true

@@ -60,6 +60,30 @@ describe('date input', () => {
         expect(document.querySelectorAll('.grand-datepicker > input').length).toBe(1)
     })
 
+    it('turns the datetime-local field an asp-for renders into a text box with one calendar', () => {
+        //what <input asp-for="@Model"/> of the Date and DateNullable templates renders
+        document.body.innerHTML = '<input type="datetime-local" id="d" name="StartDate" value="2026-09-16T00:00:00.000" data-grand-date="date" data-grand-date-value="2026-09-16T00:00:00">'
+        const element = document.getElementById('d')
+        const [widget] = initDateInputs(document, pl)
+        expect(element.type).toBe('text')
+        expect(element.value).toBe('16.09.2026')
+        expect(document.querySelectorAll('.grand-datepicker-toggle').length).toBe(1)
+        //a day picked from the calendar is kept - a datetime-local field refused the text
+        widget.openPanel()
+        widget.panel.querySelector('[data-grand-day="2026-09-02"]').click()
+        expect(element.value).toBe('02.09.2026')
+    })
+
+    it('reads the ISO value of a native field that carries no seed, and leaves an empty one empty', () => {
+        document.body.innerHTML = '<input type="date" id="a" value="2026-04-03"><input type="datetime-local" id="b" value="">'
+        const a = createDateInput(document.getElementById('a'), { culture: en, mode: 'date' })
+        const b = createDateInput(document.getElementById('b'), { culture: en, mode: 'date' })
+        expect(a.element.type).toBe('text')
+        expect(a.element.value).toBe('4/3/2026')
+        expect(b.element.type).toBe('text')
+        expect(b.element.value).toBe('')
+    })
+
     it('posts the culture short date once a day is picked', () => {
         const { element, widget } = build('date', '2026-09-16T00:00:00', pl, '16.09.2026')
         widget.openPanel()
