@@ -181,6 +181,9 @@ public class GridDetailDefinition : GridDefinition
 
     /// <summary>Condition (admin.grid.js expression syntax) that shows the expander of a master row.</summary>
     public string VisibleIf { get; set; }
+
+    /// <summary>The rows of the detail grid expand to this same detail, to any depth.</summary>
+    public bool? Recursive { get; set; }
 }
 
 public class GridDetailParam

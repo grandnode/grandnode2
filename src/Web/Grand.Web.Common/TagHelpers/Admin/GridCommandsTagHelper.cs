@@ -236,6 +236,14 @@ public class GridDetailTagHelper : TagHelper
     /// <summary>Condition (admin.grid.js expression syntax) on the master row that shows its expander.</summary>
     public string VisibleIf { get; set; }
 
+    /// <summary>
+    ///     The rows of the detail grid expand to this same detail, one level further down, as deep
+    ///     as the data goes (a category to its subcategories). The read URL is called with the
+    ///     parameters of the row being expanded, so it returns the children of any row; visible-if
+    ///     keeps the expander off the rows without children.
+    /// </summary>
+    public bool Recursive { get; set; }
+
     /// <summary>Global function called after each detail grid rendered its rows.</summary>
     public string OnDataBound { get; set; }
 
@@ -252,6 +260,7 @@ public class GridDetailTagHelper : TagHelper
             Transport = new GridTransport { Read = ResolveUrl(), Destroy = string.IsNullOrEmpty(DestroyUrl) ? null : DestroyUrl },
             ConfirmDestroy = ConfirmDestroy ? true : null,
             VisibleIf = string.IsNullOrWhiteSpace(VisibleIf) ? null : VisibleIf,
+            Recursive = Recursive ? true : null,
             Events = string.IsNullOrWhiteSpace(OnDataBound) ? null : new Dictionary<string, string> { ["dataBound"] = OnDataBound }
         };
         context.Items[AdminGridTagHelper.ContextKey] = new GridBuilder(detail, parent.Id, parent.Root);

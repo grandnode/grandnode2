@@ -360,6 +360,31 @@ public class AdminGridTagHelperTests
     }
 
     [TestMethod]
+    public async Task Process_Detail_SerializesRecursiveOnlyWhenSet()
+    {
+        var recursive = await RunGrid(CreateGrid(),
+            new Element(new GridColumnTagHelper { Field = "Name" }),
+            new Element(new GridDetailTagHelper(_urlHelperFactoryMock.Object) {
+                    ViewContext = _viewContext, ReadUrl = "/Admin/Knowledgebase/NodeList", Param = "parentCategoryId:Id",
+                    Recursive = true, VisibleIf = "ChildCount > 0"
+                }, null,
+                new Element(new GridColumnTagHelper { Field = "Name" })));
+        var single = await RunGrid(CreateGrid(),
+            new Element(new GridColumnTagHelper { Field = "Name" }),
+            new Element(new GridDetailTagHelper(_urlHelperFactoryMock.Object) {
+                    ViewContext = _viewContext, ReadUrl = "/Admin/Knowledgebase/ArticleList", Param = "parentCategoryId:Id"
+                }, null,
+                new Element(new GridColumnTagHelper { Field = "Name" })));
+
+        var detail = Config(recursive).GetProperty("detail");
+        Assert.IsTrue(detail.GetProperty("recursive").GetBoolean());
+        Assert.AreEqual("ChildCount > 0", detail.GetProperty("visibleIf").GetString());
+        //the detail is described once; the JSON carries no copy of it for the levels below
+        Assert.IsFalse(detail.TryGetProperty("detail", out _));
+        Assert.IsFalse(Config(single).GetProperty("detail").TryGetProperty("recursive", out _));
+    }
+
+    [TestMethod]
     public async Task Process_BatchEditing_SerializesPrefixAndToolbarButtons()
     {
         var grid = CreateGrid(g =>

@@ -184,6 +184,67 @@ describe('detail grids', () => {
         await vi.waitFor(() => expect(globalThis.fetch).toHaveBeenCalledWith('/values?productAttributeMappingId=m1', expect.anything()))
         delete window.jQuery
     })
+
+    it('expands the rows of a recursive detail to the same detail, one level further down', async () => {
+        const post = vi.fn(async () => ({ Data: [{ Id: 'c1', Children: 1 }, { Id: 'c2', Children: 0 }], Total: 2 }))
+        const grid = createGrid({
+            transport: { read: '/nodes' },
+            texts: { category: 'Category' },
+            columns: [{ field: 'Id' }],
+            detail: {
+                recursive: true,
+                visibleIf: 'Children > 0',
+                params: [{ name: 'parentId', field: 'Id' }],
+                transport: { read: '/nodes' },
+                columns: [{ field: 'Id' }]
+            }
+        }, post)
+        await grid.ready
+        await grid.dataSource.read()
+        expect(rows(grid).map(r => r.querySelector('.grand-grid-detail-toggle') !== null)).toEqual([true, false])
+
+        vi.spyOn(globalThis, 'fetch').mockImplementation(async url => ({
+            ok: true,
+            text: async () => JSON.stringify(url.endsWith('parentId=c1')
+                ? { Data: [{ Id: 'c1a', Children: 2 }, { Id: 'c1b', Children: 0 }], Total: 2 }
+                : { Data: [{ Id: 'c1a-x', Children: 0 }], Total: 1 })
+        }))
+        grid.toggleDetail(grid.dataSource.data()[0])
+        const child = grid._detailGrids.get(grid.dataSource.data()[0])
+        await child.ready
+        await vi.waitFor(() => expect(child.dataSource.data().length).toBe(2))
+        //the rows of the detail grid get the expander of the same detail, by the same condition
+        expect(child.detail).toBe(grid.detail)
+        expect(rows(child).map(r => r.querySelector('.grand-grid-detail-toggle') !== null)).toEqual([true, false])
+        expect(child.texts.category).toBe('Category')
+
+        child.toggleDetail(child.dataSource.data()[0])
+        const grandchild = child._detailGrids.get(child.dataSource.data()[0])
+        //the parameters of one level replace, not add to, the ones of the level above
+        expect(grandchild.config.transport.read).toBe('/nodes?parentId=c1a')
+        expect(grandchild.texts.category).toBe('Category')
+        expect(grandchild.culture.name).toBe('en-US')
+        await grandchild.ready
+        await vi.waitFor(() => expect(grandchild.dataSource.data().map(x => x.Id)).toEqual(['c1a-x']))
+    })
+
+    it('does not nest a detail that is not recursive', async () => {
+        const post = vi.fn(async () => ({ Data: [{ Id: 'm1' }], Total: 1 }))
+        const grid = createGrid({
+            transport: { read: '/list' },
+            columns: [{ field: 'Id' }],
+            detail: { params: [{ name: 'id', field: 'Id' }], transport: { read: '/values' }, columns: [{ field: 'Id' }] }
+        }, post)
+        await grid.ready
+        await grid.dataSource.read()
+        vi.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true, text: async () => '{"Data":[{"Id":"v1"}],"Total":1}' })
+        grid.toggleDetail(grid.dataSource.data()[0])
+        const child = grid._detailGrids.get(grid.dataSource.data()[0])
+        await child.ready
+        await vi.waitFor(() => expect(child.dataSource.data().length).toBe(1))
+        expect(child.detail).toBeNull()
+        expect(rows(child)[0].querySelector('.grand-grid-detail-toggle')).toBeNull()
+    })
 })
 
 describe('batch editing', () => {

@@ -81,10 +81,11 @@ export class GrandGrid {
         this.deps = deps
         this.doc = element.ownerDocument
         this.parent = deps.parent || null
-        const inherited = this.parent ? this.parent.config : {}
-        this.texts = { ...(inherited.texts || {}), ...(config.texts || {}) }
-        this.culture = normalizeCulture(config.culture || inherited.culture)
-        this.rtl = config.rtl ?? inherited.rtl ?? false
+        //from what the parent grid resolved rather than its configuration, so a detail grid
+        //nested in a detail grid still gets the texts and culture of the page grid
+        this.texts = { ...(this.parent?.texts || {}), ...(config.texts || {}) }
+        this.culture = normalizeCulture(config.culture || this.parent?.culture)
+        this.rtl = config.rtl ?? this.parent?.rtl ?? false
         this.templateRoot = deps.templateRoot || this.doc
         this.key = config.key || 'Id'
         this.columns = (config.columns || []).map((column, index) => this._prepareColumn(column, index))
@@ -547,6 +548,9 @@ export class GrandGrid {
                     if (typeof transport[operation] === 'string') transport[operation] = DataSource.urlWithParams(transport[operation], params)
                 }
                 const childConfig = { ...this.detail, transport }
+                //a recursive detail: the rows of the detail grid expand to the same detail, one
+                //level further down (a category to its subcategories, and so on)
+                if (this.detail.recursive) childConfig.detail = this.detail
                 child = new GrandGrid(childElement, childConfig, { ...this.deps, parent: this })
                 this._detailGrids.set(item, child)
                 //$(detailElement).data('kendoGrid') works for detail grids too
