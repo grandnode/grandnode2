@@ -5,6 +5,9 @@
 <script>
     const wwwrootpath = '@(Constants.WwwRoot)';
 </script>
+@*the colour scheme (data-theme and Bootstrap's data-bs-theme on <html>), synchronous and
+  before any stylesheet so the page never paints light before switching to dark*@
+<script src="@(Constants.WwwRoot)/administration/admin.theme.js" asp-append-version="true"></script>
 @{
     var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl &&
                      !languageSettings.IgnoreRtlPropertyForAdminArea;

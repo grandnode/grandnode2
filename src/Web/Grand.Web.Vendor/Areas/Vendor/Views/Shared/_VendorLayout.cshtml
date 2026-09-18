@@ -148,33 +148,21 @@
                                     </div>
                                 </a>
                                 <script>
-                                        const toggleSwitch = document.querySelector('.light-dark-switch input[type="checkbox"]');
-                                        const currentTheme = localStorage.getItem('theme');
+                                        //admin.theme.js in <head> has already applied the stored choice; the switch only
+                                        //shows it and changes it
+                                        const toggleSwitch = document.getElementById('DarkLight');
 
-                                        if (currentTheme) {
-                                            document.documentElement.setAttribute('data-theme', currentTheme);
-
-                                            if (currentTheme === 'dark') {
-                                                toggleSwitch.checked = true;
-                                                $('#DarkLight ~ label').text('Disable Dark Mode');
-                                            }
+                                        function showTheme(dark) {
+                                            toggleSwitch.checked = dark;
+                                            $('#DarkLight ~ label').text(dark ? 'Disable Dark Mode' : 'Enable Dark Mode');
                                         }
 
-                                        function switchTheme(e) {
-                                            if (e.target.checked) {
-                                                document.documentElement.setAttribute('data-theme', 'dark');
-                                                localStorage.setItem('theme', 'dark');
-                                                $('#DarkLight ~ label').text('Disable Dark Mode');
+                                        showTheme(window.grandAdminTheme.isDark());
 
-                                            }
-                                            else {
-                                                document.documentElement.setAttribute('data-theme', 'light');
-                                                localStorage.setItem('theme', 'light');
-                                                $('#DarkLight ~ label').text('Enable Dark Mode');
-                                            }
-                                        }
-
-                                        toggleSwitch.addEventListener('change', switchTheme, false);
+                                        toggleSwitch.addEventListener('change', function (e) {
+                                            window.grandAdminTheme.set(e.target.checked);
+                                            showTheme(e.target.checked);
+                                        }, false);
                                     </script>
                             </li>
                         </ul>
