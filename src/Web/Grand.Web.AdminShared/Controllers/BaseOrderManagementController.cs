@@ -239,7 +239,7 @@ public abstract class BaseOrderManagementController(
     /// <summary>
     ///     The quantity/unit price rules and the amount arithmetic of an order item edit, shared by
     ///     the form post (<see cref="SaveOrderItem" />) and the products grid
-    ///     (the products grid). Every amount is still computed here on the server.
+    ///     (<see cref="OrderItemUpdate" />). Every amount is still computed here on the server.
     /// </summary>
     private async Task<(bool error, string message)> ApplyOrderItemEdit(Order order, OrderItem orderItem,
         int quantity, double unitPriceExclTax)
@@ -343,6 +343,77 @@ public abstract class BaseOrderManagementController(
         await SaveSelectedTabIndex(persistForTheNextRequest: true);
         return RedirectToAction("Edit", "Order", new { id });
     }
+
+    #endregion
+
+    #region Order items grid
+
+    /// <summary>
+    ///     Inline edit of one row of the products grid. Enforces exactly the rules
+    ///     <see cref="SaveOrderItem" /> enforces; the answer is the grid's
+    ///     <see cref="Grand.Web.Common.DataSource.DataSourceResult" /> contract, so a refused edit is
+    ///     shown by display_kendoui_grid_error instead of a redirect.
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> OrderItemUpdate(string orderId, OrderModel.OrderItemModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
+        if (denied != null) return denied;
+
+        if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
+            return GridError("You can't edit position when order is canceled");
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.Id);
+        if (orderItem == null) return GridError("No order item found with the specified id");
+
+        var (error, message) = await ApplyOrderItemEdit(order, orderItem, model.Quantity, model.UnitPriceExclTaxValue);
+        return error ? GridError(message) : Json(new Grand.Web.Common.DataSource.DataSourceResult());
+    }
+
+    /// <summary>Delete command of the products grid; the same command <see cref="DeleteOrderItem" /> sends.</summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> OrderItemDelete(string orderId, OrderModel.OrderItemModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.Id);
+        if (orderItem == null) return GridError("No order item found with the specified id");
+
+        var result = await mediator.Send(new DeleteOrderItemCommand { Order = order, OrderItem = orderItem });
+        return result.error ? GridError(result.message) : Json(new Grand.Web.Common.DataSource.DataSourceResult());
+    }
+
+    /// <summary>Cancel command of the products grid; the same command <see cref="CancelOrderItem" /> sends.</summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> OrderItemCancel(string orderId, string orderItemId)
+    {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        if (orderItem == null) return GridError("No order item found with the specified id");
+
+        var result = await mediator.Send(new CancelOrderItemCommand { Order = order, OrderItem = orderItem });
+        return result.error ? GridError(result.message) : Json(new Grand.Web.Common.DataSource.DataSourceResult());
+    }
+
+    /// <summary>
+    ///     <see cref="LoadAuthorizedOrder" /> for the grid endpoints: a denial is an Errors answer the
+    ///     grid can show, never a redirect an XHR would follow into an HTML page.
+    /// </summary>
+    private async Task<(Order order, IActionResult denied)> LoadAuthorizedOrderForGrid(string orderId)
+    {
+        var order = await OrderService.GetOrderById(orderId);
+        if (order == null || !await Scope.HasAccess(order)) return (null, GridError("Access denied"));
+        return (order, null);
+    }
+
+    private JsonResult GridError(string message) =>
+        Json(new Grand.Web.Common.DataSource.DataSourceResult { Errors = message });
 
     #endregion
 
