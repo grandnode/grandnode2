@@ -110,9 +110,14 @@ public class BlogController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var blogPost = await _blogService.GetBlogPostById(blogPostId);
-        if (blogPost == null ||
-            (blogPost.StartDateUtc.HasValue && blogPost.StartDateUtc.Value >= DateTime.UtcNow) ||
-            (blogPost.EndDateUtc.HasValue && blogPost.EndDateUtc.Value <= DateTime.UtcNow))
+        if (blogPost == null)
+            return RedirectToRoute("HomePage");
+
+        //Check whether the current user has a "Manage blog" permission
+        //It allows him to preview a blog post outside its date range
+        if (((blogPost.StartDateUtc.HasValue && blogPost.StartDateUtc.Value >= DateTime.UtcNow) ||
+             (blogPost.EndDateUtc.HasValue && blogPost.EndDateUtc.Value <= DateTime.UtcNow)) &&
+            !await permissionService.Authorize(StandardPermission.ManageBlog))
             return RedirectToRoute("HomePage");
 
         //Store acl
