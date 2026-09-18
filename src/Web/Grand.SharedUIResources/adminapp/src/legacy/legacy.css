@@ -45,6 +45,20 @@
     text-decoration: none;
 }
 
+/* the panel's .btn-default in dark mode (_custom.scss) */
+[data-bs-theme="dark"] .k-button {
+    border-color: var(--bs-border-color);
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .k-button:hover,
+[data-bs-theme="dark"] .k-button:focus {
+    border-color: var(--bs-border-color);
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-emphasis-color);
+}
+
 .k-button[disabled],
 .k-button.k-state-disabled {
     opacity: 0.65;
@@ -142,7 +156,7 @@
     padding: 0.375rem 0.75rem;
     border: 1px solid var(--bs-border-color);
     border-radius: var(--bs-border-radius);
-    background-color: #fff;
+    background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
     font-family: inherit;
     font-size: inherit;
@@ -152,7 +166,7 @@
 .k-widget {
     position: relative;
     border: 1px solid var(--bs-border-color);
-    background-color: #fff;
+    background-color: var(--bs-body-bg);
     line-height: normal;
 }
 

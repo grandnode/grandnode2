@@ -1,7 +1,8 @@
 /* Styles of the widgets in admin.ui.js. Deliberately self-contained: the panels are on
    Bootstrap 4.5 until phase 5 and on Bootstrap 5 after it, so nothing here depends on a
    class only one of the two defines. The markup does use the nav-tabs / tab-content class
-   names both versions share, so the panel theme keeps styling the tabs. */
+   names both versions share, so the panel theme keeps styling the tabs. Colours come from
+   Bootstrap's --bs-* variables, so the widgets follow its colour mode (data-bs-theme). */
 
 /* ---------------------------------------------------------------- tab strip */
 
@@ -150,7 +151,7 @@ body.grand-modal-open {
 .grand-modal-dialog {
     width: 100%;
     max-width: 40rem;
-    background: #fff;
+    background: var(--bs-body-bg, #fff);
     border-radius: .25rem;
     box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .3);
 }
@@ -569,4 +570,24 @@ input.grand-dateinput {
    stacking context; on a plain page it only has to clear the panel chrome */
 .ts-dropdown {
     z-index: var(--grand-zindex-dropdown, 10100);
+}
+
+/* ------------------------------------------------------------- dark mode */
+
+/* Everything above follows Bootstrap's colour mode through its --bs-* variables. These are
+   the colours that are fixed elsewhere: tom-select.bootstrap5.css writes the text of the
+   field and of the list as #343a40 and the list border as #d0d0d0, and this file's own
+   modal divider is a black hairline. In the light mode they stay what they were. */
+[data-bs-theme="dark"] .ts-dropdown,
+[data-bs-theme="dark"] .ts-control,
+[data-bs-theme="dark"] .ts-control input {
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .ts-dropdown {
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .grand-modal-header {
+    border-bottom-color: var(--bs-border-color-translucent);
 }
