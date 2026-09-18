@@ -88,7 +88,9 @@ const withSelectWidget = fetchJson => {
 const openList = async (editor, query) => {
     const input = editor.element.querySelector('.ts-control input')
     editor.focus()
-    //jsdom does not focus an element that is only .focus()-ed, so the list is asked to open
+    //the person clicks the field; jsdom does not run Tom Select's click-to-open, so the list
+    //is asked to open the way that click would
+    input.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     editor.widget.open()
     if (query != null) {
         input.value = query
@@ -138,6 +140,63 @@ describe('the select editor of a row, with admin.ui.js loaded', () => {
         const editor = fixed()
         expect(editor.widget.dropdown.parentElement).toBe(document.body)
         expect(editor.widget.dropdown.classList.contains('grand-grid-dropdown')).toBe(true)
+    })
+
+    it('hands the cell its focus with the list closed, until the person asks for it', () => {
+        withSelectWidget()
+        const editor = fixed()
+        editor.focus()
+        //what the rows of a remote column arriving, or the focus itself, would do
+        editor.widget.open()
+        expect(editor.widget.isOpen).toBe(false)
+        const input = editor.element.querySelector('.ts-control input')
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }))
+        editor.widget.open()
+        expect(editor.widget.isOpen).toBe(true)
+    })
+
+    it('keeps both lists of a row that is drawn before it is put in the page', async () => {
+        withSelectWidget()
+        //a row is built off the page and put in whole, like Tabulator does
+        const row = document.createElement('div')
+        const store = createEditor({ column: { field: 'StoreId', editor: 'Select', options: [{ value: 's1', text: 'Store one' }] }, value: '', culture: pl })
+        row.appendChild(store.element)
+        const group = createEditor({ column: { field: 'CustomerGroupId', editor: 'Select', options: [{ value: 'g1', text: 'Guests' }] }, value: '', culture: pl })
+        row.appendChild(group.element)
+        document.body.appendChild(row)
+        await new Promise(resolve => setTimeout(resolve, 10))
+        for (const editor of [store, group]) {
+            expect(editor.element.querySelector('.ts-wrapper')).not.toBeNull()
+            expect(editor.widget.dropdown.isConnected).toBe(true)
+        }
+    })
+
+    it('takes down the list of a cell that has been closed once the next cell opens', async () => {
+        withSelectWidget()
+        const first = fixed()
+        const dropdown = first.widget.dropdown
+        first.element.remove()
+        fixed()
+        await new Promise(resolve => setTimeout(resolve, 10))
+        expect(dropdown.isConnected).toBe(false)
+    })
+
+    it('follows a scroll of the popup the grid sits in while the list is open', async () => {
+        withSelectWidget()
+        const popup = document.createElement('div')
+        document.body.appendChild(popup)
+        const editor = fixed()
+        popup.appendChild(editor.element)
+        const moved = vi.spyOn(editor.widget, 'positionDropdown')
+        await openList(editor)
+        moved.mockClear()
+        popup.dispatchEvent(new Event('scroll'))
+        expect(moved).toHaveBeenCalled()
+
+        editor.widget.close()
+        moved.mockClear()
+        popup.dispatchEvent(new Event('scroll'))
+        expect(moved).not.toHaveBeenCalled()
     })
 
     it('narrows a fixed list on what is typed in the field itself', async () => {

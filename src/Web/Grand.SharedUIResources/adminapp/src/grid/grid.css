@@ -332,9 +332,12 @@
 }
 
 /* The dropdown of a cell hangs on <body> rather than inside the table, which nothing can
-   clip; there it is outside .grand-grid, and it has to clear a panel modal (1055). */
+   clip. There it is outside .grand-grid and outside whatever popup the grid sits in - a
+   magnific-popup window (10003) or a panel modal (--grand-zindex-modal) - so the dropdown
+   level of the forms, which only clears the chrome, would draw it underneath. It takes the
+   level the scale keeps for what floats over a modal. */
 .ts-dropdown.grand-grid-dropdown {
-    z-index: 1065;
+    z-index: var(--grand-zindex-popover, 10400);
 }
 
 /* A tick in a row is the form control now, so it needs the vertical rhythm of a cell rather

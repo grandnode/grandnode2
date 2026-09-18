@@ -322,7 +322,10 @@ function selectEditor(ctx) {
 
 //Lists whose cell has been closed. Tom Select hangs the dropdown of a cell on <body> so no
 //table, card or modal can clip it, and the grid throws the cell away without telling anyone;
-//the ones whose wrapper has left the page are taken down when the next cell opens.
+//the ones whose wrapper has left the page are taken down after the next cell opens.
+//After, not while: a row is drawn off the page and put in whole, so while the second list of
+//a row is being made the first one is not in the page yet either - a sweep at that moment
+//took it down, and the store column of a tier price came up as a bare select.
 const closedLists = new Set()
 
 function sweepClosedLists() {
@@ -339,7 +342,8 @@ function sweepClosedLists() {
 
 function panelSelectEditor(ctx, { element, fill, textField }, factory) {
     const { column, doc } = ctx
-    sweepClosedLists()
+    const timers = doc.defaultView || globalThis
+    timers.setTimeout(sweepClosedLists, 0)
     const holder = doc.createElement('div')
     holder.className = 'grand-grid-select'
     holder.appendChild(element)
@@ -363,6 +367,13 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
     //modal sits above the z-index of the theme's
     widget.dropdown.classList.add('grand-grid-dropdown')
     closedLists.add(widget)
+    //Tom Select follows a scroll of the window only; a grid in a popup scrolls the popup, and
+    //the list would stay where the cell was. Scroll does not bubble, so it is caught on the
+    //way down, from whichever box is scrolled, for as long as the list is open.
+    const follow = () => { if (widget.isOpen) widget.positionDropdown() }
+    widget.on('dropdown_open', () => doc.addEventListener('scroll', follow, true))
+    widget.on('dropdown_close', () => doc.removeEventListener('scroll', follow, true))
+    widget.on('destroy', () => doc.removeEventListener('scroll', follow, true))
 
     if (column.optionsUrl && !serverFiltered) {
         //one request for the whole list, the one this column has always made
@@ -393,6 +404,20 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
         ctx.commit?.()
     })
 
+    //The cell hands the field its focus with the list closed, as the select it replaced did.
+    //A list that opened by itself - on the focus, or when the rows of a remote column arrived -
+    //covered the rows below, and the click a person then gave the field to open it is the one
+    //Tom Select reads as "close" and blurs, which in a batch grid also commits the cell. It
+    //stays closed until the person does something in the cell: a click, a letter, ArrowDown.
+    //Closing it again from dropdown_open is not enough - Tom Select reopens it at once, round
+    //and round - so the opening itself is held back.
+    let quiet = false
+    const open = widget.open.bind(widget)
+    widget.open = () => { if (!quiet) open() }
+    const speak = () => { quiet = false }
+    holder.addEventListener('keydown', speak, true)
+    holder.addEventListener('mousedown', speak, true)
+
     const text = () => {
         const value = element.value
         if (value === '') return ''
@@ -409,7 +434,10 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
             widget.wrapper.classList.toggle('is-invalid', Boolean(message))
             return message
         },
-        focus: () => widget.focus()
+        focus: () => {
+            quiet = true
+            widget.focus()
+        }
     }
 }
 
