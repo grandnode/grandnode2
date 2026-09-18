@@ -196,6 +196,13 @@ public class KnowledgebaseController : BasePublicController
         if (article == null)
             return RedirectToAction("List");
 
+        //an unpublished article is answered like a missing one, unless the current user has
+        //a "Manage knowledgebase" permission: it allows him to preview an article before publishing
+        if (!article.Published &&
+            !(await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+              await _permissionService.Authorize(StandardPermission.ManageKnowledgebase)))
+            return RedirectToAction("List");
+
         //ACL (access control list)
         if (!_aclService.Authorize(article, customer))
             return NotFound();

@@ -2,13 +2,18 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Blogs;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
 using Grand.Domain.News;
 using Grand.Domain.Pages;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Caching;
 using Grand.Mediator;
 using Grand.Web.Controllers;
 using Grand.Web.Features.Handlers.Pages;
@@ -25,7 +30,7 @@ using Moq;
 namespace Grand.Web.Tests.Controllers;
 
 /// <summary>
-///     The admin "Preview" button of a news item, blog post or page must open the storefront page for the manager
+///     The admin "Preview" button of a news item, blog post, page or knowledgebase article must open the storefront page for the manager
 ///     even when the entity is unpublished or outside its date range; a customer is still sent away.
 /// </summary>
 [TestClass]
@@ -54,6 +59,8 @@ public class ContentPreviewTests
         _aclServiceMock.Setup(x => x.Authorize(It.IsAny<NewsItem>(), It.IsAny<string>())).Returns(true);
         _aclServiceMock.Setup(x => x.Authorize(It.IsAny<BlogPost>(), It.IsAny<string>())).Returns(true);
         _aclServiceMock.Setup(x => x.Authorize(It.IsAny<Page>(), It.IsAny<Customer>())).Returns(true);
+        _aclServiceMock.Setup(x => x.Authorize(It.IsAny<KnowledgebaseArticle>(), It.IsAny<Customer>())).Returns(true);
+        _aclServiceMock.Setup(x => x.Authorize(It.IsAny<KnowledgebaseArticle>(), It.IsAny<string>())).Returns(true);
 
         _permissionServiceMock = new Mock<IPermissionService>();
         _mediatorMock = new Mock<IMediator>();
@@ -84,6 +91,21 @@ public class ContentPreviewTests
         return new BlogController(_mediatorMock.Object, blogServiceMock.Object,
             new Mock<ITranslationService>().Object, _contextAccessorMock.Object,
             new BlogSettings { Enabled = true }) { ControllerContext = GetContext() };
+    }
+
+    private KnowledgebaseController KnowledgebaseController(KnowledgebaseArticle article)
+    {
+        var knowledgebaseServiceMock = new Mock<IKnowledgebaseService>();
+        knowledgebaseServiceMock.Setup(x => x.GetKnowledgebaseArticle(article.Id)).ReturnsAsync(article);
+        knowledgebaseServiceMock.Setup(x => x.GetArticleCommentsByArticleId(article.Id))
+            .ReturnsAsync(new List<KnowledgebaseArticleComment>());
+        return new KnowledgebaseController(new KnowledgebaseSettings { Enabled = true },
+            knowledgebaseServiceMock.Object, _contextAccessorMock.Object, new Mock<ICacheBase>().Object,
+            _aclServiceMock.Object, new Mock<ITranslationService>().Object,
+            new Mock<IMessageProviderService>().Object, new Mock<IDateTimeService>().Object,
+            _permissionServiceMock.Object, new CustomerSettings(), new CaptchaSettings(), new LanguageSettings()) {
+            ControllerContext = GetContext()
+        };
     }
 
     private void GivenManager(string permission, bool granted)
@@ -165,5 +187,66 @@ public class ContentPreviewTests
         var model = await handler.Handle(new GetPageBlock { PageId = "p1", ShowHidden = showHidden }, default);
 
         Assert.AreEqual(showHidden, model != null);
+    }
+
+    [TestMethod]
+    public async Task KnowledgebaseArticle_Unpublished_CustomerIsSentToTheList()
+    {
+        var controller = KnowledgebaseController(new KnowledgebaseArticle { Id = "a1", Published = false });
+        GivenManager(StandardPermission.ManageAccessAdminPanel.SystemName, false);
+        GivenManager(StandardPermission.ManageKnowledgebase.SystemName, false);
+
+        var result = await controller.KnowledgebaseArticle("a1", new Mock<ICustomerService>().Object);
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+    }
+
+    [TestMethod]
+    [DataRow(true, false)]
+    [DataRow(false, true)]
+    public async Task KnowledgebaseArticle_Unpublished_BothPermissionsAreNeededToPreview(bool adminPanel, bool manageKnowledgebase)
+    {
+        var controller = KnowledgebaseController(new KnowledgebaseArticle { Id = "a1", Published = false });
+        GivenManager(StandardPermission.ManageAccessAdminPanel.SystemName, adminPanel);
+        GivenManager(StandardPermission.ManageKnowledgebase.SystemName, manageKnowledgebase);
+
+        var result = await controller.KnowledgebaseArticle("a1", new Mock<ICustomerService>().Object);
+
+        Assert.IsInstanceOfType<RedirectToActionResult>(result);
+    }
+
+    [TestMethod]
+    public async Task KnowledgebaseArticle_Unpublished_ManagerCanPreview()
+    {
+        var controller = KnowledgebaseController(new KnowledgebaseArticle { Id = "a1", Published = false });
+        GivenManager(StandardPermission.ManageAccessAdminPanel.SystemName, true);
+        GivenManager(StandardPermission.ManageKnowledgebase.SystemName, true);
+
+        var result = await controller.KnowledgebaseArticle("a1", new Mock<ICustomerService>().Object);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+    }
+
+    [TestMethod]
+    public async Task KnowledgebaseArticle_Unpublished_ManagerStillNeedsTheStore()
+    {
+        var controller = KnowledgebaseController(new KnowledgebaseArticle { Id = "a1", Published = false });
+        GivenManager(StandardPermission.ManageAccessAdminPanel.SystemName, true);
+        GivenManager(StandardPermission.ManageKnowledgebase.SystemName, true);
+        _aclServiceMock.Setup(x => x.Authorize(It.IsAny<KnowledgebaseArticle>(), It.IsAny<string>())).Returns(false);
+
+        var result = await controller.KnowledgebaseArticle("a1", new Mock<ICustomerService>().Object);
+
+        Assert.IsInstanceOfType<NotFoundResult>(result);
+    }
+
+    [TestMethod]
+    public async Task KnowledgebaseArticle_Published_CustomerSeesIt()
+    {
+        var controller = KnowledgebaseController(new KnowledgebaseArticle { Id = "a1", Published = true });
+
+        var result = await controller.KnowledgebaseArticle("a1", new Mock<ICustomerService>().Object);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
     }
 }
