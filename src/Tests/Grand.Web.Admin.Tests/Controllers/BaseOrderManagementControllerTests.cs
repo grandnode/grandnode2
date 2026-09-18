@@ -360,6 +360,21 @@ public class BaseOrderManagementControllerTests
         _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateOrderItemCommand>(), default), Times.Never);
     }
 
+    //the products grid offers Edit on such an item (edit-visible-if "!IsShipEnabled || ...")
+    [TestMethod]
+    public async Task OrderItemUpdate_FulfilledItemThatShipsNothing_IsAccepted()
+    {
+        var item = new OrderItem { Id = "i1", Quantity = 2, OpenQty = 0, IsShipEnabled = false, UnitPriceExclTax = 10 };
+        OrderWithItem(item);
+
+        var result = await _controller.OrderItemUpdate("o1",
+            new OrderModel.OrderItemModel { Id = "i1", Quantity = 2, UnitPriceExclTaxValue = 12 });
+
+        Assert.IsNull(GridErrors(result));
+        Assert.AreEqual(12, item.UnitPriceExclTax);
+        _mediatorMock.Verify(m => m.Send(It.Is<UpdateOrderItemCommand>(c => c.OrderItem == item), default), Times.Once);
+    }
+
     [TestMethod]
     public async Task OrderItemUpdate_NothingChanged_ReturnsGridError()
     {

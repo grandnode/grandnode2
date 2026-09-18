@@ -275,6 +275,11 @@ public class OrderModel : BaseEntityModel
         public int ShipQty { get; set; }
         public int ReturnQty { get; set; }
 
+        //what the products grid needs to offer only the commands the server accepts
+        public bool IsShipEnabled { get; set; }
+        public Grand.Domain.Orders.OrderItemStatus Status { get; set; }
+        public bool IsGiftVoucher { get; set; }
+
         public string DiscountInclTax { get; set; }
         public string DiscountExclTax { get; set; }
         public double DiscountInclTaxValue { get; set; }
