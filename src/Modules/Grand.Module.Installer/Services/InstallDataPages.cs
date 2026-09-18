@@ -172,6 +172,18 @@ public partial class InstallationService
                     "<p>Manage your product catalog, oversee customer orders, and streamline your shipping processes. Your store dashboard is the command center for your success. Stay organized, serve your customers efficiently, and watch your business thrive.</p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
+            },
+            new() {
+                //the welcome card of the admin dashboard - not published, so the storefront never serves it
+                SystemName = "AdminPortalInfo",
+                IncludeInSitemap = false,
+                IsPasswordProtected = false,
+                DisplayOrder = 1,
+                Title = "Welcome to your admin dashboard",
+                Body =
+                    "<p>Follow today's orders, online visitors and active carts at a glance, see what needs your attention and jump straight into your daily work. You can edit or translate this message under Content &gt; Landing pages.</p>",
+                PageLayoutId = defaultPageLayout.Id,
+                Published = false
             }
 
         };
