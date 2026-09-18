@@ -15,12 +15,6 @@ body {
     height: 100%;
 }
 
-label.required::after {
-    content: "*";
-    font-weight: bold;
-    color: red;
-}
-
 .daterangepicker .ranges li {
     color: #73879C;
 }
@@ -2559,11 +2553,6 @@ span.section {
     font-weight: 500;
 }
 
-.form-control:focus {
-    border-color: #CCD0D7;
-    box-shadow: none !important
-}
-
 legend {
     font-size: 18px;
     color: inherit
@@ -2606,10 +2595,6 @@ legend {
 
 .invalid-form-error-message.filled {
     border-inline-start: 2px solid #E74C3C
-}
-
-.field-validation-error, .validation-summary-errors {
-    color: red;
 }
 
 p.parsley-success {
@@ -5252,14 +5237,27 @@ a span.username {
     opacity: 0;
 }
 
+/*
+ * The checkbox a view draws as label.control > input + div.control__indicator. The input is
+ * hidden but keeps the focus; the indicator is what shows. Two looks:
+ * - input.check-box, the bool editor template (about 780 fields), is a switch, drawn on the
+ *   indicator's ::before (the track) and ::after (the knob);
+ * - any other checkbox (the stores of a newsletter, restrictions, permissions) is a box with
+ *   a tick. It used to be a borderless grey square that only changed colour when ticked.
+ * The colours are the form tokens of _forms.scss, so both follow the colour mode.
+ */
 .control__indicator {
     position: absolute;
-    top: 0px;
+    top: .125rem;
     inset-inline-start: 0;
-     width: 20px; 
-     height: 20px; 
-    background: #e6e6e6;
+    width: 1.125rem;
+    height: 1.125rem;
+    background-color: var(--grand-form-control-bg);
+    border: var(--#{$prefix}border-width) solid var(--grand-form-border);
+    //the blanket reset of div corners further down this file is !important
+    border-radius: .25rem !important;
     cursor: pointer;
+    transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 .check-box + .control__indicator {
     position: relative;
@@ -5267,44 +5265,34 @@ a span.username {
     height: auto;
     margin-bottom: 0;
     background: transparent;
+    border: 0;
     vertical-align: top;
 }
 .check-box + .control__indicator::before {
-    background-color: #fff;
-    border: #adb5bd solid 1px;
-    inset-inline-start: -2.25rem;
-    pointer-events: all;
-    border-radius: .5rem;
-    transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    content: "";
     position: absolute;
     top: 0;
     inset-inline-start: -30px;
     display: block;
     width: 32px;
     height: 16px;
-    content: "";
+    background-color: var(--grand-form-control-bg);
+    border: var(--#{$prefix}border-width) solid var(--grand-form-border);
+    border-radius: .5rem;
+    pointer-events: all;
+    transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 .check-box + .control__indicator::after {
-    top: calc(.25rem + 2px);
-    inset-inline-start: calc(-2.25rem + 2px);
-    width: calc(1rem - 4px);
-    height: calc(1rem - 4px);
-    background-color: #adb5bd;
-    border-radius: .5rem;
-    transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-transform .15s ease-in-out;
-    transition: transform .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    transition: transform .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-transform .15s ease-in-out;
+    content: "";
     position: absolute;
-    top: .25rem;
-    inset-inline-start: -1.5rem;
+    top: 2px;
+    inset-inline-start: -27px;
     display: block;
     width: 12px;
     height: 12px;
-    content: "";
-    top: 2px;
-    inset-inline-start: -27px;
-    width: 12px;
-    height: 12px;
+    background-color: var(--grand-form-border);
+    border-radius: .5rem;
+    transition: transform .15s ease-in-out, background-color .15s ease-in-out;
 }
 .mt-checkbox-inline > .mt-checkbox {
     padding-inline-start: 40px;
@@ -5321,19 +5309,38 @@ a span.username {
     top: 4px;
     inset-inline-start: 3px;
 }
+.control:hover .check-box:not(:disabled):not(:checked) + .control__indicator::before {
+    border-color: var(--grand-form-border-hover);
+}
+.control:hover .check-box:not(:disabled):not(:checked) + .control__indicator::after {
+    background-color: var(--grand-form-border-hover);
+}
 .check-box:checked + .control__indicator::before {
-    color: #fff;
-    border-color: #26B99A;
-    background-color: #26B99A;
+    border-color: var(--grand-form-accent);
+    background-color: var(--grand-form-accent);
 }
 .check-box:checked + .control__indicator::after {
-    background-color: #fff;
-    -webkit-transform: translateX(15px);
+    background-color: var(--grand-form-on-accent);
     transform: translateX(15px);
 }
-.check-box:disabled + .control__indicator::before, .check-box[disabled] + .control__indicator::before {
-    background-color: #e9ecef;
+.check-box:focus-visible + .control__indicator::before {
+    border-color: var(--grand-form-accent);
+    box-shadow: 0 0 0 .2rem var(--grand-form-ring);
 }
+.check-box:disabled + .control__indicator::before, .check-box[disabled] + .control__indicator::before {
+    background-color: var(--#{$prefix}secondary-bg);
+}
+.check-box:checked:disabled + .control__indicator::before {
+    background-color: var(--grand-form-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+    .control__indicator,
+    .check-box + .control__indicator::before,
+    .check-box + .control__indicator::after {
+        transition: none;
+    }
+}
+
 
 .control__indicator_custom {
     top: -20px;
@@ -5349,22 +5356,26 @@ a span.username {
 }
 
 .control--radio .control__indicator {
-    border-radius: 50%;
+    border-radius: 50% !important;
 }
 
-.control:hover input~.control__indicator, .control input:focus~.control__indicator {
-    background: #ccc;
+.control:hover input:not(.check-box):not(:disabled):not(:checked) ~ .control__indicator {
+    border-color: var(--grand-form-border-hover);
 }
 
-.control input:checked~.control__indicator {
-    background: #1ABB9C;
+.control input:not(.check-box):checked ~ .control__indicator {
+    background-color: var(--grand-form-accent);
+    border-color: var(--grand-form-accent);
 }
 
+.control input:not(.check-box):focus-visible ~ .control__indicator {
+    border-color: var(--grand-form-accent);
+    box-shadow: 0 0 0 .2rem var(--grand-form-ring);
+}
 
-.control input:disabled~.control__indicator {
+.control input:disabled ~ .control__indicator {
     pointer-events: none;
-    opacity: .6;
-    background: #e6e6e6;
+    opacity: .5;
 }
 
 .control__indicator:after {
@@ -5377,13 +5388,14 @@ a span.username {
     display: block;
 }
 
+/* the tick: a rotated corner, centred in the 16px inside the box's border */
 .control-checkbox input:not(.check-box) ~ .control__indicator:after {
-    top: 5px;
-    inset-inline-start: 7px;
+    top: 1px;
+    inset-inline-start: 5px;
     width: 6px;
-    height: 9px;
+    height: 10px;
     transform: rotate(45deg);
-    border: solid #fff;
+    border: solid var(--grand-form-on-accent);
     border-width: 0 2px 2px 0;
 }
 
@@ -5398,22 +5410,13 @@ a span.username {
     inset-inline-start: 0;
 }
 
-.control-checkbox input:disabled~.control__indicator:after {
-    border-color: #7b7b7b;
-}
-
-
 .control--radio .control__indicator:after {
-    top: 7px;
-    inset-inline-start: 7px;
-    width: 6px;
-    height: 6px;
+    top: 4px;
+    inset-inline-start: 4px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: #fff;
-}
-
-.control--radio input:disabled~.control__indicator:after {
-    background: #7b7b7b;
+    background: var(--grand-form-on-accent);
 }
 
 .portlet.box.green {
@@ -6534,15 +6537,6 @@ table.tableFixHead {
     min-height: 70vh;
 }
 
-.hint {
-    font-weight: 400;
-    font-size: 12px;
-    color: #333;
-    margin: 0 0 5px 0;
-}
-[data-theme="dark"] .hint {
-    color: #a5a5a5;
-}
 [data-theme="dark"] .color-text {
     color: #26B99A;
 }

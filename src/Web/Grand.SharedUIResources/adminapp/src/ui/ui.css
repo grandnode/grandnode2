@@ -473,7 +473,7 @@ input.grand-numeric {
     width: 1.6rem;
     overflow: hidden;
     background-color: var(--bs-tertiary-bg, #f8f9fa);
-    border: var(--bs-border-width, 1px) solid var(--bs-border-color, #ced4da);
+    border: var(--bs-border-width, 1px) solid var(--grand-form-border, #ced4da);
     border-end-end-radius: var(--bs-border-radius, .25rem);
     border-start-end-radius: var(--bs-border-radius, .25rem);
 }
@@ -498,7 +498,7 @@ input.grand-numeric {
 }
 
 .grand-numeric-up {
-    border-bottom: var(--bs-border-width, 1px) solid var(--bs-border-color, #ced4da);
+    border-bottom: var(--bs-border-width, 1px) solid var(--grand-form-border, #ced4da);
 }
 
 /* the focus ring belongs to the control, not to the field inside it */
@@ -508,12 +508,12 @@ input.grand-numeric {
 
 .grand-numeric-group:focus-within {
     border-radius: var(--bs-border-radius, .25rem);
-    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb, 13, 110, 253), .25);
+    box-shadow: 0 0 0 .2rem var(--grand-form-ring, rgba(13, 110, 253, .25));
 }
 
 .grand-numeric-group:focus-within input.grand-numeric,
 .grand-numeric-group:focus-within .grand-numeric-spin {
-    border-color: var(--bs-primary-border-subtle, #86b7fe);
+    border-color: var(--grand-form-accent, #86b7fe);
 }
 
 .grand-numeric-group:has(input.grand-numeric.is-invalid) .grand-numeric-spin {
@@ -642,7 +642,7 @@ input.grand-dateinput {
 }
 
 .grand-cal-day:focus-visible {
-    outline: 2px solid var(--bs-primary, #0d6efd);
+    outline: 2px solid var(--grand-form-accent, #0d6efd);
     outline-offset: -2px;
 }
 
@@ -653,13 +653,13 @@ input.grand-dateinput {
 
 .grand-cal-today {
     font-weight: 700;
-    box-shadow: inset 0 0 0 1px var(--bs-primary, #0d6efd);
+    box-shadow: inset 0 0 0 1px var(--grand-form-accent, #0d6efd);
 }
 
 .grand-cal-selected,
 .grand-cal-selected:hover {
-    color: #fff;
-    background-color: var(--bs-primary, #0d6efd);
+    color: var(--grand-form-on-accent, #fff);
+    background-color: var(--grand-form-accent, #0d6efd);
 }
 
 .grand-cal-time {
@@ -704,14 +704,14 @@ input.grand-dateinput {
 }
 
 .grand-time-option:focus-visible {
-    outline: 2px solid var(--bs-primary, #0d6efd);
+    outline: 2px solid var(--grand-form-accent, #0d6efd);
     outline-offset: -2px;
 }
 
 .grand-time-selected,
 .grand-time-selected:hover {
-    color: #fff;
-    background-color: var(--bs-primary, #0d6efd);
+    color: var(--grand-form-on-accent, #fff);
+    background-color: var(--grand-form-accent, #0d6efd);
 }
 
 /* the same control inside a grid row, one size down */
@@ -741,8 +741,8 @@ input.grand-dateinput {
 }
 
 .ts-wrapper.focus .ts-control {
-    border-color: var(--bs-primary-border-subtle, #86b7fe);
-    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb, 13, 110, 253), .25);
+    border-color: var(--grand-form-accent, #86b7fe);
+    box-shadow: 0 0 0 .2rem var(--grand-form-ring, rgba(13, 110, 253, .25));
 }
 
 .ts-wrapper.is-invalid .ts-control {

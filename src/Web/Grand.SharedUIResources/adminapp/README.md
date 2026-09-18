@@ -10,7 +10,7 @@ What exists today:
 | path | contents |
 | --- | --- |
 | `src/admin.bootstrap.js` | bundle entry of Bootstrap 5.3 (with Popper 2) and of the panel stylesheet; sets `window.bootstrap` and registers Bootstrap's jQuery plugins |
-| `src/styles/` | the one stylesheet the panels load: Bootstrap 5.3, bootstrap-icons, the two icon helpers Font Awesome used to give (`_icons.scss`), and the panel chrome that used to be `wwwroot/administration/build/css/custom.css`, and the side menu (`_sidebar.scss`) |
+| `src/styles/` | the one stylesheet the panels load: Bootstrap 5.3, bootstrap-icons, the two icon helpers Font Awesome used to give (`_icons.scss`), and the panel chrome that used to be `wwwroot/administration/build/css/custom.css`, the side menu (`_sidebar.scss`) and the form fields (`_forms.scss`) |
 | `src/admin.grid.js` | bundle entry of the `<admin-grid>` runtime: registers `window.GrandAdmin.grids` |
 | `src/grid/` | the adapter over Tabulator 6: data source and transport (server contract, `jQuery.param` serialization), row editing and editors, eval-free cell templates, culture formatting, pager, `$(el).data('kendoGrid')` API |
 | `src/admin.ui.js` | bundle entry of the widgets that used to be Kendo UI: `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format` |
