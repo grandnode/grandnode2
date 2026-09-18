@@ -2824,56 +2824,6 @@ textarea:focus {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05)
 }
 
-.bs-glyphicons {
-    margin: 0 -10px 20px;
-    overflow: hidden
-}
-
-.bs-glyphicons-list {
-    padding-inline-start: 0;
-    list-style: none
-}
-
-.bs-glyphicons li {
-    float: left;
-    width: 25%;
-    height: 115px;
-    padding: 10px;
-    font-size: 10px;
-    line-height: 1.4;
-    text-align: center;
-    background-color: #f9f9f9;
-    border: 1px solid #fff
-}
-
-.bs-glyphicons .glyphicon {
-    margin-top: 5px;
-    margin-bottom: 10px;
-    font-size: 24px
-}
-
-.bs-glyphicons .glyphicon-class {
-    display: block;
-    text-align: center;
-    word-wrap: break-word
-}
-
-.bs-glyphicons li:hover {
-    color: #fff;
-    background-color: #1ABB9C
-}
-
-@media (min-width: 768px) {
-    .bs-glyphicons {
-        margin-inline-end: 0;
-        margin-inline-start: 0
-    }
-    .bs-glyphicons li {
-        width: 12.5%;
-        font-size: 12px
-    }
-}
-
 .tagsinput {
     border: 1px solid #CCC;
     background: #FFF;
@@ -6529,12 +6479,6 @@ table.tableFixHead {
 
 [data-theme="dark"] .panel-default > .panel-heading {
     border-color: #425668;
-}
-
-.roxy-modal iframe {
-    width: 100%;
-    height: 100%;
-    min-height: 70vh;
 }
 
 [data-theme="dark"] .color-text {
