@@ -19,10 +19,13 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button type="button" onclick="window.open('@Url.RouteUrl("Brand", new { Model.SeName })','_blank');" class="btn purple">
-                                <i class="bi bi-eye"></i>
-                                @Loc["Admin.Common.Preview"]
-                            </button>
+                            @if (!string.IsNullOrEmpty(Model.SeName))
+                            {
+                                <button type="button" onclick="window.open('@Url.RouteUrl("Brand", new { Model.SeName })','_blank');" class="btn purple">
+                                    <i class="bi bi-eye"></i>
+                                    @Loc["Admin.Common.Preview"]
+                                </button>
+                            }
                             <button class="btn btn-success" type="submit" name="save">
                                 <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                             </button>
