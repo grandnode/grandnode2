@@ -750,24 +750,49 @@ input.grand-dateinput {
     border-color: var(--bs-form-invalid-border-color, #dc3545);
 }
 
-/* the chips of a multiselect, as Bootstrap would draw a subtle badge */
+/*
+ * The chips of a multiselect, in the panel's accent (--grand-form-accent, styles/_forms.scss:
+ * the focus ring, a switch that is on, the active tab) rather than Bootstrap's blue: a tint
+ * of the accent over the field, the accent as text and edge, and the accent filled in with
+ * its own text colour for the chip picked with the keyboard. The tint is mixed here, on the
+ * element, so it follows the accent of the colour mode it sits in.
+ * Contrast, light / dark: chip text and the remove cross 4.8:1 / 5.5:1 on the tint, the
+ * picked chip 5.6:1 / 9.5:1, the highlighted option of the list 13.0:1 / 7.3:1.
+ */
 .ts-wrapper.multi .ts-control > .item {
+    --grand-chip-bg: color-mix(in srgb, var(--grand-form-accent, #0b7285) 10%, var(--grand-form-control-bg, #fff));
     margin: .125rem;
     padding: .0625rem .375rem;
-    color: var(--bs-primary-text-emphasis, #052c65);
-    background-color: var(--bs-primary-bg-subtle, #cfe2ff);
-    border: var(--bs-border-width, 1px) solid var(--bs-primary-border-subtle, #9ec5fe);
+    color: var(--grand-form-accent, #0b7285);
+    background-color: var(--grand-chip-bg);
+    border: var(--bs-border-width, 1px) solid color-mix(in srgb, var(--grand-form-accent, #0b7285) 45%, var(--grand-form-control-bg, #fff));
     border-radius: var(--bs-border-radius-sm, .2rem);
 }
 
 .ts-wrapper.multi .ts-control > .item.active {
-    color: #fff;
-    background-color: var(--bs-primary, #0d6efd);
+    color: var(--grand-form-on-accent, #fff);
+    background-color: var(--grand-form-accent, #0b7285);
+    border-color: var(--grand-form-accent, #0b7285);
+}
+
+/* the cross of a chip: the rule before it (a #dee2e6 hairline in tom-select's theme) and the
+   hover take the accent too, so they show in the dark mode as well; .ts-control is there to
+   outweigh the theme's :not(.rtl) selector */
+.ts-wrapper.plugin-remove_button .ts-control > .item .remove {
+    border-inline-start-color: color-mix(in srgb, var(--grand-form-accent, #0b7285) 45%, var(--grand-form-control-bg, #fff));
+}
+
+.ts-wrapper.plugin-remove_button .ts-control > .item .remove:hover {
+    background-color: color-mix(in srgb, var(--grand-form-accent, #0b7285) 20%, transparent);
+}
+
+.ts-wrapper.plugin-remove_button .ts-control > .item.active .remove {
+    border-inline-start-color: transparent;
 }
 
 .ts-dropdown .option.active {
-    color: var(--bs-primary-text-emphasis, #052c65);
-    background-color: var(--bs-primary-bg-subtle, #cfe2ff);
+    color: var(--bs-body-color, #212529);
+    background-color: color-mix(in srgb, var(--grand-form-accent, #0b7285) 12%, var(--grand-form-control-bg, #fff));
 }
 
 .ts-dropdown .no-results {
