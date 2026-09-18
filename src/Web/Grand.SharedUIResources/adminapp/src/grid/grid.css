@@ -1,10 +1,32 @@
 /*
- * <admin-grid> look inside the current Bootstrap 4.5 admin layout. Tabulator's Bootstrap 5
- * theme (imported before this file) only styles .tabulator elements and ships no Bootstrap
- * globals; everything here is scoped to .grand-grid so nothing leaks into the panels.
+ * <admin-grid> look inside the admin layout. Tabulator's Bootstrap 5 theme (imported before
+ * this file) only styles .tabulator elements and ships no Bootstrap globals; everything here
+ * is scoped to .grand-grid so nothing leaks into the panels.
+ *
+ * The theme paints with fixed colours (a #fff table, #333 text, #dee2e6 lines), so every
+ * surface, text and line colour the grid shows is set here, from the tokens below. A token
+ * is either a Bootstrap variable, which follows the colour mode by itself, or - where the
+ * grid's light look is not a Bootstrap colour - a light value with its dark counterpart in
+ * the one [data-bs-theme="dark"] block. There are no other dark rules in this file.
  */
 
 .grand-grid {
+    --grand-grid-bg: var(--bs-body-bg, #fff);
+    --grand-grid-color: #333;
+    --grand-grid-border: #e7ecf1;
+    --grand-grid-header-bg: #f9fafc;
+    --grand-grid-header-color: #333;
+    --grand-grid-row-alt-bg: #fbfcfd;
+    --grand-grid-detail-bg: #f6f7f9;
+    --grand-grid-edit-bg: #fdf8e4;
+    --grand-grid-selected-bg: #d9ecf7;
+    --grand-grid-muted-color: #888;
+    --grand-grid-pager-hover-bg: #f2f4f7;
+    --grand-grid-true-color: green;
+    --grand-grid-false-color: red;
+    /* the cell rule Tabulator draws in right-to-left only (.tabulator-rtl) */
+    --grand-grid-rtl-cell-border: #dee2e6;
+
     position: relative;
     width: 100%;
     /*
@@ -18,10 +40,16 @@
 
 .grand-grid .tabulator {
     font-size: inherit;
-    border: 1px solid #e7ecf1;
+    border: 1px solid var(--grand-grid-border);
     border-radius: 0;
     margin: 0;
     background-color: transparent;
+}
+
+/* the theme paints the table itself white with #333 text, under the rows */
+.grand-grid .tabulator .tabulator-tableholder .tabulator-table {
+    background-color: var(--grand-grid-bg);
+    color: var(--grand-grid-color);
 }
 
 /*
@@ -36,9 +64,9 @@
 }
 
 .grand-grid .tabulator .tabulator-header {
-    border-bottom: 2px solid #e7ecf1;
-    background-color: #f9fafc;
-    color: #333;
+    border-bottom: 2px solid var(--grand-grid-border);
+    background-color: var(--grand-grid-header-bg);
+    color: var(--grand-grid-header-color);
 }
 
 .grand-grid .tabulator .tabulator-header .tabulator-col {
@@ -54,9 +82,13 @@
     white-space: normal;
 }
 
+/* A row's background is its --grand-grid-row-bg; the even, edit and selected states below
+   only change that variable, so the one rule that paints it also wins in dark mode (at the
+   end of this file). */
 .grand-grid .tabulator-row {
-    border-bottom: 1px solid #e7ecf1;
-    background-color: #fff;
+    --grand-grid-row-bg: var(--grand-grid-bg);
+    border-bottom: 1px solid var(--grand-grid-border);
+    background-color: var(--grand-grid-row-bg);
 }
 
 /*
@@ -89,8 +121,12 @@
     align-items: flex-end;
 }
 
+.grand-grid .tabulator.tabulator-rtl .tabulator-row .tabulator-cell {
+    border-left-color: var(--grand-grid-rtl-cell-border);
+}
+
 .grand-grid .tabulator-row.tabulator-row-even {
-    background-color: #fbfcfd;
+    --grand-grid-row-bg: var(--grand-grid-row-alt-bg);
 }
 
 .grand-grid .tabulator-row .tabulator-cell {
@@ -103,7 +139,7 @@
 }
 
 .grand-grid .tabulator-row.grand-grid-edit-row {
-    background-color: #fdf8e4;
+    --grand-grid-row-bg: var(--grand-grid-edit-bg);
 }
 
 .grand-grid .tabulator-row.grand-grid-edit-row .tabulator-cell {
@@ -114,7 +150,7 @@
 .grand-grid .tabulator .tabulator-tableholder .tabulator-placeholder .tabulator-placeholder-contents {
     font-size: 1em;
     font-weight: normal;
-    color: #888;
+    color: var(--grand-grid-muted-color);
     padding: 12px;
 }
 
@@ -124,11 +160,11 @@
 }
 
 .grand-grid .grand-grid-true {
-    color: green;
+    color: var(--grand-grid-true-color);
 }
 
 .grand-grid .grand-grid-false {
-    color: red;
+    color: var(--grand-grid-false-color);
 }
 
 .grand-grid .grand-grid-toolbar {
@@ -162,8 +198,8 @@
     width: 100%;
     box-sizing: border-box;
     padding: 8px 8px 8px 44px;
-    background-color: #f6f7f9;
-    border-top: 1px solid #e7ecf1;
+    background-color: var(--grand-grid-detail-bg);
+    border-top: 1px solid var(--grand-grid-border);
     clear: both;
 }
 
@@ -198,8 +234,8 @@
 }
 
 .grand-grid .grand-grid-pager-button:hover:not(:disabled) {
-    border-color: #e7ecf1;
-    background-color: #f2f4f7;
+    border-color: var(--grand-grid-border);
+    background-color: var(--grand-grid-pager-hover-bg);
 }
 
 .grand-grid .grand-grid-pager-button.active {
@@ -236,27 +272,48 @@
     transform: scaleX(-1);
 }
 
-[data-theme="dark"] .grand-grid .tabulator,
-[data-theme="dark"] .grand-grid .tabulator-row,
-[data-theme="dark"] .grand-grid .tabulator .tabulator-header {
-    background-color: transparent;
-    color: inherit;
-    border-color: rgba(255, 255, 255, 0.12);
+/*
+ * The dark values of the tokens that are not Bootstrap variables. Surfaces step up from the
+ * page (--bs-body-bg) through --bs-tertiary-bg to --bs-secondary-bg; text is
+ * --bs-body-color, at least 6:1 on each of them.
+ */
+[data-bs-theme="dark"] .grand-grid {
+    --grand-grid-color: var(--bs-body-color);
+    --grand-grid-border: var(--bs-border-color-translucent);
+    --grand-grid-header-bg: var(--bs-tertiary-bg);
+    --grand-grid-header-color: var(--bs-emphasis-color);
+    --grand-grid-row-alt-bg: rgba(255, 255, 255, .03);
+    --grand-grid-detail-bg: var(--bs-tertiary-bg);
+    --grand-grid-edit-bg: rgba(255, 220, 120, .08);
+    --grand-grid-selected-bg: rgba(var(--bs-primary-rgb), .3);
+    --grand-grid-muted-color: var(--bs-secondary-color);
+    --grand-grid-pager-hover-bg: var(--bs-secondary-bg);
+    --grand-grid-true-color: var(--bs-success-text-emphasis);
+    --grand-grid-false-color: var(--bs-danger-text-emphasis);
+    --grand-grid-rtl-cell-border: var(--bs-border-color-translucent);
 }
 
-[data-theme="dark"] .grand-grid .tabulator-row.tabulator-row-even,
-[data-theme="dark"] .grand-grid .grand-grid-detail {
-    background-color: rgba(255, 255, 255, 0.03);
+/* The yes/no ticks of the cell templates are coloured inline (style="color:green" and
+   style="color:red", about 130 views) or with text-success / text-danger, which are
+   !important themselves; on the dark rows both are about 2.2:1. Only an !important rule
+   reaches them; it is scoped to the grid and to the dark mode, so the light look and every
+   other use of those colours are left alone. */
+[data-bs-theme="dark"] .grand-grid [style*="color:green"],
+[data-bs-theme="dark"] .grand-grid [style*="color: green"],
+[data-bs-theme="dark"] .grand-grid .text-success {
+    color: var(--grand-grid-true-color) !important;
 }
 
-[data-theme="dark"] .grand-grid .tabulator-row.grand-grid-edit-row {
-    background-color: rgba(255, 220, 120, 0.08);
+[data-bs-theme="dark"] .grand-grid [style*="color:red"],
+[data-bs-theme="dark"] .grand-grid [style*="color: red"],
+[data-bs-theme="dark"] .grand-grid .text-danger {
+    color: var(--grand-grid-false-color) !important;
 }
 
 /* selectable="Row" */
 .grand-grid .tabulator-row.grand-grid-selected,
 .grand-grid .tabulator-row.grand-grid-selected:hover {
-    background-color: #d9ecf7;
+    --grand-grid-row-bg: var(--grand-grid-selected-bg);
 }
 
 .grand-grid.grand-grid-row-select .tabulator-row {
@@ -375,4 +432,39 @@
 .grand-grid .form-check-input {
     margin: 0;
     vertical-align: middle;
+}
+
+/*
+ * Tabulator's Bootstrap 5 theme has a dark mode of its own, keyed on
+ * html[data-bs-theme=dark]: it paints the table, the header, every row and every cell with
+ * --bs-body-bg and lights a hovered row with --bs-secondary-bg, at a specificity above the
+ * rules of this file. Opaque cells hid the edit, selected and even row states, and the hover
+ * lit a whole detail grid under its master row - a hover the light mode never had. Inside
+ * an <admin-grid> those surfaces are handed back to the tokens; one class more than the
+ * theme's selectors, or the same weight later in the bundle, is what makes these win.
+ */
+html[data-bs-theme="dark"] .grand-grid .tabulator {
+    background-color: transparent;
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator:not(.thead-light) .tabulator-header {
+    background-color: var(--grand-grid-header-bg);
+    border-color: var(--grand-grid-border);
+    color: var(--grand-grid-header-color);
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator:not(.thead-light) .tabulator-header .tabulator-col {
+    background-color: transparent;
+    color: inherit;
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator .tabulator-row,
+html[data-bs-theme="dark"] .grand-grid .tabulator .tabulator-row:hover {
+    background-color: var(--grand-grid-row-bg);
+    border-color: var(--grand-grid-border);
+    color: var(--grand-grid-color);
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator .tabulator-row .tabulator-cell {
+    background-color: transparent;
 }
