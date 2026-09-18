@@ -251,7 +251,25 @@ Tests run on one worker: every locale project switches the same account's langua
 `npm run e2e:visual` records one full-page screenshot per entry of
 `e2e/support/visual-pages.js` into `e2e/screenshots/<GRAND_SHOT_DIR>` (default `current`),
 so the look of two builds can be compared page by page. `e2e/screenshots/` is git-ignored:
-the pages show real store data.
+the pages show real store data. `GRAND_THEME=dark` records the same pages in the dark mode.
+
+## Dark mode
+
+The switch in the panel header stores the choice in `localStorage` (`theme`: `dark` or
+`light`); `wwwroot/administration/admin.theme.js`, loaded synchronously in `<head>` of the
+three panels and their login pages, applies it before the first paint as two attributes on
+`<html>`: Bootstrap 5.3's own `data-bs-theme` and the older `data-theme`. Bootstrap's
+colour mode themes every Bootstrap component, and everything here is written against its
+`--bs-*` variables, so it follows without dark rules of its own. `styles/_custom.scss`
+gives the dark mode the panel's slate palette by redefining those variables under
+`[data-bs-theme="dark"]`; the `[data-theme="dark"]` rules left there are for the chrome
+Bootstrap does not draw (top bar, dashboard tiles, `.btn-default`, notes).
+
+`grid/grid.css` paints the grid from `--grand-grid-*` tokens: a Bootstrap variable where
+the light look is one, otherwise a light value with a dark one in a single
+`[data-bs-theme="dark"]` block. Tabulator's Bootstrap 5 theme ships a dark mode of its own
+(`html[data-bs-theme=dark]`) that would paint every cell with `--bs-body-bg`; the last block
+of `grid.css` hands those surfaces back to the tokens.
 
 `npm run e2e:har` records one HAR per page listed in `e2e/support/har-pages.js`. For
 grids marked `captureUpdate` it opens inline edit, clicks Update without changes and

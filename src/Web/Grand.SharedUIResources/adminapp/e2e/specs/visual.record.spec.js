@@ -14,7 +14,12 @@ import { VISUAL_PAGES } from '../support/visual-pages.js'
 //
 //GRAND_SHOT_DIR is a name under e2e/screenshots/ or an absolute path; it defaults to
 //"current". e2e/screenshots/ is git-ignored: the pages show real store data.
+//
+//GRAND_THEME=dark records the pages in the panel's dark mode: the choice the switch in the
+//header stores ("theme" in localStorage) is written before any page loads, so
+//admin.theme.js applies it the way it does for a user who turned it on.
 const target = process.env.GRAND_SHOT_DIR?.trim() || 'current'
+const theme = process.env.GRAND_THEME?.trim() === 'dark' ? 'dark' : undefined
 const shotDir = isAbsolute(target) ? target : join(fileURLToPath(new URL('../screenshots/', import.meta.url)), target)
 
 const panels = [...new Set(VISUAL_PAGES.map(entry => entry.panel))]
@@ -23,6 +28,11 @@ for (const panel of panels) {
     test.describe(panel, () => {
         //the signed-in panel is a fixture option, so each panel needs its own block
         test.use({ panel })
+        if (theme) {
+            test.beforeEach(async ({ context }) => {
+                await context.addInitScript(value => { try { localStorage.setItem('theme', value) } catch { /* no storage */ } }, theme)
+            })
+        }
         for (const entry of VISUAL_PAGES.filter(page => page.panel === panel)) record(entry)
     })
 }
