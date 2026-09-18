@@ -291,7 +291,10 @@ public class ProductController : BasePublicController
             return NotFound();
 
         //availability dates
-        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
+        //Check whether the current user has a "Manage catalog" permission
+        //It allows him to preview a product outside its availability window
+        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction &&
+            !await _permissionService.Authorize(StandardPermission.ManageProducts, customer))
             return NotFound();
 
         //visible individually?
@@ -494,7 +497,10 @@ public class ProductController : BasePublicController
             });
 
         //availability dates
-        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
+        //Check whether the current user has a "Manage catalog" permission
+        //It allows him to preview a product outside its availability window
+        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction &&
+            !await _permissionService.Authorize(StandardPermission.ManageProducts, customer))
             return Json(new {
                 success = false,
                 message = "No product found with the specified ID"
