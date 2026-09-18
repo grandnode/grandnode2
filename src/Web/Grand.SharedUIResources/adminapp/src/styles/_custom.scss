@@ -1683,7 +1683,7 @@ h2 {
     --#{$prefix}card-spacer-x: 0;
     --#{$prefix}card-border-width: 0;
     --#{$prefix}card-border-radius: 0;
-    --#{$prefix}card-bg: #fff;
+    --#{$prefix}card-bg: var(--#{$prefix}body-bg);
 
     position: relative;
     width: 100%;
@@ -6957,41 +6957,65 @@ table.tableFixHead {
     width: calc(100% - 90px);
 }
 
+/*
+ * Dark mode.
+ *
+ * admin.theme.js puts two attributes on <html>: Bootstrap 5.3's data-bs-theme and the
+ * panel's older data-theme. Bootstrap's dark colour mode is what themes its components and
+ * everything written against its --bs-* variables (the grid, the date picker, the numeric
+ * field, Tom Select); here it is given the slate palette the panel's dark mode has always
+ * had instead of Bootstrap's own grey, so the chrome below and the components agree.
+ *
+ * Contrast on the lighter surface (--bs-secondary-bg, #475766): body text 6.2:1, secondary
+ * text 4.7:1; the control border is 3.1:1 against the page (WCAG 1.4.11).
+ */
+[data-bs-theme="dark"] {
+    --#{$prefix}body-color: #e9ecef;
+    --#{$prefix}body-color-rgb: 233, 236, 239;
+    --#{$prefix}body-bg: #2F3C48;
+    --#{$prefix}body-bg-rgb: 47, 60, 72;
+    --#{$prefix}emphasis-color: #fff;
+    --#{$prefix}emphasis-color-rgb: 255, 255, 255;
+    --#{$prefix}secondary-color: #c9ced4;
+    --#{$prefix}secondary-color-rgb: 201, 206, 212;
+    --#{$prefix}secondary-bg: #475766;
+    --#{$prefix}secondary-bg-rgb: 71, 87, 102;
+    --#{$prefix}tertiary-color: rgba(233, 236, 239, .6);
+    --#{$prefix}tertiary-color-rgb: 233, 236, 239;
+    --#{$prefix}tertiary-bg: #3b4957;
+    --#{$prefix}tertiary-bg-rgb: 59, 73, 87;
+    --#{$prefix}border-color: #7a8896;
+    --#{$prefix}border-color-translucent: rgba(255, 255, 255, .15);
+}
+
+/* what Bootstrap does not draw: the page, the top bar, the panels, the dashboard tiles */
 [data-theme="dark"] body,
-[data-theme="dark"] .table,
 [data-theme="dark"] .tile-stats .icon,
 [data-theme="dark"] .light-dark-switch {
-    color: #fff;
+    color: var(--#{$prefix}emphasis-color);
 }
 [data-theme="dark"] .font-dark, [data-theme="dark"] .nav.navbar-nav > li > a {
     color: #fff !important;
 }
-[data-theme="dark"] .tile-stats:hover .icon i,
-[data-theme="dark"] .k-grid tr td i.fa-check::before {
+[data-theme="dark"] .tile-stats:hover .icon i {
     color: #1ABB9C;
 }
-[data-theme="dark"] a,
-[data-theme="dark"] .table-hover tbody tr:hover {
+[data-theme="dark"] a {
     color: #f9f9f9;
 }
-[data-theme="dark"] .k-grid table a, [data-theme="dark"] .premium-list li span {
+[data-theme="dark"] .premium-list li span {
     font-weight: 500;
 }
 [data-theme="dark"] .toggle a span {
     background: #1ABB9C;
 }
-[data-theme="dark"] .table-hover tbody tr:hover {
-    background-color: rgba(0,0,0,.4);
-}
 [data-theme="dark"] body .container.body .right_col,
-[data-theme="dark"] .x_panel,
 [data-theme="dark"] .top_nav .nav > li > a:focus, [data-theme="dark"] .mfp-content, [data-theme="dark"] .top_nav .nav > li > a:hover, [data-theme="dark"] .top_nav .nav .open > a, [data-theme="dark"] .top_nav .nav .open > a:focus, [data-theme="dark"] .top_nav .nav .open > a:hover {
-    background: #2F3C48;
+    background: var(--#{$prefix}body-bg);
 }
 [data-theme="dark"] .whiteBg,
-[data-theme="dark"] canvas,
-[data-theme="dark"] .k-grid-footer, [data-theme="dark"] .k-grid-footer td, [data-theme="dark"] .k-grid-header, [data-theme="dark"] .k-grid-header .k-header {
-    background: #475766;
+[data-theme="dark"] canvas {
+    background: var(--#{$prefix}secondary-bg);
     color: #fff !important;
 }
 [data-theme="dark"] .container.body .right_col {
@@ -6999,73 +7023,61 @@ table.tableFixHead {
 }
 [data-theme="dark"] .tile-stats,
 [data-theme="dark"] .nav_menu {
-    background: #475766;
+    background: var(--#{$prefix}secondary-bg);
     border-color: #666;
 }
-[data-theme="dark"] .k-grid table tr,
 [data-theme="dark"] .panel,
-[data-theme="dark"] .panel-footer,
-[data-theme="dark"] .card,
-[data-theme="dark"] .table,
-[data-theme="dark"] .modal-content {
-    color: #fff;
-    background: #475766;
+[data-theme="dark"] .panel-footer {
+    color: var(--#{$prefix}emphasis-color);
+    background: var(--#{$prefix}secondary-bg);
 }
-[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
-    background: rgba(0,0,0,.15);
-}
-[data-theme="dark"] .btn.default,
+/* .btn-default and .btn.default are the panel's own white buttons; Bootstrap has no such
+   variant to follow */
 [data-theme="dark"] .btn-default,
-[data-theme="dark"] a.k-button,
-[data-theme="dark"] .k-grid table a.k-button {
-    color: #666;
+[data-theme="dark"] .btn.default {
+    color: var(--#{$prefix}body-color);
+    background-color: var(--#{$prefix}secondary-bg);
+    border-color: var(--#{$prefix}border-color);
 }
-[data-theme="dark"] .k-grid-pager .k-link, [data-theme="dark"] .k-grid-pager .k-link:link,
+[data-theme="dark"] .btn-default.active, [data-theme="dark"] .btn-default:active, [data-theme="dark"] .btn-default:hover, [data-theme="dark"] .open > .btn-default.dropdown-toggle,
+[data-theme="dark"] .btn.default:hover, [data-theme="dark"] .btn.default:active, [data-theme="dark"] .btn.default.show {
+    color: var(--#{$prefix}emphasis-color);
+    background-color: var(--#{$prefix}tertiary-bg);
+    border-color: var(--#{$prefix}border-color);
+}
+/* magnific-popup draws the close button of a popup #333 */
+[data-theme="dark"] .mfp-close-btn-in .mfp-close {
+    color: var(--#{$prefix}body-color);
+}
 [data-theme="dark"] .x_title > .caption > i {
     color: #f9f9f9;
 }
-[data-theme="dark"] .k-grid-filter .k-icon, [data-theme="dark"] .k-header .k-icon {
-    color: #fff;
-}
-[data-theme="dark"] .k-button .k-icon {
-    color: #000;
-}
-[data-theme="dark"] .form-control,
-[data-theme="dark"] .tag-editor,
-[data-theme="dark"] .k-input,[data-theme="dark"]  .k-textbox > input,[data-theme="dark"]  input.k-textbox,[data-theme="dark"]  input.k-textbox:hover,[data-theme="dark"]  textarea.k-textbox,[data-theme="dark"]  textarea.k-textbox:hover {
-    background: #2F3C48;
-    border-color: #fff;
-    color: #f9f9f9;
-}
-[data-theme="dark"] .form-control#searchInput {
-    color: #fff;
-}
-[data-theme="dark"] input::-webkit-input-placeholder,
-[data-theme="dark"] input:-ms-input-placeholder,
-[data-theme="dark"] input::placeholder {
-    color: #f9f9f9;
+[data-theme="dark"] .tag-editor {
+    background: var(--#{$prefix}body-bg);
+    border-color: var(--#{$prefix}border-color);
+    color: var(--#{$prefix}body-color);
 }
 [data-theme="dark"] .tt-menu {
-    background-color: #2F3C48;
+    background-color: var(--#{$prefix}body-bg);
     border: 1px solid #666;
     border-top: 0;
 }
-[data-theme="dark"] .tableFixHead thead th, [data-theme="dark"] .k-header, [data-theme="dark"] .k-grid-header .k-header, [data-theme="dark"] .k-textbox {
+[data-theme="dark"] .tableFixHead thead th {
     background-color: #616F7D;
 }
 [data-theme="dark"] .panel-default > .panel-heading {
     color: #f9f9f9;
-    background-color: #2F3C48;
+    background-color: var(--#{$prefix}body-bg);
 }
 [data-theme="dark"] .portlet.light.bg-inverse {
-    background-color: #475766;
+    background-color: var(--#{$prefix}secondary-bg);
 }
 [data-theme="dark"] .note {
-    background: #2F3C48 !important;
+    background: var(--#{$prefix}body-bg) !important;
     color: #fff !important;
 }
 [data-theme="dark"] .store-news .note {
-    background: #475766 !important;
+    background: var(--#{$prefix}secondary-bg) !important;
     color: #ddd !important;
 }
 [data-theme="dark"] .top_nav .dropdown-menu li a,
@@ -7099,7 +7111,7 @@ table.tableFixHead {
 }
 
 [data-theme="dark"] .note-editable, [data-theme="dark"] .note-codable {
-    background: #2F3C48;
+    background: var(--#{$prefix}body-bg);
 }
 
 [data-theme="dark"] .panel-default > .panel-heading {
