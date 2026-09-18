@@ -369,4 +369,13 @@
 	<Resource Name="admin.content.knowledgebase.node.article" Area="Admin">
 		<Value>Article</Value>
 	</Resource>
+	<Resource Name="admin.orders.products.cancelqty" Area="Admin">
+		<Value>Canceled</Value>
+	</Resource>
+	<Resource Name="admin.orders.products.noactions" Area="Admin">
+		<Value>Shipped or canceled - no changes possible</Value>
+	</Resource>
+	<Resource Name="admin.orders.products.openqty" Area="Admin">
+		<Value>Open</Value>
+	</Resource>
 </Language>

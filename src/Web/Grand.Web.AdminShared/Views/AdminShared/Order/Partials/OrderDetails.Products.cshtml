@@ -13,6 +13,28 @@
         .Where(x => x.MerchandiseReturnIds.Count > 0 || x.PurchasedGiftVoucherIds.Count > 0 ||
                     (Model.HasDownloadableProducts && x.IsDownload))
         .ToList();
+
+    //the resources below ship with 2.4; an installation that has not imported them yet
+    //shows the English default instead of the raw resource key
+    string Res(string key, string fallback)
+    {
+        //a missing resource comes back as its own (lowercased) key
+        var resource = Loc[key];
+        return resource.ResourceNotFound || string.IsNullOrEmpty(resource.Value) ||
+               string.Equals(resource.Value, key, StringComparison.OrdinalIgnoreCase)
+            ? fallback
+            : resource.Value;
+    }
+
+    //each command is offered by the rule the server applies to it; the server still re-checks
+    //everything. Edit: BaseOrderManagementController.ApplyOrderItemEdit refuses a partly
+    //shipped item only when it ships at all, so an item that ships nothing stays editable.
+    const string editVisibleIf = "!IsShipEnabled || OpenQty == Quantity";
+    //Delete: DeleteOrderItemCommandHandler wants the whole quantity open (an item in a shipment
+    //never has it), an open item and no gift voucher issued for it
+    var destroyVisibleIf = $"OpenQty > 0 && OpenQty == Quantity && Status == {(int)OrderItemStatus.Open} && !PurchasedGiftVoucherIds";
+    //Cancel: CancelOrderItemCommandHandler wants something open, an open item and no gift voucher
+    var cancelVisibleIf = $"OpenQty > 0 && Status == {(int)OrderItemStatus.Open} && !IsGiftVoucher";
 }
 
 <partial name="Partials/WidgetZone.Products.Top" model="Model"/>
@@ -29,6 +51,8 @@
     <grid-text name="sku" value="@Loc["Admin.Orders.Products.SKU"]"/>
     <grid-text name="vendor" value="@Loc["Admin.Orders.Products.Vendor"]"/>
     <grid-text name="exclTax" value="@Loc["Admin.Orders.Products.Edit.ExclTax"]"/>
+    <grid-text name="openQty" value="@Res("Admin.Orders.Products.OpenQty", "Open")"/>
+    <grid-text name="cancelQty" value="@Res("Admin.Orders.Products.CancelQty", "Canceled")"/>
     <grid-column field="PictureThumbnailUrl" title="@Loc["Admin.Orders.Products.Picture"]" width="80" editable="false">
         <cell-template>
             <img data-if="PictureThumbnailUrl" src="{{ PictureThumbnailUrl }}" alt="" title=""/>
@@ -65,8 +89,8 @@
     <grid-column field="Quantity" title="@Loc["Admin.Orders.Products.Quantity"]" width="120" editor="Integer" min="1">
         <cell-template>
             <div>{{ Quantity }}</div>
-            <div data-if="OpenQty > 0">Open: {{ OpenQty }}</div>
-            <div data-if="CancelQty > 0">Canceled: {{ CancelQty }}</div>
+            <div data-if="OpenQty > 0">{{ $texts.openQty }}: {{ OpenQty }}</div>
+            <div data-if="CancelQty > 0">{{ $texts.cancelQty }}: {{ CancelQty }}</div>
         </cell-template>
     </grid-column>
     @if (hasDiscount)
@@ -82,11 +106,12 @@
                  title="@Loc["Admin.Orders.Products.Total"]" editable="false"/>
     @if (!orderCanceled)
     {
-        @* the server refuses a delete unless the whole quantity is still open, and refuses an edit of
-           a partly shipped item; a row that fails both keeps no button. It still re-checks everything. *@
-        <grid-commands edit="true" destroy="true" width="330" title="@Loc["Admin.Common.Edit"]" visible-if="OpenQty > 0 && OpenQty == Quantity">
+        @* a row the server accepts no command for says so instead of showing an empty cell *@
+        <grid-commands edit="true" destroy="true" width="330" title="@Loc["Admin.Common.Edit"]"
+                       edit-visible-if="@editVisibleIf" destroy-visible-if="@destroyVisibleIf"
+                       empty-text="@Res("Admin.Orders.Products.NoActions", "Shipped or canceled - no changes possible")">
             <grid-command name="cancelItem" text="@Loc["Admin.Common.Cancel"]" icon="bi bi-x-lg"
-                          click="orderItemCancel" visible-if="OpenQty > 0"/>
+                          click="orderItemCancel" visible-if="@cancelVisibleIf"/>
         </grid-commands>
     }
 </admin-grid>
