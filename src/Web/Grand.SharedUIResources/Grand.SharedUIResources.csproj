@@ -10,6 +10,15 @@
     <ItemGroup>
       <Folder Include="wwwroot\" />
     </ItemGroup>
+    <!-- adminapp shown in Solution Explorer as None items only: never compiled, copied,
+         packed or turned into static web assets. The excludes are its git-ignored output. -->
+    <ItemGroup>
+      <None Include="adminapp\**"
+            Exclude="adminapp\node_modules\**;adminapp\dist\**;adminapp\reports\**;adminapp\e2e\har\**;adminapp\e2e\payloads\**;adminapp\e2e\test-results\**;adminapp\e2e\screenshots\**;adminapp\e2e\playwright-report\**;adminapp\e2e\.auth\**"
+            CopyToOutputDirectory="Never"
+            CopyToPublishDirectory="Never"
+            Pack="false" />
+    </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
       <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
