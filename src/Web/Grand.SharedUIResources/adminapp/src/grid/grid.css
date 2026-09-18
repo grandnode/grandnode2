@@ -460,6 +460,15 @@
     min-width: 4.5rem;
 }
 
+/* The numeric and the date control are Bootstrap input groups, and the panels give every
+   .input-group a 10px bottom margin (_custom.scss) to space the rows of a form. In a cell
+   that margin sat under the control only, so it rode 5px above the text and select editors
+   of the same row. A form keeps its margin. */
+.grand-grid .grand-grid-numeric .grand-numeric-group,
+.grand-grid .grand-grid-date .grand-datepicker {
+    margin-bottom: 0;
+}
+
 .grand-grid .grand-grid-numeric .grand-numeric-spin {
     width: 1.25rem;
     border-end-end-radius: var(--bs-border-radius-sm, .25rem);
