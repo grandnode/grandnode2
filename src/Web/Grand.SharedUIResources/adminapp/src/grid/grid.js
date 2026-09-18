@@ -105,7 +105,10 @@ export class GrandGrid {
         this._detailGrids = new Map()
         this._headerCheckbox = null
         this._resizeHandler = null
+        //visible-if shows Edit and Delete together; edit-visible-if and destroy-visible-if narrow each one
         this._commandVisible = this.commands?.visibleIf ? compileCondition(this.commands.visibleIf) : null
+        this._editVisible = this.commands?.editVisibleIf ? compileCondition(this.commands.editVisibleIf) : null
+        this._destroyVisible = this.commands?.destroyVisibleIf ? compileCondition(this.commands.destroyVisibleIf) : null
 
         this.dataSource = new DataSource({
             transport: config.transport || {},
@@ -395,11 +398,12 @@ export class GrandGrid {
             holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel', 'bi bi-slash-circle', texts.cancel, () => this.cancelEdit()))
             return holder
         }
-        const visible = this._commandVisible ? this._commandVisible(item, { texts }) : true
-        if (visible && this.commands.edit && this.editMode === 'Inline') {
+        const scope = { texts }
+        const visible = this._commandVisible ? this._commandVisible(item, scope) : true
+        if (visible && this.commands.edit && this.editMode === 'Inline' && (!this._editVisible || this._editVisible(item, scope))) {
             holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-edit', 'bi bi-pencil', texts.edit, () => this.editRow(item)))
         }
-        if (visible && this.commands.destroy) {
+        if (visible && this.commands.destroy && (!this._destroyVisible || this._destroyVisible(item, scope))) {
             holder.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-delete', 'bi bi-trash', texts.delete, () => this.destroyRow(item)))
         }
         for (const command of this.commands.custom || []) {
@@ -409,6 +413,10 @@ export class GrandGrid {
                 if (fn) fn.call(this.api, item, e, this.api)
                 else console.warn(`[admin-grid] command function "${command.click}" is not defined`)
             }))
+        }
+        //a row with no button says why instead of leaving a cell that looks unfinished
+        if (!holder.firstChild && this.commands.emptyText) {
+            holder.appendChild(el(doc, 'span', 'text-muted small grand-grid-commands-empty', this.commands.emptyText))
         }
         return holder
     }

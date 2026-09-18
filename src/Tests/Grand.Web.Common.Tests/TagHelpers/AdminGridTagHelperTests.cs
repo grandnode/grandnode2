@@ -227,6 +227,36 @@ public class AdminGridTagHelperTests
     }
 
     [TestMethod]
+    public async Task Process_Commands_SerializeVisibilityPerButtonAndEmptyText()
+    {
+        var output = await RunGrid(CreateGrid(g => g.EditMode = GridEditMode.Inline),
+            new Element(new GridCommandsTagHelper {
+                Edit = true, Destroy = true,
+                EditVisibleIf = "!IsShipEnabled || OpenQty == Quantity",
+                DestroyVisibleIf = "OpenQty > 0 && OpenQty == Quantity",
+                EmptyText = "<Shipped>"
+            }));
+
+        var commands = Config(output).GetProperty("commands");
+        Assert.IsFalse(commands.TryGetProperty("visibleIf", out _));
+        Assert.AreEqual("!IsShipEnabled || OpenQty == Quantity", commands.GetProperty("editVisibleIf").GetString());
+        Assert.AreEqual("OpenQty > 0 && OpenQty == Quantity", commands.GetProperty("destroyVisibleIf").GetString());
+        Assert.AreEqual("<Shipped>", commands.GetProperty("emptyText").GetString());
+    }
+
+    [TestMethod]
+    public async Task Process_Commands_BlankPerButtonConditionsAndEmptyText_AreLeftOut()
+    {
+        var output = await RunGrid(CreateGrid(g => g.EditMode = GridEditMode.Inline),
+            new Element(new GridCommandsTagHelper { Edit = true, EditVisibleIf = " ", DestroyVisibleIf = "", EmptyText = "" }));
+
+        var commands = Config(output).GetProperty("commands");
+        Assert.IsFalse(commands.TryGetProperty("editVisibleIf", out _));
+        Assert.IsFalse(commands.TryGetProperty("destroyVisibleIf", out _));
+        Assert.IsFalse(commands.TryGetProperty("emptyText", out _));
+    }
+
+    [TestMethod]
     public async Task Process_LocalizedTexts_ArePassedAsJsonAndGridTextsAreAdded()
     {
         var output = await RunGrid(CreateGrid(),

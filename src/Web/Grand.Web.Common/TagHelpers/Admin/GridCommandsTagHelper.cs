@@ -26,8 +26,24 @@ public class GridCommandsTagHelper : TagHelper
     /// <summary>
     ///     Condition (admin.grid.js expression syntax) that shows Edit and Delete for a row,
     ///     e.g. "StoreId == '' || StoreId == 'abc'". The server still checks ownership.
+    ///     <see cref="EditVisibleIf" /> and <see cref="DestroyVisibleIf" /> apply on top of it.
     /// </summary>
     public string VisibleIf { get; set; }
+
+    /// <summary>
+    ///     Condition that shows Edit for a row, on top of <see cref="VisibleIf" />, when Edit and
+    ///     Delete follow different rules.
+    /// </summary>
+    public string EditVisibleIf { get; set; }
+
+    /// <summary>Condition that shows Delete for a row, on top of <see cref="VisibleIf" />.</summary>
+    public string DestroyVisibleIf { get; set; }
+
+    /// <summary>
+    ///     Text shown (muted, small) in place of the buttons of a row that got none, so an empty
+    ///     cell does not look like something failed to load.
+    /// </summary>
+    public string EmptyText { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -37,7 +53,10 @@ public class GridCommandsTagHelper : TagHelper
             Destroy = Destroy,
             Width = Width,
             Title = Title,
-            VisibleIf = VisibleIf
+            VisibleIf = VisibleIf,
+            EditVisibleIf = string.IsNullOrWhiteSpace(EditVisibleIf) ? null : EditVisibleIf,
+            DestroyVisibleIf = string.IsNullOrWhiteSpace(DestroyVisibleIf) ? null : DestroyVisibleIf,
+            EmptyText = string.IsNullOrEmpty(EmptyText) ? null : EmptyText
         };
         context.Items[typeof(GridCommands)] = commands;
         await output.GetChildContentAsync();

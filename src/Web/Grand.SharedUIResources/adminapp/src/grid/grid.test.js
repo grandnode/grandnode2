@@ -362,3 +362,66 @@ describe('dataBound after Tabulator renders the rows again', () => {
         delete window.onRowsBound
     })
 })
+
+describe('command visibility per button', () => {
+    const buttons = row => Array.from(row.querySelectorAll('.grand-grid-command-buttons .btn'))
+        .map(button => button.className.match(/grand-grid-(edit|delete|command)\b/)[1])
+
+    function commandGrid(commands) {
+        return createGrid({
+            data: [
+                { Id: '1', OpenQty: 2, Quantity: 2, IsShipEnabled: true },
+                { Id: '2', OpenQty: 1, Quantity: 2, IsShipEnabled: true },
+                { Id: '3', OpenQty: 0, Quantity: 2, IsShipEnabled: false },
+                { Id: '4', OpenQty: 0, Quantity: 2, IsShipEnabled: true }
+            ],
+            editMode: 'Inline',
+            texts: { edit: 'Edit', delete: 'Delete' },
+            columns: [{ field: 'Quantity', editor: 'Integer' }],
+            commands
+        })
+    }
+
+    it('shows Edit and Delete by their own conditions, custom commands by theirs', async () => {
+        const grid = commandGrid({
+            edit: true,
+            destroy: true,
+            editVisibleIf: '!IsShipEnabled || OpenQty == Quantity',
+            destroyVisibleIf: 'OpenQty > 0 && OpenQty == Quantity',
+            custom: [{ name: 'cancelItem', text: 'Cancel', click: () => { }, visibleIf: 'OpenQty > 0' }]
+        })
+        await grid.ready
+        await grid.dataSource.read()
+        expect(rows(grid).map(buttons)).toEqual([
+            ['edit', 'delete', 'command'],
+            ['command'],
+            ['edit'],
+            []
+        ])
+    })
+
+    it('keeps visible-if as the condition both Edit and Delete need', async () => {
+        const grid = commandGrid({ edit: true, destroy: true, visibleIf: 'OpenQty > 0', editVisibleIf: 'OpenQty == Quantity' })
+        await grid.ready
+        await grid.dataSource.read()
+        expect(rows(grid).map(buttons)).toEqual([['edit', 'delete'], ['delete'], [], []])
+    })
+
+    it('writes the empty text as text in a row that got no button, and only there', async () => {
+        const grid = commandGrid({ edit: true, editVisibleIf: 'OpenQty > 0', emptyText: '<b>Shipped</b>' })
+        await grid.ready
+        await grid.dataSource.read()
+        const empty = rows(grid).map(row => row.querySelector('.grand-grid-commands-empty'))
+        expect(empty.map(node => node !== null)).toEqual([false, false, true, true])
+        expect(empty[2].textContent).toBe('<b>Shipped</b>')
+        expect(empty[2].querySelector('b')).toBeNull()
+        expect(empty[2].className).toBe('text-muted small grand-grid-commands-empty')
+    })
+
+    it('leaves the cell empty without an empty text', async () => {
+        const grid = commandGrid({ edit: true, editVisibleIf: 'OpenQty > 0' })
+        await grid.ready
+        await grid.dataSource.read()
+        expect(rows(grid)[3].querySelector('.grand-grid-command-buttons').childNodes.length).toBe(0)
+    })
+})

@@ -159,6 +159,9 @@ public class GridCommands
     public int? Width { get; set; }
     public string Title { get; set; }
     public string VisibleIf { get; set; }
+    public string EditVisibleIf { get; set; }
+    public string DestroyVisibleIf { get; set; }
+    public string EmptyText { get; set; }
     public IList<GridCommand> Custom { get; set; }
 }
 
