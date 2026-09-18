@@ -58,7 +58,9 @@ public class LocalizedEditorTagHelper : TagHelper
             var strip = new TagBuilder("div");
             strip.Attributes["id"] = Name;
             strip.Attributes["style"] = "display:none";
-            strip.AddCssClass("grand-tabstrip");
+            //grand-tabstrip-localized: a language strip is drawn one step down from a page's
+            //tab strip (ui.css), wherever it sits
+            strip.AddCssClass("grand-tabstrip grand-tabstrip-localized");
             strip.Attributes["data-grand-tabstrip"] = "{\"bindGrid\":false,\"selectedIndex\":0}";
 
             var items = new TagBuilder("ul");

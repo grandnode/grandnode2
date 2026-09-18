@@ -6,6 +6,53 @@
 
 /* ---------------------------------------------------------------- tab strip */
 
+/*
+ * A tab strip is built like an <admin-grid> (grid/grid.css): the tabs sit on a band in the
+ * colour of the grid's header, and one outline in the colour of the grid's frame runs round
+ * the band and the pane together, so a strip reads as one area of the page rather than a
+ * row of links over loose fields. The active tab is cut out of the band - it takes the
+ * pane's surface and covers the rule under it - so tab and content are one sheet, and it
+ * carries the accent of the grid pager's current page on its outer edge.
+ *
+ * A strip inside a pane (Product > Product attributes) and the language strip of a
+ * localized editor are a step down, the way a detail grid is: no outline of their own,
+ * tabs underlined in the accent, and a tinted pane, so a nested level reads as a step and
+ * not as a box drawn inside a box.
+ *
+ * Every colour is a token below; the dark values are in the one [data-bs-theme="dark"]
+ * block. Contrast, light / dark: tab text 5.5:1 / 5.8:1 on the band, active tab 14.8:1 /
+ * 9.5:1, the accent 5.6:1 / 6.8:1 against the pane (it doubles as the focus ring).
+ */
+
+.grand-tabstrip {
+    --grand-tabs-frame: var(--bs-border-color, #dee2e6);
+    --grand-tabs-rule: #e7ecf1;
+    --grand-tabs-band-bg: #f9fafc;
+    --grand-tabs-pane-bg: var(--bs-body-bg, #fff);
+    --grand-tabs-nested-bg: #f6f7f9;
+    --grand-tabs-color: #5c6773;
+    --grand-tabs-hover-color: var(--bs-body-color, #212529);
+    --grand-tabs-hover-bg: #eef2f6;
+    --grand-tabs-active-color: var(--bs-body-color, #212529);
+    --grand-tabs-accent: #0b7285;
+    --grand-tabs-scroll-shadow: rgba(15, 23, 42, .14);
+    --grand-tabs-pad: 1.25rem;
+    /* how far a nested pane's tint reaches past the fields it holds */
+    --grand-tabs-nested-bleed: .75rem;
+}
+
+[data-bs-theme="dark"] .grand-tabstrip {
+    --grand-tabs-rule: var(--bs-border-color-translucent);
+    --grand-tabs-band-bg: var(--bs-tertiary-bg);
+    --grand-tabs-nested-bg: var(--bs-tertiary-bg);
+    --grand-tabs-color: var(--bs-secondary-color);
+    --grand-tabs-hover-color: var(--bs-emphasis-color);
+    --grand-tabs-hover-bg: rgba(255, 255, 255, .06);
+    --grand-tabs-active-color: var(--bs-emphasis-color);
+    --grand-tabs-accent: #66d9e8;
+    --grand-tabs-scroll-shadow: rgba(0, 0, 0, .4);
+}
+
 .grand-tabstrip > .tab-content > .tab-pane {
     display: none;
 }
@@ -18,19 +65,42 @@
 }
 
 .grand-tabstrip > ul.nav {
+    /* Bootstrap's focus halo; the tabs draw their own ring below */
+    --bs-nav-link-focus-box-shadow: none;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-/* A product screen has fourteen tabs and a narrow panel. Wrapping them onto three rows is
-   what made the strip look like a list of links; they scroll sideways instead, and the tab
-   that becomes active is scrolled into view (tabs.js). */
+/*
+ * The band. A product screen has sixteen tabs and a narrow panel; wrapping them onto three
+ * rows is what made the strip look like a list of links, so they scroll sideways instead
+ * and the tab that becomes active is scrolled into view (tabs.js). The two soft shadows
+ * at the ends show there is more to scroll to: each is covered by a patch of the band that
+ * travels with the tabs (background-attachment: local) and only uncovers the shadow once
+ * the tabs have moved away from that end. The pattern is symmetrical, so it needs no
+ * right-to-left variant.
+ *
+ * The rule under the tabs is an inset shadow rather than a border: a border is outside the
+ * box the tabs scroll in and cannot be covered by them, a shadow is painted under them, so
+ * the active tab's surface hides it.
+ */
 .grand-tabstrip > ul.nav-tabs {
     flex-wrap: nowrap;
+    gap: .125rem;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: thin;
+    padding: .375rem .375rem 0;
+    border: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
+    border-bottom: 0;
+    box-shadow: inset 0 -1px 0 var(--grand-tabs-frame);
+    background:
+        linear-gradient(to right, var(--grand-tabs-band-bg) 40%, transparent) left center / 1.5rem 100% no-repeat local,
+        linear-gradient(to left, var(--grand-tabs-band-bg) 40%, transparent) right center / 1.5rem 100% no-repeat local,
+        linear-gradient(to right, var(--grand-tabs-scroll-shadow), transparent) left center / .625rem 100% no-repeat scroll,
+        linear-gradient(to left, var(--grand-tabs-scroll-shadow), transparent) right center / .625rem 100% no-repeat scroll,
+        var(--grand-tabs-band-bg);
 }
 
 .grand-tabstrip > ul.nav-tabs > li {
@@ -38,90 +108,261 @@
 }
 
 .grand-tabstrip > ul.nav > li > .nav-link {
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    margin: 0;
+    padding: .5rem .875rem;
+    font-weight: 500;
+    line-height: 1.5;
     white-space: nowrap;
-    border-bottom-width: 2px;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--grand-tabs-color);
+    background: transparent;
+    border: var(--bs-border-width, 1px) solid transparent;
+    border-bottom: 0;
+    border-radius: 0;
+    cursor: pointer;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out;
 }
 
 .grand-tabstrip > ul.nav-tabs > li > .nav-link:hover {
-    color: var(--bs-body-color, #212529);
-    background-color: var(--bs-tertiary-bg, #f8f9fa);
-    border-color: transparent transparent var(--bs-border-color, #dee2e6);
+    color: var(--grand-tabs-hover-color);
+    background-color: var(--grand-tabs-hover-bg);
+    border-color: transparent;
 }
 
-.grand-tabstrip > ul.nav-tabs > li > .nav-link.active {
-    color: var(--bs-body-color, #212529);
+.grand-tabstrip > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip > ul.nav-tabs > li > .nav-link.active:hover {
+    color: var(--grand-tabs-active-color);
     font-weight: 600;
-    border-bottom-color: var(--bs-primary, #0d6efd);
+    background-color: var(--grand-tabs-pane-bg);
+    border-color: var(--grand-tabs-frame);
+    box-shadow: inset 0 2px 0 var(--grand-tabs-accent);
 }
 
+/* inside the tab, because the band clips what is drawn outside one */
 .grand-tabstrip > ul.nav > li > .nav-link:focus-visible {
-    outline: 2px solid var(--bs-primary, #0d6efd);
+    outline: 2px solid var(--grand-tabs-accent);
     outline-offset: -2px;
+}
+
+/* a tab a view switches off: Bootstrap's .disabled on the link or on the item */
+.grand-tabstrip > ul.nav > li > .nav-link.disabled,
+.grand-tabstrip > ul.nav > li.disabled > .nav-link,
+.grand-tabstrip > ul.nav > li > .nav-link[aria-disabled="true"] {
+    color: var(--grand-tabs-color);
+    background: transparent;
+    opacity: .55;
+    pointer-events: none;
+    cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .grand-tabstrip > ul.nav > li > .nav-link {
+        transition: none;
+    }
 }
 
 /* the flag of a language tab (LocalizedEditorTagHelper) */
 .grand-tabstrip .nav-link .k-image {
-    vertical-align: -.125em;
+    width: 1.125rem;
+    height: auto;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .1);
 }
 
-/* the strip sits inside x_panel, which has no border of its own; the rule under the tabs is
-   what separates them from the pane */
+/* the pane: the lower half of the outline, the band being the upper */
 .grand-tabstrip > .tab-content {
-    padding-top: 1rem;
+    padding: var(--grand-tabs-pad);
+    background-color: var(--grand-tabs-pane-bg);
+    border: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
+    border-top: 0;
 }
 
-/* tab-position="left": the list beside the panes, as the Kendo tabPosition: 'left' was */
+/* ------------------------------------------------- tab-position="left" (vertical) */
+
+/*
+ * The list beside the panes, as the Kendo tabPosition: 'left' was. The same outline runs
+ * round the list and the pane; the list is the band, the active tab takes the pane's
+ * surface, reaches over the rule between the two (-1px) and carries the accent on its
+ * leading edge. Everything is on the logical axis (this file is not run through rtlcss),
+ * so it mirrors itself in right-to-left.
+ */
 .grand-tabstrip-left {
     display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.grand-tabstrip-left > ul.nav {
-    flex: 0 0 auto;
-    flex-direction: column;
-    max-width: 16rem;
-    overflow-x: visible;
+    align-items: stretch;
+    background-color: var(--grand-tabs-pane-bg);
+    border: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
 }
 
 .grand-tabstrip-left > ul.nav-tabs {
-    border-bottom: 0;
-    border-inline-end: var(--bs-border-width, 1px) solid var(--bs-border-color, #dee2e6);
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: 0;
+    width: 14rem;
+    max-width: 16rem;
+    overflow: visible;
+    padding: 0 0 .5rem;
+    border: 0;
+    border-inline-end: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
+    box-shadow: none;
+    background: var(--grand-tabs-band-bg);
 }
 
 .grand-tabstrip-left > ul.nav-tabs > li > .nav-link {
-    border-bottom-width: var(--bs-border-width, 1px);
-    border-inline-end-width: 2px;
-    border-radius: 0;
+    margin-inline-end: -1px;
+    padding-block: .5rem;
+    padding-inline: calc(1rem - 3px) 1rem;
+    white-space: normal;
     text-align: start;
+    border: 0;
+    border-block: var(--bs-border-width, 1px) solid transparent;
+    border-inline-start: 3px solid transparent;
 }
 
-.grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active {
-    border-inline-end-color: var(--bs-primary, #0d6efd);
-    border-bottom-color: transparent;
+.grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active:hover {
+    border-block-color: var(--grand-tabs-frame);
+    border-inline-start-color: var(--grand-tabs-accent);
+    box-shadow: none;
 }
 
-.grand-tabstrip-left > .tab-content {
-    padding-top: 0;
+/* the first tab starts on the outline, which already draws the rule above it */
+.grand-tabstrip-left > ul.nav-tabs > li:first-child > .nav-link {
+    border-top-color: transparent;
 }
 
 .grand-tabstrip-left > .tab-content {
     flex: 1 1 auto;
     min-width: 0;
+    border: 0;
 }
 
+/* A phone has no room beside the panes: the list goes on top and becomes the band of a
+   horizontal strip, scrolling sideways like one. */
 @media (max-width: 767.98px) {
+    .grand-tabstrip {
+        --grand-tabs-pad: .875rem;
+    }
+
     .grand-tabstrip-left {
         display: block;
     }
 
-    .grand-tabstrip-left > ul.nav {
-        max-width: none;
+    .grand-tabstrip-left > ul.nav-tabs {
         flex-direction: row;
-        flex-wrap: wrap;
+        gap: .125rem;
+        width: auto;
+        max-width: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: .375rem .375rem 0;
+        border-inline-end: 0;
+        box-shadow: inset 0 -1px 0 var(--grand-tabs-frame);
+        background:
+            linear-gradient(to right, var(--grand-tabs-band-bg) 40%, transparent) left center / 1.5rem 100% no-repeat local,
+            linear-gradient(to left, var(--grand-tabs-band-bg) 40%, transparent) right center / 1.5rem 100% no-repeat local,
+            linear-gradient(to right, var(--grand-tabs-scroll-shadow), transparent) left center / .625rem 100% no-repeat scroll,
+            linear-gradient(to left, var(--grand-tabs-scroll-shadow), transparent) right center / .625rem 100% no-repeat scroll,
+            var(--grand-tabs-band-bg);
     }
+
+    .grand-tabstrip-left > ul.nav-tabs > li > .nav-link {
+        margin: 0;
+        padding: .5rem .875rem;
+        white-space: nowrap;
+        border: var(--bs-border-width, 1px) solid transparent;
+        border-bottom: 0;
+    }
+
+    .grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active,
+    .grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active:hover {
+        border-color: var(--grand-tabs-frame);
+        border-bottom: 0;
+        box-shadow: inset 0 2px 0 var(--grand-tabs-accent);
+    }
+}
+
+/* -------------------------------------------- nested strips and language strips */
+
+/*
+ * One level down: no band and no outline, the tabs underlined, and the pane a tinted band
+ * that reaches --grand-tabs-nested-bleed past its fields on both sides. The strip is pulled
+ * out by the same amount, so the fields inside keep the columns of the fields around it.
+ */
+.grand-tabstrip .grand-tabstrip,
+.grand-tabstrip-localized {
+    margin-inline: calc(-1 * var(--grand-tabs-nested-bleed));
+    border: 0;
+    background-color: transparent;
+}
+
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs,
+.grand-tabstrip-localized > ul.nav-tabs {
+    flex-direction: row;
+    gap: .25rem;
+    width: auto;
+    max-width: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 var(--grand-tabs-nested-bleed);
+    border: 0;
+    box-shadow: inset 0 -1px 0 var(--grand-tabs-rule);
+    background: none;
+}
+
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs > li > .nav-link,
+.grand-tabstrip-localized > ul.nav-tabs > li > .nav-link {
+    margin: 0;
+    padding: .4375rem .625rem;
+    white-space: nowrap;
+    border: 0;
+}
+
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs > li > .nav-link.active:hover,
+.grand-tabstrip-localized > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip-localized > ul.nav-tabs > li > .nav-link.active:hover {
+    background: transparent;
+    box-shadow: inset 0 -2px 0 var(--grand-tabs-accent);
+}
+
+.grand-tabstrip .grand-tabstrip > .tab-content,
+.grand-tabstrip-localized > .tab-content {
+    padding: 1rem var(--grand-tabs-nested-bleed) .25rem;
+    background-color: var(--grand-tabs-nested-bg);
+    border: 0;
+}
+
+/*
+ * The Bootstrap 3 panels the views put inside a tab ("Tier prices", the box round an
+ * "Add new record" button and its grid) drew a third outline inside the pane and the grid.
+ * The rich text editor is a .panel too, and keeps its outline: it is a field.
+ * In a pane they are sections: a heading over a rule, no box, no grey footer band.
+ */
+.grand-tabstrip .tab-pane .panel:not(.note-editor) {
+    margin-bottom: 1.5rem;
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.grand-tabstrip .tab-pane .panel:not(.note-editor) > .panel-heading {
+    margin-bottom: .75rem;
+    padding: 0 0 .5rem;
+    font-weight: 600;
+    color: var(--grand-tabs-active-color);
+    background: none;
+    border-bottom: var(--bs-border-width, 1px) solid var(--grand-tabs-rule);
+}
+
+.grand-tabstrip .tab-pane .panel:not(.note-editor) > .panel-body {
+    padding: 0;
+}
+
+.grand-tabstrip .tab-pane .panel:not(.note-editor) > .panel-footer {
+    padding: .75rem 0 0;
+    background: none;
+    border: 0;
 }
 
 /* ------------------------------------------------------------------- modal */
