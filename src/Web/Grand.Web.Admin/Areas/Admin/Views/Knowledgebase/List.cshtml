@@ -55,7 +55,8 @@
                         </grid-column>
                         <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
                         <grid-detail read-url="@Url.Action("NodeList", "Knowledgebase", new { area = Constants.AreaAdmin })"
-                                     param="parentCategoryId:Id" page-size="10" recursive="true" visible-if="ChildCount > 0">
+                                     param="parentCategoryId:Id" page-size="10" pager="Full" recursive="true"
+                                     visible-if="ChildCount > 0">
                             <grid-column field="Name" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Name"]" width="400">
                                 <cell-template>
                                     <a data-if="IsCategory" class="text-decoration-none" href="@Url.Action("EditCategory", "Knowledgebase", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
