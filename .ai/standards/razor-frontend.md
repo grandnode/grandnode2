@@ -60,8 +60,8 @@ Rules for `.cshtml`, storefront JavaScript, and theme assets. Complementary to `
     <grid-column field="DisplayOrder" title="@Loc["..."]" format="{0:0}" editor="Integer"/>
     <grid-column field="Id" title="@Loc["..."]" editable="false">
         <cell-template>
-            <button type="button" class="k-button" data-grid-click="markAsPrimaryWeight">
-                <i data-if="IsPrimaryWeight" class="fa fa-check"></i><i data-else class="fa fa-times"></i>
+            <button type="button" class="btn btn-default btn-sm" data-grid-click="markAsPrimaryWeight">
+                <i data-if="IsPrimaryWeight" class="bi bi-check-lg"></i><i data-else class="bi bi-x-lg"></i>
                 {{ $texts.markAsPrimary }}
             </button>
         </cell-template>

@@ -1,113 +1,253 @@
 # Admin panel frontend
 
-The npm project for the Admin, Store and Vendor panels. All three panels load their
-assets from `Grand.SharedUIResources/wwwroot/administration/`, so the project lives
-next to that directory. It is the second npm project in the solution; the storefront
-has its own in `src/Web/Grand.Web/vueapp`, and the conventions here follow it.
+The npm project that builds the scripts and stylesheets of the Admin, Store and Vendor
+panels. All three panels load their assets from
+`Grand.SharedUIResources/wwwroot/administration/`, so the project lives next to that
+directory. It is the second npm project in the solution; the storefront has its own in
+`src/Web/Grand.Web/vueapp`, and the conventions here follow it (IIFE output, `vue` aliased
+to the esm-bundler build, `emptyOutDir` off, eslint flat config).
 
-What exists today:
+The folder is visible in Visual Studio's Solution Explorer under `Grand.SharedUIResources`
+as plain `None` items. `Grand.SharedUIResources.csproj` keeps it out of the library's
+content and static web assets (`DefaultItemExcludes`) and never copies, publishes or packs
+it; `node_modules`, `dist`, `reports` and the e2e output folders are left out of the tree.
 
-| path | contents |
-| --- | --- |
-| `src/admin.bootstrap.js` | bundle entry of Bootstrap 5.3 (with Popper 2) and of the panel stylesheet; sets `window.bootstrap` and registers Bootstrap's jQuery plugins |
-| `src/styles/` | the one stylesheet the panels load: Bootstrap 5.3, bootstrap-icons, the two icon helpers Font Awesome used to give (`_icons.scss`), and the panel chrome that used to be `wwwroot/administration/build/css/custom.css`, the side menu (`_sidebar.scss`) and the form fields (`_forms.scss`) |
-| `src/admin.grid.js` | bundle entry of the `<admin-grid>` runtime: registers `window.GrandAdmin.grids` |
-| `src/grid/` | the adapter over Tabulator 6: data source and transport (server contract, `jQuery.param` serialization), row editing and editors, eval-free cell templates, culture formatting, pager, `$(el).data('kendoGrid')` API |
-| `src/admin.ui.js` | bundle entry of the widgets that used to be Kendo UI: `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format` |
-| `src/ui/` | tab strip, modal, numeric text box, the date/time picker and the pattern parser behind it, Tom Select lists, and the page culture island the `<admin-culture>` tag helper renders |
-| `src/admin.legacy.js`, `src/legacy/` | what keeps a third-party plugin view working: the `$.fn.kendoGrid` shim, the Kendo template compiler, the widget mini-shims (`kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`, `kendoMultiSelect`, `kendoTabStrip`), the stylesheet of the `k-*` classes such a view renders, and the rename of the Bootstrap 4 `data-toggle`/`data-target`/`data-dismiss` attributes |
-| `src/admin.core.js` | bundle entry; only reserves `window.GrandAdmin` |
-| `scripts/codemods/analyze-kendo-grids.mjs` | read-only inventory and A/B/C classification of every `kendoGrid` in the views |
-| `scripts/codemods/kendo-grid-to-admin-grid.mjs` | codemod converting `kendoGrid` initialisations into `<admin-grid>` markup |
-| `scripts/codemods/bootstrap4-to-bootstrap5.mjs` | codemod rewriting the Bootstrap 4 class names and data attributes of the panel views |
-| `scripts/codemods/icons-to-bootstrap-icons.mjs` | codemod rewriting Font Awesome 4 and simple-line-icons classes to bootstrap-icons, from a table of one entry per glyph |
-| `scripts/codemods/kendo-classes-to-bootstrap.mjs` | codemod replacing the `k-button`, `k-link`, `k-icon` and `k-input` classes with their Bootstrap 5 equivalents |
-| `scripts/codemods/lib/` | Razor masking, grid analysis, template and grid conversion used by the analyzer and the codemod (unit tested) |
-| `e2e/` | Playwright smoke specs for the three panels and a HAR recorder |
+## Prerequisites
 
-`HeadAdmin`, `HeadStore` and `HeadVendor` load `admin.bootstrap.css` (or
-`admin.bootstrap.rtl.css`), `admin.grid.js`, `admin.grid.css`, `admin.ui.js`,
-`admin.ui.css`, `admin.legacy.js`, `admin.legacy.css` and, in the footer,
-`admin.bootstrap.js`. Every grid runs on `<admin-grid>` and every widget on `admin.ui.js`;
-**no panel loads Kendo any more**, and none loads Bootstrap 4, Font Awesome or
-simple-line-icons. The vendored `wwwroot/administration/kendo/` tree has been deleted.
-
-`admin.bootstrap.css` replaced six vendored files: `bootstrap.min.css`, its
-`bootstrap-rtl.min.css` copy, the Bootstrap 3 leftover `bootstrap-theme.min.css`,
-`font-awesome.min.css`, `simple-line-icons.min.css`, and the hand-maintained pair
-`build/css/custom.css` + `build/css/custom-rtl.css`. **The right-to-left file is
-generated**: `scripts/build.mjs` runs rtlcss over the left-to-right output, so the two
-cannot drift apart the way the old pair had. What has to differ beyond mirrored geometry -
-the Persian webfont - is in `src/styles/_rtl.scss`, the only hand-written part of it.
-Geometry on the inline axis is written with logical properties, which rtlcss leaves alone
-and the browser flips itself.
-
-`x_panel`, `x_title` and `x_content` keep their names - 1 245 elements carry one - and are
-written in terms of Bootstrap's card custom properties. The card border, radius and shadow
-are set to nothing, which is what keeps the look where it was; a panel is turned into a
-bordered card by setting `--bs-card-border-width` on it, without touching a view.
-
-`admin.legacy.js` is there for third-party plugin views written against Kendo. It registers
-`$.fn.kendoGrid` and the `kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`,
-`kendoMultiSelect` and `kendoTabStrip` mini-shims over `window.GrandAdmin`, plus
-`kendo.toString`, `kendo.htmlEncode`, `kendo.culture` and `kendo.parseDate`; each warns once
-that it is a transitional shim. It registers nothing when Kendo itself is loaded, so an
-installation that puts the Kendo tags back keeps the real widgets.
-
-No view in this repository carries a `k-*` class any more, so `admin.legacy.css` is no
-longer a transitional sheet but the plugin half of the same idea: it maps the `k-button`,
-`k-link`, `k-icon`, `k-input`, `k-widget` and `k-header` a plugin view renders onto what
-the panel looks like today, with the `k-i-*` glyphs drawn from bootstrap-icons. The
-Bootstrap 4 data attributes are renamed here too, for the same reason and including markup
-a plugin loads over AJAX. All of it goes when the shim does.
-
-## The culture comes from the server, never from the browser
-
-Everything the widgets format or parse is decided by `<admin-culture>`
-(`Grand.Web.Common/TagHelpers/Admin/AdminCultureTagHelper.cs`), which writes the request
-culture into a JSON island once per page: the number and date patterns, the month and day
-names in both the spelling a date uses and the spelling a heading uses, the day the week
-starts on, and the handful of translated texts the widgets show. `src/ui/culture.js` reads
-it; `src/grid/format.js` formats with it and `src/ui/dateparse.js` parses with it.
-
-Nothing may fall back to `navigator.language`, `Intl`, `Date#toLocaleString` or a native
-`<input type="date">`: those follow the person's browser, and what the panels post is read
-by the MVC model binder in the **store's** request culture. That is why the date picker is
-hand-written rather than native. The `foreign-locale` Playwright project exists to keep it
-honest - it drives the widget spec from an ar-SA browser whatever culture the store uses.
-
-A resource an installation never imported is left out of the island rather than emitted as
-a raw key, so a widget falls back to its own neutral English default.
-
-Dependencies bundled into the panels: Bootstrap 5.3 (MIT), bootstrap-icons (MIT),
-Tabulator 6 (MIT), Vue 3 (MIT) and Tom Select 2 (Apache-2.0); sass and rtlcss (both MIT)
-build the stylesheet. No asset is loaded from a CDN. The tab strip, the numeric field and
-the date picker are this repository's own code, on plain DOM and Bootstrap 5 markup.
+- **Node.js 20.19 or newer** (with npm). `package.json` has no `engines` field and there is
+  no `.nvmrc`; the floor comes from the dependencies: sass requires Node >= 20.19, jsdom and
+  Playwright >= 20. The project is developed on Node 23.
+- Only needed when you change something under `adminapp/`. The bundles are committed, so
+  the panels run without Node, and neither the CI workflows nor the Dockerfile install it.
 
 ## Setup
 
 ```
-npm install
+cd src/Web/Grand.SharedUIResources/adminapp
+npm ci
 ```
 
-## Build
+`npm ci` installs exactly what `package-lock.json` pins. Use `npm install <package>` only
+to add or upgrade a dependency, and commit the lock file with it. Playwright's browser is
+not installed by npm; the e2e scripts need it once:
 
 ```
-npm run build
+npx playwright install chromium
 ```
+
+## Scripts
+
+| command | what it does |
+| --- | --- |
+| `npm run build` | builds the shipped bundles into `../wwwroot/administration/bundles/` (see below); `npm run build -- <entry>` builds one named entry, e.g. `admin.core` |
+| `npm run lint` | eslint over the whole project (`src`, `scripts`, `e2e`, config files) |
+| `npm test` | Vitest, once, over `src/**/*.test.js` and `scripts/**/*.test.mjs` |
+| `npm run analyze:grids` | read-only inventory of every `kendoGrid(...)` left in the views of `src/Web` and `src/Plugins`, classified A/B/C; writes `reports/kendo-grids.csv` and `reports/kendo-grids.summary.md` (git-ignored). Reports 0 today and must stay at 0 |
+| `npm run codemod:grids -- --path <text> [--write]` | converts `kendoGrid(...)` scripts into `<admin-grid>` markup; without `--write` it prints a diff |
+| `npm run codemod:bs5 -- [--path <text>] [--write]` | rewrites Bootstrap 4 class names and `data-toggle`/`data-target`/`data-dismiss` in views |
+| `npm run codemod:icons -- [--report] [--write]` | rewrites Font Awesome 4 and simple-line-icons classes to bootstrap-icons; `--report` lists what is used and what the table does not cover |
+| `npm run codemod:kclasses -- [--write]` | replaces `k-button`, `k-link`, `k-icon`, `k-input`, `k-state-active` with their Bootstrap 5 equivalents |
+| `npm run e2e` | Playwright smoke specs for the three panels against a running instance (all projects; pass `-- --project=en-US` etc. to narrow) |
+| `npm run e2e:visual` | one full-page screenshot per page of `e2e/support/visual-pages.js` |
+| `npm run e2e:payloads` | records what the admin forms would post, without sending it |
+| `npm run e2e:har` | records one HAR file per page of `e2e/support/har-pages.js` into `e2e/har/` |
+| `npm run audit:prod` | `npm audit` of the production dependencies at moderate level |
+
+The codemods skip the storefront (`Grand.Web` and the half of a plugin outside `Areas/`,
+except the discount rule configuration views the Admin renders). They are kept for
+third-party plugin authors converting their own views: run them with `--root <repo root>`
+pointing at a checkout that contains the plugin. A converted grid may carry
+`@* CODEMOD-REVIEW: reason *@` comments; resolve and remove every one before committing.
+
+## What the build produces
 
 `scripts/build.mjs` runs one Vite build per entry (an IIFE build cannot be split across
-inputs) into `../wwwroot/administration/bundles/`, each loaded by a plain `<script src>`.
-A plain `npm run build` writes only the bundles a panel loads (`admin.bootstrap.js`,
-`admin.bootstrap.css`, `admin.bootstrap.rtl.css`, `admin.grid.js`, `admin.grid.css`,
-`admin.ui.js`, `admin.ui.css`, `admin.legacy.js`, `admin.legacy.css`) plus the icon font in
-`bundles/fonts/`;
-`npm run build -- admin.core` builds the unused entry on request. `emptyOutDir` is off because the output
-directory sits inside the vendored `wwwroot/administration` tree, and `vue` is aliased to
-the esm-bundler build that includes the template compiler.
+inputs), then mirrors the stylesheet into its right-to-left copy with rtlcss. Output, in
+`src/Web/Grand.SharedUIResources/wwwroot/administration/bundles/`:
 
-The shipped files are committed together with the source that produced them, as in
-`vueapp`. Do not commit `admin.core.js` built on request until a panel loads it.
+| file | from | contents |
+| --- | --- | --- |
+| `admin.bootstrap.js`, `admin.bootstrap.css` | `src/admin.bootstrap.js`, `src/styles/` | Bootstrap 5.3 with Popper 2 (`window.bootstrap`, plus Bootstrap's jQuery plugins), bootstrap-icons and the panel stylesheet |
+| `admin.bootstrap.rtl.css` | generated from `admin.bootstrap.css` | the right-to-left stylesheet: rtlcss output plus `src/styles/_rtl.scss` |
+| `fonts/bootstrap-icons.woff`, `.woff2` | `node_modules/bootstrap-icons` | the icon font |
+| `admin.grid.js`, `admin.grid.css` | `src/admin.grid.js`, `src/grid/` | the `<admin-grid>` runtime, an adapter over Tabulator 6: `window.GrandAdmin.grids` |
+| `admin.ui.js`, `admin.ui.css` | `src/admin.ui.js`, `src/ui/` | the widgets: `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format`, `.ui.init` (Tom Select for the lists) |
+| `admin.legacy.js`, `admin.legacy.css` | `src/admin.legacy.js`, `src/legacy/` | the compatibility layer for third-party plugin views (see below) |
+
+`admin.core.js` (`src/admin.core.js`, only reserves `window.GrandAdmin`) is not loaded by
+any panel; a plain `npm run build` does not write it.
+
+**The bundles are committed together with the source that produced them.** Every change
+under `adminapp/src` (or a dependency upgrade) needs `npm run build` and the rebuilt files
+in the same commit; never edit a bundle by hand. A rebuild of unchanged sources must leave
+`git status` clean - that is the quickest check that the committed bundles match.
+
+## How the panels load the bundles
+
+`HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` (the `Views/Shared/Partials`
+of each area) load, under `Constants.WwwRoot` + `/administration/`:
+
+1. `admin.theme.js` synchronously in `<head>`, before anything paints (dark mode, below);
+2. the vendored stylesheets still in use (daterangepicker, magnific-popup, summernote,
+   the jQuery UI smoothness theme, elFinder in Admin, farbtastic), then
+   `bundles/admin.legacy.css`, `bundles/admin.grid.css`, `bundles/admin.ui.css`, and
+   `bundles/admin.bootstrap.css` - or `bundles/admin.bootstrap.rtl.css` when the working
+   language is right-to-left and `IgnoreRtlPropertyForAdminArea` is off;
+3. in the head: jQuery, jQuery UI, moment, daterangepicker, typeahead (with
+   `admin.search.js` in Admin), jquery.validate (+ unobtrusive), `admin.common.js`, then
+   `bundles/admin.grid.js`, `bundles/admin.ui.js`, `bundles/admin.legacy.js`;
+4. in the footer: `bundles/admin.bootstrap.js`, `build/js/smartresize.js`,
+   `build/js/custom.js`, summernote, elFinder (Admin), magnific-popup, jquery.tmpl,
+   farbtastic.
+
+They also render `<admin-culture/>`, the request culture as a JSON island the bundles read.
+The login layouts (`_AdminLoginLayout`, `_StoreLoginLayout`, `_VendorLoginLayout`) load
+only `admin.theme.js`, `admin.bootstrap.css/js`, jQuery, moment, jQuery UI and validation.
+Views load a few libraries themselves: Chart.js (`chart.min.js`) in the report and
+dashboard chart components, CodeMirror in the views that edit CSS/JS/HTML, the tag editor
+in product, blog and customer edit, Fine Uploader through the picture and download editor
+templates.
+
+## Styles
+
+`src/styles/admin.scss` is the one stylesheet, in this order:
+
+| file | role |
+| --- | --- |
+| `_variables.scss` | Bootstrap settings read before Bootstrap: 14px base size, radii, dense table cells, the icon font directory |
+| `bootstrap/scss/bootstrap` | Bootstrap 5.3 |
+| `bootstrap-icons` + `_icons.scss` | the icon font and the two helpers Font Awesome used to give |
+| `_custom.scss` | the panel chrome (top bar, `x_panel` cards, buttons, notes) and the dark palette |
+| `_sidebar.scss` | the side menu |
+| `_forms.scss` | form fields, switches, tag editor, summernote |
+| `_dashboard.scss` | the dashboard tiles and welcome card |
+| `_zindex.scss` | what stacks above the chrome (popups, pickers), in terms of Bootstrap's z-index properties |
+
+**Light and dark.** Everything is written against Bootstrap's `--bs-*` custom properties,
+so Bootstrap 5.3's colour mode (`data-bs-theme` on `<html>`) themes it. `_custom.scss`
+gives the dark mode the panel's slate palette by redefining those variables under
+`[data-bs-theme="dark"]`; the `[data-theme="dark"]` rules are for chrome Bootstrap does not
+draw. The grid paints itself from `--grand-grid-*` tokens in `src/grid/grid.css` - a
+Bootstrap variable where the light look is one, otherwise a light value with its dark one
+in a single `[data-bs-theme="dark"]` block; the last block hands Tabulator's own dark
+surfaces back to those tokens. The widgets (`src/ui/ui.css`) and the legacy classes
+(`src/legacy/legacy.css`) follow the same variables. Add a new colour as a token with both
+values, never as a literal in a rule.
+
+**Right-to-left.** `admin.bootstrap.rtl.css` is generated: rtlcss mirrors the left-to-right
+output, so the two cannot drift. Write inline-axis geometry with logical properties
+(`margin-inline-start`, `inset-inline-end`, `text-align: start`), which rtlcss leaves alone
+and the browser flips itself; `float` stays physical and rtlcss flips it. What must differ
+beyond mirrored geometry goes in `src/styles/_rtl.scss`, compiled separately and prepended
+to the RTL file - today the IRANSans webfont, read from `wwwroot/administration/build/fonts/`.
+
+`x_panel`, `x_title` and `x_content` keep their names and are written in terms of
+Bootstrap's card custom properties; a panel becomes a bordered card by setting
+`--bs-card-border-width` on it.
+
+## The culture comes from the server, never from the browser
+
+Everything the grid and the widgets format or parse is decided by `<admin-culture>`
+(`Grand.Web.Common/TagHelpers/Admin/AdminCultureTagHelper.cs`): number and date patterns,
+month and day names, first day of the week and the few texts the widgets show.
+`src/ui/culture.js` reads it; `src/grid/format.js` formats with it and
+`src/ui/dateparse.js` parses with it. Nothing may fall back to `navigator.language`,
+`Intl`, `Date#toLocaleString` or a native `<input type="date">`: what the panels post is
+read by the MVC model binder in the **store's** request culture. The `foreign-locale`
+Playwright project drives the widget spec from an ar-SA browser to keep it honest.
+
+## Adding a grid
+
+Grids are markup, rendered by the `<admin-grid>` tag helper
+(`Grand.Web.Common/TagHelpers/Admin/AdminGridTagHelper.cs`) and brought to life by
+`admin.grid.js`. The server contract is unchanged: `DataSourceRequest` in,
+`DataSourceResult { Data, Total, Errors }` out.
+
+```cshtml
+<admin-grid id="measureweight-grid"
+            read-url="@Url.Action("Weights", "Measure", new { area = Constants.AreaAdmin })"
+            update-url="..." destroy-url="..."
+            pager="Compact" edit-mode="Inline">
+    <grid-text name="markAsPrimary" value="@Loc["Admin.Configuration.Measures.Weights.Fields.MarkAsPrimaryWeight"]"/>
+    <grid-column field="Name" title="@Loc["..."]" width="300" editor="Text"/>
+    <grid-column field="Ratio" title="@Loc["..."]" editor="Numeric" decimals="8"/>
+    <grid-column field="Id" title="@Loc["..."]" editable="false">
+        <cell-template>
+            <a class="btn btn-default btn-sm" data-grid-click="markAsPrimaryWeight">
+                <i data-if="IsPrimaryWeight" class="bi bi-check-lg"></i><i data-else class="bi bi-x-lg"></i>
+                {{ $texts.markAsPrimary }}
+            </a>
+        </cell-template>
+    </grid-column>
+    <grid-commands edit="true" destroy="true" width="200"/>
+    <grid-detail read-url="..." param="weightId:Id">
+        <grid-column field="Name" title="@Loc["..."]"/>
+    </grid-detail>
+</admin-grid>
+```
+
+- `<grid-column>`: `field`, `title`, `width`, `format`, `editor` (`Text`, `Numeric`,
+  `Integer`, `Checkbox`, `Date`, `DateTime`, `Select`, `Custom`), `editable`,
+  `min-screen-width`; conditional columns are plain `@if` around the element.
+- `<cell-template>`: `{{ Field }}` is encoded text, `{{ Field | n2 }}` formatted,
+  `{{{ Field }}}` raw HTML (only for markup the server builds), `data-if` / `data-else` for
+  simple conditions, `data-grid-click="globalFunction"` receives `(dataItem, event, grid)`.
+  Nothing is evaluated as JavaScript. Localized text goes through `<grid-text>` and
+  `{{ $texts.name }}`, never `@Html.Raw` inside a template.
+- `<grid-commands>`: Edit/Delete buttons, `visible-if` per row; `<grid-toolbar-create/>`
+  adds a row; `edit-mode="Batch"` with `<grid-toolbar-save/>` / `<grid-toolbar-cancel/>`
+  edits cells in place.
+- `<grid-detail>`: a detail grid per expanded row, parameters from the master row.
+- `selectable="Checkbox"` or `"Row"`, `on-change`, `on-data-bound`, `auto-bind="false"` and
+  the rest are listed in `.ai/standards/razor-frontend.md` (section *Admin grids*), which is
+  the full reference.
+- `$(el).data('kendoGrid')` still answers the calls views make (`dataSource.read`,
+  `dataItem(tr)`, `select()`, `refresh()` ...).
+
+Only views change for a new grid; no rebuild is needed unless you touch `src/grid`.
+
+## Adding a widget
+
+Widgets live in `src/ui/`, one module per widget with a `*.test.js` next to it (Vitest,
+`// @vitest-environment jsdom` for DOM tests):
+
+1. write `src/ui/<widget>.js` exporting a `create...(element, options)` and an
+   `init...(root)` that upgrades every `[data-grand-<widget>]` in `root` (as `numeric.js`,
+   `datetime.js` and `select.js` do); read the
+   culture and texts from `culture.js`, never from the browser;
+2. register it in `src/admin.ui.js` on `window.GrandAdmin` and in `GrandAdmin.ui.init`,
+   and add its attribute to the `MutationObserver` selector so markup inserted later
+   (popups, AJAX partials) is upgraded too;
+3. style it in `src/ui/ui.css` with `--bs-*` variables so light, dark and RTL follow;
+4. emit the `data-grand-<widget>` attribute from an editor template in
+   `Grand.SharedUIResources/Views/Shared/EditorTemplates/` rather than from each view;
+5. `npm run lint && npm test && npm run build`, and commit the rebuilt `admin.ui.*` with
+   the source.
+
+## For plugin authors: `admin.legacy.js` and what was removed
+
+Kendo UI, Bootstrap 4, Font Awesome and simple-line-icons are no longer loaded by any
+panel, and their files are gone from `wwwroot/administration/`. So are Roxy Fileman, the
+unused jQuery UI sources/stylesheets/themes, the glyphicons font, unused webfonts, the
+unminified duplicates of elFinder and Fine Uploader, and the CodeMirror demo pages. A
+plugin that linked any of those paths directly must ship its own copy.
+
+`admin.legacy.js` keeps a plugin view written against Kendo working:
+
+- `$.fn.kendoGrid` over `<admin-grid>`'s runtime, with the Kendo template compiler;
+- the `kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`, `kendoMultiSelect` and
+  `kendoTabStrip` mini-shims over `window.GrandAdmin`, plus `kendo.toString`,
+  `kendo.htmlEncode`, `kendo.culture` and `kendo.parseDate`; each warns once in the console
+  that it is transitional;
+- the rename of the Bootstrap 4 `data-toggle` / `data-target` / `data-dismiss` attributes
+  to `data-bs-*`, including markup loaded over AJAX;
+- `admin.legacy.css`, which maps `k-button`, `k-link`, `k-icon` (`k-i-*` glyphs from
+  bootstrap-icons), `k-input`, `k-widget` and `k-header` onto the current look.
+
+The shims register only when Kendo itself is absent, so a plugin that loads its own Kendo
+keeps the real widgets. They do not depend on any Kendo file. New code should use
+`<admin-grid>` and `window.GrandAdmin` directly; the codemods above do most of a
+conversion.
 
 ## Lint and test
 
@@ -116,113 +256,18 @@ npm run lint
 npm test
 ```
 
-`npm test` runs Vitest once over `scripts/**/*.test.mjs` and `src/**/*.test.js`. Browser-API
-tests opt into jsdom with `// @vitest-environment jsdom`; the serializer tests compare
-against `jQuery.param` from jQuery 2.2.4 (a dev dependency only, the panels load their own
-copy).
-
-## Kendo grid analyzer
-
-```
-npm run analyze:grids
-```
-
-Scans every `.cshtml` under `src/Web` and `src/Plugins` (without `bin`, `obj`,
-`node_modules` and its own `__tests__` fixtures), masks the Razor inside `<script>` elements, parses each
-`kendoGrid({ ... })` configuration with acorn and classifies it:
-
-- **A** clean - standard options, standard transports, templates with encoded output
-  and simple conditionals;
-- **B** convertible with review - column `editor` functions, `parameterMap`,
-  `dataBound`/`edit`/`save`/`change` handlers, detail grids, raw `#= #` output of
-  non-id fields, custom commands, `@if` blocks inside the configuration;
-- **C** manual - partials injecting configuration, dynamic `dataSource`/`columns`,
-  configuration that does not parse after masking.
-
-It writes `reports/kendo-grids.csv` (one row per grid) and
-`reports/kendo-grids.summary.md` (totals, per project, reasons, formats, external
-`.data("kendoGrid")` usage). `reports/` is git-ignored. Options:
-`-- --root <repo root>`, `-- --out <dir>`.
-
-## Kendo grid codemod
-
-```
-npm run codemod:grids -- --path Grand.Web.AdminShared/Views/AdminShared/Product   # dry run, prints a diff
-npm run codemod:grids -- --path Grand.Web.AdminShared --write                     # rewrites the views
-```
-
-Stage 2 of the migration: replaces each `kendoGrid({ ... })` with `<admin-grid>` markup in
-place of its `<div id="...">` placeholder, in the style of the hand-converted pilot views,
-and removes the grid script (plus a `detailInit` function it owned and the
-`$(document).ready` / `<script>` wrappers left empty). Kendo templates become cell templates
-(`#: #` and `#= #` output is encoded, `# if #` becomes `data-if` / `data-else`, localized
-text moves to `<grid-text>`), Razor `@if` column blocks are kept, and the schema field types
-of inline-edit grids become editors. A checkbox column whose value is another field than the
-key (`Ids` holding `id:productId`) makes that field the `key` of a read-only grid, so
-`selectedIds` post what the checkboxes posted.
-
-Every grid ends in one of three states, listed in the summary:
-
-- **converted** - nothing to review;
-- **converted with review markers** - `@* CODEMOD-REVIEW: reason *@` comments sit next to what
-  a person must check (raw `#= #` output of fields that look like server-built HTML, custom
-  Kendo editors, checkbox columns wired by hand, `dataBound` handlers, inline `on*` handlers
-  in templates). Resolve and remove every marker before committing;
-- **skipped** - left on Kendo with the reasons (partials injecting columns, the same grid
-  configured in several Razor branches, `batch`/`incell` editing, custom toolbars,
-  `requestEnd` handlers other than the reload pattern, template code it cannot translate).
-
-Options: `--path <text>` (repeatable, matched against the repository path), `--write`,
-`--quiet` (summary only), `--root <repo root>`. The fixtures in
-`scripts/codemods/__tests__/fixtures` are pilot views before their conversion and the
-output a reviewer starts from.
-
-## Bootstrap 5, icon and Kendo class codemods
-
-```
-npm run codemod:bs5 -- --path Grand.Web.Vendor            # dry run, prints a diff
-npm run codemod:bs5 -- --path Grand.Web.Vendor --write    # rewrites the views
-npm run codemod:icons -- --report                         # what is used, and what maps to what
-npm run codemod:icons -- --write
-npm run codemod:kclasses -- --write
-```
-
-Three codemods of the same shape, each rewriting only the value of a `class` attribute (and,
-for the first, the Bootstrap data attributes of a start tag), so every hunk is a class name
-for a class name:
-
-- `bootstrap4-to-bootstrap5.mjs` - the Bootstrap 4 names. Razor is not parsed but is
-  respected: an attribute value carrying `@(...)` with a quote in it still ends where it
-  really ends, and a class name written as a C# string inside a conditional is rewritten
-  inside the quotes. A value built out of an expression is left alone and listed.
-  `form-group` becomes `mb-3` except where the element already carries a margin utility,
-  and the input group wrappers are dropped.
-- `icons-to-bootstrap-icons.mjs` - Font Awesome 4 and simple-line-icons, from a table of one
-  entry per glyph in `lib/icons-to-bootstrap-icons.mjs`. A unit test checks every target
-  against the bootstrap-icons manifest, and `--report` lists anything the table does not
-  cover.
-- `kendo-classes-to-bootstrap.mjs` - `k-button`, `k-link`, `k-icon`, `k-input`,
-  `k-state-active`. The `k-grid-*`, `k-detail-row`, `k-master-row` and `k-loading-mask`
-  names are left alone: they are part of the `$(el).data('kendoGrid')` contract.
-
-All three skip the storefront (`Grand.Web` and the half of a plugin outside `Areas/`, except
-the discount rule configuration views, which the Admin renders).
+The serializer tests compare against `jQuery.param` from jQuery 2.2.4, a dev dependency
+only (the panels load their own copy).
 
 ## End-to-end smoke tests
 
-The specs run against an instance that is already running; nothing starts the
-application for you. They only read: pages are opened, grids load, inline edit is
-opened and cancelled, tabs and detail rows are expanded. Nothing is saved, deleted or
-uploaded. Signing in updates the account's last-login data, and a configured language
-code changes the account's working language.
+The specs run against an instance that is already running; nothing starts the application
+for you. They only read: pages open, grids load, inline edit is opened and cancelled, tabs
+and detail rows expand. Signing in updates the account's last-login data, and a configured
+language code changes the account's working language. `e2e:payloads` answers the form
+requests inside the browser, so the server never receives them.
 
-Browsers are not installed by `npm install`:
-
-```
-npx playwright install chromium
-```
-
-Environment:
+Environment variables (names only - never commit values):
 
 | variable | meaning |
 | --- | --- |
@@ -230,48 +275,35 @@ Environment:
 | `GRAND_ADMIN_EMAIL`, `GRAND_ADMIN_PASSWORD` | administrator account |
 | `GRAND_STORE_EMAIL`, `GRAND_STORE_PASSWORD` | store manager account |
 | `GRAND_VENDOR_EMAIL`, `GRAND_VENDOR_PASSWORD` | vendor account |
-| `GRAND_LANGUAGE_CODE_EN` | optional SEO code to switch to before en-US tests |
+| `GRAND_LANGUAGE_CODE_EN` | optional SEO code to switch to before the en-US tests |
 | `GRAND_LANGUAGE_CODE_PL` | SEO code of a Polish language; the `pl-PL` project is skipped without it |
-| `GRAND_LANGUAGE_CODE_RTL` | SEO code of a language with `Rtl` on; the `rtl` project is skipped without it and expects `IgnoreRtlPropertyForAdminArea` off |
+| `GRAND_LANGUAGE_CODE_RTL` | SEO code of a right-to-left language; the `rtl` project is skipped without it and expects `IgnoreRtlPropertyForAdminArea` off |
+| `GRAND_SHOT_DIR` | `e2e:visual` target: a name under `e2e/screenshots/` or an absolute path (default `current`) |
+| `GRAND_THEME` | `dark` makes `e2e:visual` record the dark mode |
+| `GRAND_PAYLOAD_DIR` | `e2e:payloads` target directory (default `e2e/payloads/current`) |
 
-A panel whose credentials are not set is skipped.
+A panel whose credentials are not set is skipped. Tests run on one worker: every locale
+project switches the same account's language.
 
 ```
-npm run e2e                       # all locale projects
-npm run e2e -- --project=en-US    # one locale
-npm run e2e -- --project=foreign-locale   # the widgets under a browser locale that is not the store's
-npm run e2e:har                   # record HAR files into e2e/har/
+npm run e2e -- --project=en-US --project=foreign-locale
 npx playwright test --config e2e/playwright.config.js --list
 ```
 
-Tests run on one worker: every locale project switches the same account's language.
-
-`npm run e2e:visual` records one full-page screenshot per entry of
-`e2e/support/visual-pages.js` into `e2e/screenshots/<GRAND_SHOT_DIR>` (default `current`),
-so the look of two builds can be compared page by page. `e2e/screenshots/` is git-ignored:
-the pages show real store data. `GRAND_THEME=dark` records the same pages in the dark mode.
+`reports/`, `e2e/har/`, `e2e/payloads/`, `e2e/screenshots/`, `e2e/test-results/` and
+`e2e/playwright-report/` are git-ignored: they hold session cookies, antiforgery tokens,
+form payloads and store data. Never commit or share them outside the team.
 
 ## Dark mode
 
 The switch in the panel header stores the choice in `localStorage` (`theme`: `dark` or
-`light`); `wwwroot/administration/admin.theme.js`, loaded synchronously in `<head>` of the
-three panels and their login pages, applies it before the first paint as two attributes on
-`<html>`: Bootstrap 5.3's own `data-bs-theme` and the older `data-theme`. Bootstrap's
-colour mode themes every Bootstrap component, and everything here is written against its
-`--bs-*` variables, so it follows without dark rules of its own. `styles/_custom.scss`
-gives the dark mode the panel's slate palette by redefining those variables under
-`[data-bs-theme="dark"]`; the `[data-theme="dark"]` rules left there are for the chrome
-Bootstrap does not draw (top bar, dashboard tiles, `.btn-default`, notes).
+`light`). `wwwroot/administration/admin.theme.js`, loaded synchronously in `<head>` of the
+three panels and their login pages, applies it before the first paint as `data-bs-theme`
+and `data-theme` on `<html>`; nothing stored means light.
 
-`grid/grid.css` paints the grid from `--grand-grid-*` tokens: a Bootstrap variable where
-the light look is one, otherwise a light value with a dark one in a single
-`[data-bs-theme="dark"]` block. Tabulator's Bootstrap 5 theme ships a dark mode of its own
-(`html[data-bs-theme=dark]`) that would paint every cell with `--bs-body-bg`; the last block
-of `grid.css` hands those surfaces back to the tokens.
+## Dependencies
 
-`npm run e2e:har` records one HAR per page listed in `e2e/support/har-pages.js`. For
-grids marked `captureUpdate` it opens inline edit, clicks Update without changes and
-answers the request inside the browser, so the serialised payload is recorded
-(`*.update.json`) and the server never receives it. HAR files contain session cookies,
-antiforgery tokens and store data - `e2e/har/` is git-ignored and the files must not
-be shared outside the team.
+Bundled into the panels: Bootstrap 5.3 (MIT), bootstrap-icons (MIT), Tabulator 6 (MIT),
+Vue 3 (MIT) and Tom Select 2 (Apache-2.0); sass and rtlcss (both MIT) build the
+stylesheet. No asset is loaded from a CDN. The tab strip, numeric field and date picker
+are this repository's own code. Only free licenses: no paid UI library may be added.

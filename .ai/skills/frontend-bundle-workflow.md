@@ -173,11 +173,11 @@ Commands (run from `adminapp/`):
 
 | Command | Does |
 |---------|------|
-| `npm install` | one-time setup (browsers for e2e: `npx playwright install chromium`) |
+| `npm ci` | one-time setup from the lock file, Node 20.19+ (browsers for e2e: `npx playwright install chromium`) |
 | `npm run build` | Vite build to `wwwroot/administration/bundles/` |
 | `npm run lint` | eslint over the whole project (`src`, `scripts`, `e2e`, configs) |
 | `npm test` | Vitest, once |
-| `npm run analyze:grids` | read-only inventory of every `kendoGrid` in `src/Web` and `src/Plugins`, classified A/B/C, written to git-ignored `reports/` |
+| `npm run analyze:grids` | read-only inventory of every `kendoGrid` in `src/Web` and `src/Plugins`, classified A/B/C, written to git-ignored `reports/`; must stay at 0 |
 | `npm run codemod:grids -- --path <text> [--write]` | converts `kendoGrid` scripts into `<admin-grid>` markup (dry run prints a diff); resolve and remove every `CODEMOD-REVIEW` marker before committing |
 | `npm run codemod:bs5 -- [--path <text>] [--write]` | rewrites the Bootstrap 4 class names and data attributes of the panel views |
 | `npm run codemod:icons -- [--report] [--write]` | rewrites Font Awesome 4 and simple-line-icons classes to bootstrap-icons; `--report` lists what the table does not cover |
@@ -185,6 +185,7 @@ Commands (run from `adminapp/`):
 | `npm run e2e` | Playwright smoke specs for the three panels (needs `GRAND_ADMIN_URL` and panel credentials, see README) |
 | `npm run e2e:har` | records HAR files of representative grid pages into git-ignored `e2e/har/` |
 | `npm run e2e:payloads` | records what the admin forms would post into git-ignored `e2e/payloads/` (`GRAND_PAYLOAD_DIR` picks the directory), for comparing two builds |
+| `npm run audit:prod` | `npm audit` of the production dependencies |
 | `npm run e2e:visual` | records a full-page screenshot per page of `e2e/support/visual-pages.js` into git-ignored `e2e/screenshots/` (`GRAND_SHOT_DIR` picks the directory), for comparing the look of two builds |
 
 Never commit `reports/`, `e2e/har/`, `e2e/payloads/`, `e2e/screenshots/`, `e2e/test-results/` or `e2e/playwright-report/` — they hold session cookies, form payloads and store data.
