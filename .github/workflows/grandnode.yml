@@ -30,7 +30,7 @@ jobs:
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build sln
-      run: dotnet build "GrandNode.sln" --configuration ${{ env.CONFIGURATION }}
+      run: dotnet build "GrandNode.slnx" --configuration ${{ env.CONFIGURATION }}
     - name: Unit tests
       # The job-level CONFIGURATION env var is picked up by MSBuild as the Configuration
       # property, so "Build sln" above produces Release regardless of the missing

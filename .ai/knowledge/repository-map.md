@@ -1,7 +1,7 @@
 # GrandNode Repository Map
 
 ## Root
-- `GrandNode.sln`: main solution.
+- `GrandNode.slnx`: main solution.
 - `global.json`: pinned .NET SDK behavior.
 - `Directory.Packages.props`: central NuGet package versions.
 - `src/Build`: common MSBuild props and targets.
