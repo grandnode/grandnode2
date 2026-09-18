@@ -296,6 +296,36 @@ describe('the select editor of a row, with admin.ui.js loaded', () => {
 })
 
 
+describe('an Escape in a cell', () => {
+    afterEach(() => { delete globalThis.GrandAdmin })
+
+    const escapeReachesTheDocument = editor => {
+        document.body.appendChild(editor.element)
+        let reached = false
+        const listener = e => { if (e.key === 'Escape') reached = true }
+        document.addEventListener('keyup', listener)
+        const field = editor.element.matches('input, select') ? editor.element : editor.element.querySelector('input')
+        field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        //the keydown cancelled the cell: it is gone, and the keyup arrives at the body
+        editor.element.remove()
+        document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', bubbles: true }))
+        const first = reached
+        //only that one keyup: the next Escape is the popup's again
+        reached = false
+        document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', bubbles: true }))
+        document.removeEventListener('keyup', listener)
+        return { first, next: reached }
+    }
+
+    it('stops at the cell, so a popup the grid sits in stays open', () => {
+        const expected = { first: false, next: true }
+        expect(escapeReachesTheDocument(createEditor({ column: { field: 'Name' }, value: 'a', culture: pl }))).toEqual(expected)
+        expect(escapeReachesTheDocument(createEditor({ column: { field: 'Rate', editor: 'Numeric' }, value: 1, culture: plNumbers }))).toEqual(expected)
+        withSelectWidget()
+        expect(escapeReachesTheDocument(createEditor({ column: { field: 'StoreId', editor: 'Select', options: [{ value: 's', text: 'S' }] }, value: '', culture: pl }))).toEqual(expected)
+    })
+})
+
 describe('the checkbox editor of a row', () => {
     it('is the checkbox of a form', () => {
         const editor = createEditor({ column: { field: 'Published', editor: 'Checkbox' }, value: true, culture: pl })

@@ -42,6 +42,30 @@ function keyHandlers(element, ctx) {
             ctx.cancel?.()
         }
     })
+    keepEscape(element)
+}
+
+/**
+ * The Escape that cancels a cell stops at the cell. magnific-popup closes on the keyup of an
+ * Escape anywhere in the document, so a grid in such a popup - the tier prices of a
+ * combination - lost the whole popup, and whatever else was typed in it, to the key that was
+ * only meant to leave one cell. The keyup cannot be stopped at the cell: the keydown has
+ * already cancelled it, the cell is gone and the keyup arrives at the body. So the keydown
+ * leaves word with the window, which takes the one keyup that follows before anything else.
+ */
+function keepEscape(element) {
+    element.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return
+        const view = element.ownerDocument?.defaultView || globalThis
+        const swallow = up => {
+            if (up.key !== 'Escape') return
+            up.stopPropagation()
+            view.removeEventListener('keyup', swallow, true)
+        }
+        view.addEventListener('keyup', swallow, true)
+        //a keyup that never comes (the window lost the focus) must not eat a later Escape
+        view.setTimeout(() => view.removeEventListener('keyup', swallow, true), 1000)
+    }, true)
 }
 
 function markValidity(element, message) {
@@ -414,6 +438,7 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
     let quiet = false
     const open = widget.open.bind(widget)
     widget.open = () => { if (!quiet) open() }
+    keepEscape(holder)
     const speak = () => { quiet = false }
     holder.addEventListener('keydown', speak, true)
     holder.addEventListener('mousedown', speak, true)
