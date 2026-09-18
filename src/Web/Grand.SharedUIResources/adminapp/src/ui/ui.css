@@ -25,7 +25,8 @@
  */
 
 .grand-tabstrip {
-    --grand-tabs-frame: var(--bs-border-color, #dee2e6);
+    /* the outline of a form field (styles/_forms.scss), as the grid's frame is */
+    --grand-tabs-frame: var(--grand-form-border, var(--bs-border-color, #dee2e6));
     --grand-tabs-rule: #e7ecf1;
     --grand-tabs-band-bg: #f9fafc;
     --grand-tabs-pane-bg: var(--bs-body-bg, #fff);
