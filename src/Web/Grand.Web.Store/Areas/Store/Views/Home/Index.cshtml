@@ -1,136 +1,144 @@
-﻿@inject IContextAccessor contextAccessor;
+@using Grand.Business.Core.Interfaces.Catalog.Prices
+@using Grand.Business.Core.Interfaces.Common.Directory
+@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Interfaces.Customers
+@using Grand.Business.Core.Interfaces.System.Reports
+@using Grand.Domain.Permissions
+@using Grand.Domain.Customers
+@inject CustomerSettings customerSettings
+@inject IPermissionService permissionService
+@inject ICustomerService customerService
+@inject IOrderReportService orderReportService
+@inject IPriceFormatter priceFormatter
+@inject IContextAccessor contextAccessor
+@inject ICurrencyService currencyService
 @{
     //page title
     ViewBag.Title = Loc["Admin.Dashboard"];
+    //every figure below is limited to the store the manager works for
+    var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    var canAccessReports = await permissionService.Authorize(StandardPermission.ManageReports);
+    var canManageOrders = await permissionService.Authorize(StandardPermission.ManageOrders);
+    var customersOnline = 0;
+    var customersShoppingCart = 0;
+    var ordersAmount = string.Empty;
+    var ordersCount = 0;
+    if (canManageOrders)
+    {
+        customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, staffStoreId, "", 1, 1)).TotalCount;
+        customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), staffStoreId);
+        var ordersToday = await orderReportService.GetOrderPeriodReport(0, staffStoreId);
+        ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, await currencyService.GetPrimaryStoreCurrency());
+        ordersCount = ordersToday.Count;
+    }
 }
 
-<vc:store-widget widget-zone="store_dashboard_top" additional-data="null"/>
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel">
-            <div class="x_title">
-                <h2>@Loc["Admin.Dashboard.Summary"] - @contextAccessor.StoreContext.CurrentStore.Name</h2>
-                <div class="filter">
-                    <div class="page-bar" style="height:43px;">
-                        <div class="page-toolbar">
-                            <div id="dashboard-report-range" class="pull-right btn btn-fit-height green" data-original-title="Change dashboard date range">
-                                <i class="bi bi-calendar"></i>&nbsp;
-                                <span class="thin uppercase d-none d-sm-inline"></span>&nbsp;
-                                <i class="bi bi-chevron-down"></i>
-                            </div>
-                        </div>
+<div class="grand-dashboard">
+    <vc:store-widget widget-zone="store_dashboard_top" additional-data="null"/>
+
+    <header class="grand-dashboard__header">
+        <div>
+            <h1 class="grand-dashboard__title">@Loc["Admin.Dashboard"]</h1>
+            <p class="grand-dashboard__subtitle">
+                <i class="bi bi-shop" aria-hidden="true"></i>
+                <span>@contextAccessor.StoreContext.CurrentStore.Name</span>
+            </p>
+        </div>
+        <button type="button" id="dashboard-report-range" class="btn grand-dashboard__range" title="@Loc["Admin.Dashboard.Summary"]">
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            <span class="grand-dashboard__range-text"></span>
+            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <vc:store-page system-name="StorePortalInfo"/>
+
+    @if (canManageOrders)
+    {
+        <div class="row g-3 top_tiles grand-dashboard__stats">
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="grand-stat grand-stat--visitors">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                    <div class="grand-stat__body">
+                        <a class="grand-stat__label stretched-link" href="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaStore })">
+                            @Loc["Admin.Dashboard.OnlineCustomers"]
+                        </a>
+                        <div class="grand-stat__value">@customersOnline</div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.OnlineCustomerMinutes", customerSettings.OnlineCustomerMinutes]</div>
                     </div>
                 </div>
-                <div class="clearfix"></div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+                @* the store panel has no current-carts page, so this tile is not a link *@
+                <div class="grand-stat grand-stat--carts">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-cart3"></i></span>
+                    <div class="grand-stat__body">
+                        <span class="grand-stat__label">@Loc["Admin.Dashboard.ActiveShoppingCarts"]</span>
+                        <div class="grand-stat__value">@customersShoppingCart</div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.OnlineShoppingCart", customerSettings.OnlineShoppingCartMinutes]</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-xl-4">
+                <div class="grand-stat grand-stat--orders">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-bag-check"></i></span>
+                    <div class="grand-stat__body">
+                        <a class="grand-stat__label stretched-link" href="@Url.Action("List", "Order", new { area = Constants.AreaStore })">
+                            @Loc["Admin.Dashboard.TodayOrders"]
+                        </a>
+                        <div class="grand-stat__value">
+                            <span>@ordersAmount</span>
+                            <span class="grand-stat__value-secondary">/ @ordersCount</span>
+                        </div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.TodayOrders.AmountCount"]</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-<vc:store-page system-name="StorePortalInfo"/>
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light bordered">
-            <div class="x_title">
-                <h2 class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.ReportLatestOrder"]</h2>
-                <div class="clear"></div>
-            </div>
-            <div class="x_content">
-                @await Component.InvokeAsync("StoreLatestOrder")
+
+        <div class="row g-3">
+            @if (canAccessReports)
+            {
+                <div class="col-12 col-xl-5">
+                    <section class="grand-card h-100" aria-labelledby="dashboard-customers-chart">
+                        <header class="grand-card__header">
+                            <i class="bi bi-person-plus grand-card__icon" aria-hidden="true"></i>
+                            <h2 id="dashboard-customers-chart" class="grand-card__title">@Loc["Admin.Dashboard.ReportCustomerTime.TitleChart"]</h2>
+                        </header>
+                        <div class="grand-card__body">
+                            @await Component.InvokeAsync("StoreCustomerReportTimeChart")
+                        </div>
+                    </section>
+                </div>
+            }
+            <div class="col-12 @(canAccessReports ? "col-xl-7" : "")">
+                <section class="grand-card h-100" aria-labelledby="dashboard-orders-chart">
+                    <header class="grand-card__header">
+                        <i class="bi bi-graph-up-arrow grand-card__icon" aria-hidden="true"></i>
+                        <h2 id="dashboard-orders-chart" class="grand-card__title">@Loc["Admin.Dashboard.ReportOrderTime.TitleChart"]</h2>
+                    </header>
+                    <div class="grand-card__body">
+                        @await Component.InvokeAsync("StoreOrderTimeChart")
+                    </div>
+                </section>
             </div>
         </div>
-    </div>
+    }
+
+    <section class="grand-card" aria-labelledby="dashboard-latest-orders">
+        <header class="grand-card__header">
+            <i class="bi bi-receipt grand-card__icon" aria-hidden="true"></i>
+            <h2 id="dashboard-latest-orders" class="grand-card__title">@Loc["Admin.Dashboard.ReportLatestOrder"]</h2>
+            <a class="grand-card__action" href="@Url.Action("List", "Order", new { area = Constants.AreaStore })">
+                @Loc["Admin.Dashboard.ViewMore"]
+                <i class="bi bi-arrow-right grand-card__action-arrow" aria-hidden="true"></i>
+            </a>
+        </header>
+        <div class="grand-card__body">
+            @await Component.InvokeAsync("StoreLatestOrder")
+        </div>
+    </section>
+
+    <vc:store-widget widget-zone="store_dashboard_bottom" additional-data="null"/>
 </div>
-
-<vc:store-widget widget-zone="store_dashboard_bottom" additional-data="null"/>
-<script>
-    $(document).ready(function (e) {
-        var site = site || {};
-        site.baseUrl = site.baseUrl || "";
-        $(".partialContents").each(function (index, item) {
-            var url = site.baseUrl + $(item).data("url");
-            if (url && url.length > 0) {
-                $(item).load(url);
-            }
-        });
-    });
-
-
-    var Dashboard = function () {
-        return {
-            initDashboardDaterange: function () {
-                if (!jQuery().daterangepicker) {
-                    return;
-                }
-
-                $('#dashboard-report-range').daterangepicker({
-                    startDate: moment().startOf('month'),
-                    "ranges": {
-                        'Today': [moment(), moment()],
-                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
-                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                    },
-                    "locale": {
-                        "format": "MM/DD/YYYY",
-                        "separator": " - ",
-                        "applyLabel": "Apply",
-                        "cancelLabel": "Cancel",
-                        "fromLabel": "From",
-                        "toLabel": "To",
-                        "customRangeLabel": "Custom",
-                        "daysOfWeek": [
-                            "Su",
-                            "Mo",
-                            "Tu",
-                            "We",
-                            "Th",
-                            "Fr",
-                            "Sa"
-                        ],
-                        "monthNames": [
-                            "January",
-                            "February",
-                            "March",
-                            "April",
-                            "May",
-                            "June",
-                            "July",
-                            "August",
-                            "September",
-                            "October",
-                            "November",
-                            "December"
-                        ],
-                        "firstDay": 1
-                    },
-                    opens: ($('html').css('direction') === 'rtl' ? 'right' : 'left'),
-                }, function (start, end, label) {
-                    $('#dashboard-report-range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                });
-
-                $('#dashboard-report-range span').html(moment().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
-                $('#dashboard-report-range').show();
-            },
-
-            init: function () {
-                this.initDashboardDaterange();
-            }
-        }
-    }();
-
-    Dashboard.init();
-
-    $('#dashboard-report-range').on('apply.daterangepicker', function (ev, picker) {
-        if ($.isFunction(window.initReportCustomerTimeChart)) {
-            initReportCustomerTimeChart(false);
-        };
-        if ($.isFunction(window.initReportOrderTimeChart)) {
-            initReportOrderTimeChart(false);
-        };
-        var gridOrders = $('#latest-orders-grid').data('kendoGrid');
-        if (gridOrders != undefined) {
-            gridOrders.dataSource.read();
-        }
-    });</script>
+<partial name="Partials/DashboardRange"/>
