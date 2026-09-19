@@ -74,7 +74,15 @@
                 <div class="top_nav">
                     <div class="nav_menu">
                         <nav>
-                                    <vc:store-widget widget-zone="store_header_toggle_after" additional-data="null"/>
+                            @* the store this panel works for, where the Admin top bar has its search field *@
+                            <div class="grand-topbar-context">
+                                <span class="grand-topbar-context__pill" title="@contextAccessor.StoreContext.CurrentStore.Name">
+                                    <i class="bi bi-shop" aria-hidden="true"></i>
+                                    <span class="grand-topbar-context__label">@Loc["Admin.Orders.Fields.Store"]</span>
+                                    <span class="grand-topbar-context__name">@contextAccessor.StoreContext.CurrentStore.Name</span>
+                                </span>
+                            </div>
+                            <vc:store-widget widget-zone="store_header_toggle_after" additional-data="null"/>
                             <ul class="nav navbar-nav navbar-right">
 
                                 <li class="dropdown" role="presentation">
@@ -124,11 +132,6 @@
                                             </a>
                                         </li>
                                     </ul>
-                                </li>
-                                <li class="dropdown" role="presentation">
-                                    <span id="searchIcon" class="searchIcon dropdown-toggle">
-                                        <i class="bi bi-search"></i>
-                                    </span>
                                 </li>
                                 <li role="presentation">
                                     <a>
