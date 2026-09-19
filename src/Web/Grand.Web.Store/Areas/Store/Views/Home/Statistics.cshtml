@@ -1,54 +1,43 @@
-﻿@{
+﻿@inject IContextAccessor contextAccessor
+@{
     //page title
     ViewBag.Title = Loc["Admin.Dashboard.Statistics"];
 }
 
-<div class="page-bar" style="height:43px;">
-    <div class="page-toolbar">
-        <div id="dashboard-report-range" class="pull-right btn btn-sm">
-            <i class="bi bi-calendar"></i>&nbsp;
-            <span class="thin uppercase">@DateTime.Now.ToLocalTime().ToString(CultureInfo.InvariantCulture)</span>&nbsp;
+<div class="grand-dashboard">
+    <header class="grand-dashboard__header">
+        <div>
+            <h1 class="grand-dashboard__title">@Loc["Admin.Dashboard.Statistics"]</h1>
+            <p class="grand-dashboard__subtitle">
+                <i class="bi bi-shop" aria-hidden="true"></i>
+                <span>@contextAccessor.StoreContext.CurrentStore.Name</span>
+            </p>
         </div>
-    </div>
-</div>
-<div class="content-header">
-    <h3 class="page-title">
-        <i class="bi bi-lightbulb"></i>
-        @Loc["Admin.Dashboard"]
-        <small>@Loc["Admin.Dashboard.Statistics"]</small>
-    </h3>
-</div>
+    </header>
 
-<div class="content">
     <vc:store-widget widget-zone="store_dashboard_statistics_before"/>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <div class="caption level-caption">
-                                <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.BestSellers.ByQuantity"]</span>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <vc:store-bestsellers-brief-report-by-quantity></vc:store-bestsellers-brief-report-by-quantity>
-                        </div>
-                    </div>
+    <div class="row g-3">
+        <div class="col-12 col-xl-6">
+            <section class="grand-card h-100" aria-labelledby="statistics-bestsellers-quantity">
+                <header class="grand-card__header">
+                    <i class="bi bi-trophy grand-card__icon" aria-hidden="true"></i>
+                    <h2 id="statistics-bestsellers-quantity" class="grand-card__title">@Loc["Admin.Reports.BestSellers.ByQuantity"]</h2>
+                </header>
+                <div class="grand-card__body">
+                    <vc:store-bestsellers-brief-report-by-quantity></vc:store-bestsellers-brief-report-by-quantity>
                 </div>
-                <div class="col-md-6">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <div class="caption level-caption">
-                                <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.BestSellers.ByAmount"]</span>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <vc:store-bestsellers-brief-report-by-amount></vc:store-bestsellers-brief-report-by-amount>
-                        </div>
-                    </div>
+            </section>
+        </div>
+        <div class="col-12 col-xl-6">
+            <section class="grand-card h-100" aria-labelledby="statistics-bestsellers-amount">
+                <header class="grand-card__header">
+                    <i class="bi bi-cash-coin grand-card__icon" aria-hidden="true"></i>
+                    <h2 id="statistics-bestsellers-amount" class="grand-card__title">@Loc["Admin.Reports.BestSellers.ByAmount"]</h2>
+                </header>
+                <div class="grand-card__body">
+                    <vc:store-bestsellers-brief-report-by-amount></vc:store-bestsellers-brief-report-by-amount>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
     <vc:store-widget widget-zone="store_dashboard_statistics_after"/>
