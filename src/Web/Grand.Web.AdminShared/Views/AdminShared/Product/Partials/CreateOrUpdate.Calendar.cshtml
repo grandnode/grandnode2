@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
@@ -124,13 +126,17 @@
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-footer">
-            <button id="generateCalendar" type="button" class="btn btn-primary">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Generatecalendar"]</button>
-            <button id="clearOld" type="button" class="btn btn-secondary" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearold"]</button>
-            <button id="clearCalendar" type="button" class="btn btn-danger" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]</button>
-        </div>
+        @if (!readOnly)
+        {
+            <div class="panel-footer">
+                <button id="generateCalendar" type="button" class="btn btn-primary">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Generatecalendar"]</button>
+                <button id="clearOld" type="button" class="btn btn-secondary" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearold"]</button>
+                <button id="clearCalendar" type="button" class="btn btn-danger" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]</button>
+            </div>
+        }
         <div class="panel-body">
             <admin-grid id="reservations-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("ListReservations", "Product", new { productId = Model.Id, area = area })"
                         destroy-url="@Url.Action("ProductReservationDelete", "Product", new { area = area })"
                         auto-bind="false">

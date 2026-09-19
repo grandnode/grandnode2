@@ -1,4 +1,8 @@
 ﻿@model ProductModel
+@{
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
 @inject AdminAreaSettings adminAreaSettings
 <vc:store-widget widget-zone="store_product_details_prices_top" additional-data="Model"/>
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
@@ -191,6 +195,7 @@
             @* Delete posts the whole row; the Kendo parameterMap posted only Id and ProductId, which are the
                fields TierPriceDeleteModel binds *@
             <admin-grid id="tierprices-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaStore })"
                         destroy-url="@Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaStore })"
                         pager="Compact"
@@ -212,18 +217,24 @@
                 </grid-column>
                 <grid-column field="StartDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.StartDateTime"]" format="{0:G}"/>
                 <grid-column field="EndDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]" format="{0:G}"/>
-                <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
-                    <cell-template>
-                        <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaStore })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
-                    </cell-template>
-                </grid-column>
+                @if (!readOnly)
+                {
+                    <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
+                        <cell-template>
+                            <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaStore })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
+                        </cell-template>
+                    </grid-column>
+                }
                 <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]"/>
             </admin-grid>
         </div>
-        <div class="panel-footer">
-            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaStore }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
-            <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
-        </div>
+        @if (!readOnly)
+        {
+            <div class="panel-footer">
+                <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaStore }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
+                <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
+            </div>
+        }
     </div>
 
     <script>

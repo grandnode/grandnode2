@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 
 @if (!string.IsNullOrEmpty(Model.Id))
@@ -11,6 +13,7 @@
         </div>
         <div class="panel-body">
             <admin-grid id="relatedproducts-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("RelatedProductList", "Product", new { productId = Model.Id, area = area })"
                         update-url="@Url.Action("RelatedProductUpdate", "Product", new { area = area })"
                         destroy-url="@Url.Action("RelatedProductDelete", "Product", new { area = area })"
@@ -26,10 +29,13 @@
                 <grid-commands edit="true" destroy="true"/>
             </admin-grid>
         </div>
-        <div class="panel-footer">
-            <a id="btnAddNewRelatedProduct" href="@(Url.Action("RelatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRelatedProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.AddNew"]</a>
-            <input type="submit" id="btnRefreshRelatedProducts" style="display: none"/>
-        </div>
+        @if (!readOnly)
+        {
+            <div class="panel-footer">
+                <a id="btnAddNewRelatedProduct" href="@(Url.Action("RelatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRelatedProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.AddNew"]</a>
+                <input type="submit" id="btnRefreshRelatedProducts" style="display: none"/>
+            </div>
+        }
     </div>
 
     <script>

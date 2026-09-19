@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
@@ -10,6 +12,7 @@
         <partial name="Partials/WidgetZone.Bids.Top" model="Model"/>
         <div class="panel-body">
             <admin-grid id="bids-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("ListBids", "Product", new { productId = Model.Id, area = area })"
                         destroy-url="@Url.Action("BidDelete", "Product", new { area = area })"
                         auto-bind="false">

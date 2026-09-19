@@ -3,6 +3,8 @@
     //page title
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change: no Save or Delete (copying it is allowed)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 <form asp-area="@area" asp-controller="Product" asp-action="Edit" method="post" id="product-form">
 
@@ -26,19 +28,25 @@
                                     @Loc[$"{Scope.ResourceKeyPrefix}.Common.Preview"]
                                 </button>
                             }
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
-                            </button>
+                            @if (!readOnly)
+                            {
+                                <button class="btn btn-success" type="submit" name="save">
+                                    <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                                </button>
+                                <button class="btn btn-success" type="submit" name="save-continue">
+                                    <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+                                </button>
+                            }
                             <button type="button" name="copyproduct" class="btn blue" id="copyproduct">
                                 <i class="bi bi-files"></i>
                                 @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]
                             </button>
-                            <span id="product-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
-                            </span>
+                            @if (!readOnly)
+                            {
+                                <span id="product-delete" class="btn red">
+                                    <i class="bi bi-trash"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
+                                </span>
+                            }
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
@@ -51,7 +59,10 @@
     </div>
 </form>
 
-<admin-delete-confirmation button-id="product-delete"/>
+@if (!readOnly)
+{
+    <admin-delete-confirmation button-id="product-delete"/>
+}
 <div id="copyproduct-window" style="display:none;">
     <form asp-area="@area" asp-controller="Product" asp-action="CopyProduct" method="post">
 

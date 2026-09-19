@@ -4,6 +4,8 @@
     ViewData["DownloadType"] = DownloadType.Product;
     ViewData["ReferenceId"] = Model.Id;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 <partial name="Partials/WidgetZone.Additional.Top" model="Model"/>
 <div class="form-horizontal" id="group-order">
@@ -123,11 +125,14 @@
                 <admin-input asp-for="RequiredProductIds"/>
                 <span asp-validation-for="RequiredProductIds"></span>
                 <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-                <a id="btnAddNewRequiredProduct"
-                   href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = area }))"
-                   class="btn btn-default btn-sm">
-                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.AddNew"]
-                </a>
+                @if (!readOnly)
+                {
+                    <a id="btnAddNewRequiredProduct"
+                       href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = area }))"
+                       class="btn btn-default btn-sm">
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.AddNew"]
+                    </a>
+                }
                 <input type="submit" id="btnRefreshRequiredProducts" style="display: none"/>
                 <script>
                     $(document).ready(function () {

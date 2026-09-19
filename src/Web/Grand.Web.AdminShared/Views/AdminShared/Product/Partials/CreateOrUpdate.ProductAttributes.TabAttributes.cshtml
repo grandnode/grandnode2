@@ -1,23 +1,33 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 <div class="panel panel-default">
     <partial name="Partials/WidgetZone.ProductAttributes.Top" model="Model"/>
     <div class="panel-body">
         <admin-grid id="productattributemappings-grid"
+                    read-only="@readOnly"
                     read-url="@Url.Action("ProductAttributeMappingList", "Product", new { productId = Model.Id, area = area })"
                     destroy-url="@Url.Action("ProductAttributeMappingDelete", "Product", new { area = area })"
                     pager="Compact"
                     auto-bind="false"
                     confirm-destroy="true"
                     on-data-bound="bindProductAttributeMappingPopups"
-                    on-detail-init="addProductAttributeValueButton">
+                    on-detail-init="@(readOnly ? null : "addProductAttributeValueButton")">
             <grid-text name="validationRulesLink" value="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.ValidationRules.Link"]"/>
             <grid-text name="edit" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]"/>
             <grid-column field="ProductAttributeId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]" width="190">
                 <cell-template>
-                    <a class="text-decoration-none btnMagnificPopup" href="@Url.Action("ProductAttributeMappingPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}">{{ ProductAttribute }}<br/></a>
+                    @if (readOnly)
+                    {
+                        <span>{{ ProductAttribute }}</span>
+                    }
+                    else
+                    {
+                        <a class="text-decoration-none btnMagnificPopup" href="@Url.Action("ProductAttributeMappingPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}">{{ ProductAttribute }}<br/></a>
+                    }
                 </cell-template>
             </grid-column>
             <grid-column field="TextPrompt" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]" width="120"/>
@@ -31,14 +41,24 @@
                 <cell-template>
                     {{ AttributeControlType }} <br/>
                     @*ValidationRulesString is markup the server builds (labels and encoded values joined with <br />)*@
-                    <span data-if="ValidationRulesAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = area })/{{ Id }}?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.validationRulesLink }}</a><br/>{{{ ValidationRulesString }}}</span>
+                    @if (readOnly)
+                    {
+                        <span data-if="ValidationRulesAllowed">{{{ ValidationRulesString }}}</span>
+                    }
+                    else
+                    {
+                        <span data-if="ValidationRulesAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = area })/{{ Id }}?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.validationRulesLink }}</a><br/>{{{ ValidationRulesString }}}</span>
+                    }
                 </cell-template>
             </grid-column>
-            <grid-column field="ConditionAllowed" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Condition"]" width="80">
-                <cell-template>
-                    <span data-if="ConditionAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeConditionPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.edit }}</a><br/></span>
-                </cell-template>
-            </grid-column>
+            @if (!readOnly)
+            {
+                <grid-column field="ConditionAllowed" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Condition"]" width="80">
+                    <cell-template>
+                        <span data-if="ConditionAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeConditionPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.edit }}</a><br/></span>
+                    </cell-template>
+                </grid-column>
+            }
             @*attribute values: drop-down list, radio list, checkboxes, color and image squares; text controls have none*@
             <grid-detail read-url="@Url.Action("ProductAttributeValueList", "Product", new { productId = Model.Id, area = area })"
                          destroy-url="@Url.Action("ProductAttributeValueDelete", "Product", new { productId = Model.Id, area = area })"
@@ -48,7 +68,14 @@
                          on-data-bound="bindProductAttributeValuePopups">
                 <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Name"]">
                     <cell-template>
-                        <a class="text-decoration-none btnProductAttributeValueEditPopup" data-id="{{ Id }}" onclick="this.classList.add('active')" href="@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = area })/{{ Id }}?productId=@(Model.Id)&productAttributeMappingId={{ ProductAttributeMappingId }}&btnId=btnRefreshProductAttributesValues&formId=product-form">{{ Name }}</a>
+                        @if (readOnly)
+                        {
+                            <span>{{ Name }}</span>
+                        }
+                        else
+                        {
+                            <a class="text-decoration-none btnProductAttributeValueEditPopup" data-id="{{ Id }}" onclick="this.classList.add('active')" href="@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = area })/{{ Id }}?productId=@(Model.Id)&productAttributeMappingId={{ ProductAttributeMappingId }}&btnId=btnRefreshProductAttributesValues&formId=product-form">{{ Name }}</a>
+                        }
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"/>
@@ -57,9 +84,12 @@
         </admin-grid>
     </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Bottom" model="Model"/>
-    <div class="panel-footer">
-        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
-    </div>
+    @if (!readOnly)
+    {
+        <div class="panel-footer">
+            <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
+        </div>
+    }
 </div>
 
 <script>

@@ -6,6 +6,8 @@
     var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();
     currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
     var currencyOptions = currencies.Select(x => new SelectListItem(x.CurrencyCode, x.CurrencyCode));
 }
 @if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0)
@@ -14,6 +16,7 @@
         <div class="panel-body">
             @*loaded by tabstrip_on_tab_show when the Prices tab opens*@
             <admin-grid id="productprices-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("ProductPriceList", "Product", new { productId = Model.Id, area })"
                         create-url="@Url.Action("ProductPriceInsert", "Product", new { productId = Model.Id, area })"
                         update-url="@Url.Action("ProductPriceUpdate", "Product", new { productId = Model.Id, area })"

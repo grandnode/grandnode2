@@ -1,12 +1,15 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 
 <div class="panel panel-default">
     <partial name="Partials/WidgetZone.Reviews.Top" model="Model"/>
     <div class="panel-body">
         <admin-grid id="reviews-grid"
+                    read-only="@readOnly"
                     read-url="@Url.Action("Reviews", "Product", new { productId = Model.Id, area = area })"
                     auto-bind="false">
             @*the links are partials: Vendor overrides them with plain text (it cannot open customers or reviews)*@

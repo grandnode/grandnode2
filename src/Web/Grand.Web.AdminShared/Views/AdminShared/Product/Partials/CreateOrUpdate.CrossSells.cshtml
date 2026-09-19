@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
@@ -11,6 +13,7 @@
         </div>
         <div class="panel-body">
             <admin-grid id="crosssellproducts-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("CrossSellProductList", "Product", new { productId = Model.Id, area = area })"
                         destroy-url="@Url.Action("CrossSellProductDelete", "Product", new { productId = Model.Id, area = area })"
                         pager="Compact"
@@ -23,10 +26,13 @@
                 <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"/>
             </admin-grid>
         </div>
-        <div class="panel-footer">
-            <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
-            <input type="submit" id="btnRefreshCrossSellProducts" style="display: none"/>
-        </div>
+        @if (!readOnly)
+        {
+            <div class="panel-footer">
+                <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
+                <input type="submit" id="btnRefreshCrossSellProducts" style="display: none"/>
+            </div>
+        }
         <partial name="Partials/WidgetZone.CrossSells.Bottom" model="Model"/>
     </div>
 

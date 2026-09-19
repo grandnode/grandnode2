@@ -114,6 +114,14 @@ public class AdminGridTagHelper : TagHelper
     /// <summary>Selector of a container whose fields are posted with every read.</summary>
     public string SearchForm { get; set; }
 
+    /// <summary>
+    ///     Renders the grid for viewing only: no Edit/Delete commands, no toolbar, no editors and no
+    ///     create/update/destroy URLs, in the detail grid as well. For a record the user may see but
+    ///     not change (a product shared with other stores, opened in the Store panel). The server
+    ///     still checks every write on its own.
+    /// </summary>
+    public bool ReadOnly { get; set; }
+
     public string OnDataBound { get; set; }
     public string OnEdit { get; set; }
     public string OnSave { get; set; }
@@ -160,6 +168,8 @@ public class AdminGridTagHelper : TagHelper
         grid.Texts = Texts(builder.Texts);
         grid.Culture = GridCulture.From(CultureInfo.CurrentCulture);
         grid.Rtl = IsRtl() ? true : null;
+        if (ReadOnly)
+            MakeReadOnly(grid);
 
         output.TagName = "div";
         output.TagMode = TagMode.StartTagAndEndTag;
@@ -174,6 +184,21 @@ public class AdminGridTagHelper : TagHelper
             template.InnerHtml.AppendHtml(html);
             output.PostElement.AppendHtml(template);
         }
+    }
+
+    internal static void MakeReadOnly(GridDefinition grid)
+    {
+        grid.EditMode = GridEditMode.None;
+        grid.Toolbar = null;
+        grid.Commands = null;
+        grid.ConfirmDestroy = null;
+        grid.Transport.Create = null;
+        grid.Transport.Update = null;
+        grid.Transport.Destroy = null;
+        foreach (var column in grid.Columns)
+            column.Editor = null;
+        if (grid.Detail != null)
+            MakeReadOnly(grid.Detail);
     }
 
     internal static IList<int> ParsePageSizes(string pageSizes)

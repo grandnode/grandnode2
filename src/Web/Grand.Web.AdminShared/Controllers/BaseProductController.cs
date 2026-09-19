@@ -192,6 +192,9 @@ public abstract class BaseProductController(
         // from EditWarningCheck above); only mutating one is restricted to the exclusive single-store
         // owner. See IAdminDataScope<TEntity>.CanView's doc comment and StoreAdminDataScope.CanView.
         if (!await scope.CanView(product)) return RedirectToAction("List");
+        //seen but not owned (Store: a product shared with other stores): the tabs render without the
+        //buttons that write; every write action still checks HasAccess itself
+        ViewBag.IsReadOnly = !await scope.HasAccess(product);
 
         var model = product.ToModel(dateTimeService);
         if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;

@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 
 @if (!string.IsNullOrEmpty(Model.Id))
@@ -12,6 +14,7 @@
         </div>
         <div class="panel-body">
             <admin-grid id="productcategories-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("ProductCategoryList", "Product", new { productId = Model.Id, area = area })"
                         create-url="@Url.Action("ProductCategoryInsert", "Product", new { productId = Model.Id, area = area })"
                         update-url="@Url.Action("ProductCategoryUpdate", "Product", new { area = area })"

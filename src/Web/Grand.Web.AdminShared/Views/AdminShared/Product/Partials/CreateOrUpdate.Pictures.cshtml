@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
@@ -8,6 +10,7 @@
         <partial name="Partials/WidgetZone.Pictures.Top" model="Model"/>
         <div class="panel-body">
             <admin-grid id="productpictures-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = area })"
                         destroy-url="@Url.Action("ProductPictureDelete", "Product", new { area = area })"
                         pager="Compact"
@@ -16,7 +19,14 @@
                         on-data-bound="bindProductPicturePopups">
                 <grid-column field="PictureUrl" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.Picture"]" width="165">
                     <cell-template>
-                        <a class='text-decoration-none editpicture' href="@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
+                        @if (readOnly)
+                        {
+                            <img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' />
+                        }
+                        else
+                        {
+                            <a class='text-decoration-none editpicture' href="@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
+                        }
                     </cell-template>
                 </grid-column>
                 <grid-column field="IsDefault" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.IsDefault"]" width="100" align="Center">
@@ -51,38 +61,41 @@
             }
 </script>
 
-    <p>
-        <strong>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.AddNew"]</strong>
-    </p>
-    <div class="form-horizontal">
-        <div class="form-body">
-            <div class="mb-3">
-                @{
-                    ViewData["Reference"] = "Product";
-                    ViewData["ObjectId"] = Model.Id;
-                    ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
-                    ViewData["Click"] = "btnRefreshProductPictures";
-                }
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AddPictureModel.PictureId"/>
-                    <span asp-validation-for="AddPictureModel.PictureId"></span>
-                </div>
-                <input type="submit" id="btnRefreshProductPictures" style="display: none"/>
-                <script>
-                    $(document).ready(function () {
-                        $('#btnRefreshProductPictures').click(function () {
-                            //refresh grid
-                            var grid = $("#productpictures-grid").data('kendoGrid');
-                            grid.dataSource.read();
+    @if (!readOnly)
+    {
+        <p>
+            <strong>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.AddNew"]</strong>
+        </p>
+        <div class="form-horizontal">
+            <div class="form-body">
+                <div class="mb-3">
+                    @{
+                        ViewData["Reference"] = "Product";
+                        ViewData["ObjectId"] = Model.Id;
+                        ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
+                        ViewData["Click"] = "btnRefreshProductPictures";
+                    }
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="AddPictureModel.PictureId"/>
+                        <span asp-validation-for="AddPictureModel.PictureId"></span>
+                    </div>
+                    <input type="submit" id="btnRefreshProductPictures" style="display: none"/>
+                    <script>
+                        $(document).ready(function () {
+                            $('#btnRefreshProductPictures').click(function () {
+                                //refresh grid
+                                var grid = $("#productpictures-grid").data('kendoGrid');
+                                grid.dataSource.read();
 
-                            //return false to don't reload a page
-                            return false;
+                                //return false to don't reload a page
+                                return false;
+                            });
                         });
-                    });
-                </script>
+                    </script>
+                </div>
             </div>
         </div>
-    </div>
+    }
 }
 else
 {

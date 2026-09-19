@@ -1,6 +1,8 @@
 ﻿@model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 <div class="note note-info">
     <p>
@@ -14,6 +16,7 @@
     <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Top" model="Model"/>
     <div class="panel-body">
         <admin-grid id="attributecombinations-grid"
+                    read-only="@readOnly"
                     read-url="@Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = area })"
                     destroy-url="@Url.Action("ProductAttributeCombinationDelete", "Product", new { area = area })"
                     server-paging="false"
@@ -23,9 +26,18 @@
             @*Attributes is markup built by the product attribute formatter; Warnings are plain texts*@
             <grid-column field="Attributes" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]">
                 <cell-template>
-                    <a class='text-decoration-none editcombinationlink' href="@Url.Action("AttributeCombinationPopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshCombinations&formId=product-form">{{{ Attributes }}}<br />
-                    <span data-if="Warnings != null" style="color: red">{{ Warnings }}</span>
-                    </a>
+                    @if (readOnly)
+                    {
+                        <span>{{{ Attributes }}}<br />
+                        <span data-if="Warnings != null" style="color: red">{{ Warnings }}</span>
+                        </span>
+                    }
+                    else
+                    {
+                        <a class='text-decoration-none editcombinationlink' href="@Url.Action("AttributeCombinationPopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshCombinations&formId=product-form">{{{ Attributes }}}<br />
+                        <span data-if="Warnings != null" style="color: red">{{ Warnings }}</span>
+                        </a>
+                    }
                 </cell-template>
             </grid-column>
             <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity"]" align="Center" format="{0:0}"/>
@@ -40,12 +52,15 @@
             <grid-commands destroy="true" width="50"/>
         </admin-grid>
     </div>
-    <div class="panel-footer">
-        <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
-        <button type="submit" id="btnGenerateAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-palette"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
-        <button type="submit" id="btnClearAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-scissors"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
-        <input type="submit" id="btnRefreshCombinations" style="display: none"/>
-    </div>
+    @if (!readOnly)
+    {
+        <div class="panel-footer">
+            <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
+            <button type="submit" id="btnGenerateAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-palette"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
+            <button type="submit" id="btnClearAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-scissors"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
+            <input type="submit" id="btnRefreshCombinations" style="display: none"/>
+        </div>
+    }
     <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Bottom" model="Model"/>
 </div>
 

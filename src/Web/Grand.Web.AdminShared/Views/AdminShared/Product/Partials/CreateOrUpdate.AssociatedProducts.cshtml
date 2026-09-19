@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
@@ -11,6 +13,7 @@
         <partial name="Partials/WidgetZone.AssociatedProducts.Top" model="Model"/>
         <div class="panel-body">
             <admin-grid id="associatedproducts-grid"
+                        read-only="@readOnly"
                         read-url="@Url.Action("AssociatedProductList", "Product", new { productId = Model.Id, area = area })"
                         update-url="@Url.Action("AssociatedProductUpdate", "Product", new { area = area })"
                         destroy-url="@Url.Action("AssociatedProductDelete", "Product", new { area = area })"
@@ -26,12 +29,15 @@
                 <grid-commands edit="true" destroy="true" width="300"/>
             </admin-grid>
         </div>
-        <div class="panel-footer">
-            <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm">
-                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.AddNew"]
-            </a>
-            <input type="submit" id="btnRefreshAssociatedProducts" style="display: none"/>
-        </div>
+        @if (!readOnly)
+        {
+            <div class="panel-footer">
+                <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm">
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.AddNew"]
+                </a>
+                <input type="submit" id="btnRefreshAssociatedProducts" style="display: none"/>
+            </div>
+        }
         <partial name="Partials/WidgetZone.AssociatedProducts.Bottom" model="Model"/>
     </div>
     <script>

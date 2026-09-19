@@ -185,8 +185,23 @@ public class BaseProductControllerTests
 
         var result = await _controller.Edit("p1");
 
+        //shown, but read-only: HasAccess no longer gates the page, it only takes the buttons away
         Assert.IsInstanceOfType<ViewResult>(result);
-        _scopeMock.Verify(s => s.HasAccess(It.IsAny<Product>()), Times.Never);
+        Assert.AreEqual(true, ((ViewResult)result).ViewData["IsReadOnly"]);
+    }
+
+    [TestMethod]
+    public async Task EditGet_OwnedProduct_IsNotReadOnly()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("p1");
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual(false, ((ViewResult)result).ViewData["IsReadOnly"]);
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------

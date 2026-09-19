@@ -1,11 +1,14 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 <div class="panel panel-default">
     <partial name="Partials/WidgetZone.Documents.Top" model="Model"/>
     <div class="panel-body">
         <admin-grid id="product-documents-grid"
+                    read-only="@readOnly"
                     read-url="@Url.Action("ListDocuments", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, StatusId = -1, area = area })"
                     auto-bind="false">
             <grid-column field="Number" title="@Loc[$"{Scope.ResourceKeyPrefix}.Documents.Document.Fields.Number"]">
@@ -26,9 +29,12 @@
             </grid-column>
         </admin-grid>
     </div>
-    <div class="panel-footer">
-        <button type="button" class="btn btn-default btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Marketing.Document.Add"]</button>
-    </div>
+    @if (!readOnly)
+    {
+        <div class="panel-footer">
+            <button type="button" class="btn btn-default btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Marketing.Document.Add"]</button>
+        </div>
+    }
     <partial name="Partials/WidgetZone.Documents.Bottom" model="Model"/>
 </div>
 

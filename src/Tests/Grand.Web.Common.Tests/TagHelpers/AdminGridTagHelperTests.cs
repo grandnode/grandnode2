@@ -226,6 +226,63 @@ public class AdminGridTagHelperTests
         Assert.AreEqual("markAsPrimaryWeight", commands.GetProperty("custom")[0].GetProperty("click").GetString());
     }
 
+    // A record the user may see but not change: the same markup renders without anything that
+    // writes - in the detail grid too - while reading, paging and templates stay.
+    [TestMethod]
+    public async Task Process_ReadOnly_DropsCommandsToolbarEditorsAndWriteUrls()
+    {
+        var grid = CreateGrid(g =>
+        {
+            g.ReadUrl = "/Store/Product/ProductAttributeMappingList";
+            g.CreateUrl = "/Store/Product/Create";
+            g.UpdateUrl = "/Store/Product/Update";
+            g.DestroyUrl = "/Store/Product/Delete";
+            g.EditMode = GridEditMode.Inline;
+            g.ConfirmDestroy = true;
+            g.ReadOnly = true;
+        });
+        var output = await RunGrid(grid,
+            new Element(new GridToolbarCreateTagHelper(_translationServiceMock.Object)),
+            new Element(new GridColumnTagHelper { Field = "Ratio", Editor = GridEditor.Numeric }),
+            new Element(new GridCommandsTagHelper { Edit = true, Destroy = true }),
+            new Element(new GridDetailTagHelper(_urlHelperFactoryMock.Object) {
+                    ViewContext = _viewContext, ReadUrl = "/Store/Product/ProductAttributeValueList",
+                    DestroyUrl = "/Store/Product/ProductAttributeValueDelete", Param = "productAttributeMappingId:Id",
+                    ConfirmDestroy = true
+                }, null,
+                new Element(new GridColumnTagHelper { Field = "Name", Editor = GridEditor.Text }),
+                new Element(new GridCommandsTagHelper { Destroy = true })));
+
+        var config = Config(output);
+        Assert.AreEqual("None", config.GetProperty("editMode").GetString());
+        Assert.IsFalse(config.TryGetProperty("toolbar", out _));
+        Assert.IsFalse(config.TryGetProperty("commands", out _));
+        Assert.IsFalse(config.TryGetProperty("confirmDestroy", out _));
+        var transport = config.GetProperty("transport");
+        Assert.AreEqual("/Store/Product/ProductAttributeMappingList", transport.GetProperty("read").GetString());
+        Assert.IsFalse(transport.TryGetProperty("create", out _));
+        Assert.IsFalse(transport.TryGetProperty("update", out _));
+        Assert.IsFalse(transport.TryGetProperty("destroy", out _));
+        Assert.IsFalse(config.GetProperty("columns")[0].TryGetProperty("editor", out _));
+
+        var detail = config.GetProperty("detail");
+        Assert.AreEqual("/Store/Product/ProductAttributeValueList", detail.GetProperty("transport").GetProperty("read").GetString());
+        Assert.IsFalse(detail.GetProperty("transport").TryGetProperty("destroy", out _));
+        Assert.IsFalse(detail.TryGetProperty("commands", out _));
+        Assert.IsFalse(detail.GetProperty("columns")[0].TryGetProperty("editor", out _));
+    }
+
+    [TestMethod]
+    public async Task Process_NotReadOnly_KeepsCommandsAndWriteUrls()
+    {
+        var grid = CreateGrid(g => { g.DestroyUrl = "/Store/Product/Delete"; });
+        var output = await RunGrid(grid, new Element(new GridCommandsTagHelper { Destroy = true }));
+
+        var config = Config(output);
+        Assert.IsTrue(config.GetProperty("commands").GetProperty("destroy").GetBoolean());
+        Assert.AreEqual("/Store/Product/Delete", config.GetProperty("transport").GetProperty("destroy").GetString());
+    }
+
     [TestMethod]
     public async Task Process_Commands_SerializeVisibilityPerButtonAndEmptyText()
     {
