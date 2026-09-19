@@ -5135,68 +5135,6 @@ a span.username {
     width: 350px;
 }
 
-/* The Store and Vendor top bars have no search field; the start of the bar names the store or
-   the vendor the panel works for instead, in the place the Admin search takes. */
-.grand-topbar-context {
-    --grand-topbar-context-bg: #fff;
-    --grand-topbar-context-border: #d9dee4;
-    display: inline-flex;
-    align-items: center;
-    height: 58px;
-    max-width: 40%;
-    margin-inline-start: 10px;
-    vertical-align: top;
-}
-
-[data-bs-theme="dark"] .grand-topbar-context {
-    --grand-topbar-context-bg: var(--#{$prefix}tertiary-bg);
-    --grand-topbar-context-border: rgba(255, 255, 255, .12);
-}
-
-.grand-topbar-context__pill {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    min-width: 0;
-    max-width: 100%;
-    padding: .4rem .85rem;
-    font-weight: 600;
-    color: var(--#{$prefix}emphasis-color);
-    background: var(--grand-topbar-context-bg);
-    border: 1px solid var(--grand-topbar-context-border);
-    //the old reset further down squares every span and div with !important
-    border-radius: 999px !important;
-
-    .bi {
-        flex: none;
-        color: var(--grand-form-accent, #0b7285);
-    }
-}
-
-.grand-topbar-context__label {
-    font-weight: 400;
-    color: var(--#{$prefix}secondary-color);
-}
-
-.grand-topbar-context__name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-@media screen and (max-width: 767px) {
-    .grand-topbar-context__label {
-        display: none;
-    }
-}
-
-/* on a phone the start of the bar sits under the menu button, as the Admin search does */
-@media screen and (max-width: 500px) {
-    .grand-topbar-context {
-        display: none;
-    }
-}
-
 .scroll-to-top {
     display: block;
     bottom: 10px;

@@ -120,7 +120,8 @@ templates.
 | `_custom.scss` | the panel chrome (top bar, `x_panel` cards, buttons, notes) and the dark palette |
 | `_sidebar.scss` | the side menu |
 | `_forms.scss` | form fields, switches, tag editor, summernote |
-| `_dashboard.scss` | the dashboard tiles and welcome card |
+| `_dashboard.scss` | the dashboard and Statistics pages of the three panels: header, welcome card, stat cards, report cards |
+| `_topbar.scss` | the top bar of the three panels: search field, store / vendor pill, icon buttons, user menu, theme switch, drop-downs; one flex row whose buttons run row-reverse, so right-to-left mirrors it without rules of its own |
 | `_zindex.scss` | what stacks above the chrome (popups, pickers), in terms of Bootstrap's z-index properties |
 
 **Light and dark.** Everything is written against Bootstrap's `--bs-*` custom properties,

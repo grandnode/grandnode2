@@ -12,6 +12,8 @@
 @{
     var currentCustomer = contextAccessor.WorkContext.CurrentCustomer;
     var usernamesEnabled = customerSettings.UsernamesEnabled;
+    var profileName = currentCustomer == null ? "" : usernamesEnabled ? currentCustomer.Username : currentCustomer.Email;
+    var profileInitial = string.IsNullOrEmpty(profileName) ? "?" : profileName.Substring(0, 1).ToUpperInvariant();
     var currentVersion = GrandVersion.FullVersion;
     var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl &&
                      !languageSettings.IgnoreRtlPropertyForAdminArea;
@@ -93,6 +95,7 @@
                         @if (await groupService.IsAdmin(currentCustomer))
                         {
                             <div class="admin-search-input-container">
+                                <i class="bi bi-search grand-topbar-search__icon" aria-hidden="true"></i>
                                 <input id="searchInput" type="text" class="form-control" placeholder="@Loc["Admin.AdminSearch.Placeholder"]">
                                 <script>
                                       $(document).ready(function () {
@@ -160,15 +163,12 @@
                             }
                             <li>
                                 <a href="javascript:;" class="user-profile dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/build/images/avatar.png" alt="">
-
+                                    <span class="grand-topbar-avatar" aria-hidden="true">@profileInitial</span>
                                     @if (currentCustomer != null && await groupService.IsRegistered(currentCustomer))
                                     {
-                                        <div class="username-hide-on-mobile">
-                                            @(usernamesEnabled ? currentCustomer.Username : currentCustomer.Email)
-                                        </div>
+                                        <span class="grand-topbar-user__name username-hide-on-mobile">@profileName</span>
                                     }
-                                    <span class="bi bi-chevron-down"></span>
+                                    <i class="bi bi-chevron-down grand-topbar-user__caret" aria-hidden="true"></i>
                                 </a>
 
                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-default">
@@ -223,6 +223,7 @@
                                     <div class="form-check form-switch light-dark-switch">
                                         <input type="checkbox" class="form-check-input" id="DarkLight">
                                         <label class="form-check-label" for="DarkLight">Enable Dark Mode</label>
+                                        <i class="bi bi-moon-stars" aria-hidden="true"></i>
                                     </div>
                                 </a>
                                 <script>
