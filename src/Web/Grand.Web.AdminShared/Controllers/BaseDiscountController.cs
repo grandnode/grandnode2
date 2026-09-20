@@ -181,7 +181,7 @@ public abstract class BaseDiscountController(
         var discount = await discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
-        if (!await scope.HasAccess(discount))
+        if (!await scope.CanView(discount))
             return Json(new { Result = false, Error = "Access denied" });
 
         var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x =>
@@ -197,7 +197,7 @@ public abstract class BaseDiscountController(
         var discount = await discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
-        if (!await scope.HasAccess(discount))
+        if (!await scope.CanView(discount))
             return Json(new { Result = false, Error = "Access denied" });
 
         var discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
@@ -249,7 +249,7 @@ public abstract class BaseDiscountController(
         var discount = await discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new Exception("No discount found with the specified id");
-        if (!await scope.HasAccess(discount))
+        if (!await scope.CanView(discount))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
 
         var couponcodes = await discountService.GetAllCouponCodesByDiscountId(discount.Id,
@@ -665,7 +665,7 @@ public abstract class BaseDiscountController(
         var discount = await discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new ArgumentException("No discount found with the specified id");
-        if (!await scope.HasAccess(discount))
+        if (!await scope.CanView(discount))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
 
         var (usageHistoryModels, totalCount) =

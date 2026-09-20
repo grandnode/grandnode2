@@ -615,7 +615,7 @@ public abstract class BaseOrderManagementController(
         if (!await Scope.HasAccess(order)) return Content("");
 
         var orderNoteModels = await OrderViewModelService.PrepareOrderNotes(order);
-        var gridModel = new Grand.Web.Common.DataSource.DataSourceResult {
+        var gridModel = new Common.DataSource.DataSourceResult {
             Data = orderNoteModels,
             Total = orderNoteModels.Count
         };

@@ -180,7 +180,7 @@ public abstract class BaseCategoryController(
     {
         var category = await categoryService.GetCategoryById(categoryId);
         if (category == null) return Content("Category not exist");
-        if (!await scope.HasAccess(category)) return Content("This is not your category");
+        if (!await scope.CanView(category)) return Content("This is not your category");
         if (string.IsNullOrEmpty(category.PictureId)) return Content("Picture not exist");
 
         return View("Partials/PicturePopup",
@@ -276,7 +276,7 @@ public abstract class BaseCategoryController(
     public async Task<IActionResult> ProductList(DataSourceRequest command, string categoryId)
     {
         var category = await categoryService.GetCategoryById(categoryId);
-        if (!await scope.HasAccess(category)) return ErrorForKendoGridJson("This is not your category");
+        if (!await scope.CanView(category)) return ErrorForKendoGridJson("This is not your category");
 
         var productCategories = await categoryViewModelService.PrepareCategoryProductModel(categoryId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
