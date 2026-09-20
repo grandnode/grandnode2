@@ -1,5 +1,4 @@
 ﻿@model CustomerListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Customers.Customers"];
@@ -12,19 +11,19 @@
             <div class="x_panel light form-fit popup-window">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-users"></i>
+                        <i class="bi bi-people"></i>
                         @Loc["Admin.Customers.Customers"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
                         <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                            <i class="fa fa-plus"></i><span class="d-none d-sm-inline">@Loc["Admin.Common.AddNew"] </span>
+                            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline">@Loc["Admin.Common.AddNew"] </span>
                         </a>
 
                         <div class="btn-group btn-group-devided">
-                            <a class="btn default" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                                <i class="fa fa-download"></i>
+                            <a class="btn default" href="javascript:;" data-bs-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                <i class="bi bi-download"></i>
                                 @Loc["Admin.Common.Export"]
-                                <i class="fa fa-angle-down"></i>
+                                <i class="bi bi-chevron-down"></i>
                             </a>
                             <ul class="dropdown-menu pull-right">
                                 <li>
@@ -37,7 +36,7 @@
                             <vc:admin-widget widget-zone="customer_list_buttons" additional-data="null"/>
                         </div>
                         <button type="button" name="delete-selected" id="delete-selected" class="btn red">
-                            <i class="fa fa-trash-o"></i>
+                            <i class="bi bi-trash"></i>
                             @Loc["Admin.Common.Delete.Selected"]
                         </button>
                     </div>
@@ -48,7 +47,7 @@
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="SearchEmail" class="control-label"/>
                                             <admin-input asp-for="SearchEmail"/>
                                         </div>
@@ -57,10 +56,10 @@
                                         <div class="form-actions">
                                             <div class="btn-group">
                                                 <button class="btn btn-success filter-submit" id="search-customers">
-                                                    <i class="fa fa-search"></i>&nbsp; @Loc["Admin.Common.Search"]
+                                                    <i class="bi bi-search"></i>&nbsp; @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
                                         </div>
@@ -71,20 +70,20 @@
                                 <div class="drop-filters-container w-100">
                                     @if (Model.UsernamesEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchUsername" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchUsername"/>
                                             </div>
                                         </div>
                                     }
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchFirstName" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-input asp-for="SearchFirstName"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchLastName" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-input asp-for="SearchLastName"/>
@@ -92,20 +91,20 @@
                                     </div>
                                     @if (Model.CompanyEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchCompany" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchCompany"/>
                                             </div>
                                         </div>
                                     }
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchCustomerGroupIds" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-input asp-for="SearchCustomerGroupIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCustomerGroups"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchCustomerTagIds" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-input asp-for="SearchCustomerTagIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCustomerTags"/>
@@ -113,7 +112,7 @@
                                     </div>
                                     @if (Model.PhoneEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchPhone" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchPhone"/>
@@ -122,7 +121,7 @@
                                     }
                                     @if (Model.ZipPostalCodeEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchZipPostalCode" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchZipPostalCode"/>
@@ -135,7 +134,43 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <div id="customers-grid"></div>
+                    <admin-grid id="customers-grid"
+                                read-url="@Url.Action("CustomerList", "Customer", new { area = Constants.AreaAdmin })"
+                                additional-data="additionalData"
+                                selectable="Checkbox"
+                                on-change="onCustomersSelectionChange">
+                        <grid-column field="Email" title="@Loc["Admin.Customers.Customers.Fields.Email"]" width="200">
+                            <cell-template>
+                                <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                            </cell-template>
+                        </grid-column>
+                        @if (Model.UsernamesEnabled)
+                        {
+                            <grid-column field="Username" title="@Loc["Admin.Customers.Customers.Fields.Username"]" width="200"/>
+                        }
+                        <grid-column field="FullName" title="@Loc["Admin.Customers.Customers.Fields.FullName"]" width="200"/>
+                        <grid-column field="CustomerGroupNames" title="@Loc["Admin.Customers.Customers.Fields.CustomerGroups"]" width="200"/>
+                        @if (Model.CompanyEnabled)
+                        {
+                            <grid-column field="Company" title="@Loc["Admin.Customers.Customers.Fields.Company"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.PhoneEnabled)
+                        {
+                            <grid-column field="Phone" title="@Loc["Admin.Customers.Customers.Fields.Phone"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.ZipPostalCodeEnabled)
+                        {
+                            <grid-column field="ZipPostalCode" title="@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]" width="200" min-screen-width="770"/>
+                        }
+                        <grid-column field="Active" title="@Loc["Admin.Customers.Customers.Fields.Active"]" width="100" align="Center">
+                            <cell-template>
+                                <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Fields.CreatedOn"]" width="200" format="{0:G}" min-screen-width="770"/>
+                        <grid-column field="LastActivityDate" title="@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]" width="200" format="{0:G}"/>
+                    </admin-grid>
                 </div>
             </div>
         </div>
@@ -151,126 +186,16 @@
                 $('.filter-text-close').toggle();
             });
 
-                $("#customers-grid").kendoGrid({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("CustomerList", "Customer", new { area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: additionalData
-                            }
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors"
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    pageable: {
-                        refresh: true,
-                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                    },
-                    scrollable: false,
-                    dataBound: onDataBound,
-                    columns: [{
-                            field: "Id",
-                            headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox '><input id='mastercheckbox' type='checkbox'/><div class='control__indicator control__indicator_customers mt-top'></div></label>",
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox mt-NoMargin'><input type='checkbox' value='#=Id#' class='checkboxGroups'/><div class='control__indicator control__indicator_customers mt-NoMargin'></div></label>",
-                            width: 40
-                        }, {
-                            field: "Email",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Email"]",
-                            width: 200,
-                            template: '<a class="k-link" href="Edit/#=Id#">#=Email#</a>',
-                        },
-                        @if (Model.UsernamesEnabled)
-                        {
-                            <text>{
-                                field: "Username",
-                                title: "@Loc["Admin.Customers.Customers.Fields.Username"]",
-                                width: 200
-                            },</text>
-                        }
-                        {
-                            field: "FullName",
-                            title: "@Loc["Admin.Customers.Customers.Fields.FullName"]",
-                            width: 200,
-                            encoded: true,
-                        }, {
-                            field: "CustomerGroupNames",
-                            title: "@Loc["Admin.Customers.Customers.Fields.CustomerGroups"]",
-                            width: 200
-                        },
-
-                        @if (Model.CompanyEnabled)
-                        {
-                            <text>{
-                            field: "Company",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Company"]",
-                            width: 200,
-                            minScreenWidth: 770,
-                            },</text>
-                        }
-/**/
-                        @if (Model.PhoneEnabled)
-                        {
-                            <text>{
-                            field: "Phone",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Phone"]",
-                            width: 200,
-                            minScreenWidth: 770,
-                            },</text>
-                        }
-/**/
-                        @if (Model.ZipPostalCodeEnabled)
-                        {
-                            <text>{
-                            field: "ZipPostalCode",
-                            title: "@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]",
-                            width: 200,
-                            minScreenWidth: 770,
-                            },</text>
-                        }
-                    {
-                        field: "Active",
-                        title: "@Loc["Admin.Customers.Customers.Fields.Active"]",
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    }, {
-                        field: "CreatedOn",
-                        title: "@Loc["Admin.Customers.Customers.Fields.CreatedOn"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}",
-                        minScreenWidth: 770,
-                    }, {
-                        field: "LastActivityDate",
-                        title: "@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}"
-                    }]
-                });
             });
     </script>
 
     <script>
 
             var selectedIds = [];
+
+            function onCustomersSelectionChange(e) {
+                selectedIds = e.selectedIds;
+            }
 
             $(document).ready(function () {
 
@@ -279,9 +204,7 @@
                     var grid = $('#customers-grid').data('kendoGrid');
                     grid.dataSource.page(1); //new search. Set page size to 1
                     //grid.dataSource.read(); we already loaded the grid above using "page" function
-                    //clear selected checkboxes
-                    $('.checkboxGroups').prop('checked', false).change();
-                    selectedIds = [];
+                    $('#customers-grid').data('kendoGrid').clearSelection();
                     return false;
                 });
                 $("#@Html.IdFor(model => model.SearchCustomerTagIds)").keydown(function (event) {
@@ -291,12 +214,17 @@
                     }
                 });
 
-                $("#@Html.IdFor(model => model.SearchCustomerTagIds)").data().kendoMultiSelect.input.on('keydown',function(e){
-                    if (event.keyCode == 13) {
-                        $("#search-customers").click();
-                        return false;
-                    }
-                })
+                @* the list widget types in its own input, so Enter is caught there too *@
+                var tagSelect = document.getElementById("@Html.IdFor(model => model.SearchCustomerTagIds)").grandSelect;
+                if (tagSelect) {
+                    tagSelect.control_input.addEventListener('keydown', function (e) {
+                        if (e.keyCode == 13) {
+                            e.preventDefault();
+                            $("#search-customers").click();
+                            return false;
+                        }
+                    });
+                }
 
 
                 $("#@Html.IdFor(model => model.SearchEmail)").keydown(function (event) {
@@ -369,50 +297,10 @@
                     return false;
                 });
 
-                $('#mastercheckbox').click(function () {
-                    $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-                });
 
-                //wire up checkboxes.
-                $('#customers-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
-                    var $check = $(this);
-                    if ($check.is(":checked") == true) {
-                        var checked = jQuery.inArray($check.val(), selectedIds);
-                        if (checked == -1) {
-                            //add id to selectedIds.
-                            selectedIds.push($check.val());
-                        }
-                    }
-                    else {
-                        var checked = jQuery.inArray($check.val(), selectedIds);
-                        if (checked > -1) {
-                            //remove id from selectedIds.
-                            selectedIds = $.grep(selectedIds, function (item, index) {
-                                return item != $check.val();
-                            });
-                        }
-                    }
-                    updateMasterCheckbox();
-                });
             });
 
-            function onDataBound(e) {
 
-                $('#customers-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
-                    var currentId = $(this).val();
-                    var checked = jQuery.inArray(currentId, selectedIds);
-                    //set checked based on if current checkbox's value is in selectedIds.
-                    $(this).prop('checked', checked > -1);
-                });
-
-                updateMasterCheckbox();
-            }
-
-            function updateMasterCheckbox() {
-                var numChkBoxes = $('#customers-grid input[type=checkbox][id!=mastercheckbox]').length;
-                var numChkBoxesChecked = $('#customers-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-                $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-            }
 
             function additionalData() {
                 var customerGroupIds = [];

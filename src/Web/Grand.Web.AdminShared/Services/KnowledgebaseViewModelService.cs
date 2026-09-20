@@ -44,32 +44,48 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
             });
     }
 
-    public virtual async Task<List<TreeNode>> PrepareTreeNode()
+    public virtual async Task<(IEnumerable<KnowledgebaseNodeGridModel> knowledgebaseNodeGridModels, int totalCount)>
+        PrepareKnowledgebaseNodeGridModel(string parentCategoryId, int pageIndex, int pageSize)
     {
         var categories = await _knowledgebaseService.GetKnowledgebaseCategories();
         var articles = await _knowledgebaseService.GetKnowledgebaseArticles();
-        var nodeList = new List<TreeNode>();
 
-        var list = new List<ITreeNode>();
-        list.AddRange(categories.SortCategoriesForTree());
-        list.AddRange(articles);
+        var parents = TreeParents(categories);
+        //an article whose category no longer exists sits at the root, like such a category
+        string ArticleParent(KnowledgebaseArticle article)
+        {
+            return !string.IsNullOrEmpty(article.ParentCategoryId) && parents.ContainsKey(article.ParentCategoryId)
+                ? article.ParentCategoryId
+                : string.Empty;
+        }
 
-        foreach (var node in list)
-            if (string.IsNullOrEmpty(node.ParentCategoryId))
-            {
-                var newNode = new TreeNode {
-                    id = node.Id,
-                    text = node.Name,
-                    isCategory = node.GetType() == typeof(KnowledgebaseCategory),
-                    nodes = new List<TreeNode>()
-                };
+        var childCategories = categories.Where(x => parents.ContainsKey(x.Id)).ToLookup(x => parents[x.Id]);
+        var childArticles = articles.ToLookup(ArticleParent);
+        var parentId = parentCategoryId ?? string.Empty;
 
-                FillChildNodes(newNode, list);
+        //the children of one category (or of the root): its subcategories, then its articles
+        var nodes = childCategories[parentId]
+            .OrderBy(x => x.DisplayOrder)
+            .Select(category => new KnowledgebaseNodeGridModel {
+                Id = category.Id,
+                Name = category.Name,
+                IsCategory = true,
+                ChildCount = childCategories[category.Id].Count() + childArticles[category.Id].Count(),
+                Published = category.Published,
+                DisplayOrder = category.DisplayOrder
+            })
+            .Concat(childArticles[parentId]
+                .OrderBy(x => x.DisplayOrder)
+                .Select(article => new KnowledgebaseNodeGridModel {
+                    Id = article.Id,
+                    Name = article.Name,
+                    IsCategory = false,
+                    Published = article.Published,
+                    DisplayOrder = article.DisplayOrder
+                }))
+            .ToList();
 
-                nodeList.Add(newNode);
-            }
-
-        return nodeList;
+        return (nodes.Skip((pageIndex - 1) * pageSize).Take(pageSize), nodes.Count);
     }
 
     public virtual async
@@ -200,22 +216,45 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
         await _knowledgebaseService.UpdateKnowledgebaseArticle(article);
     }
 
-    protected virtual void FillChildNodes(TreeNode parentNode, IEnumerable<ITreeNode> nodes)
+    /// <summary>
+    ///     The category each category is listed under, by id; empty for the root. A category
+    ///     with no parent id (null or empty) or with a parent that no longer exists is a root.
+    ///     Categories caught in a parent cycle have no root, so the first category of the
+    ///     cycle stands in for one: every category is listed once, and expanding a row always ends.
+    /// </summary>
+    protected static Dictionary<string, string> TreeParents(IList<KnowledgebaseCategory> categories)
     {
-        var treeNodes = nodes.ToList();
-        var children = treeNodes.Where(x => x.ParentCategoryId == parentNode.id);
-        foreach (var child in children)
+        var byId = categories.DistinctBy(x => x.Id).ToDictionary(x => x.Id);
+        var children = categories
+            .Where(x => !string.IsNullOrEmpty(x.ParentCategoryId) && byId.ContainsKey(x.ParentCategoryId))
+            .ToLookup(x => x.ParentCategoryId);
+        var parents = new Dictionary<string, string>();
+
+        void Add(KnowledgebaseCategory category, string parentId)
         {
-            var newNode = new TreeNode {
-                id = child.Id,
-                text = child.Name,
-                isCategory = child.GetType() == typeof(KnowledgebaseCategory),
-                nodes = new List<TreeNode>()
-            };
-
-            FillChildNodes(newNode, treeNodes);
-
-            parentNode.nodes.Add(newNode);
+            //guards against a circular parent chain
+            if (!parents.TryAdd(category.Id, parentId)) return;
+            foreach (var child in children[category.Id].OrderBy(x => x.DisplayOrder))
+                Add(child, category.Id);
         }
+
+        foreach (var root in categories
+                     .Where(x => string.IsNullOrEmpty(x.ParentCategoryId) || !byId.ContainsKey(x.ParentCategoryId))
+                     .OrderBy(x => x.DisplayOrder))
+            Add(root, string.Empty);
+
+        foreach (var category in categories.Where(x => !parents.ContainsKey(x.Id)).ToList())
+        {
+            if (parents.ContainsKey(category.Id)) continue;
+            //climb to the cycle above the category, so a category hanging under a cycle stays under it
+            var top = category;
+            var seen = new HashSet<string>();
+            while (seen.Add(top.Id) && !string.IsNullOrEmpty(top.ParentCategoryId) &&
+                   byId.TryGetValue(top.ParentCategoryId, out var parent))
+                top = parent;
+            Add(top, string.Empty);
+        }
+
+        return parents;
     }
 }

@@ -212,7 +212,7 @@ public abstract class BaseBrandController(
     {
         var brand = await brandService.GetBrandById(brandId);
         if (brand == null) return Content("Brand not exist");
-        if (!await scope.HasAccess(brand)) return Content("This is not your brand");
+        if (!await scope.CanView(brand)) return Content("This is not your brand");
         if (string.IsNullOrEmpty(brand.PictureId)) return Content("Picture not exist");
 
         return View("Partials/PicturePopup",

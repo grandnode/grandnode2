@@ -9,29 +9,29 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <div class="form-body">
-                    <div class="form-group">
-                        <div class="col-md-3 col-sm-3 text-right">
+                    <div class="mb-3">
+                        <div class="col-md-3 col-sm-3 text-end">
                             <admin-label asp-for="DisplayOrder" class="control-label"/>
                         </div>
                         <div class="col-md-9 col-sm-9">
                             <admin-input asp-for="DisplayOrder"/>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <admin-label asp-for="CustomerGroups"/>
                         <div class="col-md-9 col-sm-9">
                             <admin-input asp-for="CustomerGroups"/>
                             <span asp-validation-for="CustomerGroups"></span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <admin-label asp-for="Stores"/>
                         <div class="col-md-9 col-sm-9">
                             <admin-input asp-for="Stores"/>
                             <span asp-validation-for="Stores"></span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <input type="button" id="savegeneralsettings" class="btn default" value="@Loc["Admin.Common.Save"]"/>
                         <script>
                     $(function () {

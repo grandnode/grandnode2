@@ -22,7 +22,7 @@
 <div class="form-horizontal">
     <partial name="Partials/WidgetZone.InfoTop" model="Model"/>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="GiftVoucherTypeId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="GiftVoucherTypeId" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
@@ -34,16 +34,16 @@
         }
         @if (!string.IsNullOrEmpty(Model.PurchasedWithOrderId))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="PurchasedWithOrderId"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">
-                        <a href="@Url.Action("Edit", "Order", new { Id = Model.PurchasedWithOrderId, area })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Common.View"] #@Model.PurchasedWithOrderNumber</a>
+                        <a href="@Url.Action("Edit", "Order", new { Id = Model.PurchasedWithOrderId, area })" class="btn btn-default btn-sm"><span class="bi bi-eye"></span>&nbsp;@Loc["Admin.Common.View"] #@Model.PurchasedWithOrderNumber</a>
                     </label>
                 </div>
             </div>
         }
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Amount"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Amount"/>
@@ -56,7 +56,7 @@
         </div>
         @if (string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CurrencyCode" class="col-sm-3 control-label"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies"/>
@@ -66,7 +66,7 @@
         }
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="RemainingAmountStr"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.RemainingAmountStr</label>
@@ -75,7 +75,7 @@
         }
         @if (Model.AvailableStores.Count > 1)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="StoreId" class="col-sm-3 control-label"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
@@ -83,7 +83,7 @@
                 </div>
             </div>
         }
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IsGiftVoucherActivated"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -93,14 +93,14 @@
                 <span asp-validation-for="IsGiftVoucherActivated"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Code"/>
             <div class="col-md-4 col-sm-6">
                 <div class="input-group">
                     <div class="input-group-control">
                         <admin-input asp-for="Code"/>
                     </div>
-                    <div class="input-group-append">
+                    <div class="">
                         <input type="button" id="generateCouponCode" class="btn default" value="@Loc["Admin.GiftVouchers.Fields.Code.Generate"]"/>
                     </div>
                 </div>
@@ -128,42 +128,42 @@
                 </script>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="RecipientName"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="RecipientName"/>
                 <span asp-validation-for="RecipientName"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlRecipientEmail">
+        <div class="mb-3" id="pnlRecipientEmail">
             <admin-label asp-for="RecipientEmail"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="RecipientEmail"/>
                 <span asp-validation-for="RecipientEmail"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="SenderName"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="SenderName"/>
                 <span asp-validation-for="SenderName"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlSenderEmail">
+        <div class="mb-3" id="pnlSenderEmail">
             <admin-label asp-for="SenderEmail"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="SenderEmail"/>
                 <span asp-validation-for="SenderEmail"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Message"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="Message"></admin-textarea>
                 <span asp-validation-for="Message"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ValidTo"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="ValidTo"/>
@@ -172,17 +172,17 @@
         </div>
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group" id="pnlNotifyRecipient">
+            <div class="mb-3" id="pnlNotifyRecipient">
                 <admin-label asp-for="IsRecipientNotified"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.IsRecipientNotified.ToString()</label>
-                    <button type="submit" name="notifyRecipient" asp-action="NotifyRecipient" class="k-button"><span class="k-icon k-i-notification"></span>&nbsp;@Loc["Admin.GiftVouchers.Fields.IsRecipientNotified.Notify"]</button>
+                    <button type="submit" name="notifyRecipient" asp-action="NotifyRecipient" class="btn btn-default btn-sm"><span class="bi bi-bell"></span>&nbsp;@Loc["Admin.GiftVouchers.Fields.IsRecipientNotified.Notify"]</button>
                 </div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CreatedOn"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label"> @Model.CreatedOn</label>

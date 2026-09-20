@@ -17,11 +17,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseMessageTemplateController (ARCH-001 MessageTemplate
-// consolidation). Create/Edit/Delete/CopyTemplate live in the shared base; List and its
-// grid-data action stay here because Admin's single store-filterable grid is a genuinely
-// different UI/workflow decision from Store's two-tab split (see the design spec) - same
-// reasoning as other kept-List thin subclasses.
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

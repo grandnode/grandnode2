@@ -1,5 +1,4 @@
 ﻿@model NeverSoldReportModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Reports.NeverSold"];
@@ -10,7 +9,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="bi bi-card-list"></i>
                     @Loc["Vendor.Reports.NeverSold"]
                 </div>
             </div>
@@ -23,28 +22,36 @@
                                 <div class="form-body">
                                     <div class="row align-items-end mb-3">
                                         <div class="col-md-3 col-sm-12 col-12">
-                                            <div class="form-group mb-0">
-                                                <admin-label asp-for="StartDate" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                            <div class="mb-0">
+                                                <admin-label asp-for="StartDate" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
                                                 <admin-input asp-for="StartDate" class="w-100"/>
                                             </div>
                                         </div>
                                         <div class="col-md-3 col-sm-12 col-12">
-                                            <div class="form-group mb-0">
-                                                <admin-label asp-for="EndDate" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                            <div class="mb-0">
+                                                <admin-label asp-for="EndDate" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
                                                 <admin-input asp-for="EndDate" class="w-100"/>
                                             </div>
                                         </div>
                                         <div class="col-md-5 col-sm-12 col-12 mt-md-0 mt-3">
                                             <div class="form-actions">
                                                 <button class="btn btn-success filter-submit" id="search-neversoldreport">
-                                                    <i class="fa fa-search"></i> @Loc["Vendor.Reports.NeverSold.RunReport"]
+                                                    <i class="bi bi-search"></i> @Loc["Vendor.Reports.NeverSold.RunReport"]
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="x_content">
-                                    <div id="neversoldreport-grid"></div>
+                                    <admin-grid id="neversoldreport-grid"
+                                                read-url="@Url.Action("NeverSoldReportList", "Reports", new { area = Constants.AreaVendor })"
+                                                additional-data="additionalData">
+                                        <grid-column field="ProductName" title="@Loc["Vendor.Reports.NeverSold.Fields.Name"]">
+                                            <cell-template>
+                                                <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/{{ ProductId }}">{{ ProductName }}</a>
+                                            </cell-template>
+                                        </grid-column>
+                                    </admin-grid>
                                 </div>
                             </div>
                         </div>
@@ -56,50 +63,6 @@
 </div>
 
 
-<script>
-    $(document).ready(function () {
-        $("#neversoldreport-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("NeverSoldReportList", "Reports", new { area = Constants.AreaVendor }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "ProductName",
-                title: "@Loc["Vendor.Reports.NeverSold.Fields.Name"]",
-                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaVendor })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
-            }]
-        });
-    });
-</script>
 <script>
 
     $(document).ready(function () {

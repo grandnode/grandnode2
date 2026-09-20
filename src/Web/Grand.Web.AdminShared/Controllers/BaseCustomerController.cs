@@ -74,13 +74,6 @@ public abstract class BaseCustomerController(
     /// (BaseCustomerManagementController never overrides this — Admin never had this method).</summary>
     protected virtual Task ApplyPostConstraints(CustomerModel model) => Task.CompletedTask;
 
-    /// <summary>PrepareCustomerModel always populates every store's id/name onto
-    /// model.AvailableStores (used for the StaffStoreId/StoreId pickers). Store's own
-    /// CreateOrUpdate.TabInfo view gates both selects on Scope.DefaultStoreId is null and never
-    /// renders them - but the model is still handed to Store's store_customer_details_* widget
-    /// zones via additional-data="Model", so a Store widget must not be able to read other
-    /// stores' names/ids off a store-scoped screen. Same fix and rationale as ARCH-001
-    /// EmailAccount's BaseEmailAccountController (code review, 2026-09-09).</summary>
     private void ClearAvailableStoresForStoreScope(CustomerModel model)
     {
         if (scope.DefaultStoreId is not null)

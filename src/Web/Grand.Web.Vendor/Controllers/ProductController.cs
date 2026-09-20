@@ -14,19 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
 
-// Reduced to a thin subclass of BaseProductController (ARCH-001 Phase 1 Task 11). All 24 regions of
-// behavior live in the shared base; this class only supplies Vendor's DI wiring, the attributes that
-// used to arrive transitively via BaseVendorController, and the 6 vendor-specific hooks
-// BaseProductController's own doc comments explicitly assign to "a future Vendor subclass" once hosts
-// are subclassed onto it (this task). BaseProductController can't inherit any single host's base
-// controller (it's shared across Admin/Store/Vendor, each with a different [Area]/[Authorize*] pair),
-// so each subclass restates its own host's attribute set explicitly. No EditWarningCheck override
-// needed - Vendor's original had no equivalent branch.
-//
-// DI wiring: resolves via AdminShared's own IStartupApplication (Priority 101), which registers
-// IProductViewModelService for any host referencing the AdminShared assembly - including Vendor.
-// Vendor's own duplicate registration was removed in Task 12, alongside the duplicate service/interface
-// it pointed at.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaVendor)]
 [AuthorizeVendor]

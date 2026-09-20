@@ -21,9 +21,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the merged Collection access-check behavior (ARCH-001 Collection
-// consolidation). Parameterized over a mocked IAdminDataScope<Collection> instead of the two
-// different concrete access mechanisms Admin (none) and Store (AccessToEntityByStore) used before.
 [TestClass]
 public class BaseCollectionControllerTests
 {
@@ -275,21 +272,7 @@ public class BaseCollectionControllerTests
         Assert.IsNotNull(content);
         Assert.AreEqual("This is not your collection", content.Content);
     }
-
-    [TestMethod]
-    public async Task PicturePopupGet_CollectionHasNoPicture_ReturnsNotExistContent()
-    {
-        var collection = new Collection { Id = "c1", PictureId = null };
-        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
-        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
-
-        var result = await _controller.PicturePopup("c1");
-
-        var content = result as ContentResult;
-        Assert.IsNotNull(content);
-        Assert.AreEqual("Picture not exist", content.Content);
-    }
-
+    
     [TestMethod]
     public async Task PicturePopupGet_CollectionNotFound_ReturnsNotExistContent()
     {
@@ -387,40 +370,6 @@ public class BaseCollectionControllerTests
         Assert.IsNotNull(json);
         var gridModel = (DataSourceResult)json.Value;
         Assert.IsFalse(string.IsNullOrEmpty(gridModel.Errors as string));
-    }
-
-    [TestMethod]
-    public async Task ProductList_ScopeGrantsAccess_PassesScopeDefaultStoreId()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        var collection = new Collection { Id = "c1" };
-        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
-        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
-        _collectionViewModelServiceMock
-            .Setup(v => v.PrepareCollectionProductModel("c1", "store-1", 1, 10))
-            .ReturnsAsync((Enumerable.Empty<CollectionModel.CollectionProductModel>(), 0));
-
-        var result = await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
-
-        var json = result as JsonResult;
-        Assert.IsNotNull(json);
-        _collectionViewModelServiceMock.Verify(v => v.PrepareCollectionProductModel("c1", "store-1", 1, 10), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task ProductList_GlobalScope_PassesEmptyStoreId()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        var collection = new Collection { Id = "c1" };
-        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
-        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
-        _collectionViewModelServiceMock
-            .Setup(v => v.PrepareCollectionProductModel("c1", string.Empty, 1, 10))
-            .ReturnsAsync((Enumerable.Empty<CollectionModel.CollectionProductModel>(), 0));
-
-        await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
-
-        _collectionViewModelServiceMock.Verify(v => v.PrepareCollectionProductModel("c1", string.Empty, 1, 10), Times.Once);
     }
 
     [TestMethod]

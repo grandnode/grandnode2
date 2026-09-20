@@ -9,11 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
 
-// Reduced to a thin subclass of BaseSearchController (ARCH-001) for the Category/Collection/Brand
-// picker methods. Vendor's original code hardcoded storeId: "" for all 3 (no store filter, same as
-// Admin) - the base's default PickerStoreId already matches, no override needed. Restates the
-// attribute set that used to arrive transitively via BaseVendorController - see Admin's
-// SearchController for why.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaVendor)]
 [AuthorizeVendor]

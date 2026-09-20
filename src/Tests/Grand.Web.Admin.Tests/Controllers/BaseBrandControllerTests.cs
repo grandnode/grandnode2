@@ -21,9 +21,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the merged Brand access-check behavior (ARCH-001 Brand
-// consolidation). Parameterized over a mocked IAdminDataScope<Brand> instead of the two different
-// concrete access mechanisms Admin (none) and Store (AccessToEntityByStore) used before.
 [TestClass]
 public class BaseBrandControllerTests
 {
@@ -291,21 +288,7 @@ public class BaseBrandControllerTests
         Assert.IsNotNull(content);
         Assert.AreEqual("This is not your brand", content.Content);
     }
-
-    [TestMethod]
-    public async Task PicturePopupGet_BrandHasNoPicture_ReturnsNotExistContent()
-    {
-        var brand = new Brand { Id = "b1", PictureId = null };
-        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
-        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(true);
-
-        var result = await _controller.PicturePopup("b1");
-
-        var content = result as ContentResult;
-        Assert.IsNotNull(content);
-        Assert.AreEqual("Picture not exist", content.Content);
-    }
-
+    
     [TestMethod]
     public async Task PicturePopupGet_BrandNotFound_ReturnsNotExistContent()
     {

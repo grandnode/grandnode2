@@ -1,0 +1,46 @@
+{
+  "name": "grand.admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "analyze:grids": "node scripts/codemods/analyze-kendo-grids.mjs",
+    "codemod:grids": "node scripts/codemods/kendo-grid-to-admin-grid.mjs",
+    "codemod:bs5": "node scripts/codemods/bootstrap4-to-bootstrap5.mjs",
+    "codemod:icons": "node scripts/codemods/icons-to-bootstrap-icons.mjs",
+    "codemod:kclasses": "node scripts/codemods/kendo-classes-to-bootstrap.mjs",
+    "e2e": "playwright test --config e2e/playwright.config.js",
+    "e2e:har": "playwright test --config e2e/playwright.config.js --project=har e2e/specs/har.record.spec.js",
+    "e2e:payloads": "playwright test --config e2e/playwright.config.js --project=har e2e/specs/payload.record.spec.js",
+    "e2e:visual": "playwright test --config e2e/playwright.config.js --project=visual e2e/specs/visual.record.spec.js",
+    "audit:prod": "npm audit --omit=dev --audit-level=moderate"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "tabulator-tables": "^6.5.2",
+    "tom-select": "^2.6.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.63.0",
+    "acorn": "^8.18.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0",
+    "jquery": "^2.2.4",
+    "jsdom": "^27.0.1",
+    "rtlcss": "^4.3.0",
+    "sass": "^1.104.1",
+    "vite": "^6.0.7",
+    "vitest": "^3.2.4"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

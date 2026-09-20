@@ -12,7 +12,7 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cubes"></i>
+                        <i class="bi bi-boxes"></i>
                         @string.Format(Loc["Admin.Orders.Products.AddNew.Title2"], Model.Name, Model.OrderNumber)
                         @Html.ActionLink("(" + Loc["Admin.Orders.Products.AddNew.BackToList"] + ")", "AddProductToOrder", new { orderId = Model.OrderId })
                     </div>
@@ -34,25 +34,25 @@
                     {
                         <div class="form-horizontal">
                             <div class="form-body">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="UnitPriceInclTax"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="UnitPriceInclTax"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="UnitPriceExclTax"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="UnitPriceExclTax"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="Quantity"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="Quantity"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="TaxRate"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="TaxRate"/>
@@ -75,7 +75,7 @@
                                 <div class="form-actions">
                                     <div class="row">
                                         <div class="offset-md-3 col-md-9 col-sm-9">
-                                            <input type="submit" class="k-button" value="@Loc["Admin.Orders.Products.AddNew"]"/>
+                                            <input type="submit" class="btn btn-default btn-sm" value="@Loc["Admin.Orders.Products.AddNew"]"/>
                                         </div>
                                     </div>
                                 </div>

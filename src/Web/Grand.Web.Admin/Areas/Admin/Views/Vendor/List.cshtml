@@ -1,5 +1,4 @@
 ﻿@model VendorListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Vendors"];
@@ -10,12 +9,12 @@
         <div class="x_panel light form-fit popup-window">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-cubes"></i>
+                    <i class="bi bi-boxes"></i>
                     @Loc["Admin.Vendors"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <vc:admin-widget widget-zone="vendor_list_buttons" additional-data="null"/>
                 </div>
@@ -26,7 +25,7 @@
                         <div class="main-header col-12 px-0">
                             <div class="row align-items-end">
                                 <div class="col-md-8 col-ms-12 col-12">
-                                    <div class="form-group mb-0">
+                                    <div class="mb-0">
                                         <admin-label asp-for="SearchName" class="control-labe"/>
                                         <admin-input asp-for="SearchName"/>
                                     </div>
@@ -34,7 +33,7 @@
                                 <div class="col-md-4 col-sm-12 col-12">
                                     <div class="form-actions">
                                         <button class="btn btn-success filter-submit" id="search-vendors">
-                                            <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                            <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                         </button>
                                     </div>
                                 </div>
@@ -44,69 +43,31 @@
                 </div>
             </div>
             <div class="x_content">
-                <div id="vendors-grid"></div>
+                <admin-grid id="vendors-grid"
+                            read-url="@Url.Action("List", "Vendor", new { area = Constants.AreaAdmin })"
+                            additional-data="additionalData">
+                    <grid-column field="Name" title="@Loc["Admin.Vendors.Fields.Name"]" width="300">
+                        <cell-template>
+                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Email" title="@Loc["Admin.Vendors.Fields.Email"]" width="300">
+                        <cell-template>
+                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Active" title="@Loc["Admin.Vendors.Fields.Active"]" width="100" align="Center">
+                        <cell-template>
+                            <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                </admin-grid>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#vendors-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "Vendor", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc["Admin.Vendors.Fields.Name"]",
-                width: 300,
-                template: '<a class="k-link" href="Edit/#=Id#">#:Name#</a>',
-            }, {
-                field: "Email",
-                title: "@Loc["Admin.Vendors.Fields.Email"]",
-                width: 300,
-                template: '<a class="k-link" href="Edit/#=Id#">#:Email#</a>',
-            }, {
-                field: "Active",
-                title: "@Loc["Admin.Vendors.Fields.Active"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }]
-        });
-    });
-</script>
 <script>
     $(document).ready(function () {
         //search button

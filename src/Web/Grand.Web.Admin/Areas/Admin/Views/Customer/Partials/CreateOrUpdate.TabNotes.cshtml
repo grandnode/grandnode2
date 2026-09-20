@@ -7,98 +7,34 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <vc:admin-widget widget-zone="customer_details_notes_top" additional-data="Model"/>
-        <div id="customernotes-grid"></div>
+        <admin-grid id="customernotes-grid"
+                    read-url="@Url.Action("CustomerNotesSelect", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("CustomerNoteDelete", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    auto-bind="false"
+                    confirm-destroy="true">
+            <grid-text name="link" value="@Loc["Admin.Customers.CustomerNotes.Fields.Download.Link"]"/>
+            <grid-text name="no" value="@Loc["Admin.Customers.CustomerNotes.Fields.Download.Link.No"]"/>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Customers.CustomerNotes.Fields.CreatedOn"]" width="180" format="{0:G}"/>
+            <grid-column field="Title" title="@Loc["Admin.Customers.CustomerNotes.Fields.Title"]" width="250"/>
+            <grid-column field="Note" title="@Loc["Admin.Customers.CustomerNotes.Fields.Note"]" width="350"/>
+            <grid-column field="DownloadId" title="@Loc["Admin.Customers.CustomerNotes.Fields.Download"]" width="100">
+                <cell-template>
+                    <a data-if="DownloadId != ''" href="@Url.Action("DownloadFile", "Download", new { area = Constants.AreaAdmin })/?downloadGuid={{ DownloadGuid }}">{{ $texts.link }}</a>
+                    <span data-else>{{ $texts.no }}</span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayToCustomer" title="@Loc["Admin.Customers.CustomerNotes.Fields.DisplayToCustomer"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="DisplayToCustomer" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+        </admin-grid>
         <vc:admin-widget widget-zone="customer_details_notes_bottom" additional-data="Model"/>
     </div>
 </div>
-<script>
-        $(document).ready(function () {
-            $("#customernotes-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("CustomerNotesSelect", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("CustomerNoteDelete", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                //do not implicitly specify all fields
-                                //we do it only for fields which implicitly require it
-                                //otherwise, they'll be formatted wrong way
-                                CreatedOn: {type: "date" }
-                            }
-                        }
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                autoBind: false,
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                editable: {
-                    confirmation: true,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "CreatedOn",
-                    title: "@Loc["Admin.Customers.CustomerNotes.Fields.CreatedOn"]",
-                    width: 180,
-                    type: "date",
-                    format: "{0:G}"
-                },{
-                    field: "Title",
-                    title: "@Loc["Admin.Customers.CustomerNotes.Fields.Title"]",
-                    width: 250,
-                }, {
-                    field: "Note",
-                    title: "@Loc["Admin.Customers.CustomerNotes.Fields.Note"]",
-                    width: 350,
-                    encoded: false
-                },{
-                    field: "DownloadId",
-                    title: "@Loc["Admin.Customers.CustomerNotes.Fields.Download"]",
-                    width: 100,
-                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = Constants.AreaAdmin })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Customers.CustomerNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Customers.CustomerNotes.Fields.Download.Link.No"] #} #'
-                },{
-                    field: "DisplayToCustomer",
-                    title: "@Loc["Admin.Customers.CustomerNotes.Fields.DisplayToCustomer"]",
-                    width: 100,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(DisplayToCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                },  {
-                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                    title: "@Loc["Admin.Common.Delete"]",
-                    width: 100
-                }]
-            });
-        });
-</script>
 <p>
     <strong>
         @Loc["Admin.Customers.CustomerNotes.AddTitle"]
@@ -122,21 +58,21 @@
 
 <div class="form-horizontal">
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AddCustomerTitle"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="AddCustomerTitle"/>
                 <span asp-validation-for="AddCustomerTitle"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AddCustomerNoteMessage"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AddCustomerNoteMessage"></admin-textarea>
                 <span asp-validation-for="AddCustomerNoteMessage"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AddCustomerNoteDownloadId"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -149,7 +85,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AddCustomerNoteDisplayToCustomer"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -161,7 +97,7 @@
         </div>
         <div class="form-actions">
             <div class="offset-md-3 col-md-9 col-sm-9">
-                <input type="button" id="addCustomerNote" class="k-button" value="@Loc["Admin.Customers.CustomerNotes.AddButton"]"/>
+                <input type="button" id="addCustomerNote" class="btn btn-default btn-sm" value="@Loc["Admin.Customers.CustomerNotes.AddButton"]"/>
             </div>
         </div>
     </div>

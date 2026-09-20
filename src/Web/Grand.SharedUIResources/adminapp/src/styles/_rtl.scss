@@ -1,0 +1,130 @@
+//What the right-to-left panel needs beyond mirrored geometry.
+//
+//scripts/build.mjs compiles this file and prepends it to the rtlcss output, so it is the
+//only part of the right-to-left stylesheet that is still written by hand. Everything the
+//old wwwroot/administration/build/css/custom-rtl.css did besides this - flipping margins,
+//padding, floats, text alignment and border radii - rtlcss now derives from the
+//left-to-right sheet, which is what stops the two from drifting.
+//
+//The webfont below came with that file and is kept: it is the Persian face an Arabic or
+//Persian working language renders in. The files live in administration/build/fonts, one
+//level up from the bundles directory this stylesheet is written to.
+
+@font-face {
+  font-family: "IRANSans";
+  src: url('../build/fonts/eot/IRANSansWeb_Black.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb_Black.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb_Black.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb_Black.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb_Black.ttf?1532072864') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  src: url('../build/fonts/eot/IRANSansWeb_Bold.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb_Bold.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb_Bold.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb_Bold.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb_Bold.ttf?1532072864') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  src: url('../build/fonts/eot/IRANSansWeb_Medium.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb_Medium.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb_Medium.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb_Medium.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb_Medium.ttf?1532072864') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  src: url('../build/fonts/eot/IRANSansWeb_Light.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb_Light.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb_Light.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb_Light.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb_Light.ttf?1532072864') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  src: url('../build/fonts/eot/IRANSansWeb_UltraLight.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb_UltraLight.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb_UltraLight.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb_UltraLight.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb_UltraLight.ttf?1532072864') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  src: url('../build/fonts/eot/IRANSansWeb.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb.ttf?1532072864') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/**
+IF you want all numbers in persian use this
+ */
+
+@font-face {
+  font-family: "IRANSans_FaNum";
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Black.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Black.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb(FaNum)_Black.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb(FaNum)_Black.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb(FaNum)_Black.ttf?1532072864') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans_FaNum";
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Bold.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Bold.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb(FaNum)_Bold.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb(FaNum)_Bold.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb(FaNum)_Bold.ttf?1532072864') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans_FaNum";
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Medium.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Medium.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb(FaNum)_Medium.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb(FaNum)_Medium.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb(FaNum)_Medium.ttf?1532072864') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans_FaNum";
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Light.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_Light.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb(FaNum)_Light.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb(FaNum)_Light.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb(FaNum)_Light.ttf?1532072864') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans_FaNum";
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_UltraLight.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb(FaNum)_UltraLight.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb(FaNum)_UltraLight.woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb(FaNum)_UltraLight.woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb(FaNum)_UltraLight.ttf?1532072864') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IRANSans_FaNum";
+  src: url('../build/fonts/eot/IRANSansWeb.eot?1532072864');
+  src: url('../build/fonts/eot/IRANSansWeb.eot?&1532072864#iefix') format('embedded-opentype'), url('../build/fonts/woff2/IRANSansWeb(FaNum).woff2?1532072864') format('woff2'), url('../build/fonts/woff/IRANSansWeb(FaNum).woff?1532072864') format('woff'), url('../build/fonts/ttf/IRANSansWeb(FaNum).ttf?1532072864') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+//The three places the old file asked for that face by name.
+.view p {
+    font-family: IRANSans, Georgia, serif;
+}
+
+.login_content h1 {
+    font-family: IRANSans, Helvetica, Arial, sans-serif;
+}
+
+div#graph_donut svg text {
+    font-family: IRANSans !important;
+}
+
+/* the dashboard card action ("View more") arrow points along the reading direction */
+.grand-card__action-arrow {
+  display: inline-block;
+  transform: scaleX(-1);
+}

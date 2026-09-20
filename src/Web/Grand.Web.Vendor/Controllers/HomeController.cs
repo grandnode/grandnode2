@@ -8,14 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
 
-// Reduced to a thin subclass of BaseHomeController (ARCH-001 Phase 28). GetStatesByCountryId/Logout
-// live in the shared base; Index/Statistics/AccessDenied (real per-host views) stay here. Vendor
-// never had a SetLanguage action, so it extends the plain BaseHomeController rather than
-// BaseHomeControllerWithSetLanguage (see that class's remarks) - inheriting the with-SetLanguage
-// base would silently add a route that never existed on Vendor before. BaseHomeController can't
-// inherit any single host's base controller (it's shared across Admin/Store/Vendor), so this
-// subclass restates its own host's attribute set explicitly - same pattern as
-// ProductController/EmailAccountController/PictureController.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaVendor)]
 [AuthorizeVendor]

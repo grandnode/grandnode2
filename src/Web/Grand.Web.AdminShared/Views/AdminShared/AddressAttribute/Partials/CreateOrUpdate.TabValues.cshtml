@@ -9,13 +9,42 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <partial name="Partials/WidgetZone.Values.Top" model="Model"/>
-                <div id="addressattributevalues-grid"></div>
+                <admin-grid id="addressattributevalues-grid"
+                            read-url="@Url.Action("ValueList", "AddressAttribute", new { addressAttributeId = Model.Id, area })"
+                            destroy-url="@(isReadOnly ? null : Url.Action("ValueDelete", "AddressAttribute", new { area }))"
+                            pager="Compact"
+                            confirm-destroy="true"
+                            on-data-bound="@(isReadOnly ? null : "bindAddressAttributeValuePopups")">
+                    <grid-column field="Name" title="@Loc["Admin.Address.AddressAttributes.Values.Fields.Name"]">
+                        <cell-template>
+                            @if (!isReadOnly)
+                            {
+                                <a class="text-decoration-none editvalue" href="@Url.Action("ValueEditPopup", "AddressAttribute", new { area })/{{ Id }}?addressAttributeId=@Model.Id">{{ Name }}</a>
+                            }
+                            else
+                            {
+                                @:{{ Name }}
+                            }
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="IsPreSelected" title="@Loc["Admin.Address.AddressAttributes.Values.Fields.IsPreSelected"]" width="100" align="Center" min-screen-width="500">
+                        <cell-template>
+                            <i data-if="IsPreSelected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayOrder" title="@Loc["Admin.Address.AddressAttributes.Values.Fields.DisplayOrder"]" width="100" align="Center"/>
+                    @if (!isReadOnly)
+                    {
+                        <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+                    }
+                </admin-grid>
                 <partial name="Partials/WidgetZone.Values.Bottom" model="Model"/>
             </div>
             @if (!isReadOnly)
             {
                 <div class="panel-footer">
-                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "AddressAttribute", new { addressAttributeId = Model.Id, area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Address.AddressAttributes.Values.AddNew"]</a>
+                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "AddressAttribute", new { addressAttributeId = Model.Id, area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Address.AddressAttributes.Values.AddNew"]</a>
                     <input type="submit" id="btnRefresh" style="display: none"/>
                 </div>
             }
@@ -43,137 +72,27 @@
                         }
                     });
 
-                    $("#addressattributevalues-grid").kendoGrid({
-                        dataBound: function () {
-                            $('.editvalue').magnificPopup({
-                                type: 'ajax',
-                                settings: { cache: false, async: false },
-                                midClick: true,
-                                callbacks: {
-                                    parseAjax: function (mfpResponse) {
-                                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                                    },
-                                    ajaxContentAdded: function () {
-                                        $('.mfp-wrap').removeAttr('tabindex');
-                                    }
-                                }
-                            });
-                        },
-                        dataSource: {
-                            transport: {
-                                read: {
-                                    url: "@Html.Raw(Url.Action("ValueList", "AddressAttribute", new { addressAttributeId = Model.Id, area }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                destroy: {
-                                    url: "@Html.Raw(Url.Action("ValueDelete", "AddressAttribute", new { area }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                }
-                            },
-                            schema: {
-                                data: "Data",
-                                total: "Total",
-                                errors: "Errors",
-                                model: { id: "Id", fields: { AddressAttributeId: { editable: false } } }
-                            },
-                            error: function(e) {
-                                display_kendoui_grid_error(e);
-                                this.cancelChanges();
-                            },
-                            serverPaging: true,
-                            serverFiltering: true,
-                            serverSorting: true
-                        },
-                        pageable: { refresh: true, numeric: false, previousNext: false, info: false },
-                        editable: { confirmation: true, mode: "inline" },
-                        scrollable: false,
-                        columns: [{
-                            field: "Name",
-                            title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.Name"]",
-                            template: "<a class='k-link editvalue' href=\"@Url.Action("ValueEditPopup", "AddressAttribute", new { area })/#=Id#?addressAttributeId=@Model.Id\">#=kendo.htmlEncode(Name)#</a>"
-                        }, {
-                            field: "IsPreSelected",
-                            title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.IsPreSelected"]",
-                            width: 100,
-                            minScreenWidth: 500,
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                        }, {
-                            field: "DisplayOrder",
-                            title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.DisplayOrder"]",
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            width: 100
-                        }, {
-                            command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                            title: "@Loc["Admin.Common.Delete"]",
-                            width: 100
-                        }]
-                    });
-
                     $('#btnRefresh').click(function () {
                         var grid = $("#addressattributevalues-grid").data('kendoGrid');
                         grid.dataSource.read();
                         return false;
                     });
                 });
-            </script>
-        }
-        else
-        {
-            <script>
-                $(document).ready(function () {
-                    $("#addressattributevalues-grid").kendoGrid({
-                        dataSource: {
-                            transport: {
-                                read: {
-                                    url: "@Html.Raw(Url.Action("ValueList", "AddressAttribute", new { addressAttributeId = Model.Id, area }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                }
+                function bindAddressAttributeValuePopups() {
+                    $('.editvalue').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        midClick: true,
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
                             },
-                            schema: {
-                                data: "Data",
-                                total: "Total",
-                                errors: "Errors",
-                                model: { id: "Id" }
-                            },
-                            error: function(e) {
-                                display_kendoui_grid_error(e);
-                                this.cancelChanges();
-                            },
-                            serverPaging: true,
-                            serverFiltering: true,
-                            serverSorting: true
-                        },
-                        pageable: { refresh: true, numeric: false, previousNext: false, info: false },
-                        scrollable: false,
-                        columns: [{
-                            field: "Name",
-                            title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.Name"]"
-                        }, {
-                            field: "IsPreSelected",
-                            title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.IsPreSelected"]",
-                            width: 100,
-                            minScreenWidth: 500,
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                        }, {
-                            field: "DisplayOrder",
-                            title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.DisplayOrder"]",
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            width: 100
-                        }]
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
                     });
-                });
+                }
             </script>
         }
     }

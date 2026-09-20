@@ -10,8 +10,8 @@
     @{
         Func<int, HelperResult>
             template = @<div class="form-body">
-                           <div class="form-group">
-                               <div class="col-md-3 col-sm-3 text-right">
+                           <div class="mb-3">
+                               <div class="col-md-3 col-sm-3 text-end">
                                    <admin-label asp-for="@Model.Locales[item].DescriptionText" class="control-label"/>
                                </div>
                                <div class="col-md-9 col-sm-9">
@@ -26,8 +26,8 @@
     <div class="form-horizontal">
         <localized-editor localized-template="@template" name="plugin-settings-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
             <div class="form-body">
-                <div class="form-group">
-                    <div class="col-md-3 col-sm-3 text-right">
+                <div class="mb-3">
+                    <div class="col-md-3 col-sm-3 text-end">
                         <admin-label asp-for="DescriptionText" class="control-label"/>
                     </div>
                     <div class="col-md-9 col-sm-9">
@@ -38,8 +38,8 @@
             </div>
         </localized-editor>
         <div class="form-body">
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AdditionalFee" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -47,8 +47,8 @@
                     <span asp-validation-for="AdditionalFee"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AdditionalFeePercentage" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -59,8 +59,8 @@
                     <span asp-validation-for="AdditionalFeePercentage"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="ShippableProductRequired" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -71,8 +71,8 @@
                     <span asp-validation-for="ShippableProductRequired"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="SkipPaymentInfo" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -83,8 +83,8 @@
                     <span asp-validation-for="SkipPaymentInfo"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="DisplayOrder" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">

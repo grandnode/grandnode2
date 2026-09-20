@@ -11,16 +11,16 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="icon-basket"></i>
+                        <i class="bi bi-basket"></i>
                         @Loc["Vendor.Orders.EditOrderDetails"] - @Model.OrderNumber
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Vendor.Orders.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Vendor.Orders.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
                             <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = Constants.AreaVendor })" class="btn purple">
-                                <i class="fa fa-file-pdf-o"></i> @Loc["Vendor.Orders.PdfInvoice"]
+                                <i class="bi bi-file-earmark-pdf"></i> @Loc["Vendor.Orders.PdfInvoice"]
                             </a>
                             <input type="submit" id="btnRefreshPage" style="display: none"/>
                             <script>

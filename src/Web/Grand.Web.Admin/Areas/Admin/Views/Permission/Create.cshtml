@@ -13,35 +13,35 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cubes"></i>
+                        <i class="bi bi-boxes"></i>
                         <text> @Loc["Admin.Configuration.Permissions.AddNew"]</text>
                     </div>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="Name"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="Name"/>
                                     <span asp-validation-for="Name"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="SystemName"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="SystemName"/>
                                     <span asp-validation-for="SystemName"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="Area"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="Area"/>
                                     <span asp-validation-for="Area"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="Category"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="Category"/>
@@ -49,10 +49,10 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                     <button class="btn btn-success" type="submit" name="save">
-                                        <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                        <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                                     </button>
                                 </div>
                             </div>

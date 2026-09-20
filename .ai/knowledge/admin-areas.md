@@ -108,7 +108,7 @@ Follow existing area conventions for:
 - admin tag helpers
 - tab partials
 - popup forms
-- Kendo grids
+- grids: `<admin-grid>` for new and converted grids (`.ai/standards/razor-frontend.md`, Admin grids); views not converted yet still use Kendo grids in script
 - AJAX data functions
 - `addAntiForgeryToken(data)`
 - validation summary and field validation spans

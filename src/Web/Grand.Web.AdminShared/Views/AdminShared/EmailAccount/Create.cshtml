@@ -12,23 +12,23 @@
                     <div class="caption">
                         @if (area == "Admin")
                         {
-                            <i class="fa fa-users"></i>
+                            <i class="bi bi-people"></i>
                         }
                         else
                         {
-                            <i class="fa fa-envelope"></i>
+                            <i class="bi bi-envelope"></i>
                         }
                         @Loc["Admin.Configuration.EmailAccounts.AddNew"]
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i> @Html.ActionLink(Loc["Admin.Configuration.EmailAccounts.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i> @Html.ActionLink(Loc["Admin.Configuration.EmailAccounts.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <button class="btn btn-success" type="submit" name="save">
-                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                         </button>
                         <button class="btn btn-success" type="submit" name="save-continue">
-                            <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                         </button>
                         <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                     </div>

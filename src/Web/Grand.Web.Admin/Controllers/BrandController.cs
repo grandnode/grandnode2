@@ -11,12 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseBrandController (ARCH-001 Brand consolidation). All regions of
-// behavior live in the shared base; this class only supplies Admin's DI wiring plus the attributes
-// that used to arrive transitively via BaseAdminController - BaseBrandController can't inherit any
-// single host's base controller (it's shared across Admin/Store, each with a different
-// [Area]/[Authorize*] pair), so each subclass restates its own host's attribute set explicitly.
-// Same pattern as CategoryController/CollectionController (see those files).
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

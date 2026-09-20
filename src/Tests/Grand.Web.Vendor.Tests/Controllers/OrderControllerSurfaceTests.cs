@@ -2,16 +2,12 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Vendor.Controllers;
 using Grand.Web.Vendor.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Web.Vendor.Tests.Controllers;
 
 [TestClass]
 public class OrderControllerSurfaceTests
 {
-    // Regression guard for ARCH-001 Order consolidation spec §3.5: Vendor's OrderController must
-    // inherit BaseOrderController directly, never BaseOrderManagementController, so no mutating
-    // action method exists on its type at all - not permission-gated, genuinely absent.
     private static readonly string[] ManagementOnlyActionNames = [
         "CancelOrder", "SaveOrderTags", "ChangeOrderStatus", "Delete", "EditOrderTotals",
         "EditShippingMethod", "EditUserFields", "SaveOrderItem", "DeleteOrderItem",

@@ -85,7 +85,19 @@ public class KnowledgebaseController : BasePublicController
 
         var category = await _knowledgebaseService.GetPublicKnowledgebaseCategory(categoryId);
         if (category == null)
-            return RedirectToAction("List");
+        {
+            //Check whether the current user has a "Manage knowledgebase" permission
+            //It allows him to preview a category before publishing
+            var hidden = await _knowledgebaseService.GetKnowledgebaseCategory(categoryId);
+            if (hidden is { Published: false } &&
+                _aclService.Authorize(hidden, _contextAccessor.WorkContext.CurrentCustomer) &&
+                _aclService.Authorize(hidden, _contextAccessor.StoreContext.CurrentStore.Id) &&
+                await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+                await _permissionService.Authorize(StandardPermission.ManageKnowledgebase))
+                category = hidden;
+            else
+                return RedirectToAction("List");
+        }
 
         var model = new KnowledgebaseHomePageModel();
         var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(categoryId);
@@ -182,6 +194,13 @@ public class KnowledgebaseController : BasePublicController
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var article = await _knowledgebaseService.GetKnowledgebaseArticle(articleId);
         if (article == null)
+            return RedirectToAction("List");
+
+        //an unpublished article is answered like a missing one, unless the current user has
+        //a "Manage knowledgebase" permission: it allows him to preview an article before publishing
+        if (!article.Published &&
+            !(await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+              await _permissionService.Authorize(StandardPermission.ManageKnowledgebase)))
             return RedirectToAction("List");
 
         //ACL (access control list)

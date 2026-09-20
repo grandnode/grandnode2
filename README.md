@@ -113,7 +113,7 @@ To get a local copy up and running follow these simple steps.
 | --- | --- | --- |
 | [.NET SDK](https://dotnet.microsoft.com/download) | **10.0.100** or newer | building and running everything. The version is pinned in `global.json` with `rollForward: latestFeature`, so any 10.0.x SDK works |
 | [MongoDB](https://www.mongodb.com/try/download/community) | **4.0+** | the database. A local server, a Docker container or a MongoDB Atlas cluster all work |
-| [Node.js](https://nodejs.org/) + npm | **20 LTS** or newer | only when you change the storefront frontend sources. The build output is committed, so you can run the shop without Node |
+| [Node.js](https://nodejs.org/) + npm | **20 LTS** or newer (20.19+ for the admin panels) | only when you change the storefront or admin panel frontend sources. The build output is committed, so you can run the shop without Node |
 | IDE | any with .NET 10 support - Visual Studio, JetBrains Rider, VS Code | optional |
 
 Only the SDK and MongoDB are required to get the shop running - see
@@ -218,8 +218,10 @@ Two things worth knowing:
 
 #### Frontend
 
-The storefront UI (Vue 3, Bootstrap 5) lives in `src/Web/Grand.Web/vueapp` and is
-the only npm project in the repository:
+The repository has two npm projects: the storefront (below) and the Admin, Store
+and Vendor panels (at the end of this section).
+
+The storefront UI (Vue 3, Bootstrap 5) lives in `src/Web/Grand.Web/vueapp`:
 
 ```bash
 cd src/Web/Grand.Web/vueapp
@@ -245,6 +247,24 @@ change simply will not be on the page.
 Other scripts: `npm run dev` (watch build), `npm run lint` (ESLint over
 `vueapp/src`), `npm run audit:prod`. More detail in
 [`vueapp/README.md`](src/Web/Grand.Web/vueapp/README.md).
+
+The Admin, Store and Vendor panels (Bootstrap 5, the Tabulator-based
+`<admin-grid>`, vanilla JS widgets) are built by
+`src/Web/Grand.SharedUIResources/adminapp`:
+
+```bash
+cd src/Web/Grand.SharedUIResources/adminapp
+npm ci
+npm run lint && npm test && npm run build
+```
+
+That writes `admin.bootstrap.js/.css/.rtl.css`, `admin.grid.js/.css`,
+`admin.ui.js/.css` and `admin.legacy.js/.css` into
+`src/Web/Grand.SharedUIResources/wwwroot/administration/bundles`. The same rule
+applies: the bundles are committed, so rebuild and commit them with every change
+under `adminapp/src`. The panels no longer use Kendo UI. Scripts, styles, the
+grid markup, the plugin compatibility shim and the e2e smoke tests are described in
+[`adminapp/README.md`](src/Web/Grand.SharedUIResources/adminapp/README.md).
 
 ### Running locally
 

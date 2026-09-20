@@ -6,15 +6,6 @@ using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
-
-/// <summary>
-///     Admin's <see cref="IAdminDataScope{Order}" />. Deliberately NOT the generic
-///     <see cref="GlobalAdminDataScope{TEntity}" /> — Admin's original OrderController gates
-///     nearly every action through a Sales Manager check
-///     (<c>groupService.IsSalesManager(CurrentCustomer) &amp;&amp; CurrentCustomer.SeId !=
-///     order.SeId</c>) that Store and Vendor never had. Reusing the always-true generic scope here
-///     would silently drop that restriction. See ARCH-001 Order consolidation spec §3.2.
-/// </summary>
 public class AdminOrderDataScope(IContextAccessor contextAccessor, IGroupService groupService)
     : IAdminDataScope<Order>
 {

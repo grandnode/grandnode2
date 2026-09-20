@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// ARCH-001: adds SetLanguage on top of BaseHomeController - Admin and Store only (see
-// BaseHomeController's own remarks for why Vendor stays on the plain base instead of this one).
 public abstract class BaseHomeControllerWithSetLanguage(
     ICountryService countryService,
     ITranslationService translationService,

@@ -1,22 +1,11 @@
-using Grand.Mapping;
 using Grand.Domain.Common;
-using Grand.Web.Vendor.Mapper;
 using Grand.Web.Vendor.Models.Common;
 using Grand.Web.Vendor.Models.Vendor;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using VerifyMSTest;
 using AddressProfile = Grand.Web.Vendor.Mapper.AddressProfile;
 using VendorProfile = Grand.Web.Vendor.Mapper.VendorProfile;
 
 namespace Grand.Mapping.Tests.Vendor;
 
-// Product-related cases (Product/ProductAttributeMapping/ProductAttributeCombination <-> Vendor's
-// Models.Catalog) were removed here (ARCH-001 Phase 1 Task 13): the Vendor.Mapper.ProductProfile they
-// exercised, and the Vendor.Models.Catalog types they mapped to/from, were deleted as orphans once
-// Task 12 repointed Vendor's _ViewImports.cshtml to AdminShared's models/service. The equivalent
-// coverage - mapping Product/ProductAttributeMapping/ProductAttributeCombination to/from AdminShared's
-// ProductModel via AdminShared's ProductProfile, which Vendor now uses - lives in
-// Grand.Mapping.Tests.AdminShared.CatalogProductMappingTests.
 [TestClass]
 public class VendorMappingTests : VerifyBase
 {
@@ -25,7 +14,8 @@ public class VendorMappingTests : VerifyBase
     [TestInitialize]
     public void Setup()
     {
-        var config = new MapperConfiguration(cfg => {
+        var config = new MapperConfiguration(cfg =>
+        {
             cfg.AddProfile<AddressProfile>();
             cfg.AddProfile<VendorProfile>();
         });

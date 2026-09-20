@@ -1,13 +1,21 @@
-﻿using Grand.Web.Common.Events;
-using Grand.Mediator;
+﻿using Grand.Mediator;
+using Grand.Web.Common.Events;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using System.Text.Json;
 using Wangkanai.Detection.Models;
 using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common.TagHelpers.Admin;
 
+/// <summary>
+///     Renders a tab strip as Bootstrap tab markup driven by admin.ui.js
+///     (adminapp/src/ui/tabs.js), in place of the Kendo TabStrip the panels used.
+///     The API is unchanged: selected-tab-index is posted and restored, and the global
+///     tabstrip_on_tab_select / tabstrip_on_tab_show hooks still fire.
+/// </summary>
 [HtmlTargetElement("admin-tabstrip")]
 public class AdminTabStripTagHelper : TagHelper
 {
@@ -31,58 +39,75 @@ public class AdminTabStripTagHelper : TagHelper
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         ViewContext.ViewData[typeof(AdminTabContentTagHelper).FullName] = new List<string>();
-        var _ = await output.GetChildContentAsync();
+        _ = await output.GetChildContentAsync();
         var list = (List<string>)ViewContext.ViewData[typeof(AdminTabContentTagHelper).FullName];
         if (_detectionService.Device.Type == Device.Mobile || _detectionService.Device.Type == Device.Tablet)
             SetTabPos = false;
 
         var selectedTabIndex = GetSelectedTabIndex();
+        //nested strips number their tabs outside the page range (Product/ProductAttributes
+        //starts at 100); their first pane is the active one
+        var activeIndex = selectedTabIndex < list.Count ? selectedTabIndex : 0;
 
         output.TagName = "div";
         output.Attributes.SetAttribute("id", Name);
+        //hidden until the runtime has activated a tab, so the panes never flash unstyled
         output.Attributes.SetAttribute("style", "display:none");
-        var rnd = new Random().Next(0, 100);
-        var sb = new StringBuilder();
-        sb.AppendLine("<script>");
-        sb.AppendLine("$(document).ready(function () {");
-        sb.AppendLine($"$('#{Name}').show();");
-        sb.AppendLine($"var tab_{rnd} = $('#{Name}').kendoTabStrip({{ ");
-        sb.AppendLine($"    tabPosition: '{(SetTabPos ? "left" : "top")}',");
-        sb.AppendLine("    animation: { open: { effects: 'fadeIn'} },");
-        sb.AppendLine("     select: tabstrip_on_tab_select,");
-        if (BindGrid)
-            sb.AppendLine("     show: tabstrip_on_tab_show");
-        sb.AppendLine("  }).data('kendoTabStrip');");
+        output.Attributes.SetAttribute("class", SetTabPos ? "grand-tabstrip grand-tabstrip-left" : "grand-tabstrip");
+        output.Attributes.SetAttribute("data-grand-tabstrip", JsonSerializer.Serialize(new {
+            bindGrid = BindGrid,
+            selectedIndex = activeIndex
+        }));
 
+        var content = new TagBuilder("div");
+        content.AddCssClass("tab-content");
+        for (var i = 0; i < list.Count; i++)
+            content.InnerHtml.AppendHtml(Pane(list[i], i == activeIndex));
+        output.PostContent.AppendHtml(content);
+
+        //Blocks contributed by plugins used to be interpolated into a JavaScript string
+        //literal, which broke on an apostrophe and let markup from a plugin run as script.
+        //They are markup now, handed to the runtime in a <template> the same way
+        //<admin-tab-append> does it.
         var eventMessage = new AdminTabStripCreated(Name);
         await _mediator.Publish(eventMessage);
-        foreach (var eventBlock in eventMessage.BlocksToRender)
+        foreach (var (tabName, blockContent) in eventMessage.BlocksToRender)
+            output.PostElement.AppendHtml(AdminTabAppendTagHelper.Template(Name, tabName, blockContent));
+
+        output.PreElement.AppendHtml(SelectedTabIndexInput(selectedTabIndex));
+    }
+
+    internal static TagBuilder Pane(IHtmlContent content, bool active)
+    {
+        var pane = new TagBuilder("div");
+        pane.AddCssClass("tab-pane");
+        pane.Attributes["role"] = "tabpanel";
+        pane.Attributes["aria-hidden"] = active ? "false" : "true";
+        if (active)
         {
-            sb.AppendLine($"tab_{rnd}.append({{");
-            sb.AppendLine($"    text: '{eventBlock.tabname}',");
-            sb.AppendLine($"    content: '{eventBlock.content}'");
-            sb.AppendLine("});");
+            pane.AddCssClass("active");
+            pane.AddCssClass("show");
+            //the class admin.common.js selects on when it loads the grids of a restored tab
+            pane.AddCssClass("k-state-active");
         }
 
+        pane.InnerHtml.AppendHtml(content);
+        return pane;
+    }
 
-        if (BindGrid && selectedTabIndex > 0)
-        {
-            sb.AppendLine("$(window).load(function() {");
-            sb.AppendLine($"  var selectedtab_{rnd} = $('#{Name}').data('kendoTabStrip').select(); ");
-            sb.AppendLine($"  tabstrip_on_tab_show(selectedtab_{rnd}, true); ");
-            sb.AppendLine("});");
-        }
+    internal static TagBuilder Pane(string html, bool active)
+    {
+        return Pane(new HtmlString(html), active);
+    }
 
-        sb.AppendLine("})");
-
-
-        sb.AppendLine("</script>");
-        sb.AppendLine(
-            $"<input type='hidden' id='selected-tab-index' name='selected-tab-index' value='{selectedTabIndex}'>");
-
-
-        output.PostContent.AppendHtml(string.Concat(list));
-        output.PreElement.AppendHtml(sb.ToString());
+    internal static TagBuilder SelectedTabIndexInput(int selectedTabIndex)
+    {
+        var input = new TagBuilder("input") { TagRenderMode = TagRenderMode.SelfClosing };
+        input.Attributes["type"] = "hidden";
+        input.Attributes["id"] = "selected-tab-index";
+        input.Attributes["name"] = "selected-tab-index";
+        input.Attributes["value"] = selectedTabIndex.ToString();
+        return input;
     }
 
     private int GetSelectedTabIndex()

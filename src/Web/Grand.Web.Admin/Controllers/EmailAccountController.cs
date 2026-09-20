@@ -15,10 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseEmailAccountController (ARCH-001 EmailAccount
-// consolidation). Create/Edit/SendTestEmail/Delete live in the shared base; List (its grid data
-// needs the Admin-only IsDefaultEmailAccount stamp) and MarkAsDefaultEmail (writes a single
-// global setting, no per-store concept exists) stay here (see the design spec).
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

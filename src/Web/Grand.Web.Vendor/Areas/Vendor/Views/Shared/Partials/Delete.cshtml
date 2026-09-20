@@ -5,8 +5,8 @@
             @Loc["Vendor.Common.DeleteConfirmation"]
         </p>
         <div class="form-actions">
-            <span id="" class="k-button" onclick="$('#@Model.WindowId').data('kendoWindow').close();">@Loc["Vendor.Common.NoCancel"]</span>
-            <input type="submit" class="k-button" value="@Loc["Vendor.Common.Delete"]"/>
+            <span id="" class="btn btn-default btn-sm" onclick="GrandAdmin.modal.close('#@Model.WindowId');">@Loc["Vendor.Common.NoCancel"]</span>
+            <input type="submit" class="btn btn-default btn-sm" value="@Loc["Vendor.Common.Delete"]"/>
         </div>
     </div>
 </form>

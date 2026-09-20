@@ -1,9 +1,4 @@
 ﻿@model DateTime?
-<input asp-for="@Model"/>
-<script>
-    $(document).ready(function () {
-        $("#@Html.IdForModel()").kendoDatePicker({
-            culture: "@CultureInfo.CurrentCulture.Name"
-        });
-    });
-</script>
+@*type="text": see Date.cshtml*@
+<input asp-for="@Model" type="text" asp-format="{0:d}" data-grand-date="date"
+       data-grand-date-value="@(Model.HasValue ? Model.Value.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) : "")"/>

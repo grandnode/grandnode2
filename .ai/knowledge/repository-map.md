@@ -248,6 +248,11 @@ Theme CSS source:
 
 Run frontend build when changing Vue source or theme CSS that affects committed bundles.
 
+Admin, Store and Vendor panel frontend project:
+- `src/Web/Grand.SharedUIResources/adminapp` (Vite, Vitest, Playwright, Kendo grid analyzer)
+
+Its output `src/Web/Grand.SharedUIResources/wwwroot/administration/bundles` is not loaded by any panel and not committed yet. See `.ai/skills/frontend-bundle-workflow.md`.
+
 ## Tests
 Tests live under:
 - `src/Tests`

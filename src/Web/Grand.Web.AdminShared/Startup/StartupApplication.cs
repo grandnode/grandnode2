@@ -191,94 +191,55 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreDeliveryDateDataScope>();
         services.AddScoped<IAdminDataScope<DeliveryDate>, RoutedDeliveryDateDataScope>();
 
-        // IAdminDataScope<PickupPoint>: registered once here, same reason as the other three
-        // Shipping sub-entities above. WarehouseId is a plain FK, not a scope concern.
         services.AddScoped<GlobalAdminDataScope<PickupPoint>>();
         services.AddScoped<StorePickupPointDataScope>();
         services.AddScoped<IAdminDataScope<PickupPoint>, RoutedPickupPointDataScope>();
 
-        // IAdminDataScope<TaxCategory>: registered once here for the same reason as EmailAccount
-        // above — see RoutedTaxCategoryDataScope's doc comment. No Vendor scope: Tax has no
-        // Vendor screen.
         services.AddScoped<GlobalAdminDataScope<TaxCategory>>();
         services.AddScoped<StoreTaxCategoryDataScope>();
         services.AddScoped<IAdminDataScope<TaxCategory>, RoutedTaxCategoryDataScope>();
 
-        // IReportDataScope: NOT an IAdminDataScope<TEntity> registration (Reports has no entity —
-        // see IReportDataScope's doc comment and ARCH-001 Reports consolidation spec §3). All three
-        // hosts have a Reports screen, so all three concrete scopes are registered.
         services.AddScoped<AdminReportDataScope>();
         services.AddScoped<StoreReportDataScope>();
         services.AddScoped<VendorReportDataScope>();
         services.AddScoped<IReportDataScope, RoutedReportDataScope>();
 
-        // IAdminDataScope<VendorReview>: registered once here for the same reason as
-        // Product/Category/Collection/Order/Shipment/PaymentTransaction above — see
-        // RoutedVendorReviewDataScope's doc comment. No Store scope: VendorReview has no Store
-        // screen. Admin reuses the generic GlobalAdminDataScope<T> unmodified (no restriction on
-        // Admin's original controller).
         services.AddScoped<GlobalAdminDataScope<VendorReview>>();
         services.AddScoped<VendorVendorReviewDataScope>();
         services.AddScoped<IAdminDataScope<VendorReview>, RoutedVendorReviewDataScope>();
 
-        // IAdminDataScope<AddressAttribute>: registered once here for the same reason as
-        // Product/Category/Collection above — see RoutedAddressAttributeDataScope's doc comment.
-        // No Vendor scope: AddressAttribute has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<AddressAttribute>>();
         services.AddScoped<StoreAdminDataScope<AddressAttribute>>();
         services.AddScoped<IAdminDataScope<AddressAttribute>, RoutedAddressAttributeDataScope>();
 
-        // IAdminDataScope<ContactAttribute>: registered once here for the same reason as
-        // AddressAttribute above — see RoutedContactAttributeDataScope's doc comment.
-        // No Vendor scope: ContactAttribute has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<ContactAttribute>>();
         services.AddScoped<StoreAdminDataScope<ContactAttribute>>();
         services.AddScoped<IAdminDataScope<ContactAttribute>, RoutedContactAttributeDataScope>();
 
-        // IAdminDataScope<CustomerAttribute>: registered once here for the same reason as
-        // AddressAttribute above — see RoutedCustomerAttributeDataScope's doc comment.
-        // No Vendor scope: CustomerAttribute has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<CustomerAttribute>>();
         services.AddScoped<StoreAdminDataScope<CustomerAttribute>>();
         services.AddScoped<IAdminDataScope<CustomerAttribute>, RoutedCustomerAttributeDataScope>();
 
-        // IAdminDataScope<CheckoutAttribute>: registered once here for the same reason as
-        // AddressAttribute above — see RoutedCheckoutAttributeDataScope's doc comment.
-        // No Vendor scope: CheckoutAttribute has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<CheckoutAttribute>>();
         services.AddScoped<StoreAdminDataScope<CheckoutAttribute>>();
         services.AddScoped<IAdminDataScope<CheckoutAttribute>, RoutedCheckoutAttributeDataScope>();
 
-        // IAdminDataScope<ProductAttribute>: registered once here for the same reason as
-        // AddressAttribute above — see RoutedProductAttributeDataScope's doc comment.
-        // No Vendor scope: ProductAttribute has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<ProductAttribute>>();
         services.AddScoped<StoreAdminDataScope<ProductAttribute>>();
         services.AddScoped<IAdminDataScope<ProductAttribute>, RoutedProductAttributeDataScope>();
 
-        // IAdminDataScope<SpecificationAttribute>: registered once here for the same reason as
-        // AddressAttribute above — see RoutedSpecificationAttributeDataScope's doc comment.
-        // No Vendor scope: SpecificationAttribute has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<SpecificationAttribute>>();
         services.AddScoped<StoreAdminDataScope<SpecificationAttribute>>();
         services.AddScoped<IAdminDataScope<SpecificationAttribute>, RoutedSpecificationAttributeDataScope>();
 
-        // IAdminDataScope<NewsItem>: registered once here for the same reason as Category above — see
-        // RoutedNewsItemDataScope's doc comment. No Vendor scope: News has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<NewsItem>>();
         services.AddScoped<StoreAdminDataScope<NewsItem>>();
         services.AddScoped<IAdminDataScope<NewsItem>, RoutedNewsItemDataScope>();
 
-        // IAdminDataScope<Page>: registered once here for the same reason as Category above — see
-        // RoutedPageDataScope's doc comment. No Vendor scope: Page has no Vendor screen.
         services.AddScoped<GlobalAdminDataScope<Page>>();
         services.AddScoped<StoreAdminDataScope<Page>>();
         services.AddScoped<IAdminDataScope<Page>, RoutedPageDataScope>();
 
-        // IAdminDataScope<BlogPost>/<BlogCategory>: registered once here for the same reason as
-        // Category above — see RoutedBlogPostDataScope's doc comment. No Vendor scope: Blog has no
-        // Vendor screen. Two entities share one controller (BaseBlogController), so two routed
-        // scopes are registered.
         services.AddScoped<GlobalAdminDataScope<BlogPost>>();
         services.AddScoped<StoreAdminDataScope<BlogPost>>();
         services.AddScoped<IAdminDataScope<BlogPost>, RoutedBlogPostDataScope>();

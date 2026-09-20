@@ -18,7 +18,7 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cubes"></i>
+                        <i class="bi bi-boxes"></i>
                         @if (string.IsNullOrEmpty(Model.Id))
                         {
                             <text> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddNew"]</text>
@@ -32,42 +32,42 @@
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="AttributeTypeId"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-select asp-for="AttributeTypeId" asp-items="EnumTranslationService.ToSelectList(Model.AttributeTypeId)"/>
                                     <span asp-validation-for="AttributeTypeId"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="disableOnCustom">
+                            <div class="mb-3" id="disableOnCustom">
                                 <admin-label asp-for="SpecificationAttributeId"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-select asp-for="SpecificationAttributeId" asp-items="Model.AvailableAttributes"/>
                                     <span asp-validation-for="SpecificationAttributeId"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlSpecificationAttributeOptionId">
+                            <div class="mb-3" id="pnlSpecificationAttributeOptionId">
                                 <admin-label asp-for="SpecificationAttributeOptionId"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-select asp-for="SpecificationAttributeOptionId" asp-items="Model.AvailableOptions"/>
                                     <span asp-validation-for="SpecificationAttributeOptionId"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlCustomName">
+                            <div class="mb-3" id="pnlCustomName">
                                 <admin-label asp-for="CustomName"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="CustomName"/>
                                     <span asp-validation-for="CustomName"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlCustomValue">
+                            <div class="mb-3" id="pnlCustomValue">
                                 <admin-label asp-for="CustomValue"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="CustomValue"/>
                                     <span asp-validation-for="CustomValue"></span>
                                 </div>
                             </div>
-                            <div class="form-group" id="pnlAllowFiltering">
+                            <div class="mb-3" id="pnlAllowFiltering">
                                 <admin-label asp-for="AllowFiltering"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -77,7 +77,7 @@
                                     <span asp-validation-for="AllowFiltering"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="ShowOnProductPage"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -87,17 +87,17 @@
                                     <span asp-validation-for="ShowOnProductPage"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="DisplayOrder"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="DisplayOrder"/>
                                     <span asp-validation-for="DisplayOrder"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                     <button class="btn btn-success" type="submit" name="save">
-                                        <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                                        <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                                     </button>
                                 </div>
                             </div>
@@ -154,7 +154,7 @@
                             if ('@Model.SpecificationAttributeOptionId' == option.id) {
                                 selected = ' selected '
                             }
-                            ddlSpecOptions.append($('<option ' + selected+'></option>').val(option.id).html(kendo.htmlEncode(option.name)));
+                            ddlSpecOptions.append($('<option ' + selected+'></option>').val(option.id).text(option.name));
                         });
                     },
                     error: function(xhr, ajaxOptions, thrownError) {

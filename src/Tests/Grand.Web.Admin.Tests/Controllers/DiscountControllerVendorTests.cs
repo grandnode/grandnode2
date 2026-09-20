@@ -21,15 +21,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-/// <summary>
-/// ARCH-001 / Task 9: regression coverage for the Admin-only "Applied to vendors" region on
-/// Grand.Web.Admin.Controllers.DiscountController. This region has no Store counterpart (Store's
-/// original DiscountController never had a Vendor tab) so it lives directly on the concrete Admin
-/// controller rather than BaseDiscountController. Task 7b's version had no discount-scope access
-/// check at all; Task 9 folded these actions onto the injected IAdminDataScope&lt;Discount&gt; scope
-/// (VendorList -> CanView, the other four -> HasAccess), matching every other region in
-/// BaseDiscountController. These tests exercise that scope-gated behavior.
-/// </summary>
 [TestClass]
 public class DiscountControllerVendorTests
 {
@@ -224,13 +215,6 @@ public class DiscountControllerVendorTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on Discount's Admin-only applied-to-vendors
-/// region methods. Ensures VendorList, VendorDelete, both VendorAddPopup overloads, and
-/// VendorAddPopupList carry the required [PermissionAuthorizeAction] attributes. These methods live
-/// only on the Admin concrete DiscountController — Grand.Web.Store.Controllers.DiscountController
-/// must never gain equivalents.
-/// </summary>
 [TestClass]
 public class DiscountControllerVendorAttributeTests
 {

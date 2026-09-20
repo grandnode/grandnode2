@@ -301,8 +301,6 @@ public class ProductViewModelServiceTests
             "Admin should offer a store dropdown for tier prices.");
     }
 
-    // --- Vendor-scoped product search (ARCH-001 Phase 1 Task 10) ------------------------------------
-
     private void SetupSearchProducts()
     {
         _productServiceMock.Setup(p => p.SearchProducts(
@@ -475,12 +473,6 @@ public class ProductViewModelServiceTests
         Assert.AreEqual("vendor2", result.VendorId,
             "Admin should keep being able to reassign a product's vendor ownership via the edit form.");
     }
-
-    // --- Per-id ownership filter on Insert*ProductModel (ARCH-001 Phase 1 Task 11) ------------------
-    // Mirrors Vendor's original InsertRelatedProductModel ("if (product == null ||
-    // !HasAccessToProduct(product)) continue;") and the pattern already used for the selected-ids loop
-    // in BaseProductController.AssociatedProductAddPopup(POST) (Task 8). This gap was inert while Vendor
-    // wasn't yet subclassed onto BaseProductController; wiring Vendor in (Task 11) makes it live.
 
     private void SetupOwnershipForInsertTests(Product ownedProduct, Product notOwnedProduct)
     {

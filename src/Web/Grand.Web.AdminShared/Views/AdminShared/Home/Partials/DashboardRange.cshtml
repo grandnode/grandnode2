@@ -1,0 +1,84 @@
+@* The date range of the Store and Vendor dashboards (the Admin dashboard carries the same script
+   inline): the button in the dashboard header drives the charts and the latest orders grid,
+   which read #dashboard-report-range. *@
+<script>
+    var Dashboard = function () {
+        return {
+            initDashboardDaterange: function () {
+                if (!jQuery().daterangepicker || !$('#dashboard-report-range').length) {
+                    return;
+                }
+
+                $('#dashboard-report-range').daterangepicker({
+                    startDate: moment().startOf('month'),
+                    "ranges": {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    "locale": {
+                        "format": "MM/DD/YYYY",
+                        "separator": " - ",
+                        "applyLabel": "Apply",
+                        "cancelLabel": "Cancel",
+                        "fromLabel": "From",
+                        "toLabel": "To",
+                        "customRangeLabel": "Custom",
+                        "daysOfWeek": [
+                            "Su",
+                            "Mo",
+                            "Tu",
+                            "We",
+                            "Th",
+                            "Fr",
+                            "Sa"
+                        ],
+                        "monthNames": [
+                            "January",
+                            "February",
+                            "March",
+                            "April",
+                            "May",
+                            "June",
+                            "July",
+                            "August",
+                            "September",
+                            "October",
+                            "November",
+                            "December"
+                        ],
+                        "firstDay": 1
+                    },
+                    opens: ($('html').css('direction') === 'rtl' ? 'right' : 'left'),
+                }, function (start, end, label) {
+                    $('#dashboard-report-range .grand-dashboard__range-text').text(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                });
+
+                $('#dashboard-report-range .grand-dashboard__range-text').text(moment().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+                $('#dashboard-report-range').show();
+            },
+
+            init: function () {
+                this.initDashboardDaterange();
+            }
+        }
+    }();
+
+    Dashboard.init();
+
+    $('#dashboard-report-range').on('apply.daterangepicker', function (ev, picker) {
+        if ($.isFunction(window.initReportCustomerTimeChart)) {
+            initReportCustomerTimeChart(false);
+        };
+        if ($.isFunction(window.initReportOrderTimeChart)) {
+            initReportOrderTimeChart(false);
+        };
+        var gridOrders = $('#latest-orders-grid').data('kendoGrid');
+        if (gridOrders != undefined) {
+            gridOrders.dataSource.read();
+        }
+    });
+</script>

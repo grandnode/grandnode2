@@ -1,5 +1,4 @@
 @model CustomerListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     ViewBag.Title = Loc["Admin.Customers.Customers"];
 }
@@ -11,12 +10,12 @@
             <div class="x_panel light form-fit popup-window">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-users"></i>
+                        <i class="bi bi-people"></i>
                         @Loc["Admin.Customers.Customers"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
                         <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
-                            <i class="fa fa-plus"></i><span class="d-none d-sm-inline">@Loc["Admin.Common.AddNew"] </span>
+                            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline">@Loc["Admin.Common.AddNew"] </span>
                         </a>
                     </div>
                 </div>
@@ -26,7 +25,7 @@
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="SearchEmail" class="control-label"/>
                                             <admin-input asp-for="SearchEmail"/>
                                         </div>
@@ -35,10 +34,10 @@
                                         <div class="form-actions">
                                             <div class="btn-group">
                                                 <button class="btn btn-success filter-submit" id="search-customers">
-                                                    <i class="fa fa-search"></i>&nbsp; @Loc["Admin.Common.Search"]
+                                                    <i class="bi bi-search"></i>&nbsp; @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
                                         </div>
@@ -49,20 +48,20 @@
                                 <div class="drop-filters-container w-100">
                                     @if (Model.UsernamesEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchUsername" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchUsername"/>
                                             </div>
                                         </div>
                                     }
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchFirstName" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-input asp-for="SearchFirstName"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <admin-label asp-for="SearchLastName" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
                                             <admin-input asp-for="SearchLastName"/>
@@ -70,7 +69,7 @@
                                     </div>
                                     @if (Model.CompanyEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchCompany" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchCompany"/>
@@ -79,7 +78,7 @@
                                     }
                                     @if (Model.PhoneEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchPhone" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchPhone"/>
@@ -88,7 +87,7 @@
                                     }
                                     @if (Model.ZipPostalCodeEnabled)
                                     {
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <admin-label asp-for="SearchZipPostalCode" class="col-sm-3 control-label"/>
                                             <div class="col-md-9 col-sm-9">
                                                 <admin-input asp-for="SearchZipPostalCode"/>
@@ -101,7 +100,40 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <div id="customers-grid"></div>
+                    <admin-grid id="customers-grid"
+                                read-url="@Url.Action("CustomerList", "Customer", new { area = Constants.AreaStore })"
+                                additional-data="additionalData">
+                        <grid-column field="Email" title="@Loc["Admin.Customers.Customers.Fields.Email"]" width="200">
+                            <cell-template>
+                                <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                            </cell-template>
+                        </grid-column>
+                        @if (Model.UsernamesEnabled)
+                        {
+                            <grid-column field="Username" title="@Loc["Admin.Customers.Customers.Fields.Username"]" width="200"/>
+                        }
+                        <grid-column field="FullName" title="@Loc["Admin.Customers.Customers.Fields.FullName"]" width="200"/>
+                        @if (Model.CompanyEnabled)
+                        {
+                            <grid-column field="Company" title="@Loc["Admin.Customers.Customers.Fields.Company"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.PhoneEnabled)
+                        {
+                            <grid-column field="Phone" title="@Loc["Admin.Customers.Customers.Fields.Phone"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.ZipPostalCodeEnabled)
+                        {
+                            <grid-column field="ZipPostalCode" title="@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]" width="200" min-screen-width="770"/>
+                        }
+                        <grid-column field="Active" title="@Loc["Admin.Customers.Customers.Fields.Active"]" width="100" align="Center">
+                            <cell-template>
+                                <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Fields.CreatedOn"]" width="200" format="{0:G}" min-screen-width="770"/>
+                        <grid-column field="LastActivityDate" title="@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]" width="200" format="{0:G}"/>
+                    </admin-grid>
                 </div>
             </div>
         </div>
@@ -109,104 +141,6 @@
 
     <script>
         $(document).ready(function () {
-            $("#customers-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("CustomerList", "Customer", new { area = Constants.AreaStore }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                scrollable: false,
-                columns: [{
-                        field: "Email",
-                        title: "@Loc["Admin.Customers.Customers.Fields.Email"]",
-                        width: 200,
-                        template: '<a class="k-link" href="Edit/#=Id#">#=Email#</a>'
-                    },
-                    @if (Model.UsernamesEnabled)
-                    {
-                        <text>{
-                            field: "Username",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Username"]",
-                            width: 200
-                        },</text>
-                    }
-                    {
-                        field: "FullName",
-                        title: "@Loc["Admin.Customers.Customers.Fields.FullName"]",
-                        width: 200,
-                        encoded: true
-                    },
-                    @if (Model.CompanyEnabled)
-                    {
-                        <text>{
-                            field: "Company",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Company"]",
-                            width: 200,
-                            minScreenWidth: 770
-                        },</text>
-                    }
-                    @if (Model.PhoneEnabled)
-                    {
-                        <text>{
-                            field: "Phone",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Phone"]",
-                            width: 200,
-                            minScreenWidth: 770
-                        },</text>
-                    }
-                    @if (Model.ZipPostalCodeEnabled)
-                    {
-                        <text>{
-                            field: "ZipPostalCode",
-                            title: "@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]",
-                            width: 200,
-                            minScreenWidth: 770
-                        },</text>
-                    }
-                    {
-                        field: "Active",
-                        title: "@Loc["Admin.Customers.Customers.Fields.Active"]",
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    }, {
-                        field: "CreatedOn",
-                        title: "@Loc["Admin.Customers.Customers.Fields.CreatedOn"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}",
-                        minScreenWidth: 770
-                    }, {
-                        field: "LastActivityDate",
-                        title: "@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}"
-                    }]
-            });
 
             $('#search-customers').click(function () {
                 var grid = $('#customers-grid').data('kendoGrid');

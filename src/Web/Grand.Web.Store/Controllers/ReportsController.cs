@@ -19,10 +19,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BaseFullReportsController (ARCH-001 Reports consolidation). No
-// overrides needed - Store has neither the CountryReport/Customer ManageCustomers gate nor
-// PopularSearchTermsReport; every remaining Admin/Store difference is already expressed inside the
-// shared bases via IReportDataScope. Same pattern as PaymentTransactionController/OrderController.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

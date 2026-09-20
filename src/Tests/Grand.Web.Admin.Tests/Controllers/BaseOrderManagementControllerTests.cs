@@ -312,4 +312,147 @@ public class BaseOrderManagementControllerTests
         Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
         _orderViewModelServiceMock.Verify(v => v.InsertOrderNote(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
     }
+    private static object GridErrors(IActionResult result) =>
+        ((result as JsonResult)?.Value as Grand.Web.Common.DataSource.DataSourceResult)?.Errors;
+
+    private Order OrderWithItem(OrderItem item, int status = (int)OrderStatusSystem.Pending)
+    {
+        var order = new Order { Id = "o1", OrderStatusId = status };
+        order.OrderItems.Add(item);
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        return order;
+    }
+
+    [TestMethod]
+    public async Task OrderItemUpdate_ScopeDenies_ReturnsGridError_NoCommandSent()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.OrderItemUpdate("o1", new OrderModel.OrderItemModel { Id = "i1", Quantity = 2 });
+
+        Assert.IsNotNull(GridErrors(result));
+        _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateOrderItemCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task OrderItemUpdate_OrderCancelled_ReturnsGridError_NoCommandSent()
+    {
+        OrderWithItem(new OrderItem { Id = "i1", Quantity = 1, OpenQty = 1 }, (int)OrderStatusSystem.Cancelled);
+
+        var result = await _controller.OrderItemUpdate("o1", new OrderModel.OrderItemModel { Id = "i1", Quantity = 2 });
+
+        Assert.IsNotNull(GridErrors(result));
+        _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateOrderItemCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task OrderItemUpdate_PartlyShipped_RefusesQuantityChange()
+    {
+        OrderWithItem(new OrderItem { Id = "i1", Quantity = 3, OpenQty = 1, IsShipEnabled = true, UnitPriceExclTax = 10 });
+
+        var result = await _controller.OrderItemUpdate("o1",
+            new OrderModel.OrderItemModel { Id = "i1", Quantity = 2, UnitPriceExclTaxValue = 10 });
+
+        Assert.AreEqual("You can't change quantity", GridErrors(result));
+        _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateOrderItemCommand>(), default), Times.Never);
+    }
+
+    //the products grid offers Edit on such an item (edit-visible-if "!IsShipEnabled || ...")
+    [TestMethod]
+    public async Task OrderItemUpdate_FulfilledItemThatShipsNothing_IsAccepted()
+    {
+        var item = new OrderItem { Id = "i1", Quantity = 2, OpenQty = 0, IsShipEnabled = false, UnitPriceExclTax = 10 };
+        OrderWithItem(item);
+
+        var result = await _controller.OrderItemUpdate("o1",
+            new OrderModel.OrderItemModel { Id = "i1", Quantity = 2, UnitPriceExclTaxValue = 12 });
+
+        Assert.IsNull(GridErrors(result));
+        Assert.AreEqual(12, item.UnitPriceExclTax);
+        _mediatorMock.Verify(m => m.Send(It.Is<UpdateOrderItemCommand>(c => c.OrderItem == item), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task OrderItemUpdate_NothingChanged_ReturnsGridError()
+    {
+        OrderWithItem(new OrderItem { Id = "i1", Quantity = 2, OpenQty = 2, UnitPriceExclTax = 10 });
+
+        var result = await _controller.OrderItemUpdate("o1",
+            new OrderModel.OrderItemModel { Id = "i1", Quantity = 2, UnitPriceExclTaxValue = 10 });
+
+        Assert.AreEqual("Nothing has been changed", GridErrors(result));
+    }
+
+    [TestMethod]
+    public async Task OrderItemUpdate_NewPrice_RecalculatesOnServerAndSendsCommand()
+    {
+        var item = new OrderItem { Id = "i1", Quantity = 1, OpenQty = 1, UnitPriceExclTax = 10, UnitPriceInclTax = 12.3, TaxRate = 23, DiscountAmountExclTax = 1 };
+        OrderWithItem(item);
+
+        var result = await _controller.OrderItemUpdate("o1",
+            new OrderModel.OrderItemModel { Id = "i1", Quantity = 2, UnitPriceExclTaxValue = 20 });
+
+        Assert.IsNull(GridErrors(result));
+        Assert.IsNotNull(result as JsonResult);
+        Assert.AreEqual(2, item.Quantity);
+        Assert.AreEqual(2, item.OpenQty);
+        Assert.AreEqual(24.6, item.UnitPriceInclTax, 0.0001);
+        Assert.AreEqual(49.2, item.PriceInclTax, 0.0001);
+        Assert.AreEqual(40, item.PriceExclTax, 0.0001);
+        Assert.AreEqual(0, item.DiscountAmountExclTax);
+        _mediatorMock.Verify(m => m.Send(It.Is<UpdateOrderItemCommand>(c => c.OrderItem == item), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task OrderItemDelete_CommandRefuses_ReturnsItsMessage()
+    {
+        OrderWithItem(new OrderItem { Id = "i1", Quantity = 1, OpenQty = 1 });
+        _mediatorMock.Setup(m => m.Send(It.IsAny<DeleteOrderItemCommand>(), default))
+            .ReturnsAsync((true, "You can't delete this order item."));
+
+        var result = await _controller.OrderItemDelete("o1", new OrderModel.OrderItemModel { Id = "i1" });
+
+        Assert.AreEqual("You can't delete this order item.", GridErrors(result));
+    }
+
+    [TestMethod]
+    public async Task OrderItemDelete_UnknownItem_ReturnsGridError_NoCommandSent()
+    {
+        OrderWithItem(new OrderItem { Id = "i1" });
+
+        var result = await _controller.OrderItemDelete("o1", new OrderModel.OrderItemModel { Id = "other" });
+
+        Assert.IsNotNull(GridErrors(result));
+        _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteOrderItemCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task OrderItemCancel_ScopeDenies_ReturnsGridError_NoCommandSent()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.OrderItemCancel("o1", "i1");
+
+        Assert.IsNotNull(GridErrors(result));
+        _mediatorMock.Verify(m => m.Send(It.IsAny<CancelOrderItemCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task OrderItemCancel_Success_ReturnsEmptyResult()
+    {
+        var item = new OrderItem { Id = "i1", Quantity = 1, OpenQty = 1 };
+        OrderWithItem(item);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CancelOrderItemCommand>(), default)).ReturnsAsync((false, ""));
+
+        var result = await _controller.OrderItemCancel("o1", "i1");
+
+        Assert.IsNotNull(result as JsonResult);
+        Assert.IsNull(GridErrors(result));
+        _mediatorMock.Verify(m => m.Send(It.Is<CancelOrderItemCommand>(c => c.OrderItem == item), default), Times.Once);
+    }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using System.Text.Json;
 
 namespace Grand.Web.Common.TagHelpers.Admin;
 
@@ -57,24 +58,20 @@ public class AdminDeleteConfirmationTagHelper : TagHelper
         output.Content.SetHtmlContent((await _htmlHelper.PartialAsync("Partials/Delete", deleteConfirmationModel))
             .ToHtmlString());
 
-        var window = new StringBuilder();
-        window.AppendLine("<script>");
-        window.AppendLine("$(document).ready(function() {");
-        window.AppendLine($"$('#{ButtonId}').click(function (e) ");
-        window.AppendLine("{");
-        window.AppendLine("e.preventDefault();");
-        window.AppendLine($"var window = $('#{windowId}');");
-        window.AppendLine("if (!window.data('kendoWindow')) {");
-        window.AppendLine("window.kendoWindow({");
-        window.AppendLine("modal: true,");
-        window.AppendLine($"title: '{_translationService.GetResource("Admin.Common.AreYouSure")}',");
-        window.AppendLine("actions: ['Close']");
-        window.AppendLine("});");
-        window.AppendLine("}");
-        window.AppendLine("window.data('kendoWindow').center().open();");
-        window.AppendLine("});");
-        window.AppendLine("});");
-        window.AppendLine("</script>");
-        output.PostContent.SetHtmlContent(window.ToString());
+        //GrandAdmin.modal (adminapp/src/ui/modal.js) in place of the Kendo Window; the
+        //title is JSON-encoded, so an apostrophe in the translation can no longer end the
+        //string literal it used to be pasted into
+        var title = JsonSerializer.Serialize(_translationService.GetResource("Admin.Common.AreYouSure"));
+        var script = new StringBuilder();
+        script.AppendLine("<script>");
+        script.AppendLine("$(document).ready(function() {");
+        script.AppendLine($"document.getElementById({JsonSerializer.Serialize(ButtonId)})?.addEventListener('click', function (e) {{");
+        script.AppendLine("e.preventDefault();");
+        script.AppendLine(
+            $"GrandAdmin.modal.open({JsonSerializer.Serialize(windowId)}, {{ title: {title}, actions: ['Close'] }});");
+        script.AppendLine("});");
+        script.AppendLine("});");
+        script.AppendLine("</script>");
+        output.PostContent.SetHtmlContent(script.ToString());
     }
 }

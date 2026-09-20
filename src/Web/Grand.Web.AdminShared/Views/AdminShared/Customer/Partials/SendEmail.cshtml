@@ -8,28 +8,28 @@
         <input type="hidden" asp-for="Id" id="sendemail_customerId"/>
         <div class="form-horizontal">
             <div class="form-body">
-                <div class="form-group">
+                <div class="mb-3">
                     <admin-label asp-for="Subject"/>
                     <div class="col-md-9 col-sm-9">
                         <admin-input asp-for="Subject"/>
                         <span asp-validation-for="Subject"></span>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <admin-label asp-for="Body"/>
                     <div class="col-md-9 col-sm-9">
                         <admin-textarea asp-for="Body"></admin-textarea>
                         <span asp-validation-for="Body"></span>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <admin-label asp-for="SendImmediately"/>
                     <div class="col-md-9 col-sm-9">
                         <admin-input asp-for="SendImmediately"/>
                         <span asp-validation-for="SendImmediately"></span>
                     </div>
                 </div>
-                <div class="form-group" id="pnl-send-date">
+                <div class="mb-3" id="pnl-send-date">
                     <admin-label asp-for="DontSendBeforeDate"/>
                     <div class="col-md-9 col-sm-9">
                         <admin-input asp-for="DontSendBeforeDate"/>
@@ -39,7 +39,7 @@
             </div>
             <div class="form-actions">
                 <div class="offset-md-3 offset-sm-3 col-md-6 col-sm-6">
-                    <button type="submit" class="k-button"><span class="k-icon k-i-email"></span>&nbsp;@Loc["Admin.Customers.Customers.SendEmail"]</button>
+                    <button type="submit" class="btn btn-default btn-sm"><span class="bi bi-envelope"></span>&nbsp;@Loc["Admin.Customers.Customers.SendEmail"]</button>
                 </div>
             </div>
         </div>
@@ -49,16 +49,7 @@
     $(document).ready(function () {
         $("#sendemail").click(function (e) {
             e.preventDefault();
-            var window = $("#sendemail-window");
-            if (!window.data("kendoWindow")) {
-                window.kendoWindow({
-                    modal: true,
-                    width: "650px",
-                    title: "@Loc["Admin.Customers.Customers.SendEmail"]",
-                    actions: ["Close"]
-                });
-            }
-            window.data('kendoWindow').center().open();
+            GrandAdmin.modal.open("#sendemail-window", { width: "650px", title: "@Loc["Admin.Customers.Customers.SendEmail"]", actions: ["Close"] });
         });
 
 

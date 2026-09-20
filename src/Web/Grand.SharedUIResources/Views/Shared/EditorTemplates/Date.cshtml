@@ -1,9 +1,8 @@
 ﻿@model DateTime
-<input asp-for="@Model"/>
-<script>
-    $(document).ready(function () {
-        $("#@Html.IdForModel()").kendoDatePicker({
-           culture: "@CultureInfo.CurrentCulture.Name"
-        });
-    });
-</script>
+@*GrandAdmin.dateInput (adminapp/src/ui/datetime.js) in place of the Kendo DatePicker: the
+    user types the culture short date into this input and it is what is posted; the calendar
+    button is the widget's. type="text", because asp-for on a DateTime renders a native
+    datetime-local input, which draws a second calendar and refuses the culture's spelling.
+    The seed is an ISO value, so the browser never parses a culture-formatted date.*@
+<input asp-for="@Model" type="text" asp-format="{0:d}" data-grand-date="date"
+       data-grand-date-value="@Model.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture)"/>

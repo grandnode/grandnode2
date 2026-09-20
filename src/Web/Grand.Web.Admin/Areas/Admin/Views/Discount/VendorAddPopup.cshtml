@@ -1,5 +1,4 @@
 ﻿@model DiscountModel.AddVendorToDiscountModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "";
     //page title
@@ -17,20 +16,20 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cubes"></i>
+                        <i class="bi bi-boxes"></i>
                         @Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]
                     </div>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="SearchVendorName" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="SearchVendorName"/>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="SearchVendorEmail" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="SearchVendorEmail"/>
@@ -40,15 +39,22 @@
                                 <div class="row">
                                     <div class="offset-md-1 col-md-11 col-sm-11 btn-group btn-group-devided">
                                         <button class="btn btn-success filter-submit" id="search-vendors">
-                                            <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                            <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                         </button>
                                         <button class="btn btn-success" type="submit" name="save">
-                                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                            <div id="vendors-grid"></div>
+                            <admin-grid id="vendors-grid"
+                                        read-url="@Url.Action("VendorAddPopupList", "Discount", new { area = Constants.AreaAdmin })"
+                                        additional-data="additionalData"
+                                        selectable="Checkbox"
+                                        selection-name="SelectedVendorIds">
+                                <grid-column field="Name" title="@Loc["Admin.Catalog.Vendors.Fields.Name"]"/>
+                                <grid-column field="Email" title="@Loc["Admin.Catalog.Vendors.Fields.Email"]"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -85,63 +91,11 @@
                     }
                 });
             });
-            $("#vendors-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("VendorAddPopupList", "Discount", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "Id",
-                    headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
-                    headerAttributes: { style: "text-align:center" },
-                    template: "<input type='checkbox' name='SelectedVendorIds' value='#=Id#' class='checkboxGroups' />",
-                    attributes: { style: "text-align:center" },
-                    width: 50
-                }, {
-                    field: "Name",
-                    title: "@Loc["Admin.Catalog.Vendors.Fields.Name"]"
-                }
-                , {
-                    field: "Email",
-                    title: "@Loc["Admin.Catalog.Vendors.Fields.Email"]"
-                }
-                ]
-            });
             $('#search-vendors').click(function() {
                 var grid = $('#vendors-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
-                //clear selected checkboxes
-                $('.checkboxGroups').prop('checked', false).change();
+                grid.clearSelection();
                 return false;
             });
 
@@ -159,14 +113,6 @@
                 }
             });
 
-            //wire up checkboxes
-            $('#mastercheckbox').click(function() {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
-
-            $('#vendors-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
-                updateMasterCheckbox();
-            });
 
         function additionalData() {
             var data = {
@@ -177,11 +123,6 @@
             return data;
         }
 
-        function updateMasterCheckbox() {
-            var numChkBoxes = $('#vendors-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#vendors-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-        }
 
     </script>
 

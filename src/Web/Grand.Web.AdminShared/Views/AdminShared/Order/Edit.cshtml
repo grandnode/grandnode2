@@ -18,22 +18,22 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="icon-basket"></i>
+                        <i class="bi bi-basket"></i>
                         @Loc["Admin.Orders.EditOrderDetails"] - @Model.OrderNumber
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Orders.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Orders.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
                             <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = area })" class="btn purple">
-                                <i class="fa fa-file-pdf-o"></i> @Loc["Admin.Orders.PdfInvoice"]
+                                <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.PdfInvoice"]
                             </a>
                             <span id="order-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                             </span>
                             <a asp-action="CancelOrder" asp-route-id="@Model.Id" class="btn border-red" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
-                                <i class="red fa fa-times-circle-o"></i>
+                                <i class="red bi bi-x-circle"></i>
                                 @Loc["Admin.Common.Cancel"]
                             </a>
                             <input type="submit" id="btnRefreshPage" style="display: none"/>
@@ -105,7 +105,7 @@
                                 <content>
                                     <div>
                                         <div class="form-actions">
-                                            <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" asp-action="EditUserFields" class="k-button"/>
+                                            <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" asp-action="EditUserFields" class="btn btn-default btn-sm"/>
                                         </div>
                                         <div class="form-horizontal">
                                             <partial name="Partials/UserFields" model="Model"/>

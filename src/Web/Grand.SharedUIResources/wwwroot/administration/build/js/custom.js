@@ -95,7 +95,10 @@ function init_sidebar() {
                 setContentHeight();
             });
         }
+        syncSidebarExpanded();
     });
+
+    initSidebarKeyboard();
 
     //function setMenuLength(element) {
     //    console.log(element);
@@ -257,7 +260,64 @@ function init_sidebar() {
 }
 
 function closeSubMenu(el) {
-    $(el).closest('.has-submenu.active').removeClass('active');
+    var $li = $(el).closest('.has-submenu.active');
+    $li.removeClass('active');
+    syncSidebarExpanded();
+    //the close button disappears with its sheet; focus goes back to the section it belongs to
+    if ($li.length && $.contains($li[0], document.activeElement)) {
+        $li.children('a').trigger('focus');
+    }
+}
+
+// The section tiles are anchors without an address (Admin.Navigation in admin.search.js and
+// the current-page lookup above both read the anchors of the menu), so they get the role,
+// the tab stop and the keys of a button here, and aria-expanded follows li.active.
+function sectionToggles() {
+    return $SIDEBAR_MENU.find('.side-menu > li.has-submenu > a');
+}
+
+function syncSidebarExpanded() {
+    sectionToggles().each(function () {
+        $(this).attr('aria-expanded', $(this).parent().hasClass('active') ? 'true' : 'false');
+    });
+}
+
+function closeOpenSection(focusToggle) {
+    var $open = $SIDEBAR_MENU.find('.side-menu > li.has-submenu.active');
+    if (!$open.length) return;
+    $open.removeClass('active');
+    syncSidebarExpanded();
+    if (focusToggle) $open.children('a').trigger('focus');
+}
+
+function initSidebarKeyboard() {
+    sectionToggles().each(function (i) {
+        var $toggle = $(this);
+        var $sheet = $toggle.siblings('ul.child_menu');
+        var id = $sheet.attr('id') || 'sidebar-section-' + i;
+        $sheet.attr('id', id);
+        $toggle.attr({ role: 'button', tabindex: '0', 'aria-controls': id, 'aria-expanded': 'false' });
+    });
+
+    sectionToggles().on('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            $(this).trigger('click');
+        }
+    });
+
+    //Escape closes the open sheet and returns to its tile
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && $SIDEBAR_MENU.find('.side-menu > li.has-submenu.active').length) {
+            closeOpenSection(true);
+        }
+    });
+
+    //tabbing out of an open sheet closes it, as a click outside it does
+    $(document).on('focusin', function (e) {
+        var $open = $SIDEBAR_MENU.find('.side-menu > li.has-submenu.active');
+        if ($open.length && !$.contains($open[0], e.target)) closeOpenSection(false);
+    });
 }
 // /Sidebar
 
@@ -269,11 +329,17 @@ $(document).ready(function () {
     if (localStorage.getItem('adminContainerWide') == 'true') {
         $(".container.body").addClass("wide");
     }
+    syncSidebarButton();
 });
 function sidebarToggle() {
     var container = $(".container.body");
     container.toggleClass("wide");
     saveContainer(container);
+    syncSidebarButton();
+}
+//"wide" is the page without the rail; the phone-size button shows and hides the rail
+function syncSidebarButton() {
+    $('#sidebar-button').attr('aria-expanded', $(".container.body").hasClass("wide") ? 'false' : 'true');
 }
 function saveContainer(container) {
     if (container.hasClass("wide")) {
@@ -300,7 +366,7 @@ $(document).ready(function () {
             $BOportlet.css('height', 'auto');
         }
 
-        $ICON.toggleClass('fa-chevron-up fa-chevron-down');
+        $ICON.toggleClass('bi-chevron-up bi-chevron-down');
     });
 
     $('.close-link').click(function () {
@@ -314,7 +380,7 @@ $(document).ready(function () {
 
 // Tooltip
 $(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
         container: 'body'
     });
 });
@@ -434,30 +500,6 @@ if (typeof NProgress != 'undefined') {
 }
 
 
-//hover and retain popover when on popover content
-
-var originalLeave = $.fn.popover.Constructor.prototype.leave;
-$.fn.popover.Constructor.prototype.leave = function (obj) {
-    var self = obj instanceof this.constructor ?
-        obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
-    var container, timeout;
-
-
-    //originalLeave.call(this, obj);
-
-    if (obj.currentTarget) {
-        container = $(obj.currentTarget).siblings('.popover');
-        timeout = self.timeout;
-        container.one('mouseenter', function () {
-            //We entered the actual popover – call off the dogs
-            clearTimeout(timeout);
-            //Let's monitor popover content instead
-            container.one('mouseleave', function () {
-                $.fn.popover.Constructor.prototype.leave.call(self, self);
-            });
-        });
-    }
-};
 
 $('body').popover({
     selector: '[data-popover]',
@@ -861,7 +903,7 @@ function init_wysiwyg() {
         } else {
             console.log("error uploading file", reason, detail);
         }
-        $('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        $('<div class="alert alert-dismissible"> <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
             '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
     }
 
@@ -912,7 +954,7 @@ function init_cropper() {
 
 
     // Tooltip
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
 
 
     // Cropper
@@ -1601,13 +1643,13 @@ function init_CustomNotification() {
     var cnt = 10;
 
     TabbedNotification = function (options) {
-        var message = "<div id='ntf" + cnt + "' class='text alert-" + options.type + "' style='display:none'><h2><i class='fa fa-bell'></i> " + options.title +
-            "</h2><div class='close'><a href='javascript:;' class='notification_close'><i class='fa fa-close'></i></a></div><p>" + options.text + "</p></div>";
+        var message = "<div id='ntf" + cnt + "' class='text alert-" + options.type + "' style='display:none'><h2><i class='bi bi-bell'></i> " + options.title +
+            "</h2><div class='close'><a href='javascript:;' class='notification_close'><i class='bi bi-x-lg'></i></a></div><p>" + options.text + "</p></div>";
 
         if (!document.getElementById('custom_notifications')) {
             alert('doesnt exists');
         } else {
-            $('#custom_notifications ul.notifications').append("<li><a id='ntlink" + cnt + "' class='alert-" + options.type + "' href='#ntf" + cnt + "'><i class='fa fa-bell animated shake'></i></a></li>");
+            $('#custom_notifications ul.notifications').append("<li><a id='ntlink" + cnt + "' class='alert-" + options.type + "' href='#ntf" + cnt + "'><i class='bi bi-bell animated shake'></i></a></li>");
             $('#custom_notifications #notif-group').append(message);
             cnt++;
             CustomTabs(options);
@@ -1670,28 +1712,6 @@ function init_EasyPieChart() {
         chart.update(Math.random() * 200 - 100);
     });
 
-    //hover and retain popover when on popover content
-    var originalLeave = $.fn.popover.Constructor.prototype.leave;
-    $.fn.popover.Constructor.prototype.leave = function (obj) {
-        var self = obj instanceof this.constructor ?
-            obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
-        var container, timeout;
-
-        originalLeave.call(this, obj);
-
-        if (obj.currentTarget) {
-            container = $(obj.currentTarget).siblings('.popover');
-            timeout = self.timeout;
-            container.one('mouseenter', function () {
-                //We entered the actual popover – call off the dogs
-                clearTimeout(timeout);
-                //Let's monitor popover content instead
-                container.one('mouseleave', function () {
-                    $.fn.popover.Constructor.prototype.leave.call(self, self);
-                });
-            });
-        }
-    };
 
     $('body').popover({
         selector: '[data-popover]',
@@ -1975,6 +1995,7 @@ $(document).ready(() => {
 
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             $SIDEBAR_MENU.find('li.active').removeClass('active');
+            syncSidebarExpanded();
         }
     });
 });

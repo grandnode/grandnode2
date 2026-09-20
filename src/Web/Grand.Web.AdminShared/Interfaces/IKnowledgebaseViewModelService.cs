@@ -5,7 +5,9 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface IKnowledgebaseViewModelService
 {
-    Task<List<TreeNode>> PrepareTreeNode();
+    Task<(IEnumerable<KnowledgebaseNodeGridModel> knowledgebaseNodeGridModels, int totalCount)>
+        PrepareKnowledgebaseNodeGridModel(string parentCategoryId, int pageIndex, int pageSize);
+
     Task PrepareCategory(KnowledgebaseCategoryModel model);
     Task PrepareCategory(KnowledgebaseArticleModel model);
 

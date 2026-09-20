@@ -111,7 +111,7 @@ public class AdminInputTagHelper : TagHelper
         object htmlAttributes = null;
         if ((string.IsNullOrEmpty(RenderFormControlClass) && For.Metadata.ModelType.Name.Equals("String")) ||
             renderFormControlClass)
-            htmlAttributes = new { @class = "form-control k-input" };
+            htmlAttributes = new { @class = "form-control" };
 
         //disabled attribute
         bool.TryParse(IsDisabled, out var disabled);
@@ -120,7 +120,7 @@ public class AdminInputTagHelper : TagHelper
             if (htmlAttributes == null)
                 htmlAttributes = new { disabled = "disabled" };
             else
-                htmlAttributes = new { @class = "form-control k-input", disabled = "disabled" };
+                htmlAttributes = new { @class = "form-control", disabled = "disabled" };
         }
 
         var viewEngine = GetPrivateFieldValue(_htmlHelper, "_viewEngine") as IViewEngine;

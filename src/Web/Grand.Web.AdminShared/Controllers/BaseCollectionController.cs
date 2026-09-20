@@ -213,7 +213,7 @@ public abstract class BaseCollectionController(
     {
         var collection = await collectionService.GetCollectionById(collectionId);
         if (collection == null) return Content("Collection not exist");
-        if (!await scope.HasAccess(collection)) return Content("This is not your collection");
+        if (!await scope.CanView(collection)) return Content("This is not your collection");
         if (string.IsNullOrEmpty(collection.PictureId)) return Content("Picture not exist");
 
         return View("Partials/PicturePopup",
@@ -309,7 +309,7 @@ public abstract class BaseCollectionController(
     public async Task<IActionResult> ProductList(DataSourceRequest command, string collectionId)
     {
         var collection = await collectionService.GetCollectionById(collectionId);
-        if (!await scope.HasAccess(collection)) return ErrorForKendoGridJson("This is not your collection");
+        if (!await scope.CanView(collection)) return ErrorForKendoGridJson("This is not your collection");
 
         var (collectionProductModels, totalCount) = await collectionViewModelService.PrepareCollectionProductModel(
             collectionId, scope.DefaultStoreId ?? string.Empty, command.Page, command.PageSize);

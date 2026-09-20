@@ -8,12 +8,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="bi bi-card-list"></i>
                     @Loc["Admin.Configuration.Shipping.Methods"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("CreateMethod", "Shipping", new { area = Constants.AreaStore })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"]</span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"]</span>
                     </a>
                 </div>
             </div>
@@ -21,7 +21,17 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="shippingmethod-grid"></div>
+                            <admin-grid id="shippingmethod-grid"
+                                        read-url="@Url.Action("MethodsListData", "Shipping", new { area = Constants.AreaStore })"
+                                        pager="Compact">
+                                <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="text-decoration-none" href="@Url.Action("EditMethod", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="Description" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.Description"]"/>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.DisplayOrder"]" width="120"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -30,54 +40,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#shippingmethod-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("MethodsListData", "Shipping", new { area = Constants.AreaStore }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    this.cancelChanges();
-                },
-                serverPaging: false,
-                serverFiltering: false,
-                serverSorting: false
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            scrollable: false,
-            columns: [
-                {
-                    field: "Name",
-                    title: "@Loc["Admin.Configuration.Shipping.Methods.Fields.Name"]",
-                    template: '<a class="k-link" href="@Url.Action("EditMethod", "Shipping", new { area = Constants.AreaStore })/#=Id#">#=kendo.htmlEncode(Name)#</a>'
-                },
-                {
-                    field: "Description",
-                    title: "@Loc["Admin.Configuration.Shipping.Methods.Fields.Description"]"
-                },
-                {
-                    field: "DisplayOrder",
-                    title: "@Loc["Admin.Configuration.Shipping.Methods.Fields.DisplayOrder"]",
-                    width: 120
-                }
-            ]
-        });
-    });
-</script>

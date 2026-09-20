@@ -10,7 +10,7 @@ public static class StandardAdminSiteMap
             ResourceName = "Admin.Dashboard",
             ControllerName = "Home",
             ActionName = "Index",
-            IconClass = "icon-home",
+            IconClass = "bi bi-house",
             DisplayOrder = 0,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -19,7 +19,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Home",
                     ActionName = "Index",
                     DisplayOrder = 0,
-                    IconClass = "icon-bar-chart"
+                    IconClass = "bi bi-bar-chart"
                 },
                 new() {
                     SystemName = "Dashboard",
@@ -28,7 +28,7 @@ public static class StandardAdminSiteMap
                     ActionName = "Statistics",
                     DisplayOrder = 1,
                     PermissionNames = new List<string> { PermissionSystemName.Reports },
-                    IconClass = "icon-bulb"
+                    IconClass = "bi bi-lightbulb"
                 },
                 new() {
                     SystemName = "Shopping carts and wishlists",
@@ -37,7 +37,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "ShoppingCart",
                     ActionName = "CurrentCarts",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Online customers",
@@ -46,7 +46,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "OnlineCustomer",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },
@@ -60,7 +60,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.ProductTags,
                 PermissionSystemName.ProductAttributes, PermissionSystemName.SpecificationAttributes
             },
-            IconClass = "fa fa-sitemap",
+            IconClass = "bi bi-diagram-3",
             DisplayOrder = 1,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -70,7 +70,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Product",
                     ActionName = "List",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Categories",
@@ -79,7 +79,7 @@ public static class StandardAdminSiteMap
                     PermissionNames = new List<string> { PermissionSystemName.Categories },
                     ActionName = "List",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Brands",
@@ -88,7 +88,7 @@ public static class StandardAdminSiteMap
                     PermissionNames = new List<string> { PermissionSystemName.Brands },
                     ActionName = "List",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Collections",
@@ -97,7 +97,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Collection",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Product tags",
@@ -106,7 +106,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "ProductTags",
                     ActionName = "List",
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Bulk edit products",
@@ -115,7 +115,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Product",
                     ActionName = "BulkEdit",
                     DisplayOrder = 5,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Product reviews",
@@ -124,7 +124,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "ProductReview",
                     ActionName = "List",
                     DisplayOrder = 6,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Products attributes",
@@ -133,7 +133,7 @@ public static class StandardAdminSiteMap
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.ProductAttributes },
                     DisplayOrder = 7,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Specification attributes",
@@ -142,7 +142,7 @@ public static class StandardAdminSiteMap
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.SpecificationAttributes },
                     DisplayOrder = 8,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },
@@ -156,7 +156,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.OrderTags,
                 PermissionSystemName.OrderStatus, PermissionSystemName.CheckoutAttributes
             },
-            IconClass = "icon-basket",
+            IconClass = "bi bi-basket",
             DisplayOrder = 2,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -166,7 +166,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Order",
                     ActionName = "List",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Shipments",
@@ -175,7 +175,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Shipment",
                     ActionName = "List",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Merchandise returns",
@@ -184,7 +184,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "MerchandiseReturn",
                     ActionName = "List",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Payment transaction",
@@ -193,7 +193,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "PaymentTransaction",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "OrderTags",
@@ -202,7 +202,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "OrderTags",
                     ActionName = "List",
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Checkout attributes",
@@ -211,7 +211,7 @@ public static class StandardAdminSiteMap
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.CheckoutAttributes },
                     DisplayOrder = 5,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Order status",
@@ -220,7 +220,7 @@ public static class StandardAdminSiteMap
                     PermissionNames = new List<string> { PermissionSystemName.OrderStatus },
                     ActionName = "Index",
                     DisplayOrder = 6,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },
@@ -233,7 +233,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.CustomerTags, PermissionSystemName.CustomerGroups,
                 PermissionSystemName.SalesEmployees
             },
-            IconClass = "icon-users",
+            IconClass = "bi bi-people",
             DisplayOrder = 3,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -243,7 +243,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Customer",
                     ActionName = "List",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Customer groups",
@@ -252,7 +252,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "CustomerGroup",
                     ActionName = "List",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Customer tags",
@@ -261,7 +261,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "CustomerTag",
                     ActionName = "List",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Vendors",
@@ -270,7 +270,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Vendor",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Vendor reviews",
@@ -279,7 +279,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "VendorReview",
                     ActionName = "List",
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Sales employee",
@@ -288,7 +288,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "SalesEmployee",
                     ActionName = "Index",
                     DisplayOrder = 5,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Customer attributes",
@@ -297,7 +297,7 @@ public static class StandardAdminSiteMap
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.CustomerAttributes },
                     DisplayOrder = 6,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Address attributes",
@@ -306,7 +306,7 @@ public static class StandardAdminSiteMap
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.AddressAttributes },
                     DisplayOrder = 7,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },
@@ -322,7 +322,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Affiliates, PermissionSystemName.Documents, PermissionSystemName.GiftVouchers,
                 PermissionSystemName.ContactAttributes
             },
-            IconClass = "icon-bulb",
+            IconClass = "bi bi-lightbulb",
             DisplayOrder = 4,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -332,7 +332,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Discount",
                     ActionName = "List",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Gift vouchers",
@@ -341,7 +341,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "GiftVoucher",
                     ActionName = "List",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Affiliates",
@@ -350,7 +350,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Affiliate",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Contact attributes",
@@ -359,14 +359,14 @@ public static class StandardAdminSiteMap
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.ContactAttributes },
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Newsletter",
                     ResourceName = "Admin.Marketing.Newsletter",
                     PermissionNames = new List<string>
                         { PermissionSystemName.Campaigns, PermissionSystemName.NewsletterSubscribers },
-                    IconClass = "fa fa-dot-circle-o",
+                    IconClass = "bi bi-record-circle",
                     DisplayOrder = 5,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -376,7 +376,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Campaign",
                             ActionName = "List",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Newsletter categories",
@@ -385,7 +385,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "NewsletterCategory",
                             ActionName = "List",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Newsletter subscriptions",
@@ -394,7 +394,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "NewsLetterSubscription",
                             ActionName = "List",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 },
@@ -403,7 +403,7 @@ public static class StandardAdminSiteMap
                     ResourceName = "Admin.PushNotifications",
                     PermissionNames = new List<string> { PermissionSystemName.PushNotifications },
                     ControllerName = "PushNotifications",
-                    IconClass = "fa fa-dot-circle-o",
+                    IconClass = "bi bi-record-circle",
                     DisplayOrder = 7,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -413,7 +413,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "PushNotifications",
                             ActionName = "Send",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "PushNotifications",
@@ -422,7 +422,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "PushNotifications",
                             ActionName = "Messages",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "PushNotifications",
@@ -431,7 +431,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "PushNotifications",
                             ActionName = "Receivers",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 },
@@ -439,7 +439,7 @@ public static class StandardAdminSiteMap
                     SystemName = "Documents",
                     ResourceName = "Admin.Marketing.Documents",
                     PermissionNames = new List<string> { PermissionSystemName.Documents },
-                    IconClass = "fa fa-arrow-circle-o-right",
+                    IconClass = "bi bi-arrow-right-circle",
                     DisplayOrder = 8,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -448,7 +448,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Document",
                             ActionName = "Types",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Document list",
@@ -456,7 +456,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Document",
                             ActionName = "List",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 }
@@ -471,7 +471,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Pages, PermissionSystemName.MessageTemplates,
                 PermissionSystemName.Knowledgebase, PermissionSystemName.Courses
             },
-            IconClass = "icon-layers",
+            IconClass = "bi bi-layers",
             DisplayOrder = 5,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -481,7 +481,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Page",
                     ActionName = "List",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Message templates",
@@ -490,7 +490,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "MessageTemplate",
                     ActionName = "List",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Knowledgebase",
@@ -499,7 +499,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Knowledgebase",
                     ActionName = "List",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "News",
@@ -508,13 +508,13 @@ public static class StandardAdminSiteMap
                     ControllerName = "News",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Blog",
                     ResourceName = "Admin.Content.Blog",
                     PermissionNames = new List<string> { PermissionSystemName.Blog },
-                    IconClass = "fa fa-arrow-circle-o-right",
+                    IconClass = "bi bi-arrow-right-circle",
                     DisplayOrder = 4,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -523,7 +523,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Blog",
                             ActionName = "CategoryList",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Blog posts",
@@ -531,7 +531,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Blog",
                             ActionName = "List",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Blog comments",
@@ -539,7 +539,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Blog",
                             ActionName = "Comments",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 },
@@ -547,7 +547,7 @@ public static class StandardAdminSiteMap
                     SystemName = "Course",
                     ResourceName = "Admin.Content.Course",
                     PermissionNames = new List<string> { PermissionSystemName.Courses },
-                    IconClass = "fa fa-arrow-circle-o-right",
+                    IconClass = "bi bi-arrow-right-circle",
                     DisplayOrder = 5,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -556,7 +556,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Course",
                             ActionName = "Level",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Manage courses",
@@ -564,7 +564,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Course",
                             ActionName = "List",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 }
@@ -575,7 +575,7 @@ public static class StandardAdminSiteMap
             SystemName = "Reports",
             ResourceName = "Admin.Reports",
             PermissionNames = new List<string> { PermissionSystemName.Reports },
-            IconClass = "icon-bar-chart",
+            IconClass = "bi bi-bar-chart",
             DisplayOrder = 6,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -585,7 +585,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Reports",
                     ActionName = "LowStockReport",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Bestsellers",
@@ -594,7 +594,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Reports",
                     ActionName = "BestsellersReport",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Products never purchased",
@@ -603,7 +603,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Reports",
                     ActionName = "NeverSoldReport",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Country report",
@@ -613,7 +613,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Reports",
                     ActionName = "CountryReport",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Customer reports",
@@ -623,7 +623,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Reports",
                     ActionName = "Customer",
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },
@@ -639,7 +639,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Acl, PermissionSystemName.EmailAccounts, PermissionSystemName.Plugins,
                 PermissionSystemName.Widgets, PermissionSystemName.Stores, PermissionSystemName.Maintenance
             },
-            IconClass = "icon-settings",
+            IconClass = "bi bi-gear",
             DisplayOrder = 7,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -649,7 +649,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Store",
                     ActionName = "List",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Permissions",
@@ -658,7 +658,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Permission",
                     ActionName = "Index",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "EmailAccounts",
@@ -667,7 +667,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "EmailAccount",
                     ActionName = "List",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Languages",
@@ -676,7 +676,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Language",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Currencies",
@@ -685,7 +685,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Currency",
                     ActionName = "List",
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Countries",
@@ -694,7 +694,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Country",
                     ActionName = "List",
                     DisplayOrder = 5,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Search engine friendly names",
@@ -703,7 +703,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Maintenance",
                     ActionName = "SeNames",
                     DisplayOrder = 6,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Admin menu",
@@ -712,13 +712,13 @@ public static class StandardAdminSiteMap
                     ControllerName = "Menu",
                     ActionName = "Index",
                     DisplayOrder = 7,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Payment",
                     ResourceName = "Admin.Configuration.Payment",
                     PermissionNames = new List<string> { PermissionSystemName.PaymentMethods },
-                    IconClass = "fa fa-arrow-circle-o-right",
+                    IconClass = "bi bi-arrow-right-circle",
                     DisplayOrder = 8,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -728,7 +728,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Payment",
                             ActionName = "Index",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Payment settings",
@@ -737,7 +737,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Payment",
                             ActionName = "Settings",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Payment method restrictions",
@@ -746,7 +746,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Payment",
                             ActionName = "MethodRestrictions",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 },
@@ -754,7 +754,7 @@ public static class StandardAdminSiteMap
                     SystemName = "Shipping",
                     ResourceName = "Admin.Configuration.Shipping",
                     PermissionNames = new List<string> { PermissionSystemName.ShippingSettings },
-                    IconClass = "fa fa-arrow-circle-o-right",
+                    IconClass = "bi bi-arrow-right-circle",
                     DisplayOrder = 9,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -763,7 +763,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             ActionName = "Providers",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Shipping methods",
@@ -771,7 +771,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             ActionName = "Methods",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Shipping method restrictions",
@@ -779,7 +779,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             ActionName = "Restrictions",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Shipping settings",
@@ -787,7 +787,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             ActionName = "Settings",
                             DisplayOrder = 3,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Measures",
@@ -796,7 +796,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Measure",
                             DisplayOrder = 4,
                             ActionName = "Index",
-                            IconClass = "fa fa-arrow-circle-o-right"
+                            IconClass = "bi bi-arrow-right-circle"
                         },
                         new() {
                             SystemName = "Delivery dates",
@@ -804,7 +804,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             DisplayOrder = 5,
                             ActionName = "DeliveryDates",
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Warehouses",
@@ -812,7 +812,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             DisplayOrder = 6,
                             ActionName = "Warehouses",
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "PickupPoints",
@@ -820,7 +820,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             DisplayOrder = 7,
                             ActionName = "PickupPoints",
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 },
@@ -828,7 +828,7 @@ public static class StandardAdminSiteMap
                     SystemName = "Tax",
                     ResourceName = "Admin.Configuration.Tax",
                     PermissionNames = new List<string> { PermissionSystemName.TaxSettings },
-                    IconClass = "fa fa-arrow-circle-o-right",
+                    IconClass = "bi bi-arrow-right-circle",
                     DisplayOrder = 10,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -837,7 +837,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Tax",
                             ActionName = "Providers",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Tax categories",
@@ -845,7 +845,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Tax",
                             ActionName = "Categories",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Tax settings",
@@ -853,7 +853,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Tax",
                             ActionName = "Settings",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 },
@@ -861,7 +861,7 @@ public static class StandardAdminSiteMap
                     SystemName = "Templates",
                     ResourceName = "Admin.Configuration.Layouts",
                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                    IconClass = "fa fa-arrow-circle-o-right",
+                    IconClass = "bi bi-arrow-right-circle",
                     DisplayOrder = 11,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -870,7 +870,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Layout",
                             ActionName = "CategoryLayouts",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Brand layouts",
@@ -878,7 +878,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Layout",
                             ActionName = "BrandLayouts",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Collection layouts",
@@ -886,7 +886,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Layout",
                             ActionName = "CollectionLayouts",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Product layouts",
@@ -894,7 +894,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Layout",
                             ActionName = "ProductLayouts",
                             DisplayOrder = 3,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Page layouts",
@@ -902,7 +902,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Layout",
                             ActionName = "PageLayouts",
                             DisplayOrder = 4,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 }
@@ -913,7 +913,7 @@ public static class StandardAdminSiteMap
             SystemName = "Settings",
             PermissionNames = new List<string> { PermissionSystemName.Settings },
             ResourceName = "Admin.Settings",
-            IconClass = "icon-wrench",
+            IconClass = "bi bi-wrench",
             DisplayOrder = 8,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -922,7 +922,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "GeneralCommon",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Catalog settings",
@@ -930,7 +930,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "Catalog",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Customer settings",
@@ -938,7 +938,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "Customer",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Sales settings",
@@ -946,7 +946,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "Sales",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Media settings",
@@ -954,7 +954,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "Media",
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Content settings",
@@ -962,7 +962,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "Content",
                     DisplayOrder = 5,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Vendor settings",
@@ -971,7 +971,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "Vendor",
                     DisplayOrder = 6,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Push notifications settings",
@@ -980,7 +980,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "PushNotifications",
                     DisplayOrder = 7,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Admin search settings",
@@ -989,7 +989,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "AdminSearch",
                     DisplayOrder = 8,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "System settings",
@@ -998,7 +998,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Setting",
                     ActionName = "SystemSetting",
                     DisplayOrder = 9,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },
@@ -1010,7 +1010,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Plugins, PermissionSystemName.Widgets,
                 PermissionSystemName.ExternalAuthenticationMethods
             },
-            IconClass = "icon-puzzle",
+            IconClass = "bi bi-puzzle",
             DisplayOrder = 9,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -1020,7 +1020,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "ExternalAuthentication",
                     ActionName = "Methods",
                     DisplayOrder = 0,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Widgets",
@@ -1029,7 +1029,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Widget",
                     ActionName = "List",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Local plugins",
@@ -1038,7 +1038,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Plugin",
                     ActionName = "List",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },
@@ -1050,7 +1050,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
                 PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System
             },
-            IconClass = "icon-info",
+            IconClass = "bi bi-info-circle",
             DisplayOrder = 10,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -1060,7 +1060,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "System",
                     ActionName = "SystemInfo",
                     DisplayOrder = 1,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Queued emails",
@@ -1069,7 +1069,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "QueuedEmail",
                     ActionName = "List",
                     DisplayOrder = 2,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Contact Us form",
@@ -1078,7 +1078,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "ContactForm",
                     ActionName = "List",
                     DisplayOrder = 3,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Maintenance",
@@ -1087,7 +1087,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "Maintenance",
                     ActionName = "Maintenance",
                     DisplayOrder = 4,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Schedule tasks",
@@ -1096,14 +1096,14 @@ public static class StandardAdminSiteMap
                     ControllerName = "ScheduleTask",
                     ActionName = "List",
                     DisplayOrder = 5,
-                    IconClass = "fa fa-dot-circle-o"
+                    IconClass = "bi bi-record-circle"
                 },
                 new() {
                     SystemName = "Developer tools",
                     ResourceName = "Admin.System.DeveloperTools",
                     PermissionNames = new List<string>
                         { PermissionSystemName.Maintenance, PermissionSystemName.System },
-                    IconClass = "fa fa-dot-circle-o",
+                    IconClass = "bi bi-record-circle",
                     DisplayOrder = 6,
                     ChildNodes = new List<AdminSiteMap> {
                         new() {
@@ -1113,7 +1113,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "ApiUser",
                             ActionName = "Index",
                             DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Roslyn compiler",
@@ -1122,7 +1122,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "System",
                             ActionName = "Roslyn",
                             DisplayOrder = 1,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Custom css",
@@ -1131,7 +1131,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Maintenance",
                             ActionName = "CustomCss",
                             DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Custom JS",
@@ -1140,7 +1140,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Maintenance",
                             ActionName = "CustomJs",
                             DisplayOrder = 3,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         },
                         new() {
                             SystemName = "Robot.txt",
@@ -1149,7 +1149,7 @@ public static class StandardAdminSiteMap
                             ControllerName = "Maintenance",
                             ActionName = "RobotsTxt",
                             DisplayOrder = 4,
-                            IconClass = "fa fa-dot-circle-o"
+                            IconClass = "bi bi-record-circle"
                         }
                     }
                 }
@@ -1159,7 +1159,7 @@ public static class StandardAdminSiteMap
         new AdminSiteMap {
             SystemName = "Help",
             ResourceName = "Admin.Help",
-            IconClass = "icon-question",
+            IconClass = "bi bi-question-circle",
             DisplayOrder = 11,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
@@ -1167,7 +1167,7 @@ public static class StandardAdminSiteMap
                     ResourceName = "Admin.Help.Forums",
                     Url =
                         "https://grandnode.com/boards?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Community",
-                    IconClass = "fa fa-dot-circle-o",
+                    IconClass = "bi bi-record-circle",
                     DisplayOrder = 0,
                     OpenUrlInNewTab = true
                 },
@@ -1176,7 +1176,7 @@ public static class StandardAdminSiteMap
                     ResourceName = "Admin.Help.SupportServices",
                     Url =
                         "https://grandnode.com/premium-support-packages?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Support",
-                    IconClass = "fa fa-dot-circle-o",
+                    IconClass = "bi bi-record-circle",
                     DisplayOrder = 1,
                     OpenUrlInNewTab = true
                 }

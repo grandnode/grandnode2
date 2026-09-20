@@ -32,28 +32,28 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Name"/>
                     <span asp-validation-for="@Model.Locales[item].Name"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Description"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
                     <span asp-validation-for="@Model.Locales[item].Description"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].BottomDescription"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].BottomDescription" asp-template="Editor"/>
                     <span asp-validation-for="@Model.Locales[item].BottomDescription"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Flag"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Flag"/>
@@ -67,28 +67,28 @@
     <vc:admin-widget widget-zone="category_details_info_top" additional-data="Model"/>
     <localized-editor localized-template="@template" name="category-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Name"/>
                     <span asp-validation-for="Name"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Description"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Description" asp-template="Editor"/>
                     <span asp-validation-for="Description"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="BottomDescription"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="BottomDescription" asp-template="Editor"/>
                     <span asp-validation-for="BottomDescription"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Flag"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Flag"/>
@@ -97,28 +97,28 @@
             </div>
         </div>
     </localized-editor>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="CustomerGroups"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="CustomerGroups"/>
             <span asp-validation-for="CustomerGroups"></span>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="Stores"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="Stores"/>
             <span asp-validation-for="Stores"></span>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="FlagStyle"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="FlagStyle"/>
             <span asp-validation-for="FlagStyle"></span>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="Icon"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="Icon"/>
@@ -126,14 +126,14 @@
         </div>
     </div>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="CategoryLayoutId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="CategoryLayoutId" asp-items="Model.AvailableCategoryLayouts"/>
                 <span asp-validation-for="CategoryLayoutId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             @{
                 ViewData["Reference"] = "Category";
                 ViewData["ObjectId"] = Model.Id;
@@ -145,7 +145,7 @@
                 @if (!string.IsNullOrEmpty(Model.PictureId))
                 {
                     <label class="control-label">
-                        <a class='k-link editpicture' href="@Url.Action("PicturePopup", "Category", new { area = Constants.AreaAdmin })/?categoryId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
+                        <a class='text-decoration-none editpicture' href="@Url.Action("PicturePopup", "Category", new { area = Constants.AreaAdmin })/?categoryId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
                     </label>
                     <script>
                         $(document).ready(function () {
@@ -167,14 +167,14 @@
                 }
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ParentCategoryId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="ParentCategoryId"/>
                 <span asp-validation-for="ParentCategoryId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ShowOnHomePage"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -184,7 +184,7 @@
                 <span asp-validation-for="ShowOnHomePage"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="FeaturedProductsOnHomePage"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -194,7 +194,7 @@
                 <span asp-validation-for="FeaturedProductsOnHomePage"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IncludeInMenu"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -204,7 +204,7 @@
                 <span asp-validation-for="IncludeInMenu"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ShowOnSearchBox"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -214,13 +214,13 @@
                 <span asp-validation-for="ShowOnSearchBox"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlSearchBoxOrder">
+        <div class="mb-3" id="pnlSearchBoxOrder">
             <admin-label asp-for="SearchBoxDisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="SearchBoxDisplayOrder"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AllowCustomersToSelectPageSize"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -230,28 +230,28 @@
                 <span asp-validation-for="AllowCustomersToSelectPageSize"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlPageSize">
+        <div class="mb-3" id="pnlPageSize">
             <admin-label asp-for="PageSize"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="PageSize"/>
                 <span asp-validation-for="PageSize"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlPageSizeOptions">
+        <div class="mb-3" id="pnlPageSizeOptions">
             <admin-label asp-for="PageSizeOptions"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="PageSizeOptions"/>
                 <span asp-validation-for="PageSizeOptions"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DefaultSort"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="DefaultSort" asp-items="Model.AvailableSortOptions"/>
                 <span asp-validation-for="DefaultSort"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -261,14 +261,14 @@
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="HideOnCatalog"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -278,7 +278,7 @@
                 <span asp-validation-for="HideOnCatalog"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ExternalId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="ExternalId"/>

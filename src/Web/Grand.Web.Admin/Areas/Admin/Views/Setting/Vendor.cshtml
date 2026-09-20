@@ -95,13 +95,13 @@
 <div class="x_panel light form-fit">
 <div class="x_title">
     <div class="caption">
-        <i class="fa fa-fw fa-sliders"></i>
+        <i class="bi bi-fw bi-sliders"></i>
         @Loc["Admin.Settings.Vendor"]
     </div>
     <div class="actions">
         <div class="btn-group btn-group-devided">
             <button class="btn btn-success" type="submit" name="save">
-                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
             </button>
         </div>
     </div>
@@ -118,8 +118,8 @@
 <vc:admin-widget widget-zone="vendor_settings_top" additional-data="null"/>
 <div class="form-horizontal">
     <div class="form-body">
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="VendorsBlockItemsToDisplay" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -127,8 +127,8 @@
                 <span asp-validation-for="VendorsBlockItemsToDisplay"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="ShowVendorOnProductDetailsPage" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -139,8 +139,8 @@
                 <span asp-validation-for="ShowVendorOnProductDetailsPage"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AllowCustomersToContactVendors" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -151,8 +151,8 @@
                 <span asp-validation-for="AllowCustomersToContactVendors"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AllowCustomersToApplyForVendorAccount" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -163,8 +163,8 @@
                 <span asp-validation-for="AllowCustomersToApplyForVendorAccount"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AllowSearchByVendor" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -175,8 +175,8 @@
                 <span asp-validation-for="AllowSearchByVendor"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AllowVendorsToEditInfo" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -187,8 +187,8 @@
                 <span asp-validation-for="AllowVendorsToEditInfo"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="NotifyStoreOwnerAboutVendorInformationChange" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -199,8 +199,8 @@
                 <span asp-validation-for="NotifyStoreOwnerAboutVendorInformationChange"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="TermsOfServiceEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -211,8 +211,8 @@
                 <span asp-validation-for="TermsOfServiceEnabled"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="VendorReviewsMustBeApproved" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -223,8 +223,8 @@
                 <span asp-validation-for="VendorReviewsMustBeApproved"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AllowAnonymousUsersToReviewVendor" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -235,8 +235,8 @@
                 <span asp-validation-for="AllowAnonymousUsersToReviewVendor"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="VendorReviewPossibleOnlyAfterPurchasing" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -247,8 +247,8 @@
                 <span asp-validation-for="VendorReviewPossibleOnlyAfterPurchasing"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="NotifyVendorAboutNewVendorReviews" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -259,8 +259,8 @@
                 <span asp-validation-for="NotifyVendorAboutNewVendorReviews"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="DefaultAllowCustomerReview" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -271,8 +271,8 @@
                 <span asp-validation-for="DefaultAllowCustomerReview"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="DefaultVendorRatingValue" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -280,8 +280,8 @@
                 <span asp-validation-for="DefaultVendorRatingValue"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="VendorReviewPossibleOnlyOnce" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -292,8 +292,8 @@
                 <span asp-validation-for="VendorReviewPossibleOnlyOnce"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="NumberOfReview" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -301,8 +301,8 @@
                 <span asp-validation-for="NumberOfReview"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="DefaultVendorPageSizeOptions" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -317,8 +317,8 @@
         @Loc["Admin.Settings.Vendor.Address"]
     </div>
     <div class="form-horizontal panel-body">
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.CompanyEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -329,8 +329,8 @@
                 <span asp-validation-for="AddressSettings.CompanyEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorCompanyRequired">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorCompanyRequired">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.CompanyRequired" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -341,8 +341,8 @@
                 <span asp-validation-for="AddressSettings.CompanyRequired"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.StreetAddressEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -353,8 +353,8 @@
                 <span asp-validation-for="AddressSettings.StreetAddressEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorStreetAddressRequired">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorStreetAddressRequired">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.StreetAddressRequired" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -365,8 +365,8 @@
                 <span asp-validation-for="AddressSettings.StreetAddressRequired"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.StreetAddress2Enabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -377,8 +377,8 @@
                 <span asp-validation-for="AddressSettings.StreetAddress2Enabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorStreetAddress2Required">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorStreetAddress2Required">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.StreetAddress2Required" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -389,8 +389,8 @@
                 <span asp-validation-for="AddressSettings.StreetAddress2Required"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.ZipPostalCodeEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -401,8 +401,8 @@
                 <span asp-validation-for="AddressSettings.ZipPostalCodeEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorZipPostalCodeRequired">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorZipPostalCodeRequired">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.ZipPostalCodeRequired" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -413,8 +413,8 @@
                 <span asp-validation-for="AddressSettings.ZipPostalCodeRequired"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.CityEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -425,8 +425,8 @@
                 <span asp-validation-for="AddressSettings.CityEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorCityRequired">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorCityRequired">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.CityRequired" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -437,8 +437,8 @@
                 <span asp-validation-for="AddressSettings.CityRequired"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.CountryEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -449,8 +449,8 @@
                 <span asp-validation-for="AddressSettings.CountryEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorStateProvinceEnabled">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorStateProvinceEnabled">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.StateProvinceEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -461,8 +461,8 @@
                 <span asp-validation-for="AddressSettings.StateProvinceEnabled"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.PhoneEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -473,8 +473,8 @@
                 <span asp-validation-for="AddressSettings.PhoneEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorPhoneRequired">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorPhoneRequired">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.PhoneRequired" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -485,8 +485,8 @@
                 <span asp-validation-for="AddressSettings.PhoneRequired"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.FaxEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -497,8 +497,8 @@
                 <span asp-validation-for="AddressSettings.FaxEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlVendorFaxRequired">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlVendorFaxRequired">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="AddressSettings.FaxRequired" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">

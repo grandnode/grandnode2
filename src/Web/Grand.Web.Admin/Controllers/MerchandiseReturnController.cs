@@ -9,12 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Concrete host subclass of BaseMerchandiseReturnController (ARCH-001 MerchandiseReturn
-// consolidation). This class supplies Admin's DI wiring plus the attributes that used to arrive
-// transitively via BaseAdminController - BaseMerchandiseReturnController can't inherit any single
-// host's base controller (it's shared across Admin/Store/Vendor, each with a different
-// [Area]/[Authorize*] pair), so each subclass restates its own host's attribute set explicitly, same
-// pattern as OrderController.
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

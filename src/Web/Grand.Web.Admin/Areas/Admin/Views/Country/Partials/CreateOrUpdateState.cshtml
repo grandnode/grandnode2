@@ -9,7 +9,7 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
-                       <div class="form-group">
+                       <div class="mb-3">
                            <admin-label asp-for="@Model.Locales[item].Name"/>
                            <div class="col-md-9 col-sm-9">
                                <admin-input asp-for="@Model.Locales[item].Name"/>
@@ -23,7 +23,7 @@
 <div class="form-horizontal">
     <localized-editor localized-template="@template" name="state-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Name"/>
@@ -33,14 +33,14 @@
         </div>
     </localized-editor>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Abbreviation"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Abbreviation"/>
                 <span asp-validation-for="Abbreviation"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -50,17 +50,17 @@
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                 <button class="btn btn-success" type="submit" name="save">
-                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                 </button>
                 <vc:admin-widget widget-zone="country_state_details_buttons" additional-data="null"/>
             </div>

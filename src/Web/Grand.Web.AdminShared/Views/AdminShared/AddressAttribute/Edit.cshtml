@@ -13,10 +13,10 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-list-ol"></i>
+                        <i class="bi bi-list-ol"></i>
                         @Loc["Admin.Address.AddressAttributes.EditAttributeDetails"] - @Model.Name
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Address.AddressAttributes.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Address.AddressAttributes.BackToList"], "List")
                         </small>
                     </div>
                     @if (!isReadOnly)
@@ -24,13 +24,13 @@
                         <div class="actions">
                             <div class="btn-group btn-group-devided">
                                 <button class="btn btn-success" type="submit" name="save">
-                                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                                 </button>
                                 <button class="btn btn-success" type="submit" name="save-continue">
-                                    <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                                 </button>
                                 <span id="addressattribute-delete" class="btn red">
-                                    <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                    <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                                 </span>
                             </div>
                         </div>
@@ -39,7 +39,7 @@
                     {
                         <div class="actions">
                             <div class="alert alert-info mb-0 py-2">
-                                <i class="fa fa-info-circle"></i> @Loc["Admin.Address.AddressAttributes.GlobalReadOnly"]
+                                <i class="bi bi-info-circle"></i> @Loc["Admin.Address.AddressAttributes.GlobalReadOnly"]
                             </div>
                         </div>
                     }

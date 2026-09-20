@@ -8,12 +8,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-sitemap"></i>
+                    <i class="bi bi-diagram-3"></i>
                     @Loc["Admin.Configuration.Menu"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                 </div>
             </div>
@@ -21,7 +21,16 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="menu-grid"></div>
+                            <admin-grid id="menu-grid"
+                                        read-url="@Url.Action("ListItem", "Menu", new { area = Constants.AreaAdmin })"
+                                        pager="None">
+                                <grid-column field="SystemName" title="@Loc["Admin.Configuration.Menu.Fields.SystemName"]" width="400">
+                                    <cell-template>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ SystemName }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Menu.Fields.DisplayOrder"]" width="125" align="Center"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -30,49 +39,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#menu-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("ListItem", "Menu", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: false,
-                serverFiltering: true,
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "SystemName",
-                title: "@Loc["Admin.Configuration.Menu.Fields.SystemName"]",
-                width: 400,
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(SystemName)#</a>',
-            },
-            {
-                field: "DisplayOrder",
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                title: "@Loc["Admin.Configuration.Menu.Fields.DisplayOrder"]",
-                width: 125    
-            }]
-        });
-    });
-</script>

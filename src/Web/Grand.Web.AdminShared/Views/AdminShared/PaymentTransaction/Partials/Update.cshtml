@@ -7,25 +7,25 @@
 <div class="form-horizontal">
     <partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="PaymentMethodSystemName"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.PaymentMethodSystemName</label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Status"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.Status</label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="TransactionAmount"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.TransactionAmount [@Model.CurrencyCode]</label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="PaidAmount"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.PaidAmount [@Model.CurrencyCode]</label>
@@ -33,14 +33,14 @@
         </div>
         @if (Model.RefundedAmount > 0)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="RefundedAmount"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.RefundedAmount [@Model.CurrencyCode]</label>
                 </div>
             </div>
         }
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="CustomerId" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
             <div class="col-9 col-md-9 col-sm-9">
                 <label class="control-label">
@@ -48,7 +48,7 @@
                 </label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="OrderId" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
             <div class="col-9 col-md-9 col-sm-9">
                 <label class="control-label">
@@ -56,13 +56,13 @@
                 </label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="CreatedOn" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
             <div class="col-9 col-md-9 col-sm-9">
                 <label class="control-label"> @Html.DisplayFor(model => model.CreatedOn)</label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="IPAddress" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
             <div class="col-9 col-md-9 col-sm-9">
                 <label class="control-label">@Model.IPAddress</label>
@@ -70,7 +70,7 @@
         </div>
         @if (!string.IsNullOrEmpty(Model.AdditionalInfo))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AdditionalInfo" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                 <div class="col-9 col-md-9 col-sm-9">
                     <label class="control-label">@Model.AdditionalInfo</label>
@@ -79,7 +79,7 @@
         }
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Description" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                 <div class="col-9 col-md-9 col-sm-9">
                     <label class="control-label">@Model.Description</label>
@@ -88,7 +88,7 @@
         }
         @if (!string.IsNullOrEmpty(Model.CaptureTransactionId))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CaptureTransactionId" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                 <div class="col-9 col-md-9 col-sm-9">
                     <label class="control-label">@Model.CaptureTransactionId</label>
@@ -97,7 +97,7 @@
         }
         @if (!string.IsNullOrEmpty(Model.CaptureTransactionResult))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CaptureTransactionResult" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                 <div class="col-9 col-md-9 col-sm-9">
                     <label class="control-label">@Model.CaptureTransactionResult</label>
@@ -106,7 +106,7 @@
         }
         @if (!string.IsNullOrEmpty(Model.AuthorizationTransactionId))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AuthorizationTransactionId" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                 <div class="col-9 col-md-9 col-sm-9">
                     <label class="control-label">@Model.AuthorizationTransactionId</label>
@@ -115,7 +115,7 @@
         }
         @if (!string.IsNullOrEmpty(Model.AuthorizationTransactionCode))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AuthorizationTransactionCode" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                 <div class="col-9 col-md-9 col-sm-9">
                     <label class="control-label">@Model.AuthorizationTransactionCode</label>
@@ -124,7 +124,7 @@
         }
         @if (!string.IsNullOrEmpty(Model.AuthorizationTransactionResult))
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AuthorizationTransactionResult" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                 <div class="col-9 col-md-9 col-sm-9">
                     <label class="control-label">@Model.AuthorizationTransactionResult</label>

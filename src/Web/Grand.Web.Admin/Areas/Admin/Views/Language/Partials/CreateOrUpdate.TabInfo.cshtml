@@ -3,14 +3,14 @@
 <div class="form-horizontal">
     <vc:admin-widget widget-zone="language_details_info_top" additional-data="Model"/>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Name"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Name"/>
                 <span asp-validation-for="Name"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="LanguageCulture"/>
             <div class="col-md-9 col-sm-9">
                 @{
@@ -26,7 +26,7 @@
                 <span asp-validation-for="LanguageCulture"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="UniqueSeoCode"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="UniqueSeoCode"/>
@@ -34,10 +34,10 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="FlagImageFileName"/>
             <div class="col-md-3 col-sm-3">
-                <select id="FlagImageFileName" class="form-control" Name="FlagImageFileName">
+                <select id="FlagImageFileName" class="form-select" Name="FlagImageFileName">
                     @foreach (var fileName in Model.FlagFileNames.OrderBy(x => x))
                     {
                         <option value="@fileName" img="@Url.Content("~/assets/images/flags/" + fileName)">
@@ -52,7 +52,7 @@
                 <img id="FlagDisplay" class="img-fluid"/>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Rtl"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -62,14 +62,14 @@
                 <span asp-validation-for="Rtl"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DefaultCurrencyId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="DefaultCurrencyId" asp-items="Model.AvailableCurrencies"/>
                 <span asp-validation-for="DefaultCurrencyId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -79,14 +79,14 @@
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Stores"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Stores"/>

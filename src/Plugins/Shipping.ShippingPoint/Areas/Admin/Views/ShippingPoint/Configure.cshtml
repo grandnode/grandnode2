@@ -6,7 +6,24 @@
     <div class="panel-group">
         <div class="panel panel-default">
             <div class="panel-body">
-                <div id="shipping-points-grid"></div>
+                <admin-grid id="shipping-points-grid"
+                            read-url="@Url.Action("List", "ShippingPoint")"
+                            destroy-url="@Url.Action("Delete", "ShippingPoint")"
+                            pager="Compact"
+                            confirm-destroy="true"
+                            on-data-bound="bindShippingPointEditPopups">
+                    <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+                    <grid-column field="ShippingPointName" title="@Loc["Shipping.ShippingPoint.Fields.ShippingPointName"]" width="200"/>
+                    <grid-column field="OpeningHours" title="@Loc["Shipping.ShippingPoint.Fields.OpeningHours"]" width="200"/>
+                    <grid-column field="PickupFee" title="@Loc["Shipping.ShippingPoint.Fields.PickupFee"]" width="150"/>
+                    <grid-column field="StoreName" title="@Loc["Shipping.ShippingPoint.Fields.Store"]" width="100"/>
+                    <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
+                        <cell-template>
+                            <a href="@Url.Action("Edit", "ShippingPoint")?id={{ Id }}&btnId=btnRefresh&formId=shipping-instore-form" class='btn btn-default btn-sm editpopup'>{{ $texts.edit }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+                </admin-grid>
                 <script>
                     $(document).ready(function () {
                         $('#btnAddNewOption').magnificPopup({
@@ -22,98 +39,22 @@
                                 }
                             }
                         });
-                        $("#shipping-points-grid").kendoGrid({
-                            dataBound: function () {
-                                $('.editpopup').magnificPopup({
-                                    type: 'ajax',
-                                    settings: { cache: false, async: false },
-                                    midClick: true,
-                                    callbacks: {
-                                        parseAjax: function (mfpResponse) {
-                                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                                        },
-                                        ajaxContentAdded: function () {
-                                            $('.mfp-wrap').removeAttr('tabindex');
-                                        }
-                                    }
-                                });
-                            },
-                            dataSource: {
-                                type: "json",
-                                transport: {
-                                    read: {
-                                        url: "@Html.Raw(Url.Action("List", "ShippingPoint"))",
-                                        type: "POST",
-                                        dataType: "json",
-                                        data: addAntiForgeryToken
-                                    },
-                                    destroy: {
-                                        url: "@Html.Raw(Url.Action("Delete", "ShippingPoint"))",
-                                        type: "POST",
-                                        dataType: "json",
-                                        data: addAntiForgeryToken
-                                    }
-                                },
-                                schema: {
-                                    data: "Data",
-                                    total: "Total",
-                                    errors: "Errors",
-                                    model: {
-                                        id: "Id"
-                                    }
-                                },
-                                requestEnd: function (e) {
-                                    if (e.type == "update") {
-                                        this.read();
-                                    }
-                                },
-                                error: function(e) {
-                                    display_kendoui_grid_error(e);
-                                    this.cancelChanges();
-                                },
-                                serverPaging: true,
-                                serverFiltering: true,
-                                serverSorting: true
-                            },
-                            pageable: {
-                                refresh: true,
-                                numeric: false,
-                                previousNext: false,
-                                info: false
-                            },
-                            editable: {
-                                confirmation: "@Loc["Admin.Common.DeleteConfirmation"]",
-                                mode: "inline"
-                            },
-                            scrollable: false,
-                            columns: [ {
-                                field: "ShippingPointName",
-                                width: 200,
-                                title: "@Loc["Shipping.ShippingPoint.Fields.ShippingPointName"]"
-                            }, {
-                                field: "OpeningHours",
-                                width: 200,
-                                title: "@Loc["Shipping.ShippingPoint.Fields.OpeningHours"]"
-                            }, {
-                                field: "PickupFee",
-                                width: 150,
-                                title: "@Loc["Shipping.ShippingPoint.Fields.PickupFee"]"
-                            },{
-                                field: "StoreName",
-                                width: 100,
-                                title: "@Loc["Shipping.ShippingPoint.Fields.Store"]"
-                            }, {
-                                field: "Id",
-                                title: "@Loc["Admin.Common.Edit"]",
-                                width: 100,
-                                template: "<a href=\"@Url.Action("Edit", "ShippingPoint")?id=#=Id#&btnId=btnRefresh&formId=shipping-instore-form\" class='k-button editpopup k-button-icontext'>@Loc["Admin.Common.Edit"]</a>"
-                            }, {
-                                command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                                title: "@Loc["Admin.Common.Delete"]",
-                                width: 100
-                            }]
-                        });
                     });
+                    function bindShippingPointEditPopups() {
+                        $('.editpopup').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            midClick: true,
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
                 </script>
             </div>
             <div class="panel-footer">

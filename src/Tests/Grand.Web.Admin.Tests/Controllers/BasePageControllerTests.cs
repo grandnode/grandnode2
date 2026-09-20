@@ -19,7 +19,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the merged Page access-check behavior (ARCH-001 Page consolidation).
 [TestClass]
 public class BasePageControllerTests
 {

@@ -8,7 +8,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-tasks"></i>
+                    <i class="bi bi-list-task"></i>
                     @Loc["Admin.System.APIUsers"]
                 </div>
                 <vc:admin-widget widget-zone="api_user_list_buttons" additional-data="null"/>
@@ -17,7 +17,28 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="apiuser-grid"></div>
+                            <admin-grid id="apiuser-grid"
+                                        read-url="@Url.Action("List", "ApiUser", new { area = Constants.AreaAdmin })"
+                                        create-url="@Url.Action("Insert", "ApiUser", new { area = Constants.AreaAdmin })"
+                                        update-url="@Url.Action("Update", "ApiUser", new { area = Constants.AreaAdmin })"
+                                        destroy-url="@Url.Action("Delete", "ApiUser", new { area = Constants.AreaAdmin })"
+                                        pager="Compact"
+                                        edit-mode="Inline"
+                                        confirm-destroy="true"
+                                        on-edit="OnEdit">
+                                <grid-toolbar-create/>
+                                <grid-column field="Email" title="@Loc["Admin.System.UserApi.Email"]" width="300" editor="Text"/>
+                                <grid-column field="Password" title="@Loc["Admin.System.UserApi.Password"]" width="300" editor="Text">
+                                    <cell-template>****</cell-template>
+                                </grid-column>
+                                <grid-column field="IsActive" title="@Loc["Admin.System.UserApi.IsActive"]" width="100" editor="Checkbox">
+                                    <cell-template>
+                                        <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-commands edit="true" destroy="true" width="200"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -27,117 +48,9 @@
 </div>
 
 <script>
-        $(document).ready(function () {
-            $("#apiuser-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("List", "ApiUser", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        create: {
-                            url: "@Html.Raw(Url.Action("Insert", "ApiUser", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        update: {
-                            url:"@Html.Raw(Url.Action("Update", "ApiUser", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("Delete", "ApiUser", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Email: { editable: true, type: "string" },
-                                Password: { editable: true, type: "string" },
-                                IsActive: { editable: true, type: "boolean" },
-                                Id: { editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    requestEnd: function (e) {
-                        if (e.type == "create" || e.type == "update") {
-                            this.read();
-                        }
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
-                editable: {
-                    confirmation: true,
-                    mode: "inline"
-                },
-                edit: OnEdit,
-                scrollable: false,
-                columns: [{
-                    field: "Email",
-                    title: "@Loc["Admin.System.UserApi.Email"]",
-                    width: 300,
-                }, {
-                    field: "Password",
-                    title: "@Loc["Admin.System.UserApi.Password"]",
-                    width: 300,
-                    template: '****'
-                }, {
-                    field: "IsActive",
-                    title: "@Loc["Admin.System.UserApi.IsActive"]",
-                    width: 100,
-                    template: '# if(IsActive) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                }, {
-                    command: [{
-                        name: "edit",
-                        text: {
-                            edit: "@Loc["Admin.Common.Edit"]",
-                            update: "@Loc["Admin.Common.Update"]",
-                            cancel: "@Loc["Admin.Common.Cancel"]"
-                        }
-                    }, {
-                        name: "destroy",
-                        text: "@Loc["Admin.Common.Delete"]"
-                    }],
-                    width: 200
-                }]
-            });
-        });
         function OnEdit(e) {
-            // Make sure it's not a new entry
-            if (!e.model.isNew()) {
-                var cell = $('[name="Email"]');
-                cell.attr("readonly", true);
-                cell.attr("enabled", false)
-            }
-            else {
-                var cell = $('[name="Email"]');
-                cell.attr("readonly", false);
-                cell.attr("enabled", true)
-            }
+            //the e-mail of an existing API user is not changed; it is still posted with the row
+            var cell = $(e.container).find('[data-field="Email"]');
+            cell.prop("readOnly", !e.model.isNew());
         }
     </script>

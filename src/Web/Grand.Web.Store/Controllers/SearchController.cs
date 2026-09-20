@@ -10,11 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BaseSearchController (ARCH-001) for the Category/Collection/Brand
-// picker methods. Store is the only host that scopes these pickers by store - overrides
-// PickerStoreId to the current store manager's StaffStoreId, exactly replicating the original
-// per-method storeId argument. Restates the attribute set that used to arrive transitively via
-// BaseStoreController - see Admin's SearchController for why.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

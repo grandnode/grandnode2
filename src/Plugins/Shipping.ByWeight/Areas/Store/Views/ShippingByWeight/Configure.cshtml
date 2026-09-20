@@ -21,12 +21,32 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption level-caption">
-                        <i class="fa fa-list-alt"></i>
+                        <i class="bi bi-card-list"></i>
                         @Loc["Shipping.ByWeight.FriendlyName"]
                     </div>
                 </div>
                 <div class="x_content form">
-                    <div id="shipping-byweight-grid"></div>
+                    <admin-grid id="shipping-byweight-grid"
+                                read-url="@Url.Action("RatesList", "ShippingByWeight", new { area = "Store" })"
+                                destroy-url="@Url.Action("RateDelete", "ShippingByWeight", new { area = "Store" })"
+                                page-size="15"
+                                page-sizes="15,30,50"
+                                on-data-bound="bindShippingByWeightEditPopups">
+                        <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+                        <grid-column field="WarehouseName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Warehouse"]" width="300"/>
+                        <grid-column field="CountryName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Country"]" width="200"/>
+                        <grid-column field="StateProvinceName" title="@Loc["Plugins.Shipping.ByWeight.Fields.StateProvince"]" width="200"/>
+                        <grid-column field="Zip" title="@Loc["Plugins.Shipping.ByWeight.Fields.Zip"]" width="200"/>
+                        <grid-column field="ShippingMethodName" title="@Loc["Plugins.Shipping.ByWeight.Fields.ShippingMethod"]" width="200"/>
+                        @*DataHtml is markup the plugin builds from the rate values*@
+                        <grid-column field="DataHtml" title="@Loc["Plugins.Shipping.ByWeight.Fields.DataHtml"]" width="200" encoded="false"/>
+                        <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
+                            <cell-template>
+                                <a href="@Url.Action("EditPopup", "ShippingByWeight", new { area = "Store" })?id={{ Id }}&btnId=btnRefresh&formId=shipping-byweight-form" class='btn btn-default btn-sm editpopup'>{{ $texts.edit }}</a>
+                            </cell-template>
+                        </grid-column>
+                        <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+                    </admin-grid>
                 </div>
                 <div class="panel-footer">
                     <a id="btnAddNewOption" href="@(addNewUrl)" class="btn default">
@@ -53,105 +73,21 @@
                     }
                 }
             });
-            $("#shipping-byweight-grid").kendoGrid({
-                dataBound: function () {
-                    $('.editpopup').magnificPopup({
-                        type: 'ajax',
-                        settings: { cache: false, async: false },
-                        callbacks: {
-                            parseAjax: function (mfpResponse) {
-                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                            },
-                            ajaxContentAdded: function () {
-                                $('.mfp-wrap').removeAttr('tabindex');
-                            }
-                        }
-                    });
-                },
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("RatesList", "ShippingByWeight", new { area = "Store" }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("RateDelete", "ShippingByWeight", new { area = "Store" }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id"
-                        }
-                    },
-                    requestEnd: function (e) {
-                        if (e.type == "update") {
-                            this.read();
-                        }
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: 15,
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [15, 30, 50]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "WarehouseName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.Warehouse"]",
-                    width: 300
-                }, {
-                    field: "CountryName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.Country"]",
-                    width: 200
-                }, {
-                    field: "StateProvinceName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.StateProvince"]",
-                    width: 200
-                }, {
-                    field: "Zip",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.Zip"]",
-                    width: 200
-                }, {
-                    field: "ShippingMethodName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.ShippingMethod"]",
-                    width: 200
-                }, {
-                    field: "DataHtml",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.DataHtml"]",
-                    width: 200,
-                    encoded: false
-                }, {
-                    field: "Id",
-                    title: "@Loc["Admin.Common.Edit"]",
-                    width: 100,
-                    template: "<a href=\"@Url.Action("EditPopup", "ShippingByWeight", new { area = "Store" })?id=#=Id#&btnId=btnRefresh&formId=shipping-byweight-form\" class='k-button editpopup k-button-icontext'>@Loc["Admin.Common.Edit"]</a>"
-                }, {
-                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                    title: "@Loc["Admin.Common.Delete"]",
-                    width: 100
-                }]
-            });
         });
+        function bindShippingByWeightEditPopups() {
+            $('.editpopup').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+        }
     </script>
 
     <script>
@@ -173,8 +109,8 @@
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="LimitMethodsToCreated" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -185,8 +121,8 @@
                                     <span asp-validation-for="LimitMethodsToCreated"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="DisplayOrder" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">

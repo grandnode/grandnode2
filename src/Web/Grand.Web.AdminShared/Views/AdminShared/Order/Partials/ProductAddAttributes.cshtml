@@ -3,7 +3,7 @@
 {
     foreach (var attribute in Model)
     {
-        <div class="form-group">
+        <div class="mb-3">
             @{
                 var controlId = $"attributes[{attribute.Id}]";
                 var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
@@ -20,7 +20,7 @@
                 {
                     case AttributeControlType.DropdownList:
                     {
-                        <select class="form-control" name="@(controlId)" id="@(controlId)">
+                        <select class="form-select" name="@(controlId)" id="@(controlId)">
                             @if (!attribute.IsRequired)
                             {
                                 <option value="">---</option>

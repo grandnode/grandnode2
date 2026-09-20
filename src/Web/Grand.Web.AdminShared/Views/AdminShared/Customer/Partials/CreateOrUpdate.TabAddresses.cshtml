@@ -1,89 +1,34 @@
 @model CustomerModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 <div class="panel panel-default">
     <partial name="Partials/WidgetZone.AddressesTop" model="Model"/>
     <div class="panel-body">
-        <div id="customer-addresses-grid"></div>
+        <admin-grid id="customer-addresses-grid"
+                    read-url="@Url.Action("AddressesSelect", "Customer", new { customerId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, area = area })"
+                    server-paging="false"
+                    auto-bind="false"
+                    confirm-destroy="true">
+            <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+            <grid-column field="FirstName" title="@Loc["Admin.Address.Fields.FirstName"]"/>
+            <grid-column field="LastName" title="@Loc["Admin.Address.Fields.LastName"]"/>
+            <grid-column field="Email" title="@Loc["Admin.Address.Fields.Email"]"/>
+            <grid-column field="PhoneNumber" title="@Loc["Admin.Address.Fields.PhoneNumber"]" min-screen-width="1020"/>
+            @*AddressHtml is markup the server builds from encoded address fields*@
+            <grid-column field="AddressHtml" title="@Loc["Admin.Address"]" encoded="false"/>
+            <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
+                <cell-template>
+                    <a class="btn btn-default btn-sm" href="@Url.Action("AddressEdit", "Customer", new { area = area })?customerId=@Model.Id&addressid={{ Id }}"><span class="bi bi-pencil"></span>&nbsp;&nbsp;{{ $texts.edit }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+        </admin-grid>
     </div>
     <div class="panel-footer">
-        <button type="button" class="k-button" onclick="location.href='@Url.Action("AddressCreate", new { customerId = Model.Id, area = area })'"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.Addresses.AddButton"]</button>
+        <button type="button" class="btn btn-default btn-sm" onclick="location.href='@Url.Action("AddressCreate", new { customerId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.Customers.Addresses.AddButton"]</button>
     </div>
     <partial name="Partials/WidgetZone.AddressesBottom" model="Model"/>
 </div>
 
-<script>
-$(document).ready(function () {
-    $("#customer-addresses-grid").kendoGrid({
-        dataSource: {
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("AddressesSelect", "Customer", new { customerId = Model.Id, area = area }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                },
-                destroy: {
-                    url: "@Html.Raw(Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, area = area }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors",
-                model: {
-                    id: "Id"
-                }
-            },
-            error: function(e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            pageSize: @(adminAreaSettings.DefaultGridPageSize),
-        },
-        autoBind: false,
-        pageable: {
-            refresh: true,
-            pageSizes: [@(adminAreaSettings.GridPageSizes)]
-        },
-        editable: {
-            confirmation: true,
-            mode: "inline"
-        },
-        scrollable: false,
-        columns: [{
-            field: "FirstName",
-            title: "@Loc["Admin.Address.Fields.FirstName"]"
-        }, {
-            field: "LastName",
-            title: "@Loc["Admin.Address.Fields.LastName"]"
-        }, {
-            field: "Email",
-            title: "@Loc["Admin.Address.Fields.Email"]"
-        }, {
-            field: "PhoneNumber",
-            title: "@Loc["Admin.Address.Fields.PhoneNumber"]",
-            minScreenWidth: 1020,
-        }, {
-            field: "AddressHtml",
-            title: "@Loc["Admin.Address"]",
-            encoded: false
-        }, {
-            field: "Id",
-            title: "@Loc["Admin.Common.Edit"]",
-            width: 100,
-            template: '<a class="k-button" href="@Url.Action("AddressEdit", "Customer", new { area = area })?customerId=@Model.Id&addressid=#=Id#"><span class="k-icon k-i-edit"></span>&nbsp;&nbsp;@Loc["Admin.Common.Edit"]</a>'
-        }, {
-            command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-            title: "@Loc["Admin.Common.Delete"]",
-            width: 100
-        }]
-    });
-});
-</script>

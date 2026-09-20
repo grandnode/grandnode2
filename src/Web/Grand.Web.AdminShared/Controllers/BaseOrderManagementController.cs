@@ -14,12 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-/// <summary>
-///     Every mutating Order action. Base for Admin and Store only — Vendor's concrete controller
-///     inherits <see cref="BaseOrderController" /> directly, so none of these actions exist on its
-///     type at all (not permission-gated, genuinely absent — see ARCH-001 Order consolidation spec
-///     §3.5).
-/// </summary>
 public abstract class BaseOrderManagementController(
     IOrderViewModelService orderViewModelService,
     IOrderService orderService,
@@ -224,24 +218,38 @@ public abstract class BaseOrderManagementController(
         var itemModel = model.Items.FirstOrDefault(x => x.Id == model.OrderItemId)
             ?? throw new ArgumentException("No order item model found with the specified id");
 
-        if (itemModel.Quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
+        var (error, message) = await ApplyOrderItemEdit(order, orderItem, itemModel.Quantity,
+            itemModel.UnitPriceExclTaxValue);
+        if (error)
         {
-            Error("You can't change quantity");
+            Error(message);
             return RedirectToAction("Edit", "Order", new { id });
         }
 
-        if (orderItem.Quantity == itemModel.Quantity && orderItem.UnitPriceExclTax == itemModel.UnitPriceExclTaxValue)
-        {
-            Error("Nothing has been changed");
-            return RedirectToAction("Edit", "Order", new { id });
-        }
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
 
-        orderItem.Quantity = itemModel.Quantity;
-        orderItem.OpenQty = itemModel.Quantity;
+    /// <summary>
+    ///     The quantity/unit price rules and the amount arithmetic of an order item edit, shared by
+    ///     the form post (<see cref="SaveOrderItem" />) and the products grid
+    ///     (<see cref="OrderItemUpdate" />). Every amount is still computed here on the server.
+    /// </summary>
+    private async Task<(bool error, string message)> ApplyOrderItemEdit(Order order, OrderItem orderItem,
+        int quantity, double unitPriceExclTax)
+    {
+        if (quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
+            return (true, "You can't change quantity");
 
-        if (orderItem.UnitPriceExclTax != itemModel.UnitPriceExclTaxValue)
+        if (orderItem.Quantity == quantity && orderItem.UnitPriceExclTax == unitPriceExclTax)
+            return (true, "Nothing has been changed");
+
+        orderItem.Quantity = quantity;
+        orderItem.OpenQty = quantity;
+
+        if (orderItem.UnitPriceExclTax != unitPriceExclTax)
         {
-            orderItem.UnitPriceExclTax = itemModel.UnitPriceExclTaxValue;
+            orderItem.UnitPriceExclTax = unitPriceExclTax;
             orderItem.UnitPriceInclTax =
                 Math.Round(orderItem.UnitPriceExclTax * orderItem.TaxRate / 100 + orderItem.UnitPriceExclTax, 2);
             orderItem.PriceInclTax = Math.Round(orderItem.UnitPriceInclTax * orderItem.Quantity, 2);
@@ -258,8 +266,7 @@ public abstract class BaseOrderManagementController(
         }
 
         await mediator.Send(new UpdateOrderItemCommand { Order = order, OrderItem = orderItem });
-        await SaveSelectedTabIndex(persistForTheNextRequest: true);
-        return RedirectToAction("Edit", "Order", new { id });
+        return (false, string.Empty);
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -330,6 +337,77 @@ public abstract class BaseOrderManagementController(
         await SaveSelectedTabIndex(persistForTheNextRequest: true);
         return RedirectToAction("Edit", "Order", new { id });
     }
+
+    #endregion
+
+    #region Order items grid
+
+    /// <summary>
+    ///     Inline edit of one row of the products grid. Enforces exactly the rules
+    ///     <see cref="SaveOrderItem" /> enforces; the answer is the grid's
+    ///     <see cref="Grand.Web.Common.DataSource.DataSourceResult" /> contract, so a refused edit is
+    ///     shown by display_kendoui_grid_error instead of a redirect.
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> OrderItemUpdate(string orderId, OrderModel.OrderItemModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
+        if (denied != null) return denied;
+
+        if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
+            return GridError("You can't edit position when order is canceled");
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.Id);
+        if (orderItem == null) return GridError("No order item found with the specified id");
+
+        var (error, message) = await ApplyOrderItemEdit(order, orderItem, model.Quantity, model.UnitPriceExclTaxValue);
+        return error ? GridError(message) : Json(new Grand.Web.Common.DataSource.DataSourceResult());
+    }
+
+    /// <summary>Delete command of the products grid; the same command <see cref="DeleteOrderItem" /> sends.</summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> OrderItemDelete(string orderId, OrderModel.OrderItemModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.Id);
+        if (orderItem == null) return GridError("No order item found with the specified id");
+
+        var result = await mediator.Send(new DeleteOrderItemCommand { Order = order, OrderItem = orderItem });
+        return result.error ? GridError(result.message) : Json(new Grand.Web.Common.DataSource.DataSourceResult());
+    }
+
+    /// <summary>Cancel command of the products grid; the same command <see cref="CancelOrderItem" /> sends.</summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> OrderItemCancel(string orderId, string orderItemId)
+    {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        if (orderItem == null) return GridError("No order item found with the specified id");
+
+        var result = await mediator.Send(new CancelOrderItemCommand { Order = order, OrderItem = orderItem });
+        return result.error ? GridError(result.message) : Json(new Grand.Web.Common.DataSource.DataSourceResult());
+    }
+
+    /// <summary>
+    ///     <see cref="LoadAuthorizedOrder" /> for the grid endpoints: a denial is an Errors answer the
+    ///     grid can show, never a redirect an XHR would follow into an HTML page.
+    /// </summary>
+    private async Task<(Order order, IActionResult denied)> LoadAuthorizedOrderForGrid(string orderId)
+    {
+        var order = await OrderService.GetOrderById(orderId);
+        if (order == null || !await Scope.HasAccess(order)) return (null, GridError("Access denied"));
+        return (order, null);
+    }
+
+    private JsonResult GridError(string message) =>
+        Json(new Grand.Web.Common.DataSource.DataSourceResult { Errors = message });
 
     #endregion
 
@@ -531,7 +609,7 @@ public abstract class BaseOrderManagementController(
         if (!await Scope.HasAccess(order)) return Content("");
 
         var orderNoteModels = await OrderViewModelService.PrepareOrderNotes(order);
-        var gridModel = new Grand.Web.Common.DataSource.DataSourceResult {
+        var gridModel = new Common.DataSource.DataSourceResult {
             Data = orderNoteModels,
             Total = orderNoteModels.Count
         };

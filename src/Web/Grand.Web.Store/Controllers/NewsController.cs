@@ -15,10 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BaseNewsController (ARCH-001 News consolidation). All shared
-// behavior lives in the base; this class supplies Store's DI wiring, the EditWarningCheck hook, and
-// the kept Preview action (Admin has no equivalent). Same pattern as CategoryController's
-// EditWarningCheck override (see that file).
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]
@@ -34,10 +30,6 @@ public class NewsController(
     : BaseNewsController(newsViewModelService, newsService, languageService, translationService,
         storeService, dateTimeService, scope)
 {
-    // Re-derived from the original Store NewsController.Edit(GET) - the condition is unusual (warns
-    // when NOT limited to stores at all, or when limited AND the staff member's store is one of
-    // several) and easy to get backwards. Fourth occurrence of this exact idiom in ARCH-001
-    // (Category, Blog, Page, now News) - treat as proven.
     protected override void EditWarningCheck(NewsItem newsItem)
     {
         if (!newsItem.LimitedToStores ||
@@ -46,8 +38,6 @@ public class NewsController(
             Warning(TranslationService.GetResource("Admin.Content.News.Permissions"));
     }
 
-    // Admin has no equivalent action - a genuine Store-only addition, kept on the concrete subclass
-    // rather than the shared base.
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Preview(string id)
     {

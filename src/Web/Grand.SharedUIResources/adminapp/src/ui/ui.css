@@ -1,0 +1,859 @@
+/* Styles of the widgets in admin.ui.js. Deliberately self-contained: the panels are on
+   Bootstrap 4.5 until phase 5 and on Bootstrap 5 after it, so nothing here depends on a
+   class only one of the two defines. The markup does use the nav-tabs / tab-content class
+   names both versions share, so the panel theme keeps styling the tabs. Colours come from
+   Bootstrap's --bs-* variables, so the widgets follow its colour mode (data-bs-theme). */
+
+/* ---------------------------------------------------------------- tab strip */
+
+/*
+ * A tab strip is built like an <admin-grid> (grid/grid.css): the tabs sit on a band in the
+ * colour of the grid's header, and one outline in the colour of the grid's frame runs round
+ * the band and the pane together, so a strip reads as one area of the page rather than a
+ * row of links over loose fields. The active tab is cut out of the band - it takes the
+ * pane's surface and covers the rule under it - so tab and content are one sheet, and it
+ * carries the accent of the grid pager's current page on its outer edge.
+ *
+ * A strip inside a pane (Product > Product attributes) and the language strip of a
+ * localized editor are a step down, the way a detail grid is: no outline of their own,
+ * tabs underlined in the accent, and a tinted pane, so a nested level reads as a step and
+ * not as a box drawn inside a box.
+ *
+ * Every colour is a token below; the dark values are in the one [data-bs-theme="dark"]
+ * block. Contrast, light / dark: tab text 5.5:1 / 5.8:1 on the band, active tab 14.8:1 /
+ * 9.5:1, the accent 5.6:1 / 6.8:1 against the pane (it doubles as the focus ring).
+ */
+
+.grand-tabstrip {
+    --grand-tabs-frame: var(--bs-border-color, #dee2e6);
+    --grand-tabs-rule: #e7ecf1;
+    --grand-tabs-band-bg: #f9fafc;
+    --grand-tabs-pane-bg: var(--bs-body-bg, #fff);
+    --grand-tabs-nested-bg: #f6f7f9;
+    --grand-tabs-color: #5c6773;
+    --grand-tabs-hover-color: var(--bs-body-color, #212529);
+    --grand-tabs-hover-bg: #eef2f6;
+    --grand-tabs-active-color: var(--bs-body-color, #212529);
+    --grand-tabs-accent: #0b7285;
+    --grand-tabs-scroll-shadow: rgba(15, 23, 42, .14);
+    --grand-tabs-pad: 1.25rem;
+    /* how far a nested pane's tint reaches past the fields it holds */
+    --grand-tabs-nested-bleed: .75rem;
+}
+
+[data-bs-theme="dark"] .grand-tabstrip {
+    --grand-tabs-rule: var(--bs-border-color-translucent);
+    --grand-tabs-band-bg: var(--bs-tertiary-bg);
+    --grand-tabs-nested-bg: var(--bs-tertiary-bg);
+    --grand-tabs-color: var(--bs-secondary-color);
+    --grand-tabs-hover-color: var(--bs-emphasis-color);
+    --grand-tabs-hover-bg: rgba(255, 255, 255, .06);
+    --grand-tabs-active-color: var(--bs-emphasis-color);
+    --grand-tabs-accent: #66d9e8;
+    --grand-tabs-scroll-shadow: rgba(0, 0, 0, .4);
+}
+
+.grand-tabstrip > .tab-content > .tab-pane {
+    display: none;
+}
+
+/* flow-root, not block: the panel layout inside a tab floats (x_panel and the Bootstrap 4
+   grid), and a plain block pane collapses to zero height around it - which is what the
+   Kendo .k-content the panes replace avoided by establishing its own formatting context */
+.grand-tabstrip > .tab-content > .tab-pane.active {
+    display: flow-root;
+}
+
+.grand-tabstrip > ul.nav {
+    /* Bootstrap's focus halo; the tabs draw their own ring below */
+    --bs-nav-link-focus-box-shadow: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/*
+ * The band. A product screen has sixteen tabs and a narrow panel; wrapping them onto three
+ * rows is what made the strip look like a list of links, so they scroll sideways instead
+ * and the tab that becomes active is scrolled into view (tabs.js). The two soft shadows
+ * at the ends show there is more to scroll to: each is covered by a patch of the band that
+ * travels with the tabs (background-attachment: local) and only uncovers the shadow once
+ * the tabs have moved away from that end. The pattern is symmetrical, so it needs no
+ * right-to-left variant.
+ *
+ * The rule under the tabs is an inset shadow rather than a border: a border is outside the
+ * box the tabs scroll in and cannot be covered by them, a shadow is painted under them, so
+ * the active tab's surface hides it.
+ */
+.grand-tabstrip > ul.nav-tabs {
+    flex-wrap: nowrap;
+    gap: .125rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    padding: .375rem .375rem 0;
+    border: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
+    border-bottom: 0;
+    box-shadow: inset 0 -1px 0 var(--grand-tabs-frame);
+    background:
+        linear-gradient(to right, var(--grand-tabs-band-bg) 40%, transparent) left center / 1.5rem 100% no-repeat local,
+        linear-gradient(to left, var(--grand-tabs-band-bg) 40%, transparent) right center / 1.5rem 100% no-repeat local,
+        linear-gradient(to right, var(--grand-tabs-scroll-shadow), transparent) left center / .625rem 100% no-repeat scroll,
+        linear-gradient(to left, var(--grand-tabs-scroll-shadow), transparent) right center / .625rem 100% no-repeat scroll,
+        var(--grand-tabs-band-bg);
+}
+
+.grand-tabstrip > ul.nav-tabs > li {
+    flex: 0 0 auto;
+}
+
+.grand-tabstrip > ul.nav > li > .nav-link {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    margin: 0;
+    padding: .5rem .875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    color: var(--grand-tabs-color);
+    background: transparent;
+    border: var(--bs-border-width, 1px) solid transparent;
+    border-bottom: 0;
+    border-radius: 0;
+    cursor: pointer;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+.grand-tabstrip > ul.nav-tabs > li > .nav-link:hover {
+    color: var(--grand-tabs-hover-color);
+    background-color: var(--grand-tabs-hover-bg);
+    border-color: transparent;
+}
+
+.grand-tabstrip > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip > ul.nav-tabs > li > .nav-link.active:hover {
+    color: var(--grand-tabs-active-color);
+    font-weight: 600;
+    background-color: var(--grand-tabs-pane-bg);
+    border-color: var(--grand-tabs-frame);
+    box-shadow: inset 0 2px 0 var(--grand-tabs-accent);
+}
+
+/* inside the tab, because the band clips what is drawn outside one */
+.grand-tabstrip > ul.nav > li > .nav-link:focus-visible {
+    outline: 2px solid var(--grand-tabs-accent);
+    outline-offset: -2px;
+}
+
+/* a tab a view switches off: Bootstrap's .disabled on the link or on the item */
+.grand-tabstrip > ul.nav > li > .nav-link.disabled,
+.grand-tabstrip > ul.nav > li.disabled > .nav-link,
+.grand-tabstrip > ul.nav > li > .nav-link[aria-disabled="true"] {
+    color: var(--grand-tabs-color);
+    background: transparent;
+    opacity: .55;
+    pointer-events: none;
+    cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .grand-tabstrip > ul.nav > li > .nav-link {
+        transition: none;
+    }
+}
+
+/* the flag of a language tab (LocalizedEditorTagHelper) */
+.grand-tabstrip .nav-link .k-image {
+    width: 1.125rem;
+    height: auto;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .1);
+}
+
+/* the pane: the lower half of the outline, the band being the upper */
+.grand-tabstrip > .tab-content {
+    padding: var(--grand-tabs-pad);
+    background-color: var(--grand-tabs-pane-bg);
+    border: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
+    border-top: 0;
+}
+
+/* ------------------------------------------------- tab-position="left" (vertical) */
+
+/*
+ * The list beside the panes, as the Kendo tabPosition: 'left' was. The same outline runs
+ * round the list and the pane; the list is the band, the active tab takes the pane's
+ * surface, reaches over the rule between the two (-1px) and carries the accent on its
+ * leading edge. Everything is on the logical axis (this file is not run through rtlcss),
+ * so it mirrors itself in right-to-left.
+ */
+.grand-tabstrip-left {
+    display: flex;
+    align-items: stretch;
+    background-color: var(--grand-tabs-pane-bg);
+    border: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
+}
+
+.grand-tabstrip-left > ul.nav-tabs {
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: 0;
+    width: 14rem;
+    max-width: 16rem;
+    overflow: visible;
+    padding: 0 0 .5rem;
+    border: 0;
+    border-inline-end: var(--bs-border-width, 1px) solid var(--grand-tabs-frame);
+    box-shadow: none;
+    background: var(--grand-tabs-band-bg);
+}
+
+.grand-tabstrip-left > ul.nav-tabs > li > .nav-link {
+    margin-inline-end: -1px;
+    padding-block: .5rem;
+    padding-inline: calc(1rem - 3px) 1rem;
+    white-space: normal;
+    text-align: start;
+    border: 0;
+    border-block: var(--bs-border-width, 1px) solid transparent;
+    border-inline-start: 3px solid transparent;
+}
+
+.grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active:hover {
+    border-block-color: var(--grand-tabs-frame);
+    border-inline-start-color: var(--grand-tabs-accent);
+    box-shadow: none;
+}
+
+/* the first tab starts on the outline, which already draws the rule above it */
+.grand-tabstrip-left > ul.nav-tabs > li:first-child > .nav-link {
+    border-top-color: transparent;
+}
+
+.grand-tabstrip-left > .tab-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+}
+
+/* A phone has no room beside the panes: the list goes on top and becomes the band of a
+   horizontal strip, scrolling sideways like one. */
+@media (max-width: 767.98px) {
+    .grand-tabstrip {
+        --grand-tabs-pad: .875rem;
+    }
+
+    .grand-tabstrip-left {
+        display: block;
+    }
+
+    .grand-tabstrip-left > ul.nav-tabs {
+        flex-direction: row;
+        gap: .125rem;
+        width: auto;
+        max-width: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: .375rem .375rem 0;
+        border-inline-end: 0;
+        box-shadow: inset 0 -1px 0 var(--grand-tabs-frame);
+        background:
+            linear-gradient(to right, var(--grand-tabs-band-bg) 40%, transparent) left center / 1.5rem 100% no-repeat local,
+            linear-gradient(to left, var(--grand-tabs-band-bg) 40%, transparent) right center / 1.5rem 100% no-repeat local,
+            linear-gradient(to right, var(--grand-tabs-scroll-shadow), transparent) left center / .625rem 100% no-repeat scroll,
+            linear-gradient(to left, var(--grand-tabs-scroll-shadow), transparent) right center / .625rem 100% no-repeat scroll,
+            var(--grand-tabs-band-bg);
+    }
+
+    .grand-tabstrip-left > ul.nav-tabs > li > .nav-link {
+        margin: 0;
+        padding: .5rem .875rem;
+        white-space: nowrap;
+        border: var(--bs-border-width, 1px) solid transparent;
+        border-bottom: 0;
+    }
+
+    .grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active,
+    .grand-tabstrip-left > ul.nav-tabs > li > .nav-link.active:hover {
+        border-color: var(--grand-tabs-frame);
+        border-bottom: 0;
+        box-shadow: inset 0 2px 0 var(--grand-tabs-accent);
+    }
+}
+
+/* -------------------------------------------- nested strips and language strips */
+
+/*
+ * One level down: no band and no outline, the tabs underlined, and the pane a tinted band
+ * that reaches --grand-tabs-nested-bleed past its fields on both sides. The strip is pulled
+ * out by the same amount, so the fields inside keep the columns of the fields around it.
+ */
+.grand-tabstrip .grand-tabstrip,
+.grand-tabstrip-localized {
+    margin-inline: calc(-1 * var(--grand-tabs-nested-bleed));
+    border: 0;
+    background-color: transparent;
+}
+
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs,
+.grand-tabstrip-localized > ul.nav-tabs {
+    flex-direction: row;
+    gap: .25rem;
+    width: auto;
+    max-width: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 var(--grand-tabs-nested-bleed);
+    border: 0;
+    box-shadow: inset 0 -1px 0 var(--grand-tabs-rule);
+    background: none;
+}
+
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs > li > .nav-link,
+.grand-tabstrip-localized > ul.nav-tabs > li > .nav-link {
+    margin: 0;
+    padding: .4375rem .625rem;
+    white-space: nowrap;
+    border: 0;
+}
+
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip .grand-tabstrip > ul.nav-tabs > li > .nav-link.active:hover,
+.grand-tabstrip-localized > ul.nav-tabs > li > .nav-link.active,
+.grand-tabstrip-localized > ul.nav-tabs > li > .nav-link.active:hover {
+    background: transparent;
+    box-shadow: inset 0 -2px 0 var(--grand-tabs-accent);
+}
+
+.grand-tabstrip .grand-tabstrip > .tab-content,
+.grand-tabstrip-localized > .tab-content {
+    padding: 1rem var(--grand-tabs-nested-bleed) .25rem;
+    background-color: var(--grand-tabs-nested-bg);
+    border: 0;
+}
+
+/*
+ * The Bootstrap 3 panels the views put inside a tab ("Tier prices", the box round an
+ * "Add new record" button and its grid) drew a third outline inside the pane and the grid.
+ * The rich text editor is a .panel too, and keeps its outline: it is a field.
+ * In a pane they are sections: a heading over a rule, no box, no grey footer band.
+ */
+.grand-tabstrip .tab-pane .panel:not(.note-editor) {
+    margin-bottom: 1.5rem;
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.grand-tabstrip .tab-pane .panel:not(.note-editor) > .panel-heading {
+    margin-bottom: .75rem;
+    padding: 0 0 .5rem;
+    font-weight: 600;
+    color: var(--grand-tabs-active-color);
+    background: none;
+    border-bottom: var(--bs-border-width, 1px) solid var(--grand-tabs-rule);
+}
+
+.grand-tabstrip .tab-pane .panel:not(.note-editor) > .panel-body {
+    padding: 0;
+}
+
+.grand-tabstrip .tab-pane .panel:not(.note-editor) > .panel-footer {
+    padding: .75rem 0 0;
+    background: none;
+    border: 0;
+}
+
+/* ------------------------------------------------------------------- modal */
+
+body.grand-modal-open {
+    overflow: hidden;
+}
+
+.grand-modal {
+    position: fixed;
+    inset: 0;
+    /* the same layer a Bootstrap modal is on; the scale is declared in styles/_zindex.scss,
+       and the fallback is what this file used before that scale existed */
+    z-index: var(--grand-zindex-modal, 10300);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, .5);
+}
+
+.grand-modal[hidden] {
+    display: none;
+}
+
+.grand-modal-dialog {
+    width: 100%;
+    max-width: 40rem;
+    background: var(--bs-body-bg, #fff);
+    border-radius: .25rem;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .3);
+}
+
+.grand-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+}
+
+.grand-modal-title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.grand-modal-close {
+    padding: 0 .25rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    opacity: .6;
+}
+
+.grand-modal-close:hover {
+    opacity: 1;
+}
+
+.grand-modal-body {
+    padding: 1rem;
+}
+
+/* Bootstrap's .modal-dialog is `pointer-events: none` and hands the clicks back on
+   .modal-content; outside a .modal that pair is only a way to make a subtree unclickable.
+   ui/modal.js strips both names off the element it adopts - this catches one nested deeper
+   inside a window, which would otherwise swallow every click in it. */
+.grand-modal-body .modal-dialog {
+    pointer-events: auto;
+    max-width: none;
+    margin: 0;
+}
+
+/* ----------------------------------------------------------- numeric field */
+
+/* The spinner the Kendo NumericTextBox drew, in Bootstrap's input group. The buttons are
+   not tab stops - the field answers ArrowUp and ArrowDown - so they are drawn as part of
+   the control rather than as two more buttons beside it. */
+
+/* Inline, and no wider than it has to be. Several views write the unit as plain text after
+   the field - "<admin-input asp-for="Price"/> [USD]" - so a block-level, full-width control
+   drops that unit onto a line of its own and adds a row to every price on the screen. */
+.grand-numeric-group {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    width: 22rem;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+input.grand-numeric {
+    max-width: 100%;
+    /* the group draws the whole control's outline, so the field inside it has none */
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
+    border-inline-end: 0;
+}
+
+.grand-numeric-spin {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    width: 1.6rem;
+    overflow: hidden;
+    background-color: var(--bs-tertiary-bg, #f8f9fa);
+    border: var(--bs-border-width, 1px) solid var(--grand-form-border, #ced4da);
+    border-end-end-radius: var(--bs-border-radius, .25rem);
+    border-start-end-radius: var(--bs-border-radius, .25rem);
+}
+
+.grand-numeric-spin > button {
+    display: flex;
+    flex: 1 1 50%;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: .625rem;
+    line-height: 1;
+    color: var(--bs-secondary-color, #6c757d);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.grand-numeric-spin > button:hover {
+    color: var(--bs-body-color, #212529);
+    background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.grand-numeric-up {
+    border-bottom: var(--bs-border-width, 1px) solid var(--grand-form-border, #ced4da);
+}
+
+/* the focus ring belongs to the control, not to the field inside it */
+.grand-numeric-group:focus-within input.grand-numeric {
+    box-shadow: none;
+}
+
+.grand-numeric-group:focus-within {
+    border-radius: var(--bs-border-radius, .25rem);
+    box-shadow: 0 0 0 .2rem var(--grand-form-ring, rgba(13, 110, 253, .25));
+}
+
+.grand-numeric-group:focus-within input.grand-numeric,
+.grand-numeric-group:focus-within .grand-numeric-spin {
+    border-color: var(--grand-form-accent, #86b7fe);
+}
+
+.grand-numeric-group:has(input.grand-numeric.is-invalid) .grand-numeric-spin {
+    border-color: var(--bs-form-invalid-border-color, #dc3545);
+}
+
+.grand-numeric-disabled .grand-numeric-spin,
+.grand-numeric-readonly .grand-numeric-spin {
+    pointer-events: none;
+    opacity: .65;
+}
+
+/* -------------------------------------------------------------- date picker */
+
+/* The calendar is this file's own: a native date input renders and parses in the browser's
+   locale, and what the panel posts has to be the store culture's short date. */
+
+.grand-datepicker {
+    position: relative;
+    flex-wrap: nowrap;
+    max-width: 100%;
+}
+
+input.grand-dateinput {
+    max-width: 100%;
+}
+
+.grand-datepicker-toggle {
+    flex: 0 0 auto;
+}
+
+/* Bootstrap rounds the outer ends of an input group with :first-child / :last-child, and
+   the last child here is the (absolutely positioned) panel, so neither end was rounded. */
+.grand-datepicker > input.grand-dateinput:first-child {
+    border-start-start-radius: var(--bs-border-radius, .25rem);
+    border-end-start-radius: var(--bs-border-radius, .25rem);
+}
+
+.grand-datepicker > .grand-datepicker-toggle {
+    border-start-end-radius: var(--bs-border-radius, .25rem);
+    border-end-end-radius: var(--bs-border-radius, .25rem);
+}
+
+.grand-datepicker-panel {
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    z-index: var(--grand-zindex-dropdown, 10100);
+    /* a calendar is its own size. Without this the panel is a shrink-to-fit box inside a
+       full-width field and stretches to it, which turned a month into a 850px banner. */
+    width: 19rem;
+    max-width: 100%;
+    margin-top: .125rem;
+    padding: .5rem;
+    color: var(--bs-body-color, #212529);
+    background-color: var(--bs-body-bg, #fff);
+    border: var(--bs-border-width, 1px) solid var(--bs-border-color-translucent, rgba(0, 0, 0, .175));
+    border-radius: var(--bs-border-radius, .25rem);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+}
+
+.grand-cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .25rem;
+}
+
+.grand-cal-label {
+    flex: 1 1 auto;
+    font-weight: 600;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.grand-cal-nav {
+    padding: .125rem .375rem;
+    color: var(--bs-secondary-color, #6c757d);
+    text-decoration: none;
+}
+
+/* the chevrons are drawn towards the earlier and the later month, which swap in right to
+   left; rtlcss cannot see this because the glyph is in a class name, not in a property */
+[dir="rtl"] .grand-cal-nav .bi-chevron-left::before {
+    content: "\f285";
+}
+
+[dir="rtl"] .grand-cal-nav .bi-chevron-right::before {
+    content: "\f284";
+}
+
+.grand-cal-grid {
+    width: 100%;
+    margin-top: .25rem;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.grand-cal-grid th {
+    padding: .25rem 0;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--bs-secondary-color, #6c757d);
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.grand-cal-grid td {
+    padding: 0;
+    text-align: center;
+}
+
+.grand-cal-day {
+    width: 100%;
+    padding: .3rem 0;
+    line-height: 1.2;
+    color: inherit;
+    background: none;
+    border: 0;
+    border-radius: var(--bs-border-radius-sm, .2rem);
+    cursor: pointer;
+}
+
+.grand-cal-day:hover {
+    background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.grand-cal-day:focus-visible {
+    outline: 2px solid var(--grand-form-accent, #0d6efd);
+    outline-offset: -2px;
+}
+
+.grand-cal-other {
+    color: var(--bs-secondary-color, #6c757d);
+    opacity: .55;
+}
+
+.grand-cal-today {
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--grand-form-accent, #0d6efd);
+}
+
+.grand-cal-selected,
+.grand-cal-selected:hover {
+    color: var(--grand-form-on-accent, #fff);
+    background-color: var(--grand-form-accent, #0d6efd);
+}
+
+.grand-cal-time {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .5rem;
+    padding-top: .5rem;
+    border-top: var(--bs-border-width, 1px) solid var(--bs-border-color, #dee2e6);
+}
+
+.grand-cal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: .25rem;
+}
+
+.grand-cal-actions .btn {
+    text-decoration: none;
+}
+
+/* a time-only field gets the half-hour list the Kendo TimePicker showed */
+.grand-time-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 15rem;
+    overflow-y: auto;
+}
+
+.grand-time-option {
+    padding: .25rem .5rem;
+    color: inherit;
+    text-align: start;
+    background: none;
+    border: 0;
+    border-radius: var(--bs-border-radius-sm, .2rem);
+    cursor: pointer;
+}
+
+.grand-time-option:hover {
+    background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.grand-time-option:focus-visible {
+    outline: 2px solid var(--grand-form-accent, #0d6efd);
+    outline-offset: -2px;
+}
+
+.grand-time-selected,
+.grand-time-selected:hover {
+    color: var(--grand-form-on-accent, #fff);
+    background-color: var(--grand-form-accent, #0d6efd);
+}
+
+/* the same control inside a grid row, one size down */
+.grand-grid-date .grand-datepicker-toggle,
+.grand-grid-date input.grand-dateinput {
+    padding: .25rem .5rem;
+    font-size: .875em;
+}
+
+/* ------------------------------------------------------------- Tom Select */
+
+/* tom-select.bootstrap5.css draws the wrapper as a form control; these are the parts it
+   leaves to the host - the height of a single line, the tags of a multiselect, the empty
+   and the loading states. */
+
+.ts-wrapper.form-control,
+.ts-wrapper.form-select {
+    padding: 0;
+    height: auto;
+    min-height: calc(1.5em + .75rem + calc(var(--bs-border-width, 1px) * 2));
+}
+
+.ts-wrapper.form-select .ts-control,
+.ts-wrapper.form-control .ts-control {
+    min-height: calc(1.5em + .75rem + calc(var(--bs-border-width, 1px) * 2));
+    border-radius: inherit;
+}
+
+.ts-wrapper.focus .ts-control {
+    border-color: var(--grand-form-accent, #86b7fe);
+    box-shadow: 0 0 0 .2rem var(--grand-form-ring, rgba(13, 110, 253, .25));
+}
+
+.ts-wrapper.is-invalid .ts-control {
+    border-color: var(--bs-form-invalid-border-color, #dc3545);
+}
+
+/*
+ * The chips of a multiselect, in the panel's accent (--grand-form-accent, styles/_forms.scss:
+ * the focus ring, a switch that is on, the active tab) rather than Bootstrap's blue: a tint
+ * of the accent over the field, the accent as text and edge, and the accent filled in with
+ * its own text colour for the chip picked with the keyboard. The tint is mixed here, on the
+ * element, so it follows the accent of the colour mode it sits in.
+ * Contrast, light / dark: chip text and the remove cross 4.8:1 / 5.5:1 on the tint, the
+ * picked chip 5.6:1 / 9.5:1, the highlighted option of the list 13.0:1 / 7.3:1.
+ */
+.ts-wrapper.multi .ts-control > .item {
+    --grand-chip-bg: color-mix(in srgb, var(--grand-form-accent, #0b7285) 10%, var(--grand-form-control-bg, #fff));
+    margin: .125rem;
+    padding: .0625rem .375rem;
+    color: var(--grand-form-accent, #0b7285);
+    background-color: var(--grand-chip-bg);
+    border: var(--bs-border-width, 1px) solid color-mix(in srgb, var(--grand-form-accent, #0b7285) 45%, var(--grand-form-control-bg, #fff));
+    border-radius: var(--bs-border-radius-sm, .2rem);
+}
+
+.ts-wrapper.multi .ts-control > .item.active {
+    color: var(--grand-form-on-accent, #fff);
+    background-color: var(--grand-form-accent, #0b7285);
+    border-color: var(--grand-form-accent, #0b7285);
+}
+
+/* the cross of a chip: the rule before it (a #dee2e6 hairline in tom-select's theme) and the
+   hover take the accent too, so they show in the dark mode as well; .ts-control is there to
+   outweigh the theme's :not(.rtl) selector */
+.ts-wrapper.plugin-remove_button .ts-control > .item .remove {
+    border-inline-start-color: color-mix(in srgb, var(--grand-form-accent, #0b7285) 45%, var(--grand-form-control-bg, #fff));
+}
+
+.ts-wrapper.plugin-remove_button .ts-control > .item .remove:hover {
+    background-color: color-mix(in srgb, var(--grand-form-accent, #0b7285) 20%, transparent);
+}
+
+.ts-wrapper.plugin-remove_button .ts-control > .item.active .remove {
+    border-inline-start-color: transparent;
+}
+
+.ts-dropdown .option.active {
+    color: var(--bs-body-color, #212529);
+    background-color: color-mix(in srgb, var(--grand-form-accent, #0b7285) 12%, var(--grand-form-control-bg, #fff));
+}
+
+.ts-dropdown .no-results {
+    padding: .5rem .75rem;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+/* The item of the empty choice, which ui/select.js renders with nothing in it: the field
+   shows its placeholder instead, and what is typed starts at the start of the field. */
+.ts-control > .item:empty {
+    display: none;
+}
+
+/* the list is read from the server, so there is a moment with nothing in it */
+.ts-wrapper.loading .ts-control::after {
+    content: "";
+    display: inline-block;
+    width: .875rem;
+    height: .875rem;
+    margin-inline-start: .375rem;
+    vertical-align: -.125rem;
+    border: .125rem solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    opacity: .5;
+    animation: grand-spin .75s linear infinite;
+}
+
+@keyframes grand-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ts-wrapper.loading .ts-control::after {
+        animation: none;
+    }
+}
+
+/* the dropdown is rendered inside the wrapper, so in a modal it is already in the modal's
+   stacking context; on a plain page it only has to clear the panel chrome */
+.ts-dropdown {
+    z-index: var(--grand-zindex-dropdown, 10100);
+}
+
+/* ------------------------------------------------------------- dark mode */
+
+/* Everything above follows Bootstrap's colour mode through its --bs-* variables. These are
+   the colours that are fixed elsewhere: tom-select.bootstrap5.css writes the text of the
+   field and of the list as #343a40 and the list border as #d0d0d0, and this file's own
+   modal divider is a black hairline. In the light mode they stay what they were. */
+[data-bs-theme="dark"] .ts-dropdown,
+[data-bs-theme="dark"] .ts-control,
+[data-bs-theme="dark"] .ts-control input {
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .ts-dropdown {
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .grand-modal-header {
+    border-bottom-color: var(--bs-border-color-translucent);
+}

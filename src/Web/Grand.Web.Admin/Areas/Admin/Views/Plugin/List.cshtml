@@ -14,7 +14,7 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-plug"></i>
+                        <i class="bi bi-plug"></i>
                         @Loc["Admin.Plugins.Local"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
@@ -45,7 +45,7 @@
                     </div>
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <admin-label asp-for="SearchLoadModeId"/>
                                 <div class="col-md-4 col-sm-6">
                                     <admin-select asp-for="SearchLoadModeId" asp-items="Model.AvailableLoadModes"/>
@@ -56,7 +56,7 @@
                             <div class="row">
                                 <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
                                     <a class="btn btn-success" id="filter-plugins">
-                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                     </a>
                                 </div>
                             </div>
@@ -81,18 +81,6 @@
     <script>
 
         $(document).ready(function () {
-            $("#importfile").click(function (e) {
-                e.preventDefault();
-                var window = $("#importfile-window");
-                if (!window.data("kendoWindow")) {
-                    window.kendoWindow({
-                        modal: true,
-                        title: "@Loc["Admin.Plugins.Upload"]",
-                        actions: ["Close"]
-                    });
-                }
-                window.data('kendoWindow').center().open();
-            });
             $("#plugins-grid").on("click", ".install-plugin-link", function (e) {
                 showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Install.Progress"]))');
                 $("html, body").animate({ scrollTop: 0 }, 400);
@@ -162,7 +150,7 @@
                                 $("#" + keyId + "").append("<li id='" + item.SystemName + "' class='item-installed-" + item.Installed + "'>" +
                                     "<div class='logo'><img src='" + item.LogoUrl + "'></img></div>" +
                                     "<div class='content'><div class='title'>" + item.FriendlyName + "<span class='install-" + item.Installed + "'>@Loc["Admin.Plugins.Fields.Installed"]</span></div><ul class='info'><li class='version'><span>@Loc["Admin.Plugins.Fields.Version"]:</span>" + item.Version + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.Author"]:</span>" + item.Author + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.SystemName"]:</span>" + item.SystemName + "</li></div></div>" +
-                                    "<div class='buttons'><a class='k-button button-" + item.ConfigurationUrl + "' href='" + item.ConfigurationUrl + "'>@Loc["Admin.Plugins.Fields.Configure"]</a><input type='submit' formaction='@(installurl)?SystemName=" + item.SystemName + "' name='install-plugin-link-" + item.SystemName + "' class='btn green install-plugin-link button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Install"]' /><input type='submit' formaction='@(uninstallurl)?SystemName=" + item.SystemName + "' name='uninstall-plugin-link-" + item.SystemName + "' class='btn red uninstall-plugin-link button-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Uninstall"]' /><input type='submit' formaction='@(remove)?SystemName=" + item.SystemName + "' name='remove-plugin-link-" + item.SystemName + "' class='btn btn-danger button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Remove"]' /></div>"
+                                    "<div class='buttons'><a class='btn btn-default btn-sm button-" + item.ConfigurationUrl + "' href='" + item.ConfigurationUrl + "'>@Loc["Admin.Plugins.Fields.Configure"]</a><input type='submit' formaction='@(installurl)?SystemName=" + item.SystemName + "' name='install-plugin-link-" + item.SystemName + "' class='btn green install-plugin-link button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Install"]' /><input type='submit' formaction='@(uninstallurl)?SystemName=" + item.SystemName + "' name='uninstall-plugin-link-" + item.SystemName + "' class='btn red uninstall-plugin-link button-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Uninstall"]' /><input type='submit' formaction='@(remove)?SystemName=" + item.SystemName + "' name='remove-plugin-link-" + item.SystemName + "' class='btn btn-danger button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Remove"]' /></div>"
                                 +"</li>");
                             }
                         });
@@ -174,37 +162,20 @@
     </script>
 </form>
 
-<div class="modal-dialog" id="importfile-window" style="display:none; padding: 0 10px;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="UploadPlugin" method="post" enctype="multipart/form-data">
-
-        <ul class="common-list">
-            <li>
-                <strong>NOTE: It can take up to several minutes.</strong>
-            </li>
-            <li>
-                <strong>NOTE: DO NOT click twice.</strong>
-            </li>
-        </ul>
-        <div class="form-group">
-            <div class="col-md-2" style="margin-top: 7px; height: 34px; padding-left: 25px;">
-                <label class="control-label">
-                    Zip file
-                </label>
-            </div>
-            <div class="col-md-10">
-                <input id="importfiledialog" name="zippedFile" class="form-control" type="file">
-            </div>
-        </div>
-        <div class="form-group">
-            &nbsp;
-        </div>
-        <div class="form-group">
-            <div class="col-md-2">
-                &nbsp;
-            </div>
-            <div class="col-md-10 text-right mt-10">
-                <input id="importfilesubmit" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]" type="submit">
-            </div>
-        </div>
-    </form>
-</div>
+<admin-import-window id="importfile-window" button-id="importfile"
+                     title="@Loc["Admin.Plugins.Upload"]"
+                     controller="Plugin" action="UploadPlugin"
+                     file-id="importfiledialog" file-name="zippedFile"
+                     file-label-key="Admin.Common.ZipFile" file-label="Zip file"
+                     accept=".zip"
+                     submit-id="importfilesubmit"
+                     submit-text="@Loc["Admin.Plugins.Upload"]">
+    <ul class="common-list">
+        <li>
+            <strong>NOTE: It can take up to several minutes.</strong>
+        </li>
+        <li>
+            <strong>NOTE: DO NOT click twice.</strong>
+        </li>
+    </ul>
+</admin-import-window>

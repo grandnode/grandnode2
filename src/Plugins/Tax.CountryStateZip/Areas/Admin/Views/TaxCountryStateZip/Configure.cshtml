@@ -1,122 +1,23 @@
 ﻿@using Grand.Domain.Common
 @using Microsoft.AspNetCore.Routing
 @model Tax.CountryStateZip.Models.TaxRateListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "_ConfigurePlugin";
 }
 <input id="active-menu-item" type="hidden" value="/Admin/Tax/Providers"/>
-<div id="tax-countrystatezip-grid"></div>
-<script>
-    $(document).ready(function () {
-        $("#tax-countrystatezip-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("RatesList", "TaxCountryStateZip"))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    update: {
-                        url:"@Html.Raw(Url.Action("RateUpdate", "TaxCountryStateZip"))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    destroy: {
-                        url: "@Html.Raw(Url.Action("RateDelete", "TaxCountryStateZip"))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    model: {
-                        id: "Id",
-                        fields: {
-                            StoreName: { editable: false, type: "string" },
-                            CountryName: { editable: false, type: "string" },
-                            StateProvinceName: { editable: false, type: "string" },
-                            Zip: { editable: true, type: "string" },
-                            TaxCategoryName: { editable: false, type: "string" },
-                            IsPrimaryDimension: { editable: false, type: "boolean" },
-                            Id: { editable: false, type: "string" }
-                        }
-                    }
-                },
-                requestEnd: function (e) {
-                    if (e.type == "update") {
-                        this.read();
-                    }
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "StoreName",
-                title: "@Loc["Plugins.Tax.CountryStateZip.Fields.Store"]",
-                width: 300
-            }, {
-                field: "CountryName",
-                title: "@Loc["Plugins.Tax.CountryStateZip.Fields.Country"]",
-                width: 200
-            }, {
-                field: "StateProvinceName",
-                title: "@Loc["Plugins.Tax.CountryStateZip.Fields.StateProvince"]",
-                width: 200
-            }, {
-                field: "Zip",
-                title: "@Loc["Plugins.Tax.CountryStateZip.Fields.Zip"]",
-                width: 200
-            }, {
-                field: "TaxCategoryName",
-                title: "@Loc["Plugins.Tax.CountryStateZip.Fields.TaxCategory"]",
-                width: 200
-            }, {
-                field: "Percentage",
-                title: "@Loc["Plugins.Tax.CountryStateZip.Fields.Percentage"]",
-                width: 100,
-                editor: function (container, options) {
-                    $('<input name="' + options.field + '"/>')
-                            .appendTo(container)
-                            .kendoNumericTextBox({
-                                format: "{0:n4}",
-                                doubles: 4
-                            });
-                }
-            }, {
-                command: [{
-                    name: "edit",
-                    text: "@Loc["Admin.Common.Edit"]"
-                }, {
-                    name: "destroy",
-                    text: "@Loc["Admin.Common.Delete"]"
-                }],
-                width: 200
-            }]
-        });
-    });
-</script>
+<admin-grid id="tax-countrystatezip-grid"
+            read-url="@Url.Action("RatesList", "TaxCountryStateZip")"
+            update-url="@Url.Action("RateUpdate", "TaxCountryStateZip")"
+            destroy-url="@Url.Action("RateDelete", "TaxCountryStateZip")"
+            edit-mode="Inline">
+    <grid-column field="StoreName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Store"]" width="300"/>
+    <grid-column field="CountryName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Country"]" width="200"/>
+    <grid-column field="StateProvinceName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.StateProvince"]" width="200"/>
+    <grid-column field="Zip" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Zip"]" width="200" editor="Text"/>
+    <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.TaxCategory"]" width="200"/>
+    <grid-column field="Percentage" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Percentage"]" width="100" editor="Numeric" decimals="4"/>
+    <grid-commands edit="true" destroy="true" width="200"/>
+</admin-grid>
 <script>
     $(document).ready(function() {
         $("#@Html.IdFor(model => model.AddCountryId)").change(function() {
@@ -144,13 +45,13 @@
 
     <div class="form-horizontal">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="note note-info">
                     @Loc["Plugins.Tax.CountryStateZip.AddRecord.Hint"]
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AddStoreId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -158,8 +59,8 @@
                     <span asp-validation-for="AddStoreId"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AddCountryId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -167,8 +68,8 @@
                     <span asp-validation-for="AddCountryId"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AddStateProvinceId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -176,8 +77,8 @@
                     <span asp-validation-for="AddStateProvinceId"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AddZip" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -185,8 +86,8 @@
                     <span asp-validation-for="AddZip"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AddTaxCategoryId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
@@ -194,8 +95,8 @@
                     <span asp-validation-for="AddTaxCategoryId"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
+            <div class="mb-3">
+                <div class="col-md-3 col-sm-3 text-end">
                     <admin-label asp-for="AddPercentage" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">

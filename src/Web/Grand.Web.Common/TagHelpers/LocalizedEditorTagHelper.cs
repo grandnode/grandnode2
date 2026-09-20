@@ -1,13 +1,13 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Web.Common.Extensions;
+using Grand.Web.Common.TagHelpers.Admin;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace Grand.Web.Common.TagHelpers;
 
@@ -25,6 +25,22 @@ public class LocalizedEditorTagHelper : TagHelper
 
     [HtmlAttributeName("language-ids")] public List<string> LanguagesIds { get; set; }
 
+    private static TagBuilder Item(IHtmlContent label, bool active)
+    {
+        var item = new TagBuilder("li");
+        item.AddCssClass(active ? "nav-item active k-state-active" : "nav-item");
+        item.Attributes["role"] = "presentation";
+        var link = new TagBuilder("a");
+        link.AddCssClass(active ? "nav-link active" : "nav-link");
+        link.Attributes["href"] = "#";
+        link.Attributes["role"] = "tab";
+        link.Attributes["aria-selected"] = active ? "true" : "false";
+        link.Attributes["tabindex"] = active ? "0" : "-1";
+        link.InnerHtml.AppendHtml(label);
+        item.InnerHtml.AppendHtml(link);
+        return item;
+    }
+
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         var localizationSupported = LanguagesIds.Count > 1;
@@ -37,60 +53,48 @@ public class LocalizedEditorTagHelper : TagHelper
 
         if (localizationSupported)
         {
-            var tabStrip = new StringBuilder();
-            tabStrip.AppendLine($"<div id='{Name}'>");
-            tabStrip.AppendLine("<ul>");
+            //the same Bootstrap tab markup the <admin-tabstrip> tag helper renders, driven by
+            //admin.ui.js (adminapp/src/ui/tabs.js) instead of the Kendo TabStrip
+            var strip = new TagBuilder("div");
+            strip.Attributes["id"] = Name;
+            strip.Attributes["style"] = "display:none";
+            //grand-tabstrip-localized: a language strip is drawn one step down from a page's
+            //tab strip (ui.css), wherever it sits
+            strip.AddCssClass("grand-tabstrip grand-tabstrip-localized");
+            strip.Attributes["data-grand-tabstrip"] = "{\"bindGrid\":false,\"selectedIndex\":0}";
 
-            //default tab
-            tabStrip.AppendLine("<li class='k-state-active'>");
-            tabStrip.AppendLine("Standard");
-            tabStrip.AppendLine("</li>");
+            var items = new TagBuilder("ul");
+            items.AddCssClass("nav nav-tabs");
+            items.Attributes["role"] = "tablist";
+            items.InnerHtml.AppendHtml(Item(new HtmlString("Standard"), true));
 
             var languageService = ViewContext.HttpContext.RequestServices.GetRequiredService<ILanguageService>();
-
+            var urlHelper = new UrlHelper(ViewContext);
             foreach (var locale in LanguagesIds)
             {
-                //languages
                 var language = await languageService.GetLanguageById(locale);
-
-                tabStrip.AppendLine("<li>");
-                var urlHelper = new UrlHelper(ViewContext);
-                var iconUrl = urlHelper.Content("~/assets/images/flags/" + language.FlagImageFileName);
-                tabStrip.AppendLine($"<img class='k-image' alt='' src='{iconUrl}'>");
-                tabStrip.AppendLine(WebUtility.HtmlEncode(language.Name));
-                tabStrip.AppendLine("</li>");
+                var label = new HtmlContentBuilder();
+                var icon = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
+                icon.AddCssClass("k-image");
+                icon.Attributes["alt"] = "";
+                icon.Attributes["src"] = urlHelper.Content("~/assets/images/flags/" + language.FlagImageFileName);
+                label.AppendHtml(icon);
+                label.Append(" ");
+                label.Append(language.Name);
+                items.InnerHtml.AppendHtml(Item(label, false));
             }
 
-            tabStrip.AppendLine("</ul>");
+            strip.InnerHtml.AppendHtml(items);
 
-            //default tab
-            tabStrip.AppendLine("<div>");
-            tabStrip.AppendLine(standardContent);
-            tabStrip.AppendLine("</div>");
-
+            var content = new TagBuilder("div");
+            content.AddCssClass("tab-content");
+            content.InnerHtml.AppendHtml(AdminTabStripTagHelper.Pane(standardContent, true));
             for (var i = 0; i < LanguagesIds.Count; i++)
-            {
-                //languages
-                tabStrip.AppendLine("<div>");
-                tabStrip.AppendLine(LocalizedTemplate(i).ToHtmlString());
-                tabStrip.AppendLine("</div>");
-            }
+                content.InnerHtml.AppendHtml(AdminTabStripTagHelper.Pane(LocalizedTemplate(i), false));
+            strip.InnerHtml.AppendHtml(content);
 
-            tabStrip.AppendLine("</div>");
-            tabStrip.AppendLine("<script>");
-            tabStrip.AppendLine("$(document).ready(function() {");
-            tabStrip.AppendLine($"$('#{Name}').kendoTabStrip(");
-            tabStrip.AppendLine("{");
-            tabStrip.AppendLine("animation:  {");
-            tabStrip.AppendLine("open: {");
-            tabStrip.AppendLine("effects: \"fadeIn\"");
-            tabStrip.AppendLine("}");
-            tabStrip.AppendLine("}");
-            tabStrip.AppendLine("});");
-            tabStrip.AppendLine("});");
-            tabStrip.AppendLine("</script>");
             output.TagName = null;
-            output.Content.SetHtmlContent(tabStrip.ToString());
+            output.Content.SetHtmlContent(strip);
         }
         else
         {

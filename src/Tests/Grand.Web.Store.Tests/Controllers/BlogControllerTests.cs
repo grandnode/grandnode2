@@ -125,13 +125,6 @@ public class BlogControllerTests
         Assert.IsNotNull(view);
     }
 
-    // --- EditWarningCheck ----------------------------------------------------------------------
-    //
-    // Characterization tests for BlogController.EditWarningCheck, the one hand-ported piece of
-    // business logic in the Blog consolidation (ARCH-001 Phase 14). Exercised indirectly through
-    // the public Edit(GET) action, since EditWarningCheck itself is protected. Identical condition
-    // shape to BrandController's EditWarningCheck (Phase 13).
-
     [TestClass]
     public class EditWarningCheckTests
     {

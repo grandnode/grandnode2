@@ -1,6 +1,6 @@
 ﻿@using Constants = Grand.SharedUIResources.Constants
-<div>
-    <canvas id="canvasReportCustomerTimeChart"></canvas>
+<div class="grand-dashboard__chart">
+    <canvas id="canvasReportCustomerTimeChart" aria-label="@Loc["Admin.Dashboard.ReportCustomerTime.TitleChart"]" role="img"></canvas>
 </div>
 
 <script src="@(Constants.WwwRoot)/administration/chart.min.js" type="text/javascript"></script>
@@ -12,6 +12,14 @@
         });
     });
 
+    //the colours of the panel: the accent of the form fields, the muted text and a faint rule
+    function dashboardChartPalette() {
+        var toggle = document.getElementById('DarkLight');
+        var dark = toggle ? toggle.checked : document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        return dark
+            ? { accent: '#66d9e8', accentFill: 'rgba(102, 217, 232, 0.55)', second: '#ffa94d', text: '#c9ced4', grid: 'rgba(255, 255, 255, 0.1)', zero: 'rgba(255, 255, 255, 0.3)' }
+            : { accent: '#0b7285', accentFill: 'rgba(11, 114, 133, 0.7)', second: '#d9480f', text: '#5c6773', grid: 'rgba(15, 23, 42, 0.07)', zero: 'rgba(15, 23, 42, 0.25)' };
+    }
 
     function initReportCustomerTimeChart(first) {
         function additionalData() {
@@ -32,92 +40,57 @@
             dataType: "json",
             data: add,
             success: function (data) {
+                var palette = dashboardChartPalette();
+                //the report groups by day without ordering the groups
+                var rows = (data.Data || []).slice().sort(function (a, b) { return String(a.Time).localeCompare(String(b.Time)); });
 
                 var chartData = {
-                    labels: [],
+                    labels: rows.map(function (row) { return row.Time; }),
                     datasets: [{
                         type: 'bar',
-                        label: 'Registered users',
+                        label: @Json.Serialize(Loc["Admin.Dashboard.ReportCustomerTime.TitleChart"].Value),
                         yAxisID: 'L',
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgb(75, 192, 192)',
-                        data: [],
-                        borderWidth: 2
+                        backgroundColor: palette.accentFill,
+                        hoverBackgroundColor: palette.accent,
+                        borderWidth: 0,
+                        maxBarThickness: 48,
+                        data: rows.map(function (row) { return row.Registered; })
                     }]
                 };
-
-                for (var i = 0; i < data.Data.length; i++) {
-                    chartData.labels[i] = data.Data[i].Time;
-                    chartData.datasets[0].data[i] = data.Data[i].Registered;
-                }
-
 
                 var ctx = document.getElementById('canvasReportCustomerTimeChart').getContext('2d');
 
                 if (first) {
-                    if ($('#DarkLight').is(':checked')) {
-                        window.myReportCustomerTimeChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: chartData,
-                            options: {
-                                responsive: true,
-                                title: {
-                                    display: true,
-                                    text: 'Number of registered customers in time',
-                                    fontColor: 'white'
-                                },
-                                legend: {
-                                    labels: {
-                                        fontColor: 'white'
-                                    }
-                                },
-                                tooltips: {
-                                    mode: 'index',
-                                    intersect: true
-                                }, scales: {
-                                    yAxes: [{
-                                        id: 'L',
-                                        type: 'linear',
-                                        position: 'left',
-                                        gridLines: {
-                                            color: 'rgb(255,255,255)'
-                                        },
-                                        ticks: {
-                                            min: 0,
-                                            stepSize: 1,
-                                            fontColor: 'rgb(255,255,255)'
-                                        },
-                                    }]
-                                }
+                    //the switch redraws the chart in the other scheme; the old one has to go, or
+                    //both stay on the canvas and flicker under the pointer
+                    if (window.myReportCustomerTimeChart) window.myReportCustomerTimeChart.destroy();
+                    Chart.defaults.global.defaultFontFamily = getComputedStyle(document.body).fontFamily;
+                    window.myReportCustomerTimeChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            legend: { display: false },
+                            tooltips: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            scales: {
+                                xAxes: [{
+                                    gridLines: { display: false },
+                                    ticks: { fontColor: palette.text }
+                                }],
+                                yAxes: [{
+                                    id: 'L',
+                                    type: 'linear',
+                                    position: 'left',
+                                    gridLines: { color: palette.grid, zeroLineColor: palette.zero, drawBorder: false },
+                                    ticks: { min: 0, stepSize: 1, fontColor: palette.text }
+                                }]
                             }
-                        });
-                    } else {
-                        window.myReportCustomerTimeChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: chartData,
-                            options: {
-                                responsive: true,
-                                title: {
-                                    display: true,
-                                    text: 'Number of registered customers in time'
-                                },
-                                tooltips: {
-                                    mode: 'index',
-                                    intersect: true
-                                }, scales: {
-                                    yAxes: [{
-                                        id: 'L',
-                                        type: 'linear',
-                                        position: 'left',
-                                        ticks: {
-                                            min: 0,
-                                            stepSize: 1
-                                        },
-                                    }]
-                                }
-                            }
-                        });
-                    }
+                        }
+                    });
                 } else {
                     window.myReportCustomerTimeChart.data = chartData;
                     window.myReportCustomerTimeChart.update();

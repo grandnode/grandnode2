@@ -37,12 +37,18 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
             ? await _pageService.GetPageBySystemName(request.SystemName, _contextAccessor.StoreContext.CurrentStore.Id)
             : await _pageService.GetPageById(request.PageId);
 
-        if (page is not { Published: true })
+        if (page == null)
             return null;
 
-        if ((page.StartDateUtc.HasValue && page.StartDateUtc > DateTime.UtcNow) ||
-            (page.EndDateUtc.HasValue && page.EndDateUtc < DateTime.UtcNow))
-            return null;
+        if (!request.ShowHidden)
+        {
+            if (!page.Published)
+                return null;
+
+            if ((page.StartDateUtc.HasValue && page.StartDateUtc > DateTime.UtcNow) ||
+                (page.EndDateUtc.HasValue && page.EndDateUtc < DateTime.UtcNow))
+                return null;
+        }
 
         //ACL (access control list)
         return !_aclService.Authorize(page, _contextAccessor.WorkContext.CurrentCustomer)

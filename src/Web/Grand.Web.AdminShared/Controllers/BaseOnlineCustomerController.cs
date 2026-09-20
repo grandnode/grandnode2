@@ -12,13 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// ARCH-001: Admin's and Store's original OnlineCustomerController were near-identical - no entity,
-// no per-store/per-vendor scope beyond the StaffStoreId filter both hosts already applied
-// identically, so no IAdminDataScope is needed here (same shape as BasePictureController). The one
-// real difference is Admin's Sales-Manager restriction (GetOnlineCustomers' salesEmployeeId filter);
-// Store has no such concept and always passes null. Parameterized with a protected virtual member,
-// the same idiom this repo's pre-existing BaseLoginController already uses for its own
-// host-specific GetCurrentArea() value. Vendor never had its own copy.
 [PermissionAuthorize(PermissionSystemName.Customers)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseOnlineCustomerController(

@@ -19,21 +19,21 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Name"/>
                     <span asp-validation-for="@Model.Locales[item].Name"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].ShortDescription"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
                     <span asp-validation-for="@Model.Locales[item].ShortDescription"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="@Model.Locales[item].Description"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
@@ -47,21 +47,21 @@
 <div class="form-horizontal">
     <localized-editor localized-template="@template" name="course-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Name"/>
                     <span asp-validation-for="Name"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="ShortDescription"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-textarea asp-for="ShortDescription"></admin-textarea>
                     <span asp-validation-for="ShortDescription"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Description"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Description" asp-template="Editor"/>
@@ -71,21 +71,21 @@
         </div>
     </localized-editor>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="PictureId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="PictureId"/>
                 <span asp-validation-for="PictureId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="LevelId"/>
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="LevelId" asp-items="Model.AvailableLevels"/>
                 <span asp-validation-for="LevelId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -95,21 +95,21 @@
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Stores"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Stores"/>
                 <span asp-validation-for="Stores"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ProductId"/>
             <div class="col-md-9 col-sm-9">
                 <input asp-for="ProductId" type="hidden"/>
@@ -122,13 +122,13 @@
                 <span asp-validation-for="ProductId"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="col-md-3 col-sm-3"></div>
             <div class="col-md-9 col-sm-9">
-                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course", new { productIdInput = Html.IdFor(model => model.ProductId), productNameInput = "purchased-with-product-name", btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="k-button">
+                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course", new { productIdInput = Html.IdFor(model => model.ProductId), productNameInput = "purchased-with-product-name", btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="btn btn-default btn-sm">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Choose"]
                 </a>
-                <button type="button" id="purchased-with-product-name-remove" class="k-button">
+                <button type="button" id="purchased-with-product-name-remove" class="btn btn-default btn-sm">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Remove"]
                 </button>
                 <input type="button" id="btnRefreshPurchasedWithProduct" style="display: none"/>

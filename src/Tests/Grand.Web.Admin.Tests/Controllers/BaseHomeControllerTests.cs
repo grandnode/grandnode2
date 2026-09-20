@@ -18,10 +18,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the shared Home infra actions (ARCH-001 Phase 28: GetStatesByCountryId,
-// Logout, SetLanguage). Two concrete test subclasses with DIFFERENT parameterization prove the base
-// actually reads SelectStateResourceKey/LogoutRouteName/AreaName from the subclass rather than
-// hardcoding one host's values.
 [TestClass]
 public class BaseHomeControllerTests
 {

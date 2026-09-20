@@ -1,0 +1,57 @@
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Address.AddressAttributes"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-list-alt"></i>
+                    @Loc["Admin.Address.AddressAttributes"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", "AddressAttribute", new { area })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <partial name="Partials/WidgetZone.ListButtons"/>
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <admin-grid id="addressattributes-grid"
+                                        read-url="@Url.Action("List", "AddressAttribute", new { area })"
+                                        pager="Compact">
+                                <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
+                                <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+                                <grid-column field="Name" title="@Loc["Admin.Address.AddressAttributes.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="AttributeControlTypeName" title="@Loc["Admin.Address.AddressAttributes.Fields.AttributeControlType"]" width="200" align="Center" min-screen-width="750"/>
+                                <grid-column field="IsRequired" title="@Loc["Admin.Address.AddressAttributes.Fields.IsRequired"]" width="100" align="Center">
+                                    <cell-template>
+                                        <i data-if="IsRequired" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Address.AddressAttributes.Fields.DisplayOrder"]" width="100" min-screen-width="750"/>
+                                <grid-column field="IsGlobalAttribute" title="@Loc["Admin.Common.View"]" width="120" align="Center">
+                                    <cell-template>
+                                        <a data-if="IsGlobalAttribute" class="k-link" href="Edit/{{ Id }}"><span class="badge badge-secondary">{{ $texts.view }}</span></a>
+                                        <a data-else class="k-link" href="Edit/{{ Id }}"><span class="badge badge-success">{{ $texts.edit }}</span></a>
+                                    </cell-template>
+                                </grid-column>
+                            </admin-grid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

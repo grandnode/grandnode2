@@ -45,15 +45,16 @@ Do not use this skill as the primary review for payment correctness, security, M
 18. For message template seed data, update template names consistently with `MessageTemplateNames` and message-sending code.
 19. For plugin templates, ensure the plugin project copies views and assets through the plugin build output pattern.
 20. For Vue-in-Razor templates, preserve escaped Razor/Vue syntax and component registration JSON.
-21. For frontend source changes under `vueapp` or theme CSS that affect committed bundles, run the frontend build or report that it was not run.
-22. Run the narrowest relevant build or test command when execution is available.
-23. State when visual verification was not performed.
+21. For `<admin-grid>` cell templates, output fields with `{{ Field }}`; use `{{{ Field }}}` or `encoded="false"` only for markup the server builds, never `@Html.Raw`, and pass localized text through `<grid-text>`.
+22. For frontend source changes under `vueapp`, `adminapp` or theme CSS that affect committed bundles, run the frontend build or report that it was not run.
+23. Run the narrowest relevant build or test command when execution is available.
+24. State when visual verification was not performed.
 
 ### Recommendations
 1. Prefer modifying the smallest existing template that owns the UI.
 2. Prefer theme overrides over changing base storefront templates when the change is theme-specific.
 3. Prefer plugin views over core views when the UI belongs to a plugin.
-4. Prefer existing Bootstrap, Kendo, admin tag helper, and GrandNode component patterns.
+4. Prefer existing Bootstrap, admin tag helper, and GrandNode component patterns. Admin grids use `<admin-grid>` and the admin widgets are `window.GrandAdmin` from `admin.ui.js` (`.ai/standards/razor-frontend.md`, Admin views and Admin grids); nothing calls Kendo UI.
 5. Prefer localized text over hardcoded display text.
 6. Prefer accessible labels, alt text, button text, and validation messages.
 7. Prefer deterministic IDs for dynamic form controls and grid elements.

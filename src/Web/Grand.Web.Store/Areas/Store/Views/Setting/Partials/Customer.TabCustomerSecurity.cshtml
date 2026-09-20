@@ -19,8 +19,8 @@
 
 <div class="form-horizontal">
     <div class="form-body">
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -31,8 +31,8 @@
                 <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationEnabled"></span>
             </div>
         </div>
-        <div class="form-group" id="twofactortype">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="twofactortype">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationType" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -40,8 +40,8 @@
                 <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationType"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.PasswordRegularExpression" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -49,7 +49,7 @@
                 <span asp-validation-for="CustomerSettings.PasswordRegularExpression"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="note note-info">
                 You can use this regex: <br>
                 ^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@@$%^&*-]).{8,}$<br>
@@ -62,8 +62,8 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.PasswordLifetime" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -71,8 +71,8 @@
                 <span asp-validation-for="CustomerSettings.PasswordLifetime"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.UnduplicatedPasswordsNumber" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -80,8 +80,8 @@
                 <span asp-validation-for="CustomerSettings.UnduplicatedPasswordsNumber"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -90,8 +90,8 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.FailedPasswordAllowedAttempts" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
@@ -99,23 +99,26 @@
                 <span asp-validation-for="CustomerSettings.FailedPasswordAllowedAttempts"></span>
                 <script>
 	                $(document).ready(function () {
-	                    $("#@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)").blur(toggleFailedPasswordAllowedAttempts);
+	                    var attempts = document.getElementById("@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)");
+	                    // the numeric widget edits in its own input, so the blur happens there
+	                    var editable = attempts.grandNumeric ? attempts.grandNumeric.text : attempts;
+	                    editable.addEventListener('blur', toggleFailedPasswordAllowedAttempts);
 			                toggleFailedPasswordAllowedAttempts();
-		                });
 
-		                function toggleFailedPasswordAllowedAttempts() {
-		                    var failedPasswordAllowedAttempts = $("#@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)").data("kendoNumericTextBox");
-			                if (failedPasswordAllowedAttempts.value($("#value").val()) > 0) {
+		                    function toggleFailedPasswordAllowedAttempts() {
+			                    var value = attempts.grandNumeric ? attempts.grandNumeric.value() : parseInt(attempts.value, 10);
+			                    if (value > 0) {
 				                $('#pnlFailedPasswordLockoutMinutes').show();
-			                } else {
+			                    } else {
 				                $('#pnlFailedPasswordLockoutMinutes').hide();
-			                }
-		                }
+			                    }
+		                    }
+		                });
                 </script>
             </div>
         </div>
-        <div class="form-group" id="pnlFailedPasswordLockoutMinutes">
-            <div class="col-8 col-md-4 col-sm-4 text-right">
+        <div class="mb-3" id="pnlFailedPasswordLockoutMinutes">
+            <div class="col-8 col-md-4 col-sm-4 text-end">
                 <admin-label asp-for="CustomerSettings.FailedPasswordLockoutMinutes" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">

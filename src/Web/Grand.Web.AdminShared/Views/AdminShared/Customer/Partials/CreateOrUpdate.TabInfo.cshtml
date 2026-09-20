@@ -44,7 +44,7 @@
 {
     if (string.IsNullOrEmpty(Model.Id) || Model.AllowUsersToChangeUsernames)
     {
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Username"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Username"/>
@@ -54,7 +54,7 @@
     }
     else
     {
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Username"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label"> @Model.Username</label>
@@ -63,19 +63,19 @@
         </div>
     }
 }
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="Email"/>
     <div class="col-md-9 col-sm-9">
         <admin-input asp-for="Email"/>
         <span asp-validation-for="Email"></span>
     </div>
 </div>
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="Password"/>
     <div class="col-md-9 col-sm-9">
         <div class="input-group">
             <div class="input-icon">
-                <i class="fa fa-lock fa-fw"></i>
+                <i class="bi bi-lock bi-fw"></i>
                 <admin-input asp-for="Password" autocomplete="off"/>
             </div>
         </div>
@@ -83,7 +83,7 @@
 </div>
 @if (Scope.DefaultStoreId is null)
 {
-    <div class="form-group">
+    <div class="mb-3">
         @{
             ViewData["DisableIgnoreAclWarnings"] = true;
         }
@@ -93,7 +93,7 @@
             <span asp-validation-for="CustomerGroups"></span>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="CustomerTags"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="CustomerTags"/>
@@ -103,82 +103,21 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id) && Model.AssociatedExternalAuthRecords.Count > 0)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="AssociatedExternalAuthRecords"/>
         <div class="col-md-9 col-sm-9">
-            <div id="externalauthrecords-grid"></div>
-            <script>
-
-                            //local datasource
-                            var externalauthrecords = [
-                            @for (var i = 0; i < Model.AssociatedExternalAuthRecords.Count; i++)
-                            {
-                                var aear = Model.AssociatedExternalAuthRecords[i];
-                                <text>
-                                {
-                                    AuthMethodName: "@aear.AuthMethodName",
-                                    Email: "@aear.Email",
-                                    ExternalIdentifier: "@aear.ExternalIdentifier"
-                                }
-                                 </text>
-                                if (i != Model.AssociatedExternalAuthRecords.Count - 1)
-                                {
-                                    <text>,</text>
-                                }
-                            }
-                            ];
-
-                            $(document).ready(function () {
-                                $("#externalauthrecords-grid").kendoGrid({
-                                    dataSource: {
-                                        data: externalauthrecords,
-                                        schema: {
-                                            model: {
-                                                fields: {
-                                                    AuthMethodName: { type: "string" },
-                                                    Email: { type: "string" },
-                                                    ExternalIdentifier: { type: "string" }
-                                                }
-                                            }
-                                        },
-                                        error: function (e) {
-                                            display_kendoui_grid_error(e);
-                                            // Cancel the changes
-                                            this.cancelChanges();
-                                        }
-                                    },
-                                    pageable: {
-                                        refresh: true,
-                                        numeric: false,
-                                        previousNext: false,
-                                        info: false
-                                    },
-                                    scrollable: false,
-                                    columns: [
-                                        {
-                                            field: "AuthMethodName",
-                                            title: "@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.AuthMethodName"]",
-                                            width: 100
-                                        }, {
-                                            field: "Email",
-                                            title: "@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.Email"]",
-                                            width: 100
-                                        },{
-                                            field: "ExternalIdentifier",
-                                            title: "@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.ExternalIdentifier"]",
-                                            width: 300
-                                        }
-                                    ]
-                                });
-                            });
-
-                        </script>
+            <admin-grid id="externalauthrecords-grid" pager="Compact"
+                        data="Model.AssociatedExternalAuthRecords.Select(x => new { x.AuthMethodName, x.Email, x.ExternalIdentifier })">
+                <grid-column field="AuthMethodName" title="@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.AuthMethodName"]" width="100"/>
+                <grid-column field="Email" title="@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.Email"]" width="100"/>
+                <grid-column field="ExternalIdentifier" title="@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.ExternalIdentifier"]" width="300"/>
+            </admin-grid>
         </div>
     </div>
 }
 @if (Scope.DefaultStoreId is null)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="VendorId"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="VendorId"/>
@@ -186,28 +125,28 @@
             <em>@Loc["Admin.Customers.Customers.VendorShouldBeInVendorsGroup"]</em>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="StaffStoreId"/>
         <div class="col-md-9 col-sm-9">
             <admin-select asp-for="StaffStoreId" asp-items="Model.AvailableStores"/>
             <span asp-validation-for="StaffStoreId"></span>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="StoreId"/>
         <div class="col-md-9 col-sm-9">
             <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
             <span asp-validation-for="StoreId"></span>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="Owner"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="Owner"/>
             <span asp-validation-for="Owner"></span>
         </div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="SeId"/>
         <div class="col-md-9 col-sm-9">
             <admin-select asp-for="SeId" asp-items="Model.AvailableSalesEmployees"/>
@@ -217,7 +156,7 @@
 }
 @if (Model.GenderEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="Gender"/>
         <div class="col-md-9 col-sm-9">
             <div class="gender">
@@ -231,14 +170,14 @@
         </div>
     </div>
 }
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="FirstName"/>
     <div class="col-md-9 col-sm-9">
         <admin-input asp-for="FirstName"/>
         <span asp-validation-for="FirstName"></span>
     </div>
 </div>
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="LastName"/>
     <div class="col-md-9 col-sm-9">
         <admin-input asp-for="LastName"/>
@@ -247,7 +186,7 @@
 </div>
 @if (Model.DateOfBirthEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="DateOfBirth"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="DateOfBirth"/>
@@ -257,7 +196,7 @@
 }
 @if (Model.CompanyEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="Company"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="Company"/>
@@ -267,7 +206,7 @@
 }
 @if (Model.StreetAddressEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="StreetAddress"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="StreetAddress"/>
@@ -277,7 +216,7 @@
 }
 @if (Model.StreetAddress2Enabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="StreetAddress2"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="StreetAddress2"/>
@@ -287,7 +226,7 @@
 }
 @if (Model.ZipPostalCodeEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="ZipPostalCode"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="ZipPostalCode"/>
@@ -297,7 +236,7 @@
 }
 @if (Model.CityEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="City"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="City"/>
@@ -307,7 +246,7 @@
 }
 @if (Model.CountryEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="CountryId"/>
         <div class="col-md-9 col-sm-9">
             <admin-select asp-for="CountryId" asp-items="Model.AvailableCountries"/>
@@ -317,7 +256,7 @@
 }
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="StateProvinceId"/>
         <div class="col-md-9 col-sm-9">
             <admin-select asp-for="StateProvinceId" asp-items="Model.AvailableStates"/>
@@ -327,7 +266,7 @@
 }
 @if (Model.PhoneEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="Phone"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="Phone"/>
@@ -337,7 +276,7 @@
 }
 @if (Model.FaxEnabled)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="Fax"/>
         <div class="col-md-9 col-sm-9">
             <admin-input asp-for="Fax"/>
@@ -347,18 +286,18 @@
 }
 @if (Model.CustomerAttributes.Count > 0)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <partial name="Partials/CustomerAttributes" model="Model.CustomerAttributes"/>
     </div>
 }
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="AdminComment"/>
     <div class="col-md-9 col-sm-9">
         <admin-textarea asp-for="AdminComment"></admin-textarea>
         <span asp-validation-for="AdminComment"></span>
     </div>
 </div>
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="IsTaxExempt"/>
     <div class="col-md-9 col-sm-9">
         <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -368,7 +307,7 @@
         <span asp-validation-for="IsTaxExempt"></span>
     </div>
 </div>
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="FreeShipping"/>
     <div class="col-md-9 col-sm-9">
         <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -378,7 +317,7 @@
         <span asp-validation-for="FreeShipping"></span>
     </div>
 </div>
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="TwoFactorEnabled"/>
     <div class="col-md-9 col-sm-9">
         <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -390,17 +329,17 @@
 </div>
 @if (Scope.DefaultStoreId is null && !string.IsNullOrEmpty(Model.AffiliateId))
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="AffiliateId"/>
         <div class="col-md-9 col-sm-9">
-            <a class="k-button" href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId, area = area })"><span class="k-icon k-i-eye"></span>&nbsp;@Model.AffiliateName - @Loc["Admin.Common.View"]</a>
-            <button type="submit" name="remove-affiliate" asp-action="RemoveAffiliate" class="k-button red"><span class="k-icon k-i-delete"></span>&nbsp;@Loc["Admin.Customers.Customers.Fields.Affiliate.Remove"]</button>
+            <a class="btn btn-default btn-sm" href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId, area = area })"><span class="bi bi-eye"></span>&nbsp;@Model.AffiliateName - @Loc["Admin.Common.View"]</a>
+            <button type="submit" name="remove-affiliate" asp-action="RemoveAffiliate" class="btn btn-default btn-sm red"><span class="bi bi-trash"></span>&nbsp;@Loc["Admin.Customers.Customers.Fields.Affiliate.Remove"]</button>
         </div>
     </div>
 }
 @if (Model.DisplayVatNumber)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="VatNumber"/>
         <div class="col-md-9 col-sm-9">
             <div class="input-group-control">
@@ -417,7 +356,7 @@
 }
 @if (Model.AvailableNewsletterSubscriptionStores is { Count: > 0 })
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="SelectedNewsletterSubscriptionStoreIds"/>
         <div class="col-md-9 col-sm-9">
             @foreach (var store in Model.AvailableNewsletterSubscriptionStores)
@@ -439,7 +378,7 @@ else
         @Loc["Admin.Customers.Customers.Fields.CustomerGroups.NoGroups"]
     </div>
 }
-<div class="form-group">
+<div class="mb-3">
     <admin-label asp-for="Active"/>
     <div class="col-md-9 col-sm-9">
         <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -451,7 +390,7 @@ else
 </div>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="LastIpAddress"/>
         <div class="col-md-9 col-sm-9">
             <label class="control-label">@Model.LastIpAddress</label>
@@ -460,7 +399,7 @@ else
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="CreatedOn"/>
         <div class="col-md-9 col-sm-9">
             <label class="control-label">@Model.CreatedOn</label>
@@ -469,7 +408,7 @@ else
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="LastActivityDate"/>
         <div class="col-md-9 col-sm-9">
             <label class="control-label">@Model.LastActivityDate</label>
@@ -478,7 +417,7 @@ else
 }
 @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.LastVisitedPage))
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="LastVisitedPage"/>
         <div class="col-md-9 col-sm-9">
             <label class="control-label">@Model.LastVisitedPage</label>
@@ -487,7 +426,7 @@ else
 }
 @if (!string.IsNullOrEmpty(Model.Id) && Model.LastPurchaseDate.HasValue)
 {
-    <div class="form-group">
+    <div class="mb-3">
         <admin-label asp-for="LastPurchaseDate"/>
         <div class="col-md-9 col-sm-9">
             <label class="control-label">@Model.LastPurchaseDate</label>

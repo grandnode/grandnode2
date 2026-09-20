@@ -1,0 +1,176 @@
+/*
+ * The Kendo class names, for third-party plugin views only.
+ *
+ * No view in this repository carries a k-* class any more: the codemod
+ * (scripts/codemods/kendo-classes-to-bootstrap.mjs) replaced k-button, k-link, k-icon,
+ * k-input and k-state-active with their Bootstrap 5 equivalents, and the sheet that
+ * reproduced the Kendo Material look for them is gone with them.
+ *
+ * What is left is the other half of admin.legacy.js: a plugin written against an older
+ * GrandNode renders its own k-* markup from its own Configure view, and admin.legacy.js
+ * keeps answering $.fn.kendoGrid for it. Its markup would otherwise be unstyled, so each
+ * class is mapped onto what the panel now uses rather than onto what Kendo used to paint
+ * - a plugin button looks like an admin button instead of like a 2021 Material one.
+ *
+ * The grid class names the adapter itself writes and reads - k-grid-*, k-detail-row,
+ * k-master-row, k-state-selected, k-loading-mask - are not here: they belong to
+ * admin.grid.css, which owns them as part of the $(el).data('kendoGrid') contract.
+ *
+ * This file goes away when the shim does.
+ */
+
+/* --- buttons and links -------------------------------------------------------------- */
+
+.k-button {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: var(--bs-border-radius-sm);
+    background-color: #fff;
+    color: #333;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    user-select: none;
+    cursor: pointer;
+}
+
+.k-button:hover,
+.k-button:focus {
+    border-color: #adadad;
+    background-color: #e6e6e6;
+    color: #333;
+    text-decoration: none;
+}
+
+/* the panel's .btn-default in dark mode (_custom.scss) */
+[data-bs-theme="dark"] .k-button {
+    border-color: var(--bs-border-color);
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .k-button:hover,
+[data-bs-theme="dark"] .k-button:focus {
+    border-color: var(--bs-border-color);
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-emphasis-color);
+}
+
+.k-button[disabled],
+.k-button.k-state-disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+/* the accent button; it sits next to .k-button */
+.k-primary {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary);
+    color: #fff;
+}
+
+.k-primary:hover,
+.k-primary:focus {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary);
+    color: #fff;
+    filter: brightness(0.9);
+}
+
+.k-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.k-state-disabled,
+.k-state-disabled .k-link {
+    pointer-events: none;
+    opacity: 0.65;
+}
+
+/* --- icons --------------------------------------------------------------------------- */
+
+/*
+ * Kendo's own icon font is gone and so is the Font Awesome that stood in for it; the
+ * glyphs come from bootstrap-icons, which admin.bootstrap.css loads for the whole panel.
+ * A k-i-* this table does not know renders nothing rather than a missing-glyph box.
+ */
+.k-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    font-family: bootstrap-icons, sans-serif;
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    text-align: center;
+    vertical-align: -0.125em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.k-icon.k-i-edit::before,
+.k-icon.k-i-pencil::before { content: "\f4cb"; }
+.k-icon.k-i-delete::before,
+.k-icon.k-i-trash::before { content: "\f5de"; }
+.k-icon.k-i-cancel::before,
+.k-icon.k-i-close::before,
+.k-icon.k-i-x::before { content: "\f659"; }
+.k-icon.k-i-save::before,
+.k-icon.k-i-floppy::before { content: "\f7d8"; }
+.k-icon.k-i-eye::before,
+.k-icon.k-i-preview::before { content: "\f341"; }
+.k-icon.k-i-email::before,
+.k-icon.k-i-envelop::before { content: "\f32f"; }
+.k-icon.k-i-notification::before,
+.k-icon.k-i-bell::before { content: "\f18a"; }
+.k-icon.k-i-style-builder::before { content: "\f4b1"; }
+.k-icon.k-i-cut::before { content: "\f528"; }
+.k-icon.k-i-rotate::before,
+.k-icon.k-i-reload::before,
+.k-icon.k-i-refresh::before { content: "\f116"; }
+.k-icon.k-i-check-outline::before { content: "\f26b"; }
+.k-icon.k-i-close-outline::before { content: "\f623"; }
+.k-icon.k-i-check::before { content: "\f633"; }
+.k-icon.k-i-plus::before,
+.k-icon.k-i-add::before { content: "\f64d"; }
+.k-icon.k-i-search::before { content: "\f52a"; }
+.k-icon.k-i-download::before { content: "\f30a"; }
+.k-icon.k-i-upload::before { content: "\f603"; }
+.k-icon.k-i-arrow-60-left::before { content: "\f284"; }
+.k-icon.k-i-arrow-60-right::before { content: "\f285"; }
+.k-icon.k-i-arrow-60-up::before { content: "\f286"; }
+.k-icon.k-i-arrow-60-down::before { content: "\f282"; }
+
+/* --- form controls and containers ---------------------------------------------------- */
+
+/* a plugin's input, given the metrics of the panel's own controls */
+.k-input:not(.form-control):not(.form-select),
+.k-textbox {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+}
+
+.k-widget {
+    position: relative;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-bg);
+    line-height: normal;
+}
+
+.k-header {
+    border-color: var(--bs-border-color);
+    font-weight: 500;
+}

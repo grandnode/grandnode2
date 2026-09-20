@@ -1,8 +1,8 @@
 ﻿@model SalesSettingsModel
 <div class="form-horizontal">
 <div class="form-body">
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.IsReOrderAllowed" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -16,8 +16,8 @@
 <div class="note note-warning">
     <span>@Loc["Admin.Settings.Orders.MinOrderSubtotalAmount.Note"]</span>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.MinOrderSubtotalAmount" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -25,8 +25,8 @@
         <span asp-validation-for="OrderSettings.MinOrderSubtotalAmount"></span> @Model.OrderSettings.PrimaryStoreCurrencyCode
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.MinOrderTotalAmount" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -34,8 +34,8 @@
         <span asp-validation-for="OrderSettings.MinOrderTotalAmount"></span> @Model.OrderSettings.PrimaryStoreCurrencyCode
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.MinOrderSubtotalAmountIncludingTax" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -46,8 +46,8 @@
         <span asp-validation-for="OrderSettings.MinOrderSubtotalAmountIncludingTax"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.AnonymousCheckoutAllowed" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -58,8 +58,8 @@
         <span asp-validation-for="OrderSettings.AnonymousCheckoutAllowed"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.TermsOfServiceOnShoppingCartPage" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -70,8 +70,8 @@
         <span asp-validation-for="OrderSettings.TermsOfServiceOnShoppingCartPage"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.TermsOfServiceOnOrderConfirmPage" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -82,8 +82,8 @@
         <span asp-validation-for="OrderSettings.TermsOfServiceOnOrderConfirmPage"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.DisableOrderCompletedPage" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -94,8 +94,8 @@
         <span asp-validation-for="OrderSettings.DisableOrderCompletedPage"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.AttachPdfInvoiceToOrderPlacedEmail" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -106,8 +106,8 @@
         <span asp-validation-for="OrderSettings.AttachPdfInvoiceToOrderPlacedEmail"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.AttachPdfInvoiceToOrderPaidEmail" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -118,8 +118,8 @@
         <span asp-validation-for="OrderSettings.AttachPdfInvoiceToOrderPaidEmail"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.AttachPdfInvoiceToOrderCompletedEmail" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -130,8 +130,8 @@
         <span asp-validation-for="OrderSettings.AttachPdfInvoiceToOrderCompletedEmail"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.GiftVouchers_Activated_OrderStatusId" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -139,8 +139,8 @@
         <span asp-validation-for="OrderSettings.GiftVouchers_Activated_OrderStatusId"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.DeactivateGiftVouchersAfterCancelOrder" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -151,8 +151,8 @@
         <span asp-validation-for="OrderSettings.DeactivateGiftVouchersAfterCancelOrder"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.DeactivateGiftVouchersAfterDeletingOrder" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -163,8 +163,8 @@
         <span asp-validation-for="OrderSettings.DeactivateGiftVouchersAfterDeletingOrder"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.GiftVouchers_Assign_StoreId" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -175,8 +175,8 @@
         <span asp-validation-for="OrderSettings.GiftVouchers_Assign_StoreId"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.CompleteOrderWhenDelivered" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -187,8 +187,8 @@
         <span asp-validation-for="OrderSettings.CompleteOrderWhenDelivered"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.AllowCustomerToAddOrderNote" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -199,8 +199,8 @@
         <span asp-validation-for="OrderSettings.AllowCustomerToAddOrderNote"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.UserCanCancelUnpaidOrder" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -211,8 +211,8 @@
         <span asp-validation-for="OrderSettings.UserCanCancelUnpaidOrder"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-xs-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-xs-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.LengthCode" class="control-label"/>
     </div>
     <div class="col-xs-4 col-md-8 col-sm-8">
@@ -220,8 +220,8 @@
         <span asp-validation-for="OrderSettings.LengthCode"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-xs-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-xs-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.MinimumOrderPlacementInterval" class="control-label"/>
     </div>
     <div class="col-xs-4 col-md-8 col-sm-8">
@@ -229,8 +229,8 @@
         <span asp-validation-for="OrderSettings.MinimumOrderPlacementInterval"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.UnpublishAuctionProduct" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
@@ -241,8 +241,8 @@
         <span asp-validation-for="OrderSettings.UnpublishAuctionProduct"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-xs-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-xs-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.PageSize" class="control-label"/>
     </div>
     <div class="col-xs-4 col-md-8 col-sm-8">
@@ -250,8 +250,8 @@
         <span asp-validation-for="OrderSettings.PageSize"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-8 col-md-4 col-sm-4 text-right">
+<div class="mb-3">
+    <div class="col-8 col-md-4 col-sm-4 text-end">
         <admin-label asp-for="OrderSettings.AttachPdfInvoiceToBinary" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">

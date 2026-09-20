@@ -56,7 +56,7 @@
     <div class="form-body">
         @if (Model.NameEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Name"/>
@@ -66,7 +66,7 @@
         }
         @if (Model.FirstNameEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="FirstName"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="FirstName"/>
@@ -76,7 +76,7 @@
         }
         @if (Model.LastNameEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="LastName"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="LastName"/>
@@ -86,7 +86,7 @@
         }
         @if (Model.EmailEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Email"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Email"/>
@@ -96,7 +96,7 @@
         }
         @if (Model.CompanyEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Company"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Company"/>
@@ -106,7 +106,7 @@
         }
         @if (Model.VatNumberEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="VatNumber"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="VatNumber"/>
@@ -116,7 +116,7 @@
         }
         @if (Model.CountryEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="CountryId"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-select asp-for="CountryId" asp-items="Model.AvailableCountries"/>
@@ -126,7 +126,7 @@
         }
         @if (Model.CountryEnabled && Model.StateProvinceEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="StateProvinceId"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-select asp-for="StateProvinceId" asp-items="Model.AvailableStates"/>
@@ -136,7 +136,7 @@
         }
         @if (Model.CityEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="City"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="City"/>
@@ -146,7 +146,7 @@
         }
         @if (Model.StreetAddressEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Address1"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Address1"/>
@@ -156,7 +156,7 @@
         }
         @if (Model.StreetAddress2Enabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Address2"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Address2"/>
@@ -166,7 +166,7 @@
         }
         @if (Model.ZipPostalCodeEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="ZipPostalCode"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="ZipPostalCode"/>
@@ -176,7 +176,7 @@
         }
         @if (Model.PhoneEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="PhoneNumber"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="PhoneNumber"/>
@@ -186,7 +186,7 @@
         }
         @if (Model.FaxEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="FaxNumber"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="FaxNumber"/>
@@ -196,7 +196,7 @@
         }
         @if (Model.NoteEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Note"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Note"/>
@@ -206,10 +206,10 @@
         }
         @if (Model.AddressTypeEnabled)
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AddressType"/>
                 <div class="col-md-9 col-sm-9">
-                    <select asp-for="AddressType" asp-items="EnumTranslationService.ToSelectList(AddressType.Any, false)" class="form-control custom-select"></select>
+                    <select asp-for="AddressType" asp-items="EnumTranslationService.ToSelectList(AddressType.Any, false)" class="form-select form-select"></select>
                     <span asp-validation-for="AddressType"></span>
                 </div>
             </div>

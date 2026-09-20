@@ -22,12 +22,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseFullReportsController (ARCH-001 Reports consolidation). All 12
-// shared + 8 Admin/Store-only actions live in the shared bases; this class supplies Admin's DI wiring,
-// its own [Area]/[Authorize*]/[PermissionAuthorize] attributes (BaseFullReportsController can't
-// inherit any single host's base controller - see this task's header note), the ManageCustomers
-// overrides on CountryReport/Customer neither shared base carries (Tasks 5/6), and
-// PopularSearchTermsReport, which stays declared here only (Task 10) - not on either shared base.
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

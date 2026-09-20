@@ -11,7 +11,7 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption level-caption">
-                        <i class="fa fa-cubes"></i>
+                        <i class="bi bi-boxes"></i>
                         @Loc["Admin.PushNotifications"]
                     </div>
                 </div>
@@ -20,25 +20,25 @@
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="x_content">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="Title"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="Title"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="MessageText"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-textarea asp-for="MessageText"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="ClickUrl"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="ClickUrl"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="PictureId"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="PictureId"/>
@@ -48,7 +48,7 @@
                             <div class="form-actions">
                                 <div class="row">
                                     <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                                        <input type="submit" name="generatekey" class="k-button" value="@Loc["Admin.PushNotifications.Send"]"/>
+                                        <input type="submit" name="generatekey" class="btn btn-default btn-sm" value="@Loc["Admin.PushNotifications.Send"]"/>
                                     </div>
                                 </div>
                             </div>

@@ -13,9 +13,6 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// ARCH-001: Admin's and Store's original PictureController were byte-identical (only namespace and
-// base class differed) - no entity, no per-store/per-vendor scope, so no IAdminDataScope is needed
-// here, unlike every other Base*Controller in this initiative. Vendor never had its own copy.
 [PermissionAuthorize(PermissionSystemName.Pictures)]
 [AutoValidateAntiforgeryToken]
 public abstract class BasePictureController(

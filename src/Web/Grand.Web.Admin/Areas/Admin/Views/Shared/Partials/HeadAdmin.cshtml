@@ -5,36 +5,38 @@
 <script>
     const wwwrootpath = '@(Constants.WwwRoot)';
 </script>
+@*the colour scheme (data-theme and Bootstrap's data-bs-theme on <html>), synchronous and
+  before any stylesheet so the page never paints light before switching to dark*@
+<script src="@(Constants.WwwRoot)/administration/admin.theme.js" asp-append-version="true"></script>
 @{
     var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl && !languageSettings.IgnoreRtlPropertyForAdminArea;
-    var kendoVersion = "2021.3.914";
 
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bootstrap/css/daterangepicker.min.css"/>
-    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/build/css/font-awesome.min.css"/>
-    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/simple-line-icons/simple-line-icons.min.css"/>
-    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bootstrap/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/magnific-popup/magnific-popup.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/summernote/summernote.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/elfinder/css/elfinder.full.min.css"/>
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/elfinder/css/theme.css"/>
 
-    <link rel="stylesheet" type="text/css" href="@string.Format(Constants.WwwRoot + "/administration/kendo/styles/{0}/kendo.material.mobile.min.css", kendoVersion)"/>
-    <link rel="stylesheet" type="text/css" href="@string.Format(Constants.WwwRoot + "/administration/kendo/styles/{0}/kendo.material.min.css", kendoVersion)"/>
-    <link rel="stylesheet" type="text/css" href="@string.Format(Constants.WwwRoot + "/administration/kendo/styles/{0}/kendo.common-material.min.css", kendoVersion)"/>
-
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/farbtastic/farbtastic.css"/>
+    @*the Kendo class names a third-party plugin view may still render, mapped onto the
+      Bootstrap 5 look of the panel; no view in this repository carries one*@
+    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.legacy.css" asp-append-version="true"/>
+    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.css" asp-append-version="true"/>
+    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.ui.css" asp-append-version="true"/>
 
-    //CSS
+    @*Bootstrap 5.3, bootstrap-icons and the panel chrome, built from adminapp/src/styles.
+      Replaces bootstrap.min.css, the bootstrap-rtl.min.css copy, font-awesome.min.css,
+      simple-line-icons.min.css and the hand-maintained custom.css / custom-rtl.css pair;
+      the right-to-left file is generated from the other one with rtlcss. A plain link, so
+      it is written before the asp-src ones below and they keep overriding it.*@
     if (supportRtl)
     {
-        <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bootstrap/css/bootstrap-rtl.min.css"/>
-        <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/build/css/custom-rtl.css"/>
-        <link rel="stylesheet" type="text/css" href="@string.Format(Constants.WwwRoot + "/administration/kendo/styles/{0}/kendo.rtl.min.css", kendoVersion)"/>
+        <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bundles/admin.bootstrap.rtl.css" asp-append-version="true"/>
     }
     else
     {
-        <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/build/css/custom.css"/>
+        <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bundles/admin.bootstrap.css" asp-append-version="true"/>
     }
 
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/build/js/jquery.min.js"></script>
@@ -46,13 +48,22 @@
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/jquery.validate.min.js"></script>
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/jquery.validate.unobtrusive.min.js"></script>
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/admin.common.js"></script>
-    <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/kendo.ui.core.min.js", kendoVersion)"></script>
-    <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/kendo.grid.js", kendoVersion)"></script>
-    <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/cultures/kendo.culture.{1}.js", kendoVersion, CultureInfo.CurrentCulture.Name)"></script>
+    @*formatting data of the request culture for admin.grid.js and admin.ui.js*@
+    <admin-culture/>
+    @*<admin-grid> runtime*@
+    <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.js" asp-append-version="true"></script>
+    @*tab strip, modal, numeric, date and select widgets; replaced the Kendo widgets*@
+    <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.ui.js" asp-append-version="true"></script>
+    @*Kendo compatibility for third-party plugin views: $.fn.kendoGrid, kendoWindow,
+      kendoNumericTextBox, kendoDropDownList, kendoMultiSelect, kendoTabStrip. Loaded after
+      the two bundles above because it maps onto them. Nothing in this repository needs it.*@
+    <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.legacy.js" asp-append-version="true"></script>
 
 
-    <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/bootstrap/js/popper.min.js"></script>
-    <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/bootstrap/js/bootstrap.min.js"></script>
+    @*Bootstrap 5.3 with Popper 2 bundled in, plus the rename of the Bootstrap 4
+      data-toggle/data-target/data-dismiss attributes a third-party plugin view may
+      still carry; replaced popper.min.js and bootstrap.min.js*@
+    <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.bootstrap.js" asp-append-version="true"></script>
     <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/build/js/smartresize.js"></script>
     <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/build/js/custom.js"></script>
     <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/summernote/summernote.min.js"></script>

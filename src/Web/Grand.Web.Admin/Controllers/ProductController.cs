@@ -12,11 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseProductController (ARCH-001 Phase 1 Task 11). All 24 regions of
-// behavior live in the shared base; this class only supplies Admin's DI wiring plus the attributes
-// that used to arrive transitively via BaseAdminController - BaseProductController can't inherit any
-// single host's base controller (it's shared across Admin/Store/Vendor, each with a different
-// [Area]/[Authorize*] pair), so each subclass restates its own host's attribute set explicitly.
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

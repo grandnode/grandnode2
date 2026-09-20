@@ -1,5 +1,4 @@
 ﻿@model KnowledgebaseArticleModel.AddRelatedArticleModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     ViewBag.Title = Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"];
     Layout = "";
@@ -15,7 +14,7 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cubes"></i>
+                        <i class="bi bi-boxes"></i>
                         @Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"]
                     </div>
                 </div>
@@ -25,7 +24,7 @@
                             <div class="main-header col-12 px-0 mb-3">
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-sm-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="SearchArticleName" class="control-label"/>
                                             <admin-input asp-for="SearchArticleName"/>
                                         </div>
@@ -34,17 +33,29 @@
                                         <div class="form-actions">
                                             <div class="btn-group btn-group-sm btn-group-devided">
                                                 <button class="btn btn-success filter-submit" id="search-articles">
-                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                                 </button>
                                                 <button class="btn btn-success" type="submit" name="save">
-                                                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div id="articles-grid"></div>
+                            <admin-grid id="articles-grid"
+                                        read-url="@Url.Action("RelatedArticlesAddPopupList", "Knowledgebase", new { area = Constants.AreaAdmin })"
+                                        additional-data="additionalData"
+                                        selectable="Checkbox"
+                                        selection-name="SelectedArticlesIds">
+                                <grid-column field="Name" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name"]"/>
+                                <grid-column field="Published" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Published"]" width="100" align="Center">
+                                    <cell-template>
+                                        <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -82,66 +93,12 @@
             });
         });
 
-            $("#articles-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("RelatedArticlesAddPopupList", "Knowledgebase", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "Id",
-                    headerTemplate: "<input id='mastercheckbox' type='checkbox' />",
-                    headerAttributes: { style: "text-align:center" },
-                    template: "<input type='checkbox' name='SelectedArticlesIds' value='#=Id#' class='checkboxGroups' />",
-                    attributes: { style: "text-align:center" },
-                    width: 50
-                }, {
-                    field: "Name",
-                    title: "@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name"]"
-                }, {
-                    field: "Published",
-                    title: "@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Published"]",
-                    width: 100,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                }]
-            });
 
             $('#search-articles').click(function () {
                 var grid = $('#articles-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
-                //clear selected checkboxes
-                $('.checkboxGroups').prop('checked', false).change();
+                grid.clearSelection();
                 return false;
             });
 
@@ -152,14 +109,6 @@
                 }
             });
 
-            //wire up checkboxes
-            $('#mastercheckbox').click(function() {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
-
-            $('#articles-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
-                updateMasterCheckbox();
-            });
 
         function additionalData() {
             var data = {
@@ -170,10 +119,5 @@
             return data;
         }
 
-        function updateMasterCheckbox() {
-            var numChkBoxes = $('#articles-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#articles-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-        }
     </script>
 </form>

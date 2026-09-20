@@ -14,12 +14,7 @@ $(document).ready(function () {
         checkOverriddenStoreValue(v, $(v).attr('data-for-input-selector'));
     });
     $('i.help').tooltip();
-
-    var currentT = localStorage.getItem('theme');
-
-    if (currentT == 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    //the colour scheme is applied in <head> by admin.theme.js
 });
 
 function checkAllOverriddenStoreValue(item) {
@@ -33,28 +28,41 @@ function checkOverriddenStoreValue(obj, selector) {
     var elementsArray = selector.split(",");
     if (!$(obj).is(':checked')) {
         $(selector).attr('disabled', true);
-        //Kendo UI elements are enabled/disabled some other way
-        $.each(elementsArray, function(key, value) {
-            var kenoduiElement = $(value).data("kendoNumericTextBox");
-            if (kenoduiElement !== undefined && kenoduiElement !== null) {
-                kenoduiElement.enable(false);
-            }
-        }); 
+        setWidgetsEnabled(elementsArray, false);
     }
     else {
         $(selector).removeAttr('disabled');
-        //Kendo UI elements are enabled/disabled some other way
-        $.each(elementsArray, function(key, value) {
-            var kenoduiElement = $(value).data("kendoNumericTextBox");
-            if (kenoduiElement !== undefined && kenoduiElement !== null) {
-                kenoduiElement.enable();
-            }
-        });
+        setWidgetsEnabled(elementsArray, true);
     };
 }
 
+// The numeric, date and list widgets of admin.ui.js edit in a second element, so disabling
+// the named input alone leaves that one usable (the Kendo widgets behaved the same way).
+function setWidgetsEnabled(selectors, enable) {
+    $.each(selectors, function (key, value) {
+        $(value).each(function () {
+            var widget = this.grandNumeric || this.grandDateInput;
+            if (widget) {
+                widget.enable(enable);
+            }
+            // Tom Select has no argument, one method each way
+            if (this.grandSelect) {
+                if (enable) this.grandSelect.enable(); else this.grandSelect.disable();
+            }
+        });
+    });
+}
+
+// Only the page's own strip remembers its tab: the one the selected-tab-index input stands in
+// front of. A strip inside a pane and the language strip of a localized editor fire this hook
+// too, and writing their index into $("#selected-tab-index") reopened the saved form on the
+// wrong tab (English, the second language, sent it back to the second page tab).
 function tabstrip_on_tab_select(e) {
-    $("#selected-tab-index").val($(e.item).index());
+    var tabs = window.GrandAdmin && window.GrandAdmin.tabs;
+    var input = tabs && tabs.indexInputOf ? tabs.indexInputOf((e.sender && e.sender.element) || e.item) : null;
+    if (input) {
+        $(input).val($(e.item).index());
+    }
 }
 
 

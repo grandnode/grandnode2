@@ -12,10 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseNewsController (ARCH-001 News consolidation). All shared
-// behavior lives in the base; this class only supplies Admin's DI wiring plus the attributes that
-// used to arrive transitively via BaseAdminController - BaseNewsController can't inherit any single
-// host's base controller. Same pattern as CategoryController (see that file).
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

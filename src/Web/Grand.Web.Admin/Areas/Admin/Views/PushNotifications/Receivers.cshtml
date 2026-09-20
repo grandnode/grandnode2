@@ -1,5 +1,4 @@
 ﻿@model Grand.Web.AdminShared.Models.PushNotifications.ReceiversModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "_AdminLayout";
     //page title
@@ -12,7 +11,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-cubes"></i>
+                    <i class="bi bi-boxes"></i>
                     @Loc["Admin.PushNotifications.Receivers"]
                 </div>
             </div>
@@ -28,7 +27,24 @@
                                 </div>
                             }
 
-                            <div id="receivers-grid"></div>
+                            <admin-grid id="receivers-grid"
+                                        read-url="@Url.Action("PushReceiversList", "PushNotifications", new { area = Constants.AreaAdmin })"
+                                        destroy-url="@Url.Action("DeleteReceiver", "PushNotifications", new { area = Constants.AreaAdmin })"
+                                        confirm-destroy="true">
+                                <grid-column field="CustomerId" title="@Loc["Admin.PushNotifications.Message.Fields.CustomerEmail"]" width="100">
+                                    <cell-template>
+                                        <a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="Allowed" title="@Loc["Admin.PushNotifications.Message.Fields.Allowed"]" width="100" align="Center">
+                                    <cell-template>
+                                        <i data-if="Allowed" class="bi bi-check-lg true-icon" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg false-icon" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="RegisteredOn" title="@Loc["Admin.PushNotifications.Message.Fields.RegisteredOn"]" width="200" format="{0:G}"/>
+                                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="50"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -37,85 +53,6 @@
     </div>
 </div>
 
-<script>
-$(document).ready(function() {
-    $("#receivers-grid").kendoGrid({
-        dataSource: {
-            type: "json",
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("PushReceiversList", "PushNotifications", new { area = Constants.AreaAdmin }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                },
-                destroy: {
-                    url: "@Html.Raw(Url.Action("DeleteReceiver", "PushNotifications", new { area = Constants.AreaAdmin }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors",
-                model: {
-                    id: "Id",
-                    fields: {
-                        RegisteredOn: { type: "date" }
-                    }
-                }
-            },
-            error: function(e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            pageSize: @(adminAreaSettings.DefaultGridPageSize),
-            serverPaging: true,
-            serverFiltering: true,
-            serverSorting: true
-        },
-        pageable: {
-            refresh: true,
-            pageSizes: [@adminAreaSettings.GridPageSizes]
-        },
-        editable: {
-            confirmation: "@Loc["Admin.Common.DeleteConfirmation"]",
-            mode: "inline"
-        },
-        scrollable: false,
-        columns: [
-        {
-            field: "CustomerId",
-            title: "@Loc["Admin.PushNotifications.Message.Fields.CustomerEmail"]",
-            template: '<a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerEmail#</a>',
-            width: 100
-        }, {
-            field: "Allowed",
-            title: "@Loc["Admin.PushNotifications.Message.Fields.Allowed"]",
-            headerAttributes: { style: "text-align:center" },
-            attributes: { style: "text-align:center" },
-                template: '# if(Allowed) {# <i class="fa fa-check true-icon" style="color:green"></i> #} else {# <i class="fa fa-close false-icon" style="color:red"></i> #} #',
-            width: 100
-        }, {
-            field: "RegisteredOn",
-            title: "@Loc["Admin.PushNotifications.Message.Fields.RegisteredOn"]",
-            width: 200,
-            type: "date",
-            format: "{0:G}"
-        }, {
-            command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-            title: "@Loc["Admin.Common.Delete"]",
-            headerAttributes: { style: "text-align:center" },
-            attributes: { style: "text-align:center" },
-            width: 50
-        }
-        ]
-    });
-});
-</script>
 
 @if (!(Model.Allowed == 0 && Model.Denied == 0))
 {

@@ -23,8 +23,6 @@ public class VendorReviewController(
     IAdminDataScope<VendorReview> scope)
     : BaseVendorReviewController(vendorViewModelService, vendorService, translationService, scope)
 {
-    // Not duplicated by Vendor — exposing this to Vendor would leak other vendors' names/ids to a
-    // vendor account (see ARCH-001 Phase 10 spec §2.2). Kept here rather than on the shared base.
     public async Task<IActionResult> VendorSearchAutoComplete(string term)
     {
         const int searchTermMinimumLength = 3;

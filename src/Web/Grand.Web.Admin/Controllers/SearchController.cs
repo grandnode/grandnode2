@@ -22,13 +22,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseSearchController (ARCH-001) for the Category/Collection/Brand
-// picker methods, which now live in the shared base. Index (full admin command/menu search) and the
-// CustomerGroup/Stores/Vendor pickers stay here - they have no Store/Vendor equivalent, same shape as
-// TaxController's Providers/Settings regions staying host-specific alongside its consolidated
-// TaxCategory sub-resource. Restates the attribute set that used to arrive transitively via
-// BaseAdminController - BaseSearchController can't inherit any single host's base controller (it's
-// shared across Admin/Store/Vendor, each with a different [Area]/[Authorize*] pair).
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

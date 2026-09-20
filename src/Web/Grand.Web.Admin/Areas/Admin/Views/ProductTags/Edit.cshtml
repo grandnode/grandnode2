@@ -10,16 +10,16 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-cube"></i>
+                        <i class="bi bi-box"></i>
                         @Loc["Admin.Catalog.ProductTags.EditTagDetails"] - @Model.Name
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Catalog.ProductTags.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Catalog.ProductTags.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                             </button>
                             <vc:admin-widget widget-zone="product_tag_details_buttons" additional-data="Model"/>
                         </div>

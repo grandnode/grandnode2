@@ -12,9 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BaseContactAttributeController (ARCH-001 ContactAttribute consolidation). All
-// regions of behavior live in the shared base; this class only supplies Store's DI wiring and the attributes
-// that used to arrive transitively via BaseStoreController. Same pattern as ProductController (see that file).
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

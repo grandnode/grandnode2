@@ -7,91 +7,36 @@
 <div class="panel panel-default">
     <partial name="Partials/WidgetZone.LoyaltyPointsTop" model="Model"/>
     <div class="panel-body">
-        <div id="customer-loyaltypoints-grid"></div>
+        <admin-grid id="customer-loyaltypoints-grid"
+                    read-url="@Url.Action("LoyaltyPointsHistorySelect", "Customer", new { customerId = Model.Id, area = area })"
+                    pager="Compact"
+                    auto-bind="false">
+            @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
+            {
+                <grid-column field="StoreName" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Store"]"/>
+            }
+            <grid-column field="Points" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Points"]"/>
+            <grid-column field="PointsBalance" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.PointsBalance"]"/>
+            <grid-column field="Message" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Message"]"/>
+            <grid-column field="CreatedOn" title="@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
     </div>
     <partial name="Partials/WidgetZone.LoyaltyPointsBottom" model="Model"/>
 </div>
 
-<script>
-        $(document).ready(function () {
-            $("#customer-loyaltypoints-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("LoyaltyPointsHistorySelect", "Customer", new { customerId = Model.Id, area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                autoBind: false,
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [
-                @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
-                {
-                    <text>
-                    {
-                        field: "StoreName",
-                        title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Store"]"
-                    },
-                    </text>
-                }
-                {
-                    field: "Points",
-                    title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Points"]"
-                }, {
-                    field: "PointsBalance",
-                    title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.PointsBalance"]"
-                },{
-                    field: "Message",
-                    title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Message"]"
-                },{
-                    field: "CreatedOn",
-                    title: "@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]",
-                    width: 200,
-                    type: "date",
-                    format: "{0:G}"
-                }]
-            });
-        });
-</script>
 <p>
     <strong> @Loc["Admin.Customers.Customers.LoyaltyPoints.AddTitle"]</strong>
 </p>
 <div class="form-horizontal">
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AddLoyaltyPointsValue"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="AddLoyaltyPointsValue"/>
                 <span asp-validation-for="AddLoyaltyPointsValue"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AddLoyaltyPointsMessage"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="AddLoyaltyPointsMessage"/>
@@ -100,7 +45,7 @@
         </div>
         @if (area == "Admin")
         {
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AddLoyaltyPointsStoreId"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-select asp-for="AddLoyaltyPointsStoreId" asp-items="Model.LoyaltyPointsAvailableStores"/>
@@ -111,7 +56,7 @@
     </div>
     <div class="form-actions">
         <div class="offset-md-3">
-            <input type="button" id="addLoyaltyPoints" class="k-button" value="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]"/>
+            <input type="button" id="addLoyaltyPoints" class="btn btn-default btn-sm" value="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]"/>
         </div>
     </div>
 </div>

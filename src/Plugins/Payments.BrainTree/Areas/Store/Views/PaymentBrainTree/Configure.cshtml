@@ -10,7 +10,7 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-money"></i>
+                    <i class="bi bi-cash"></i>
                     @Loc["Payments.BrainTree.FriendlyName"]
                 </div>
             </div>
@@ -18,8 +18,8 @@
                 <form asp-controller="PaymentBrainTree" asp-action="Configure" asp-area="Store" method="post">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="Use3DS" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -27,8 +27,8 @@
                                     <span asp-validation-for="Use3DS"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="UseSandBox" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -36,8 +36,8 @@
                                     <span asp-validation-for="UseSandBox"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="MerchantId" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -45,8 +45,8 @@
                                     <span asp-validation-for="MerchantId"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="PrivateKey" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -54,8 +54,8 @@
                                     <span asp-validation-for="PrivateKey"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="PublicKey" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -63,8 +63,8 @@
                                     <span asp-validation-for="PublicKey"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="AdditionalFee" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -72,8 +72,8 @@
                                     <span asp-validation-for="AdditionalFee"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="AdditionalFeePercentage" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">
@@ -81,8 +81,8 @@
                                     <span asp-validation-for="AdditionalFeePercentage"></span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 text-right">
+                            <div class="mb-3">
+                                <div class="col-md-3 col-sm-3 text-end">
                                     <admin-label asp-for="DisplayOrder" class="control-label"/>
                                 </div>
                                 <div class="col-md-9 col-sm-9">

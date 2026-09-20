@@ -8,12 +8,12 @@
         <div class="x_panel light form-fit">
             <div class="x_title">
                 <div class="caption">
-                    <i class="fa fa-tags"></i>
+                    <i class="bi bi-tags"></i>
                     @Loc["admin.marketing.NewsletterCategory"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                 </div>
             </div>
@@ -21,7 +21,22 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="newslettercategory-grid"></div>
+                            <admin-grid id="newslettercategory-grid"
+                                        read-url="@Url.Action("List", "NewsletterCategory", new { area = Constants.AreaAdmin })"
+                                        pager="Compact">
+                                <grid-column field="Name" title="@Loc["admin.marketing.NewsletterCategory.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="Selected" title="@Loc["admin.marketing.NewsletterCategory.Fields.Selected"]" width="100" align="Center">
+                                    <cell-template>
+                                        <i data-if="Selected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="DisplayOrder" title="@Loc["admin.marketing.NewsletterCategory.Fields.DisplayOrder"]" width="120"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -29,59 +44,3 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $("#newslettercategory-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "NewsletterCategory", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc["admin.marketing.NewsletterCategory.Fields.Name"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            }, {
-                field: "Selected",
-                title: "@Loc["admin.marketing.NewsletterCategory.Fields.Selected"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Selected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "DisplayOrder",
-                title: "@Loc["admin.marketing.NewsletterCategory.Fields.DisplayOrder"]",
-                width: 120
-            }]
-        });
-    });
-</script>

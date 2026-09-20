@@ -996,9 +996,6 @@ public class ProductViewModelService(
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
-            // scope.HasAccess: same per-id ownership filter as BaseProductController's
-            // AssociatedProductAddPopup(POST) selected-ids loop - without it a vendor could map another
-            // vendor's products into their own related-products list (ARCH-001 Phase 1, Task 11).
             if (product == null || !await scope.HasAccess(product)) continue;
 
             var existingRelatedProducts = productId1.RelatedProducts;
@@ -2400,14 +2397,6 @@ public class ProductViewModelService(
         if (product.ProductPictures.Any(x => x.PictureId == picture.Id))
             return;
 
-        // IsDefault: deliberately left unset here (defaults to false), matching Admin/Store's original
-        // InsertProductPicture. Vendor's original copy set `IsDefault = product.ProductPictures.Any()` -
-        // true only once a picture already exists, i.e. false on the very first upload and true on every
-        // one after that. That reads as inverted (the first picture is normally the one that should
-        // default to true) rather than as an intentional feature Admin/Store were missing, so it is not
-        // being ported here. This is a documented behavior decision (ARCH-001 Phase 1, Task 11), not an
-        // oversight - flag for product-team review if Vendor's admins report the default-picture picker
-        // behaving differently than before.
         var productPicture = new ProductPicture {
             PictureId = picture.Id,
             DisplayOrder = displayOrder

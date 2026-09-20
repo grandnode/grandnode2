@@ -10,10 +10,10 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-envelope-o"></i>
+                        <i class="bi bi-envelope"></i>
                         @Loc["Admin.Content.MessageTemplates.EditMessageTemplateDetails"] - @Model.Name
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Content.MessageTemplates.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Content.MessageTemplates.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
@@ -21,13 +21,13 @@
                             @if (!Model.IsReadOnly)
                             {
                                 <button class="btn btn-success" type="submit" name="save">
-                                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
                                 </button>
                                 <button class="btn btn-success" type="submit" name="save-continue">
-                                    <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                                 </button>
                                 <span id="message-template-delete" class="btn red">
-                                    <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                    <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                                 </span>
                             }
                             @if (Model.CanCopy)

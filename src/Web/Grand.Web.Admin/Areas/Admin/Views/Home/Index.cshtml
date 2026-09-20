@@ -13,156 +13,175 @@
 @inject IContextAccessor contextAccessor
 @inject ICurrencyService currencyService
 @inject IGroupService groupService
+@functions {
+    //resources added in 2.4 arrive with the upgrade; until they are imported the English text is
+    //shown instead of the raw key
+    string Text(string key, string fallback)
+    {
+        var value = Loc[key].Value;
+        return string.IsNullOrEmpty(value) || string.Equals(value, key, StringComparison.OrdinalIgnoreCase) ? fallback : value;
+    }
+}
 @{
     //page title
     ViewBag.Title = Loc["Admin.Dashboard"];
     var isAdminAccess = await groupService.IsAdmin(contextAccessor.WorkContext.CurrentCustomer);
     var canAccessReports = await permissionService.Authorize(StandardPermission.ManageReports);
     var canManageOrders = await permissionService.Authorize(StandardPermission.ManageOrders);
-    var customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, contextAccessor.WorkContext.CurrentCustomer.SeId, 1, 1)).TotalCount;
-    var customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, contextAccessor.WorkContext.CurrentCustomer.SeId);
-    var ordersToday = await orderReportService.GetOrderPeriodReport(0, contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, contextAccessor.WorkContext.CurrentCustomer.SeId);
-    var ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, await currencyService.GetPrimaryStoreCurrency());
+    var customersOnline = 0;
+    var customersShoppingCart = 0;
+    var ordersAmount = string.Empty;
+    var ordersCount = 0;
+    if (canManageOrders)
+    {
+        customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, contextAccessor.WorkContext.CurrentCustomer.SeId, 1, 1)).TotalCount;
+        customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, contextAccessor.WorkContext.CurrentCustomer.SeId);
+        var ordersToday = await orderReportService.GetOrderPeriodReport(0, contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, contextAccessor.WorkContext.CurrentCustomer.SeId);
+        ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, await currencyService.GetPrimaryStoreCurrency());
+        ordersCount = ordersToday.Count;
+    }
 }
 
-<vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null"/>
-@if (canManageOrders)
-{
-    <div class="form-row top_tiles">
-        <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
-            <div class="tile-stats">
-                <div class="icon">
-                    <i class="fa fa-user"></i>
-                </div>
-                <div class="count">@customersOnline</div>
-                <h3>
-                    <a href="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaAdmin })">
-                        @Loc["Admin.Dashboard.OnlineCustomers"]
-                    </a>
-                </h3>
-                <p>@Loc["Admin.Dashboard.OnlineCustomerMinutes", customerSettings.OnlineCustomerMinutes]</p>
-            </div>
-        </div>
-        <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
-            <div class="tile-stats">
-                <div class="icon">
-                    <i class="fa fa-shopping-cart"></i>
-                </div>
-                <div class="count">@customersShoppingCart</div>
-                <h3>
-                    <a href="@Url.Action("CurrentCarts", "ShoppingCart", new { area = Constants.AreaAdmin })">
-                        @Loc["Admin.Dashboard.ActiveShoppingCarts"]
-                    </a>
-                </h3>
-                <p>@Loc["Admin.Dashboard.OnlineShoppingCart", customerSettings.OnlineShoppingCartMinutes]</p>
-            </div>
-        </div>
-        <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
-            <div class="tile-stats">
-                <div class="icon">
-                    <i class="fa fa-money"></i>
-                </div>
-                <div class="count"> @ordersAmount / @ordersToday.Count</div>
-                <h3>
-                    <a href="@Url.Action("List", "Order", new { startDate = DateTime.UtcNow.ToUniversalTime(), area = Constants.AreaAdmin })">
-                        @Loc["Admin.Dashboard.TodayOrders"]
-                    </a>
-                </h3>
-                <p> @Loc["Admin.Dashboard.TodayOrders.AmountCount"]</p>
-            </div>
-        </div>
-    </div>
+<div class="grand-dashboard">
+    <vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null"/>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>@Loc["Admin.Dashboard.Summary"]</h2>
-                    <div class="filter">
-                        <div class="page-bar" style="height:43px;">
-                            <div class="page-toolbar">
-                                <div id="dashboard-report-range" class="pull-right btn btn-fit-height green" data-original-title="Change dashboard date range">
-                                    <i class="icon-calendar"></i>&nbsp;
-                                    <span class="thin uppercase d-none d-sm-inline"></span>&nbsp;
-                                    <i class="fa fa-angle-down"></i>
-                                </div>
+    <header class="grand-dashboard__header">
+        <h1 class="grand-dashboard__title">@Loc["Admin.Dashboard"]</h1>
+        @if (canManageOrders)
+        {
+            <button type="button" id="dashboard-report-range" class="btn grand-dashboard__range" title="@Loc["Admin.Dashboard.Summary"]">
+                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                <span class="grand-dashboard__range-text"></span>
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+        }
+    </header>
+
+    <vc:admin-page system-name="AdminPortalInfo"/>
+
+    @if (canManageOrders)
+    {
+        <div class="row g-3 top_tiles grand-dashboard__stats">
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="grand-stat grand-stat--visitors">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                    <div class="grand-stat__body">
+                        <a class="grand-stat__label stretched-link" href="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaAdmin })">
+                            @Loc["Admin.Dashboard.OnlineCustomers"]
+                        </a>
+                        <div class="grand-stat__value">@customersOnline</div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.OnlineCustomerMinutes", customerSettings.OnlineCustomerMinutes]</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="grand-stat grand-stat--carts">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-cart3"></i></span>
+                    <div class="grand-stat__body">
+                        <a class="grand-stat__label stretched-link" href="@Url.Action("CurrentCarts", "ShoppingCart", new { area = Constants.AreaAdmin })">
+                            @Loc["Admin.Dashboard.ActiveShoppingCarts"]
+                        </a>
+                        <div class="grand-stat__value">@customersShoppingCart</div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.OnlineShoppingCart", customerSettings.OnlineShoppingCartMinutes]</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-xl-4">
+                <div class="grand-stat grand-stat--orders">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-bag-check"></i></span>
+                    <div class="grand-stat__body">
+                        <a class="grand-stat__label stretched-link" href="@Url.Action("List", "Order", new { startDate = DateTime.UtcNow.ToUniversalTime(), area = Constants.AreaAdmin })">
+                            @Loc["Admin.Dashboard.TodayOrders"]
+                        </a>
+                        <div class="grand-stat__value">
+                            <span>@ordersAmount</span>
+                            <span class="grand-stat__value-secondary">/ @ordersCount</span>
+                        </div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.TodayOrders.AmountCount"]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (canAccessReports || isAdminAccess)
+        {
+            <div class="row g-3">
+                @if (canAccessReports)
+                {
+                    <div class="col-12 @(isAdminAccess ? "col-xl-8" : "")">
+                        <section class="grand-card h-100" aria-labelledby="dashboard-customers-chart">
+                            <header class="grand-card__header">
+                                <i class="bi bi-person-plus grand-card__icon" aria-hidden="true"></i>
+                                <h2 id="dashboard-customers-chart" class="grand-card__title">@Loc["Admin.Dashboard.ReportCustomerTime.TitleChart"]</h2>
+                            </header>
+                            <div class="grand-card__body">
+                                @await Component.InvokeAsync("CustomerReportTimeChart")
                             </div>
-                        </div>
+                        </section>
                     </div>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content">
-                    <div class="col-12">
-                        <div id="store_news" class="store-news"></div>
-                        <script>
-                            $.getJSON("https://grandnode.com/news.json", function (data) {
-                                var newsitems = [];
-                                $.each(data, function (key, value) {
-                                    newsitems.push("<li id='news-" + key + "' class='media'><div class='media-body note note-info'><h5><a href='" + value.Url + "' target='_blank' >" + value.Name + "</a></h5>" + value.Message + "</div></li>");
-                                });
-
-                                $("<ul/>", {
-                                    "class": "store-news",
-                                    html: newsitems.join("")
-                                }).appendTo("#store_news");
-                            });
-                        </script>
-                    </div>
-                    @if (canAccessReports)
-                    {
-                        <div class="col-12 col-sm-12 col-lg-8 col-md-12 whiteBg">
-                            @await Component.InvokeAsync("CustomerReportTimeChart")
-                        </div>
-                    }
-                    @if (isAdminAccess)
-                    {
-                        <div class="col-cs-12 col-sm-12 col-lg-4 col-md-12">
-                            <div class="x_panel">
-                                <div class="x_title">
-                                    <h2>
-                                        @Loc["Admin.Dashboard.ActivityOverview"]
-                                    </h2>
-                                    <div class="clearfix"></div>
-                                </div>
-                                <div class="x_content-body">
-                                    <div class="partialContents" data-url="@Url.Action("DashboardActivity", new { area = Constants.AreaAdmin })">
-                                        <img src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/build/images/loading.gif"/> Loading ...
+                }
+                @if (isAdminAccess)
+                {
+                    <div class="col-12 @(canAccessReports ? "col-xl-4" : "")">
+                        <section class="grand-card h-100" aria-labelledby="dashboard-activity">
+                            <header class="grand-card__header">
+                                <i class="bi bi-activity grand-card__icon" aria-hidden="true"></i>
+                                <h2 id="dashboard-activity" class="grand-card__title">@Loc["Admin.Dashboard.ActivityOverview"]</h2>
+                            </header>
+                            <div class="grand-card__body grand-card__body--flush">
+                                <div class="partialContents" data-url="@Url.Action("DashboardActivity", new { area = Constants.AreaAdmin })">
+                                    <div class="grand-dashboard__loading" role="status">
+                                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                        <span>@Text("Admin.Dashboard.Loading", "Loading...")</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                </div>
+                        </section>
+                    </div>
+                }
             </div>
-        </div>
-    </div>
+        }
 
-    <div class="row">
-        <div class="col-md-12">
-            @if (canAccessReports)
-            {
-                <div class="col-sm-12 col-lg-12 col-md-12">
+        @if (canAccessReports)
+        {
+            <section class="grand-card" aria-labelledby="dashboard-orders-chart">
+                <header class="grand-card__header">
+                    <i class="bi bi-graph-up-arrow grand-card__icon" aria-hidden="true"></i>
+                    <h2 id="dashboard-orders-chart" class="grand-card__title">@Loc["Admin.Dashboard.ReportOrderTime.TitleChart"]</h2>
+                </header>
+                <div class="grand-card__body">
                     @await Component.InvokeAsync("OrderTimeChart")
                 </div>
-            }
-        </div>
-    </div>
+            </section>
+        }
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light bordered">
-                <div class="x_title">
-                    <h2 class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.ReportLatestOrder"]</h2>
-                    <div class="clear"></div>
-                </div>
-                <div class="x_content">
-                    @await Component.InvokeAsync("LatestOrder")
-                </div>
+        <section class="grand-card" aria-labelledby="dashboard-latest-orders">
+            <header class="grand-card__header">
+                <i class="bi bi-receipt grand-card__icon" aria-hidden="true"></i>
+                <h2 id="dashboard-latest-orders" class="grand-card__title">@Loc["Admin.Dashboard.ReportLatestOrder"]</h2>
+                <a class="grand-card__action" href="@Url.Action("List", "Order", new { area = Constants.AreaAdmin })">
+                    @Loc["Admin.Dashboard.ViewMore"]
+                    <i class="bi bi-arrow-right grand-card__action-arrow" aria-hidden="true"></i>
+                </a>
+            </header>
+            <div class="grand-card__body">
+                @await Component.InvokeAsync("LatestOrder")
             </div>
-        </div>
-    </div>
-}
-<vc:admin-widget widget-zone="admin_dashboard_bottom" additional-data="null"/>
+        </section>
+
+        <section class="grand-card" id="store_news_card" aria-labelledby="dashboard-news" hidden>
+            <header class="grand-card__header">
+                <i class="bi bi-megaphone grand-card__icon" aria-hidden="true"></i>
+                <h2 id="dashboard-news" class="grand-card__title">@Text("Admin.Dashboard.News", "News from GrandNode")</h2>
+            </header>
+            <div class="grand-card__body">
+                <ul id="store_news" class="grand-news"></ul>
+            </div>
+        </section>
+    }
+
+    <vc:admin-widget widget-zone="admin_dashboard_bottom" additional-data="null"/>
+</div>
 <script>
     $(document).ready(function (e) {
         var site = site || {};
@@ -175,11 +194,45 @@
         });
     });
 
+    //grandnode.com news: the message is shown as text - remote markup is never put into the panel
+    (function () {
+        var list = document.getElementById('store_news');
+        if (!list) return;
+        $.getJSON("https://grandnode.com/news.json", function (data) {
+            var count = 0;
+            $.each(data || [], function (key, value) {
+                if (!value || !value.Name) return;
+                var item = document.createElement('li');
+                item.className = 'grand-news__item';
+                var title = document.createElement('h3');
+                title.className = 'grand-news__title';
+                var url = String(value.Url || '');
+                if (/^https?:\/\//i.test(url)) {
+                    var link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = value.Name;
+                    title.appendChild(link);
+                } else {
+                    title.textContent = value.Name;
+                }
+                var text = document.createElement('p');
+                text.className = 'grand-news__text';
+                text.textContent = new DOMParser().parseFromString(String(value.Message || ''), 'text/html').body.textContent.trim();
+                item.appendChild(title);
+                item.appendChild(text);
+                list.appendChild(item);
+                count++;
+            });
+            if (count > 0) document.getElementById('store_news_card').hidden = false;
+        });
+    })();
 
     var Dashboard = function () {
         return {
             initDashboardDaterange: function () {
-                if (!jQuery().daterangepicker) {
+                if (!jQuery().daterangepicker || !$('#dashboard-report-range').length) {
                     return;
                 }
 
@@ -228,10 +281,10 @@
                     },
                     opens: ($('html').css('direction') === 'rtl' ? 'right' : 'left'),
                 }, function (start, end, label) {
-                    $('#dashboard-report-range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                    $('#dashboard-report-range .grand-dashboard__range-text').text(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 });
 
-                $('#dashboard-report-range span').html(moment().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+                $('#dashboard-report-range .grand-dashboard__range-text').text(moment().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
                 $('#dashboard-report-range').show();
             },
 

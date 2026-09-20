@@ -1,12 +1,12 @@
 ﻿@model IList<ProductAttributeCombinationModel.ProductAttributeModel>
 @if (Model.Count > 0)
 {
-    <div class="form-group">
+    <div class="mb-3">
         @foreach (var attribute in Model)
         {
             var controlId = $"attributes[{attribute.Id}]";
             var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="col-md-3 col-sm-3">
                     @if (attribute.IsRequired)
                     {
@@ -19,7 +19,7 @@
                     {
                         case AttributeControlType.DropdownList:
                         {
-                            <select name="@(controlId)" id="@(controlId)" class="form-control">
+                            <select name="@(controlId)" id="@(controlId)" class="form-select">
                                 @if (!attribute.IsRequired)
                                 {
                                     <option value="">---</option>

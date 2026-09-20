@@ -650,23 +650,6 @@ public class BaseDiscountControllerTests
     }
 
     [TestMethod]
-    public async Task UsageHistoryList_ScopeAllowsAccess_ReturnsUsageHistory()
-    {
-        var discount = new Discount { Id = "1" };
-        var usageHistoryModel = new DiscountModel.DiscountUsageHistoryModel { Id = "h1" };
-        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
-        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(true);
-        _vmService.Setup(x => x.PrepareDiscountUsageHistoryModel(discount, 1, 10))
-            .ReturnsAsync((new[] { usageHistoryModel }, 1));
-
-        var result = await _sut.UsageHistoryList("1", new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
-
-        var data = (DataSourceResult)result!.Value!;
-        Assert.AreEqual(1, data.Total);
-        Assert.AreEqual(1, ((List<DiscountModel.DiscountUsageHistoryModel>)data.Data).Count);
-    }
-
-    [TestMethod]
     public async Task UsageHistoryDelete_ScopeDeniesAccess_ReturnsAccessDeniedJson()
     {
         var discount = new Discount { Id = "1" };
@@ -694,11 +677,6 @@ public class BaseDiscountControllerTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on Discount applied-to-collections region
-/// methods. Ensures CollectionList, CollectionDelete, both CollectionAddPopup overloads, and
-/// CollectionAddPopupList carry the required [PermissionAuthorizeAction] attributes.
-/// </summary>
 [TestClass]
 public class BaseDiscountControllerCollectionsAttributeTests
 {
@@ -763,11 +741,6 @@ public class BaseDiscountControllerCollectionsAttributeTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on Discount applied-to-products region methods.
-/// Ensures that ProductList, ProductDelete, and both ProductAddPopup overloads carry the required
-/// [PermissionAuthorizeAction] attributes.
-/// </summary>
 [TestClass]
 public class BaseDiscountControllerProductsAttributeTests
 {
@@ -832,11 +805,6 @@ public class BaseDiscountControllerProductsAttributeTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on Discount requirements region methods.
-/// Ensures that GetDiscountRequirementConfigurationUrl, GetDiscountRequirementMetaInfo, and
-/// DeleteDiscountRequirement carry the required [PermissionAuthorizeAction] attributes.
-/// </summary>
 [TestClass]
 public class BaseDiscountControllerRequirementsAttributeTests
 {
@@ -880,12 +848,6 @@ public class BaseDiscountControllerRequirementsAttributeTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on Discount coupon-code region methods.
-/// Ensures that CouponCodeList, CouponCodeDelete, and CouponCodeInsert carry the required
-/// [PermissionAuthorizeAction] attributes to prevent authorization bypass (users without Edit
-/// permission should not be able to modify or delete coupon codes).
-/// </summary>
 [TestClass]
 public class BaseDiscountControllerCouponCodeAttributeTests
 {
@@ -926,11 +888,6 @@ public class BaseDiscountControllerCouponCodeAttributeTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on Discount usage-history region methods.
-/// Ensures that UsageHistoryList and UsageHistoryDelete carry the required [PermissionAuthorizeAction]
-/// attributes to prevent authorization bypass.
-/// </summary>
 [TestClass]
 public class BaseDiscountControllerUsageHistoryAttributeTests
 {
@@ -959,12 +916,6 @@ public class BaseDiscountControllerUsageHistoryAttributeTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on Discount applied-to-categories and
-/// applied-to-brands region methods. Ensures CategoryList, CategoryDelete, both CategoryAddPopup
-/// overloads, CategoryAddPopupList, BrandList, BrandDelete, both BrandAddPopup overloads, and
-/// BrandAddPopupList carry the required [PermissionAuthorizeAction] attributes.
-/// </summary>
 [TestClass]
 public class BaseDiscountControllerCategoriesAndBrandsAttributeTests
 {

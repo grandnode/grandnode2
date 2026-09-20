@@ -11,10 +11,10 @@
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-truck"></i>
+                        <i class="bi bi-truck"></i>
                         @Loc["Admin.Orders.PaymentTransaction.Details"]
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i> @Html.ActionLink(Loc["Admin.Orders.PaymentTransaction.BackToList"], "List")
+                            <i class="bi bi-arrow-left-circle"></i> @Html.ActionLink(Loc["Admin.Orders.PaymentTransaction.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
@@ -22,21 +22,21 @@
                             @if (Model.CanCapture)
                             {
                                 <input type="submit" name="capturepaymenttransaction" asp-action="CapturePaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Capture"]"
-                                       id="capturepaymenttransaction" class="k-button" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
+                                       id="capturepaymenttransaction" class="btn btn-default btn-sm" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
                                 <text>&nbsp;</text>
                             }
                             @if (Model.CanMarkAsPaid)
                             {
                                 <button type="submit" id="markpaymenttransactionaspaid" name="markpaymenttransactionaspaid" asp-action="MarkPaymentTransactionAsPaid"
-                                        onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button">
-                                    <i class="fa fa-money" aria-hidden="true"></i>&nbsp;@Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]
+                                        onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm">
+                                    <i class="bi bi-cash" aria-hidden="true"></i>&nbsp;@Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]
                                 </button>
                             }
                             @if (Model.CanPartiallyPaidOffline)
                             {
                                 <a id="partiallypaidpaymenttransactionoffline" name="partiallypaidpaymenttransactionoffline"
                                    href="@(Url.Action("PartiallyPaidPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
-                                   class="k-button">
+                                   class="btn btn-default btn-sm">
                                     @Loc["Admin.PaymentTransaction.Fields.PartialPaidOffline"]
                                 </a>
                                 <text>&nbsp;</text>
@@ -44,13 +44,13 @@
                             @if (Model.CanRefund)
                             {
                                 <input type="submit" name="refundpaymenttransaction" asp-action="RefundPaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="refundpaymenttransaction"
-                                       class="k-button" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
+                                       class="btn btn-default btn-sm" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
                                 <text>&nbsp;</text>
                             }
                             @if (Model.CanRefundOffline)
                             {
                                 <input type="submit" name="refundpaymenttransactionoffline" asp-action="RefundPaymentTransactionOffline" value="@Loc["Admin.PaymentTransaction.Fields.RefundOffline"]"
-                                       id="refundpaymenttransactionoffline" class="k-button" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
+                                       id="refundpaymenttransactionoffline" class="btn btn-default btn-sm" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
                                 <text>&nbsp;</text>
                             }
                             @if (Model.CanPartiallyRefund)
@@ -58,7 +58,7 @@
                                 <a id="partiallyrefundpaymenttransaction" name="partiallyrefundpaymenttransaction"
                                    value="@Loc["Admin.PaymentTransaction.Fields.PartialRefund"]"
                                    href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = true, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
-                                   class="k-button">
+                                   class="btn btn-default btn-sm">
                                     @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
                                 </a>
                                 <text>&nbsp;</text>
@@ -67,7 +67,7 @@
                             {
                                 <a id="partiallyrefundpaymenttransactionoffline" name="partiallyrefundpaymenttransactionoffline"
                                    href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
-                                   class="k-button">
+                                   class="btn btn-default btn-sm">
                                     @Loc["Admin.PaymentTransaction.Fields.PartialRefundOffline"]
                                 </a>
                                 <text>&nbsp;</text>
@@ -75,19 +75,19 @@
                             @if (Model.CanVoid)
                             {
                                 <input type="submit" name="voidpaymenttransaction" asp-action="VoidPaymentTransaction"
-                                       value="@Loc["Admin.Orders.Fields.Void"]" id="voidpaymenttransaction" class="k-button"
+                                       value="@Loc["Admin.Orders.Fields.Void"]" id="voidpaymenttransaction" class="btn btn-default btn-sm"
                                        onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
                                 <text>&nbsp;</text>
                             }
                             @if (Model.CanVoidOffline)
                             {
                                 <input type="submit" name="voidpaymenttransactionoffline" asp-action="VoidPaymentTransactionOffline"
-                                       value="@Loc["Admin.PaymentTransaction.Fields.VoidOffline"]" id="voidpaymenttransactionoffline" class="k-button"
+                                       value="@Loc["Admin.PaymentTransaction.Fields.VoidOffline"]" id="voidpaymenttransactionoffline" class="btn btn-default btn-sm"
                                        onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
                                 <text>&nbsp;</text>
                             }
                             <span id="paymenttransaction-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
                             </span>
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>

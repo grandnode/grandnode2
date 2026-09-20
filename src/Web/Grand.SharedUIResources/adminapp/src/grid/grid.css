@@ -1,0 +1,584 @@
+/*
+ * <admin-grid> look inside the admin layout. Tabulator's Bootstrap 5 theme (imported before
+ * this file) only styles .tabulator elements and ships no Bootstrap globals; everything here
+ * is scoped to .grand-grid so nothing leaks into the panels.
+ *
+ * The theme paints with fixed colours (a #fff table, #333 text, #dee2e6 lines), so every
+ * surface, text and line colour the grid shows is set here, from the tokens below. A token
+ * is either a Bootstrap variable, which follows the colour mode by itself, or - where the
+ * grid's light look is not a Bootstrap colour - a light value with its dark counterpart in
+ * the one [data-bs-theme="dark"] block. There are no other dark rules in this file.
+ */
+
+.grand-grid {
+    --grand-grid-bg: var(--bs-body-bg, #fff);
+    --grand-grid-color: #333;
+    --grand-grid-border: #e7ecf1;
+    --grand-grid-header-bg: #f9fafc;
+    --grand-grid-header-color: #333;
+    --grand-grid-row-alt-bg: #fbfcfd;
+    --grand-grid-detail-bg: #f6f7f9;
+    --grand-grid-edit-bg: #fdf8e4;
+    --grand-grid-selected-bg: #d9ecf7;
+    --grand-grid-muted-color: #888;
+    --grand-grid-pager-hover-bg: #f2f4f7;
+    --grand-grid-true-color: green;
+    --grand-grid-false-color: red;
+    /* the cell rule Tabulator draws in right-to-left only (.tabulator-rtl) */
+    --grand-grid-rtl-cell-border: #dee2e6;
+    /*
+     * The frame: one outline round the header, the rows and the pager, in the colour and
+     * the radius of a form control, so a grid reads as one field of the form it sits in.
+     * The lines inside it (--grand-grid-border) stay lighter than the outline.
+     */
+    --grand-grid-frame: var(--bs-border-color, #dee2e6);
+    --grand-grid-radius: var(--bs-border-radius, .25rem);
+    --grand-grid-hover-bg: #f3f6f9;
+    --grand-grid-footer-bg: var(--grand-grid-header-bg);
+    --grand-grid-edit-marker: #e0a800;
+    /* the current page of the pager: white on it is 5.6:1 */
+    --grand-grid-accent: #0b7285;
+    --grand-grid-accent-color: #fff;
+    /* a detail grid is set in from its master row by this much, past the expander */
+    --grand-grid-detail-indent: 2.25rem;
+
+    position: relative;
+    width: 100%;
+    /*
+     * a formatting context of its own, like the Kendo grid (a flex container): the grid sits
+     * next to or below floated siblings instead of overlapping them - the add-product popups
+     * float their search header, and a positioned block box on top of it swallowed the clicks
+     * on Search and Save
+     */
+    display: flow-root;
+}
+
+.grand-grid .tabulator {
+    font-size: inherit;
+    border: 1px solid var(--grand-grid-frame);
+    border-radius: var(--grand-grid-radius);
+    margin: 0;
+    background-color: transparent;
+}
+
+/* With a pager below, the table is the top half of the frame and the pager the bottom
+   half: the two share the outline and only the outer corners are rounded. */
+.grand-grid > .grand-grid-table:has(+ .grand-grid-pager:not([hidden])) > .tabulator {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+}
+
+/* the theme paints the table itself white with #333 text, under the rows */
+.grand-grid .tabulator .tabulator-tableholder .tabulator-table {
+    background-color: var(--grand-grid-bg);
+    color: var(--grand-grid-color);
+}
+
+/*
+ * Admin grids never scroll vertically inside the table (no height option, basic
+ * rendering). Tabulator still pins the holder to the height it measured, which would clip
+ * detail rows that open or finish loading afterwards. Sideways the holder does scroll: when
+ * the columns cannot shrink any further (a phone) the rows move inside the frame, and
+ * Tabulator moves the header with them, instead of the frame clipping the last columns.
+ */
+.grand-grid .tabulator .tabulator-tableholder {
+    height: auto !important;
+    max-height: none !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.grand-grid .tabulator .tabulator-header {
+    border-top: 0;
+    border-bottom: 1px solid var(--grand-grid-frame);
+    background-color: var(--grand-grid-header-bg);
+    color: var(--grand-grid-header-color);
+}
+
+.grand-grid .tabulator .tabulator-header .tabulator-col {
+    background-color: transparent;
+    border-right: none;
+}
+
+.grand-grid .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 8px 10px;
+}
+
+.grand-grid .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+    white-space: normal;
+    font-weight: 600;
+}
+
+/* A row's background is its --grand-grid-row-bg; the even, edit and selected states below
+   only change that variable, so the one rule that paints it also wins in dark mode (at the
+   end of this file). */
+.grand-grid .tabulator-row {
+    --grand-grid-row-bg: var(--grand-grid-bg);
+    border-bottom: 1px solid var(--grand-grid-border);
+    background-color: var(--grand-grid-row-bg);
+}
+
+/*
+ * Tabulator measures row heights once and pins them on every cell, so content that grows
+ * afterwards (thumbnails loading, a detail grid) would be clipped. Rows are flex lines
+ * instead: cells keep the widths Tabulator sets and stretch to the tallest one, and a
+ * detail holder wraps onto its own line.
+ */
+.grand-grid .tabulator-row:not(.tabulator-group) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.grand-grid .tabulator-row .tabulator-cell {
+    height: auto !important;
+    flex: none;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.grand-grid .tabulator-row .tabulator-cell[tabulator-hozalign="center"],
+.grand-grid .tabulator-row .tabulator-cell[style*="text-align: center"] {
+    align-items: center;
+}
+
+.grand-grid .tabulator-row .tabulator-cell[style*="text-align: right"] {
+    align-items: flex-end;
+}
+
+.grand-grid .tabulator.tabulator-rtl .tabulator-row .tabulator-cell {
+    border-left-color: var(--grand-grid-rtl-cell-border);
+}
+
+.grand-grid .tabulator-row.tabulator-row-even {
+    --grand-grid-row-bg: var(--grand-grid-row-alt-bg);
+}
+
+/* the last row ends on the frame (or on the pager's rule), not on a line of its own */
+.grand-grid .tabulator-tableholder > .tabulator-table > .tabulator-row:last-child {
+    border-bottom: 0;
+}
+
+/* A hovered row is lit so a wide row can be followed across; a row whose detail is under
+   the pointer is not - the hover belongs to the rows inside the detail. */
+.grand-grid .tabulator-row:hover:not(:has(.grand-grid-detail:hover)) {
+    --grand-grid-row-bg: var(--grand-grid-hover-bg);
+}
+
+.grand-grid .tabulator-row .tabulator-cell {
+    padding: 8px 10px;
+    border-right: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    vertical-align: middle;
+}
+
+.grand-grid .tabulator-row.grand-grid-edit-row,
+.grand-grid .tabulator-row.grand-grid-edit-row:hover {
+    --grand-grid-row-bg: var(--grand-grid-edit-bg);
+}
+
+/* a row in edit is also marked on its leading edge, which still shows on a striped row */
+.grand-grid .tabulator-row.grand-grid-edit-row::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background-color: var(--grand-grid-edit-marker);
+    z-index: 1;
+}
+
+.grand-grid .tabulator-row.grand-grid-edit-row .tabulator-cell {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+/* The empty state: a tray glyph over the "no records" text - or on its own where an
+   installation never imported that text - so an empty grid does not read as a broken one. */
+.grand-grid .tabulator .tabulator-tableholder .tabulator-placeholder .tabulator-placeholder-contents {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 1em;
+    font-weight: normal;
+    color: var(--grand-grid-muted-color);
+    padding: 20px 12px;
+}
+
+.grand-grid .tabulator .tabulator-tableholder .tabulator-placeholder .tabulator-placeholder-contents::before,
+.grand-grid .tabulator .tabulator-tableholder:not(:has(.tabulator-placeholder)) > .tabulator-table:empty::before {
+    content: "\f42d";
+    font-family: bootstrap-icons, sans-serif;
+    font-size: 1.75rem;
+    line-height: 1;
+    opacity: .7;
+}
+
+/* without the text Tabulator draws no placeholder at all, only an empty table */
+.grand-grid .tabulator .tabulator-tableholder:not(:has(.tabulator-placeholder)) > .tabulator-table:empty::before {
+    display: block;
+    padding: 20px 12px;
+    text-align: center;
+    color: var(--grand-grid-muted-color);
+}
+
+/* a pager that is only the refresh button (pageable="Compact") is a slim footer */
+.grand-grid .grand-grid-pager:has(> .grand-grid-refresh:only-child) {
+    padding-block: 2px;
+}
+
+.grand-grid .tabulator-cell img {
+    max-width: 100%;
+    height: auto;
+}
+
+.grand-grid .grand-grid-true {
+    color: var(--grand-grid-true-color);
+}
+
+.grand-grid .grand-grid-false {
+    color: var(--grand-grid-false-color);
+}
+
+.grand-grid .grand-grid-toolbar {
+    padding: 0 0 8px;
+}
+
+.grand-grid .grand-grid-command-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.grand-grid .grand-grid-command-buttons .btn,
+.grand-grid .grand-grid-toolbar .btn {
+    margin: 0;
+}
+
+.grand-grid .grand-grid-detail-toggle {
+    border: 0;
+    background: transparent;
+    padding: 0 4px;
+    font-size: 1.15em;
+    line-height: 1;
+    color: inherit;
+    cursor: pointer;
+}
+
+/*
+ * A detail row is a recessed band under its master row: the tint and an indent past the
+ * expander tell the levels apart. The detail grid keeps a frame, but in the colour of the
+ * lines inside a grid rather than of the outline, so three levels read as steps and not as
+ * boxes drawn round boxes.
+ */
+.grand-grid .grand-grid-detail {
+    display: block;
+    flex: 0 0 100%;
+    width: 100%;
+    box-sizing: border-box;
+    padding-block: 10px 12px;
+    padding-inline: var(--grand-grid-detail-indent) 12px;
+    background-color: var(--grand-grid-detail-bg);
+    border-top: 1px solid var(--grand-grid-border);
+    clear: both;
+}
+
+.grand-grid .grand-grid-detail .grand-grid {
+    --grand-grid-frame: var(--grand-grid-border);
+}
+
+/* The pager is the footer of the frame: the outline continues round it and a rule
+   separates it from the last row. */
+.grand-grid .grand-grid-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    padding: 6px 10px;
+    border: 1px solid var(--grand-grid-frame);
+    border-top: 1px solid var(--grand-grid-border);
+    border-end-start-radius: var(--grand-grid-radius);
+    border-end-end-radius: var(--grand-grid-radius);
+    background-color: var(--grand-grid-footer-bg);
+}
+
+.grand-grid .grand-grid-pager-nav,
+.grand-grid .grand-grid-pager-numbers {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.grand-grid .grand-grid-pager-button {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: var(--grand-grid-radius);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.grand-grid .grand-grid-pager-button:hover:not(:disabled) {
+    border-color: var(--grand-grid-border);
+    background-color: var(--grand-grid-pager-hover-bg);
+}
+
+.grand-grid .grand-grid-pager-button:focus-visible {
+    outline: 2px solid var(--grand-grid-accent);
+    outline-offset: 1px;
+}
+
+.grand-grid .grand-grid-pager-button.active,
+.grand-grid .grand-grid-pager-button.active:hover {
+    border-color: var(--grand-grid-accent);
+    background-color: var(--grand-grid-accent);
+    color: var(--grand-grid-accent-color);
+    font-weight: 600;
+}
+
+.grand-grid .grand-grid-pager-button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.grand-grid .grand-grid-page-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-weight: normal;
+}
+
+.grand-grid .grand-grid-page-size select {
+    width: auto;
+}
+
+.grand-grid .grand-grid-pager-info {
+    margin-inline-start: auto;
+}
+
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .bi-chevron-left,
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .bi-chevron-right,
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .bi-chevron-double-left,
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .bi-chevron-double-right {
+    transform: scaleX(-1);
+}
+
+/*
+ * The dark values of the tokens that are not Bootstrap variables. Surfaces step up from the
+ * page (--bs-body-bg) through --bs-tertiary-bg to --bs-secondary-bg; text is
+ * --bs-body-color, at least 6:1 on each of them.
+ */
+[data-bs-theme="dark"] .grand-grid {
+    --grand-grid-color: var(--bs-body-color);
+    --grand-grid-border: var(--bs-border-color-translucent);
+    --grand-grid-header-bg: var(--bs-tertiary-bg);
+    --grand-grid-header-color: var(--bs-emphasis-color);
+    --grand-grid-row-alt-bg: rgba(255, 255, 255, .03);
+    --grand-grid-detail-bg: var(--bs-tertiary-bg);
+    --grand-grid-edit-bg: rgba(255, 220, 120, .08);
+    --grand-grid-selected-bg: rgba(var(--bs-primary-rgb), .3);
+    --grand-grid-muted-color: var(--bs-secondary-color);
+    --grand-grid-pager-hover-bg: var(--bs-secondary-bg);
+    --grand-grid-true-color: var(--bs-success-text-emphasis);
+    --grand-grid-false-color: var(--bs-danger-text-emphasis);
+    --grand-grid-rtl-cell-border: var(--bs-border-color-translucent);
+    --grand-grid-hover-bg: rgba(255, 255, 255, .06);
+    --grand-grid-edit-marker: #ffc94d;
+    /* dark text on it: 9.5:1 */
+    --grand-grid-accent: #66d9e8;
+    --grand-grid-accent-color: #10262b;
+}
+
+/* The yes/no ticks of the cell templates are coloured inline (style="color:green" and
+   style="color:red", about 130 views) or with text-success / text-danger, which are
+   !important themselves; on the dark rows both are about 2.2:1. Only an !important rule
+   reaches them; it is scoped to the grid and to the dark mode, so the light look and every
+   other use of those colours are left alone. */
+[data-bs-theme="dark"] .grand-grid [style*="color:green"],
+[data-bs-theme="dark"] .grand-grid [style*="color: green"],
+[data-bs-theme="dark"] .grand-grid .text-success {
+    color: var(--grand-grid-true-color) !important;
+}
+
+[data-bs-theme="dark"] .grand-grid [style*="color:red"],
+[data-bs-theme="dark"] .grand-grid [style*="color: red"],
+[data-bs-theme="dark"] .grand-grid .text-danger {
+    color: var(--grand-grid-false-color) !important;
+}
+
+/* selectable="Row" */
+.grand-grid .tabulator-row.grand-grid-selected,
+.grand-grid .tabulator-row.grand-grid-selected:hover {
+    --grand-grid-row-bg: var(--grand-grid-selected-bg);
+}
+
+.grand-grid.grand-grid-row-select .tabulator-row {
+    cursor: pointer;
+}
+
+/* edit-mode="Batch": a changed cell keeps a corner marker until the changes are saved */
+.grand-grid .grand-grid-dirty {
+    position: relative;
+    width: 100%;
+}
+
+.grand-grid .grand-grid-dirty::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    inset-inline-start: -4px;
+    border-style: solid;
+    border-width: 6px 6px 0 0;
+    border-color: #e53935 transparent transparent transparent;
+}
+
+[dir="rtl"] .grand-grid .grand-grid-dirty::before {
+    border-width: 6px 0 0 6px;
+    border-color: #e53935 transparent transparent transparent;
+}
+
+/* The numeric editor of a cell: the control of ui/numeric.js in the size of a row. On a
+   screen it is inline and 22rem wide; in a cell it takes the width it is given, and the
+   arrows are narrower so the column does not have to grow to hold them. The geometry is
+   written with logical properties, so the arrows sit at the end of the field in both
+   directions without a rule of their own. */
+.grand-grid .grand-grid-numeric {
+    width: 100%;
+}
+
+.grand-grid .grand-grid-numeric .grand-numeric-group {
+    width: 100%;
+    min-width: 4.5rem;
+}
+
+/* The numeric and the date control are Bootstrap input groups, and the panels give every
+   .input-group a 10px bottom margin (_custom.scss) to space the rows of a form. In a cell
+   that margin sat under the control only, so it rode 5px above the text and select editors
+   of the same row. A form keeps its margin. */
+.grand-grid .grand-grid-numeric .grand-numeric-group,
+.grand-grid .grand-grid-date .grand-datepicker {
+    margin-bottom: 0;
+}
+
+.grand-grid .grand-grid-numeric .grand-numeric-spin {
+    width: 1.25rem;
+    border-end-end-radius: var(--bs-border-radius-sm, .25rem);
+    border-start-end-radius: var(--bs-border-radius-sm, .25rem);
+}
+
+.grand-grid .grand-grid-numeric .grand-numeric-spin > button {
+    font-size: .5rem;
+}
+
+.grand-grid .grand-grid-select-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+}
+
+/* The select editor of a cell: the list of ui/select.js in the size of a row. The wrapper
+   Tom Select builds carries the classes of the select it enhanced (form-select form-select-sm),
+   so the field is the small variant of the one a screen shows. */
+.grand-grid .grand-grid-select {
+    width: 100%;
+}
+
+.grand-grid .grand-grid-select .ts-wrapper {
+    width: 100%;
+    min-width: 6rem;
+}
+
+/* Tom Select's Bootstrap 5 theme has no rule for form-select-sm, so the small size is given
+   here - the padding and font size of form-select-sm - to match the text and number cells. In a narrow column the
+   chosen text and the search field used to wrap onto two lines and double the row; the text
+   now keeps one line and ends in an ellipsis. */
+.grand-grid .grand-grid-select .ts-control {
+    min-height: 0;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+    padding-inline-start: .5rem;
+}
+
+/* the theme's own -sm rule (.ts-wrapper.form-select-sm.has-items .ts-control) sets a size of
+   its own, larger than Bootstrap's, and comes later in the page */
+.grand-grid .grand-grid-select .ts-wrapper.form-select-sm .ts-control,
+.grand-grid .grand-grid-select .ts-wrapper.form-select-sm .ts-control input {
+    font-size: .765625rem;
+}
+
+.grand-grid .grand-grid-select .ts-control > .item {
+    min-width: 0;
+    flex: 0 1 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.grand-grid .grand-grid-select .ts-control > input {
+    min-width: 1rem;
+    flex: 1 1 auto;
+}
+
+/* The dropdown of a cell hangs on <body> rather than inside the table, which nothing can
+   clip. There it is outside .grand-grid and outside whatever popup the grid sits in - a
+   magnific-popup window (10003) or a panel modal (--grand-zindex-modal) - so the dropdown
+   level of the forms, which only clears the chrome, would draw it underneath. It takes the
+   level the scale keeps for what floats over a modal. */
+.ts-dropdown.grand-grid-dropdown {
+    z-index: var(--grand-zindex-popover, 10400);
+    font-size: .765625rem;
+}
+
+/* A tick in a row is the form control now, so it needs the vertical rhythm of a cell rather
+   than the baseline an input gets by default. */
+.grand-grid .form-check-input {
+    margin: 0;
+    vertical-align: middle;
+}
+
+/*
+ * Tabulator's Bootstrap 5 theme has a dark mode of its own, keyed on
+ * html[data-bs-theme=dark]: it paints the table, the header, every row and every cell with
+ * --bs-body-bg and lights a hovered row with --bs-secondary-bg, at a specificity above the
+ * rules of this file. Opaque cells hid the edit, selected and even row states, and the hover
+ * lit a whole detail grid under its master row - a hover the light mode never had. Inside
+ * an <admin-grid> those surfaces are handed back to the tokens; one class more than the
+ * theme's selectors, or the same weight later in the bundle, is what makes these win.
+ */
+html[data-bs-theme="dark"] .grand-grid .tabulator {
+    background-color: transparent;
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator:not(.thead-light) .tabulator-header {
+    background-color: var(--grand-grid-header-bg);
+    border-color: var(--grand-grid-frame);
+    color: var(--grand-grid-header-color);
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator:not(.thead-light) .tabulator-header .tabulator-col {
+    background-color: transparent;
+    color: inherit;
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator .tabulator-row,
+html[data-bs-theme="dark"] .grand-grid .tabulator .tabulator-row:hover {
+    background-color: var(--grand-grid-row-bg);
+    border-color: var(--grand-grid-border);
+    color: var(--grand-grid-color);
+}
+
+html[data-bs-theme="dark"] .grand-grid .tabulator .tabulator-row .tabulator-cell {
+    background-color: transparent;
+}

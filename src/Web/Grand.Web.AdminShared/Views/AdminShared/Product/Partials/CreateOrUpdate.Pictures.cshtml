@@ -1,163 +1,101 @@
 @model ProductModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
         <partial name="Partials/WidgetZone.Pictures.Top" model="Model"/>
         <div class="panel-body">
-            <div id="productpictures-grid"></div>
+            <admin-grid id="productpictures-grid"
+                        read-only="@readOnly"
+                        read-url="@Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("ProductPictureDelete", "Product", new { area = area })"
+                        pager="Compact"
+                        auto-bind="false"
+                        confirm-destroy="true"
+                        on-data-bound="bindProductPicturePopups">
+                <grid-column field="PictureUrl" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.Picture"]" width="165">
+                    <cell-template>
+                        @if (readOnly)
+                        {
+                            <img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' />
+                        }
+                        else
+                        {
+                            <a class='text-decoration-none editpicture' href="@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
+                        }
+                    </cell-template>
+                </grid-column>
+                <grid-column field="IsDefault" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.IsDefault"]" width="100" align="Center">
+                    <cell-template>
+                        <i data-if="IsDefault" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.DisplayOrder"]" width="100" align="Center" format="{0:0}" min-screen-width="750"/>
+                <grid-column field="AltAttribute" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.OverrideAltAttribute"]" min-screen-width="500"/>
+                <grid-column field="TitleAttribute" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.OverrideTitleAttribute"]" min-screen-width="500"/>
+                <grid-commands destroy="true" width="200"/>
+            </admin-grid>
         </div>
         <partial name="Partials/WidgetZone.Pictures.Bottom" model="Model"/>
     </div>
     <script>
-            $(document).ready(function () {
-                $("#productpictures-grid").kendoGrid({
-                    dataBound: function () {
-                        $('.editpicture').magnificPopup({
-                            type: 'ajax',
-                            settings: { cache: false, async: false },
-                            midClick: true,
-                            callbacks: {
-                                parseAjax: function (mfpResponse) {
-                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                                },
-                                ajaxContentAdded: function () {
-                                    $('.mfp-wrap').removeAttr('tabindex');
-                                }
-                            }
-                        });
-                    },
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = area }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
-                            destroy: {
-                                url: "@Html.Raw(Url.Action("ProductPictureDelete", "Product", new { area = area }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            }
+            function bindProductPicturePopups() {
+                $('.editpicture').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
                         },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors",
-                            model: {
-                                id: "Id",
-                                fields: {
-                                    PictureUrl: {editable: false, type: "string" },
-                                    DisplayOrder: {editable: true, type: "number" },
-                                    IsDefault: { editable: true, type: "boolean" },
-                                    AltAttribute: {editable: true, type: "string" },
-                                    TitleAttribute: {editable: true, type: "string" }
-                                }
-                            }
-                        },
-                        requestEnd: function(e) {
-                            if(e.type=="update") {
-                                this.read();
-                            }
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    autoBind: false,
-                    pageable: {
-                        refresh: true,
-                        numeric: false,
-                        previousNext: false,
-                        info: false
-                    },
-                    editable: {
-                        confirmation: true,
-                        mode: "inline"
-                    },
-                    scrollable: false,
-                    columns: [{
-                        field: "PictureUrl",
-                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.Picture"]",
-                        template: "<a class='k-link editpicture' href=\"@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshProductPictures&formId=product-form\"><img alt='#=PictureId#' src='#=PictureUrl#' width='150' /></a>",
-                        width: 165
-                    },
-                    {
-                        field: "IsDefault",
-                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.IsDefault"]",
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(IsDefault) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    },
-                    {
-                        field: "DisplayOrder",
-                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.DisplayOrder"]",
-                        minScreenWidth: 750,
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        format: "{0:0}",
-                    }, {
-                        field: "AltAttribute",
-                        minScreenWidth: 500,
-                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.OverrideAltAttribute"]",
-                    }, {
-                        field: "TitleAttribute",
-                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.OverrideTitleAttribute"]",
-                        minScreenWidth: 500,
-                    }, {
-                        command: [{
-                            name: "destroy",
-                            text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
-                        }],
-                        width: 200
-                    }]
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
                 });
-            });
+            }
 </script>
 
-    <p>
-        <strong>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.AddNew"]</strong>
-    </p>
-    <div class="form-horizontal">
-        <div class="form-body">
-            <div class="form-group">
-                @{
-                    ViewData["Reference"] = "Product";
-                    ViewData["ObjectId"] = Model.Id;
-                    ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
-                    ViewData["Click"] = "btnRefreshProductPictures";
-                }
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AddPictureModel.PictureId"/>
-                    <span asp-validation-for="AddPictureModel.PictureId"></span>
-                </div>
-                <input type="submit" id="btnRefreshProductPictures" style="display: none"/>
-                <script>
-                    $(document).ready(function () {
-                        $('#btnRefreshProductPictures').click(function () {
-                            //refresh grid
-                            var grid = $("#productpictures-grid").data('kendoGrid');
-                            grid.dataSource.read();
+    @if (!readOnly)
+    {
+        <p>
+            <strong>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.AddNew"]</strong>
+        </p>
+        <div class="form-horizontal">
+            <div class="form-body">
+                <div class="mb-3">
+                    @{
+                        ViewData["Reference"] = "Product";
+                        ViewData["ObjectId"] = Model.Id;
+                        ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
+                        ViewData["Click"] = "btnRefreshProductPictures";
+                    }
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="AddPictureModel.PictureId"/>
+                        <span asp-validation-for="AddPictureModel.PictureId"></span>
+                    </div>
+                    <input type="submit" id="btnRefreshProductPictures" style="display: none"/>
+                    <script>
+                        $(document).ready(function () {
+                            $('#btnRefreshProductPictures').click(function () {
+                                //refresh grid
+                                var grid = $("#productpictures-grid").data('kendoGrid');
+                                grid.dataSource.read();
 
-                            //return false to don't reload a page
-                            return false;
+                                //return false to don't reload a page
+                                return false;
+                            });
                         });
-                    });
-                </script>
+                    </script>
+                </div>
             </div>
         </div>
-    </div>
+    }
 }
 else
 {

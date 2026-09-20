@@ -29,55 +29,6 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// Resource-key-prefix audit (2026-08-16, ARCH-001 Phase 1 Task 6, corrected after review — see Task 6's
-// ledger entry). Inlined in full here (not just referenced) since planning artifacts under .superpowers/
-// are untracked and do not survive in the repo once this branch merges.
-//
-// Templated via {scope.ResourceKeyPrefix} (Admin.<suffix> and Vendor.<suffix> both exist) — 23:
-//   Common.All, Customers.Guest, Configuration.Tax.Settings.TaxCategories.None,
-//   Catalog.Products.Added, Catalog.Products.Updated, Catalog.Products.Deleted,
-//   Catalog.Products.Fields.ChangedWarning, Catalog.Products.Fields.DeliveryDate.None,
-//   Catalog.Products.Fields.Warehouse.None, Catalog.Products.Bids.CantDeleteWithOrder,
-//   Catalog.Products.List.SkuNotFound, Catalog.Products.List.SearchPublished.All,
-//   Catalog.Products.List.SearchPublished.PublishedOnly, Catalog.Products.List.SearchPublished.UnpublishedOnly,
-//   Catalog.Products.List.SearchPublished.MarkAsNew, Catalog.ProductReservations.CantDeleteWithOrder,
-//   Catalog.Products.Calendar.CannotChangeInterval,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MinLength,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MaxLength,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileAllowedExtensions,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileMaximumSize,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.DefaultValue,
-//   Catalog.Products.Permissions (CORRECTED 2026-08-16, Task 8 row "Product categories": this row's
-//     original pass kept it as an "Admin-only literal" below, trusting Task 6's audit - but that audit
-//     only scanned the 5 files under migration [2 ProductControllers + 2 ProductViewModelServices], never
-//     validators. "Vendor.Catalog.Products.Permissions" genuinely exists in
-//     src/Web/Grand.Web/App_Data/Resources/Upgrade/en_220.xml and is consumed by
-//     Grand.Web.Vendor/Validators/Catalog/ProductValidVendor.cs and BundleProductModelValidator.cs.
-//     Lesson for later rows: "no call site found in the files under migration" is NOT the same claim as
-//     "no resource key exists for Vendor" - check the XML resource files too before treating a key as
-//     host-specific).
-//
-// Admin-only literal (no Vendor equivalent call site; keep as literal "Admin.<suffix>") — 5:
-//   Catalog.Products.List.SearchPublished.ShowOnHomePage,
-//   Catalog.Products.Imported, Catalog.Products.TierPrices.Fields.CustomerGroup.All,
-//   Catalog.Products.TierPrices.Fields.Store.All, Common.UploadFile.
-//
-// Host-specific, not templated — 0: none found; every "Vendor.<suffix>" call site has a matching
-//   "Admin.<suffix>" one, so nothing needs a scope.ResourceKeyPrefix == "Vendor" guard instead of templating.
-//
-// Store makes no separate resource lookups at all - every Store call site uses the literal "Admin.*" key
-// directly (Store has no distinct resource set), consistent with StoreAdminDataScope.ResourceKeyPrefix
-// returning "Admin".
-
-// [AutoValidateAntiforgeryToken] is also restated on each of the three concrete host subclasses
-// (Admin/Store/Vendor ProductController) - ASP.NET Core resolves filters from the full type hierarchy
-// of the concrete controller at runtime, so those subclass-level attributes already protect every
-// [HttpPost] action defined here. It's added here too so CodeQL's static analysis (which flagged this
-// file directly - it doesn't follow the attribute from a derived class in a different project back
-// onto the base class where the actions are textually defined) has something to see in the same file
-// as the actions, and so a future host subclass that forgets to restate the attribute doesn't silently
-// lose CSRF protection - BaseProductController itself is abstract and never directly routable, so this
-// changes no runtime behavior today.
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductController(
@@ -94,13 +45,8 @@ public abstract class BaseProductController(
     IAdminDataScope<Product> scope)
     : BaseController
 {
-    /// <summary>Hook for host-specific UI-copy warnings that aren't access-scope decisions.
-    /// Overridden by the Store subclass; no-op everywhere else.</summary>
     protected virtual void EditWarningCheck(Product product) { }
 
-    // Exposed for host subclasses (ARCH-001 Phase 1 Task 11): primary-constructor parameters are not
-    // visible to derived classes by name in C#, but Store's EditWarningCheck override and any other
-    // host-specific override needs to reference these.
     protected ITranslationService TranslationService => translationService;
     protected IAdminDataScope<Product> Scope => scope;
 
@@ -132,14 +78,6 @@ public abstract class BaseProductController(
         var product = await productService.GetProductBySku(model.GoDirectlyToSku);
         if (product != null)
         {
-            // TODO(ARCH-001-followup): Store's pre-refactor code had a security-relevant bug here -
-            // on access denial it fell into `if (!CanAccessProduct(product)) return RedirectToAction("Edit", ...)`,
-            // i.e. it redirected an unauthorized caller straight to the Edit screen of a product outside
-            // their store. (On access *granted* the old code had a separate, non-security bug: it fell
-            // through to the "not found" Warning + redirect-to-List below instead of going to Edit.)
-            // The merged behavior below deliberately tightens this: deny -> List (matching Vendor's
-            // stricter pattern), grant -> Edit. This is an intentional behavior change, not a faithful
-            // port - call it out in the PR description.
             if (!await scope.HasAccess(product))
                 return RedirectToAction("List", "Product");
             return RedirectToAction("Edit", "Product", new { id = product.Id });
@@ -192,6 +130,9 @@ public abstract class BaseProductController(
         // from EditWarningCheck above); only mutating one is restricted to the exclusive single-store
         // owner. See IAdminDataScope<TEntity>.CanView's doc comment and StoreAdminDataScope.CanView.
         if (!await scope.CanView(product)) return RedirectToAction("List");
+        //seen but not owned (Store: a product shared with other stores): the tabs render without the
+        //buttons that write; every write action still checks HasAccess itself
+        ViewBag.IsReadOnly = !await scope.HasAccess(product);
 
         var model = product.ToModel(dateTimeService);
         if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;
@@ -422,12 +363,14 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: mirrors Store's CanAccessProduct (AccessToEntityByStore) and
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) mirrors Store's CanAccessProduct (AccessToEntityByStore) and
         // Vendor's CheckAccessToProduct (VendorId equality) - both strict rules, both gate this same
         // action on their respective hosts. Applying it uniformly also closes a real gap: Vendor's
         // original ProductCategoryInsert/Update/Delete (below) had no ownership check at all, letting
         // any vendor mutate another vendor's product-category mappings by id.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             // Templated, not the literal "Admin.Catalog.Products.Permissions": Task 6's audit (the header
             // comment above) only covered the files under migration (the 2 ProductControllers + 2
             // ProductViewModelServices) and found no "Permissions"-suffixed GetResource call in Vendor's
@@ -517,13 +460,15 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: same shape as "Product categories" above - mirrors Store's
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) has the same shape as "Product categories" above - mirrors Store's
         // CanAccessProduct and Vendor's CheckAccessToProduct gating this action on both hosts. Applying
         // it uniformly also closes the same kind of gap found in "Product categories": Store's and
         // Vendor's original ProductCollectionInsert/Update/Delete (below) had no ownership check at all
         // - only List checked - letting any store manager or vendor mutate another party's
         // product-collection mappings by id.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productCollectionsModel = await productViewModelService.PrepareProductCollectionModel(product);
@@ -606,13 +551,15 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: same shape as "Product categories"/"Product collections" -
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) has the same shape as "Product categories"/"Product collections" -
         // mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating this action on both
         // hosts. Applying it uniformly also closes the same kind of gap found in those two regions:
         // Vendor's original RelatedProductUpdate/Delete/AddPopup(POST) (below) had no ownership check at
         // all - only List checked - letting any vendor mutate another vendor's related-product mappings
         // by id.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var relatedProducts = product.RelatedProducts.OrderBy(x => x.DisplayOrder);
@@ -740,12 +687,14 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: same shape as "Related products" above - mirrors Store's
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) has the same shape as "Related products" above - mirrors Store's
         // CanAccessProduct check on this action. Applying it uniformly also closes a real gap: Vendor's
         // original SimilarProductUpdate/Delete/AddPopup(GET/POST) (below) had no ownership check at all -
         // only List checked (via CheckAccessToProduct) - letting any vendor mutate another vendor's
         // similar-product mappings by id.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var similarProducts = product.SimilarProducts.OrderBy(x => x.DisplayOrder);
@@ -873,12 +822,14 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: same shape as "Related products"/"Similar products" above -
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) has the same shape as "Related products"/"Similar products" above -
         // mirrors Store's CanAccessProduct check on this action. Applying it uniformly also closes the
         // same kind of gap found in those two regions: Vendor's original BundleProductUpdate/Delete/
         // AddPopup(GET/POST) (below) had no ownership check at all - only List checked (via
         // CheckAccessToProduct) - letting any vendor mutate another vendor's bundle-product mappings by id.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var bundleProducts = product.BundleProducts.OrderBy(x => x.DisplayOrder);
@@ -1006,12 +957,14 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: same shape as "Related products"/"Bundle products" above -
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) has the same shape as "Related products"/"Bundle products" above -
         // mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating this action on both
         // hosts. Admin's original CrossSellProductList had no check at all - applying HasAccess uniformly
         // also closes that gap without changing Admin's superuser behaviour (HasAccess is a no-op for
         // Admin's scope).
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var crossSellProducts = product.CrossSellProduct;
@@ -1128,13 +1081,15 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: same shape as "Cross-sell products" above - mirrors Store's
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) has the same shape as "Cross-sell products" above - mirrors Store's
         // CanAccessProduct and Vendor's CheckAccessToProduct gating this action on both hosts. Admin's
         // original RecommendedProductList had no check at all - applying HasAccess uniformly also closes
         // that gap without changing Admin's superuser behaviour (HasAccess is a no-op for Admin's scope).
         // Vendor's original signature also dropped the DataSourceRequest command parameter entirely
         // (unused by the body on any host either way) - kept here for parity with Admin/Store.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var recommendedProductsModel = new List<ProductModel.RecommendedProductModel>();
@@ -1250,10 +1205,12 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
         // this action on both hosts. Admin's original had no check at all - GlobalAdminDataScope.HasAccess
         // is a no-op there, so this closes that gap the same way as every other row in this task.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         // AssociatedProductVendorId (hook below): Vendor's original also passed CurrentVendor.Id into
@@ -1447,32 +1404,12 @@ public abstract class BaseProductController(
 
         var product = await productService.GetProductById(objectId);
 
-        // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's inline
-        // WorkContext.HasAccessToProduct check gating this action on both hosts. Admin's original had no
-        // check at all - GlobalAdminDataScope.HasAccess is a no-op there, so this closes that gap the same
-        // way as every other row in this task. Message text kept generic rather than reusing either host's
-        // wording ("Access denied - staff permissions" / "Access denied - vendor permissions") since this
-        // is a shared, host-neutral action now.
         if (!await scope.HasAccess(product))
             return Json(new {
                 success = false,
                 message = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions")
             });
 
-        // File-upload validation note (ARCH-001 Phase 1 Task 8 row "Product pictures", 2026-08-16):
-        // extension checking here already goes through FileExtensions.GetAllowedMediaFileTypes, which -
-        // per commit a153496a6's fix - falls back to a safe image-only allow-list when
-        // mediaSettings.AllowedFileTypes is empty, so the "empty config = any extension" bypass that
-        // commit fixed for attribute uploads does not apply here. However, unlike the attribute-upload
-        // paths that commit hardened (Contact/ShoppingCart/Product's ValidationFileMaximumSize check
-        // against file.Length before buffering), this action has NO file-size limit at all in any of the
-        // three original hosts - file.GetDownloadBits() buffers the full upload into memory unconditionally
-        // for every file that passes the extension check. This is pre-existing, identical behavior across
-        // all three hosts (not introduced by this consolidation), so it is ported as-is rather than
-        // "fixed" here per this row's instructions - flagging as a concern: the admin/vendor/store picture
-        // upload endpoints may be exposed to the same memory-DoS pattern a153496a6 fixed elsewhere, and
-        // would need an explicit size check (and a decision on what setting should carry the limit, since
-        // MediaSettings has no equivalent of ValidationFileMaximumSize) before that gap is closed.
         var values = new List<(string pictureUrl, string pictureId)>();
         foreach (var file in files)
         {
@@ -1505,12 +1442,14 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
         // this action on both hosts. Admin's original had no check at all. Vendor's original signature
         // also lacked the unused `DataSourceRequest command` parameter that Admin/Store both bind (Kendo
         // posts it, but no host ever reads it) - kept here to match the two-of-three shape; harmless for
         // Vendor since an unused extra bound parameter changes nothing about the response.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productPicturesModel = await productViewModelService.PrepareProductPicturesModel(product);
@@ -1627,13 +1566,15 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
         // this action on both hosts. Admin's original ProductSpecAttrList had no check at all - applying
         // HasAccess uniformly also closes that gap without changing Admin's superuser behaviour (HasAccess
         // is a no-op for Admin's scope). Vendor's original signature also dropped the DataSourceRequest
         // command parameter entirely (unused by the body on any host either way) - kept here for parity
         // with Admin/Store.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productrSpecsModel = await productViewModelService.PrepareProductSpecificationAttributeModel(product);
@@ -1685,11 +1626,6 @@ public abstract class BaseProductController(
             if (product == null)
                 return Content("Product not exists");
 
-            // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
-            // ProductSpecAttrPopup(POST) had no check at all, letting any vendor add/edit specification
-            // attributes on another vendor's product by posting its id - closed here the same way as the
-            // GET popup above. UpdateProductSpecificationAttributeModel's unused `product` parameter was
-            // dropped in ARCH-001 Phase 1 Task 10 to match Vendor's original two-arg (psa, model) shape.
             if (!await scope.HasAccess(product))
                 return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
@@ -1783,10 +1719,12 @@ public abstract class BaseProductController(
 
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Admin's original had
         // no check at all - GlobalAdminDataScope.HasAccess is a no-op there, so this closes that gap the
         // same way as every other row in this task.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var model = new OrderListModel {
@@ -1817,10 +1755,12 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
         // this action on both hosts. Admin's original had no check at all - GlobalAdminDataScope.HasAccess
         // is a no-op there, so this closes that gap the same way as every other row in this task.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         // DefaultStoreId is the staff member's store for Store (matches its original storeId argument,
@@ -2069,12 +2009,14 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
-        // HasAccess (strict), not CanView: mirrors Store's CanAccessProduct (AccessToEntityByStore) check
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
+        // HasAccess (strict) mirrors Store's CanAccessProduct (AccessToEntityByStore) check
         // on this action. Applying it uniformly also closes real gaps on the mutate actions below: Store's
         // original checked access only on List/Insert (ProductPriceUpdate/ProductPriceDelete had no check
         // at all), and Vendor's original checked access only on List (ProductPriceInsert/Update/Delete had
         // no check at all) - both let another party's product prices be updated/deleted by id.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var items = new List<ProductModel.ProductPriceModel>();
@@ -2204,13 +2146,15 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess on List (Store/Vendor both checked here; Admin's Global scope is a no-op). Closes the
         // same class of gap as "Product currency price": Vendor's original checked ownership only on List
         // and TierPriceEditPopup(GET) - TierPriceCreatePopup(POST), TierPriceEditPopup(POST) and
         // TierPriceDelete had NO ownership check at all, so a vendor could create/update/delete a tier
         // price on any product (not just their own) by posting a known productId. Applying scope.HasAccess
         // uniformly on every mutating action below closes that.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         // PrepareTierPriceModel(product) now reads scope internally (Task 9); scope.DefaultStoreId
@@ -2349,13 +2293,15 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess applied uniformly across this region (Admin's Global scope is a no-op). Store originally
         // checked ownership here (CanAccessProduct) and Vendor did too (CheckAccessToProduct), but neither
         // host checked ProductAttributeMappingPopup(POST) or ProductAttributeValidationRulesPopup(POST) at
         // all - a store/vendor user could edit an attribute mapping's name/values or its validation rules on
         // any product (not just their own/in-scope one) by posting a known productId. Vendor's
         // ProductAttributeMappingPopup(POST) had no check either, despite its own GET sibling checking.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var attributesModel = await productViewModelService.PrepareProductAttributeMappingModels(product);
@@ -2832,13 +2778,15 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess added here: Admin's original had no ownership check on this grid at all. Store's
         // original used CanAccessProduct + a hardcoded "Admin.Catalog.Products.Permissions" resource key
         // (even though it's the Store host); Vendor's original used a local CheckAccessToProduct helper
         // that returned a plain hardcoded string ("This is not your product" / "Product not exists")
         // rather than a resource key. scope.HasAccess plus the scope.ResourceKeyPrefix-qualified resource
         // key normalizes all three to the convention used throughout this file.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
@@ -3105,10 +3053,17 @@ public abstract class BaseProductController(
     {
         var product = await productService.GetProductById(productId);
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct checks;
         // Admin's original had no check at all - normalized to scope.HasAccess for all three hosts.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        //a product shared with other stores is shown read-only; its bids and reservations carry
+        //other stores' customers and orders, so they are listed only for a product this store owns
+        if (!await scope.HasAccess(product))
+            return Json(new DataSourceResult { Data = Array.Empty<object>(), Total = 0 });
 
         var reservations =
             await productReservationService.GetProductReservationsByProductId(productId, null, null,
@@ -3352,10 +3307,17 @@ public abstract class BaseProductController(
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
 
+        // CanView on this read: a product shared with other stores opens read-only on Store, so its
+        // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess: mirrors Store's CanAccessProduct and Vendor's HasAccessToProduct checks; Admin's
         // original had no check at all - normalized to scope.HasAccess for all three hosts.
-        if (!await scope.HasAccess(product))
+        if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        //a product shared with other stores is shown read-only; its bids and reservations carry
+        //other stores' customers and orders, so they are listed only for a product this store owns
+        if (!await scope.HasAccess(product))
+            return Json(new DataSourceResult { Data = Array.Empty<object>(), Total = 0 });
 
         var (bidModels, totalCount) =
             await productViewModelService.PrepareBidMode(productId, command.Page, command.PageSize);

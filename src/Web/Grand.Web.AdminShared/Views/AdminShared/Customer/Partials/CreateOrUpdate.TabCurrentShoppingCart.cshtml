@@ -11,151 +11,67 @@
     </div>
     <partial name="Partials/WidgetZone.ShoppingCartTop" model="Model"/>
     <div class="panel-body">
-        <div id="currentshoppingcart-grid"></div>
+        @*unit prices are edited in the cells and sent with Save changes, one request per changed item*@
+        <admin-grid id="currentshoppingcart-grid"
+                    read-url="@Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.ShoppingCart, area = area })"
+                    update-url="@Url.Action("UpdateCart", "Customer", new { customerId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area })"
+                    pager="Compact"
+                    auto-bind="false"
+                    edit-mode="Batch">
+            <grid-toolbar-save/>
+            <grid-column field="ProductName" title="@Loc["Admin.CurrentCarts.Product"]" width="500">
+                <cell-template>
+                    <a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                    @*AttributeInfo is markup built by the product attribute formatter*@
+                    <span data-if="AttributeInfo && AttributeInfo.length > 0"><br />{{{ AttributeInfo }}}</span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Quantity" title="@Loc["Admin.CurrentCarts.Quantity"]" width="200"/>
+            <grid-column field="UnitPriceValue" title="@Loc["Admin.CurrentCarts.UnitPrice"]" width="200" format="{0:n2}" editor="Numeric" decimals="2"/>
+            <grid-column field="Total" title="@Loc["Admin.CurrentCarts.Total"]" width="200"/>
+            @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
+            {
+                <grid-column field="Store" title="@Loc["Admin.CurrentCarts.Store"]" width="200"/>
+            }
+            <grid-column field="UpdatedOn" title="@Loc["Admin.CurrentCarts.UpdatedOn"]" width="200" format="{0:G}"/>
+            <grid-column title="@Loc["Admin.Common.Delete"]" width="200">
+                <cell-template>
+                    <button type="button" class="btn btn-default btn-sm k-grid-delete" data-grid-click="deleteCartItem">Delete</button>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
     </div>
     <partial name="Partials/WidgetZone.ShoppingCartBottom" model="Model"/>
 </div>
 
 <script>
-$(document).ready(function () {
-    $("#currentshoppingcart-grid").kendoGrid({
-        dataSource: {
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.ShoppingCart, area = area }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                },
-                update: {
-                    url: "@Html.Raw(Url.Action("UpdateCart", "Customer", new { customerId = Model.Id, area = area }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                },
-                destroy: {
-                    url: "@Html.Raw(Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors",
-                model: {
-                    id: "Id",
-                    fields: {
-                        ProductName: { editable: false, type: "string" },
-                        Quantity: { editable: false, type: "number" },
-                        UnitPrice: { editable: false, type: "string" },
-                        UnitPriceValue: { editable: true, type: "number" },
-                        Total: { editable: false, type: "string" },
-                        Store: { editable: false, type: "string" },
-                        UpdatedOn: { editable: false, type: "date" },
-                    }
-                }
-            },
-            requestEnd: function (e) {
-                if (e.type == "update" || e.type == "destroy") {
-                    this.read();
-                }
-            },
-            error: function(e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            serverPaging: true,
-            serverFiltering: true,
-            serverSorting: true
-        },
-        autoBind: false,
-        pageable: {
-            refresh: true,
-            numeric: false,
-            previousNext: false,
-            info: false
-        },
-        editable: {
-            confirmation: true,
-            mode: "incell"
-        },
-        toolbar: ["save"],
-        scrollable: false,
-        columns: [{
-            field: "ProductName",
-            title: "@Loc["Admin.CurrentCarts.Product"]",
-            width:500,
-            template: '<a href="@Url.Action("Edit", "Product", new { area = area })/#=ProductId#">#:kendo.htmlEncode(ProductName)#</a>' +
-                '# if(AttributeInfo && AttributeInfo.length > 0) {# <br />#=AttributeInfo# #} #'
-        }, {
-            field: "Quantity",
-            title: "@Loc["Admin.CurrentCarts.Quantity"]",
-            width:200
-        },{
-            field: "UnitPriceValue",
-            title: "@Loc["Admin.CurrentCarts.UnitPrice"]",
-            width: 200,
-            format: "{0:n2}",
-            editor: function (container, options) {
-                        $('<input name="' + options.field + '"/>')
-                            .appendTo(container)
-                            .kendoNumericTextBox({
-                                format: "{0:n2}",
-                                decimals: 2
-                            });
-            }
-        },{
-            field: "Total",
-            title: "@Loc["Admin.CurrentCarts.Total"]",
-            width:200
-       },
-       @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
-       {
-           <text>
-            {
-                field: "Store",
-                title: "@Loc["Admin.CurrentCarts.Store"]",
-                width:200
-            },
-            </text>
-       }
-       {
-            field: "UpdatedOn",
-            title: "@Loc["Admin.CurrentCarts.UpdatedOn"]",
-            width: 200,
-            type: "date",
-            format: "{0:G}"
-        },  {
-                title: "@Loc["Admin.Common.Delete"]",
-                width: 200,
-                template: "<button class='k-button k-grid-delete' onclick=deleteRow('#=Id#')>Delete</button>"
-            }]
-    });
-});
-
-        function deleteRow(id) {
-            var grid = $("#currentshoppingcart-grid").data("kendoGrid");
-            var dataItem = grid.dataSource.get(id);
-            var tokenInput = $('input[name=__RequestVerificationToken]');
-            $.ajax({
-                url: "@Html.Raw(Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area }))",
-                type: "POST",
-                data: {
-                    id: dataItem.Id,
-                    customerId: "@Model.Id",
-                    __RequestVerificationToken: tokenInput.val(),
-                },
-                success: function () {
-                    grid.dataSource.remove(dataItem);
-                    grid.dataSource.sync();
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                }
-        });
+    function deleteCartItem(dataItem) {
+        deleteRow(dataItem.Id);
     }
 
+    function deleteRow(id) {
+        var grid = $("#currentshoppingcart-grid").data("kendoGrid");
+        var dataItem = grid.dataSource.get(id);
+        var tokenInput = $('input[name=__RequestVerificationToken]');
+        $.ajax({
+            url: "@Html.Raw(Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area }))",
+            type: "POST",
+            data: {
+                id: dataItem.Id,
+                customerId: "@Model.Id",
+                __RequestVerificationToken: tokenInput.val(),
+            },
+            success: function () {
+                grid.dataSource.remove(dataItem);
+                //the Kendo data source reloaded after destroy (requestEnd)
+                grid.dataSource.sync().then(function () {
+                    grid.dataSource.read();
+                });
+            },
+            error: function (e) {
+                display_kendoui_grid_error(e);
+            }
+        });
+    }
 </script>

@@ -22,7 +22,9 @@ public class AdminSelectTagHelper : SelectTagHelper
         await base.ProcessAsync(context, output);
         output.TagName = "select";
         output.TagMode = TagMode.StartTagAndEndTag;
-        var classValue = "form-control k-input ";
+        //Bootstrap 5 styles a <select> with form-select; form-control resets its appearance
+        //and takes the native arrow away
+        var classValue = "form-select ";
         if (context.AllAttributes.TryGetAttribute("class", out var forAttribute))
             classValue += forAttribute.Value.ToString();
         output.Attributes.SetAttribute("class", classValue);

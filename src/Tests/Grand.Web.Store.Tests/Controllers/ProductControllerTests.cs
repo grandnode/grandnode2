@@ -10,18 +10,10 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Store.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
-// Characterization test for ProductController.EditWarningCheck (ARCH-001 Phase 1 Task 11). This is the
-// one piece of behavior newly hand-written for this task (re-derived from the original pre-migration
-// Edit(GET) action's if/else, not copied) - everything else this controller does lives in, and is
-// covered by, BaseProductControllerTests.cs (see that file's own header comment on the Task 13
-// consolidation this replaces). The condition is unusual (warns when NOT limited to stores at all, or
-// when limited AND the staff member's store is one of several) and easy to get backwards, per the
-// plan's own warning - this test exists so a future regression here fails loudly instead of silently.
 [TestClass]
 public class ProductControllerTests
 {
@@ -88,8 +80,7 @@ public class ProductControllerTests
     [TestMethod]
     public async Task EditGet_ProductLimitedToStaffStoreAndAnotherStore_RaisesWarning()
     {
-        var product = new Product
-            { Id = "p1", LimitedToStores = true, Stores = [StaffStoreId, OtherStoreId] };
+        var product = new Product { Id = "p1", LimitedToStores = true, Stores = [StaffStoreId, OtherStoreId] };
         _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
 
         await _controller.Edit("p1");

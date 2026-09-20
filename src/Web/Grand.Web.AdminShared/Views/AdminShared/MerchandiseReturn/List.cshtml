@@ -1,5 +1,4 @@
 @model MerchandiseReturnListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.MerchandiseReturns"];
@@ -12,7 +11,7 @@
             <div class="x_panel light form-fit popup-window">
                 <div class="x_title">
                     <div class="caption level-caption">
-                        <i class="fa fa-truck"></i>
+                        <i class="bi bi-truck"></i>
                         @Loc["Admin.Orders.MerchandiseReturns"]
                     </div>
                     <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
@@ -23,17 +22,17 @@
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
                                     <div class="col-md-4 col-ms-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="SearchCustomerEmail" class="control-label"/>
                                             <admin-input asp-for="SearchCustomerEmail"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-ms-12 col-12">
-                                        <div class="form-group mb-0">
+                                        <div class="mb-0">
                                             <admin-label asp-for="GoDirectlyToId" class="control-label"/>
                                             <div class="input-group mb-0" style="text-align:left">
                                                 <admin-input asp-for="GoDirectlyToId"/>
-                                                <span class="input-group-append">
+                                                <span class="">
                                                     <input type="submit" id="go-to-merchandisereturn" asp-action="GoToId" name="go-to-merchandisereturn" class="btn default" value="@Loc["Admin.Common.Go"]"/>
                                                 </span>
                                             </div>
@@ -43,10 +42,10 @@
                                         <div class="form-actions">
                                             <div class="btn-group">
                                                 <button class="btn btn-success filter-submit" id="search-returnreqest">
-                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
                                         </div>
@@ -56,25 +55,25 @@
                         </div>
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="StartDate" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="StartDate"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="EndDate" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="EndDate"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchCustomerEmail" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="SearchCustomerEmail"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <admin-label asp-for="SearchMerchandiseReturnStatusId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         <admin-select asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus"/>
@@ -86,91 +85,47 @@
                 </div>
                 <div class="x_content form">
                     <div class="x_content">
-                        <div id="merchandisereturns-grid"></div>
+                        <admin-grid id="merchandisereturns-grid"
+                                    read-url="@Url.Action("List", "MerchandiseReturn", new { area = area })"
+                                    additional-data="additionalData">
+                            <grid-column field="ReturnNumber" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]" width="50">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ ReturnNumber }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Quantity }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Total" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]" width="100">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Total }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CustomerId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]" width="200">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="OrderId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]" width="80">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="MerchandiseReturnStatusStr" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]" width="130">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ MerchandiseReturnStatusStr }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CreatedOn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                        </admin-grid>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
-<script>
-    $(document).ready(function() {
-        $("#merchandisereturns-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "MerchandiseReturn", new { area = area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [
-                {
-                    field: "ReturnNumber",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]",
-                    width: 50,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=ReturnNumber#</a>'
-                }, {
-                    field: "Quantity",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]",
-                    width: 80,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=Quantity#</a>'
-                }, {
-                    field: "Total",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]",
-                    width: 100,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=Total#</a>'
-                } , {
-                    field: "CustomerId",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]",
-                    width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
-                }, {
-                    field: "OrderId",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]",
-                    width: 80,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#">#:OrderNumber#</a>'
-                }, {
-                    field: "MerchandiseReturnStatusStr",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]",
-                    width: 130,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=MerchandiseReturnStatusStr#</a>'
-                }, {
-                    field: "CreatedOn",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]",
-                    width: 100,
-                    type: "date",
-                    format: "{0:G}"
-                }
-            ]
-        });
-    });
-    </script>
 
 <script>
     function additionalData() {

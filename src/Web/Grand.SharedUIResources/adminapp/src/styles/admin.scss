@@ -1,0 +1,33 @@
+//The one stylesheet the Admin, Store and Vendor panels load.
+//
+//It replaces six vendored files: bootstrap 4.5.2 (bootstrap.min.css and the
+//bootstrap-rtl.min.css copy), the Bootstrap 3 leftover bootstrap-theme.min.css,
+//font-awesome.min.css, simple-line-icons.min.css and the hand-maintained pair
+//build/css/custom.css + build/css/custom-rtl.css.
+//
+//The right-to-left variant is no longer a second hand-edited copy: scripts/build.mjs
+//runs rtlcss over the output of this file, so the two can no longer drift apart.
+//Anything that must differ in right-to-left beyond mirrored geometry lives in
+//_rtl.scss, which only the right-to-left build pulls in.
+
+@use "sass:map";
+
+// 1. settings, before Bootstrap reads its defaults
+@import "variables";
+
+// 2. Bootstrap 5.3 itself
+@import "bootstrap/scss/bootstrap";
+
+// 3. the icon font that replaced Font Awesome 4 and simple-line-icons
+@import "bootstrap-icons/font/bootstrap-icons";
+@import "icons";
+
+// 4. the panel chrome
+@import "custom";
+@import "sidebar";
+@import "forms";
+@import "dashboard";
+@import "topbar";
+
+// 5. what stacks above the panel chrome, in terms of Bootstrap's own z-index properties
+@import "zindex";

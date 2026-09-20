@@ -5,7 +5,7 @@
 <div>
     <div class="form-horizontal">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="OrderId"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">
@@ -13,14 +13,14 @@
                     </label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="TrackingNumber"/>
                 <div class="col-md-6">
                     <div class="input-group">
                         <div class="input-group-control">
                             <admin-input asp-for="TrackingNumber"/>
                         </div>
-                        <div class="input-group-append">
+                        <div class="">
                             <input type="submit" name="settrackingnumber" asp-action="SetTrackingNumber" value="@Loc["Admin.Orders.Shipments.TrackingNumber.Button"]" class="btn default"/>
                             @if (!string.IsNullOrEmpty(Model.TrackingNumberUrl))
                             {
@@ -30,26 +30,26 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="AdminComment"/>
                 <div class="col-md-6">
                     <div class="input-group">
                         <div class="input-group-control">
                             <admin-input asp-for="AdminComment"/>
                         </div>
-                        <div class="input-group-append">
+                        <div class="">
                             <input type="submit" name="setadmincomment" asp-action="SetShipmentAdminComment" value="@Loc["Admin.Orders.Shipments.AdminComment.Button"]" class="btn default"/>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="TotalWeight"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.TotalWeight</label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="ShippedDate"/>
                 <div class="col-md-9 col-sm-9">
                     <span id="lblShippedDate">
@@ -69,13 +69,13 @@
                     @if (Model.ShippedDateUtc.HasValue)
                     {
                         <div id="divShippedDate" style="display: inline-block;"><admin-input asp-for="ShippedDate"/> &nbsp;@Loc["Admin.Orders.Shipments.ShippedDate.Enter"]</div>
-                        <button type="submit" id="btnEditShippedDate" onclick=" toggleShippedDate(true);return false; " class="k-button"><span class="k-icon k-i-edit"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
-                        <button type="submit" id="btnSaveShippedDate" asp-action="EditShippedDate" name="saveshippeddate" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button"><span class="k-icon k-i-save"></span>&nbsp;@Loc["Admin.Common.Save"]</button>
-                        <button type="submit" id="btnCancelShippedDate" onclick=" toggleShippedDate(false);return false; " class="k-button"><span class="k-icon k-i-cancel"></span>&nbsp;@Loc["Admin.Common.Cancel"]</button>
+                        <button type="submit" id="btnEditShippedDate" onclick=" toggleShippedDate(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
+                        <button type="submit" id="btnSaveShippedDate" asp-action="EditShippedDate" name="saveshippeddate" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm"><span class="bi bi-floppy"></span>&nbsp;@Loc["Admin.Common.Save"]</button>
+                        <button type="submit" id="btnCancelShippedDate" onclick=" toggleShippedDate(false);return false; " class="btn btn-default btn-sm"><span class="bi bi-x-lg"></span>&nbsp;@Loc["Admin.Common.Cancel"]</button>
                     }
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="DeliveryDate"/>
                 <div class="col-md-9 col-sm-9">
                     <span id="lblDeliveryDate">
@@ -95,9 +95,9 @@
                     @if (Model.DeliveryDateUtc.HasValue)
                     {
                         <div id="divDeliveryDate" style="display: inline-block;"><admin-input asp-for="DeliveryDate"/> &nbsp;@Loc["Admin.Orders.Shipments.DeliveryDate.Enter"]</div>
-                        <button type="submit" id="btnEditDeliveryDate" onclick=" toggleDeliveryDate(true);return false; " class="k-button"><span class="k-icon k-i-edit"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
-                        <button type="submit" id="btnSaveDeliveryDate" asp-action="EditDeliveryDate" name="savedeliverydate" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button"><span class="k-icon k-i-save"></span>&nbsp;@Loc["Admin.Common.Save"]</button>
-                        <button type="submit" id="btnCancelDeliveryDate" onclick=" toggleDeliveryDate(false);return false; " class="k-button"><span class="k-icon k-i-cancel"></span>&nbsp;@Loc["Admin.Common.Cancel"]</button>
+                        <button type="submit" id="btnEditDeliveryDate" onclick=" toggleDeliveryDate(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
+                        <button type="submit" id="btnSaveDeliveryDate" asp-action="EditDeliveryDate" name="savedeliverydate" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm"><span class="bi bi-floppy"></span>&nbsp;@Loc["Admin.Common.Save"]</button>
+                        <button type="submit" id="btnCancelDeliveryDate" onclick=" toggleDeliveryDate(false);return false; " class="btn btn-default btn-sm"><span class="bi bi-x-lg"></span>&nbsp;@Loc["Admin.Common.Cancel"]</button>
                     }
                 </div>
             </div>
@@ -193,7 +193,7 @@
             @Loc["Admin.Orders.Shipments.ShipmentStatusEvents"]
         </div>
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
                     <tr>

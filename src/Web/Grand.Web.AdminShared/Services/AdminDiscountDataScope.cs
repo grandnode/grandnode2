@@ -7,18 +7,6 @@ using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
-
-/// <summary>
-///     Admin's <see cref="IAdminDataScope{Discount}" />. Deliberately NOT the generic
-///     <see cref="GlobalAdminDataScope{TEntity}" /> — Admin's original DiscountController gates
-///     Create/Edit/Delete on <c>groupService.IsStoreManager(CurrentCustomer)</c>, a customer-group
-///     flag independent of area/host, that Store's original controller never checked (Store always
-///     applies the strict store check unconditionally). Reusing the always-true generic scope here
-///     would silently drop this restriction for the rare case of an Admin-area user who is also a
-///     store manager. Same class of Admin-side scope logic as
-///     <see cref="Grand.Web.AdminShared.Services.AdminOrderDataScope"/> (there: IsSalesManager/SeId;
-///     here: IsStoreManager/StaffStoreId). See ARCH-001 Discount consolidation spec §2.
-/// </summary>
 public class AdminDiscountDataScope(IContextAccessor contextAccessor, IGroupService groupService)
     : IAdminDataScope<Discount>
 {

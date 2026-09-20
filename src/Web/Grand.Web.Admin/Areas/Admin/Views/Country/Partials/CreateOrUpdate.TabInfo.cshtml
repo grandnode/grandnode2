@@ -6,7 +6,7 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
-                       <div class="form-group">
+                       <div class="mb-3">
                            <admin-label asp-for="@Model.Locales[item].Name"/>
                            <div class="col-md-9 col-sm-9">
                                <admin-input asp-for="@Model.Locales[item].Name"/>
@@ -20,7 +20,7 @@
 <div class="form-horizontal">
     <localized-editor localized-template="@template" name="country-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-input asp-for="Name"/>
@@ -30,7 +30,7 @@
         </div>
     </localized-editor>
     <div class="form-body">
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AllowsBilling"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -40,7 +40,7 @@
                 <span asp-validation-for="AllowsBilling"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="AllowsShipping"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -50,28 +50,28 @@
                 <span asp-validation-for="AllowsShipping"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="TwoLetterIsoCode"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="TwoLetterIsoCode"/>
                 <span asp-validation-for="TwoLetterIsoCode"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="ThreeLetterIsoCode"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="ThreeLetterIsoCode"/>
                 <span asp-validation-for="ThreeLetterIsoCode"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="NumericIsoCode"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="NumericIsoCode"/>
                 <span asp-validation-for="NumericIsoCode"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="SubjectToVat"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -81,7 +81,7 @@
                 <span asp-validation-for="SubjectToVat"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -91,14 +91,14 @@
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <admin-label asp-for="Stores"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Stores"/>

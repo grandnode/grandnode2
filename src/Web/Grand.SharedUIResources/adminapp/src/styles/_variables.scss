@@ -1,0 +1,23 @@
+//Bootstrap settings the three panels need before Bootstrap itself is loaded.
+//The panel chrome (custom.scss) was written against a 14px body and the gentelella
+//palette; keeping those two here means the rest of the sheet does not have to fight
+//Bootstrap's defaults with !important.
+
+//14px, what body carried in custom.css. The body colour and background are not set
+//here: custom.scss paints the body itself, and --bs-body-bg is what Bootstrap 5 gives a
+//form control - overriding it turned every input in the panels grey.
+$font-size-base: 0.875rem;
+
+$border-radius: 0.25rem;
+$border-radius-sm: 0.2rem;
+$border-radius-lg: 0.3rem;
+
+//The admin tables are dense; Bootstrap 5's default cell padding is taller than
+//what the Kendo grid used to render, and the Tabulator adapter matches the old one.
+$table-cell-padding-y: 0.5rem;
+$table-cell-padding-x: 0.5rem;
+
+//Where the icon font is read from at build time. Vite copies the two files it finds
+//here into bundles/fonts/ and rewrites the url() to a path relative to the stylesheet,
+//so the browser resolves them whatever Constants.WwwRoot prefixes the request with.
+$bootstrap-icons-font-dir: "../../node_modules/bootstrap-icons/font/fonts";

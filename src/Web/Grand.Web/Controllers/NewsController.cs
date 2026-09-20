@@ -73,11 +73,17 @@ public class NewsController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var newsItem = await _newsService.GetNewsById(newsItemId);
-        if (newsItem is not { Published: true } ||
-            (newsItem.StartDateUtc.HasValue && newsItem.StartDateUtc.Value >= DateTime.UtcNow) ||
-            (newsItem.EndDateUtc.HasValue && newsItem.EndDateUtc.Value <= DateTime.UtcNow) ||
+        if (newsItem == null ||
             //Store acl
             !_aclService.Authorize(newsItem, _contextAccessor.StoreContext.CurrentStore.Id))
+            return RedirectToRoute("HomePage");
+
+        //Check whether the current user has a "Manage news" permission
+        //It allows him to preview a news item before publishing or outside its date range
+        var visible = newsItem.Published &&
+                      !(newsItem.StartDateUtc.HasValue && newsItem.StartDateUtc.Value >= DateTime.UtcNow) &&
+                      !(newsItem.EndDateUtc.HasValue && newsItem.EndDateUtc.Value <= DateTime.UtcNow);
+        if (!visible && !await _permissionService.Authorize(StandardPermission.ManageNews))
             return RedirectToRoute("HomePage");
 
         var model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });

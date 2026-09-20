@@ -1,6 +1,4 @@
-﻿@inject AdminAreaSettings adminAreaSettings
-
-@model CustomerReportsModel
+﻿@model CustomerReportsModel
 @{
     //page title
     ViewBag.Title = Loc["Vendor.Reports.Customer"];
@@ -12,7 +10,7 @@
         <div class="x_panel light form-fit popup-window">
             <div class="x_title">
                 <div class="caption level-caption">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="bi bi-card-list"></i>
                     @Loc["Vendor.Reports.Customer"]
                 </div>
 
@@ -27,13 +25,13 @@
                                     <div class="main-header col-12 px-0">
                                         <div class="row align-items-end">
                                             <div class="col-md-4 col-ms-12 col-12">
-                                                <div class="form-group mb-0">
+                                                <div class="mb-0">
                                                     <admin-label asp-for="BestCustomersByOrderTotal.StartDate" class="control-label"/>
                                                     <admin-input asp-for="BestCustomersByOrderTotal.StartDate"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-ms-12 col-12">
-                                                <div class="form-group mb-0">
+                                                <div class="mb-0">
                                                     <admin-label asp-for="BestCustomersByOrderTotal.EndDate" class="control-label"/>
                                                     <admin-input asp-for="BestCustomersByOrderTotal.EndDate"/>
                                                 </div>
@@ -42,10 +40,10 @@
                                                 <div class="form-actions">
                                                     <div class="btn-group">
                                                         <button class="btn btn-success filter-submit" id="search-customerreport">
-                                                            <i class="fa fa-search"></i> @Loc["Vendor.Reports.Customer.RunReport"]
+                                                            <i class="bi bi-search"></i> @Loc["Vendor.Reports.Customer.RunReport"]
                                                         </button>
-                                                        <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                            <i class="fa fa-filter"></i>&nbsp; @Loc["Vendor.Common.Filters"]
+                                                        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                            <i class="bi bi-funnel"></i>&nbsp; @Loc["Vendor.Common.Filters"]
                                                         </button>
                                                     </div>
                                                 </div>
@@ -54,7 +52,7 @@
                                     </div>
                                     <div class="collapse" id="filterCollapse">
                                         <div class="drop-filters-container w-100">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <admin-label asp-for="BestCustomersByOrderTotal.PaymentStatusId" class="control-label col-md-3 col-sm-3"/>
                                                 <div class="col-md-9 col-sm-9">
                                                     <admin-select asp-for="BestCustomersByOrderTotal.PaymentStatusId" asp-items="Model.BestCustomersByOrderTotal.AvailablePaymentStatuses"/>
@@ -64,7 +62,13 @@
                                     </div>
                                 </div>
                                 <div class="x_content">
-                                    <div id="bestsellers-byamount-grid"></div>
+                                    <admin-grid id="bestsellers-byamount-grid"
+                                                read-url="@Url.Action("ReportBestCustomersByOrderTotalList", "Reports", new { area = Constants.AreaVendor })"
+                                                additional-data="additionalData">
+                                        <grid-column field="CustomerName" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.Customer"]"/>
+                                        <grid-column field="OrderTotal" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderTotal"]"/>
+                                        <grid-column field="OrderCount" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderCount"]"/>
+                                    </admin-grid>
                                 </div>
                             </div>
                         </div>
@@ -75,55 +79,6 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#bestsellers-byamount-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("ReportBestCustomersByOrderTotalList", "Reports", new { area = Constants.AreaVendor }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "CustomerName",
-                title: "@Loc["Vendor.Reports.Customer.BestBy.Fields.Customer"]",                
-            }, {
-                field: "OrderTotal",
-                title: "@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderTotal"]"
-            }, {
-                field: "OrderCount",
-                title: "@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderCount"]"
-            }]
-        });
-    });
-</script>
 <script>
 
         $(document).ready(function () {
