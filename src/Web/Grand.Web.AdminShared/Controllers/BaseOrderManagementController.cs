@@ -14,12 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-/// <summary>
-///     Every mutating Order action. Base for Admin and Store only — Vendor's concrete controller
-///     inherits <see cref="BaseOrderController" /> directly, so none of these actions exist on its
-///     type at all (not permission-gated, genuinely absent — see ARCH-001 Order consolidation spec
-///     §3.5).
-/// </summary>
 public abstract class BaseOrderManagementController(
     IOrderViewModelService orderViewModelService,
     IOrderService orderService,

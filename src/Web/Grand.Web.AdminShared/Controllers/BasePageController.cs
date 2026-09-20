@@ -26,9 +26,6 @@ public abstract class BasePageController(
     IAdminDataScope<Page> scope)
     : BaseController
 {
-    /// <summary>Hook for host-specific UI-copy warnings on Edit(GET) that aren't access-scope
-    /// decisions. Overridden by the Store subclass (Task 3); no-op everywhere else. Third occurrence
-    /// of this exact pattern in ARCH-001 (Category, Blog, now Page) - treat as proven, not novel.</summary>
     protected virtual void EditWarningCheck(Page page) { }
 
     // Exposed for host subclasses: primary-constructor parameters are not visible to derived classes

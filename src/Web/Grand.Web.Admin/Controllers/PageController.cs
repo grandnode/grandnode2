@@ -11,10 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BasePageController (ARCH-001 Page consolidation). All shared
-// behavior lives in the base; this class only supplies Admin's DI wiring plus the attributes that
-// used to arrive transitively via BaseAdminController - BasePageController can't inherit any single
-// host's base controller. Same pattern as BlogController (see that file).
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

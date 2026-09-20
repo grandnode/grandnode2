@@ -13,10 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseBlogController (ARCH-001 Blog consolidation). All regions of
-// behavior live in the shared base; this class only supplies Admin's DI wiring plus the attributes
-// that used to arrive transitively via BaseAdminController - BaseBlogController can't inherit any
-// single host's base controller. Same pattern as CategoryController (see that file).
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

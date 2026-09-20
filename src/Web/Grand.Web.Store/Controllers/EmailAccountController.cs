@@ -13,9 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BaseEmailAccountController (ARCH-001 EmailAccount
-// consolidation). Create/Edit/SendTestEmail/Delete live in the shared base; List stays here —
-// Store has no MarkAsDefaultEmail equivalent (see the design spec).
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

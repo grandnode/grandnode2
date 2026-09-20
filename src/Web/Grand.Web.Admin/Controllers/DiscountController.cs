@@ -19,21 +19,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Concrete host subclass of BaseDiscountController (ARCH-001 Discount consolidation). This class
-// supplies Admin's DI wiring plus the attributes that used to arrive transitively via
-// BaseAdminController - BaseDiscountController can't inherit any single host's base controller
-// (it's shared across Admin/Store, each with a different [Area]/[Authorize*] pair), so each
-// subclass restates its own host's attribute set explicitly, same pattern as OrderController and
-// MerchandiseReturnController.
-//
-// Unlike Store, Admin also carries the "Applied to vendors" region below: Store's original
-// DiscountController never had vendor actions/views, so they stay on this concrete subclass
-// rather than moving into BaseDiscountController. Task 7b added these 5 actions to Admin's
-// then-still-full controller with no discount-scope access check at all (unlike every other
-// region's guard). This task (ARCH-001 Task 9) folds them onto the injected IAdminDataScope<Discount>
-// scope, matching the HasAccess/CanView split used by every other region in BaseDiscountController
-// (VendorList -> CanView, the four mutating actions -> HasAccess) - this is new access control being
-// added here, not a preserved behavior.
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

@@ -1,15 +1,6 @@
 #nullable enable
 
 namespace Grand.Web.AdminShared.Interfaces;
-
-/// <summary>
-/// Per-host data-access strategy for the read-only Reports screens. Deliberately separate from
-/// IAdminDataScope&lt;TEntity&gt;: Reports has no entity to load and access-check — every report is
-/// an aggregation query parameterized by storeId/vendorId at the business-service layer (see
-/// ARCH-001 Reports consolidation spec §2.3). Forcing Reports through IAdminDataScope&lt;TEntity&gt;
-/// would require a fake TEntity and leave HasAccess/CanView permanently unused — a worse fit than a
-/// second, smaller interface.
-/// </summary>
 public interface IReportDataScope
 {
     /// <summary>Store id to force into report queries. "" (all stores) for Admin when the caller

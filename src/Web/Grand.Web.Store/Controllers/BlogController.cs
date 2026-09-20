@@ -17,10 +17,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BaseBlogController (ARCH-001 Blog consolidation). All regions of
-// behavior live in the shared base; this class only supplies Store's DI wiring, the
-// EditWarningCheck hook, the kept Preview action (Admin has no equivalent), and the attributes that
-// used to arrive transitively via BaseStoreController. Same pattern as CategoryController.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

@@ -13,10 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BasePaymentTransactionController (ARCH-001 PaymentTransaction
-// consolidation). All regions of behavior live in the shared base; this class only supplies
-// Store's DI wiring and the attributes that used to arrive transitively via BaseStoreController.
-// Same pattern as CollectionController/CategoryController (see those files).
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

@@ -13,12 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BasePaymentTransactionController (ARCH-001 PaymentTransaction
-// consolidation). All regions of behavior live in the shared base; this class only supplies
-// Admin's DI wiring plus the attributes that used to arrive transitively via BaseAdminController -
-// BasePaymentTransactionController can't inherit any single host's base controller (it's shared
-// across Admin/Store, each with a different [Area]/[Authorize*] pair), so each subclass restates
-// its own host's attribute set explicitly. Same pattern as CollectionController/CategoryController.
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

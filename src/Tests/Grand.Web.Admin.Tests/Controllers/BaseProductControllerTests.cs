@@ -29,11 +29,6 @@ using System.Linq.Expressions;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the merged access-check behavior in BaseProductController's
-// "Product list / create / edit / delete" region (ARCH-001 Phase 1 Task 7). These replace the
-// equivalent per-host access-check cases in Grand.Web.Admin/Store/Vendor.Tests ProductControllerTests
-// (removed in Task 13), parameterized over a mocked IAdminDataScope<Product> instead of three
-// different concrete access mechanisms (Admin: none: Store: AccessToEntityByStore; Vendor: HasAccessToProduct).
 [TestClass]
 public class BaseProductControllerTests
 {
@@ -5154,11 +5149,6 @@ public class BaseProductControllerTests
             s => s.DeleteProductAttributeCombinationTierPrices(product, combination, tierPrice), Times.Once);
     }
 
-    // --- Reservation -------------------------------------------------------------------------------
-    // ARCH-001 Phase 1 Task 8 row 23. Admin's originals had no ownership check at all on any of these
-    // four actions; Store used CanAccessProduct; Vendor used CheckAccessToProduct (List) or a combined
-    // null-or-HasAccessToProduct throw (the other three) - all normalized to scope.HasAccess.
-
     private static ProductReservation NewReservation(string id, string productId, string orderId = "") =>
         new() { Id = id, ProductId = productId, OrderId = orderId, Date = DateTime.UtcNow };
 
@@ -5496,11 +5486,6 @@ public class BaseProductControllerTests
         _productReservationServiceMock.Verify(
             s => s.DeleteProductReservation(It.IsAny<ProductReservation>()), Times.Never);
     }
-
-    // --- Bids ----------------------------------------------------------------------------------------
-    // ARCH-001 Phase 1 Task 8 row 24 (final region). Admin's originals had no ownership check at all;
-    // Store used CanAccessProduct; Vendor used a combined null-or-HasAccessToProduct throw - all
-    // normalized to scope.HasAccess.
 
     private static Bid NewBid(string id, string productId, string orderId = "") =>
         new() { Id = id, ProductId = productId, OrderId = orderId, Date = DateTime.UtcNow };

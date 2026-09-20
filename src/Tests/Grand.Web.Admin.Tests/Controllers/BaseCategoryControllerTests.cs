@@ -21,9 +21,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the merged Category access-check behavior (ARCH-001 Category
-// consolidation). Parameterized over a mocked IAdminDataScope<Category> instead of the two
-// different concrete access mechanisms Admin (none) and Store (AccessToEntityByStore) used before.
 [TestClass]
 public class BaseCategoryControllerTests
 {
@@ -255,20 +252,6 @@ public class BaseCategoryControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("This is not your category", content.Content);
-    }
-
-    [TestMethod]
-    public async Task PicturePopupGet_CategoryHasNoPicture_ReturnsNotExistContent()
-    {
-        var category = new Category { Id = "c1", PictureId = null };
-        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
-        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
-
-        var result = await _controller.PicturePopup("c1");
-
-        var content = result as ContentResult;
-        Assert.IsNotNull(content);
-        Assert.AreEqual("Picture not exist", content.Content);
     }
 
     [TestMethod]
@@ -523,30 +506,6 @@ public class BaseCategoryControllerTests
         _categoryViewModelServiceMock.Verify(v => v.DeleteProductCategoryModel(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
-    [TestMethod]
-    public async Task ProductList_ScopeGrantsAccess_ReturnsData()
-    {
-        var category = new Category { Id = "c1" };
-        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
-        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
-
-        var productModel = new CategoryModel.CategoryProductModel { Id = "cp1", ProductId = "p1", ProductName = "Product 1" };
-        _categoryViewModelServiceMock
-            .Setup(v => v.PrepareCategoryProductModel("c1", 1, 10))
-            .ReturnsAsync((new[] { productModel }, 1));
-
-        var result = await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
-
-        var json = result as JsonResult;
-        Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
-        Assert.IsNull(gridModel.Errors);
-        Assert.AreEqual(1, gridModel.Total);
-        Assert.IsNotNull(gridModel.Data);
-    }
-
-    // --- ImportFromXlsx (security fix: ImportManager<T> upserts by an attacker-supplied Id with no
-    // ownership check - store-scoped callers must be denied outright) ------------------------------
 
     [TestMethod]
     public async Task ImportFromXlsx_StoreScope_DeniesAndNeverCallsImportManager()

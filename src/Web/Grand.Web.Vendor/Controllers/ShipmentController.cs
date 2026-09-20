@@ -15,11 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
 
-// Concrete host subclass of BaseShipmentController (ARCH-001 Shipment consolidation). This class
-// supplies Vendor's DI wiring plus the attributes that used to arrive transitively via
-// BaseVendorController - BaseShipmentController can't inherit any single host's base controller
-// (it's shared across Admin/Store/Vendor, each with a different [Area]/[Authorize*] pair), so each
-// subclass restates its own host's attribute set explicitly, same pattern as OrderController.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaVendor)]
 [AuthorizeVendor]

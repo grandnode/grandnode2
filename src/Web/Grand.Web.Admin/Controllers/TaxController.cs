@@ -24,10 +24,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Attributes are restated here (and on Store's TaxController) because they used to arrive
-// transitively via BaseAdminController/BaseStoreController - BaseTaxCategoryController (used
-// instead now) can't inherit either, since it must stay host-agnostic: Admin, Store, and
-// (hypothetically) Vendor all extend it.
 [AuthorizeAdmin]
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
@@ -45,9 +41,6 @@ public class TaxController(
     IAdminDataScope<TaxCategory> scope)
     : BaseTaxCategoryController(taxCategoryService, storeService, translationService, scope)
 {
-    // ARCH-001 GetActiveStore() consolidation: was a hand-duplicated private copy of the same logic
-    // now in IAdminStoreService (also used by BaseAdminController and StoreScope) - BaseTaxCategoryController
-    // can't carry it itself, it must stay host-agnostic (Admin/Store/Vendor all extend it).
     private Task<string> GetActiveStore() => adminStoreService.GetActiveStore();
 
     #region Tax Providers

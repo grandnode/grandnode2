@@ -5,17 +5,9 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-/// <summary>
-/// Regression test suite for attribute-family controllers' routing attributes.
-/// Catches dropped [Area]/[Authorize*]/[AuthorizeMenu]/[PermissionAuthorize] attributes
-/// across all 6 attribute-family entities (AddressAttribute, ContactAttribute, CustomerAttribute,
-/// CheckoutAttribute, ProductAttribute, SpecificationAttribute).
-/// This is the mandatory gate from ARCH-001 Phase 11.
-/// </summary>
 [TestClass]
 public class AttributeFamilyControllerRoutingTests
 {

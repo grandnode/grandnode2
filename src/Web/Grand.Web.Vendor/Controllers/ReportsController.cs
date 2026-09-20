@@ -19,15 +19,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
 
-// Reduced to a thin subclass of BaseReportsController — deliberately NOT BaseFullReportsController
-// (ARCH-001 Reports consolidation; Global Constraint 2/3). Vendor's action surface is exactly the
-// 12 shared actions on BaseReportsController (see that class's own doc comment, the source of truth)
-// and NONE of the 8 Full-tier actions (ReportOrderPeriodList/ReportOrderTimeChart/OrderAverageReportList/
-// ReportLatestOrder/OrderIncompleteReportList/ReportBestCustomersByNumberOfOrdersList/
-// ReportRegisteredCustomersList/ReportCustomerTimeChart), which live only on BaseFullReportsController
-// and are never inherited here — confirmed against the original controller's 12 actions read during
-// plan research. No overrides needed: Vendor never had the ManageCustomers/ManageOrders inline checks on
-// any of the 12 shared actions, which is exactly BaseReportsController's own check-free default.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaVendor)]
 [AuthorizeVendor]

@@ -5,19 +5,6 @@ using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.AdminShared.Services;
-
-/// <summary>
-///     Resolves the correct per-host <see cref="IAdminDataScope{Order}" /> implementation at
-///     request time, based on the current request's "area" route value — same fix and same reason
-///     as <see cref="RoutedProductDataScope"/>/<see cref="RoutedCategoryDataScope"/>/
-///     <see cref="RoutedCollectionDataScope"/>: <c>Grand.Web</c> (the combined host) loads all
-///     three hosts into one DI container, so a plain per-host registration would let whichever
-///     host's StartupApplication ran last win for every area in that process.
-///
-///     First 3-branch routed scope in ARCH-001 — every prior entity's Vendor branch either didn't
-///     exist (Category/Collection) or reused the same scope shape as Product's. Order genuinely
-///     needs all three.
-/// </summary>
 public class RoutedOrderDataScope(
     IHttpContextAccessor httpContextAccessor,
     AdminOrderDataScope adminScope,

@@ -98,12 +98,6 @@ public class BaseCheckoutAttributeControllerTests
     }
 }
 
-/// <summary>
-/// Regression test for ARCH-001 authorization attributes on thin subclasses.
-/// Verifies that both Admin and Store CheckoutAttributeController subclasses carry
-/// the required [AutoValidateAntiforgeryToken] and [AuthorizeMenu] attributes that
-/// used to arrive transitively from BaseAdminController/BaseStoreController.
-/// </summary>
 [TestClass]
 public class CheckoutAttributeControllerAttributeTests
 {

@@ -20,7 +20,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the merged News access-check behavior (ARCH-001 News consolidation).
 [TestClass]
 public class BaseNewsControllerTests
 {

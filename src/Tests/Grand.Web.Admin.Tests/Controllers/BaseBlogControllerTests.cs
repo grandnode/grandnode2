@@ -22,7 +22,6 @@ using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-// Characterization tests for the merged Blog access-check behavior (ARCH-001 Blog consolidation).
 [TestClass]
 public class BaseBlogControllerTests
 {

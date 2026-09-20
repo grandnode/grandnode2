@@ -63,9 +63,6 @@ public class PaymentControllerTests
             new Mock<IServiceProvider>().Object,
             contextAccessorMock.Object);
 
-        // GetActiveStore resolves IAdminStoreService from HttpContext.RequestServices
-        // (ARCH-001 GetActiveStore() consolidation - BaseAdminController delegates to it instead of
-        // duplicating the store-scope lookup itself); a single store short-circuits to its own id.
         var adminStoreServiceMock = new Mock<IAdminStoreService>();
         adminStoreServiceMock.Setup(s => s.GetActiveStore()).ReturnsAsync(StoreId);
         var requestServicesMock = new Mock<IServiceProvider>();

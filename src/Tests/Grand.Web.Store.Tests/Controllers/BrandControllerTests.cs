@@ -41,12 +41,6 @@ public class BrandControllerTests
         Assert.AreEqual("Store", area.RouteValue);
     }
 
-    // --- EditWarningCheck ----------------------------------------------------------------------
-    //
-    // Characterization tests for BrandController.EditWarningCheck, the one hand-ported piece of
-    // business logic in the Brand consolidation (ARCH-001 Phase 13). Exercised indirectly through
-    // the public Edit(GET) action, since EditWarningCheck itself is protected.
-
     [TestClass]
     public class EditWarningCheckTests
     {

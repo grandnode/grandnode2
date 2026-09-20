@@ -10,12 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-// Reduced to a thin subclass of BaseOnlineCustomerController (ARCH-001). List (GET+POST) lives in the
-// shared base; this class only supplies Admin's DI wiring plus the attributes that used to arrive
-// transitively via BaseAdminController - BaseOnlineCustomerController can't inherit any single host's
-// base controller (it's shared across Admin/Store), so each subclass restates its own host's
-// attribute set explicitly. Admin also overrides SalesEmployeeIdFilter to restrict the online-customer
-// list to the current Sales-Manager's own customers - Store has no such concept.
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]

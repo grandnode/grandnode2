@@ -29,55 +29,6 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// Resource-key-prefix audit (2026-08-16, ARCH-001 Phase 1 Task 6, corrected after review — see Task 6's
-// ledger entry). Inlined in full here (not just referenced) since planning artifacts under .superpowers/
-// are untracked and do not survive in the repo once this branch merges.
-//
-// Templated via {scope.ResourceKeyPrefix} (Admin.<suffix> and Vendor.<suffix> both exist) — 23:
-//   Common.All, Customers.Guest, Configuration.Tax.Settings.TaxCategories.None,
-//   Catalog.Products.Added, Catalog.Products.Updated, Catalog.Products.Deleted,
-//   Catalog.Products.Fields.ChangedWarning, Catalog.Products.Fields.DeliveryDate.None,
-//   Catalog.Products.Fields.Warehouse.None, Catalog.Products.Bids.CantDeleteWithOrder,
-//   Catalog.Products.List.SkuNotFound, Catalog.Products.List.SearchPublished.All,
-//   Catalog.Products.List.SearchPublished.PublishedOnly, Catalog.Products.List.SearchPublished.UnpublishedOnly,
-//   Catalog.Products.List.SearchPublished.MarkAsNew, Catalog.ProductReservations.CantDeleteWithOrder,
-//   Catalog.Products.Calendar.CannotChangeInterval,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MinLength,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MaxLength,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileAllowedExtensions,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileMaximumSize,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.DefaultValue,
-//   Catalog.Products.Permissions (CORRECTED 2026-08-16, Task 8 row "Product categories": this row's
-//     original pass kept it as an "Admin-only literal" below, trusting Task 6's audit - but that audit
-//     only scanned the 5 files under migration [2 ProductControllers + 2 ProductViewModelServices], never
-//     validators. "Vendor.Catalog.Products.Permissions" genuinely exists in
-//     src/Web/Grand.Web/App_Data/Resources/Upgrade/en_220.xml and is consumed by
-//     Grand.Web.Vendor/Validators/Catalog/ProductValidVendor.cs and BundleProductModelValidator.cs.
-//     Lesson for later rows: "no call site found in the files under migration" is NOT the same claim as
-//     "no resource key exists for Vendor" - check the XML resource files too before treating a key as
-//     host-specific).
-//
-// Admin-only literal (no Vendor equivalent call site; keep as literal "Admin.<suffix>") — 5:
-//   Catalog.Products.List.SearchPublished.ShowOnHomePage,
-//   Catalog.Products.Imported, Catalog.Products.TierPrices.Fields.CustomerGroup.All,
-//   Catalog.Products.TierPrices.Fields.Store.All, Common.UploadFile.
-//
-// Host-specific, not templated — 0: none found; every "Vendor.<suffix>" call site has a matching
-//   "Admin.<suffix>" one, so nothing needs a scope.ResourceKeyPrefix == "Vendor" guard instead of templating.
-//
-// Store makes no separate resource lookups at all - every Store call site uses the literal "Admin.*" key
-// directly (Store has no distinct resource set), consistent with StoreAdminDataScope.ResourceKeyPrefix
-// returning "Admin".
-
-// [AutoValidateAntiforgeryToken] is also restated on each of the three concrete host subclasses
-// (Admin/Store/Vendor ProductController) - ASP.NET Core resolves filters from the full type hierarchy
-// of the concrete controller at runtime, so those subclass-level attributes already protect every
-// [HttpPost] action defined here. It's added here too so CodeQL's static analysis (which flagged this
-// file directly - it doesn't follow the attribute from a derived class in a different project back
-// onto the base class where the actions are textually defined) has something to see in the same file
-// as the actions, and so a future host subclass that forgets to restate the attribute doesn't silently
-// lose CSRF protection - BaseProductController itself is abstract and never directly routable, so this
-// changes no runtime behavior today.
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductController(
@@ -94,13 +45,8 @@ public abstract class BaseProductController(
     IAdminDataScope<Product> scope)
     : BaseController
 {
-    /// <summary>Hook for host-specific UI-copy warnings that aren't access-scope decisions.
-    /// Overridden by the Store subclass; no-op everywhere else.</summary>
     protected virtual void EditWarningCheck(Product product) { }
 
-    // Exposed for host subclasses (ARCH-001 Phase 1 Task 11): primary-constructor parameters are not
-    // visible to derived classes by name in C#, but Store's EditWarningCheck override and any other
-    // host-specific override needs to reference these.
     protected ITranslationService TranslationService => translationService;
     protected IAdminDataScope<Product> Scope => scope;
 
@@ -132,14 +78,6 @@ public abstract class BaseProductController(
         var product = await productService.GetProductBySku(model.GoDirectlyToSku);
         if (product != null)
         {
-            // TODO(ARCH-001-followup): Store's pre-refactor code had a security-relevant bug here -
-            // on access denial it fell into `if (!CanAccessProduct(product)) return RedirectToAction("Edit", ...)`,
-            // i.e. it redirected an unauthorized caller straight to the Edit screen of a product outside
-            // their store. (On access *granted* the old code had a separate, non-security bug: it fell
-            // through to the "not found" Warning + redirect-to-List below instead of going to Edit.)
-            // The merged behavior below deliberately tightens this: deny -> List (matching Vendor's
-            // stricter pattern), grant -> Edit. This is an intentional behavior change, not a faithful
-            // port - call it out in the PR description.
             if (!await scope.HasAccess(product))
                 return RedirectToAction("List", "Product");
             return RedirectToAction("Edit", "Product", new { id = product.Id });
@@ -1466,32 +1404,12 @@ public abstract class BaseProductController(
 
         var product = await productService.GetProductById(objectId);
 
-        // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's inline
-        // WorkContext.HasAccessToProduct check gating this action on both hosts. Admin's original had no
-        // check at all - GlobalAdminDataScope.HasAccess is a no-op there, so this closes that gap the same
-        // way as every other row in this task. Message text kept generic rather than reusing either host's
-        // wording ("Access denied - staff permissions" / "Access denied - vendor permissions") since this
-        // is a shared, host-neutral action now.
         if (!await scope.HasAccess(product))
             return Json(new {
                 success = false,
                 message = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions")
             });
 
-        // File-upload validation note (ARCH-001 Phase 1 Task 8 row "Product pictures", 2026-08-16):
-        // extension checking here already goes through FileExtensions.GetAllowedMediaFileTypes, which -
-        // per commit a153496a6's fix - falls back to a safe image-only allow-list when
-        // mediaSettings.AllowedFileTypes is empty, so the "empty config = any extension" bypass that
-        // commit fixed for attribute uploads does not apply here. However, unlike the attribute-upload
-        // paths that commit hardened (Contact/ShoppingCart/Product's ValidationFileMaximumSize check
-        // against file.Length before buffering), this action has NO file-size limit at all in any of the
-        // three original hosts - file.GetDownloadBits() buffers the full upload into memory unconditionally
-        // for every file that passes the extension check. This is pre-existing, identical behavior across
-        // all three hosts (not introduced by this consolidation), so it is ported as-is rather than
-        // "fixed" here per this row's instructions - flagging as a concern: the admin/vendor/store picture
-        // upload endpoints may be exposed to the same memory-DoS pattern a153496a6 fixed elsewhere, and
-        // would need an explicit size check (and a decision on what setting should carry the limit, since
-        // MediaSettings has no equivalent of ValidationFileMaximumSize) before that gap is closed.
         var values = new List<(string pictureUrl, string pictureId)>();
         foreach (var file in files)
         {
@@ -1708,11 +1626,6 @@ public abstract class BaseProductController(
             if (product == null)
                 return Content("Product not exists");
 
-            // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
-            // ProductSpecAttrPopup(POST) had no check at all, letting any vendor add/edit specification
-            // attributes on another vendor's product by posting its id - closed here the same way as the
-            // GET popup above. UpdateProductSpecificationAttributeModel's unused `product` parameter was
-            // dropped in ARCH-001 Phase 1 Task 10 to match Vendor's original two-arg (psa, model) shape.
             if (!await scope.HasAccess(product))
                 return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 

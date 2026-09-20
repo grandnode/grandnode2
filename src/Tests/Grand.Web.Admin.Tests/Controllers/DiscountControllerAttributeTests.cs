@@ -1,28 +1,12 @@
 extern alias StoreHost;
-
-using System.Reflection;
 using Grand.Domain.Permissions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Reflection;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
-/// <summary>
-/// ARCH-001 / Task 12: mandatory method-level [PermissionAuthorizeAction] regression test for
-/// Discount. This is the first instance in this initiative closing the Phase 11 final-review
-/// follow-up — prior phases' attribute regression tests only asserted class-level attributes
-/// ([Area]/[Authorize*]/[AuthorizeMenu]/[PermissionAuthorize]); this test additionally asserts,
-/// for every distinct action method name on BaseDiscountController plus Admin's Vendor region
-/// (the full set of discount actions, including both GET and POST overloads of the XAddPopup
-/// methods), that the correct [PermissionAuthorizeAction] is present, whether declared directly
-/// on the concrete controller or inherited from BaseDiscountController.
-///
-/// Vendor actions (VendorList/VendorDelete/VendorAddPopup/VendorAddPopupList) exist only on
-/// Grand.Web.Admin.Controllers.DiscountController (see Task 7b/9) — Store's DiscountController has
-/// no equivalent methods at all, so they are asserted separately as Admin-only.
-/// </summary>
 [TestClass]
 public class DiscountControllerAttributeTests
 {

@@ -6,17 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// ARCH-001: HomeController infra actions. Admin/Store/Vendor's HomeController each duplicated
-// GetStatesByCountryId and Logout verbatim apart from one parameterizable string each (the
-// SelectState resource key, the logout route name) - no entity, no IAdminDataScope, same shape as
-// BasePictureController. SetLanguage is Admin+Store only (Vendor never had it), so it lives on
-// BaseHomeControllerWithSetLanguage instead of here - putting it on this class would silently give
-// Vendor's concrete controller a new, never-existed-before route (MVC discovers every public action
-// on the whole inheritance chain), the same two-level split BaseOrderController/
-// BaseOrderManagementController already established for Order's Vendor-is-a-subset shape.
-//
-// DashboardActivity/ChangeStore (Admin-only) and Index/Statistics/AccessDenied (real per-host
-// dashboards/views) stay on each concrete host controller, untouched.
 public abstract class BaseHomeController(
     ICountryService countryService,
     ITranslationService translationService,

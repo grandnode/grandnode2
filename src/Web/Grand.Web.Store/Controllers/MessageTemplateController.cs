@@ -15,9 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BaseMessageTemplateController (ARCH-001 MessageTemplate
-// consolidation). Create/Edit/Delete/CopyTemplate live in the shared base; List/ListGlobal/
-// ListStore stay here — Store's own two-tab split, no Admin equivalent (see the design spec).
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

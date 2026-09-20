@@ -16,12 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Reduced to a thin subclass of BasePageController (ARCH-001 Page consolidation). All shared
-// behavior lives in the base; this class supplies Store's DI wiring, the EditWarningCheck hook, and
-// three genuinely Store-only actions (Copy, StorePagesList, GlobalPagesList) that have no Admin
-// equivalent and are not shared - Admin is already global, "copy into my store" and the two-tab
-// list split are Store-specific UI/workflow, not security-scope differences. Same pattern as
-// BlogController's kept Preview action.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]
@@ -36,10 +30,6 @@ public class PageController(
     : BasePageController(pageViewModelService, pageService, languageService, translationService,
         dateTimeService, scope)
 {
-    // Re-derived from the original Store PageController.Edit(GET) - the condition is unusual (warns
-    // when NOT limited to stores at all, or when limited AND the staff member's store is one of
-    // several) and easy to get backwards. Third occurrence of this exact idiom in ARCH-001
-    // (Category, Blog, now Page) - treat as proven.
     protected override void EditWarningCheck(Page page)
     {
         if (!page.LimitedToStores ||

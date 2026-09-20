@@ -11,13 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Concrete host subclass of BaseDiscountController (ARCH-001 Discount consolidation). This class
-// supplies Store's DI wiring plus the attributes that used to arrive transitively via
-// BaseStoreController - BaseDiscountController can't inherit any single host's base controller
-// (it's shared across Admin/Store, each with a different [Area]/[Authorize*] pair), so each
-// subclass restates its own host's attribute set explicitly, same pattern as OrderController and
-// MerchandiseReturnController. Store never had an "Applied to vendors" region (see Admin's
-// DiscountController), so this subclass is a true thin subclass with no extra actions.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]

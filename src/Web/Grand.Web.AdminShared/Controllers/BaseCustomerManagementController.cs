@@ -13,7 +13,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.DataSource;
@@ -22,13 +21,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-/// <summary>
-///     Admin-only Customer actions no other host has: Impersonate, RemoveAffiliate, DeleteSelected,
-///     Export (All/Selected), CustomerNote (Select/Add/Delete), ContactFormList — plus the
-///     TwoFactorEnabled warning on Create/Edit. Only Admin's concrete CustomerController inherits
-///     this; Store's inherits <see cref="BaseCustomerController" /> directly (a genuine subset, same
-///     shape as ARCH-001 Order's Vendor).
-/// </summary>
 public abstract class BaseCustomerManagementController(
     ICustomerService customerService,
     ICustomerViewModelService customerViewModelService,

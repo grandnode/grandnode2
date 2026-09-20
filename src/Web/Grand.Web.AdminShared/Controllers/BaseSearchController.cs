@@ -9,22 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// ARCH-001: only the Category/Collection/Brand Kendo-autocomplete "picker" sub-resource of
-// Admin/Store/Vendor's SearchController is consolidated here - same "consolidate a sub-resource,
-// leave the rest duplicated" shape as BaseTaxCategoryController. Admin's own Index (full admin
-// command/menu search) and CustomerGroup/Stores/Vendor pickers have no Store/Vendor equivalent and
-// stay in Grand.Web.Admin.Controllers.SearchController untouched.
-//
-// Deliberately does NOT take IAdminDataScope<Category>/<Collection>/<Brand>: those entities' routed
-// scopes (RoutedCategoryDataScope etc.) fail closed for the "Vendor" area, because Category/
-// Collection/Brand have no Vendor CRUD screen - but this picker sub-resource DOES run under Vendor
-// (Vendor's own SearchController already exposes it), so resolving one of those scopes here would
-// throw on every Vendor picker call. Instead: Admin's and Vendor's original code both hardcoded
-// storeId: "" (no store filter) for these 3 methods; only Store scoped by
-// WorkContext.CurrentCustomer.StaffStoreId. That's preserved via the PickerStoreId virtual property
-// below (null default = Admin/Vendor's original "" - IsNullOrEmpty("") and IsNullOrEmpty(null) are
-// both true in the underlying service filters, confirmed in CategoryService.GetAllCategories), which
-// Store's concrete subclass overrides.
 public abstract class BaseSearchController(
     ICategoryService categoryService,
     IBrandService brandService,

@@ -12,11 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-// Concrete host subclass of BaseOrderManagementController (ARCH-001 Order consolidation). This class
-// supplies Store's DI wiring plus the attributes that used to arrive transitively via
-// BaseStoreController - BaseOrderManagementController can't inherit any single host's base controller
-// (it's shared across Admin/Store, each with a different [Area]/[Authorize*] pair), so each subclass
-// restates its own host's attribute set explicitly, same pattern as CategoryController/ProductController.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaStore)]
 [AuthorizeStore]
