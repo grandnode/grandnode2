@@ -6,7 +6,7 @@
 <li class="nav-item">
     <ul class="sidebar-cart px-0">
         <li class="nav-item">
-            <a href="#" target="_self" class="nav-link">
+            <a href="#" target="_self" class="nav-link" @@click.prevent>
                 <i class="b-icon bi bi-cart" :class="[darkMode ? 'text-white' : 'text-dark']" @@click="flycartfirstload && updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")')" data-bs-toggle="offcanvas" data-bs-target="#sidebar-cart" aria-controls="sidebar-cart" aria-hidden="true"></i>
                 <span class="qty-indicator cart-qty">
                     <template v-if="flycartindicator == null">
