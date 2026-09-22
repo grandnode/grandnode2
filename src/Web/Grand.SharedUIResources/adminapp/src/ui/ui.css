@@ -857,3 +857,15 @@ input.grand-dateinput {
 [data-bs-theme="dark"] .grand-modal-header {
     border-bottom-color: var(--bs-border-color-translucent);
 }
+
+/* the confirmation of a destructive action (GrandAdmin.modal.confirm) */
+
+.grand-confirm__message {
+    margin-bottom: 1rem;
+}
+
+.grand-confirm__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+}

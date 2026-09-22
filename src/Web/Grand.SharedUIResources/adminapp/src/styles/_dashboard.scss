@@ -3,63 +3,16 @@
 //and the charts, activity list, latest orders, bestsellers and news, each in a card. Admin,
 //Store and Vendor show the parts their data allows.
 //
-//Everything is scoped to .grand-dashboard. Colours come from tokens set once for light and once
-//for dark; geometry on the inline axis uses logical properties. The one thing right-to-left
-//needs beyond that - the arrow of a card action pointing the other way - is in _rtl.scss.
+//Everything here is scoped to .grand-dashboard; the colour tokens it reads live in _tokens.scss,
+//shared with every other screen. Geometry on the inline axis uses logical properties. The one
+//thing right-to-left
+//it needs beyond that - the arrow of a card action pointing the other way - is in _rtl.scss.
 
 .grand-dashboard {
-    --grand-dash-gap: 1rem;
-    --grand-dash-radius: .75rem;
-    --grand-dash-card-bg: var(--#{$prefix}body-bg);
-    --grand-dash-card-border: #e3e8ee;
-    --grand-dash-card-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 16px rgba(15, 23, 42, .05);
-    --grand-dash-title: var(--#{$prefix}emphasis-color);
-    --grand-dash-muted: var(--#{$prefix}secondary-color);
-    --grand-dash-rule: #edf1f5;
-    --grand-dash-accent: var(--grand-form-accent, #0b7285);
-    --grand-dash-accent-soft: rgba(11, 114, 133, .1);
-    --grand-dash-welcome-from: rgba(11, 114, 133, .09);
-
-    //the tint of each stat and activity icon: foreground on a soft background
-    --grand-dash-teal: #0b7285;
-    --grand-dash-teal-soft: rgba(11, 114, 133, .1);
-    --grand-dash-violet: #5f3dc4;
-    --grand-dash-violet-soft: rgba(95, 61, 196, .1);
-    --grand-dash-amber: #a14d00;
-    --grand-dash-amber-soft: rgba(245, 159, 0, .15);
-    --grand-dash-red: #b02a37;
-    --grand-dash-red-soft: rgba(176, 42, 55, .1);
-    --grand-dash-green: #2b8a3e;
-    --grand-dash-green-soft: rgba(43, 138, 62, .1);
-    --grand-dash-slate: #495057;
-    --grand-dash-slate-soft: rgba(73, 80, 87, .1);
-
     display: flex;
     flex-direction: column;
     gap: var(--grand-dash-gap);
     padding-block: .75rem 1.5rem;
-}
-
-[data-bs-theme="dark"] .grand-dashboard {
-    --grand-dash-card-bg: var(--#{$prefix}tertiary-bg);
-    --grand-dash-card-border: rgba(255, 255, 255, .08);
-    --grand-dash-card-shadow: 0 1px 2px rgba(0, 0, 0, .2);
-    --grand-dash-rule: rgba(255, 255, 255, .08);
-    --grand-dash-accent-soft: rgba(102, 217, 232, .14);
-    --grand-dash-welcome-from: rgba(102, 217, 232, .12);
-
-    --grand-dash-teal: #66d9e8;
-    --grand-dash-teal-soft: rgba(102, 217, 232, .14);
-    --grand-dash-violet: #b197fc;
-    --grand-dash-violet-soft: rgba(177, 151, 252, .14);
-    --grand-dash-amber: #ffc078;
-    --grand-dash-amber-soft: rgba(255, 192, 120, .14);
-    --grand-dash-red: #ffa8a8;
-    --grand-dash-red-soft: rgba(255, 168, 168, .14);
-    --grand-dash-green: #8ce99a;
-    --grand-dash-green-soft: rgba(140, 233, 154, .14);
-    --grand-dash-slate: #ced4da;
-    --grand-dash-slate-soft: rgba(206, 212, 218, .12);
 }
 
 //the rows inside the flex column bring their own gutters; the old tile row indent is not wanted

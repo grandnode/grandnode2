@@ -1,0 +1,286 @@
+//The component layer every admin screen is built from, on the tokens of _tokens.scss and the
+//card of _dashboard.scss. It is what the <admin-page>, <admin-card>, <admin-field>,
+//<admin-filters> and <admin-bulkbar> tag helpers render.
+//
+//It replaces the gentelella chrome a screen used to assemble by hand: .x_panel > .x_title >
+//.caption + .actions, .form-horizontal with its 3/9 label grid, and the note note-info bar
+//used as a section heading. Those classes still work until the last view is converted.
+//
+//Colours come from tokens, spacing from --grand-gap / --grand-pad, and the inline axis uses
+//logical properties so the right-to-left build needs nothing here.
+
+/* the page shell: one column of cards under a header */
+
+.grand-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grand-gap);
+    padding-block: .75rem 1.5rem;
+}
+
+.grand-page__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem var(--grand-gap);
+}
+
+.grand-page__heading {
+    //takes the rest of the row, so the actions sit at the end and a long title wraps first
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+
+.grand-page__title {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--grand-title);
+}
+
+.grand-page__title > .bi {
+    font-size: 1.25rem;
+    color: var(--grand-accent);
+}
+
+//the entity a detail screen is editing, or the count a list is showing
+.grand-page__meta {
+    margin-block: .15rem 0;
+    font-size: .8125rem;
+    color: var(--grand-muted);
+}
+
+.grand-page__back {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--grand-accent);
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        text-decoration: underline;
+    }
+}
+
+.grand-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+/*
+ * A detail screen keeps its header and its tab strip in view, so the one primary action stays
+ * reachable through a long tab. The offset clears the fixed top bar of the panel.
+ */
+.grand-page--sticky .grand-page__header,
+.grand-page--sticky [data-grand-tabstrip] > .nav-tabs {
+    position: sticky;
+    top: var(--grand-page-sticky-top, 0);
+    z-index: 2;
+    background-color: var(--#{$prefix}body-bg);
+}
+
+.grand-page--sticky .grand-page__header {
+    padding-block: .5rem;
+}
+
+/* a titled section; .grand-card itself lives in _dashboard.scss */
+
+.grand-card__action {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--grand-accent);
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        text-decoration: underline;
+    }
+}
+
+/* fields: label above control, so a row is one element and two fields can share a line */
+
+.grand-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--grand-gap);
+}
+
+.grand-fields--2col {
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.grand-field {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    min-width: 0;
+}
+
+.grand-field__label {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    margin: 0;
+    font-size: .8125rem;
+    font-weight: 500;
+    color: var(--grand-form-label);
+}
+
+.grand-field__control {
+    min-width: 0;
+}
+
+//a size is a width, not a column count: a quantity stops being as wide as a description
+.grand-field--sm .grand-field__control {
+    max-width: 8rem;
+}
+
+.grand-field--md .grand-field__control {
+    max-width: 18rem;
+}
+
+.grand-field--lg .grand-field__control {
+    max-width: 32rem;
+}
+
+.grand-field__hint {
+    font-size: .75rem;
+    color: var(--grand-form-hint);
+}
+
+//a switch or checkbox reads as one line: the box, then the label
+.grand-field--check {
+    flex-direction: row;
+    align-items: center;
+    gap: .5rem;
+}
+
+.grand-field--check .grand-field__label {
+    order: 2;
+    font-weight: 400;
+}
+
+/* read-only pairs, for what a screen states rather than edits */
+
+.grand-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--grand-gap);
+}
+
+.grand-fact__label {
+    font-size: .8125rem;
+    color: var(--grand-muted);
+}
+
+.grand-fact__value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--grand-title);
+}
+
+/* the filter bar of a list: one search field always, the rest behind a toggle */
+
+.grand-filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grand-gap);
+    padding: var(--grand-pad);
+    background-color: var(--grand-surface-sunken);
+    border: 1px solid var(--grand-border);
+    border-radius: var(--grand-radius);
+}
+
+.grand-filters__quick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+.grand-filters__search {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+
+.grand-filters__advanced {
+    padding-block-start: var(--grand-gap);
+    border-block-start: 1px solid var(--grand-rule);
+}
+
+/* the bulk bar of a list: in the flow, but only once rows are ticked */
+
+.grand-bulkbar {
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem var(--grand-gap);
+    padding: .65rem var(--grand-pad);
+    background-color: var(--grand-accent-soft);
+    border-block-end: 1px solid var(--grand-rule);
+}
+
+.grand-bulkbar.is-active {
+    display: flex;
+}
+
+.grand-bulkbar__count {
+    flex: 1 1 auto;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--grand-title);
+}
+
+/* what a card shows instead of an empty grid */
+
+.grand-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 2.5rem var(--grand-pad);
+    text-align: center;
+    color: var(--grand-muted);
+}
+
+.grand-empty__icon {
+    font-size: 2rem;
+    color: var(--grand-accent);
+    opacity: .6;
+}
+
+.grand-empty__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--grand-title);
+}
+
+/*
+ * _custom.scss carries a blanket `div, span, table, … { border-radius: 0 !important }`
+ * (around line 5643) from the gentelella days, which flattens every card on the page - the
+ * dashboard's included. Until that rule goes with the rest of the dead CSS, the components
+ * that own a radius have to say so as loudly.
+ */
+.grand-card,
+.grand-filters,
+.grand-field__control .form-control,
+.grand-field__control .form-select {
+    border-radius: var(--grand-radius) !important;
+}
+
+.grand-field__control .form-control,
+.grand-field__control .form-select {
+    border-radius: var(--grand-radius-sm) !important;
+}

@@ -9,6 +9,7 @@ import { createTabs } from './ui/tabs.js'
 import { createNumeric, getNumeric, initNumeric } from './ui/numeric.js'
 import { createDateInput, getDateInput, initDateInputs } from './ui/datetime.js'
 import { createSelect, createLookup, getSelect, initSelects } from './ui/select.js'
+import { createBulkBar, getBulkBar, initBulkBars } from './ui/bulkbar.js'
 import { formatValue, formatDate, formatNumber, toDate } from './grid/format.js'
 
 const GrandAdmin = (window.GrandAdmin = window.GrandAdmin || {})
@@ -35,6 +36,7 @@ if (!GrandAdmin.ui) {
     GrandAdmin.texts = texts
     GrandAdmin.numeric = { create: (el, o) => createNumeric(el, { culture: culture(), ...o }), get: getNumeric }
     GrandAdmin.dateInput = { create: (el, o) => createDateInput(el, { culture: culture(), texts: texts(), ...o }), get: getDateInput }
+    GrandAdmin.bulkBar = { create: createBulkBar, get: getBulkBar }
     GrandAdmin.select = {
         create: (el, o) => createSelect(el, { texts: texts(), ...o }),
         lookup: (el, o) => createLookup(el, { texts: texts(), ...o }),
@@ -48,10 +50,11 @@ if (!GrandAdmin.ui) {
             initNumeric(root, culture())
             initDateInputs(root, culture(), texts())
             initSelects(root, texts())
+            initBulkBars(root)
         }
     }
 
-    const SELECTOR = '[data-grand-tabstrip], input[data-grand-numeric], input[data-grand-date], [data-grand-select]'
+    const SELECTOR = '[data-grand-tabstrip], input[data-grand-numeric], input[data-grand-date], [data-grand-select], [data-grand-bulkbar]'
     const observe = () => {
         if (typeof MutationObserver === 'undefined' || !document.body) return
         //widgets inside content added later: popups, appended tabs, ajax-loaded partials

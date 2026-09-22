@@ -402,4 +402,7 @@
 	<Resource Name="vendor.orders.shipments.deliverydate.hint" Area="Vendor">
 		<Value>Leave empty to stamp the current date and time when marking as delivered.</Value>
 	</Resource>
+	<Resource Name="admin.common.grid.selectedcount" Area="Admin">
+		<Value>{0} selected</Value>
+	</Resource>
 </Language>

@@ -1,198 +1,90 @@
-﻿@model ProductListModel
+@model ProductListModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.Manage"];
 }
+@* The reference list screen of the panel: <admin-page> for the shell and the header,
+   <admin-filters> for one visible search field with the rest of the criteria behind a toggle,
+   and the grid in a flush card above a bulk bar that appears only once rows are ticked.
+   The ids the scripts below look up are unchanged. *@
 <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="List" method="post">
+    <admin-page title="@Loc["Admin.Catalog.Products.Manage"]" icon="bi-boxes">
+        <page-actions>
+            <admin-action-menu text="@Loc["Admin.Common.Export"]">
+                <admin-action submit="true" name="exportexcel-all"
+                              url="@Url.Action("ExportExcelAll", new { area = Constants.AreaAdmin })"
+                              icon="bi-download" text="@Loc["Admin.Common.ExportToExcel.All"]"/>
+                <admin-action id="exportexcel-selected" icon="bi-download"
+                              text="@Loc["Admin.Common.ExportToExcel.Selected"]"/>
+                <admin-action id="importexcel" icon="bi-upload" text="@Loc["Admin.Common.ImportFromExcel"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="product_list_buttons" additional-data="null"/>
+            <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+            </a>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc["Admin.Catalog.Products.Manage"]
-                    </div>
-                    <div class="actions btn-group btn-group-devided util-btn-margin-bottom-5">
-                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                        </a>
-                        <div class="btn-group btn-group-devided">
-                            <a class="btn default" href="javascript:;" data-bs-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                                <i class="bi bi-download"></i>
-                                @Loc["Admin.Common.Export"]
-                                <i class="bi bi-chevron-down"></i>
-                            </a>
-                            <ul class="dropdown-menu pull-right">
-                                <li>
-                                    <input type="submit" name="exportexcel-all" asp-action="ExportExcelAll" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.All"]"/>
-                                </li>
-                                <li>
-                                    <input type="button" id="exportexcel-selected" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.Selected"]"/>
-                                </li>
-                            </ul>
-                        </div>
-                        <button type="button" id="importexcel" name="importexcel" class="btn default">
-                            <i class="bi bi-upload"></i>
-                            @Loc["Admin.Common.ImportFromExcel"]
-                        </button>
-
-                        <button type="button" name="delete-selected" id="delete-selected" class="btn red">
-                            <i class="bi bi-trash"></i>
-                            @Loc["Admin.Common.Delete.Selected"]
-                        </button>
-                        <vc:admin-widget widget-zone="product_list_buttons" additional-data="null"/>
-                    </div>
+        <admin-filters id="product-filters" submit-id="search-products">
+            <filters-search>
+                <admin-input asp-for="SearchProductName"/>
+            </filters-search>
+            <admin-field asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
+            <admin-field asp-for="SearchPublishedId" asp-items="Model.AvailablePublishedOptions"/>
+            <admin-field asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
+            <admin-field asp-for="SearchCategoryId"/>
+            <admin-field asp-for="SearchIncludeSubCategories"/>
+            <admin-field asp-for="SearchBrandId"/>
+            <admin-field asp-for="SearchCollectionId"/>
+            <admin-field asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+            <admin-field asp-for="SearchVendorId"/>
+            <admin-field asp-for="GoDirectlyToSku">
+                <div class="input-group">
+                    <admin-input asp-for="GoDirectlyToSku"/>
+                    <input type="submit" id="go-to-product-by-sku" asp-action="GoToSku" name="go-to-product-by-sku"
+                           class="btn btn-outline-secondary" value="@Loc["Admin.Common.Go"]"/>
                 </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchProductName" class="control-label"/>
-                                            <admin-input asp-for="SearchProductName"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-success filter-submit" id="search-products">
-                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container w-100">
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchPublishedId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchPublishedId" asp-items="Model.AvailablePublishedOptions"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchWarehouseId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="GoDirectlyToSku" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <div class="input-group" style="text-align:left">
-                                            <admin-input asp-for="GoDirectlyToSku"/>
-                                            <span class="">
-                                                <input type="submit" id="go-to-product-by-sku" asp-action="GoToSku" name="go-to-product-by-sku" class="btn default" value="@Loc["Admin.Common.Go"]"/>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchCategoryId"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchIncludeSubCategories" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                            <admin-input asp-for="SearchIncludeSubCategories"/>
-                                            <div class="control__indicator"></div>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchBrandId"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchCollectionId"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchVendorId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchVendorId"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="x_content">
-                            <admin-grid id="products-grid"
-                                        read-url="@Url.Action("ProductList", "Product", new { area = Constants.AreaAdmin })"
-                                        additional-data="additionalData"
-                                        selectable="Checkbox"
-                                        on-change="onProductSelectionChange">
-                                <grid-column field="PictureThumbnailUrl" title="@Loc["Admin.Catalog.Products.Fields.PictureThumbnailUrl"]" width="92">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Name" title="@Loc["Admin.Catalog.Products.Fields.Name"]" width="270">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Sku" title="@Loc["Admin.Catalog.Products.Fields.Sku"]" width="80" align="Center"/>
-                                <grid-column field="Price" title="@Loc["Admin.Catalog.Products.Fields.Price"]" width="100" align="Right">
-                                    <cell-template>
-                                        @*grouped products have no price of their own*@
-                                        <span data-if="ProductTypeId != @((int)ProductType.GroupedProduct)">{{ Price }}</span>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="StockQuantityStr" title="@Loc["Admin.Catalog.Products.Fields.StockQuantity"]" width="80" align="Right" min-screen-width="750"/>
-                                <grid-column field="ProductTypeName" title="@Loc["Admin.Catalog.Products.Fields.ProductType"]" width="100" align="Center" min-screen-width="1050"/>
-                                <grid-column field="Published" title="@Loc["Admin.Catalog.Products.Fields.Published"]" width="85" align="Center">
-                                    <cell-template>
-                                        <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </admin-field>
+        </admin-filters>
 
-    <script>
-        $(document).ready(function () {
-            $('.extend-collapse').hide();
-            $('.filter-text-open').hide();
-            $('.filter-extend-button').click(function () {
-                $('.extend-collapse').toggle("slow");
-                $('.filter-text-open').toggle();
-                $('.filter-text-close').toggle();
-            });
-        });
-    </script>
+        <admin-card flush>
+            <admin-bulkbar grid-id="products-grid">
+                <button type="button" name="delete-selected" id="delete-selected" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete.Selected"]
+                </button>
+            </admin-bulkbar>
+            <admin-grid id="products-grid"
+                        read-url="@Url.Action("ProductList", "Product", new { area = Constants.AreaAdmin })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        on-change="onProductSelectionChange">
+                <grid-column field="PictureThumbnailUrl" title="@Loc["Admin.Catalog.Products.Fields.PictureThumbnailUrl"]" width="92">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Name" title="@Loc["Admin.Catalog.Products.Fields.Name"]" width="270">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Sku" title="@Loc["Admin.Catalog.Products.Fields.Sku"]" width="80" align="Center"/>
+                <grid-column field="Price" title="@Loc["Admin.Catalog.Products.Fields.Price"]" width="100" align="Right">
+                    <cell-template>
+                        @*grouped products have no price of their own*@
+                        <span data-if="ProductTypeId != @((int)ProductType.GroupedProduct)">{{ Price }}</span>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="StockQuantityStr" title="@Loc["Admin.Catalog.Products.Fields.StockQuantity"]" width="80" align="Right" min-screen-width="750"/>
+                <grid-column field="ProductTypeName" title="@Loc["Admin.Catalog.Products.Fields.ProductType"]" width="100" align="Center" min-screen-width="1050"/>
+                <grid-column field="Published" title="@Loc["Admin.Catalog.Products.Fields.Published"]" width="85" align="Center">
+                    <cell-template>
+                        <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    </cell-template>
+                </grid-column>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
 
     <script>
 
@@ -223,7 +115,15 @@
             });
 
             $('#delete-selected').click(function(e) {
-                if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+                //a modal of the panel, not the browser's confirm(): it can be styled and it does
+                //not block the page
+                GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]', {
+                    title: '@Loc["Admin.Common.Delete.Selected"]',
+                    confirmText: '@Loc["Admin.Common.Delete"]',
+                    cancelText: '@Loc["Admin.Common.Cancel"]'
+                }).then(function (confirmed) {
+                    if (!confirmed) return;
+
                     var postData = {
                         selectedIds: selectedIds
                     };
@@ -236,14 +136,15 @@
                         data: postData,
                         complete: function (data) {
                             var grid = $('#products-grid').data('kendoGrid');
+                            grid.clearSelection();
                             grid.dataSource.read();
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
-                            alert(thrownError);
+                            GrandAdmin.modal.confirm(thrownError, { cancelText: '@Loc["Admin.Common.Cancel"]' });
                         },
                         traditional: true
                     });
-                }
+                });
                 return false;
             });
         });
@@ -278,18 +179,6 @@
                      submit-text="@Loc["Admin.Common.ImportFromExcel"]">
     <em>@Loc["Admin.Catalog.Products.List.ImportFromExcelTip"]</em>
 </admin-import-window>
-<script>
-    $(document).ready(function () {
-        $('#exportxml-selected').click(function (e) {
-            e.preventDefault();
-            var ids = selectedIds.join(",");
-            $('#export-xml-selected-form #selectedIds').val(ids);
-            $('#export-xml-selected-form').submit();
-            return false;
-        });
-    });
-
-</script>
 <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ExportExcelSelected" method="post" id="export-excel-selected-form">
 
     <input type="hidden" id="selectedIds" name="selectedIds" value=""/>
