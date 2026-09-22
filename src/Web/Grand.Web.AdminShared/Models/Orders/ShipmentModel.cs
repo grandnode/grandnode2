@@ -27,12 +27,16 @@ public class ShipmentModel : BaseEntityModel
     public string TrackingNumberUrl { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.ShippedDate")]
+    //nullable: without the hint the DateTime template renders an unset date as 01/01/0001
+    [UIHint("DateTimeNullable")]
     public DateTime? ShippedDate { get; set; }
 
     public bool CanShip { get; set; }
     public DateTime? ShippedDateUtc { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.DeliveryDate")]
+    //nullable: without the hint the DateTime template renders an unset date as 01/01/0001
+    [UIHint("DateTimeNullable")]
     public DateTime? DeliveryDate { get; set; }
 
     public bool CanDeliver { get; set; }

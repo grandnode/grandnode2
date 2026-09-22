@@ -93,28 +93,22 @@
                 <div class="mb-3">
                     <admin-label asp-for="ShippedDate"/>
                     <div class="col-md-9 col-sm-9">
-                        @if (isShipped)
+                        <admin-input asp-for="ShippedDate"/>
+                        <span class="form-text">@Loc["Vendor.Orders.Shipments.ShippedDate.Enter"]</span>
+                        @if (!isShipped)
                         {
-                            <admin-input asp-for="ShippedDate"/>
-                            <span class="form-text">@Loc["Vendor.Orders.Shipments.ShippedDate.Enter"]</span>
-                        }
-                        else
-                        {
-                            <p class="form-control-plaintext text-muted mb-0">@Loc["Vendor.Orders.Shipments.ShippedDate.NotYet"]</p>
+                            <span class="form-text">@Loc["Vendor.Orders.Shipments.ShippedDate.Hint"]</span>
                         }
                     </div>
                 </div>
                 <div class="mb-3">
                     <admin-label asp-for="DeliveryDate"/>
                     <div class="col-md-9 col-sm-9">
-                        @if (isDelivered)
+                        <admin-input asp-for="DeliveryDate"/>
+                        <span class="form-text">@Loc["Vendor.Orders.Shipments.DeliveryDate.Enter"]</span>
+                        @if (!isDelivered)
                         {
-                            <admin-input asp-for="DeliveryDate"/>
-                            <span class="form-text">@Loc["Vendor.Orders.Shipments.DeliveryDate.Enter"]</span>
-                        }
-                        else
-                        {
-                            <p class="form-control-plaintext text-muted mb-0">@Loc["Vendor.Orders.Shipments.DeliveryDate.NotYet"]</p>
+                            <span class="form-text">@Loc["Vendor.Orders.Shipments.DeliveryDate.Hint"]</span>
                         }
                     </div>
                 </div>

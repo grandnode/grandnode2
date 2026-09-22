@@ -319,14 +319,19 @@ public abstract class BaseShipmentController(
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> SetAsShipped(string id)
+    /// <summary>Takes the whole info form, because its shipped date - which the screen offers
+    /// before a shipment is shipped - is the date to stamp. An empty one means now.</summary>
+    public async Task<IActionResult> SetAsShipped(ShipmentInfoModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
         if (denied != null) return denied;
 
         try
         {
-            await mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
+            await mediator.Send(new ShipCommand {
+                Shipment = shipment, NotifyCustomer = true,
+                ShippedDateUtc = model.ShippedDate?.ConvertToUtcTime(dateTimeService)
+            });
             return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
         }
         catch (Exception exc)
@@ -360,14 +365,19 @@ public abstract class BaseShipmentController(
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> SetAsDelivered(string id)
+    /// <summary>Same as SetAsShipped: the delivery date of the info form is the date to stamp,
+    /// and an empty one means now.</summary>
+    public async Task<IActionResult> SetAsDelivered(ShipmentInfoModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
         if (denied != null) return denied;
 
         try
         {
-            await mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
+            await mediator.Send(new DeliveryCommand {
+                Shipment = shipment, NotifyCustomer = true,
+                DeliveryDateUtc = model.DeliveryDate?.ConvertToUtcTime(dateTimeService)
+            });
             return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
         }
         catch (Exception exc)
