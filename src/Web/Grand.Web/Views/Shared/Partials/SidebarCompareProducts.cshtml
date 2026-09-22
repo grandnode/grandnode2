@@ -5,7 +5,7 @@
 <li class="nav-item">
     <ul class="px-0">
         <li class="nav-item">
-            <a href="#" target="_self" class="nav-link">
+            <a href="#" target="_self" class="nav-link" @@click.prevent>
                 <i class="b-icon bi bi-shuffle" :class="[darkMode ? 'text-white' : 'text-dark']" @@click="getCompareList('@Url.RouteUrl("SidebarCompareProducts")')" data-bs-toggle="offcanvas" data-bs-target="#sidebar-compare" aria-controls="sidebar-compare" aria-hidden="true"></i>
                 @*v-cloak: the counter is read from a cookie once the app is up, so
                     without it the raw {{ }} shows in the header until then*@
