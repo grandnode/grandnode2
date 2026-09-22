@@ -77,7 +77,15 @@ public class AdminFieldTagHelper : TagHelper
         output.TagName = "div";
         output.TagMode = TagMode.StartTagAndEndTag;
         output.AddClass("grand-field", HtmlEncoder.Default);
-        if (isCheck) output.AddClass("grand-field--check", HtmlEncoder.Default);
+        if (isCheck)
+        {
+            //a Bootstrap switch, which is what a yes/no answer reads as; the framework's
+            //default checkbox template renders the pre-migration .check-box class, whose look
+            //depended on a .control__indicator sibling the views hand-wrote 1571 times
+            output.AddClass("grand-field--check", HtmlEncoder.Default);
+            output.AddClass("form-check", HtmlEncoder.Default);
+            output.AddClass("form-switch", HtmlEncoder.Default);
+        }
         else if (!string.IsNullOrEmpty(Size) && !Size.Equals("full", StringComparison.OrdinalIgnoreCase))
             output.AddClass($"grand-field--{Size.ToLowerInvariant()}", HtmlEncoder.Default);
 
@@ -136,6 +144,10 @@ public class AdminFieldTagHelper : TagHelper
     /// </summary>
     private async Task<IHtmlContent> BuildControl()
     {
+        if (For.Metadata.UnderlyingOrModelType == typeof(bool))
+            return _htmlHelper.CheckBox(For.Name, For.Model as bool? ?? false,
+                new { @class = "form-check-input", role = "switch" });
+
         //asp-items means a plain select, as <admin-select> renders one; the editor templates
         //have no notion of a list and would hand back a text box
         if (Items != null)

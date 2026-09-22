@@ -284,3 +284,79 @@
 .grand-field__control .form-select {
     border-radius: var(--grand-radius-sm) !important;
 }
+
+/*
+ * Buttons inside a converted screen. Bootstrap's own btn-primary is blue and _custom.scss
+ * still carries the gentelella geometry (6px 18px, no icon gap), so a new screen would not
+ * look like the design it was drawn from. These rules are scoped to .grand-page, which keeps
+ * every unconverted screen exactly as it is until its turn comes.
+ */
+.grand-page .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .4rem .8rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-page .btn-sm {
+    padding: .25rem .55rem;
+    font-size: .8125rem;
+}
+
+.grand-page .btn-primary {
+    --#{$prefix}btn-bg: var(--grand-accent);
+    --#{$prefix}btn-border-color: var(--grand-accent);
+    --#{$prefix}btn-color: var(--grand-on-accent, #fff);
+    --#{$prefix}btn-hover-bg: var(--grand-accent);
+    --#{$prefix}btn-hover-border-color: var(--grand-accent);
+    --#{$prefix}btn-hover-color: var(--grand-on-accent, #fff);
+    --#{$prefix}btn-active-bg: var(--grand-accent);
+    --#{$prefix}btn-active-border-color: var(--grand-accent);
+}
+
+.grand-page .btn-primary:hover {
+    filter: brightness(1.08);
+}
+
+.grand-page .btn-outline-secondary {
+    --#{$prefix}btn-color: var(--#{$prefix}body-color);
+    --#{$prefix}btn-border-color: var(--grand-border);
+    --#{$prefix}btn-bg: var(--grand-surface);
+    --#{$prefix}btn-hover-color: var(--#{$prefix}body-color);
+    --#{$prefix}btn-hover-bg: var(--grand-surface-sunken);
+    --#{$prefix}btn-hover-border-color: var(--grand-form-border);
+    --#{$prefix}btn-active-color: var(--#{$prefix}body-color);
+    --#{$prefix}btn-active-bg: var(--grand-surface-sunken);
+}
+
+.grand-page .btn-outline-danger {
+    --#{$prefix}btn-color: var(--grand-red);
+    --#{$prefix}btn-border-color: var(--grand-border);
+    --#{$prefix}btn-bg: transparent;
+    --#{$prefix}btn-hover-color: var(--grand-red);
+    --#{$prefix}btn-hover-bg: var(--grand-red-soft);
+    --#{$prefix}btn-hover-border-color: var(--grand-red);
+}
+
+/* the switch of a yes/no field: the accent, and the label beside it rather than above */
+
+.grand-field--check {
+    padding-inline-start: 0;
+}
+
+.grand-field--check .form-check-input {
+    flex: 0 0 auto;
+    //Bootstrap floats a form-check input; here the field itself is the row
+    float: none;
+    width: 2.2em;
+    height: 1.2em;
+    margin: 0;
+}
+
+.grand-field--check .form-check-input:checked {
+    background-color: var(--grand-accent);
+    border-color: var(--grand-accent);
+}
