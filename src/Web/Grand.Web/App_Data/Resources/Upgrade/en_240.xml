@@ -387,4 +387,7 @@
 	<Resource Name="admin.dashboard.welcome.edit" Area="Admin">
 		<Value>Edit this message</Value>
 	</Resource>
+	<Resource Name="admin.orders.shipments.updated" Area="Admin">
+		<Value>The shipment has been updated successfully.</Value>
+	</Resource>
 </Language>

@@ -10,46 +10,6 @@
 }
 <form asp-area="@area" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
     <input type="hidden" asp-for="Id"/>
-    <script>
-        $(document).ready(function () {
-            toggleShippedDate(false);
-            toggleDeliveryDate(false);
-        });
-
-        function toggleShippedDate(editmode) {
-            if (editmode) {
-                $('#lblShippedDate').hide();
-                $('#divShippedDate').show();
-                $('#btnEditShippedDate').hide();
-                $('#btnSaveShippedDate').show();
-                $('#btnCancelShippedDate').show();
-            }
-            else {
-                $('#lblShippedDate').show();
-                $('#divShippedDate').hide();
-                $('#btnEditShippedDate').show();
-                $('#btnSaveShippedDate').hide();
-                $('#btnCancelShippedDate').hide();
-            }
-        }
-
-        function toggleDeliveryDate(editmode) {
-            if (editmode) {
-                $('#lblDeliveryDate').hide();
-                $('#divDeliveryDate').show();
-                $('#btnEditDeliveryDate').hide();
-                $('#btnSaveDeliveryDate').show();
-                $('#btnCancelDeliveryDate').show();
-            }
-            else {
-                $('#lblDeliveryDate').show();
-                $('#divDeliveryDate').hide();
-                $('#btnEditDeliveryDate').show();
-                $('#btnSaveDeliveryDate').hide();
-                $('#btnCancelDeliveryDate').hide();
-            }
-        }
-    </script>
     <div asp-validation-summary="All"></div>
     <div class="row">
         <div class="col-md-12">
@@ -65,6 +25,20 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
+                            @* both notify the customer and cannot be undone, so they ask first and
+                               stay out of the info form's Save *@
+                            @if (Model.CanShip)
+                            {
+                                <input type="submit" name="setasshipped" asp-action="SetAsShipped" id="setasshipped"
+                                       value="@Loc["Admin.Orders.Shipments.ShippedDate.Button"]" class="btn btn-success"
+                                       onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"/>
+                            }
+                            @if (Model.CanDeliver)
+                            {
+                                <input type="submit" name="setasdelivered" asp-action="SetAsDelivered" id="setasdelivered"
+                                       value="@Loc["Admin.Orders.Shipments.DeliveryDate.Button"]" class="btn btn-success"
+                                       onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"/>
+                            }
                             <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = area })" class="btn purple">
                                 <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.Shipments.PrintPackagingSlip"]
                             </a>

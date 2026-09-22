@@ -6895,3 +6895,36 @@ table.tableFixHead {
     pointer-events: none;
     opacity: .6;
 }
+/*
+ * The summary bar of a shipment's Info tab: the facts of the shipment (number, order, weight,
+ * item count) with the shipped and delivered state as badges. Built from the form and card
+ * tokens, so it follows the colour mode like the fields under it.
+ */
+.shipment-summary {
+    padding: 1rem;
+    background-color: var(--#{$prefix}tertiary-bg);
+    border: var(--#{$prefix}border-width) solid var(--grand-form-border);
+    border-radius: var(--#{$prefix}border-radius);
+}
+
+.shipment-summary-label {
+    font-size: .8125rem;
+    color: var(--grand-form-hint);
+}
+
+.shipment-summary-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.shipment-summary-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+.shipment-summary-badges .badge {
+    font-size: .8125rem;
+    font-weight: 500;
+}

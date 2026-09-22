@@ -278,6 +278,45 @@ public abstract class BaseShipmentController(
         return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
     }
 
+    /// <summary>The one Save of the shipment info form. The per-field actions above are kept for
+    /// callers outside the panel; shipping and delivering stay separate because they notify the
+    /// customer. A date is only written when the shipment already has one — the first value comes
+    /// from ShipCommand / DeliveryCommand, which the form must not trigger.</summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SaveShipmentInfo(ShipmentInfoModel model)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
+        if (denied != null) return denied;
+
+        try
+        {
+            if (shipment.ShippedDateUtc.HasValue)
+            {
+                if (!model.ShippedDate.HasValue) throw new Exception("Enter shipped date");
+                shipment.ShippedDateUtc = model.ShippedDate.ConvertToUtcTime(dateTimeService);
+            }
+
+            if (shipment.DeliveryDateUtc.HasValue)
+            {
+                if (!model.DeliveryDate.HasValue) throw new Exception("Enter delivery date");
+                shipment.DeliveryDateUtc = model.DeliveryDate.ConvertToUtcTime(dateTimeService);
+            }
+
+            shipment.TrackingNumber = model.TrackingNumber;
+            shipment.AdminComment = model.AdminComment;
+            await shipmentService.UpdateShipment(shipment);
+
+            Success(translationService.GetResource("Admin.Orders.Shipments.Updated"));
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+        }
+
+        return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+    }
+
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> SetAsShipped(string id)

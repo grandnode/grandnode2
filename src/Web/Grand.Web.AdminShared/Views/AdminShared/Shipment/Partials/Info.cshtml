@@ -1,190 +1,160 @@
-@model ShipmentModel
+﻿@model ShipmentModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var isShipped = Model.ShippedDateUtc.HasValue;
+    var isDelivered = Model.DeliveryDateUtc.HasValue;
 }
-<div>
-    <div class="form-horizontal">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="OrderId"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">
-                        <a href="@Url.Action("Edit", "Order", new { Id = Model.OrderId, area = area })">@Model.OrderNumber - @Loc["Admin.Common.View"]</a>
-                    </label>
-                </div>
+@* The summary reads the shipment at a glance; everything editable sits in the card below it. *@
+<div class="shipment-summary mb-3">
+    <div class="row g-3">
+        <div class="col-md-3 col-sm-6">
+            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.ID"]</div>
+            <div class="shipment-summary-value">@Model.ShipmentNumber</div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.OrderID"]</div>
+            <div class="shipment-summary-value">
+                <a href="@Url.Action("Edit", "Order", new { Id = Model.OrderId, area = area })">@Model.OrderNumber</a>
             </div>
-            <div class="mb-3">
-                <admin-label asp-for="TrackingNumber"/>
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <div class="input-group-control">
-                            <admin-input asp-for="TrackingNumber"/>
-                        </div>
-                        <div class="">
-                            <input type="submit" name="settrackingnumber" asp-action="SetTrackingNumber" value="@Loc["Admin.Orders.Shipments.TrackingNumber.Button"]" class="btn default"/>
-                            @if (!string.IsNullOrEmpty(Model.TrackingNumberUrl))
-                            {
-                                <a href="@Model.TrackingNumberUrl" target="_blank" class="tracking-url">@Loc["Admin.Orders.Shipments.TrackingNumber.ViewOnline"]</a>
-                            }
-                        </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.TotalWeight"]</div>
+            <div class="shipment-summary-value">@Model.TotalWeight</div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.Products"]</div>
+            <div class="shipment-summary-value">@Model.Items.Count</div>
+        </div>
+    </div>
+    <div class="shipment-summary-badges">
+        <span class="badge @(isShipped ? "text-bg-success" : "text-bg-secondary")">
+            <i class="bi bi-truck"></i>
+            @Loc["Admin.Orders.Shipments.ShippedDate"]:
+            @if (isShipped)
+            {
+                @Model.ShippedDate.Value.ToString("g")
+            }
+            else
+            {
+                @Loc["Admin.Orders.Shipments.ShippedDate.NotYet"]
+            }
+        </span>
+        <span class="badge @(isDelivered ? "text-bg-success" : "text-bg-secondary")">
+            <i class="bi bi-box-seam"></i>
+            @Loc["Admin.Orders.Shipments.DeliveryDate"]:
+            @if (isDelivered)
+            {
+                @Model.DeliveryDate.Value.ToString("g")
+            }
+            else
+            {
+                @Loc["Admin.Orders.Shipments.DeliveryDate.NotYet"]
+            }
+        </span>
+        @if (!string.IsNullOrEmpty(Model.TrackingNumber))
+        {
+            <span class="badge border text-body">
+                <i class="bi bi-upc-scan"></i>
+                @Loc["Admin.Orders.Shipments.TrackingNumber"]: @Model.TrackingNumber
+            </span>
+        }
+    </div>
+</div>
+
+@* One form, one Save: tracking number, admin comment and both dates post together to
+   SaveShipmentInfo. Shipping and delivering stay in the panel header, because they notify
+   the customer. *@
+<div class="note note-info">
+    @Loc["Admin.Orders.Shipments.ViewDetails.Info"]
+</div>
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <admin-label asp-for="TrackingNumber"/>
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="TrackingNumber"/>
+                        @if (!string.IsNullOrEmpty(Model.TrackingNumberUrl))
+                        {
+                            <a href="@Model.TrackingNumberUrl" target="_blank" class="tracking-url form-text">
+                                <i class="bi bi-box-arrow-up-right"></i> @Loc["Admin.Orders.Shipments.TrackingNumber.ViewOnline"]
+                            </a>
+                        }
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <admin-label asp-for="AdminComment"/>
+                    <div class="col-md-9 col-sm-9">
+                        <admin-textarea asp-for="AdminComment"/>
                     </div>
                 </div>
             </div>
-            <div class="mb-3">
-                <admin-label asp-for="AdminComment"/>
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <div class="input-group-control">
-                            <admin-input asp-for="AdminComment"/>
-                        </div>
-                        <div class="">
-                            <input type="submit" name="setadmincomment" asp-action="SetShipmentAdminComment" value="@Loc["Admin.Orders.Shipments.AdminComment.Button"]" class="btn default"/>
-                        </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <admin-label asp-for="ShippedDate"/>
+                    <div class="col-md-9 col-sm-9">
+                        @if (isShipped)
+                        {
+                            <admin-input asp-for="ShippedDate"/>
+                            <span class="form-text">@Loc["Admin.Orders.Shipments.ShippedDate.Enter"]</span>
+                        }
+                        else
+                        {
+                            <p class="form-control-plaintext text-muted mb-0">@Loc["Admin.Orders.Shipments.ShippedDate.NotYet"]</p>
+                        }
                     </div>
                 </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="TotalWeight"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.TotalWeight</label>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="ShippedDate"/>
-                <div class="col-md-9 col-sm-9">
-                    <span id="lblShippedDate">
-                        @if (Model.ShippedDate.HasValue)
+                <div class="mb-3">
+                    <admin-label asp-for="DeliveryDate"/>
+                    <div class="col-md-9 col-sm-9">
+                        @if (isDelivered)
                         {
-                            @Model.ShippedDate.Value.ToString(CultureInfo.InvariantCulture)
+                            <admin-input asp-for="DeliveryDate"/>
+                            <span class="form-text">@Loc["Admin.Orders.Shipments.DeliveryDate.Enter"]</span>
                         }
                         else
                         {
-                            <text>@Loc["Admin.Orders.Shipments.ShippedDate.NotYet"]</text>
+                            <p class="form-control-plaintext text-muted mb-0">@Loc["Admin.Orders.Shipments.DeliveryDate.NotYet"]</p>
                         }
-                    </span>
-                    @if (Model.CanShip)
-                    {
-                        <input type="submit" name="setasshipped" asp-action="SetAsShipped" value="@Loc["Admin.Orders.Shipments.ShippedDate.Button"]" id="setasshipped" class="btn default"/>
-                    }
-                    @if (Model.ShippedDateUtc.HasValue)
-                    {
-                        <div id="divShippedDate" style="display: inline-block;"><admin-input asp-for="ShippedDate"/> &nbsp;@Loc["Admin.Orders.Shipments.ShippedDate.Enter"]</div>
-                        <button type="submit" id="btnEditShippedDate" onclick=" toggleShippedDate(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
-                        <button type="submit" id="btnSaveShippedDate" asp-action="EditShippedDate" name="saveshippeddate" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm"><span class="bi bi-floppy"></span>&nbsp;@Loc["Admin.Common.Save"]</button>
-                        <button type="submit" id="btnCancelShippedDate" onclick=" toggleShippedDate(false);return false; " class="btn btn-default btn-sm"><span class="bi bi-x-lg"></span>&nbsp;@Loc["Admin.Common.Cancel"]</button>
-                    }
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="DeliveryDate"/>
-                <div class="col-md-9 col-sm-9">
-                    <span id="lblDeliveryDate">
-                        @if (Model.DeliveryDate.HasValue)
-                        {
-                            @Model.DeliveryDate.Value.ToString(CultureInfo.InvariantCulture)
-                        }
-                        else
-                        {
-                            <text>@Loc["Admin.Orders.Shipments.DeliveryDate.NotYet"]</text>
-                        }
-                    </span>
-                    @if (Model.CanDeliver)
-                    {
-                        <input type="submit" name="setasdelivered" asp-action="SetAsDelivered" value="@Loc["Admin.Orders.Shipments.DeliveryDate.Button"]" id="setasdelivered" class="btn default"/>
-                    }
-                    @if (Model.DeliveryDateUtc.HasValue)
-                    {
-                        <div id="divDeliveryDate" style="display: inline-block;"><admin-input asp-for="DeliveryDate"/> &nbsp;@Loc["Admin.Orders.Shipments.DeliveryDate.Enter"]</div>
-                        <button type="submit" id="btnEditDeliveryDate" onclick=" toggleDeliveryDate(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
-                        <button type="submit" id="btnSaveDeliveryDate" asp-action="EditDeliveryDate" name="savedeliverydate" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm"><span class="bi bi-floppy"></span>&nbsp;@Loc["Admin.Common.Save"]</button>
-                        <button type="submit" id="btnCancelDeliveryDate" onclick=" toggleDeliveryDate(false);return false; " class="btn btn-default btn-sm"><span class="bi bi-x-lg"></span>&nbsp;@Loc["Admin.Common.Cancel"]</button>
-                    }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="form-actions">
+        <input type="submit" name="saveshipmentinfo" asp-action="SaveShipmentInfo" value="@Loc["Admin.Common.Save"]" class="btn btn-success"/>
+    </div>
 </div>
 
-<table class="table table-striped table-hover">
-    <tr>
-        <td>
-            <strong>@Loc["Admin.Orders.Shipments.Products"]</strong>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                <tr>
-                    <th>
-                        @Loc["Admin.Orders.Shipments.Products.ProductName"]
-                    </th>
-                    <th>
-                        @Loc["Admin.Orders.Shipments.Products.SKU"]
-                    </th>
-                    <th>
-                        @Loc["Admin.Orders.Shipments.Products.Warehouse"]
-                    </th>
-                    <th>
-                        @Loc["Admin.Orders.Shipments.Products.ItemWeight"]
-                    </th>
-                    <th>
-                        @Loc["Admin.Orders.Shipments.Products.ItemDimensions"]
-                    </th>
-                    <th>
-                        @Loc["Admin.Orders.Shipments.Products.QtyShipped"]
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model.Items)
-                {
-                    <tr>
-                        <td>
-                            <div style="padding-left: 10px; padding-right: 10px;">
-                                <em>
-                                    <a href="@Url.Action("Edit", "Product", new { id = item.ProductId, area = area })">@item.ProductName</a>
-                                </em>
-                                @if (!string.IsNullOrEmpty(item.AttributeInfo))
-                                {
-                                    <p>
-                                        @Html.Raw(item.AttributeInfo)
-                                    </p>
-                                }
-                                @if (!string.IsNullOrEmpty(item.RentalInfo))
-                                {
-                                    <p>
-                                        @Html.Raw(item.RentalInfo)
-                                    </p>
-                                }
-                            </div>
-                        </td>
-                        <td>
-                            <div style="padding-left: 10px; padding-right: 10px;">
-                                @item.Sku
-                            </div>
-                        </td>
-                        <td>
-                            <div style="padding-left: 10px; padding-right: 10px;">
-                                @item.ShippedFromWarehouse
-                            </div>
-                        </td>
-                        <td>
-                            @item.ItemWeight
-                        </td>
-                        <td>
-                            @item.ItemDimensions
-                        </td>
-                        <td>
-                            @item.QuantityInThisShipment
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </td>
-    </tr>
-</table>
+<div class="form-horizontal">
+    <div class="note note-info">
+        @Loc["Admin.Orders.Shipments.Products"]
+    </div>
+    <div class="form-body">
+        <div class="mb-3">
+            @* the items travel with the page, as the table had them; all rows, no pager *@
+            <admin-grid id="shipmentitems-grid"
+                        data="@Model.Items.Select(x => new { x.ProductId, x.ProductName, x.AttributeInfo, x.RentalInfo, x.Sku, x.ShippedFromWarehouse, x.ItemWeight, x.ItemDimensions, x.QuantityInThisShipment })"
+                        pager="None">
+                <grid-column field="ProductName" title="@Loc["Admin.Orders.Shipments.Products.ProductName"]" width="350">
+                    <cell-template>
+                        <div>
+                            <em><a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a></em>
+                            <p data-if="AttributeInfo">{{{ AttributeInfo }}}</p>
+                            <p data-if="RentalInfo">{{{ RentalInfo }}}</p>
+                        </div>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Sku" title="@Loc["Admin.Orders.Shipments.Products.SKU"]" width="150"/>
+                <grid-column field="ShippedFromWarehouse" title="@Loc["Admin.Orders.Shipments.Products.Warehouse"]" width="150"/>
+                <grid-column field="ItemWeight" title="@Loc["Admin.Orders.Shipments.Products.ItemWeight"]" width="100"/>
+                <grid-column field="ItemDimensions" title="@Loc["Admin.Orders.Shipments.Products.ItemDimensions"]" width="150"/>
+                <grid-column field="QuantityInThisShipment" title="@Loc["Admin.Orders.Shipments.Products.QtyShipped"]" width="100"/>
+            </admin-grid>
+        </div>
+    </div>
+</div>
 
 @if (Model.ShipmentStatusEvents.Count > 0)
 {
@@ -194,54 +164,15 @@
         </div>
         <div class="form-body">
             <div class="mb-3">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th align="center">
-                            @Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Event"]
-                        </th>
-                        <th align="center">
-                            @Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Location"]
-                        </th>
-                        <th align="center">
-                            @Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Country"]
-                        </th>
-                        <th align="center">
-                            @Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Date"]
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var item in Model.ShipmentStatusEvents)
-                    {
-                        <tr>
-                            <td style="width:40%;">
-                                <div style="padding-left: 10px; padding-right: 10px;">
-                                    @item.EventName
-                                </div>
-                            </td>
-                            <td style="width:20%;">
-                                <div style="padding-left: 10px; padding-right: 10px;">
-                                    @item.Location
-                                </div>
-                            </td>
-                            <td style="width:20%;">
-                                <div style="padding-left: 10px; padding-right: 10px;">
-                                    @item.Country
-                                </div>
-                            </td>
-                            <td style="width:20%;">
-                                <div style="padding-left: 10px; padding-right: 10px;">
-                                    @if (item.Date.HasValue)
-                                    {
-                                        @item.Date.Value.ToString("D")
-                                    }
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
+                @* the carrier's events travel with the page too; all rows, no pager *@
+                <admin-grid id="shipmentevents-grid"
+                            data="@Model.ShipmentStatusEvents.Select(x => new { x.EventName, x.Location, x.Country, x.Date })"
+                            pager="None">
+                    <grid-column field="EventName" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Event"]" width="400"/>
+                    <grid-column field="Location" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Location"]" width="200"/>
+                    <grid-column field="Country" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Country"]" width="200"/>
+                    <grid-column field="Date" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Date"]" width="200" format="{0:d}"/>
+                </admin-grid>
             </div>
         </div>
     </div>
