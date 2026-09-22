@@ -489,11 +489,11 @@
 /* The select editor of a cell: the list of ui/select.js in the size of a row. The wrapper
    Tom Select builds carries the classes of the select it enhanced (form-select form-select-sm),
    so the field is the small variant of the one a screen shows. */
-.grand-grid .grand-grid-select {
+.grand-grid .grand-grid-select-editor {
     width: 100%;
 }
 
-.grand-grid .grand-grid-select .ts-wrapper {
+.grand-grid .grand-grid-select-editor .ts-wrapper {
     width: 100%;
     min-width: 6rem;
 }
@@ -502,7 +502,7 @@
    here - the padding and font size of form-select-sm - to match the text and number cells. In a narrow column the
    chosen text and the search field used to wrap onto two lines and double the row; the text
    now keeps one line and ends in an ellipsis. */
-.grand-grid .grand-grid-select .ts-control {
+.grand-grid .grand-grid-select-editor .ts-control {
     min-height: 0;
     flex-wrap: nowrap;
     overflow: hidden;
@@ -513,12 +513,12 @@
 
 /* the theme's own -sm rule (.ts-wrapper.form-select-sm.has-items .ts-control) sets a size of
    its own, larger than Bootstrap's, and comes later in the page */
-.grand-grid .grand-grid-select .ts-wrapper.form-select-sm .ts-control,
-.grand-grid .grand-grid-select .ts-wrapper.form-select-sm .ts-control input {
+.grand-grid .grand-grid-select-editor .ts-wrapper.form-select-sm .ts-control,
+.grand-grid .grand-grid-select-editor .ts-wrapper.form-select-sm .ts-control input {
     font-size: .765625rem;
 }
 
-.grand-grid .grand-grid-select .ts-control > .item {
+.grand-grid .grand-grid-select-editor .ts-control > .item {
     min-width: 0;
     flex: 0 1 auto;
     overflow: hidden;
@@ -526,7 +526,7 @@
     text-overflow: ellipsis;
 }
 
-.grand-grid .grand-grid-select .ts-control > input {
+.grand-grid .grand-grid-select-editor .ts-control > input {
     min-width: 1rem;
     flex: 1 1 auto;
 }

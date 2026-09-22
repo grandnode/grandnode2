@@ -369,7 +369,7 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
     const timers = doc.defaultView || globalThis
     timers.setTimeout(sweepClosedLists, 0)
     const holder = doc.createElement('div')
-    holder.className = 'grand-grid-select'
+    holder.className = 'grand-grid-select-editor'
     holder.appendChild(element)
     //a column that names an operator is filtered by the server as the person types, like the
     //search box did; one with fixed options - or a remote one that never filtered - is
