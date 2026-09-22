@@ -343,8 +343,34 @@
 
 /* the switch of a yes/no field: the accent, and the label beside it rather than above */
 
+/*
+ * A yes/no field is a row of its own: the switch, its label beside it, and the hint on the
+ * line below both. As a flex row the hint became a third column and collided with the label -
+ * which is what "If you select category and check this setting..." did next to the switch.
+ */
 .grand-field--check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: .5rem;
+    row-gap: .15rem;
+    align-items: center;
+    //Bootstrap's own .form-check / .form-switch padding has no place here
     padding-inline-start: 0;
+}
+
+.grand-field--check .grand-field__control {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.grand-field--check .grand-field__label {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.grand-field--check .grand-field__hint {
+    grid-column: 2;
+    grid-row: 2;
 }
 
 .grand-field--check .form-check-input {
@@ -359,4 +385,120 @@
 .grand-field--check .form-check-input:checked {
     background-color: var(--grand-accent);
     border-color: var(--grand-accent);
+}
+
+/*
+ * The grid inside a converted screen. The Tabulator adapter keeps its own stylesheet and
+ * declares every colour as a token (grid/grid.css), so this only points those tokens at the
+ * page's own and drops the outer frame when the grid is the whole card: a flush card is
+ * already a surface with a border, and two nested outlines read as a box in a box.
+ */
+.grand-page .grand-grid {
+    --grand-grid-header-bg: var(--grand-surface-sunken);
+    --grand-grid-header-color: var(--grand-muted);
+    --grand-grid-border: var(--grand-rule);
+    --grand-grid-frame: var(--grand-border);
+    --grand-grid-hover-bg: var(--grand-surface-sunken);
+    --grand-grid-radius: var(--grand-radius-sm);
+    --grand-grid-accent: var(--grand-accent);
+    --grand-grid-true-color: var(--grand-green);
+    --grand-grid-false-color: var(--grand-red);
+}
+
+.grand-card__body--flush .grand-grid .tabulator {
+    border: 0;
+    border-radius: 0;
+}
+
+.grand-page .grand-grid .tabulator-col-title {
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.grand-page .grand-grid .tabulator-cell {
+    padding: .5rem .75rem;
+}
+
+//the tick of a row: the 13px default is hard to hit, and hard to see whether it is ticked
+.grand-page .grand-grid .form-check-input {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+/* a cell that carries a second line: the name of a thing, then what identifies it */
+
+.grand-cell-title {
+    font-weight: 500;
+    color: var(--grand-title);
+}
+
+.grand-cell-sub {
+    font-size: .75rem;
+    color: var(--grand-muted);
+}
+
+/* a state, as a word rather than a tick: published, draft, cancelled, paid */
+
+.grand-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .1rem .5rem;
+    font-size: .75rem;
+    font-weight: 600;
+    border-radius: 999px !important;
+    background-color: var(--grand-slate-soft);
+    color: var(--grand-slate);
+}
+
+.grand-chip--green {
+    background-color: var(--grand-green-soft);
+    color: var(--grand-green);
+}
+
+.grand-chip--red {
+    background-color: var(--grand-red-soft);
+    color: var(--grand-red);
+}
+
+.grand-chip--amber {
+    background-color: var(--grand-amber-soft);
+    color: var(--grand-amber);
+}
+
+/*
+ * The footer of a grid: the count, the page size and the pages. Inside a flush card the frame
+ * belongs to the card, so only the rule above the footer stays; the numbers read as the quiet
+ * summary they are, and the current page carries the accent.
+ */
+.grand-card__body--flush .grand-grid .grand-grid-pager {
+    padding: .65rem var(--grand-pad);
+    background-color: transparent;
+    border-inline: 0;
+    border-block-end: 0;
+    border-radius: 0;
+}
+
+.grand-page .grand-grid .grand-grid-pager {
+    font-size: .8125rem;
+    color: var(--grand-muted);
+}
+
+.grand-page .grand-grid .grand-grid-pager-button {
+    min-width: 1.9rem;
+    height: auto;
+    padding: .2rem .45rem;
+    border-color: var(--grand-border);
+    color: var(--bs-body-color);
+}
+
+.grand-page .grand-grid .grand-grid-pager-info {
+    order: -1;
+    margin-inline-start: 0;
+    margin-inline-end: auto;
+}
+
+.grand-page .grand-grid .grand-grid-page-size select {
+    padding: .15rem 1.5rem .15rem .4rem;
+    font-size: .8125rem;
 }

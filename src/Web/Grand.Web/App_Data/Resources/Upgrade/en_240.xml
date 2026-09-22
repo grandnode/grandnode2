@@ -405,4 +405,7 @@
 	<Resource Name="admin.common.grid.selectedcount" Area="Admin">
 		<Value>{0} selected</Value>
 	</Resource>
+	<Resource Name="admin.catalog.products.fields.published.unpublished" Area="Admin">
+		<Value>Unpublished</Value>
+	</Resource>
 </Language>
