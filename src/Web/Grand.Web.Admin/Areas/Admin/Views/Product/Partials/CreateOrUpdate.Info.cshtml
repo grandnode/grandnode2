@@ -490,7 +490,8 @@
 @* Four cards instead of one column of 3/9 rows: what the product is, what it says, how it is
    identified, and when it is on sale. The field order is the one this tab always had, so a
    reviewer can follow it; what changed is the grouping, the two columns and the label above
-   the control. The ids the script above shows and hides - pnlDisplayOrder,
+   the control. A switch that reveals fields sits in a .grand-reveal with those fields right
+   under it. The ids the script above shows and hides - pnlDisplayOrder,
    pnlMarkAsNewStartDateTime, pnlMarkAsNewEndDateTime - sit on the same fields as before. *@
 <admin-card>
     <div class="grand-fields grand-fields--2col">
@@ -542,9 +543,16 @@
         </admin-field>
         <admin-field asp-for="BrandId"/>
         <admin-field asp-for="VendorId"/>
-        <admin-field asp-for="ShowOnHomePage"/>
-        <admin-field asp-for="DisplayOrder" id="pnlDisplayOrder" size="sm"/>
-        <admin-field asp-for="BestSeller"/>
+        @* either switch shows the display order, so the order sits under both of them *@
+        <div class="grand-reveal">
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="ShowOnHomePage"/>
+                <admin-field asp-for="BestSeller"/>
+            </div>
+            <div class="grand-reveal__body grand-fields">
+                <admin-field asp-for="DisplayOrder" id="pnlDisplayOrder" size="sm"/>
+            </div>
+        </div>
         <admin-field asp-for="AllowCustomerReviews"/>
         <admin-field asp-for="ProductTags"/>
         <admin-field asp-for="Sku"/>
@@ -557,12 +565,16 @@
 
 <admin-card>
     <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Published"/>
         <admin-field asp-for="AvailableStartDateTime"/>
         <admin-field asp-for="AvailableEndDateTime"/>
-        <admin-field asp-for="MarkAsNew"/>
-        <admin-field asp-for="Published"/>
-        <admin-field asp-for="MarkAsNewStartDateTime" id="pnlMarkAsNewStartDateTime"/>
-        <admin-field asp-for="MarkAsNewEndDateTime" id="pnlMarkAsNewEndDateTime"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="MarkAsNew"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="MarkAsNewStartDateTime" id="pnlMarkAsNewStartDateTime"/>
+                <admin-field asp-for="MarkAsNewEndDateTime" id="pnlMarkAsNewEndDateTime"/>
+            </div>
+        </div>
     </div>
     @if (Model.CreatedOn.HasValue || Model.UpdatedOn.HasValue)
     {

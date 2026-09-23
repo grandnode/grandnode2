@@ -3,7 +3,8 @@
 <vc:admin-widget widget-zone="product_details_prices_top" additional-data="Model"/>
 
 @* Three cards instead of one column of 3/9 rows: what the product costs, how it may be bought,
-   and what it is taxed as. The field order is the one this tab always had. Every id the script
+   and what it is taxed as. A switch that reveals fields sits in a .grand-reveal with those
+   fields right under it. Every id the script
    in CreateOrUpdate.Info.cshtml shows and hides - group-prices, pnlStartPrice,
    pnlPreOrderDateTime, pnlMinEnteredPrice, pnlMaxEnteredPrice, pnlBaseprice*, pnlTaxCategory,
    pnlIsTelecommunicationsOrBroadcastingOrElectronicServices - sits on the same field as before. *@
@@ -24,17 +25,29 @@
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="DisableBuyButton"/>
         <admin-field asp-for="DisableWishlistButton"/>
-        <admin-field asp-for="AvailableForPreOrder"/>
-        <admin-field asp-for="PreOrderDateTime" id="pnlPreOrderDateTime"/>
         <admin-field asp-for="CallForPrice"/>
-        <admin-field asp-for="EnteredPrice"/>
-        <admin-field asp-for="MinEnteredPrice" id="pnlMinEnteredPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
-        <admin-field asp-for="MaxEnteredPrice" id="pnlMaxEnteredPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
-        <admin-field asp-for="BasepriceEnabled"/>
-        <admin-field asp-for="BasepriceAmount" id="pnlBasepriceAmount"/>
-        <admin-field asp-for="BasepriceUnitId" id="pnlBasepriceUnit" asp-items="Model.AvailableBasepriceUnits"/>
-        <admin-field asp-for="BasepriceBaseAmount" id="pnlBasepriceBaseAmount"/>
-        <admin-field asp-for="BasepriceBaseUnitId" id="pnlBasepriceBaseUnit" asp-items="Model.AvailableBasepriceBaseUnits"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="AvailableForPreOrder"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="PreOrderDateTime" id="pnlPreOrderDateTime"/>
+            </div>
+        </div>
+        <div class="grand-reveal">
+            <admin-field asp-for="EnteredPrice"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="MinEnteredPrice" id="pnlMinEnteredPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+                <admin-field asp-for="MaxEnteredPrice" id="pnlMaxEnteredPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+            </div>
+        </div>
+        <div class="grand-reveal">
+            <admin-field asp-for="BasepriceEnabled"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="BasepriceAmount" id="pnlBasepriceAmount"/>
+                <admin-field asp-for="BasepriceUnitId" id="pnlBasepriceUnit" asp-items="Model.AvailableBasepriceUnits"/>
+                <admin-field asp-for="BasepriceBaseAmount" id="pnlBasepriceBaseAmount"/>
+                <admin-field asp-for="BasepriceBaseUnitId" id="pnlBasepriceBaseUnit" asp-items="Model.AvailableBasepriceBaseUnits"/>
+            </div>
+        </div>
     </div>
 </admin-card>
 

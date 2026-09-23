@@ -64,7 +64,7 @@ export function cardActionsOf(element, doc = element.ownerDocument) {
     let header = card.querySelector(':scope > .grand-card__header')
     if (!header) {
         header = el(doc, 'div', 'grand-card__header')
-        //an empty title keeps the growing slot, so the actions still sit at the end
+        //an empty title keeps the growing slot (an add button's header drops it, see _components.scss)
         header.appendChild(el(doc, 'h2', 'grand-card__title'))
         card.insertBefore(header, card.firstChild)
     }
@@ -229,7 +229,7 @@ export class GrandGrid {
             const cardActions = hasCreate ? cardActionsOf(element, doc) : null
             if (cardActions) {
                 //the add button of a grid in a card of the component layer sits in the card's
-                //header, top right - where the grids that add through a popup keep theirs - so
+                //header, at its start - where the grids that add through a popup keep theirs - so
                 //a screen has one place for "Add new" rather than a toolbar button above some
                 //grids and a link under the others
                 cardActions.querySelector(`[data-grid-add="${CSS.escape(element.id || '')}"]`)?.remove()

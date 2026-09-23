@@ -1,23 +1,34 @@
 @using Grand.Domain.Media
 @model ProductModel
 @* One card, the same id the script toggles as a whole (group-downloads), with the panels
-   inside it keeping theirs. *@
+   inside it keeping theirs. Each switch comes before what it reveals: the file and its limits
+   under "Is download", the agreement text under "Has user agreement", the sample file under
+   "Has sample download". *@
 <admin-card id="group-downloads">
-    <div class="grand-fields grand-fields--2col">
+    <div class="grand-reveal">
         <admin-field asp-for="IsDownload"/>
-        <admin-field asp-for="DownloadId" id="pnlDownloadFile"/>
-        <admin-field asp-for="UnlimitedDownloads" id="pnlUnlimitedDownloads"/>
-        <admin-field asp-for="MaxNumberOfDownloads" id="pnlMaxNumberOfDownloads" size="sm"/>
-        <admin-field asp-for="DownloadExpirationDays" id="pnlDownloadExpirationDays" size="sm"/>
-        <admin-field asp-for="DownloadActivationTypeId" id="pnlDownloadActivationType" asp-items="EnumTranslationService.ToSelectList((DownloadActivationType)Model.DownloadActivationTypeId)"/>
-        <admin-field asp-for="HasUserAgreement" id="pnlHasUserAgreement"/>
-        <admin-field asp-for="HasSampleDownload" id="pnlHasSampleDownload"/>
-        <admin-field asp-for="SampleDownloadId" id="pnlSampleDownloadFile"/>
-    </div>
-    @* an agreement is a paragraph, and it takes the width of the card *@
-    <div class="grand-fields mt-3" id="pnlUserAgreementText">
-        <admin-field asp-for="UserAgreementText">
-            <admin-textarea asp-for="UserAgreementText"></admin-textarea>
-        </admin-field>
+        <div class="grand-reveal__body grand-fields grand-fields--2col">
+            <admin-field asp-for="DownloadId" id="pnlDownloadFile"/>
+            <admin-field asp-for="DownloadActivationTypeId" id="pnlDownloadActivationType" asp-items="EnumTranslationService.ToSelectList((DownloadActivationType)Model.DownloadActivationTypeId)"/>
+            @* the maximum is asked only while downloads are not unlimited, so the two share a row *@
+            <admin-field asp-for="UnlimitedDownloads" id="pnlUnlimitedDownloads"/>
+            <admin-field asp-for="MaxNumberOfDownloads" id="pnlMaxNumberOfDownloads" size="sm"/>
+            <admin-field asp-for="DownloadExpirationDays" id="pnlDownloadExpirationDays" size="sm"/>
+            <div class="grand-reveal">
+                <admin-field asp-for="HasUserAgreement" id="pnlHasUserAgreement"/>
+                @* an agreement is a paragraph, and it takes the width of the card *@
+                <div class="grand-reveal__body grand-fields">
+                    <admin-field asp-for="UserAgreementText" id="pnlUserAgreementText">
+                        <admin-textarea asp-for="UserAgreementText"></admin-textarea>
+                    </admin-field>
+                </div>
+            </div>
+            <div class="grand-reveal">
+                <admin-field asp-for="HasSampleDownload" id="pnlHasSampleDownload"/>
+                <div class="grand-reveal__body grand-fields grand-fields--2col">
+                    <admin-field asp-for="SampleDownloadId" id="pnlSampleDownloadFile"/>
+                </div>
+            </div>
+        </div>
     </div>
 </admin-card>

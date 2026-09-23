@@ -45,7 +45,7 @@ public class AdminCardTagHelper : TagHelper
         output.AddClass("grand-card", System.Text.Encodings.Web.HtmlEncoder.Default);
 
         //a card with actions gets a header even without a title, so "Add new" always sits in the
-        //same place - the top right of the card - whichever grid it belongs to
+        //same place - the card's header, after its title - whichever grid it belongs to
         var hasActions = !actions.IsEmptyOrWhiteSpace;
         if (!string.IsNullOrEmpty(Title) || hasActions)
         {
@@ -96,7 +96,7 @@ public class AdminCardTagHelper : TagHelper
 
 /// <summary>
 ///     The buttons of a card's header - "Add new" for the grid the card holds, first of all.
-///     Every grid on a screen puts its add button here, top right, rather than some in the
+///     Every grid on a screen puts its add button here, after the card's title, rather than some in the
 ///     grid's toolbar and some under the grid.
 /// </summary>
 [HtmlTargetElement("card-actions", ParentTag = "admin-card")]

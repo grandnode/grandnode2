@@ -1,14 +1,15 @@
 @model ProductModel
 <partial name="Partials/WidgetZone.Inventory.Top" model="Model"/>
 
-@* Two cards instead of two columns of 3/9 rows: how the stock is kept, and how the product
-   ships. The field order is the one this tab always had, and every id the script in
-   CreateOrUpdate.Info.cshtml shows and hides - group-inventory, group-shipping, pnlWarehouse,
-   pnlMultipleWarehouses, pnlStockQuantity and the rest - sits on the same field as before. *@
+@* Two cards: how the stock is kept, and how the product ships. A field that reveals others sits
+   in a .grand-reveal with what it reveals right under it - the per-warehouse table under "Use
+   multiple warehouses", the dimensions under "Shipping enabled" - and every id the script in
+   CreateOrUpdate.Info.cshtml shows and hides (group-inventory, group-shipping, pnlWarehouse,
+   pnlMultipleWarehouses, pnlStockQuantity and the rest) still sits on the same field; only
+   the order changed. *@
 <admin-card id="group-inventory">
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="ManageInventoryMethodId" asp-items="EnumTranslationService.ToSelectList((ManageInventoryMethod)Model.ManageInventoryMethodId)"/>
-        <admin-field asp-for="UseMultipleWarehouses" id="pnlUseMultipleWarehouses"/>
         <admin-field asp-for="WarehouseId" id="pnlWarehouse" asp-items="Model.AvailableWarehouses"/>
         @* the quantity and the unit it is counted in are one answer *@
         <admin-field asp-for="StockQuantity" id="pnlStockQuantity">
@@ -18,78 +19,105 @@
             </div>
         </admin-field>
         <admin-field asp-for="ReservedQuantity" id="pnlReservedQuantity"/>
-        <admin-field asp-for="StockAvailability" id="pnlDisplayStockAvailability"/>
-        <admin-field asp-for="DisplayStockQuantity" id="pnlDisplayStockQuantity"/>
+
+        @* the switch takes the place of the warehouse and the quantities above: on, the stock
+           is kept per warehouse in the table right under it *@
+        <div class="grand-reveal">
+            <admin-field asp-for="UseMultipleWarehouses" id="pnlUseMultipleWarehouses"/>
+            <div class="grand-reveal__body grand-fields">
+                @* The per-warehouse stock stays a table: its rows post as an indexed collection,
+                   which a grid cannot bind. It carries the panel id the script toggles. *@
+                <div id="pnlMultipleWarehouses" class="grand-field">
+                    <label class="grand-field__label">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory"]</label>
+                    @if (Model.ProductWarehouseInventoryModels.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-1">
+                                <thead>
+                                <tr>
+                                    <th>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]</th>
+                                    <th class="text-center">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]</th>
+                                    <th class="text-center">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]</th>
+                                    <th class="text-center">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @for (var i = 0; i < Model.ProductWarehouseInventoryModels.Count; i++)
+                                {
+                                    var item = Model.ProductWarehouseInventoryModels[i];
+                                    <tr>
+                                        <td>
+                                            @item.WarehouseName (@item.WarehouseCode)
+                                            <input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseId" type="hidden"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseUsed" class="form-check-input"/>
+                                        </td>
+                                        <td>
+                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].StockQuantity"/>
+                                        </td>
+                                        <td>
+                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].ReservedQuantity"/>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="grand-field__hint mb-0">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description1"]</p>
+                        <p class="grand-field__hint mb-0">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description2"]</p>
+                        <p class="grand-field__hint mb-0">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description3"]</p>
+                    }
+                    else
+                    {
+                        <p class="grand-field__hint mb-0">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="grand-reveal">
+            <admin-field asp-for="StockAvailability" id="pnlDisplayStockAvailability"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="DisplayStockQuantity" id="pnlDisplayStockQuantity"/>
+            </div>
+        </div>
+
         <admin-field asp-for="MinStockQuantity" id="pnlMinStockQuantity"/>
-        <admin-field asp-for="LowStockActivityId" id="pnlLowStockActivity" asp-items="EnumTranslationService.ToSelectList((LowStockActivity)Model.LowStockActivityId)"/>
         <admin-field asp-for="NotifyAdminForQuantityBelow" id="pnlNotifyForQuantityBelow"/>
-        <admin-field asp-for="BackorderModeId" id="pnlBackorders" asp-items="EnumTranslationService.ToSelectList((BackorderMode)Model.BackorderModeId)"/>
-        <admin-field asp-for="AllowOutOfStockSubscriptions" id="pnlAllowOutOfStockSubscriptions"/>
+        <admin-field asp-for="LowStockActivityId" id="pnlLowStockActivity" asp-items="EnumTranslationService.ToSelectList((LowStockActivity)Model.LowStockActivityId)"/>
+
+        @* out-of-stock subscriptions exist only while backorders are off, so they sit under the
+           backorder mode *@
+        <div class="grand-reveal">
+            <admin-field asp-for="BackorderModeId" id="pnlBackorders" size="md" asp-items="EnumTranslationService.ToSelectList((BackorderMode)Model.BackorderModeId)"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="AllowOutOfStockSubscriptions" id="pnlAllowOutOfStockSubscriptions"/>
+            </div>
+        </div>
+
         <admin-field asp-for="OrderMinimumQuantity"/>
         <admin-field asp-for="OrderMaximumQuantity"/>
         <admin-field asp-for="AllowedQuantities"/>
         <admin-field asp-for="NotReturnable"/>
     </div>
-
-    @* The per-warehouse stock stays a table: its rows post as an indexed collection, which a
-       grid cannot bind. It carries the panel id the script toggles. *@
-    <div id="pnlMultipleWarehouses" class="mt-3">
-        <label class="grand-field__label">@Html.DisplayNameFor(model => model.ProductWarehouseInventoryModels)</label>
-        @if (Model.ProductWarehouseInventoryModels.Count > 0)
-        {
-            <table class="table table-sm align-middle">
-                <thead>
-                <tr>
-                    <th>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]</th>
-                    <th class="text-center">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]</th>
-                    <th class="text-center">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]</th>
-                    <th class="text-center">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]</th>
-                </tr>
-                </thead>
-                <tbody>
-                @for (var i = 0; i < Model.ProductWarehouseInventoryModels.Count; i++)
-                {
-                    var item = Model.ProductWarehouseInventoryModels[i];
-                    <tr>
-                        <td>
-                            @item.WarehouseName (@item.WarehouseCode)
-                            <input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseId" type="hidden"/>
-                        </td>
-                        <td class="text-center">
-                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseUsed" class="form-check-input"/>
-                        </td>
-                        <td>
-                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].StockQuantity"/>
-                        </td>
-                        <td>
-                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].ReservedQuantity"/>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-            <p class="grand-field__hint mb-1">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description1"]</p>
-            <p class="grand-field__hint mb-1">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description2"]</p>
-            <p class="grand-field__hint mb-0">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description3"]</p>
-        }
-        else
-        {
-            <p class="grand-field__hint mb-0">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]</p>
-        }
-    </div>
 </admin-card>
 
 <admin-card id="group-shipping">
     <div class="grand-fields grand-fields--2col">
-        <admin-field asp-for="IsShipEnabled"/>
-        <admin-field asp-for="IsFreeShipping" id="pnlFreeShipping"/>
-        <admin-field asp-for="ShipSeparately" id="pnlShipSeparately"/>
-        <admin-field asp-for="AdditionalShippingCharge" id="pnlAdditionalShippingCharge" suffix="@Model.PrimaryStoreCurrencyCode"/>
-        <admin-field asp-for="Weight" id="pnlWeight" suffix="@Model.BaseWeightIn"/>
-        <admin-field asp-for="Length" id="pnlLength" suffix="@Model.BaseDimensionIn"/>
-        <admin-field asp-for="Width" id="pnlWidth" suffix="@Model.BaseDimensionIn"/>
-        <admin-field asp-for="Height" id="pnlHeight" suffix="@Model.BaseDimensionIn"/>
-        <admin-field asp-for="DeliveryDateId" id="pnlDeliveryDate" asp-items="Model.AvailableDeliveryDates"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="IsShipEnabled"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="IsFreeShipping" id="pnlFreeShipping"/>
+                <admin-field asp-for="ShipSeparately" id="pnlShipSeparately"/>
+                <admin-field asp-for="AdditionalShippingCharge" id="pnlAdditionalShippingCharge" suffix="@Model.PrimaryStoreCurrencyCode"/>
+                <admin-field asp-for="DeliveryDateId" id="pnlDeliveryDate" asp-items="Model.AvailableDeliveryDates"/>
+                <admin-field asp-for="Weight" id="pnlWeight" suffix="@Model.BaseWeightIn"/>
+                <admin-field asp-for="Length" id="pnlLength" suffix="@Model.BaseDimensionIn"/>
+                <admin-field asp-for="Width" id="pnlWidth" suffix="@Model.BaseDimensionIn"/>
+                <admin-field asp-for="Height" id="pnlHeight" suffix="@Model.BaseDimensionIn"/>
+            </div>
+        </div>
     </div>
 </admin-card>
 <partial name="Partials/WidgetZone.Inventory.Bottom" model="Model"/>

@@ -177,6 +177,50 @@
     font-weight: 400;
 }
 
+/*
+ * A field that reveals others - "Use multiple warehouses", "Is download", "Enabled base price" -
+ * and the fields it reveals, as one block: the trigger, and under it an indented body. It takes
+ * the whole row of the grid it sits in, so what a switch opens appears right below the switch
+ * rather than wherever the two-column flow happened to put it.
+ *
+ *   <div class="grand-reveal">
+ *       <admin-field asp-for="IsShipEnabled"/>
+ *       <div class="grand-reveal__body grand-fields grand-fields--2col"> ...revealed fields... </div>
+ *   </div>
+ *
+ * The views' scripts still show and hide each revealed field by its own id with jQuery, which
+ * writes display: none into the style attribute. So the body needs no script of its own: it
+ * disappears when no field in it is visible (a nested reveal counts through its fields), and
+ * it drops the indent when the trigger itself is hidden and a field stands on its own - the
+ * warehouse picker of a product whose stock is not managed.
+ */
+.grand-reveal {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    min-width: 0;
+}
+
+.grand-reveal__body {
+    margin-inline-start: 1.1rem;
+    padding-inline-start: 1rem;
+    border-inline-start: 2px solid color-mix(in srgb, var(--grand-accent) 30%, transparent);
+}
+
+//nothing in it visible - the whole inventory block of a product whose stock is not managed -
+//and it would still hold a row of the grid, one empty gap
+.grand-reveal:not(:has(.grand-field:not([style*="display: none"]):not([style*="display: none"] *))),
+.grand-reveal__body:not(:has(.grand-field:not([style*="display: none"]):not([style*="display: none"] *))) {
+    display: none;
+}
+
+.grand-reveal:has(> .grand-field[style*="display: none"]) > .grand-reveal__body {
+    margin-inline-start: 0;
+    padding-inline-start: 0;
+    border-inline-start: 0;
+}
+
 /* read-only pairs, for what a screen states rather than edits */
 
 .grand-facts {
@@ -739,13 +783,29 @@
     color: var(--grand-muted);
 }
 
-/* the buttons of a card's header: "Add new" for the grid the card holds, top right */
+/* the buttons of a card's header: "Add new" for the grid the card holds */
 
 .grand-card__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: .5rem;
+}
+
+/*
+ * "Add new" sits at the start of the header, right after the card's title (or first, when the
+ * card has none), where the eye starts reading the grid under it - not across the card at the
+ * far end. Every add button carries bi-plus-lg (the grid's own, those in <card-actions> and
+ * the hand-written headers alike), so the header is recognised by it: the title stops taking
+ * the rest of the row, and an empty title - the slot kept only to push actions to the end -
+ * goes. A header with other actions only ("see all", a period switch) keeps them at the end.
+ */
+.grand-card__header:has(.bi-plus-lg) > .grand-card__title {
+    flex: 0 1 auto;
+}
+
+.grand-card__header:has(.bi-plus-lg) > .grand-card__title:empty {
+    display: none;
 }
 
 /*

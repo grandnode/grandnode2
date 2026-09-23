@@ -12,7 +12,8 @@
 @* A card per group, which is what the four form-horizontal blocks already were - each one is
    shown or hidden as a whole by the script in CreateOrUpdate.Info.cshtml, so group-order,
    group-giftvoucher, group-recurring and group-required-other-products keep their ids, as do
-   the panels inside them. *@
+   the panels inside them. Inside a card the switch comes first and what it reveals sits in a
+   .grand-reveal body right under it. *@
 <admin-card id="group-order">
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="DisplayOrderCategory" size="sm"/>
@@ -23,48 +24,54 @@
 </admin-card>
 
 <admin-card id="group-giftvoucher">
-    <div class="grand-fields grand-fields--2col">
+    <div class="grand-reveal">
         <admin-field asp-for="IsGiftVoucher"/>
-        <admin-field asp-for="GiftVoucherTypeId" id="pnlGiftVoucherType" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
-        <admin-field asp-for="OverGiftAmount" id="pnlOverriddenGiftVoucherAmount"/>
+        <div class="grand-reveal__body grand-fields grand-fields--2col">
+            <admin-field asp-for="GiftVoucherTypeId" id="pnlGiftVoucherType" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
+            <admin-field asp-for="OverGiftAmount" id="pnlOverriddenGiftVoucherAmount"/>
+        </div>
     </div>
 </admin-card>
 
 <partial name="Partials/Additional.Downloads" model="Model"/>
 
 <admin-card id="group-recurring">
-    <div class="grand-fields grand-fields--2col">
+    <div class="grand-reveal">
         <admin-field asp-for="IsRecurring"/>
-        <admin-field asp-for="RecurringCycleLength" id="pnlCycleLength" size="sm"/>
-        <admin-field asp-for="RecurringCyclePeriodId" id="pnlCyclePeriod" asp-items="EnumTranslationService.ToSelectList((RecurringCyclePeriod)Model.RecurringCyclePeriodId)"/>
-        <admin-field asp-for="RecurringTotalCycles" id="pnlTotalCycles" size="sm"/>
+        <div class="grand-reveal__body grand-fields grand-fields--2col">
+            <admin-field asp-for="RecurringCycleLength" id="pnlCycleLength" size="sm"/>
+            <admin-field asp-for="RecurringCyclePeriodId" id="pnlCyclePeriod" asp-items="EnumTranslationService.ToSelectList((RecurringCyclePeriod)Model.RecurringCyclePeriodId)"/>
+            <admin-field asp-for="RecurringTotalCycles" id="pnlTotalCycles" size="sm"/>
+        </div>
     </div>
 </admin-card>
 
 <admin-card id="group-required-other-products">
-    <div class="grand-fields grand-fields--2col">
+    <div class="grand-reveal">
         <admin-field asp-for="RequireOtherProducts"/>
-        <admin-field asp-for="AutoAddRequiredProducts" id="pnlAutomaticallyAddRequiredProducts"/>
-    </div>
-    @* the product picker is a field with a button and a progress line under it, so the control
-       is handed to admin-field rather than built from the metadata *@
-    <div class="grand-fields mt-3" id="pnlRequiredProductIds">
-        <admin-field asp-for="RequiredProductIds">
-            <div class="input-group">
-                <admin-input asp-for="RequiredProductIds"/>
-                @if (!readOnly)
-                {
-                    <a id="btnAddNewRequiredProduct"
-                       href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = area }))"
-                       class="btn btn-outline-secondary">
-                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.AddNew"]
-                    </a>
-                }
+        <div class="grand-reveal__body grand-fields">
+            @* the product picker is a field with a button and a progress line under it, so the
+               control is handed to admin-field rather than built from the metadata *@
+            <div class="grand-fields" id="pnlRequiredProductIds">
+                <admin-field asp-for="RequiredProductIds">
+                    <div class="input-group">
+                        <admin-input asp-for="RequiredProductIds"/>
+                        @if (!readOnly)
+                        {
+                            <a id="btnAddNewRequiredProduct"
+                               href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = area }))"
+                               class="btn btn-outline-secondary">
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.AddNew"]
+                            </a>
+                        }
+                    </div>
+                </admin-field>
+                <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
+                <input type="submit" id="btnRefreshRequiredProducts" style="display: none"/>
+                <span id="required-product-names" class="required-product-names"></span>
             </div>
-        </admin-field>
-        <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-        <input type="submit" id="btnRefreshRequiredProducts" style="display: none"/>
-        <span id="required-product-names" class="required-product-names"></span>
+            <admin-field asp-for="AutoAddRequiredProducts" id="pnlAutomaticallyAddRequiredProducts"/>
+        </div>
     </div>
 </admin-card>
 

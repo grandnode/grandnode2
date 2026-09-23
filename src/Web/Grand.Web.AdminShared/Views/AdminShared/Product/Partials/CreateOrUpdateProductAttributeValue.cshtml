@@ -58,19 +58,22 @@
 }
 <!-- #endregion -->
 
-@* the group-* ids are what toggleProductType() above shows and hides *@
-<div class="grand-fields grand-fields--2col">
-    <admin-field asp-for="AttributeValueTypeId" asp-items="EnumTranslationService.ToSelectList(Model.AttributeValueTypeId)"/>
-    <admin-field asp-for="AssociatedProductId" id="group-associated-product">
-        <input asp-for="AssociatedProductId" type="hidden"/>
-        <div class="d-flex flex-wrap align-items-center gap-2">
-            <span id="associate-product-name">@Model.AssociatedProductName</span>
-            <a id="btnAssociateProductToAttributeValuePopup" href="@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = area }))" class="btn btn-outline-secondary btn-sm">
-                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
-            </a>
-        </div>
-    </admin-field>
-    <admin-field asp-for="Quantity" id="group-quantity" size="sm"/>
+@* the group-* ids are what toggleProductType() above shows and hides; the product and quantity
+   of an "associated to product" value sit right under the type that reveals them *@
+<div class="grand-reveal">
+    <admin-field asp-for="AttributeValueTypeId" size="md" asp-items="EnumTranslationService.ToSelectList(Model.AttributeValueTypeId)"/>
+    <div class="grand-reveal__body grand-fields grand-fields--2col">
+        <admin-field asp-for="AssociatedProductId" id="group-associated-product">
+            <input asp-for="AssociatedProductId" type="hidden"/>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span id="associate-product-name">@Model.AssociatedProductName</span>
+                <a id="btnAssociateProductToAttributeValuePopup" href="@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = area }))" class="btn btn-outline-secondary btn-sm">
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
+                </a>
+            </div>
+        </admin-field>
+        <admin-field asp-for="Quantity" id="group-quantity" size="sm"/>
+    </div>
 </div>
 
 <localized-editor localized-template="@template" name="productattributevalue-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
