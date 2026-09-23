@@ -49,9 +49,11 @@ public class AdminFieldTagHelper : TagHelper
     [HtmlAttributeName("asp-required")]
     public bool IsRequired { get; set; }
 
-    /// <summary>The options of a select, as &lt;admin-input asp-selectitem&gt; takes them.</summary>
+    /// <summary>The options of a select, as &lt;admin-select asp-items&gt; takes them. An
+    /// IEnumerable, because a SelectList - what EnumTranslationService.ToSelectList returns -
+    /// is not an IList.</summary>
     [HtmlAttributeName("asp-items")]
-    public IList<SelectListItem> Items { get; set; }
+    public IEnumerable<SelectListItem> Items { get; set; }
 
     /// <summary>An editor template name, when the metadata's own choice is not wanted.</summary>
     [HtmlAttributeName("asp-template")]

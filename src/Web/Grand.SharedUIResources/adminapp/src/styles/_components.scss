@@ -116,8 +116,14 @@
     gap: var(--grand-gap);
 }
 
+/*
+ * Two columns where there is room for two, one where there is not - no media query, because
+ * what matters is the width of the pane a form sits in, not the width of the window. The 45%
+ * floor is what caps it: two of them plus the gap fill the row, so a third never fits, while
+ * on a narrow pane the 16rem floor wins and the fields stack.
+ */
 .grand-fields--2col {
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(max(16rem, 45%), 1fr));
 }
 
 .grand-field {
@@ -132,7 +138,7 @@
     align-items: center;
     gap: .35rem;
     margin: 0;
-    font-size: .8125rem;
+    font-size: .875rem;
     font-weight: 500;
     color: var(--grand-form-label);
 }
@@ -155,7 +161,7 @@
 }
 
 .grand-field__hint {
-    font-size: .75rem;
+    font-size: .8125rem;
     color: var(--grand-form-hint);
 }
 
@@ -180,7 +186,7 @@
 }
 
 .grand-fact__label {
-    font-size: .8125rem;
+    font-size: .875rem;
     color: var(--grand-muted);
 }
 
@@ -410,11 +416,6 @@
     border-radius: 0;
 }
 
-.grand-page .grand-grid .tabulator-col-title {
-    font-size: .75rem;
-    font-weight: 600;
-}
-
 .grand-page .grand-grid .tabulator-cell {
     padding: .5rem .75rem;
 }
@@ -433,7 +434,7 @@
 }
 
 .grand-cell-sub {
-    font-size: .75rem;
+    font-size: .8125rem;
     color: var(--grand-muted);
 }
 
@@ -480,7 +481,7 @@
 }
 
 .grand-page .grand-grid .grand-grid-pager {
-    font-size: .8125rem;
+    font-size: .875rem;
     color: var(--grand-muted);
 }
 

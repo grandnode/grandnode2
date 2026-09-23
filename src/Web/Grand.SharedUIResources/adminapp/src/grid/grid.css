@@ -41,6 +41,10 @@
     --grand-grid-accent-color: #fff;
     /* a detail grid is set in from its master row by this much, past the expander */
     --grand-grid-detail-indent: 2.25rem;
+    /* one type scale for every grid in the panel: the rows a shade above the body text,
+       the column heads a shade below it */
+    --grand-grid-font-size: .9375rem;
+    --grand-grid-header-font-size: .8125rem;
 
     position: relative;
     width: 100%;
@@ -54,7 +58,7 @@
 }
 
 .grand-grid .tabulator {
-    font-size: inherit;
+    font-size: var(--grand-grid-font-size);
     border: 1px solid var(--grand-grid-frame);
     border-radius: var(--grand-grid-radius);
     margin: 0;
@@ -108,6 +112,7 @@
 .grand-grid .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
     white-space: normal;
     font-weight: 600;
+    font-size: var(--grand-grid-header-font-size);
 }
 
 /* A row's background is its --grand-grid-row-bg; the even, edit and selected states below

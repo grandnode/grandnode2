@@ -486,277 +486,104 @@
 
 </script>
 <vc:admin-widget widget-zone="product_details_info_column_left_top" additional-data="Model"/>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="ProductTypeId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="ProductTypeId" asp-items="EnumTranslationService.ToSelectList((ProductType)Model.ProductTypeId)"/>
-                <span asp-validation-for="ProductTypeId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="VisibleIndividually"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="VisibleIndividually"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="VisibleIndividually"></span>
-            </div>
-        </div>
+
+@* Four cards instead of one column of 3/9 rows: what the product is, what it says, how it is
+   identified, and when it is on sale. The field order is the one this tab always had, so a
+   reviewer can follow it; what changed is the grouping, the two columns and the label above
+   the control. The ids the script above shows and hides - pnlDisplayOrder,
+   pnlMarkAsNewStartDateTime, pnlMarkAsNewEndDateTime - sit on the same fields as before. *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="ProductTypeId" asp-items="EnumTranslationService.ToSelectList((ProductType)Model.ProductTypeId)"/>
+        <admin-field asp-for="ProductLayoutId" asp-items="Model.AvailableProductLayouts"/>
+        <admin-field asp-for="VisibleIndividually"/>
         @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.AssociatedToProductId) && !string.IsNullOrEmpty(Model.AssociatedToProductName))
         {
-            <div class="mb-3">
-                <admin-label asp-for="AssociatedToProductId"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">
-                        @Html.ActionLink(Model.AssociatedToProductName, "Edit", "Product", new { id = Model.AssociatedToProductId }, new { })
-                    </label>
-                </div>
-            </div>
+            <admin-field asp-for="AssociatedToProductId">
+                <p class="form-control-plaintext mb-0">
+                    @Html.ActionLink(Model.AssociatedToProductName, "Edit", "Product", new { id = Model.AssociatedToProductId }, new { })
+                </p>
+            </admin-field>
         }
-        <div class="mb-3">
-            <admin-label asp-for="ProductLayoutId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="ProductLayoutId" asp-items="Model.AvailableProductLayouts"/>
-                <span asp-validation-for="ProductLayoutId"></span>
-            </div>
-        </div>
     </div>
+</admin-card>
 
-    @{
-        Func<int, HelperResult>
-            template = @<div class="form-body">
-                <div class="mb-3">
-                    <admin-label asp-for="@Model.Locales[item].Name"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="@Model.Locales[item].Name"/>
-                        <span asp-validation-for="@Model.Locales[item].Name"></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="@Model.Locales[item].ShortDescription"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
-                        <span asp-validation-for="@Model.Locales[item].ShortDescription"></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="@Model.Locales[item].FullDescription"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="@Model.Locales[item].FullDescription" asp-template="Editor"/>
-                        <span asp-validation-for="@Model.Locales[item].FullDescription"></span>
-                    </div>
-                </div>
-                <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
-            </div>;
-    }
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            @* a description is a paragraph: admin-field builds a text box from the metadata,
+               so the textarea is handed to it as the control *@
+            <admin-field asp-for="@Model.Locales[item].ShortDescription">
+                <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="@Model.Locales[item].FullDescription" asp-template="Editor"/>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
+}
 
+<admin-card>
     <localized-editor localized-template="@template" name="product-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="ShortDescription"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-textarea asp-for="ShortDescription"></admin-textarea>
-                    <span asp-validation-for="ShortDescription"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="FullDescription"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="FullDescription" asp-template="Editor"/>
-                    <span asp-validation-for="FullDescription"></span>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="ShortDescription">
+                <admin-textarea asp-for="ShortDescription"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="FullDescription" asp-template="Editor"/>
         </div>
     </localized-editor>
+</admin-card>
 
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Flag"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Flag"/>
-                <span asp-validation-for="Flag"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AdminComment"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="AdminComment"></admin-textarea>
-                <span asp-validation-for="AdminComment"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="BrandId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BrandId"/>
-                <span asp-validation-for="BrandId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="VendorId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="VendorId"/>
-                <span asp-validation-for="VendorId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ShowOnHomePage"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="ShowOnHomePage"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="ShowOnHomePage"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlDisplayOrder">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="BestSeller"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BestSeller"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="BestSeller"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AllowCustomerReviews"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AllowCustomerReviews"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AllowCustomerReviews"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ProductTags"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ProductTags"/>
-                <span asp-validation-for="ProductTags"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Sku"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Sku"/>
-                <span asp-validation-for="Sku"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Mpn"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Mpn"/>
-                <span asp-validation-for="Mpn"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Gtin"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Gtin"/>
-                <span asp-validation-for="Gtin"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CustomerGroups"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CustomerGroups"/>
-                <span asp-validation-for="CustomerGroups"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Stores"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores"/>
-                <span asp-validation-for="Stores"></span>
-            </div>
-        </div>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Flag"/>
+        <admin-field asp-for="AdminComment">
+            <admin-textarea asp-for="AdminComment"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="BrandId"/>
+        <admin-field asp-for="VendorId"/>
+        <admin-field asp-for="ShowOnHomePage"/>
+        <admin-field asp-for="DisplayOrder" id="pnlDisplayOrder" size="sm"/>
+        <admin-field asp-for="BestSeller"/>
+        <admin-field asp-for="AllowCustomerReviews"/>
+        <admin-field asp-for="ProductTags"/>
+        <admin-field asp-for="Sku"/>
+        <admin-field asp-for="Mpn"/>
+        <admin-field asp-for="Gtin"/>
+        <admin-field asp-for="CustomerGroups"/>
+        <admin-field asp-for="Stores"/>
     </div>
-</div>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="AvailableStartDateTime"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AvailableStartDateTime"/>
-                <span asp-validation-for="AvailableStartDateTime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AvailableEndDateTime"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AvailableEndDateTime"/>
-                <span asp-validation-for="AvailableEndDateTime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="MarkAsNew"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="MarkAsNew"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="MarkAsNew"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlMarkAsNewStartDateTime">
-            <admin-label asp-for="MarkAsNewStartDateTime"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MarkAsNewStartDateTime"/>
-                <span asp-validation-for="MarkAsNewStartDateTime"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlMarkAsNewEndDateTime">
-            <admin-label asp-for="MarkAsNewEndDateTime"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MarkAsNewEndDateTime"/>
-                <span asp-validation-for="MarkAsNewEndDateTime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Published"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Published"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="Published"></span>
-            </div>
-        </div>
-        @if (Model.CreatedOn.HasValue)
-        {
-            <div class="mb-3">
-                <admin-label asp-for="CreatedOn"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.CreatedOn.Value.ToString("F")</label>
-                </div>
-            </div>
-        }
-        @if (Model.UpdatedOn.HasValue)
-        {
-            <div class="mb-3">
-                <admin-label asp-for="UpdatedOn"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.UpdatedOn.Value.ToString("F")</label>
-                </div>
-            </div>
-        }
+</admin-card>
+
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="AvailableStartDateTime"/>
+        <admin-field asp-for="AvailableEndDateTime"/>
+        <admin-field asp-for="MarkAsNew"/>
+        <admin-field asp-for="Published"/>
+        <admin-field asp-for="MarkAsNewStartDateTime" id="pnlMarkAsNewStartDateTime"/>
+        <admin-field asp-for="MarkAsNewEndDateTime" id="pnlMarkAsNewEndDateTime"/>
     </div>
-</div>
+    @if (Model.CreatedOn.HasValue || Model.UpdatedOn.HasValue)
+    {
+        @* what the record states rather than what it edits *@
+        <div class="grand-facts mt-3">
+            @if (Model.CreatedOn.HasValue)
+            {
+                <div>
+                    <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.CreatedOn.Value.ToString("g")</div>
+                </div>
+            }
+            @if (Model.UpdatedOn.HasValue)
+            {
+                <div>
+                    <admin-label asp-for="UpdatedOn" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.UpdatedOn.Value.ToString("g")</div>
+                </div>
+            }
+        </div>
+    }
+</admin-card>
+
 <vc:admin-widget widget-zone="product_details_info_column_left_bottom" additional-data="Model"/>
