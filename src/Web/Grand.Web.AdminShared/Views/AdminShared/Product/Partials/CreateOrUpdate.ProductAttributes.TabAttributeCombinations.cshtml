@@ -12,9 +12,9 @@
         @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Description2"]
     </p>
 </div>
-<div class="panel panel-default">
+<div class="grand-card">
     <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Top" model="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="attributecombinations-grid"
                     read-only="@readOnly"
                     read-url="@Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = area })"
@@ -54,10 +54,10 @@
     </div>
     @if (!readOnly)
     {
-        <div class="panel-footer">
-            <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
-            <button type="submit" id="btnGenerateAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-palette"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
-            <button type="submit" id="btnClearAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-scissors"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
+        <div class="grand-card__body">
+            <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
+            <button type="submit" id="btnGenerateAllCombinations" class="btn btn-outline-secondary btn-sm"><span class="bi bi-palette"></span> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
+            <button type="submit" id="btnClearAllCombinations" class="btn btn-outline-secondary btn-sm"><span class="bi bi-scissors"></span> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
             <input type="submit" id="btnRefreshCombinations" style="display: none"/>
         </div>
     }

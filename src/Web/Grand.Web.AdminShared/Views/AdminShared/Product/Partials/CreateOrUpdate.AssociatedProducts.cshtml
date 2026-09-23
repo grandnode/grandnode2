@@ -9,9 +9,9 @@
     <div class="note note-info">
         <p>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.Note2"]</p>
     </div>
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.AssociatedProducts.Top" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="associatedproducts-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("AssociatedProductList", "Product", new { productId = Model.Id, area = area })"
@@ -31,8 +31,8 @@
         </div>
         @if (!readOnly)
         {
-            <div class="panel-footer">
-                <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm">
+            <div class="grand-card__body">
+                <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm">
                     @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.AddNew"]
                 </a>
                 <input type="submit" id="btnRefreshAssociatedProducts" style="display: none"/>

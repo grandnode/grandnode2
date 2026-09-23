@@ -869,3 +869,43 @@ input.grand-dateinput {
     justify-content: flex-end;
     gap: .5rem;
 }
+
+/*
+ * The tab strip of a converted screen (.grand-page): tabs that read as tabs rather than as a
+ * band of buttons - text with an accent underline when active, over one rule across the strip.
+ * The band's sideways scrolling and its scroll shadows above stay; a product has sixteen tabs.
+ *
+ * It lives here rather than in _components.scss because admin.ui.css is loaded after
+ * admin.bootstrap.css, so the rules above would win over it at equal specificity.
+ */
+.grand-page .grand-tabstrip > ul.nav-tabs {
+    gap: .25rem;
+    background: none;
+    box-shadow: inset 0 -1px 0 var(--grand-border, var(--grand-tabs-rule));
+}
+
+.grand-page .grand-tabstrip > ul.nav-tabs > li.nav-item > .nav-link {
+    padding: .6rem .85rem;
+    border: 0;
+    border-block-end: 2px solid transparent;
+    border-radius: 0;
+    font-weight: 500;
+    color: var(--grand-muted, var(--grand-tabs-color));
+    background: none;
+}
+
+.grand-page .grand-tabstrip > ul.nav-tabs > li.nav-item > .nav-link:hover {
+    color: var(--grand-title, var(--grand-tabs-hover-color));
+    background: none;
+}
+
+.grand-page .grand-tabstrip > ul.nav-tabs > li.nav-item.active > .nav-link,
+.grand-page .grand-tabstrip > ul.nav-tabs > li.nav-item > .nav-link.active {
+    color: var(--grand-accent, var(--grand-tabs-accent));
+    border-block-end-color: var(--grand-accent, var(--grand-tabs-accent));
+    background: none;
+}
+
+.grand-page .grand-tabstrip > .tab-content > .tab-pane {
+    padding-block-start: var(--grand-gap, 1rem);
+}

@@ -63,6 +63,14 @@ public class AdminFieldTagHelper : TagHelper
     [HtmlAttributeName("hint")]
     public string Hint { get; set; }
 
+    /// <summary>
+    ///     The unit the value is in, shown at the end of the control: a currency code, kg, %. The
+    ///     views used to write it as bare text after the input, where it read as part of the next
+    ///     field.
+    /// </summary>
+    [HtmlAttributeName("suffix")]
+    public string Suffix { get; set; }
+
     [HtmlAttributeNotBound] [ViewContext] public ViewContext ViewContext { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
@@ -96,7 +104,16 @@ public class AdminFieldTagHelper : TagHelper
 
         var control = new TagBuilder("div");
         control.AddCssClass("grand-field__control");
+        if (!string.IsNullOrEmpty(Suffix)) control.AddCssClass("input-group");
         control.InnerHtml.AppendHtml(child.IsEmptyOrWhiteSpace ? await BuildControl() : child);
+        if (!string.IsNullOrEmpty(Suffix))
+        {
+            var suffix = new TagBuilder("span");
+            suffix.AddCssClass("input-group-text");
+            suffix.InnerHtml.Append(Suffix);
+            control.InnerHtml.AppendHtml(suffix);
+        }
+
         content.AppendHtml(control);
 
         var hint = HintText();

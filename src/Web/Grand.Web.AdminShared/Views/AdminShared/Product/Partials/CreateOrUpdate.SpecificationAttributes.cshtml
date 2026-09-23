@@ -7,9 +7,9 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.SpecificationAttributes.Top" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="specificationattributes-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("ProductSpecAttrList", "Product", new { productId = Model.Id, area = area })"
@@ -60,8 +60,8 @@
         <partial name="Partials/WidgetZone.SpecificationAttributes.Bottom" model="Model"/>
         @if (!readOnly)
         {
-            <div class="panel-footer">
-                <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddButton"]</a>
+            <div class="grand-card__body">
+                <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddButton"]</a>
             </div>
         }
     </div>

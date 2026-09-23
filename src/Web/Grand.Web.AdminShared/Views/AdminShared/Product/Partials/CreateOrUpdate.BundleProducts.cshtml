@@ -7,9 +7,9 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.BundleProducts.Top" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="bundleproducts-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = area })"
@@ -30,8 +30,8 @@
         </div>
         @if (!readOnly)
         {
-            <div class="panel-footer">
-                <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm">
+            <div class="grand-card__body">
+                <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm">
                     @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.AddNew"]
                 </a>
                 <input type="submit" id="btnRefreshBundleProducts" style="display: none"/>

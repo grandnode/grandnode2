@@ -503,3 +503,33 @@
     padding: .15rem 1.5rem .15rem .4rem;
     font-size: .8125rem;
 }
+
+/*
+ * A unit at the end of a field (USD, lb(s), centimetre(s)). The numeric widget brings an
+ * input-group of its own - input plus spinner - so nesting one group in another left the unit
+ * a head taller than the field it belongs to. The widget's wrapper is folded away instead, its
+ * parts become items of the field's own group, and the corners flatten where the two meet.
+ */
+.grand-field__control.input-group > .grand-numeric-group {
+    display: contents;
+}
+
+.grand-field__control.input-group > .form-control,
+.grand-field__control.input-group .grand-numeric,
+.grand-field__control.input-group > .form-select {
+    border-start-end-radius: 0 !important;
+    border-end-end-radius: 0 !important;
+}
+
+.grand-field__control.input-group > .input-group-text:last-child {
+    border-start-start-radius: 0 !important;
+    border-end-start-radius: 0 !important;
+    border-start-end-radius: var(--grand-radius-sm) !important;
+    border-end-end-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-page .grand-tabstrip .grand-card + .grand-card,
+.grand-page .grand-tabstrip .grand-card + .grand-fields,
+.grand-page .grand-tabstrip .grand-fields + .grand-card {
+    margin-block-start: var(--grand-gap);
+}

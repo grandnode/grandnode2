@@ -6,9 +6,9 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.Pictures.Top" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="productpictures-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = area })"
