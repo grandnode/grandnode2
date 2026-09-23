@@ -479,7 +479,7 @@ public class BaseShipmentControllerTests
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<ShipCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("boom"));
 
-        var result = await _controller.SetAsShipped("s1");
+        var result = await _controller.SetAsShipped(new ShipmentInfoModel("s1", null, null, null, null));
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
@@ -496,7 +496,7 @@ public class BaseShipmentControllerTests
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<ShipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var result = await _controller.SetAsShipped("s1");
+        var result = await _controller.SetAsShipped(new ShipmentInfoModel("s1", null, null, null, null));
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
@@ -548,7 +548,7 @@ public class BaseShipmentControllerTests
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<DeliveryCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var result = await _controller.SetAsDelivered("s1");
+        var result = await _controller.SetAsDelivered(new ShipmentInfoModel("s1", null, null, null, null));
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);

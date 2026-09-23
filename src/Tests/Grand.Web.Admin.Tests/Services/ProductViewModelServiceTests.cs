@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
@@ -134,6 +135,7 @@ public class ProductViewModelServiceTests
             currencyServiceMock.Object,
             _measureServiceMock.Object,
             new Mock<IDateTimeService>().Object,
+            new Mock<IBrandService>().Object,
             new Mock<ICollectionService>().Object,
             new Mock<IProductCollectionService>().Object,
             new Mock<ICategoryService>().Object,
