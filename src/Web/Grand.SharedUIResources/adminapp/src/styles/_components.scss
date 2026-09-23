@@ -221,6 +221,15 @@
     border-inline-start: 0;
 }
 
+//a from/to pair - two dates of one filter - as one cell of the grid, side by side, so the
+//two-column flow cannot put "to" on the row under "from"
+.grand-range {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: .5rem;
+    min-width: 0;
+}
+
 /* read-only pairs, for what a screen states rather than edits */
 
 .grand-facts {

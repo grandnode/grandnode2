@@ -5,100 +5,64 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="form-horizontal">
-    <partial name="Partials/WidgetZone.TabInfo.Top" model="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="ReturnNumber"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.ReturnNumber</label>
-            </div>
+@* who and what the return is about reads as facts; the status, the comments and the pickup
+   date are the fields *@
+<partial name="Partials/WidgetZone.TabInfo.Top" model="Model"/>
+<admin-card>
+    <div class="grand-facts">
+        <div>
+            <admin-label asp-for="ReturnNumber" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.ReturnNumber</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="ExternalId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ExternalId"/>
-            </div>
+        <div>
+            <admin-label asp-for="OrderId" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.ActionLink(Loc["Admin.Common.View"], "Edit", "Order", new { id = Model.OrderId }, new { })</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="OrderId"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Html.ActionLink(Loc["Admin.Common.View"], "Edit", "Order", new { id = Model.OrderId }, new { })</label>
-            </div>
+        <div>
+            <admin-label asp-for="CustomerId" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { })</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="CustomerId"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label"> @Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { }) </label>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="MerchandiseReturnStatusId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="MerchandiseReturnStatusId" asp-items="EnumTranslationService.ToSelectList((MerchandiseReturnStatus)Model.MerchandiseReturnStatusId)"/>
-                <span asp-validation-for="MerchandiseReturnStatusId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CustomerComments"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="CustomerComments"></admin-textarea>
-                <span asp-validation-for="CustomerComments"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="StaffNotes"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="StaffNotes"></admin-textarea>
-                <span asp-validation-for="StaffNotes"></span>
-            </div>
-        </div>
-        @if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate)
-        {
-            <div class="mb-3">
-                <admin-label asp-for="PickupDate"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="PickupDate"/>
-                </div>
-            </div>
-        }
-        <div class="mb-3">
-            <admin-label asp-for="CreatedOn"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Html.DisplayFor(model => model.CreatedOn)</label>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="NotifyCustomer"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="NotifyCustomer"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="NotifyCustomer"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-grid id="products-grid"
-                        read-url="@Url.Action("ProductsForMerchandiseReturn", "MerchandiseReturn", new { merchandiseReturnId = Model.Id, area = area })"
-                        pager="None">
-                <grid-column field="ProductName" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Item"]" width="200">
-                    <cell-template>
-                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
-                    </cell-template>
-                </grid-column>
-                <grid-column field="ProductSku" title="@Loc["Admin.Catalog.Products.Fields.Sku"]" width="200">
-                    <cell-template>
-                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductSku }}</a>
-                    </cell-template>
-                </grid-column>
-                <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80"/>
-                <grid-column field="UnitPrice" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.UnitPrice"]" width="100"/>
-                <grid-column field="ReasonForReturn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ReturnReason"]" width="200"/>
-                <grid-column field="RequestedAction" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ReturnAction"]" width="200"/>
-            </admin-grid>
+        <div>
+            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.DisplayFor(model => model.CreatedOn)</div>
         </div>
     </div>
-    <partial name="Partials/WidgetZone.TabInfo.Bottom" model="Model"/>
-</div>
-
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="MerchandiseReturnStatusId" asp-items="EnumTranslationService.ToSelectList((MerchandiseReturnStatus)Model.MerchandiseReturnStatusId)"/>
+        <admin-field asp-for="ExternalId"/>
+        <admin-field asp-for="CustomerComments">
+            <admin-textarea asp-for="CustomerComments"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="StaffNotes">
+            <admin-textarea asp-for="StaffNotes"></admin-textarea>
+        </admin-field>
+        @if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate)
+        {
+            <admin-field asp-for="PickupDate"/>
+        }
+        <admin-field asp-for="NotifyCustomer"/>
+    </div>
+</admin-card>
+<admin-card flush>
+    <admin-grid id="products-grid"
+                read-url="@Url.Action("ProductsForMerchandiseReturn", "MerchandiseReturn", new { merchandiseReturnId = Model.Id, area = area })"
+                pager="None">
+        <grid-column field="ProductName" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Item"]" width="200">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="ProductSku" title="@Loc["Admin.Catalog.Products.Fields.Sku"]" width="200">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductSku }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80"/>
+        <grid-column field="UnitPrice" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.UnitPrice"]" width="100"/>
+        <grid-column field="ReasonForReturn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ReturnReason"]" width="200"/>
+        <grid-column field="RequestedAction" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ReturnAction"]" width="200"/>
+    </admin-grid>
+</admin-card>
+<partial name="Partials/WidgetZone.TabInfo.Bottom" model="Model"/>

@@ -48,11 +48,9 @@
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
             <content>
-                <div>
-                    <div class="form-horizontal">
-                        <partial name="Partials/UserFields" model="Model"/>
-                    </div>
-                </div>
+                <admin-card>
+                    <partial name="Partials/UserFields" model="Model"/>
+                </admin-card>
             </content>
         </tabstrip-item>
         <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>

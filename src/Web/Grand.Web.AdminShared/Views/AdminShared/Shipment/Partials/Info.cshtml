@@ -4,30 +4,31 @@
     var isShipped = Model.ShippedDateUtc.HasValue;
     var isDelivered = Model.DeliveryDateUtc.HasValue;
 }
-@* The summary reads the shipment at a glance; everything editable sits in the card below it. *@
-<div class="shipment-summary mb-3">
-    <div class="row g-3">
-        <div class="col-md-3 col-sm-6">
-            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.ID"]</div>
-            <div class="shipment-summary-value">@Model.ShipmentNumber</div>
+@* The summary reads the shipment at a glance as facts and chips; everything editable sits in
+   the card below it. *@
+<admin-card>
+    <div class="grand-facts">
+        <div>
+            <div class="grand-fact__label">@Loc["Admin.Orders.Shipments.ID"]</div>
+            <div class="grand-fact__value">@Model.ShipmentNumber</div>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.OrderID"]</div>
-            <div class="shipment-summary-value">
+        <div>
+            <div class="grand-fact__label">@Loc["Admin.Orders.Shipments.OrderID"]</div>
+            <div class="grand-fact__value">
                 <a href="@Url.Action("Edit", "Order", new { Id = Model.OrderId, area = area })">@Model.OrderNumber</a>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.TotalWeight"]</div>
-            <div class="shipment-summary-value">@Model.TotalWeight</div>
+        <div>
+            <div class="grand-fact__label">@Loc["Admin.Orders.Shipments.TotalWeight"]</div>
+            <div class="grand-fact__value">@Model.TotalWeight</div>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="shipment-summary-label">@Loc["Admin.Orders.Shipments.Products"]</div>
-            <div class="shipment-summary-value">@Model.Items.Count</div>
+        <div>
+            <div class="grand-fact__label">@Loc["Admin.Orders.Shipments.Products"]</div>
+            <div class="grand-fact__value">@Model.Items.Count</div>
         </div>
     </div>
-    <div class="shipment-summary-badges">
-        <span class="badge @(isShipped ? "text-bg-success" : "text-bg-secondary")">
+    <div class="d-flex flex-wrap gap-2 mt-3">
+        <span class="grand-chip @(isShipped ? "grand-chip--green" : "")">
             <i class="bi bi-truck"></i>
             @Loc["Admin.Orders.Shipments.ShippedDate"]:
             @if (isShipped)
@@ -39,7 +40,7 @@
                 @Loc["Admin.Orders.Shipments.ShippedDate.NotYet"]
             }
         </span>
-        <span class="badge @(isDelivered ? "text-bg-success" : "text-bg-secondary")">
+        <span class="grand-chip @(isDelivered ? "grand-chip--green" : "")">
             <i class="bi bi-box-seam"></i>
             @Loc["Admin.Orders.Shipments.DeliveryDate"]:
             @if (isDelivered)
@@ -53,121 +54,74 @@
         </span>
         @if (!string.IsNullOrEmpty(Model.TrackingNumber))
         {
-            <span class="badge border text-body">
+            <span class="grand-chip">
                 <i class="bi bi-upc-scan"></i>
                 @Loc["Admin.Orders.Shipments.TrackingNumber"]: @Model.TrackingNumber
             </span>
         }
     </div>
-</div>
+</admin-card>
 
 @* One form, one Save: tracking number, admin comment and both dates post together to
-   SaveShipmentInfo. Shipping and delivering stay in the panel header, because they notify
-   the customer. *@
-<div class="note note-info">
-    @Loc["Admin.Orders.Shipments.ViewDetails.Info"]
-</div>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <admin-label asp-for="TrackingNumber"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="TrackingNumber"/>
-                        @if (!string.IsNullOrEmpty(Model.TrackingNumberUrl))
-                        {
-                            <a href="@Model.TrackingNumberUrl" target="_blank" class="tracking-url form-text">
-                                <i class="bi bi-box-arrow-up-right"></i> @Loc["Admin.Orders.Shipments.TrackingNumber.ViewOnline"]
-                            </a>
-                        }
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="AdminComment"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-textarea asp-for="AdminComment"/>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <admin-label asp-for="ShippedDate"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="ShippedDate"/>
-                        <span class="form-text">@Loc["Admin.Orders.Shipments.ShippedDate.Enter"]</span>
-                        @if (!isShipped)
-                        {
-                            <span class="form-text">@Loc["Admin.Orders.Shipments.ShippedDate.Hint"]</span>
-                        }
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="DeliveryDate"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="DeliveryDate"/>
-                        <span class="form-text">@Loc["Admin.Orders.Shipments.DeliveryDate.Enter"]</span>
-                        @if (!isDelivered)
-                        {
-                            <span class="form-text">@Loc["Admin.Orders.Shipments.DeliveryDate.Hint"]</span>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
+   SaveShipmentInfo, the screen's one primary action. Shipping and delivering stay in the page
+   header, because they notify the customer. *@
+<admin-card title="@Loc["Admin.Orders.Shipments.ViewDetails.Info"]">
+    <card-actions>
+        <input type="submit" name="saveshipmentinfo" asp-action="SaveShipmentInfo" value="@Loc["Admin.Common.Save"]" class="btn btn-primary btn-sm"/>
+    </card-actions>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="TrackingNumber">
+            <admin-input asp-for="TrackingNumber"/>
+            @if (!string.IsNullOrEmpty(Model.TrackingNumberUrl))
+            {
+                <a href="@Model.TrackingNumberUrl" target="_blank" class="tracking-url form-text">
+                    <i class="bi bi-box-arrow-up-right"></i> @Loc["Admin.Orders.Shipments.TrackingNumber.ViewOnline"]
+                </a>
+            }
+        </admin-field>
+        <admin-field asp-for="ShippedDate"
+                     hint="@(isShipped ? Loc["Admin.Orders.Shipments.ShippedDate.Enter"].Value : Loc["Admin.Orders.Shipments.ShippedDate.Enter"].Value + " " + Loc["Admin.Orders.Shipments.ShippedDate.Hint"].Value)"/>
+        <admin-field asp-for="AdminComment">
+            <admin-textarea asp-for="AdminComment"/>
+        </admin-field>
+        <admin-field asp-for="DeliveryDate"
+                     hint="@(isDelivered ? Loc["Admin.Orders.Shipments.DeliveryDate.Enter"].Value : Loc["Admin.Orders.Shipments.DeliveryDate.Enter"].Value + " " + Loc["Admin.Orders.Shipments.DeliveryDate.Hint"].Value)"/>
     </div>
-    <div class="form-actions">
-        <input type="submit" name="saveshipmentinfo" asp-action="SaveShipmentInfo" value="@Loc["Admin.Common.Save"]" class="btn btn-success"/>
-    </div>
-</div>
+</admin-card>
 
-<div class="form-horizontal">
-    <div class="note note-info">
-        @Loc["Admin.Orders.Shipments.Products"]
-    </div>
-    <div class="form-body">
-        <div class="mb-3">
-            @* the items travel with the page, as the table had them; all rows, no pager *@
-            <admin-grid id="shipmentitems-grid"
-                        data="@Model.Items.Select(x => new { x.ProductId, x.ProductName, x.AttributeInfo, x.RentalInfo, x.Sku, x.ShippedFromWarehouse, x.ItemWeight, x.ItemDimensions, x.QuantityInThisShipment })"
-                        pager="None">
-                <grid-column field="ProductName" title="@Loc["Admin.Orders.Shipments.Products.ProductName"]" width="350">
-                    <cell-template>
-                        <div>
-                            <em><a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a></em>
-                            <p data-if="AttributeInfo">{{{ AttributeInfo }}}</p>
-                            <p data-if="RentalInfo">{{{ RentalInfo }}}</p>
-                        </div>
-                    </cell-template>
-                </grid-column>
-                <grid-column field="Sku" title="@Loc["Admin.Orders.Shipments.Products.SKU"]" width="150"/>
-                <grid-column field="ShippedFromWarehouse" title="@Loc["Admin.Orders.Shipments.Products.Warehouse"]" width="150"/>
-                <grid-column field="ItemWeight" title="@Loc["Admin.Orders.Shipments.Products.ItemWeight"]" width="100"/>
-                <grid-column field="ItemDimensions" title="@Loc["Admin.Orders.Shipments.Products.ItemDimensions"]" width="150"/>
-                <grid-column field="QuantityInThisShipment" title="@Loc["Admin.Orders.Shipments.Products.QtyShipped"]" width="100"/>
-            </admin-grid>
-        </div>
-    </div>
-</div>
+<admin-card title="@Loc["Admin.Orders.Shipments.Products"]" flush>
+    @* the items travel with the page, as the table had them; all rows, no pager *@
+    <admin-grid id="shipmentitems-grid"
+                data="@Model.Items.Select(x => new { x.ProductId, x.ProductName, x.AttributeInfo, x.RentalInfo, x.Sku, x.ShippedFromWarehouse, x.ItemWeight, x.ItemDimensions, x.QuantityInThisShipment })"
+                pager="None">
+        <grid-column field="ProductName" title="@Loc["Admin.Orders.Shipments.Products.ProductName"]" width="350">
+            <cell-template>
+                <div>
+                    <em><a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a></em>
+                    <p data-if="AttributeInfo">{{{ AttributeInfo }}}</p>
+                    <p data-if="RentalInfo">{{{ RentalInfo }}}</p>
+                </div>
+            </cell-template>
+        </grid-column>
+        <grid-column field="Sku" title="@Loc["Admin.Orders.Shipments.Products.SKU"]" width="150"/>
+        <grid-column field="ShippedFromWarehouse" title="@Loc["Admin.Orders.Shipments.Products.Warehouse"]" width="150"/>
+        <grid-column field="ItemWeight" title="@Loc["Admin.Orders.Shipments.Products.ItemWeight"]" width="100"/>
+        <grid-column field="ItemDimensions" title="@Loc["Admin.Orders.Shipments.Products.ItemDimensions"]" width="150"/>
+        <grid-column field="QuantityInThisShipment" title="@Loc["Admin.Orders.Shipments.Products.QtyShipped"]" width="100"/>
+    </admin-grid>
+</admin-card>
 
 @if (Model.ShipmentStatusEvents.Count > 0)
 {
-    <div class="form-horizontal">
-        <div class="note note-info">
-            @Loc["Admin.Orders.Shipments.ShipmentStatusEvents"]
-        </div>
-        <div class="form-body">
-            <div class="mb-3">
-                @* the carrier's events travel with the page too; all rows, no pager *@
-                <admin-grid id="shipmentevents-grid"
-                            data="@Model.ShipmentStatusEvents.Select(x => new { x.EventName, x.Location, x.Country, x.Date })"
-                            pager="None">
-                    <grid-column field="EventName" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Event"]" width="400"/>
-                    <grid-column field="Location" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Location"]" width="200"/>
-                    <grid-column field="Country" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Country"]" width="200"/>
-                    <grid-column field="Date" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Date"]" width="200" format="{0:d}"/>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
+    <admin-card title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents"]" flush>
+        @* the carrier's events travel with the page too; all rows, no pager *@
+        <admin-grid id="shipmentevents-grid"
+                    data="@Model.ShipmentStatusEvents.Select(x => new { x.EventName, x.Location, x.Country, x.Date })"
+                    pager="None">
+            <grid-column field="EventName" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Event"]" width="400"/>
+            <grid-column field="Location" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Location"]" width="200"/>
+            <grid-column field="Country" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Country"]" width="200"/>
+            <grid-column field="Date" title="@Loc["Admin.Orders.Shipments.ShipmentStatusEvents.Date"]" width="200" format="{0:d}"/>
+        </admin-grid>
+    </admin-card>
 }

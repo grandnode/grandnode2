@@ -13,49 +13,44 @@
 {
     @if (await permissionService.Authorize(PermissionSystemName.Shipments))
     {
-        <div class="card col-md-12">
-            <div class="card-body">
-                <h4 class="card-title">@Loc[$"{prefix}.Orders.Shipments"]</h4>
-                <div class="card-text">
-                    <div class="panel panel-default">
-                        <partial name="Partials/WidgetZone.Shipment.ShippingTop" model="Model"/>
-                        <div class="panel-body">
-                            <admin-grid id="shipments-grid"
-                                        read-url="@Url.Action("ShipmentsByOrder", "Shipment", new { orderId = Model.Id, area = area })"
-                                        pager="Compact"
-                                        auto-bind="false">
-                                <grid-column field="ShipmentNumber" title="@Loc[$"{prefix}.Orders.Shipments.ID"]" width="50">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ ShipmentNumber }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="TrackingNumber" title="@Loc[$"{prefix}.Orders.Shipments.TrackingNumber"]" width="100">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ TrackingNumber }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="TotalWeight" title="@Loc[$"{prefix}.Orders.Shipments.TotalWeight"]" width="100"/>
-                                <grid-column field="ShippedDate" title="@Loc[$"{prefix}.Orders.Shipments.ShippedDate"]" width="200" format="{0:G}"/>
-                                <grid-column field="DeliveryDate" title="@Loc[$"{prefix}.Orders.Shipments.DeliveryDate"]" width="200" format="{0:G}"/>
-                                <grid-detail read-url="@Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = area })" param="shipmentId:Id">
-                                    <grid-column field="ProductName" title="@Loc[$"{prefix}.Orders.Shipments.Products.ProductName"]" width="400"/>
-                                    <grid-column field="ShippedFromWarehouse" title="@Loc[$"{prefix}.Orders.Shipments.Products.Warehouse"]" width="150"/>
-                                    <grid-column field="QuantityInThisShipment" title="@Loc[$"{prefix}.Orders.Shipments.Products.QtyShipped"]" width="150"/>
-                                    <grid-column field="ItemWeight" title="@Loc[$"{prefix}.Orders.Shipments.Products.ItemWeight"]" width="150"/>
-                                    <grid-column field="ItemDimensions" title="@Loc[$"{prefix}.Orders.Shipments.Products.ItemDimensions"]" width="150"/>
-                                </grid-detail>
-                            </admin-grid>
-                        </div>
-                        <div class="panel-footer">
-                            @if (Model.CanAddNewShipments)
-                            {
-                                <button type="submit" id="btnAddNewShipment" name="btnAddNewShipment" onclick="javascript:setLocation('@(Url.Action("AddShipment", "Shipment", new { orderId = Model.Id, area = area }))'); return false;" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{prefix}.Orders.Shipments.AddNew"]</button>
-                            }
-                        </div>
-                        <partial name="Partials/WidgetZone.Shipment.ShippingBottom" model="Model"/>
-                    </div>
-                </div>
+        @* the order's shipments in a flush card, with Add new in its header *@
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc[$"{prefix}.Orders.Shipments"]</h2>
+                @if (Model.CanAddNewShipments)
+                {
+                    <button type="submit" id="btnAddNewShipment" name="btnAddNewShipment" onclick="javascript:setLocation('@(Url.Action("AddShipment", "Shipment", new { orderId = Model.Id, area = area }))'); return false;" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{prefix}.Orders.Shipments.AddNew"]</button>
+                }
             </div>
+            <partial name="Partials/WidgetZone.Shipment.ShippingTop" model="Model"/>
+            <div class="grand-card__body grand-card__body--flush">
+                <admin-grid id="shipments-grid"
+                            read-url="@Url.Action("ShipmentsByOrder", "Shipment", new { orderId = Model.Id, area = area })"
+                            pager="Compact"
+                            auto-bind="false">
+                    <grid-column field="ShipmentNumber" title="@Loc[$"{prefix}.Orders.Shipments.ID"]" width="50">
+                        <cell-template>
+                            <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ ShipmentNumber }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="TrackingNumber" title="@Loc[$"{prefix}.Orders.Shipments.TrackingNumber"]" width="100">
+                        <cell-template>
+                            <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/{{ Id }}">{{ TrackingNumber }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="TotalWeight" title="@Loc[$"{prefix}.Orders.Shipments.TotalWeight"]" width="100"/>
+                    <grid-column field="ShippedDate" title="@Loc[$"{prefix}.Orders.Shipments.ShippedDate"]" width="200" format="{0:G}"/>
+                    <grid-column field="DeliveryDate" title="@Loc[$"{prefix}.Orders.Shipments.DeliveryDate"]" width="200" format="{0:G}"/>
+                    <grid-detail read-url="@Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = area })" param="shipmentId:Id">
+                        <grid-column field="ProductName" title="@Loc[$"{prefix}.Orders.Shipments.Products.ProductName"]" width="400"/>
+                        <grid-column field="ShippedFromWarehouse" title="@Loc[$"{prefix}.Orders.Shipments.Products.Warehouse"]" width="150"/>
+                        <grid-column field="QuantityInThisShipment" title="@Loc[$"{prefix}.Orders.Shipments.Products.QtyShipped"]" width="150"/>
+                        <grid-column field="ItemWeight" title="@Loc[$"{prefix}.Orders.Shipments.Products.ItemWeight"]" width="150"/>
+                        <grid-column field="ItemDimensions" title="@Loc[$"{prefix}.Orders.Shipments.Products.ItemDimensions"]" width="150"/>
+                    </grid-detail>
+                </admin-grid>
+            </div>
+            <partial name="Partials/WidgetZone.Shipment.ShippingBottom" model="Model"/>
         </div>
 
 
@@ -67,9 +62,7 @@
 }
 else
 {
-    <div class="card col-md-6">
-        <div class="note note-info">@Loc[$"{prefix}.Orders.ShippingInfo.NotRequired"]</div>
-    </div>
+    <div class="note note-info">@Loc[$"{prefix}.Orders.ShippingInfo.NotRequired"]</div>
 }
 
 <partial name="Partials/WidgetZone.Shipment.AddressBottom" model="Model"/>

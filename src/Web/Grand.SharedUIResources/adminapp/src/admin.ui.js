@@ -5,6 +5,7 @@ import 'tom-select/dist/css/tom-select.bootstrap5.css'
 import './ui/ui.css'
 import { pageCulture, pageTexts } from './ui/culture.js'
 import { modal } from './ui/modal.js'
+import { initConfirmActions } from './ui/confirm.js'
 import { createTabs } from './ui/tabs.js'
 import { createNumeric, getNumeric, initNumeric } from './ui/numeric.js'
 import { createDateInput, getDateInput, initDateInputs } from './ui/datetime.js'
@@ -70,6 +71,8 @@ if (!GrandAdmin.ui) {
         if (started) return
         started = true
         GrandAdmin.ui.init(document)
+        //one listener for the whole page, content added later included
+        initConfirmActions(document, modal.confirm, texts)
         observe()
     }
     //this bundle is in <head>, so a jQuery ready handler registered here runs before the

@@ -9,29 +9,20 @@
       asp-route-billingAddress="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["BillingAddress"])"
       asp-route-orderId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["orderId"])">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc["Admin.Orders.Address.EditAddress"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>
-                            @Html.ActionLink(Loc["Admin.Orders.Address.BackToOrder"], "Edit", new { id = Model.OrderId })
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save">
-                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                        </button>
-                        <partial name="Partials/WidgetZone.AddressEditButtons" model="Model"/>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/OrderCreateOrUpdateAddress" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the order screen's shell: Save as the one primary action, the address in a card *@
+    <admin-page sticky
+                title="@Loc["Admin.Orders.Address.EditAddress"]"
+                icon="bi-box"
+                back-url="@Url.Action("Edit", new { id = Model.OrderId })"
+                back-text="@Loc["Admin.Orders.Address.BackToOrder"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.AddressEditButtons" model="Model"/>
+        </page-actions>
+        <admin-card>
+            <partial name="Partials/OrderCreateOrUpdateAddress" model="Model"/>
+        </admin-card>
+    </admin-page>
 </form>

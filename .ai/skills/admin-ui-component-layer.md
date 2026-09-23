@@ -40,8 +40,10 @@ All tag helpers live in `src/Web/Grand.Web.Common/TagHelpers/Admin/`, all compon
 | `<admin-popup title icon>` + `<div class="grand-popup__actions">` | `.grand-page.grand-popup` | the `x_panel` chrome each popup built by hand |
 | `<div class="grand-reveal">` > trigger field + `<div class="grand-reveal__body grand-fields grand-fields--2col">` | a switch (or select) and the fields it reveals as one full-row block, the revealed ones indented right under it; the body hides itself when nothing in it is visible, no script needed | a switch in one grid cell and the fields it opens wherever the two-column flow put them (`UseMultipleWarehouses` with the warehouse table at the bottom of the card) |
 | `.grand-facts` > `.grand-fact__label` + `.grand-fact__value` | read-only pairs | `<label class="control-label">value</label>` |
+| `.grand-range` around two `<admin-field>` | a from/to pair (dates of one filter) side by side in one grid cell, so "to" never drops to the next row | two fields in separate rows |
 | `.grand-empty` (`__icon`, `__title`) | what a card shows instead of an empty grid | nothing |
 | `GrandAdmin.modal.confirm(message, { title, confirmText, cancelText })` -> `Promise<bool>` | a panel modal | `confirm()` |
+| `data-grand-confirm="message"` (+ `data-confirm-title`, `data-confirm-ok`, `data-confirm-cancel`) on a submit button or link | the panel modal first; on yes the same element is clicked again, so a submit still posts its own `name` / `formaction` | `onclick="return confirm('...')"` |
 
 `<admin-field>` details:
 - Builds the control from the model metadata through the same editor templates `<admin-input>` uses, so dates stay date pickers and numbers stay numeric boxes.
@@ -85,7 +87,7 @@ A grid with `<grid-toolbar-create>` inside a `.grand-card` gets its add button m
 2. Replace the shell with `<admin-page>` (or `<admin-popup>`); move the header buttons into `<page-actions>`, destructive ones into `<admin-action-menu>`.
 3. Turn each `note note-info` heading + `form-horizontal` block into an `<admin-card>`; each field row into `<admin-field>`; pair related fields in `.grand-fields--2col`; units into `suffix`; checkboxes stay `<admin-field>` (they become switches).
 4. Put each grid in a flush card; move its Add new into the card header.
-5. Replace `confirm()` / `alert()` with `GrandAdmin.modal.confirm`.
+5. Replace `confirm()` / `alert()` with `GrandAdmin.modal.confirm`; an inline `onclick="return confirm(...)"` on a submit button or link becomes `data-grand-confirm` (`adminapp/src/ui/confirm.js`, one capture-phase listener for the whole page, content loaded later included).
 6. Build (`npm run build` if CSS/JS changed; `dotnet build` the owning project and Grand.Web), restart, open the screen.
 
 ## Constraints

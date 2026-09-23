@@ -3,19 +3,20 @@
 {
     foreach (var attribute in Model)
     {
-        <div class="mb-3">
+        @* a field of the caller's grid, drawn as <admin-field> draws one *@
+        <div class="grand-field">
             @{
                 var controlId = $"attributes[{attribute.Id}]";
                 var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
             }
-            <label class="control-label col-md-3">
+            <label class="grand-field__label" for="@(controlId)">
                 @textPrompt
                 @if (attribute.IsRequired)
                 {
                     <span class="required">*</span>
                 }
             </label>
-            <div class="col-md-9 col-sm-9">
+            <div class="grand-field__control">
                 @switch (attribute.AttributeControlType)
                 {
                     case AttributeControlType.DropdownList:

@@ -2,9 +2,9 @@
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<div class="panel panel-default">
+<div class="grand-card">
     <partial name="Partials/WidgetZone.Notifications.Top" model="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="order-notifications-grid"
                     read-url="@Url.Action("QueuedEmailByReference", "QueuedEmail", new { reference = (int)Reference.Order, ObjectId = Model.Id, area = area })"
                     auto-bind="false">

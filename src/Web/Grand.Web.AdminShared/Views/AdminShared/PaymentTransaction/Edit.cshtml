@@ -6,99 +6,81 @@
 }
 <form asp-area="@area" asp-controller="PaymentTransaction" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-truck"></i>
-                        @Loc["Admin.Orders.PaymentTransaction.Details"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i> @Html.ActionLink(Loc["Admin.Orders.PaymentTransaction.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            @if (Model.CanCapture)
-                            {
-                                <input type="submit" name="capturepaymenttransaction" asp-action="CapturePaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Capture"]"
-                                       id="capturepaymenttransaction" class="btn btn-default btn-sm" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                                <text>&nbsp;</text>
-                            }
-                            @if (Model.CanMarkAsPaid)
-                            {
-                                <button type="submit" id="markpaymenttransactionaspaid" name="markpaymenttransactionaspaid" asp-action="MarkPaymentTransactionAsPaid"
-                                        onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="btn btn-default btn-sm">
-                                    <i class="bi bi-cash" aria-hidden="true"></i>&nbsp;@Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]
-                                </button>
-                            }
-                            @if (Model.CanPartiallyPaidOffline)
-                            {
-                                <a id="partiallypaidpaymenttransactionoffline" name="partiallypaidpaymenttransactionoffline"
-                                   href="@(Url.Action("PartiallyPaidPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
-                                   class="btn btn-default btn-sm">
-                                    @Loc["Admin.PaymentTransaction.Fields.PartialPaidOffline"]
-                                </a>
-                                <text>&nbsp;</text>
-                            }
-                            @if (Model.CanRefund)
-                            {
-                                <input type="submit" name="refundpaymenttransaction" asp-action="RefundPaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="refundpaymenttransaction"
-                                       class="btn btn-default btn-sm" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                                <text>&nbsp;</text>
-                            }
-                            @if (Model.CanRefundOffline)
-                            {
-                                <input type="submit" name="refundpaymenttransactionoffline" asp-action="RefundPaymentTransactionOffline" value="@Loc["Admin.PaymentTransaction.Fields.RefundOffline"]"
-                                       id="refundpaymenttransactionoffline" class="btn btn-default btn-sm" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                                <text>&nbsp;</text>
-                            }
-                            @if (Model.CanPartiallyRefund)
-                            {
-                                <a id="partiallyrefundpaymenttransaction" name="partiallyrefundpaymenttransaction"
-                                   value="@Loc["Admin.PaymentTransaction.Fields.PartialRefund"]"
-                                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = true, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
-                                   class="btn btn-default btn-sm">
-                                    @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
-                                </a>
-                                <text>&nbsp;</text>
-                            }
-                            @if (Model.CanPartiallyRefundOffline)
-                            {
-                                <a id="partiallyrefundpaymenttransactionoffline" name="partiallyrefundpaymenttransactionoffline"
-                                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
-                                   class="btn btn-default btn-sm">
-                                    @Loc["Admin.PaymentTransaction.Fields.PartialRefundOffline"]
-                                </a>
-                                <text>&nbsp;</text>
-                            }
-                            @if (Model.CanVoid)
-                            {
-                                <input type="submit" name="voidpaymenttransaction" asp-action="VoidPaymentTransaction"
-                                       value="@Loc["Admin.Orders.Fields.Void"]" id="voidpaymenttransaction" class="btn btn-default btn-sm"
-                                       onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                                <text>&nbsp;</text>
-                            }
-                            @if (Model.CanVoidOffline)
-                            {
-                                <input type="submit" name="voidpaymenttransactionoffline" asp-action="VoidPaymentTransactionOffline"
-                                       value="@Loc["Admin.PaymentTransaction.Fields.VoidOffline"]" id="voidpaymenttransactionoffline" class="btn btn-default btn-sm"
-                                       onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                                <text>&nbsp;</text>
-                            }
-                            <span id="paymenttransaction-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/Update" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the order screen's shell: every payment operation the transaction allows is an outline
+       button that asks first; there is nothing to save, so no primary action, and Delete is in
+       the overflow menu *@
+    <admin-page sticky
+                title="@Loc["Admin.Orders.PaymentTransaction.Details"]"
+                icon="bi-truck"
+                meta="@Model.PaymentMethodSystemName"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Orders.PaymentTransaction.BackToList"]">
+        <page-actions>
+            @if (Model.CanCapture)
+            {
+                <input type="submit" name="capturepaymenttransaction" asp-action="CapturePaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Capture"]"
+                       id="capturepaymenttransaction" class="btn btn-outline-secondary" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
+            }
+            @if (Model.CanMarkAsPaid)
+            {
+                <button type="submit" id="markpaymenttransactionaspaid" name="markpaymenttransactionaspaid" asp-action="MarkPaymentTransactionAsPaid" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]" class="btn btn-outline-secondary">
+                    <i class="bi bi-cash" aria-hidden="true"></i> @Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]
+                </button>
+            }
+            @if (Model.CanPartiallyPaidOffline)
+            {
+                <a id="partiallypaidpaymenttransactionoffline" name="partiallypaidpaymenttransactionoffline"
+                   href="@(Url.Action("PartiallyPaidPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
+                   class="btn btn-outline-secondary">
+                    @Loc["Admin.PaymentTransaction.Fields.PartialPaidOffline"]
+                </a>
+            }
+            @if (Model.CanRefund)
+            {
+                <input type="submit" name="refundpaymenttransaction" asp-action="RefundPaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="refundpaymenttransaction"
+                       class="btn btn-outline-secondary" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
+            }
+            @if (Model.CanRefundOffline)
+            {
+                <input type="submit" name="refundpaymenttransactionoffline" asp-action="RefundPaymentTransactionOffline" value="@Loc["Admin.PaymentTransaction.Fields.RefundOffline"]"
+                       id="refundpaymenttransactionoffline" class="btn btn-outline-secondary" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
+            }
+            @if (Model.CanPartiallyRefund)
+            {
+                <a id="partiallyrefundpaymenttransaction" name="partiallyrefundpaymenttransaction"
+                   value="@Loc["Admin.PaymentTransaction.Fields.PartialRefund"]"
+                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = true, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
+                   class="btn btn-outline-secondary">
+                    @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
+                </a>
+            }
+            @if (Model.CanPartiallyRefundOffline)
+            {
+                <a id="partiallyrefundpaymenttransactionoffline" name="partiallyrefundpaymenttransactionoffline"
+                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
+                   class="btn btn-outline-secondary">
+                    @Loc["Admin.PaymentTransaction.Fields.PartialRefundOffline"]
+                </a>
+            }
+            @if (Model.CanVoid)
+            {
+                <input type="submit" name="voidpaymenttransaction" asp-action="VoidPaymentTransaction"
+                       value="@Loc["Admin.Orders.Fields.Void"]" id="voidpaymenttransaction" class="btn btn-outline-secondary" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
+            }
+            @if (Model.CanVoidOffline)
+            {
+                <input type="submit" name="voidpaymenttransactionoffline" asp-action="VoidPaymentTransactionOffline"
+                       value="@Loc["Admin.PaymentTransaction.Fields.VoidOffline"]" id="voidpaymenttransactionoffline" class="btn btn-outline-secondary" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
+            }
+            <admin-action-menu>
+                <admin-action id="paymenttransaction-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/Update" model="Model"/>
+    </admin-page>
     <script>
         $(document).ready(function () {
             $('#partiallypaidpaymenttransactionoffline').magnificPopup({

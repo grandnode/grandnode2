@@ -3,38 +3,24 @@
     ViewBag.Title = Loc["Admin.Orders.OrderStatus"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Admin.Orders.OrderStatus"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="orderstatus-grid"
-                                        read-url="@Url.Action("Statuses", "OrderStatus", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("Add", "OrderStatus", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("Update", "OrderStatus", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("Delete", "OrderStatus", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Orders.OrderStatus.Fields.Name"]" width="300" editor="Text"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Orders.OrderStatus.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The inline grid in a flush card: grid.js moves its Add new into the card header, which makes
+   it the page's only add; there is nothing else to save. *@
+<admin-page title="@Loc["Admin.Orders.OrderStatus"]" icon="bi-card-list">
+    <admin-card flush>
+        <admin-grid id="orderstatus-grid"
+                    read-url="@Url.Action("Statuses", "OrderStatus", new { area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("Add", "OrderStatus", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("Update", "OrderStatus", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("Delete", "OrderStatus", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Orders.OrderStatus.Fields.Name"]" width="300" editor="Text"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Orders.OrderStatus.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script type="text/javascript">
 </script>

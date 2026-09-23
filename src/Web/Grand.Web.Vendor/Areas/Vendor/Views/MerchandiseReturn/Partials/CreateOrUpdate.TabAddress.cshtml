@@ -1,15 +1,9 @@
 ﻿@model MerchandiseReturnModel
-<div class="form-horizontal">
-    <vc:vendor-widget widget-zone="vendor_merchandisereturn_tab_address_top" additional-data="Model"/>
-    <div class="form-body">
-        @if (Model.PickupAddress != null)
-        {
-            <div class="mb-3">
-                <admin-label asp-for="PickupAddress"/>
-                <br/>
-                <admin-input asp-for="PickupAddress" asp-template="Address"/>
-            </div>
-        }
-    </div>
-    <vc:vendor-widget widget-zone="vendor_merchandisereturn_tab_address_bottom" additional-data="Model"/>
-</div>
+<vc:vendor-widget widget-zone="vendor_merchandisereturn_tab_address_top" additional-data="Model"/>
+@if (Model.PickupAddress != null)
+{
+    <admin-card title="@Loc["Vendor.Orders.MerchandiseReturns.Fields.PickupAddress"]">
+        <admin-input asp-for="PickupAddress" asp-template="Address"/>
+    </admin-card>
+}
+<vc:vendor-widget widget-zone="vendor_merchandisereturn_tab_address_bottom" additional-data="Model"/>
