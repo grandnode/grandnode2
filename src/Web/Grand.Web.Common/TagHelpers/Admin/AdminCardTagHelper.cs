@@ -13,6 +13,8 @@ namespace Grand.Web.Common.TagHelpers.Admin;
 [HtmlTargetElement("admin-card")]
 public class AdminCardTagHelper : TagHelper
 {
+    internal static readonly object ActionsKey = typeof(CardActionsTagHelper);
+
     [HtmlAttributeName("title")] public string Title { get; set; }
 
     /// <summary>A bootstrap-icons name ("bi-box-seam") shown before the title.</summary>
@@ -34,13 +36,18 @@ public class AdminCardTagHelper : TagHelper
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(output);
 
+        var actions = new DefaultTagHelperContent();
+        context.Items[ActionsKey] = actions;
         var content = await output.GetChildContentAsync();
 
         output.TagName = "div";
         output.TagMode = TagMode.StartTagAndEndTag;
         output.AddClass("grand-card", System.Text.Encodings.Web.HtmlEncoder.Default);
 
-        if (!string.IsNullOrEmpty(Title))
+        //a card with actions gets a header even without a title, so "Add new" always sits in the
+        //same place - the top right of the card - whichever grid it belongs to
+        var hasActions = !actions.IsEmptyOrWhiteSpace;
+        if (!string.IsNullOrEmpty(Title) || hasActions)
         {
             var header = new TagBuilder("div");
             header.AddCssClass("grand-card__header");
@@ -53,9 +60,10 @@ public class AdminCardTagHelper : TagHelper
                 header.InnerHtml.AppendHtml(icon);
             }
 
+            //an untitled header still needs the growing title slot, or the actions would sit left
             var title = new TagBuilder("h2");
             title.AddCssClass("grand-card__title");
-            title.InnerHtml.Append(Title);
+            title.InnerHtml.Append(Title ?? string.Empty);
             header.InnerHtml.AppendHtml(title);
 
             if (!string.IsNullOrEmpty(ActionUrl))
@@ -67,6 +75,14 @@ public class AdminCardTagHelper : TagHelper
                 header.InnerHtml.AppendHtml(action);
             }
 
+            if (hasActions)
+            {
+                var cluster = new TagBuilder("div");
+                cluster.AddCssClass("grand-card__actions");
+                cluster.InnerHtml.AppendHtml(actions);
+                header.InnerHtml.AppendHtml(cluster);
+            }
+
             output.PreContent.AppendHtml(header);
         }
 
@@ -75,5 +91,28 @@ public class AdminCardTagHelper : TagHelper
         if (Flush) body.AddCssClass("grand-card__body--flush");
         body.InnerHtml.AppendHtml(content);
         output.Content.SetHtmlContent(body);
+    }
+}
+
+/// <summary>
+///     The buttons of a card's header - "Add new" for the grid the card holds, first of all.
+///     Every grid on a screen puts its add button here, top right, rather than some in the
+///     grid's toolbar and some under the grid.
+/// </summary>
+[HtmlTargetElement("card-actions", ParentTag = "admin-card")]
+public class CardActionsTagHelper : TagHelper
+{
+    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(output);
+
+        var content = await output.GetChildContentAsync();
+        if (context.Items.TryGetValue(AdminCardTagHelper.ActionsKey, out var target) &&
+            target is TagHelperContent actions)
+            actions.AppendHtml(content);
+
+        //the card's header is the only place this content appears
+        output.SuppressOutput();
     }
 }

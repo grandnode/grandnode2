@@ -52,6 +52,30 @@ function el(doc, tag, className, text) {
     return node
 }
 
+/**
+ * The action cluster of the card a grid fills, created on first use: .grand-card >
+ * .grand-card__header > .grand-card__actions, the same markup <admin-card> and <card-actions>
+ * render. Null when the grid is not in a card, or is a detail grid inside another grid - its
+ * add button belongs to its own row, not to the card around the master.
+ */
+export function cardActionsOf(element, doc = element.ownerDocument) {
+    const card = element.closest?.('.grand-card')
+    if (!card || element.parentElement?.closest('.grand-grid')) return null
+    let header = card.querySelector(':scope > .grand-card__header')
+    if (!header) {
+        header = el(doc, 'div', 'grand-card__header')
+        //an empty title keeps the growing slot, so the actions still sit at the end
+        header.appendChild(el(doc, 'h2', 'grand-card__title'))
+        card.insertBefore(header, card.firstChild)
+    }
+    let actions = header.querySelector(':scope > .grand-card__actions')
+    if (!actions) {
+        actions = el(doc, 'div', 'grand-card__actions')
+        header.appendChild(actions)
+    }
+    return actions
+}
+
 function iconButton(doc, className, icon, text, onClick) {
     const button = el(doc, 'button', className)
     button.type = 'button'
@@ -202,10 +226,22 @@ export class GrandGrid {
         const hasBatchButtons = this.editMode === 'Batch' && (toolbarConfig.save || toolbarConfig.cancel)
         if (hasCreate || hasBatchButtons) {
             const toolbar = el(doc, 'div', 'grand-grid-toolbar')
-            if (hasCreate) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-success grand-grid-add', 'bi bi-plus-lg', toolbarConfig.create, () => this.addRow()))
+            const cardActions = hasCreate ? cardActionsOf(element, doc) : null
+            if (cardActions) {
+                //the add button of a grid in a card of the component layer sits in the card's
+                //header, top right - where the grids that add through a popup keep theirs - so
+                //a screen has one place for "Add new" rather than a toolbar button above some
+                //grids and a link under the others
+                cardActions.querySelector(`[data-grid-add="${CSS.escape(element.id || '')}"]`)?.remove()
+                const add = iconButton(doc, 'btn btn-sm btn-outline-secondary grand-grid-add', 'bi bi-plus-lg', toolbarConfig.create, () => this.addRow())
+                add.setAttribute('data-grid-add', element.id || '')
+                cardActions.appendChild(add)
+            } else if (hasCreate) {
+                toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-success grand-grid-add', 'bi bi-plus-lg', toolbarConfig.create, () => this.addRow()))
+            }
             if (hasBatchButtons && toolbarConfig.save) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-primary grand-grid-save-changes', 'bi bi-check-lg', toolbarConfig.save, () => this.saveChanges()))
             if (hasBatchButtons && toolbarConfig.cancel) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel-changes', 'bi bi-slash-circle', toolbarConfig.cancel, () => this.cancelChanges()))
-            element.appendChild(toolbar)
+            if (toolbar.childElementCount) element.appendChild(toolbar)
         }
         this.tableElement = el(doc, 'div', 'grand-grid-table')
         element.appendChild(this.tableElement)

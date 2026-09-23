@@ -5,6 +5,13 @@
     bool readOnly = ViewBag.IsReadOnly == true;
 }
 <div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title"></h2>
+        @if (!readOnly)
+        {
+            <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
+        }
+    </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Top" model="Model"/>
     <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="productattributemappings-grid"
@@ -84,12 +91,6 @@
         </admin-grid>
     </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Bottom" model="Model"/>
-    @if (!readOnly)
-    {
-        <div class="grand-card__body">
-            <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
-        </div>
-    }
 </div>
 
 <script>

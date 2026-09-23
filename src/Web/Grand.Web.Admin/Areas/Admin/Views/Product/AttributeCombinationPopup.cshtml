@@ -18,266 +18,152 @@
 <input asp-for="Id" type="hidden"/>
 <input asp-for="ProductId" type="hidden"/>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-box"></i>
-                    @if (string.IsNullOrEmpty(Model.Id))
-                    {
-                        @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"]
-                    }
-                    else
-                    {
-                        @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Update"]
-                    }
-                </div>
-            </div>
-            <div class="x_content">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        @if (Model.Warnings.Count > 0)
-                        {
-                            <div class="message-box message-box-error">
-                                @foreach (var warning in Model.Warnings)
-                                {
-                                    @warning
-                                    <br/>
-                                }
-                            </div>
-                        }
-                        @if (string.IsNullOrEmpty(Model.Id))
-                        {
-                            <partial name="Partials/ProductAttributes" model="Model.ProductAttributes"/>
-                        }
-                        else
-                        {
-                            <div class="mb-3">
-                                <label class="control-label col-sm-3">
-                                    @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]
-                                </label>
-                                <div class="col-md-9 col-sm-9">
-                                    <text>@Html.Raw(Model.Attributes)</text>
-                                </div>
-                            </div>
-                        }
-                        <br/>
-                    </div>
-                </div>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        @if (!Model.UseMultipleWarehouses)
-                        {
-                            <div class="mb-3">
-                                <admin-label asp-for="StockQuantity" class="col-sm-3 control-label"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="StockQuantity"/>
-                                    <span asp-validation-for="StockQuantity"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="ReservedQuantity" class="col-sm-3 control-label"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ReservedQuantity"/>
-                                    <span asp-validation-for="ReservedQuantity"></span>
-                                </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="mb-3" id="pnlMultipleWarehouses">
-
-                                <div class="col-md-9 col-sm-9">
-                                    @if (Model.WarehouseInventoryModels.Count > 0)
-                                    {
-                                        <table style="width: 600px; border-collapse: collapse;">
-                                            <thead>
-                                            <tr>
-                                                <th>
-                                                    @Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]
-                                                </th>
-                                                <th align="center">
-                                                    @Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]
-                                                </th>
-                                                <th align="center">
-                                                    @Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]
-                                                </th>
-                                                <th align="center">
-                                                    @Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @for (var i = 0; i < Model.WarehouseInventoryModels.Count; i++)
-                                            {
-                                                var item = Model.WarehouseInventoryModels[i];
-                                                <tr style="height:40px;">
-                                                    <td style="width: 35%;">
-                                                        <div style="padding-left: 5px; padding-right: 5px;">
-                                                            @item.WarehouseName
-                                                            <input asp-for="@Model.WarehouseInventoryModels[i].WarehouseId" type="hidden"/>
-                                                        </div>
-                                                    </td>
-                                                    <td align="center" style="width: 10%;">
-                                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                                        <admin-input asp-for="@Model.WarehouseInventoryModels[i].WarehouseUsed"/>
-                                                        <div class="control__indicator"></div>
-                                                    </label>
-                                                    <td align="center" style="width: 20%;">
-                                                        <admin-input asp-for="@Model.WarehouseInventoryModels[i].StockQuantity"/>
-                                                    </td>
-                                                    <td align="center" style="width: 20%;">
-                                                        <admin-input asp-for="@Model.WarehouseInventoryModels[i].ReservedQuantity"/>
-                                                    </td>
-
-                                                </tr>
-                                            }
-                                            </tbody>
-                                        </table>
-                                    }
-                                    else
-                                    {
-                                        @Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]
-                                    }
-                                </div>
-                            </div>
-                        }
-                        <div class="mb-3">
-                            <admin-label asp-for="AllowOutOfStockOrders" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                    <admin-input asp-for="AllowOutOfStockOrders"/>
-                                    <div class="control__indicator"></div>
-                                </label>
-                                <span asp-validation-for="AllowOutOfStockOrders"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <admin-label asp-for="Text" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="Text"/>
-                                <span asp-validation-for="Text"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <admin-label asp-for="Sku" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="Sku"/>
-                                <span asp-validation-for="Sku"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <admin-label asp-for="Mpn" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="Mpn"/>
-                                <span asp-validation-for="Mpn"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <admin-label asp-for="Gtin" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="Gtin"/>
-                                <span asp-validation-for="Gtin"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <admin-label asp-for="OverriddenPrice" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="OverriddenPrice"/> [@Model.PrimaryStoreCurrencyCode]
-                                <span asp-validation-for="OverriddenPrice"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <admin-label asp-for="NotifyAdminForQuantityBelow" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="NotifyAdminForQuantityBelow"/>
-                                <span asp-validation-for="NotifyAdminForQuantityBelow"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <admin-label asp-for="PictureId" class="col-sm-3 control-label"/>
-                            <div class="col-md-9 col-sm-9">
-                                <ul style="list-style: none;">
-                                    <li style="float: left; width: 110px;">
-                                        <p style="float: left; padding-top: 20px;">
-                                            <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
-                                                   @if (!string.IsNullOrEmpty(Model.PictureId))
-                                                   {
-                                                       <text> checked="checked" </text>
-                                                   }>
-                                        </p>
-                                        <p style="float: left; padding-top: 20px;">
-                                            <label for="id_image_0">
-                                                @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Picture.NoPicture"]
-                                            </label>
-                                        </p>
-                                    </li>
-                                    @foreach (var picture in Model.ProductPictureModels)
-                                    {
-                                        <li style="float: left; width: 110px;">
-                                            <p style="float: left; padding-top: 20px;">
-                                                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
-                                                       @if (picture.PictureId == Model.PictureId)
-                                                       {
-                                                           <text> checked="checked" </text>
-                                                       }>
-                                            </p>
-                                            <p style="float: left;">
-                                                <label for="id_image_@picture.PictureId">
-                                                    <img src="@picture.PictureUrl" alt="" title="" width="75">
-                                                </label>
-                                            </p>
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                                <button class="btn btn-success" type="submit" name="save">
-                                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                                </button>
-                                <vc:admin-widget widget-zone="product_details_attribute_combination_buttons" additional-data="Model"/>
-                            </div>
-                        </div>
-                    </div>
-                    @if (!string.IsNullOrEmpty(Model.Id))
-                    {
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices"] [@Model.PrimaryStoreCurrencyCode]
-                            </div>
-                            <div class="panel-body">
-                                @{
-                                    var tierPriceStores = new List<SelectListItem> { new(Loc["Admin.Settings.AllSettings.Fields.StoreName.AllStores"], "") };
-                                    tierPriceStores.AddRange((await _storeService.GetAllStores()).Select(store => new SelectListItem(store.Shortcut ?? "", store.Id)));
-                                    var tierPriceCustomerGroups = new List<SelectListItem> { new(Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"], "") };
-                                    tierPriceCustomerGroups.AddRange((await _groupService.GetAllCustomerGroups(showHidden: true)).Select(group => new SelectListItem(group.Name ?? "", group.Id)));
-                                }
-                                <admin-grid id="tierprices-grid"
-                                            read-url="@Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
-                                            create-url="@Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
-                                            update-url="@Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
-                                            destroy-url="@Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
-                                            pager="Compact"
-                                            edit-mode="Inline">
-                                    <grid-toolbar-create/>
-                                    @* the "All" choices were ' ' in the Kendo lists; the controller trims both to "" *@
-                                    <grid-column field="StoreId" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Store"]" width="250" editor="Select" options="tierPriceStores" text-field="Store"/>
-                                    <grid-column field="CustomerGroupId" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.CustomerGroup"]" width="250" editor="Select" options="tierPriceCustomerGroups" text-field="CustomerGroup"/>
-                                    <grid-column field="Quantity" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]" width="150" format="{0:0}" editor="Integer" default-value="0"/>
-                                    <grid-column field="Price" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]" width="150" editor="Numeric" decimals="4" default-value="0"/>
-                                    <grid-commands edit="true" destroy="true" width="200"/>
-                                </admin-grid>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
+<admin-popup title="@(string.IsNullOrEmpty(Model.Id) ? Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"] : Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Update"])" icon="bi-grid-3x3-gap">
+    @if (Model.Warnings.Count > 0)
+    {
+        <div class="note note-danger">
+            @foreach (var warning in Model.Warnings)
+            {
+                @warning
+                <br/>
+            }
         </div>
+    }
+    @if (string.IsNullOrEmpty(Model.Id))
+    {
+        <partial name="Partials/ProductAttributes" model="Model.ProductAttributes"/>
+    }
+    else
+    {
+        <div class="grand-field">
+            <span class="grand-field__label">@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]</span>
+            <div>@Html.Raw(Model.Attributes)</div>
+        </div>
+    }
+
+    <div class="grand-fields grand-fields--2col">
+        @if (!Model.UseMultipleWarehouses)
+        {
+            <admin-field asp-for="StockQuantity" size="md"/>
+            <admin-field asp-for="ReservedQuantity" size="md"/>
+        }
+        <admin-field asp-for="Sku"/>
+        <admin-field asp-for="Text"/>
+        <admin-field asp-for="Mpn"/>
+        <admin-field asp-for="Gtin"/>
+        <admin-field asp-for="OverriddenPrice" suffix="@Model.PrimaryStoreCurrencyCode" size="md"/>
+        <admin-field asp-for="NotifyAdminForQuantityBelow" size="md"/>
+        <admin-field asp-for="AllowOutOfStockOrders"/>
     </div>
-</div>
+
+    @if (Model.UseMultipleWarehouses)
+    {
+        @* indexed model binding: every row posts WarehouseInventoryModels[i].* with the form *@
+        <div id="pnlMultipleWarehouses">
+            @if (Model.WarehouseInventoryModels.Count > 0)
+            {
+                <table class="table table-sm align-middle">
+                    <thead>
+                    <tr>
+                        <th>@Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]</th>
+                        <th class="text-center">@Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]</th>
+                        <th>@Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]</th>
+                        <th>@Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.WarehouseInventoryModels.Count; i++)
+                    {
+                        var item = Model.WarehouseInventoryModels[i];
+                        <tr>
+                            <td>
+                                @item.WarehouseName
+                                <input asp-for="@Model.WarehouseInventoryModels[i].WarehouseId" type="hidden"/>
+                            </td>
+                            <td class="text-center">
+                                <input asp-for="@Model.WarehouseInventoryModels[i].WarehouseUsed" class="form-check-input"/>
+                            </td>
+                            <td>
+                                <admin-input asp-for="@Model.WarehouseInventoryModels[i].StockQuantity"/>
+                            </td>
+                            <td>
+                                <admin-input asp-for="@Model.WarehouseInventoryModels[i].ReservedQuantity"/>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="grand-field__hint">@Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]</p>
+            }
+        </div>
+    }
+
+    <admin-field asp-for="PictureId">
+        @* one radio per product picture, and a "no picture" one; the pictures are the labels *@
+        <ul class="grand-picture-choice">
+            <li>
+                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
+                       @if (!string.IsNullOrEmpty(Model.PictureId))
+                       {
+                           <text> checked="checked" </text>
+                       }>
+                <label for="id_image_0">
+                    @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Picture.NoPicture"]
+                </label>
+            </li>
+            @foreach (var picture in Model.ProductPictureModels)
+            {
+                <li>
+                    <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
+                           @if (picture.PictureId == Model.PictureId)
+                           {
+                               <text> checked="checked" </text>
+                           }>
+                    <label for="id_image_@picture.PictureId">
+                        <img src="@picture.PictureUrl" alt="" title="">
+                    </label>
+                </li>
+            }
+        </ul>
+    </admin-field>
+
+    <div class="grand-popup__actions">
+        <vc:admin-widget widget-zone="product_details_attribute_combination_buttons" additional-data="Model"/>
+        <button class="btn btn-primary" type="submit" name="save">
+            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <admin-card title="@($"{Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices"]} [{Model.PrimaryStoreCurrencyCode}]")" icon="bi-tags" flush>
+            @{
+                var tierPriceStores = new List<SelectListItem> { new(Loc["Admin.Settings.AllSettings.Fields.StoreName.AllStores"], "") };
+                tierPriceStores.AddRange((await _storeService.GetAllStores()).Select(store => new SelectListItem(store.Shortcut ?? "", store.Id)));
+                var tierPriceCustomerGroups = new List<SelectListItem> { new(Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"], "") };
+                tierPriceCustomerGroups.AddRange((await _groupService.GetAllCustomerGroups(showHidden: true)).Select(group => new SelectListItem(group.Name ?? "", group.Id)));
+            }
+            <admin-grid id="tierprices-grid"
+                        read-url="@Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                        create-url="@Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                        update-url="@Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                        destroy-url="@Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                        pager="Compact"
+                        edit-mode="Inline">
+                <grid-toolbar-create/>
+                @* the "All" choices were ' ' in the Kendo lists; the controller trims both to "" *@
+                <grid-column field="StoreId" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Store"]" width="250" editor="Select" options="tierPriceStores" text-field="Store"/>
+                <grid-column field="CustomerGroupId" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.CustomerGroup"]" width="250" editor="Select" options="tierPriceCustomerGroups" text-field="CustomerGroup"/>
+                <grid-column field="Quantity" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]" width="150" format="{0:0}" editor="Integer" default-value="0"/>
+                <grid-column field="Price" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]" width="150" editor="Numeric" decimals="4" default-value="0"/>
+                <grid-commands edit="true" destroy="true" width="200"/>
+            </admin-grid>
+        </admin-card>
+    }
+</admin-popup>
 <script>
         var mfp = $.magnificPopup.instance;
         $("#AttributeCombinationPopup").submit(function (e) {

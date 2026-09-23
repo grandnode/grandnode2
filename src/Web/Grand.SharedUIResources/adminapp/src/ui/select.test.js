@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { fetchOptions, remote, renderItem } from './select.js'
+import { fetchOptions, remote, renderItem, renderChoice } from './select.js'
 
 describe('fetchOptions', () => {
     it('reads the Data rows of a DataSourceResult', async () => {
@@ -120,5 +120,17 @@ describe('the chosen value in the field', () => {
 
     it('escapes what it draws', () => {
         expect(renderItem({ value: '7', text: '<img src=x>' }, escape)).toBe('<div>&lt;img src=x></div>')
+    })
+})
+
+describe('renderChoice', () => {
+    const escape = text => String(text).replace(/</g, '&lt;')
+
+    it('draws an empty value that is a choice of its own', () => {
+        expect(renderChoice({ value: '', text: 'All customer groups' }, escape)).toBe('<div>All customer groups</div>')
+    })
+
+    it('escapes what it draws', () => {
+        expect(renderChoice({ value: '', text: '<b>' }, escape)).toBe('<div>&lt;b></div>')
     })
 })

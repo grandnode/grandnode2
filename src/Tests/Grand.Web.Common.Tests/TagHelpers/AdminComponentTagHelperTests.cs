@@ -228,4 +228,31 @@ public class AdminComponentTagHelperTests
         StringAssert.Contains(html, "dropdown-menu");
         StringAssert.Contains(html, "Copy");
     }
+
+    [TestMethod]
+    public async Task Popup_CarriesThePageScopeAndATitle()
+    {
+        var helper = new AdminPopupTagHelper { Title = "Picture details", Icon = "bi-image" };
+        var output = Output("admin-popup", "<div class=\"grand-fields\"></div>");
+
+        await helper.ProcessAsync(Context(), output);
+        var html = Render(output);
+
+        //grand-page is what gives a popup the buttons, fields and grids of a converted page
+        StringAssert.Contains(html, "grand-page grand-popup");
+        StringAssert.Contains(html, "grand-popup__title");
+        StringAssert.Contains(html, "bi-image");
+        StringAssert.Contains(html, "Picture details");
+        StringAssert.Contains(html, "<div class=\"grand-fields\"></div>");
+    }
+
+    [TestMethod]
+    public async Task Popup_WithoutATitle_RendersNoHeading()
+    {
+        var output = Output("admin-popup", "<p>body</p>");
+
+        await new AdminPopupTagHelper().ProcessAsync(Context(), output);
+
+        Assert.IsFalse(Render(output).Contains("grand-popup__title", StringComparison.Ordinal));
+    }
 }

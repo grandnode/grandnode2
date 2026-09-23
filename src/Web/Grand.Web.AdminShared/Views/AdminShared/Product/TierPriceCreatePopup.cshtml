@@ -13,21 +13,9 @@
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.TierPrices.AddNew"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateTierPrice" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-popup title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.TierPrices.AddNew"]" icon="bi-tags">
+        <partial name="Partials/CreateOrUpdateTierPrice" model="Model"/>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#TierPriceCreatePopup").submit(function (e) {

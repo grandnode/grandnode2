@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { GrandGrid } from './grid.js'
+import { GrandGrid, cardActionsOf } from './grid.js'
 import { compileTemplate } from './template.js'
 import { filteredOptionsUrl, createEditor } from './editors.js'
 
@@ -484,5 +484,39 @@ describe('command visibility per button', () => {
         await grid.ready
         await grid.dataSource.read()
         expect(rows(grid)[3].querySelector('.grand-grid-command-buttons').childNodes.length).toBe(0)
+    })
+})
+
+describe('the add button of a grid in a card', () => {
+    afterEach(() => { document.body.innerHTML = '' })
+
+    it('finds the actions of the card header, creating the header when the card has none', () => {
+        document.body.innerHTML = '<div class="grand-card"><div class="grand-card__body"><div id="g"></div></div></div>'
+        const actions = cardActionsOf(document.getElementById('g'))
+        const header = document.querySelector('.grand-card > .grand-card__header')
+        expect(header).not.toBe(null)
+        //the header comes first, and keeps a title slot so the actions sit at the end
+        expect(document.querySelector('.grand-card').firstElementChild).toBe(header)
+        expect(header.querySelector('.grand-card__title')).not.toBe(null)
+        expect(actions.parentElement).toBe(header)
+    })
+
+    it('reuses the header and the actions a card already has', () => {
+        document.body.innerHTML = '<div class="grand-card"><div class="grand-card__header"><h2 class="grand-card__title">Prices</h2><div class="grand-card__actions"><a>Add</a></div></div><div class="grand-card__body"><div id="g"></div></div></div>'
+        const actions = cardActionsOf(document.getElementById('g'))
+        expect(document.querySelectorAll('.grand-card__header').length).toBe(1)
+        expect(document.querySelectorAll('.grand-card__actions').length).toBe(1)
+        expect(actions.querySelector('a').textContent).toBe('Add')
+    })
+
+    it('leaves a grid outside a card alone', () => {
+        document.body.innerHTML = '<div class="x_panel"><div id="g"></div></div>'
+        expect(cardActionsOf(document.getElementById('g'))).toBe(null)
+        expect(document.querySelector('.grand-card__header')).toBe(null)
+    })
+
+    it('leaves a detail grid alone, whose add button belongs to its row', () => {
+        document.body.innerHTML = '<div class="grand-card"><div class="grand-grid"><div class="row"><div id="detail"></div></div></div></div>'
+        expect(cardActionsOf(document.getElementById('detail'))).toBe(null)
     })
 })

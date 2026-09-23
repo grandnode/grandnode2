@@ -8,7 +8,14 @@
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="grand-card">
-        <div class="grand-card__header"><h2 class="grand-card__title">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts"]</h2></div>
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts"]</h2>
+            @if (!readOnly)
+            {
+                <a id="btnAddNewRelatedProduct" href="@(Url.Action("RelatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRelatedProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.AddNew"]</a>
+                <input type="submit" id="btnRefreshRelatedProducts" style="display: none"/>
+            }
+        </div>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="relatedproducts-grid"
                         read-only="@readOnly"
@@ -27,13 +34,6 @@
                 <grid-commands edit="true" destroy="true"/>
             </admin-grid>
         </div>
-        @if (!readOnly)
-        {
-            <div class="grand-card__body">
-                <a id="btnAddNewRelatedProduct" href="@(Url.Action("RelatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRelatedProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.AddNew"]</a>
-                <input type="submit" id="btnRefreshRelatedProducts" style="display: none"/>
-            </div>
-        }
     </div>
 
     <script>

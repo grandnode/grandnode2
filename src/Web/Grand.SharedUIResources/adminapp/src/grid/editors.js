@@ -380,6 +380,9 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
     const widget = factory(element, {
         mode: 'single',
         placeholder: column.optionLabel || undefined,
+        //a cell edits a value, so an empty option with a text of its own ("All customer
+        //groups") is a value like any other, not the "nothing chosen" of a filter
+        emptyIsChoice: true,
         //the list of a cell hangs on <body>: inside the cell the table, a card or a modal
         //body would cut it off at its own edge
         dropdownParent: 'body',

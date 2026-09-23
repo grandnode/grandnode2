@@ -41,6 +41,14 @@ public class AdminFieldTagHelper : TagHelper
 
     [HtmlAttributeName(ForAttributeName)] public ModelExpression For { get; set; }
 
+    /// <summary>
+    ///     The property whose display name (and hint) labels the field, when it is not the bound
+    ///     one: a select bound to ProductAttributeId is labelled by ProductAttribute, which is the
+    ///     property that carries the resource.
+    /// </summary>
+    [HtmlAttributeName("asp-label-for")]
+    public ModelExpression LabelFor { get; set; }
+
     /// <summary>The control's width: sm, md, lg, or full (the default).</summary>
     [HtmlAttributeName("size")]
     public string Size { get; set; }
@@ -143,7 +151,7 @@ public class AdminFieldTagHelper : TagHelper
     /// <summary>The display name resolved as a resource, the way admin-label does it.</summary>
     private string Text()
     {
-        var displayName = For.Metadata.GetDisplayName() ?? string.Empty;
+        var displayName = (LabelFor ?? For).Metadata.GetDisplayName() ?? string.Empty;
         return AdminText.Resource(_translationService, _contextAccessor, displayName.ToLowerInvariant(), displayName);
     }
 
@@ -151,7 +159,7 @@ public class AdminFieldTagHelper : TagHelper
     private string HintText()
     {
         if (!string.IsNullOrEmpty(Hint)) return Hint;
-        var displayName = For.Metadata.GetDisplayName();
+        var displayName = (LabelFor ?? For).Metadata.GetDisplayName();
         return string.IsNullOrEmpty(displayName)
             ? null
             : AdminText.Resource(_translationService, _contextAccessor, displayName + ".Hint", null);

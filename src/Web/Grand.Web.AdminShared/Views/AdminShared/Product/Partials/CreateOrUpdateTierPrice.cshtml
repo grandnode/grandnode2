@@ -4,53 +4,21 @@
 <input asp-for="Id" type="hidden"/>
 <input asp-for="ProductId" type="hidden"/>
 
-<div class="form-horizontal">
-    <partial name="Partials/WidgetZone.TierPrice.Top" model="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Quantity" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Quantity"/>
-                <span asp-validation-for="Quantity"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Price" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Price"/>
-                <span asp-validation-for="Price"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CurrencyCode" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies"/>
-                <span asp-validation-for="CurrencyCode"></span>
-            </div>
-        </div>
-        <partial name="Partials/TierPrice.StoreScope" model="Model"/>
-        <div class="mb-3">
-            <admin-label asp-for="StartDateTime" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="StartDateTime"/>
-                <span asp-validation-for="StartDateTime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="EndDateTime" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="EndDateTime"/>
-                <span asp-validation-for="EndDateTime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                <button class="btn btn-success" type="submit" name="save">
-                    <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
-                </button>
-                <partial name="Partials/WidgetZone.TierPrice.Buttons"/>
-            </div>
-        </div>
-    </div>
-    <partial name="Partials/WidgetZone.TierPrice.Bottom" model="Model"/>
+<partial name="Partials/WidgetZone.TierPrice.Top" model="Model"/>
+@* the store and customer group rows come from TierPrice.StoreScope, which the vendor panel
+   overrides with an empty partial - so they are grid items here, not rows of their own *@
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="Quantity" size="md"/>
+    <admin-field asp-for="Price" size="md"/>
+    <admin-field asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies" size="md"/>
+    <partial name="Partials/TierPrice.StoreScope" model="Model"/>
+    <admin-field asp-for="StartDateTime"/>
+    <admin-field asp-for="EndDateTime"/>
+</div>
+<partial name="Partials/WidgetZone.TierPrice.Bottom" model="Model"/>
+<div class="grand-popup__actions">
+    <partial name="Partials/WidgetZone.TierPrice.Buttons"/>
+    <button class="btn btn-primary" type="submit" name="save">
+        <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+    </button>
 </div>

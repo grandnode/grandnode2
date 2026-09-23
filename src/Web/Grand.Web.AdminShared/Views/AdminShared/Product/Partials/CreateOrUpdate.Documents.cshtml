@@ -5,6 +5,13 @@
     bool readOnly = ViewBag.IsReadOnly == true;
 }
 <div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title"></h2>
+        @if (!readOnly)
+        {
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Marketing.Document.Add"]</button>
+        }
+    </div>
     <partial name="Partials/WidgetZone.Documents.Top" model="Model"/>
     <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="product-documents-grid"
@@ -29,12 +36,6 @@
             </grid-column>
         </admin-grid>
     </div>
-    @if (!readOnly)
-    {
-        <div class="grand-card__body">
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Marketing.Document.Add"]</button>
-        </div>
-    }
     <partial name="Partials/WidgetZone.Documents.Bottom" model="Model"/>
 </div>
 

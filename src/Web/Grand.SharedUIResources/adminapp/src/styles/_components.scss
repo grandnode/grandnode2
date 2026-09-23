@@ -528,8 +528,245 @@
     border-end-end-radius: var(--grand-radius-sm) !important;
 }
 
-.grand-page .grand-tabstrip .grand-card + .grand-card,
-.grand-page .grand-tabstrip .grand-card + .grand-fields,
-.grand-page .grand-tabstrip .grand-fields + .grand-card {
+//~ rather than +: a tab often has a <script> or a widget zone between two cards
+.grand-page .grand-tabstrip .grand-card ~ .grand-card,
+.grand-page .grand-tabstrip .grand-card ~ .grand-fields,
+.grand-page .grand-tabstrip .grand-fields ~ .grand-card,
+.grand-popup .grand-card ~ .grand-card {
     margin-block-start: var(--grand-gap);
+}
+
+/*
+ * A secondary form (<admin-popup>): the picture editor, a tier price, an attribute value, a
+ * product picker. The element also carries .grand-page, so every button, field and grid rule
+ * above reaches it without a second selector; this only sizes the title and lays out the
+ * row of actions a popup ends with.
+ */
+.grand-popup {
+    padding-block: 0;
+}
+
+.grand-popup__title {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--grand-title);
+}
+
+.grand-popup__title > .bi {
+    color: var(--grand-accent);
+}
+
+//the actions sit on their own line after a rule, the committing one last
+.grand-popup__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    padding-block-start: var(--grand-gap);
+    border-block-start: 1px solid var(--grand-rule);
+}
+
+//the picture a popup is about, shown as a thumbnail rather than a bare 150px image
+.grand-thumb {
+    display: inline-block;
+    max-width: 10rem;
+    padding: .25rem;
+    background-color: var(--grand-surface-sunken);
+    border: 1px solid var(--grand-border);
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-thumb img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/*
+ * The file uploader (Partials/QqUploader.cshtml, behind the Picture, MultiPicture and
+ * Download editor templates). Fine Uploader's own stylesheet paints a maroon 105px button,
+ * a pink drop area and yellow rows, and it is linked in the body - after this bundle - so
+ * each rule here carries the .grand-uploader class to outweigh it. The result is a dashed
+ * drop zone with one outline button, and rows that read as a list of files.
+ */
+.grand-uploader {
+    padding: 1rem;
+    background-color: var(--grand-surface-sunken);
+    border: 1px dashed var(--grand-form-border);
+    border-radius: var(--grand-radius) !important;
+}
+
+.grand-uploader .grand-uploader__zone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+}
+
+.grand-uploader .grand-uploader__icon {
+    font-size: 1.5rem;
+    color: var(--grand-accent);
+}
+
+.grand-uploader .grand-uploader__hint {
+    font-size: .875rem;
+    color: var(--grand-muted);
+}
+
+.grand-uploader .qq-upload-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    width: auto;
+    margin: 0;
+    padding: .4rem .8rem;
+    font-weight: 500;
+    color: var(--#{$prefix}body-color);
+    background: var(--grand-surface);
+    border: 1px solid var(--grand-border);
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-uploader .qq-upload-button-hover {
+    background: var(--grand-surface-sunken);
+    border-color: var(--grand-form-border);
+}
+
+.grand-uploader .qq-upload-button-focus {
+    outline: 2px solid var(--grand-accent);
+    outline-offset: 1px;
+}
+
+.grand-uploader .qq-upload-drop-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--grand-accent-soft);
+    border: 2px dashed var(--grand-accent);
+    border-radius: var(--grand-radius) !important;
+}
+
+.grand-uploader .qq-upload-drop-area span {
+    position: static;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--grand-accent);
+}
+
+.grand-uploader .qq-upload-list:not(:empty) {
+    margin-block-start: .75rem;
+}
+
+.grand-uploader .qq-upload-list li {
+    padding: .5rem .75rem;
+    font-size: .875rem;
+    line-height: 1.4;
+    color: var(--#{$prefix}body-color);
+    background-color: var(--grand-surface);
+    border: 1px solid var(--grand-border);
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-uploader .qq-upload-list li + li {
+    margin-block-start: .35rem;
+}
+
+.grand-uploader .qq-upload-list li.qq-upload-success {
+    color: var(--grand-green);
+    background-color: var(--grand-green-soft);
+    border-color: transparent;
+}
+
+.grand-uploader .qq-upload-list li.qq-upload-fail {
+    color: var(--grand-red);
+    background-color: var(--grand-red-soft);
+    border-color: transparent;
+}
+
+.grand-uploader .qq-upload-size,
+.grand-uploader .qq-upload-cancel,
+.grand-uploader .qq-upload-retry,
+.grand-uploader .qq-upload-delete {
+    font-size: .8125rem;
+}
+
+/* a choice between pictures: a radio each, the picture as its label (attribute values) */
+.grand-picture-choice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.grand-picture-choice > li {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .5rem;
+    background-color: var(--grand-surface-sunken);
+    border: 1px solid var(--grand-border);
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-picture-choice > li:has(input:checked) {
+    border-color: var(--grand-accent);
+    box-shadow: 0 0 0 .15rem var(--grand-accent-soft);
+}
+
+.grand-picture-choice label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.grand-picture-choice img {
+    display: block;
+    width: 4.5rem;
+    height: auto;
+}
+
+//an explanation a popup opens with, before its fields
+.grand-popup__lead {
+    margin: 0;
+    font-size: .875rem;
+    color: var(--grand-muted);
+}
+
+/* the buttons of a card's header: "Add new" for the grid the card holds, top right */
+
+.grand-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+/*
+ * The numeric field: its input and its up/down spinner are one control, so only the outer
+ * corners are round - the input's start, the spinner's end. ui.css says as much, but two rules
+ * turned it inside out: the rounded .form-control above (!important) rounded the input where the
+ * spinner meets it, and the blanket `span { border-radius: 0 !important }` of _custom.scss
+ * squared the spinner's outer corners. Both need saying as loudly to put it right.
+ */
+.grand-numeric-group > input.grand-numeric {
+    border-start-end-radius: 0 !important;
+    border-end-end-radius: 0 !important;
+}
+
+.grand-numeric-group > .grand-numeric-spin {
+    border-start-end-radius: var(--grand-radius-sm) !important;
+    border-end-end-radius: var(--grand-radius-sm) !important;
+}
+
+//followed by a unit (suffix="USD"), the spinner is the middle of the group, square on both sides
+.grand-field__control.input-group > .grand-numeric-group > .grand-numeric-spin {
+    border-start-end-radius: 0 !important;
+    border-end-end-radius: 0 !important;
 }

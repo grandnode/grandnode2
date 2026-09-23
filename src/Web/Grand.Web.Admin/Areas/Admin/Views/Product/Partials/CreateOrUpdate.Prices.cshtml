@@ -49,6 +49,10 @@
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <admin-card title="@Loc["Admin.Catalog.Products.TierPrices"]" flush>
+        <card-actions>
+            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
+            <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
+        </card-actions>
         @* Delete posts the whole row; the Kendo parameterMap posted only Id and ProductId, which are the
            fields TierPriceDeleteModel binds *@
         <admin-grid id="tierprices-grid"
@@ -80,10 +84,6 @@
             </grid-column>
             <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]"/>
         </admin-grid>
-        <div class="p-3">
-            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
-            <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
-        </div>
     </admin-card>
 
     <script>

@@ -60,107 +60,91 @@
 <div id="@(clientId + "value")">
     <input asp-for="@Model" type="hidden"/>
 </div>
-<div class="form-horizontal form-horizontal  portlet light bg-inverse form-bordered box green" style="border-top: 1px solid #5cd1db;">
-    <div class="form-body">
-        @if (!disableUrl)
-        {
-            <div class="mb-3">
-                <div class="col-md-3 col-sm-3">
-                    @Loc["Admin.Download.UseDownloadURL"]:
-                </div>
-                <div class="col-md-6 col-sm-6">
-                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox control control-checkbox">
-                        <input type="checkbox" class="check-box" name="cbUseDownloadURL@(randomNumber)" id="cbUseDownloadURL@(randomNumber)"
-                               @if (download is { UseDownloadUrl: true })
-                               {
-                                   <text> checked="checked" </text>
-                               }/>
-                        <div class="control__indicator"></div>
-                    </label>
-                </div>
-            </div>
-        }
-        <div class="mb-3" id="pnlDownloadURL@(randomNumber)">
-            <div class="col-md-3 col-sm-3">
-                @Loc["Admin.Download.DownloadURL"]:
-            </div>
-            <div class="col-md-6 col-sm-6">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" name="downloadurl@(randomNumber)" id="downloadurl@(randomNumber)"
-                           @if (download != null && !string.IsNullOrEmpty(download.DownloadUrl))
-                           {
-                               <text> value="@(download.DownloadUrl)" </text>
-                           }/>
-                    <div class="">
-                        <input type="button" id="saveDownloadUrl@(randomNumber)" class="btn btn-default btn-sm" value="@Loc["Admin.Download.SaveDownloadURL"]"/>
-                    </div>
-                </div>
-
-                <div id="pnlDownloadURLResult@(randomNumber)" style="display:none;">@Loc["Admin.Download.DownloadURLSaved"]</div>
-            </div>
+@* The toggle, the url row and the upload row keep every id the script above and the uploader
+   below look up (cbUseDownloadURL, pnlDownloadURL, pnlDownloadFile, saveDownloadUrl, ...).
+   The two elements the script reveals with jQuery - the "saved" note and the remove button -
+   keep an inline display:none, because [hidden] and .d-none are !important and would win
+   over fadeIn() and show(). *@
+<div class="grand-download grand-fields">
+    @if (!disableUrl)
+    {
+        <div class="form-check form-switch">
+            <input type="checkbox" class="form-check-input" role="switch" name="cbUseDownloadURL@(randomNumber)" id="cbUseDownloadURL@(randomNumber)"
+                   @if (download is { UseDownloadUrl: true })
+                   {
+                       <text> checked="checked" </text>
+                   }/>
+            <label class="form-check-label" for="cbUseDownloadURL@(randomNumber)">@Loc["Admin.Download.UseDownloadURL"]</label>
         </div>
-        <div class="mb-3" id="pnlDownloadFile@(randomNumber)">
-            <div class="col-md-3 col-sm-3">
-                @Loc["Admin.Download.UploadFile"]:
+    }
+    <div class="grand-field" id="pnlDownloadURL@(randomNumber)">
+        <label class="grand-field__label" for="downloadurl@(randomNumber)">@Loc["Admin.Download.DownloadURL"]</label>
+        <div class="grand-field__control input-group">
+            <input type="text" class="form-control" name="downloadurl@(randomNumber)" id="downloadurl@(randomNumber)"
+                   @if (download != null && !string.IsNullOrEmpty(download.DownloadUrl))
+                   {
+                       <text> value="@(download.DownloadUrl)" </text>
+                   }/>
+            <input type="button" id="saveDownloadUrl@(randomNumber)" class="btn btn-outline-secondary" value="@Loc["Admin.Download.SaveDownloadURL"]"/>
+        </div>
+        <div id="pnlDownloadURLResult@(randomNumber)" class="grand-field__hint text-success" style="display:none;">@Loc["Admin.Download.DownloadURLSaved"]</div>
+    </div>
+    <div class="grand-field" id="pnlDownloadFile@(randomNumber)">
+        <span class="grand-field__label">@Loc["Admin.Download.UploadFile"]</span>
+        <div>
+            @*fine uploader container*@
+            <div id="@clientId"></div>
+            <div id="@(clientId)-qq-template" style="display: none;">
+                <partial name="Partials/QqUploader" />
             </div>
-            <div class="col-md-6 col-sm-6">
-                <div>
-                    @*fine uploader container*@
-                    <div id="@clientId"></div>
-                    <div id="@(clientId)-qq-template" style="display: none;">
-                        <partial name="Partials/QqUploader" />
-                    </div>
-                    <script>
+            <script>
 
-                        $(document).ready(function () {
-                            $("#@clientId").fineUploader({
-                                request: {
-                                    endpoint: '@(Url.Action("AsyncUpload", "Download", new { area }))',
-                                    params: {
-                                        DownloadType: '@ViewData["DownloadType"]',
-                                        ReferenceId: '@ViewData["ReferenceId"]'
-                                    },
-                                    inputName: "file",
-                                    customHeaders: {
-                                        'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val()
-                                    }
-                                },
-                                template: "@(clientId)-qq-template",
-                                multiple: false
-                            }).on("complete", function (event, id, name, responseJSON, xhr) {
-                                $("#@(clientId + "downloadurl")").html("<a href='" + responseJSON.downloadUrl + "' class=\"btn purple\">@Loc["Admin.Download.DownloadUploadedFile"]</a>");
-                                $("#@(clientId + "value") input").val(responseJSON.downloadId);
-                                $("#@(clientId + "remove")").show();
-                            });
+                $(document).ready(function () {
+                    $("#@clientId").fineUploader({
+                        request: {
+                            endpoint: '@(Url.Action("AsyncUpload", "Download", new { area }))',
+                            params: {
+                                DownloadType: '@ViewData["DownloadType"]',
+                                ReferenceId: '@ViewData["ReferenceId"]'
+                            },
+                            inputName: "file",
+                            customHeaders: {
+                                'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        },
+                        template: "@(clientId)-qq-template",
+                        multiple: false
+                    }).on("complete", function (event, id, name, responseJSON, xhr) {
+                        $("#@(clientId + "downloadurl")").html("<a href='" + responseJSON.downloadUrl + "' class=\"btn btn-outline-secondary btn-sm\">@Loc["Admin.Download.DownloadUploadedFile"]</a>");
+                        $("#@(clientId + "value") input").val(responseJSON.downloadId);
+                        $("#@(clientId + "remove")").show();
+                    });
 
 
-                            $("#@(clientId + "remove")").click(function (e) {
-                                $("#@(clientId + "downloadurl")").html("");
-                                $("#@(clientId + "value") input").val("");
-                                $(this).hide();
-                            });
-                        });
+                    $("#@(clientId + "remove")").click(function (e) {
+                        $("#@(clientId + "downloadurl")").html("");
+                        $("#@(clientId + "value") input").val("");
+                        $(this).hide();
+                    });
+                });
 
-                    </script>
-
-                </div>
-                <div id="@(clientId + "downloadurl")">
-                    @if (download != null)
-                    {
-                        <a href="@(Url.Action("DownloadFile", "Download", new { downloadGuid = download.DownloadGuid, area }))" class="btn purple">@Loc["Admin.Download.DownloadUploadedFile"]</a>
-                    }
-                </div>
-                <div>
-                    @if (download != null)
-                    {
-                        <span id="@(clientId + "remove")" class="btn btn-default btn-sm">@Loc["Admin.Download.RemoveDownload"]</span>
-                    }
-                    else
-                    {
-                        <span id="@(clientId + "remove")" class="btn btn-default btn-sm" style="display:none;">@Loc["Admin.Download.RemoveDownload"]</span>
-                    }
-                </div>
+            </script>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <div id="@(clientId + "downloadurl")">
+                @if (download != null)
+                {
+                    <a href="@(Url.Action("DownloadFile", "Download", new { downloadGuid = download.DownloadGuid, area }))" class="btn btn-outline-secondary btn-sm">@Loc["Admin.Download.DownloadUploadedFile"]</a>
+                }
             </div>
+            @if (download != null)
+            {
+                <span id="@(clientId + "remove")" class="btn btn-outline-danger btn-sm">@Loc["Admin.Download.RemoveDownload"]</span>
+            }
+            else
+            {
+                <span id="@(clientId + "remove")" class="btn btn-outline-danger btn-sm" style="display:none;">@Loc["Admin.Download.RemoveDownload"]</span>
+            }
         </div>
     </div>
 </div>
