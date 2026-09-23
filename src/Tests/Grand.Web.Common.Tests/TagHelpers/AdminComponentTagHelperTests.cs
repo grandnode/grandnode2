@@ -139,6 +139,24 @@ public class AdminComponentTagHelperTests
     }
 
     [TestMethod]
+    public async Task Filters_SearchIsPrimaryUnlessTheScreenHasItsOwn()
+    {
+        var primary = Output("admin-filters");
+        await new AdminFiltersTagHelper(_contextAccessorMock.Object, _translationServiceMock.Object)
+            .ProcessAsync(Context(), primary);
+        StringAssert.Contains(Render(primary), "btn btn-primary");
+
+        //a batch grid's Save changes is the screen's one primary, so Search steps down
+        var secondary = Output("admin-filters");
+        await new AdminFiltersTagHelper(_contextAccessorMock.Object, _translationServiceMock.Object) {
+            SecondarySubmit = true
+        }.ProcessAsync(Context(), secondary);
+        var html = Render(secondary);
+        StringAssert.Contains(html, "btn btn-outline-secondary");
+        Assert.IsFalse(html.Contains("btn-primary", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
     public async Task BulkBar_CarriesTheGridAndTheCountTemplate()
     {
         _resources["Admin.Common.Grid.SelectedCount"] = "{0} selected";

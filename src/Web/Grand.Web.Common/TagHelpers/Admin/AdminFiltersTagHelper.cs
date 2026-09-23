@@ -40,6 +40,13 @@ public class AdminFiltersTagHelper : TagHelper
     [HtmlAttributeName("expanded")]
     public bool Expanded { get; set; }
 
+    /// <summary>
+    ///     Renders Search as an outline button, for a screen whose one primary action is elsewhere -
+    ///     a batch grid's Save changes, say.
+    /// </summary>
+    [HtmlAttributeName("secondary-submit")]
+    public bool SecondarySubmit { get; set; }
+
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -83,7 +90,7 @@ public class AdminFiltersTagHelper : TagHelper
         var submit = new TagBuilder("button");
         submit.Attributes["type"] = "submit";
         if (!string.IsNullOrEmpty(SubmitId)) submit.Attributes["id"] = SubmitId;
-        submit.AddCssClass("btn btn-primary");
+        submit.AddCssClass(SecondarySubmit ? "btn btn-outline-secondary" : "btn btn-primary");
         submit.InnerHtml.AppendHtml("<i class=\"bi bi-search\"></i> ");
         submit.InnerHtml.Append(Text("Admin.Common.Search", "Search"));
         quick.InnerHtml.AppendHtml(submit);
