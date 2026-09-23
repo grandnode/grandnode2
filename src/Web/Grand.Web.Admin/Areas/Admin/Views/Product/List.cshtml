@@ -82,13 +82,9 @@
                 </grid-column>
                 <grid-column field="StockQuantityStr" title="@Loc["Admin.Catalog.Products.Fields.StockQuantity"]" width="80" align="Right" min-screen-width="750"/>
                 <grid-column field="ProductTypeName" title="@Loc["Admin.Catalog.Products.Fields.ProductType"]" width="100" align="Center" min-screen-width="1050"/>
-                <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Products.Fields.DisplayOrder"]" width="90" align="Right" format="{0:0}" min-screen-width="1250"/>
-                <grid-column field="VisibleIndividually" title="@Loc["Admin.Catalog.Products.Fields.VisibleIndividually"]" width="110" align="Center" min-screen-width="1400">
-                    <cell-template>
-                        <i data-if="VisibleIndividually" class="bi bi-eye" aria-hidden="true"></i>
-                        <i data-else class="bi bi-eye-slash text-muted" aria-hidden="true"></i>
-                    </cell-template>
-                </grid-column>
+                <grid-column field="BrandName" title="@Loc["Admin.Catalog.Products.Fields.Brand"]" width="140" min-screen-width="1250"/>
+                @* the first category the product is mapped to; a product in none shows nothing *@
+                <grid-column field="CategoryName" title="@Loc["Admin.Catalog.Products.Categories.Fields.Category"]" width="150" min-screen-width="1400"/>
                 @* a state is a word, not a tick *@
                 <grid-column field="Published" title="@Loc["Admin.Catalog.Products.Fields.Published"]" width="110" align="Center">
                     <cell-template>

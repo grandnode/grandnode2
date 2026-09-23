@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
@@ -43,6 +44,7 @@ public class ProductViewModelService(
     ICurrencyService currencyService,
     IMeasureService measureService,
     IDateTimeService dateTimeService,
+    IBrandService brandService,
     ICollectionService collectionService,
     IProductCollectionService productCollectionService,
     ICategoryService categoryService,
@@ -638,6 +640,10 @@ public class ProductViewModelService(
         )).products;
 
         var items = new List<ProductModel>();
+        //the brand and the first category of every row on the page, each looked up once: both
+        //services read through the cache, and a page is 15 rows of mostly repeating ids
+        var brandNames = new Dictionary<string, string>();
+        var categoryNames = new Dictionary<string, string>();
         foreach (var x in products)
         {
             var productModel = x.ToModel(dateTimeService);
@@ -650,6 +656,30 @@ public class ProductViewModelService(
             productModel.PictureThumbnailUrl = await pictureService.GetPictureUrl(defaultProductPicture.PictureId, 100);
             //product type
             productModel.ProductTypeName = enumTranslationService.GetTranslationEnum(x.ProductTypeId);
+            //brand
+            if (!string.IsNullOrEmpty(x.BrandId))
+            {
+                if (!brandNames.TryGetValue(x.BrandId, out var brandName))
+                {
+                    brandName = (await brandService.GetBrandById(x.BrandId))?.Name;
+                    brandNames[x.BrandId] = brandName;
+                }
+
+                productModel.BrandName = brandName;
+            }
+
+            //the first category the product is mapped to
+            var firstCategoryId = x.ProductCategories.FirstOrDefault()?.CategoryId;
+            if (!string.IsNullOrEmpty(firstCategoryId))
+            {
+                if (!categoryNames.TryGetValue(firstCategoryId, out var categoryName))
+                {
+                    categoryName = (await categoryService.GetCategoryById(firstCategoryId))?.Name;
+                    categoryNames[firstCategoryId] = categoryName;
+                }
+
+                productModel.CategoryName = categoryName;
+            }
             //friendly stock quantity
             //if a simple product AND "manage inventory" is "Track inventory", then display
             if (x.ProductTypeId == ProductType.SimpleProduct &&
