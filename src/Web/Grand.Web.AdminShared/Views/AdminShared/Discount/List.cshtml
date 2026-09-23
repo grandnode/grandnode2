@@ -5,83 +5,52 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-tags"></i>
-                    @Loc["admin.marketing.Discounts"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = area })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <partial name="Partials/WidgetZone.ListButtons"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="row align-items-end">
-                            <div class="col-md-3 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="SearchDiscountName" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-input asp-for="SearchDiscountName"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="SearchDiscountCouponCode" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-input asp-for="SearchDiscountCouponCode"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="SearchDiscountTypeId" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-select asp-for="SearchDiscountTypeId" asp-items="Model.AvailableDiscountTypes"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
-                                <div class="form-actions">
-                                    <button class="btn btn-success filter-submit" id="search-discounts">
-                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="x_content">
-                <admin-grid id="discounts-grid"
-                            read-url="@Url.Action("List", "Discount", new { area = area })"
-                            additional-data="additionalData">
-                    <grid-column field="Name" title="@Loc["admin.marketing.Discounts.Fields.Name"]" width="350">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="DiscountTypeName" title="@Loc["admin.marketing.Discounts.Fields.DiscountType"]" width="250"/>
-                    <grid-column field="DiscountAmount" title="@Loc["admin.marketing.Discounts.Fields.Discount"]" width="200">
-                        <cell-template>
-                            <span data-if="!CalculateByPlugin"><span data-if="UsePercentage">{{ DiscountPercentage }} %</span> <span data-else>{{ DiscountAmount }} {{ CurrencyCode }}</span></span>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="StartDate" title="@Loc["admin.marketing.Discounts.Fields.StartDate"]" width="200" format="{0:G}"/>
-                    <grid-column field="EndDate" title="@Loc["admin.marketing.Discounts.Fields.EndDate"]" width="200" format="{0:G}"/>
-                    <grid-column field="TimesUsed" title="@Loc["admin.marketing.Discounts.Fields.TimesUsed"]" width="200"/>
-                    <grid-column field="IsEnabled" title="@Loc["admin.marketing.Discounts.Fields.IsEnabled"]" width="100" align="Center">
-                        <cell-template>
-                            <i data-if="IsEnabled" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* The product list's shape: Add new in the page header, the name as the quick search with the
+   coupon code and the type behind the Filters toggle, and the grid in a flush card. The ids the
+   script below looks up are unchanged. *@
+<admin-page title="@Loc["admin.marketing.Discounts"]" icon="bi-tags">
+    <page-actions>
+        <partial name="Partials/WidgetZone.ListButtons"/>
+        <a href="@Url.Action("Create", new { area = area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-filters id="discount-filters" submit-id="search-discounts" secondary-submit="true">
+        <filters-search>
+            <admin-input asp-for="SearchDiscountName"/>
+        </filters-search>
+        <admin-field asp-for="SearchDiscountCouponCode"/>
+        <admin-field asp-for="SearchDiscountTypeId" asp-items="Model.AvailableDiscountTypes"/>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="discounts-grid"
+                    read-url="@Url.Action("List", "Discount", new { area = area })"
+                    additional-data="additionalData">
+            <grid-column field="Name" title="@Loc["admin.marketing.Discounts.Fields.Name"]" width="350">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DiscountTypeName" title="@Loc["admin.marketing.Discounts.Fields.DiscountType"]" width="250"/>
+            <grid-column field="DiscountAmount" title="@Loc["admin.marketing.Discounts.Fields.Discount"]" width="200">
+                <cell-template>
+                    <span data-if="!CalculateByPlugin"><span data-if="UsePercentage">{{ DiscountPercentage }} %</span> <span data-else>{{ DiscountAmount }} {{ CurrencyCode }}</span></span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="StartDate" title="@Loc["admin.marketing.Discounts.Fields.StartDate"]" width="200" format="{0:G}"/>
+            <grid-column field="EndDate" title="@Loc["admin.marketing.Discounts.Fields.EndDate"]" width="200" format="{0:G}"/>
+            <grid-column field="TimesUsed" title="@Loc["admin.marketing.Discounts.Fields.TimesUsed"]" width="200"/>
+            <grid-column field="IsEnabled" title="@Loc["admin.marketing.Discounts.Fields.IsEnabled"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="IsEnabled" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
 

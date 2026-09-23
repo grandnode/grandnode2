@@ -19,176 +19,102 @@
         }
     }
 </script>
-<div class="form-horizontal">
-    <partial name="Partials/WidgetZone.InfoTop" model="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="GiftVoucherTypeId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="GiftVoucherTypeId" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
-                <span asp-validation-for="GiftVoucherTypeId"></span>
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<partial name="Partials/WidgetZone.InfoTop" model="Model"/>
+
+@* What an existing voucher only reports - the order it was bought with, what is left of it, when
+   it was made - as facts above the fields. *@
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <admin-card>
+        <div class="grand-facts">
+            @if (!string.IsNullOrEmpty(Model.PurchasedWithOrderId))
+            {
+                <div>
+                    <admin-label asp-for="PurchasedWithOrderId" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">
+                        <a href="@Url.Action("Edit", "Order", new { Id = Model.PurchasedWithOrderId, area })" class="text-decoration-none"><i class="bi bi-eye"></i> @Loc["Admin.Common.View"] #@Model.PurchasedWithOrderNumber</a>
+                    </div>
+                </div>
+            }
+            <div>
+                <admin-label asp-for="RemainingAmountStr" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.RemainingAmountStr</div>
+            </div>
+            <div>
+                <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.CreatedOn</div>
             </div>
         </div>
-        @{
-            var area = ViewContext.RouteData.Values["area"]?.ToString();
-        }
-        @if (!string.IsNullOrEmpty(Model.PurchasedWithOrderId))
-        {
-            <div class="mb-3">
-                <admin-label asp-for="PurchasedWithOrderId"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">
-                        <a href="@Url.Action("Edit", "Order", new { Id = Model.PurchasedWithOrderId, area })" class="btn btn-default btn-sm"><span class="bi bi-eye"></span>&nbsp;@Loc["Admin.Common.View"] #@Model.PurchasedWithOrderNumber</a>
-                    </label>
-                </div>
-            </div>
-        }
-        <div class="mb-3">
-            <admin-label asp-for="Amount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Amount"/>
+    </admin-card>
+}
+
+@* The e-mail addresses (and the notification) exist only for a virtual voucher, so they sit
+   under the type that reveals them; each keeps the pnl* id the script above toggles. *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="GiftVoucherTypeId" size="md" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="RecipientEmail" id="pnlRecipientEmail"/>
+                <admin-field asp-for="SenderEmail" id="pnlSenderEmail"/>
                 @if (!string.IsNullOrEmpty(Model.Id))
                 {
-                    <text>[@Model.CurrencyCode]</text>
+                    <div class="grand-field" id="pnlNotifyRecipient">
+                        <admin-label asp-for="IsRecipientNotified" asp-display-hint="false" class="grand-field__label"/>
+                        <div class="grand-field__control d-flex align-items-center gap-2">
+                            <span>@Model.IsRecipientNotified.ToString()</span>
+                            <button type="submit" name="notifyRecipient" asp-action="NotifyRecipient" class="btn btn-outline-secondary btn-sm"><i class="bi bi-bell"></i> @Loc["Admin.GiftVouchers.Fields.IsRecipientNotified.Notify"]</button>
+                        </div>
+                    </div>
                 }
-                <span asp-validation-for="Amount"></span>
             </div>
         </div>
+        <admin-field asp-for="Amount" size="md" suffix="@(string.IsNullOrEmpty(Model.Id) ? null : Model.CurrencyCode)"/>
         @if (string.IsNullOrEmpty(Model.Id))
         {
-            <div class="mb-3">
-                <admin-label asp-for="CurrencyCode" class="col-sm-3 control-label"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies"/>
-                    <span asp-validation-for="CurrencyCode"></span>
-                </div>
-            </div>
-        }
-        @if (!string.IsNullOrEmpty(Model.Id))
-        {
-            <div class="mb-3">
-                <admin-label asp-for="RemainingAmountStr"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.RemainingAmountStr</label>
-                </div>
-            </div>
+            <admin-field asp-for="CurrencyCode" size="md" asp-items="Model.AvailableCurrencies"/>
         }
         @if (Model.AvailableStores.Count > 1)
         {
-            <div class="mb-3">
-                <admin-label asp-for="StoreId" class="col-sm-3 control-label"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                    <span asp-validation-for="StoreId"></span>
-                </div>
-            </div>
+            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
         }
-        <div class="mb-3">
-            <admin-label asp-for="IsGiftVoucherActivated"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsGiftVoucherActivated"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsGiftVoucherActivated"></span>
+        <admin-field asp-for="Code">
+            <div class="input-group">
+                <admin-input asp-for="Code"/>
+                <input type="button" id="generateCouponCode" class="btn btn-outline-secondary" value="@Loc["Admin.GiftVouchers.Fields.Code.Generate"]"/>
             </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Code"/>
-            <div class="col-md-4 col-sm-6">
-                <div class="input-group">
-                    <div class="input-group-control">
-                        <admin-input asp-for="Code"/>
-                    </div>
-                    <div class="">
-                        <input type="button" id="generateCouponCode" class="btn default" value="@Loc["Admin.GiftVouchers.Fields.Code.Generate"]"/>
-                    </div>
-                </div>
-                <span asp-validation-for="Code"></span>
-                <script>
-                    $(document).ready(function () {
-                        $('#generateCouponCode').click(function () {
-                            var postData = {};
-                            addAntiForgeryToken(postData);
+            <script>
+                $(document).ready(function () {
+                    $('#generateCouponCode').click(function () {
+                        var postData = {};
+                        addAntiForgeryToken(postData);
 
-                            $.ajax({
-                                cache:false,
-                                type: "POST",
-                                url: "@(Url.Action("GenerateCouponCode", "GiftVoucher", new { area }))",
-                                data: postData,
-                                success: function (data) {
-                                    $('#@Html.IdFor(model => model.Code)').val(data.CouponCode);
-                                },
-                                error:function (){
-                                    alert('Failed to generate code.');
-                                }
-                            });
+                        $.ajax({
+                            cache:false,
+                            type: "POST",
+                            url: "@(Url.Action("GenerateCouponCode", "GiftVoucher", new { area }))",
+                            data: postData,
+                            success: function (data) {
+                                $('#@Html.IdFor(model => model.Code)').val(data.CouponCode);
+                            },
+                            error:function (){
+                                alert('Failed to generate code.');
+                            }
                         });
                     });
-                </script>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="RecipientName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="RecipientName"/>
-                <span asp-validation-for="RecipientName"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlRecipientEmail">
-            <admin-label asp-for="RecipientEmail"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="RecipientEmail"/>
-                <span asp-validation-for="RecipientEmail"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="SenderName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="SenderName"/>
-                <span asp-validation-for="SenderName"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlSenderEmail">
-            <admin-label asp-for="SenderEmail"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="SenderEmail"/>
-                <span asp-validation-for="SenderEmail"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Message"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="Message"></admin-textarea>
-                <span asp-validation-for="Message"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ValidTo"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ValidTo"/>
-                <span asp-validation-for="ValidTo"></span>
-            </div>
-        </div>
-        @if (!string.IsNullOrEmpty(Model.Id))
-        {
-            <div class="mb-3" id="pnlNotifyRecipient">
-                <admin-label asp-for="IsRecipientNotified"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.IsRecipientNotified.ToString()</label>
-                    <button type="submit" name="notifyRecipient" asp-action="NotifyRecipient" class="btn btn-default btn-sm"><span class="bi bi-bell"></span>&nbsp;@Loc["Admin.GiftVouchers.Fields.IsRecipientNotified.Notify"]</button>
-                </div>
-            </div>
-        }
-        @if (!string.IsNullOrEmpty(Model.Id))
-        {
-            <div class="mb-3">
-                <admin-label asp-for="CreatedOn"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label"> @Model.CreatedOn</label>
-                </div>
-            </div>
-        }
+                });
+            </script>
+        </admin-field>
+        <admin-field asp-for="IsGiftVoucherActivated"/>
+        <admin-field asp-for="RecipientName"/>
+        <admin-field asp-for="SenderName"/>
+        <admin-field asp-for="ValidTo"/>
+        <admin-field asp-for="Message">
+            <admin-textarea asp-for="Message"></admin-textarea>
+        </admin-field>
     </div>
-    <partial name="Partials/WidgetZone.InfoBottom" model="Model"/>
-</div>
+</admin-card>
+<partial name="Partials/WidgetZone.InfoBottom" model="Model"/>

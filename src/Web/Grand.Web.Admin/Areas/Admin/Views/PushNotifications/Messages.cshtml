@@ -8,41 +8,27 @@
 
 <script asp-src="@(Constants.WwwRoot)/administration/chart.min.js"></script>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-boxes"></i>
-                    @Loc["Admin.PushNotifications.Messages"]
-                </div>
+@* The allowed/denied split as a chart card above the sent messages in a flush card. *@
+<admin-page title="@Loc["Admin.PushNotifications.Messages"]" icon="bi-boxes">
+    @if (!(Model.Allowed == 0 && Model.Denied == 0))
+    {
+        <admin-card>
+            <div class="w-50">
+                <canvas id="piechart"></canvas>
             </div>
+        </admin-card>
+    }
 
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            @if (!(Model.Allowed == 0 && Model.Denied == 0))
-                            {
-                                <div style="width:50%;margin-bottom:40px">
-                                    <canvas id="piechart"></canvas>
-                                </div>
-                            }
-
-                            <admin-grid id="messages-grid" read-url="@Url.Action("PushMessagesList", "PushNotifications", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })">
-                                <grid-column field="Id" title="@Loc["Admin.PushNotifications.Message.Fields.Id"]" width="100"/>
-                                <grid-column field="Title" title="@Loc["Admin.PushNotifications.Message.Fields.Title"]" width="200"/>
-                                <grid-column field="Text" title="@Loc["PushNotifications.Message.Fields.Text"]" width="400"/>
-                                <grid-column field="NumberOfReceivers" title="@Loc["Admin.PushNotifications.Message.Fields.NumberOfReceivers"]" width="100"/>
-                                <grid-column field="SentOn" title="@Loc["Admin.PushNotifications.Message.Fields.SentOn"]" width="200" format="{0:G}"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <admin-card flush>
+        <admin-grid id="messages-grid" read-url="@Url.Action("PushMessagesList", "PushNotifications", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })">
+            <grid-column field="Id" title="@Loc["Admin.PushNotifications.Message.Fields.Id"]" width="100"/>
+            <grid-column field="Title" title="@Loc["Admin.PushNotifications.Message.Fields.Title"]" width="200"/>
+            <grid-column field="Text" title="@Loc["PushNotifications.Message.Fields.Text"]" width="400"/>
+            <grid-column field="NumberOfReceivers" title="@Loc["Admin.PushNotifications.Message.Fields.NumberOfReceivers"]" width="100"/>
+            <grid-column field="SentOn" title="@Loc["Admin.PushNotifications.Message.Fields.SentOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 
 @if (!(Model.Allowed == 0 && Model.Denied == 0))

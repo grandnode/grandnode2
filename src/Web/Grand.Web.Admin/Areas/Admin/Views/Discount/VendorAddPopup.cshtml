@@ -10,57 +10,29 @@
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchVendorName" class="col-sm-3 control-label"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="SearchVendorName"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchVendorEmail" class="col-sm-3 control-label"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="SearchVendorEmail"/>
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <div class="row">
-                                    <div class="offset-md-1 col-md-11 col-sm-11 btn-group btn-group-devided">
-                                        <button class="btn btn-success filter-submit" id="search-vendors">
-                                            <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                        </button>
-                                        <button class="btn btn-success" type="submit" name="save">
-                                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <admin-grid id="vendors-grid"
-                                        read-url="@Url.Action("VendorAddPopupList", "Discount", new { area = Constants.AreaAdmin })"
-                                        additional-data="additionalData"
-                                        selectable="Checkbox"
-                                        selection-name="SelectedVendorIds">
-                                <grid-column field="Name" title="@Loc["Admin.Catalog.Vendors.Fields.Name"]"/>
-                                <grid-column field="Email" title="@Loc["Admin.Catalog.Vendors.Fields.Email"]"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-popup title="@Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]" icon="bi-boxes">
+        <admin-filters id="search-vendors-filters" submit-id="search-vendors" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchVendorName"/>
+            </filters-search>
+            <admin-field asp-for="SearchVendorEmail"/>
+        </admin-filters>
+        <admin-card flush>
+            <admin-grid id="vendors-grid"
+                        read-url="@Url.Action("VendorAddPopupList", "Discount", new { area = Constants.AreaAdmin })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        selection-name="SelectedVendorIds">
+                <grid-column field="Name" title="@Loc["Admin.Catalog.Vendors.Fields.Name"]"/>
+                <grid-column field="Email" title="@Loc["Admin.Catalog.Vendors.Fields.Email"]"/>
+            </admin-grid>
+        </admin-card>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
         </div>
-    </div>
+    </admin-popup>
     <script>
             var mfp = $.magnificPopup.instance;
             $("#VendorAddPopup").submit(function (e) {
@@ -113,7 +85,6 @@
                 }
             });
 
-
         function additionalData() {
             var data = {
                 SearchVendorName: $('#@Html.IdFor(model => model.SearchVendorName)').val(),
@@ -122,7 +93,6 @@
             addAntiForgeryToken(data);
             return data;
         }
-
 
     </script>
 

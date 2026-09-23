@@ -5,25 +5,18 @@
 <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/codemirror.js"></script>
 <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/mode/xml/xml.js"></script>
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Name"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name"/>
-                <span asp-validation-for="Name"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Subject"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Subject"/>
-                <span asp-validation-for="Subject"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Body"/>
-            <div class="col-md-9 col-sm-9">
+@* One card of fields; the body with its token picker takes the whole row. The .mb-3 wrapper stays
+   because the token search below looks the token list up through it. *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Name"/>
+        <admin-field asp-for="Subject"/>
+        <admin-field asp-for="EmailAccountId" asp-items="@(new SelectList(Model.AvailableEmailAccounts, "Id", "DisplayName"))"/>
+        <admin-field asp-for="LanguageId" asp-items="Model.AvailableLanguages"/>
+    </div>
+    <div class="grand-fields mt-3">
+        <admin-field asp-for="Body">
+            <div class="mb-3">
                 <div>
                     <label>@Loc["Admin.Content.MessageTemplates.Fields.AllowedTokens"]</label>
                     <input type="search" name="SearchTokens" class="form-control SearchTokens" placeholder="@Loc["Search"]"/>
@@ -31,29 +24,14 @@
                 <div class="AllowedTokens">
                     @foreach (var token in Model.AllowedTokens)
                     {
-                        <button type="button" onclick="AddTokenToEditor(this)" class="btn btn-info">@token</button>
+                        <button type="button" onclick="AddTokenToEditor(this)" class="btn btn-outline-secondary btn-sm">@token</button>
                     }
                 </div>
-                <admin-input asp-for="Body" asp-template="Codemirror"/>
-                <span asp-validation-for="Body"></span>
             </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="EmailAccountId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="EmailAccountId" asp-items="@(new SelectList(Model.AvailableEmailAccounts, "Id", "DisplayName"))"/>
-                <span asp-validation-for="EmailAccountId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="LanguageId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="LanguageId" asp-items="Model.AvailableLanguages"/>
-                <span asp-validation-for="LanguageId"></span>
-            </div>
-        </div>
+            <admin-input asp-for="Body" asp-template="Codemirror"/>
+        </admin-field>
     </div>
-</div>
+</admin-card>
 <script>
     $(document).ready(function () {
         $(".SearchTokens").on("input", function (e) { SearchTokens(e); })

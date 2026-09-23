@@ -2,18 +2,20 @@
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     <partial name="Partials/WidgetZone.History.Top" model="Model"/>
-    <admin-grid id="usagehistory-grid"
-                read-url="@Url.Action("UsageHistoryList", "Discount", new { discountId = Model.Id, area = area })"
-                destroy-url="@Url.Action("UsageHistoryDelete", "Discount", new { area = area })">
-        <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
-        <grid-column field="CreatedOn" title="@Loc["admin.marketing.Discounts.History.CreatedOn"]" width="200" format="{0:G}"/>
-        <grid-column field="OrderId" title="@Loc["admin.marketing.Discounts.History.Order"]" width="200">
-            <cell-template>
-                <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="bi bi-search"></i> {{ OrderNumber }} - {{ $texts.view }}</a>
-            </cell-template>
-        </grid-column>
-        <grid-column field="OrderTotal" title="@Loc["admin.marketing.Discounts.History.OrderTotal"]" width="200"/>
-        <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
-    </admin-grid>
+    <admin-card flush>
+        <admin-grid id="usagehistory-grid"
+                    read-url="@Url.Action("UsageHistoryList", "Discount", new { discountId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("UsageHistoryDelete", "Discount", new { area = area })">
+            <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
+            <grid-column field="CreatedOn" title="@Loc["admin.marketing.Discounts.History.CreatedOn"]" width="200" format="{0:G}"/>
+            <grid-column field="OrderId" title="@Loc["admin.marketing.Discounts.History.Order"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="bi bi-search"></i> {{ OrderNumber }} - {{ $texts.view }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="OrderTotal" title="@Loc["admin.marketing.Discounts.History.OrderTotal"]" width="200"/>
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+        </admin-grid>
+    </admin-card>
     <partial name="Partials/WidgetZone.History.Bottom" model="Model"/>
 }

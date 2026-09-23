@@ -2,18 +2,17 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <admin-grid id="customers-grid" read-url="@Url.Action("Customers", "Campaign", new { campaignId = Model.Id, area = Constants.AreaAdmin })">
-                    <grid-column field="Email" title="@Loc["admin.marketing.Campaigns.Fields.Email"]"/>
-                </admin-grid>
-            </div>
-            <div class="panel-footer">
-                <a href="@Url.Action("ExportCsv", new { campaignId = Model.Id, area = Constants.AreaAdmin })" class="btn btn-default btn-sm">
-                    <i class="bi bi-file-earmark-excel"></i> &nbsp;@Loc["Admin.Common.ExportToCsv"]
+        @* the recipients in a flush card, the export at the end of its header *@
+        <admin-card flush>
+            <card-actions>
+                <a href="@Url.Action("ExportCsv", new { campaignId = Model.Id, area = Constants.AreaAdmin })" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-file-earmark-excel"></i> @Loc["Admin.Common.ExportToCsv"]
                 </a>
-            </div>
-        </div>
+            </card-actions>
+            <admin-grid id="customers-grid" read-url="@Url.Action("Customers", "Campaign", new { campaignId = Model.Id, area = Constants.AreaAdmin })">
+                <grid-column field="Email" title="@Loc["admin.marketing.Campaigns.Fields.Email"]"/>
+            </admin-grid>
+        </admin-card>
     }
     else
     {

@@ -1,78 +1,33 @@
 ﻿@using Grand.Domain.Messages
 @model CampaignModel
 
-<div class="col-md-12">
-    <div class="form-horizontal">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="CustomerCreatedDateFrom"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CustomerCreatedDateFrom"/>
-                    <text>@Loc["admin.marketing.Campaigns.Fields.CustomerCreatedDateTo"]</text>
-                    <admin-input asp-for="CustomerCreatedDateTo"/>
-                    <span asp-validation-for="CustomerCreatedDateFrom"></span>
-                    <span asp-validation-for="CustomerCreatedDateTo"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="CustomerLastActivityDateFrom"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CustomerLastActivityDateFrom"/>
-                    <text>@Loc["admin.marketing.Campaigns.Fields.CustomerLastActivityDateTo"]</text>
-                    <admin-input asp-for="CustomerLastActivityDateTo"/>
-                    <span asp-validation-for="CustomerLastActivityDateFrom"></span>
-                    <span asp-validation-for="CustomerLastActivityDateTo"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="CustomerLastPurchaseDateFrom"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CustomerLastPurchaseDateFrom"/>
-                    <text>@Loc["admin.marketing.Campaigns.Fields.CustomerLastPurchaseDateTo"]</text>
-                    <admin-input asp-for="CustomerLastPurchaseDateTo"/>
-                    <span asp-validation-for="CustomerLastPurchaseDateFrom"></span>
-                    <span asp-validation-for="CustomerLastPurchaseDateTo"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="CustomerHasOrders"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="CustomerHasOrders" asp-items="EnumTranslationService.ToSelectList((CampaignCondition)Model.CustomerHasOrders)"/>
-                    <span asp-validation-for="CustomerHasOrders"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="CustomerHasShoppingCart"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="CustomerHasShoppingCart" asp-items="EnumTranslationService.ToSelectList((CampaignCondition)Model.CustomerHasShoppingCart)"/>
-                    <span asp-validation-for="CustomerHasShoppingCart"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="CustomerTags"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CustomerTags" asp-template="MultiSelect" asp-selectitem="Model.AvailableCustomerTags"/>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="CustomerGroups"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CustomerGroups" asp-template="MultiSelect" asp-selectitem="Model.AvailableCustomerGroups"/>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="NewsletterCategories"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="NewsletterCategories" asp-template="MultiSelect" asp-selectitem="Model.AvailableNewsletterCategories"/>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="StoreId"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                    <span asp-validation-for="StoreId"></span>
-                </div>
-            </div>
+@* Who receives the campaign: each from/to pair of dates side by side in one cell, then the
+   selects and the tag, group and category pickers two to a row. *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-range">
+            <admin-field asp-for="CustomerCreatedDateFrom"/>
+            <admin-field asp-for="CustomerCreatedDateTo"/>
         </div>
+        <div class="grand-range">
+            <admin-field asp-for="CustomerLastActivityDateFrom"/>
+            <admin-field asp-for="CustomerLastActivityDateTo"/>
+        </div>
+        <div class="grand-range">
+            <admin-field asp-for="CustomerLastPurchaseDateFrom"/>
+            <admin-field asp-for="CustomerLastPurchaseDateTo"/>
+        </div>
+        <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+        <admin-field asp-for="CustomerHasOrders" asp-items="EnumTranslationService.ToSelectList((CampaignCondition)Model.CustomerHasOrders)"/>
+        <admin-field asp-for="CustomerHasShoppingCart" asp-items="EnumTranslationService.ToSelectList((CampaignCondition)Model.CustomerHasShoppingCart)"/>
+        <admin-field asp-for="CustomerTags">
+            <admin-input asp-for="CustomerTags" asp-template="MultiSelect" asp-selectitem="Model.AvailableCustomerTags"/>
+        </admin-field>
+        <admin-field asp-for="CustomerGroups">
+            <admin-input asp-for="CustomerGroups" asp-template="MultiSelect" asp-selectitem="Model.AvailableCustomerGroups"/>
+        </admin-field>
+        <admin-field asp-for="NewsletterCategories">
+            <admin-input asp-for="NewsletterCategories" asp-template="MultiSelect" asp-selectitem="Model.AvailableNewsletterCategories"/>
+        </admin-field>
     </div>
-</div>
+</admin-card>

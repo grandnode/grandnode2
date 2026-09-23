@@ -11,54 +11,27 @@
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0 mb-3">
-                                <div class="row align-items-end">
-                                    <div class="col-md-8 col-sm-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchBrandName" class="control-label"/>
-                                            <admin-input asp-for="SearchBrandName"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group btn-group-devided">
-                                                <button class="btn btn-success filter-submit" id="search-brands">
-                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-success" type="submit" name="save">
-                                                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <admin-grid id="brands-grid"
-                                        read-url="@Url.Action("BrandAddPopupList", "Discount", new { area = area })"
-                                        additional-data="additionalData"
-                                        selectable="Checkbox"
-                                        selection-name="SelectedBrandIds">
-                                <grid-column field="Name" title="@Loc["Admin.Catalog.Brands.Fields.Name"]"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-popup title="@Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"]" icon="bi-boxes">
+        <admin-filters id="search-brands-filters" submit-id="search-brands" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchBrandName"/>
+            </filters-search>
+        </admin-filters>
+        <admin-card flush>
+            <admin-grid id="brands-grid"
+                        read-url="@Url.Action("BrandAddPopupList", "Discount", new { area = area })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        selection-name="SelectedBrandIds">
+                <grid-column field="Name" title="@Loc["Admin.Catalog.Brands.Fields.Name"]"/>
+            </admin-grid>
+        </admin-card>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
         </div>
-    </div>
+    </admin-popup>
 
     <script>
             var mfp = $.magnificPopup.instance;

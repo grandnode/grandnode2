@@ -3,28 +3,27 @@
 @{ var area = ViewContext.RouteData.Values["area"]?.ToString(); }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <partial name="Partials/WidgetZone.CouponCodes.Top" model="Model"/>
-        <div class="panel-body">
-            @*a new code is saved with the row Update button, which the Kendo toolbar Save changes did for inline rows*@
-            <admin-grid id="couponcode-grid"
-                        read-url="@Url.Action("CouponCodeList", "Discount", new { discountId = Model.Id, area = area })"
-                        create-url="@Url.Action("CouponCodeInsert", "Discount", new { discountId = Model.Id, area = area })"
-                        destroy-url="@Url.Action("CouponCodeDelete", "Discount", new { discountId = Model.Id, area = area })"
-                        edit-mode="Inline">
-                <grid-toolbar-create/>
-                <grid-column field="CouponCode" title="@Loc["admin.marketing.Discounts.Fields.CouponCode"]" editor="Text"/>
-                <grid-column field="Used" title="@Loc["admin.marketing.Discounts.Fields.Used"]" width="100" align="Center">
-                    <cell-template>
-                        <i data-if="Used" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                    </cell-template>
-                </grid-column>
-                <grid-commands destroy="true" width="150"/>
-            </admin-grid>
-        </div>
-        <partial name="Partials/WidgetZone.CouponCodes.Bottom" model="Model"/>
-    </div>
+    <partial name="Partials/WidgetZone.CouponCodes.Top" model="Model"/>
+    @* the grid's own Add new moves into the card header (grid.js) *@
+    <admin-card flush>
+        @*a new code is saved with the row Update button, which the Kendo toolbar Save changes did for inline rows*@
+        <admin-grid id="couponcode-grid"
+                    read-url="@Url.Action("CouponCodeList", "Discount", new { discountId = Model.Id, area = area })"
+                    create-url="@Url.Action("CouponCodeInsert", "Discount", new { discountId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("CouponCodeDelete", "Discount", new { discountId = Model.Id, area = area })"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="CouponCode" title="@Loc["admin.marketing.Discounts.Fields.CouponCode"]" editor="Text"/>
+            <grid-column field="Used" title="@Loc["admin.marketing.Discounts.Fields.Used"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Used" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" width="150"/>
+        </admin-grid>
+    </admin-card>
+    <partial name="Partials/WidgetZone.CouponCodes.Bottom" model="Model"/>
 }
 else
 {

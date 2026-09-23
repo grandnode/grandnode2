@@ -3,44 +3,31 @@
     ViewBag.Title = Loc["admin.marketing.NewsletterCategory"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-tags"></i>
-                    @Loc["admin.marketing.NewsletterCategory"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="newslettercategory-grid"
-                                        read-url="@Url.Action("List", "NewsletterCategory", new { area = Constants.AreaAdmin })"
-                                        pager="Compact">
-                                <grid-column field="Name" title="@Loc["admin.marketing.NewsletterCategory.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Selected" title="@Loc["admin.marketing.NewsletterCategory.Fields.Selected"]" width="100" align="Center">
-                                    <cell-template>
-                                        <i data-if="Selected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["admin.marketing.NewsletterCategory.Fields.DisplayOrder"]" width="120"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The product list's shape without filters: Add new as the one primary action in the page header
+   and the grid in a flush card. *@
+<admin-page title="@Loc["admin.marketing.NewsletterCategory"]" icon="bi-tags">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="newslettercategory-grid"
+                    read-url="@Url.Action("List", "NewsletterCategory", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["admin.marketing.NewsletterCategory.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Selected" title="@Loc["admin.marketing.NewsletterCategory.Fields.Selected"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Selected" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["admin.marketing.NewsletterCategory.Fields.DisplayOrder"]" width="120"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

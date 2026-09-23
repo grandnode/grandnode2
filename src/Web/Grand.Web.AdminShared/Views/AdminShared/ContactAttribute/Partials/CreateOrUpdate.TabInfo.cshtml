@@ -60,124 +60,39 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name" disabled="@isReadOnly"/>
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].TextPrompt"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].TextPrompt" disabled="@isReadOnly"/>
-                    <span asp-validation-for="@Model.Locales[item].TextPrompt"></span>
-                </div>
-            </div>
+        template = @<fieldset disabled="@isReadOnly" class="grand-fields grand-fields--2col">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].TextPrompt"/>
             <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
-        </div>;
+        </fieldset>;
+    var attributeControlTypes = EnumTranslationService.ToSelectList(((AttributeControlType)Model.AttributeControlTypeId), valuesToExclude: [(int)AttributeControlType.ImageSquares, (int)AttributeControlType.Hidden]);
 }
 
-<div class="form-horizontal">
+@* The checkout attribute's layout: the names in the localized editor, then one card of
+   two-column fields. The panels the script above shows and hides keep their ids on the
+   <admin-field> itself. A global attribute a store owner only looks at is a disabled fieldset,
+   which keeps the language tabs clickable. *@
+<admin-card>
     <localized-editor localized-template="@template" name="contactattribute-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name" disabled="@isReadOnly"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="TextPrompt"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="TextPrompt" disabled="@isReadOnly"/>
-                    <span asp-validation-for="TextPrompt"></span>
-                </div>
-            </div>
-        </div>
+        <fieldset disabled="@isReadOnly" class="grand-fields grand-fields--2col">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="TextPrompt"/>
+        </fieldset>
     </localized-editor>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="IsRequired"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsRequired" disabled="@isReadOnly"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsRequired"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AttributeControlTypeId"/>
-            <div class="col-md-9 col-sm-9">
-                @{
-                    var attributeControlTypes = EnumTranslationService.ToSelectList(((AttributeControlType)Model.AttributeControlTypeId), valuesToExclude: [(int)AttributeControlType.ImageSquares, (int)AttributeControlType.Hidden]);
-                }
-                <admin-select asp-for="AttributeControlTypeId" asp-items="attributeControlTypes" disabled="@isReadOnly"/>
-                <span asp-validation-for="AttributeControlTypeId"></span>
-            </div>
-        </div>
+    <fieldset disabled="@isReadOnly" class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="AttributeControlTypeId" asp-items="attributeControlTypes"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="IsRequired"/>
         @if (area == "Admin")
         {
-            <div class="mb-3">
-                <admin-label asp-for="CustomerGroups"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CustomerGroups"/>
-                    <span asp-validation-for="CustomerGroups"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="Stores"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Stores"/>
-                    <span asp-validation-for="Stores"></span>
-                </div>
-            </div>
+            <admin-field asp-for="CustomerGroups"/>
+            <admin-field asp-for="Stores"/>
         }
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder" disabled="@isReadOnly"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlValidationMinLength">
-            <admin-label asp-for="ValidationMinLength"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ValidationMinLength" disabled="@isReadOnly"/>
-                <span asp-validation-for="ValidationMinLength"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlValidationMaxLength">
-            <admin-label asp-for="ValidationMaxLength"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ValidationMaxLength" disabled="@isReadOnly"/>
-                <span asp-validation-for="ValidationMaxLength"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlValidationFileAllowedExtensions">
-            <admin-label asp-for="ValidationFileAllowedExtensions"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ValidationFileAllowedExtensions" disabled="@isReadOnly"/>
-                <span asp-validation-for="ValidationFileAllowedExtensions"></span>
-            </div>
-        </div>
-        <div id="pnlValidationFileMaximumSize">
-            <admin-label asp-for="ValidationFileMaximumSize"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ValidationFileMaximumSize" disabled="@isReadOnly"/>
-                <span asp-validation-for="ValidationFileMaximumSize"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlDefaultValue">
-            <admin-label asp-for="DefaultValue"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DefaultValue" disabled="@isReadOnly"/>
-                <span asp-validation-for="DefaultValue"></span>
-            </div>
-        </div>
-    </div>
-</div>
+        <admin-field asp-for="ValidationMinLength" size="sm" id="pnlValidationMinLength"/>
+        <admin-field asp-for="ValidationMaxLength" size="sm" id="pnlValidationMaxLength"/>
+        <admin-field asp-for="ValidationFileAllowedExtensions" id="pnlValidationFileAllowedExtensions"/>
+        <admin-field asp-for="ValidationFileMaximumSize" size="sm" id="pnlValidationFileMaximumSize"/>
+        <admin-field asp-for="DefaultValue" id="pnlDefaultValue"/>
+    </fieldset>
+</admin-card>
 <partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

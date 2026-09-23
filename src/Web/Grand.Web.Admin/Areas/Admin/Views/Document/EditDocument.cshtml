@@ -2,94 +2,60 @@
 @{
     //page title
     ViewBag.Title = Loc["Admin.Documents.Document.Edit"];
+
+    //the record the document belongs to, as an entry of the overflow menu
+    (string Action, string Controller, string Resource, string Icon)? reference = null;
+    if (!string.IsNullOrEmpty(Model.ObjectId))
+    {
+        reference = (Reference)Model.ReferenceId switch {
+            Reference.Order => ("Edit", "Order", "Admin.Documents.Document.GoToOrder", "bi-cart"),
+            Reference.Shipment => ("ShipmentDetails", "Shipment", "Admin.Documents.Document.GoToShipment", "bi-box"),
+            Reference.MerchandiseReturn => ("Edit", "MerchandiseReturn", "Admin.Documents.Document.GoToMerchandiseReturn", "bi-box"),
+            Reference.Product => ("Edit", "Product", "Admin.Documents.Document.GoToProduct", "bi-box"),
+            Reference.Category => ("Edit", "Category", "Admin.Documents.Document.GoToCategory", "bi-box"),
+            Reference.Brand => ("Edit", "Brand", "Admin.Documents.Document.GoToBrand", "bi-box"),
+            Reference.Collection => ("Edit", "Collection", "Admin.Documents.Document.GoToCollection", "bi-box"),
+            Reference.Vendor => ("Edit", "Vendor", "Admin.Documents.Document.GoToVendor", "bi-box"),
+            _ => null
+        };
+    }
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Document" asp-action="EditDocument" method="post" id="document-form">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-diagram-3"></i>
-                        @Loc["Admin.Documents.Document.Edit"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Documents.Document.BackToList"], "List")
-                        </small>
-                        @if (!string.IsNullOrEmpty(Model.CustomerId))
-                        {
-                            <small>
-                                <i class="bi bi-person"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToCustomer"], "Edit", "Customer", new { id = Model.CustomerId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Order)
-                        {
-                            <small>
-                                <i class="bi bi-cart"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToOrder"], "Edit", "Order", new { id = Model.ObjectId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Shipment)
-                        {
-                            <small>
-                                <i class="bi bi-box"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToShipment"], "ShipmentDetails", "Shipment", new { id = Model.ObjectId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.MerchandiseReturn)
-                        {
-                            <small>
-                                <i class="bi bi-box"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToMerchandiseReturn"], "Edit", "MerchandiseReturn", new { id = Model.ObjectId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Product)
-                        {
-                            <small>
-                                <i class="bi bi-box"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToProduct"], "Edit", "Product", new { id = Model.ObjectId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Category)
-                        {
-                            <small>
-                                <i class="bi bi-box"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToCategory"], "Edit", "Category", new { id = Model.ObjectId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Brand)
-                        {
-                            <small>
-                                <i class="bi bi-box"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToBrand"], "Edit", "Brand", new { id = Model.ObjectId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Collection)
-                        {
-                            <small>
-                                <i class="bi bi-box"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToCollection"], "Edit", "Collection", new { id = Model.ObjectId })
-                            </small>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Vendor)
-                        {
-                            <small>
-                                <i class="bi bi-box"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToVendor"], "Edit", "Vendor", new { id = Model.ObjectId })
-                            </small>
-                        }
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <span id="document-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <vc:admin-widget widget-zone="document_details_buttons" additional-data="Model"/>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateDocument" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the product edit screen's shell: the document's name as the title, Save as the one primary
+       action; the links to its customer and to the record it belongs to, and Delete, in the
+       overflow menu *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-diagram-3"
+                meta="@Loc["Admin.Documents.Document.Edit"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Documents.Document.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                @if (!string.IsNullOrEmpty(Model.CustomerId))
+                {
+                    <admin-action url="@Url.Action("Edit", "Customer", new { id = Model.CustomerId })"
+                                  icon="bi-person" text="@Loc["Admin.Documents.Document.GoToCustomer"]"/>
+                }
+                @if (reference is { } target)
+                {
+                    <admin-action url="@Url.Action(target.Action, target.Controller, new { id = Model.ObjectId })"
+                                  icon="@target.Icon" text="@Loc[target.Resource]"/>
+                }
+                <admin-action id="document-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="document_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdateDocument" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="document-delete" action-name="DeleteDocument"/>
