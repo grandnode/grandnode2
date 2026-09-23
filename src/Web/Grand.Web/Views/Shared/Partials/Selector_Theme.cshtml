@@ -12,14 +12,21 @@
     var returnurl = Context?.Request?.GetEncodedPathAndQuery();
     if (availablThemes.Count > 1)
     {
+        var currentTheme = availablThemes.FirstOrDefault(x => x.Name == themeContext?.GetCurrentTheme());
+        @*a bare theme name next to "USD" and "English" reads as neither: the icon
+            and the label say what this dropdown changes*@
         <div class="dropdown btn-group me-2">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">@availablThemes.FirstOrDefault(x => x.Name == themeContext?.GetCurrentTheme())?.Name</button>
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="@Loc["StoreTheme"]">
+            <i class="b-icon bi bi-palette me-1" aria-hidden="true"></i>
+            <span class="visually-hidden">@Loc["StoreTheme"]</span>
+            @(currentTheme?.Title ?? currentTheme?.Name ?? themeContext?.GetCurrentTheme())
+        </button>
         <ul class="dropdown-menu">
             @foreach (var theme in availablThemes)
             {
                 var className = theme.Name == themeContext?.GetCurrentTheme() ? "active" : "";
                 <li><a class="dropdown-item @className" href="@Url.Action("SetStoreTheme", "Common", new { themename = theme.Name, returnUrl = returnurl })">
-                    @theme.Name
+                    @(theme.Title ?? theme.Name)
                 </a></li>
             }
         </ul>
