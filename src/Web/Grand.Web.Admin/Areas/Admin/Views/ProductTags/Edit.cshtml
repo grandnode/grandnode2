@@ -3,32 +3,22 @@
     //page title
     ViewBag.Title = Loc["Admin.Catalog.ProductTags.EditTagDetails"];
 }
+@* The product edit screen's shell: the tag's name as the title and Save as the one primary
+   action. A tag is deleted from the list, so there is no overflow menu. *@
 <form asp-area="@Constants.AreaAdmin" asp-controller="ProductTags" asp-action="Edit" method="post">
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-box"
+                meta="@Loc["Admin.Catalog.ProductTags.EditTagDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Catalog.ProductTags.BackToList"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <vc:admin-widget widget-zone="product_tag_details_buttons" additional-data="Model"/>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc["Admin.Catalog.ProductTags.EditTagDetails"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Catalog.ProductTags.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <vc:admin-widget widget-zone="product_tag_details_buttons" additional-data="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>

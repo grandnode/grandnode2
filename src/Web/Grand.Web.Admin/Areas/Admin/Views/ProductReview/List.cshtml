@@ -4,141 +4,91 @@
     ViewBag.Title = Loc["Admin.Catalog.ProductReviews"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit popup-window">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-boxes"></i>
-                    @Loc["Admin.Catalog.ProductReviews"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <input type="button" id="approve-selected" class="btn default" value="@Loc["Admin.Catalog.ProductReviews.ApproveSelected"]"/>
-                    <input type="button" id="disapprove-selected" class="btn default" value="@Loc["Admin.Catalog.ProductReviews.DisapproveSelected"]"/>
-                    <vc:admin-widget widget-zone="product_review_list_buttons" additional-data="null"/>
-                </div>
+@* The product list's shape: the filter bar searches the review text, with the product, dates and store
+   behind the Filters toggle, the grid a flush card, and approve/disapprove in the bulk bar that
+   appears once reviews are ticked. The ids the scripts look up are unchanged. *@
+<admin-page title="@Loc["Admin.Catalog.ProductReviews"]" icon="bi-boxes">
+    <page-actions>
+        <vc:admin-widget widget-zone="product_review_list_buttons" additional-data="null"/>
+    </page-actions>
+
+    <admin-filters id="productreview-filters" submit-id="search-productreviews">
+        <filters-search>
+            <admin-input asp-for="SearchText"/>
+        </filters-search>
+        <admin-field asp-for="SearchProductId">
+            <input type="text" class="form-control text-box single-line" id="search-product-name" autocomplete="off"/>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                <span id="search-product-friendly-name"></span>
+                <input type="button" id="search-product-clear" class="btn btn-outline-secondary btn-sm" style="display: none;" value="@Loc["Admin.Common.Clear"]"/>
             </div>
+            <admin-textarea asp-for="SearchProductId" autocomplete="off" style="display: none;"></admin-textarea>
+            <script>
+                $(document).ready(function() {
+                    $('#search-product-name').autocomplete({
+                        delay: 500,
+                        minLength: 3,
+                        source: '@(Url.Action("ProductSearchAutoComplete", new { area = Constants.AreaAdmin }))',
+                        select: function(event, ui) {
+                            $('#@Html.IdFor(model => model.SearchProductId)').val(ui.item.productid);
+                            $('#search-product-friendly-name').text(ui.item.label);
+                            $('#search-product-clear').show();
+                            return false;
+                        }
+                    });
 
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="main-header col-12 px-0">
-                            <div class="row align-items-end">
-                                <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="mb-0">
-                                        <admin-label asp-for="SearchProductId" class="control-label"/>
-                                        <div>
-                                            <input type="text" class="form-control text-box single-line" id="search-product-name" autocomplete="off"/>
-                                            <span id="search-product-friendly-name"></span>
-                                            <input type="button" id="search-product-clear" class="btn btn-default btn-sm" style="display: none;" value="@Loc["Admin.Common.Clear"]"/>
-                                            <admin-textarea asp-for="SearchProductId" autocomplete="off" style="display: none;"></admin-textarea>
-                                            <script>
-                                                $(document).ready(function() {
-                                                    $('#search-product-name').autocomplete({
-                                                        delay: 500,
-                                                        minLength: 3,
-                                                        source: '@(Url.Action("ProductSearchAutoComplete", new { area = Constants.AreaAdmin }))',
-                                                        select: function(event, ui) {
-                                                            $('#@Html.IdFor(model => model.SearchProductId)').val(ui.item.productid);
-                                                            $('#search-product-friendly-name').text(ui.item.label);
-                                                            $('#search-product-clear').show();
-                                                            return false;
-                                                        }
-                                                    });
+                    //remove button
+                    $('#search-product-clear').click(function() {
+                        $('#@Html.IdFor(model => model.SearchProductId)').val('');
+                        $('#search-product-friendly-name').text('');
+                        $('#search-product-clear').hide();
+                        return false;
+                    });
+                });
+            </script>
+        </admin-field>
+        <admin-field asp-for="CreatedOnFrom"/>
+        <admin-field asp-for="CreatedOnTo"/>
+            <admin-field asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+    </admin-filters>
 
-                                                    //remove button
-                                                    $('#search-product-clear').click(function() {
-                                                        $('#@Html.IdFor(model => model.SearchProductId)').val('');
-                                                        $('#search-product-friendly-name').text('');
-                                                        $('#search-product-clear').hide();
-                                                        return false;
-                                                    });
-                                                });
-                                            </script>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="mb-0">
-                                        <admin-label asp-for="SearchText" class="control-label"/>
-                                        <admin-input asp-for="SearchText"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-sm-12 col-12">
-                                    <div class="form-actions">
-                                        <div class="btn-group">
-                                            <button class="btn btn-success filter-submit" id="search-productreviews">
-                                                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                            </button>
-                                            <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container">
-                                <div class="mb-3">
-                                    <admin-label asp-for="CreatedOnFrom" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="CreatedOnFrom"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="CreatedOnTo" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="CreatedOnTo"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="x_content">
-                        <admin-grid id="productreviews-grid"
-                                    key="Ids"
-                                    read-url="@Url.Action("List", "ProductReview", new { area = Constants.AreaAdmin })"
-                                    additional-data="additionalData"
-                                    selectable="Checkbox"
-                                    on-change="onProductReviewsSelectionChange">
-                            <grid-column field="ProductName" title="@Loc["Admin.Catalog.ProductReviews.Fields.Product"]" width="200">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ ProductId }}">{{ ProductName }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CustomerId" title="@Loc["Admin.Catalog.ProductReviews.Fields.Customer"]" width="200" min-screen-width="750">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Title" title="@Loc["Admin.Catalog.ProductReviews.Fields.Title"]" width="200">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}?ProductId={{ ProductId }}">{{ Title }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Rating" title="@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="750"/>
-                            <grid-column field="IsApproved" title="@Loc["Admin.Catalog.ProductReviews.Fields.IsApproved"]" width="80" align="Center">
-                                <cell-template>
-                                    <i data-if="IsApproved" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CreatedOn" title="@Loc["Admin.Catalog.ProductReviews.Fields.CreatedOn"]" width="120" format="{0:G}"/>
-                        </admin-grid>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <admin-card flush>
+        <admin-bulkbar grid-id="productreviews-grid">
+            <input type="button" id="approve-selected" class="btn btn-outline-secondary btn-sm" value="@Loc["Admin.Catalog.ProductReviews.ApproveSelected"]"/>
+            <input type="button" id="disapprove-selected" class="btn btn-outline-secondary btn-sm" value="@Loc["Admin.Catalog.ProductReviews.DisapproveSelected"]"/>
+        </admin-bulkbar>
+        <admin-grid id="productreviews-grid"
+                    key="Ids"
+                    read-url="@Url.Action("List", "ProductReview", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData"
+                    selectable="Checkbox"
+                    on-change="onProductReviewsSelectionChange">
+            <grid-column field="ProductName" title="@Loc["Admin.Catalog.ProductReviews.Fields.Product"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ ProductId }}">{{ ProductName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CustomerId" title="@Loc["Admin.Catalog.ProductReviews.Fields.Customer"]" width="200" min-screen-width="750">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Title" title="@Loc["Admin.Catalog.ProductReviews.Fields.Title"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}?ProductId={{ ProductId }}">{{ Title }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Rating" title="@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="750"/>
+            <grid-column field="IsApproved" title="@Loc["Admin.Catalog.ProductReviews.Fields.IsApproved"]" width="80" align="Center">
+                <cell-template>
+                    <i data-if="IsApproved" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Catalog.ProductReviews.Fields.CreatedOn"]" width="120" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
 

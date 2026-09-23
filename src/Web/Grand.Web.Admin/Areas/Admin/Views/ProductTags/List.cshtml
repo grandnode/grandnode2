@@ -2,39 +2,27 @@
     //page title
     ViewBag.Title = Loc["Admin.Catalog.ProductTags"];
 }
+@* Tags come from products, so there is no Add new: the page header carries only the widget
+   zone, and the grid a flush card. *@
 <form asp-area="@Constants.AreaAdmin" asp-controller="ProductTags" method="post" id="product-tags-form">
+    <admin-page title="@Loc["Admin.Catalog.ProductTags"]" icon="bi-boxes">
+        <page-actions>
+            <vc:admin-widget widget-zone="product_tag_list_buttons" additional-data="null"/>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc["Admin.Catalog.ProductTags"]
-                    </div>
-                    <vc:admin-widget widget-zone="product_tag_list_buttons" additional-data="null"/>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="x_content">
-                            <admin-grid id="product-tags-grid"
-                                        read-url="@Url.Action("List", "ProductTags", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("Delete", "ProductTags", new { area = Constants.AreaAdmin })"
-                                        confirm-destroy="true">
-                                <grid-column field="Name" title="@Loc["Admin.Catalog.ProductTags.Fields.Name"]" width="300">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="ProductCount" title="@Loc["Admin.Catalog.ProductTags.Fields.ProductCount"]" width="100" align="Center"/>
-                                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
+        <admin-card flush>
+            <admin-grid id="product-tags-grid"
+                        read-url="@Url.Action("List", "ProductTags", new { area = Constants.AreaAdmin })"
+                        destroy-url="@Url.Action("Delete", "ProductTags", new { area = Constants.AreaAdmin })"
+                        confirm-destroy="true">
+                <grid-column field="Name" title="@Loc["Admin.Catalog.ProductTags.Fields.Name"]" width="300">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="ProductCount" title="@Loc["Admin.Catalog.ProductTags.Fields.ProductCount"]" width="100" align="Center"/>
+                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
 </form>

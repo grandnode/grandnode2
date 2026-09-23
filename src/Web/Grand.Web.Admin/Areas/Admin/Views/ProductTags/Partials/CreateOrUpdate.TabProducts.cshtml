@@ -1,12 +1,10 @@
 ﻿@model ProductTagModel
-<div class="panel panel-default">
-    <div class="panel-body">
-        <admin-grid id="product-tags-grid" read-url="@Url.Action("Products", "ProductTags", new { tagId = Model.Id, area = Constants.AreaAdmin })">
-            <grid-column field="Name" title="@Loc["Admin.Catalog.ProductTags.Fields.ProductName"]" width="300">
-                <cell-template>
-                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
-                </cell-template>
-            </grid-column>
-        </admin-grid>
-    </div>
-</div>
+<admin-card flush>
+    <admin-grid id="product-tags-grid" read-url="@Url.Action("Products", "ProductTags", new { tagId = Model.Id, area = Constants.AreaAdmin })">
+        <grid-column field="Name" title="@Loc["Admin.Catalog.ProductTags.Fields.ProductName"]" width="300">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+            </cell-template>
+        </grid-column>
+    </admin-grid>
+</admin-card>
