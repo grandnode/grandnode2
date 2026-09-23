@@ -80,6 +80,8 @@ A grid with `<grid-toolbar-create>` inside a `.grand-card` gets its add button m
 - **The empty option.** In a filter an empty value is "nothing chosen" and is drawn as the placeholder; in a grid cell it is a real value ("All customer groups", "All stores") and the grid's select editor draws it (`emptyIsChoice`). Do not flip either default.
 - **Static asset fingerprints.** After `npm run build`, restart Grand.Web: assets are served with an immutable cache under a fingerprint computed at startup, and the browser keeps the old stylesheet otherwise.
 - **Bundle noise.** `npm run build` rewrites every bundle; restore the ones whose diff is line endings only (`git diff --stat --ignore-cr-at-eol`) before committing.
+- **A filter bar inside a tab.** A tab pane is not a flex column, so `<admin-filters>` followed by a grid card needs the `.grand-tabstrip .grand-filters ~ .grand-card` gap rule (`_components.scss`); the affiliate Orders tab is the example. In a tab whose screen already has Save, the bar takes `secondary-submit="true"`.
+- **`disabled="@x"` on `<admin-input>` does nothing.** The helper suppresses its own element, so an unbound `disabled` never reaches the control. A read-only form (a global attribute a store owner opens) wraps its fields in `<fieldset disabled="@isReadOnly">` instead (`CustomerAttribute/Partials/CreateOrUpdate.TabInfo.cshtml`).
 - **Views compile into the DLL.** AdminShared, Store and Vendor views are precompiled; a view change needs `dotnet build src/Web/Grand.Web/Grand.Web.csproj` and a restart, not only a refresh.
 
 ### Procedure For One Screen

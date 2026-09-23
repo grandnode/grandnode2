@@ -3,55 +3,43 @@
     ViewBag.Title = Loc["Admin.Customers.CustomerAttributes"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Admin.Customers.CustomerAttributes"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", "CustomerAttribute", new { area })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <partial name="Partials/WidgetZone.ListButtons"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="customerattributes-grid"
-                                        read-url="@Url.Action("List", "CustomerAttribute", new { area })"
-                                        pager="Compact">
-                                <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
-                                <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
-                                <grid-column field="Name" title="@Loc["Admin.Customers.CustomerAttributes.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="AttributeControlTypeName" title="@Loc["Admin.Customers.CustomerAttributes.Fields.AttributeControlType"]" width="200" align="Center" min-screen-width="750"/>
-                                <grid-column field="IsRequired" title="@Loc["Admin.Customers.CustomerAttributes.Fields.IsRequired"]" width="100" align="Center">
-                                    <cell-template>
-                                        <i data-if="IsRequired" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.CustomerAttributes.Fields.DisplayOrder"]" width="100" min-screen-width="750"/>
-                                <grid-column field="IsGlobalAttribute" title="@Loc["Admin.Common.View"]" width="120" align="Center">
-                                    <cell-template>
-                                        <a data-if="IsGlobalAttribute" class="text-decoration-none" href="Edit/{{ Id }}"><span class="badge text-bg-secondary">{{ $texts.view }}</span></a>
-                                        <a data-else class="text-decoration-none" href="Edit/{{ Id }}"><span class="badge text-bg-success">{{ $texts.edit }}</span></a>
-                                    </cell-template>
-                                </grid-column>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
+@* The checkout attribute list's shape: Add new as the one primary action in the page header and
+   the grid in a flush card. *@
+<admin-page title="@Loc["Admin.Customers.CustomerAttributes"]" icon="bi-card-list">
+    <page-actions>
+        <partial name="Partials/WidgetZone.ListButtons"/>
+        <a href="@Url.Action("Create", "CustomerAttribute", new { area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="customerattributes-grid"
+                    read-url="@Url.Action("List", "CustomerAttribute", new { area })"
+                    pager="Compact">
+            <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
+            <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+            <grid-column field="Name" title="@Loc["Admin.Customers.CustomerAttributes.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="AttributeControlTypeName" title="@Loc["Admin.Customers.CustomerAttributes.Fields.AttributeControlType"]" width="200" align="Center" min-screen-width="750"/>
+            <grid-column field="IsRequired" title="@Loc["Admin.Customers.CustomerAttributes.Fields.IsRequired"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="IsRequired" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.CustomerAttributes.Fields.DisplayOrder"]" width="100" min-screen-width="750"/>
+            @* a store owner sees the global attributes too, read-only: a chip says which rows open for editing *@
+            <grid-column field="IsGlobalAttribute" title="@Loc["Admin.Common.View"]" width="120" align="Center">
+                <cell-template>
+                    <a data-if="IsGlobalAttribute" class="text-decoration-none" href="Edit/{{ Id }}"><span class="grand-chip">{{ $texts.view }}</span></a>
+                    <a data-else class="text-decoration-none" href="Edit/{{ Id }}"><span class="grand-chip grand-chip--green">{{ $texts.edit }}</span></a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>

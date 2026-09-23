@@ -8,31 +8,29 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <admin-grid id="acl-grid"
-                        read-url="@Url.Action("Acl", "CustomerGroup", new { customerGroupId = Model.Id, area = Constants.AreaAdmin })"
-                        update-url="@Url.Action("AclUpdate", "CustomerGroup", new { customerGroupId = Model.Id, area = Constants.AreaAdmin })"
-                        pager="Compact"
-                        edit-mode="Inline"
-                        reload-after-save="false"
-                        on-data-bound="onAclGridDataBound">
-                <grid-column field="Name" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Name"]" width="300"/>
-                <grid-column field="Access" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Access"]" width="100" align="Center" editor="Checkbox">
-                    <cell-template>
-                        <i data-if="Access" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                    </cell-template>
-                </grid-column>
-                <grid-column field="Actions" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Actions"]" width="10" align="Center">
-                    <cell-template>
-                        <a data-if="Actions.length > 0" class="text-decoration-none permissionlink" href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname={{ SystemName }}&customeGroupId=@Model.Id"><i class="bi bi-gear"></i></a>
-                    </cell-template>
-                </grid-column>
-                <grid-commands edit="true" width="200"/>
-            </admin-grid>
-        </div>
-    </div>
+    <admin-card flush>
+        <admin-grid id="acl-grid"
+                    read-url="@Url.Action("Acl", "CustomerGroup", new { customerGroupId = Model.Id, area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("AclUpdate", "CustomerGroup", new { customerGroupId = Model.Id, area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline"
+                    reload-after-save="false"
+                    on-data-bound="onAclGridDataBound">
+            <grid-column field="Name" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Name"]" width="300"/>
+            <grid-column field="Access" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Access"]" width="100" align="Center" editor="Checkbox">
+                <cell-template>
+                    <i data-if="Access" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Actions" title="@Loc["Admin.Customers.CustomerGroups.Acl.Fields.Actions"]" width="10" align="Center">
+                <cell-template>
+                    <a data-if="Actions.length > 0" class="text-decoration-none permissionlink" href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname={{ SystemName }}&customeGroupId=@Model.Id"><i class="bi bi-gear"></i></a>
+                </cell-template>
+            </grid-column>
+            <grid-commands edit="true" width="200"/>
+        </admin-grid>
+    </admin-card>
 
     <script>
                 function onAclGridDataBound() {

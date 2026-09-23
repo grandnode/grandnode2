@@ -5,12 +5,12 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        @Loc["Admin.Customers.Customers.CurrentShoppingCart"]
+<div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title">@Loc["Admin.Customers.Customers.CurrentShoppingCart"]</h2>
     </div>
     <partial name="Partials/WidgetZone.ShoppingCartTop" model="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         @*unit prices are edited in the cells and sent with Save changes, one request per changed item*@
         <admin-grid id="currentshoppingcart-grid"
                     read-url="@Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.ShoppingCart, area = area })"
@@ -22,7 +22,7 @@
             <grid-toolbar-save/>
             <grid-column field="ProductName" title="@Loc["Admin.CurrentCarts.Product"]" width="500">
                 <cell-template>
-                    <a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
                     @*AttributeInfo is markup built by the product attribute formatter*@
                     <span data-if="AttributeInfo && AttributeInfo.length > 0"><br />{{{ AttributeInfo }}}</span>
                 </cell-template>
@@ -37,7 +37,7 @@
             <grid-column field="UpdatedOn" title="@Loc["Admin.CurrentCarts.UpdatedOn"]" width="200" format="{0:G}"/>
             <grid-column title="@Loc["Admin.Common.Delete"]" width="200">
                 <cell-template>
-                    <button type="button" class="btn btn-default btn-sm k-grid-delete" data-grid-click="deleteCartItem">Delete</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm k-grid-delete" data-grid-click="deleteCartItem">Delete</button>
                 </cell-template>
             </grid-column>
         </admin-grid>

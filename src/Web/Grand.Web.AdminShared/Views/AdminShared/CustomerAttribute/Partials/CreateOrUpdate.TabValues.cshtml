@@ -6,8 +6,18 @@
 
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
-            <div class="panel-body">
+        @* the grid in a hand-written card so its Add new sits in the header; the hidden refresh
+           button the value popups click stays beside it *@
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc["Admin.Customers.CustomerAttributes.Values"]</h2>
+                @if (!isReadOnly)
+                {
+                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CustomerAttribute", new { customerAttributeId = Model.Id, btnId = "btnRefresh", formId = "customerattribute-form", area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.CustomerAttributes.Values.AddNew"]</a>
+                }
+                <input type="submit" id="btnRefresh" style="display: none"/>
+            </div>
+            <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="customerattributevalues-grid"
                             read-url="@Url.Action("ValueList", "CustomerAttribute", new { customerAttributeId = Model.Id, area })"
                             destroy-url="@(isReadOnly ? null : Url.Action("ValueDelete", "CustomerAttribute", new { area }))"
@@ -28,8 +38,8 @@
                     </grid-column>
                     <grid-column field="IsPreSelected" title="@Loc["Admin.Customers.CustomerAttributes.Values.Fields.IsPreSelected"]" width="100" align="Center" min-screen-width="500">
                         <cell-template>
-                            <i data-if="IsPreSelected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsPreSelected" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                            <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.CustomerAttributes.Values.Fields.DisplayOrder"]" width="100" align="Center"/>
@@ -39,17 +49,6 @@
                     }
                 </admin-grid>
             </div>
-            @if (!isReadOnly)
-            {
-                <div class="panel-footer">
-                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CustomerAttribute", new { customerAttributeId = Model.Id, btnId = "btnRefresh", formId = "customerattribute-form", area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.CustomerAttributes.Values.AddNew"]</a>
-                    <input type="submit" id="btnRefresh" style="display: none"/>
-                </div>
-            }
-            else
-            {
-                <input type="submit" id="btnRefresh" style="display: none"/>
-            }
         </div>
 
         if (!isReadOnly)

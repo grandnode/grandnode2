@@ -1,12 +1,6 @@
 ﻿@model CustomerTagModel
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Name"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name"/>
-                <span asp-validation-for="Name"></span>
-            </div>
-        </div>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Name"/>
     </div>
-</div>
+</admin-card>

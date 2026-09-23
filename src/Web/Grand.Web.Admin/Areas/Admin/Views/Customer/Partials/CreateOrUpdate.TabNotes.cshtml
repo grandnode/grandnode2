@@ -4,8 +4,9 @@
     ViewData["DownloadType"] = DownloadType.Customer;
     ViewData["ReferenceId"] = Model.Id;
 }
-<div class="panel panel-default">
-    <div class="panel-body">
+@* the merchandise return notes' shape: the notes grid in a flush card, then a card to add one *@
+<div class="grand-card">
+    <div class="grand-card__body grand-card__body--flush">
         <vc:admin-widget widget-zone="customer_details_notes_top" additional-data="Model"/>
         <admin-grid id="customernotes-grid"
                     read-url="@Url.Action("CustomerNotesSelect", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
@@ -26,8 +27,8 @@
             </grid-column>
             <grid-column field="DisplayToCustomer" title="@Loc["Admin.Customers.CustomerNotes.Fields.DisplayToCustomer"]" width="100" align="Center">
                 <cell-template>
-                    <i data-if="DisplayToCustomer" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                    <i data-if="DisplayToCustomer" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                 </cell-template>
             </grid-column>
             <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
@@ -35,11 +36,6 @@
         <vc:admin-widget widget-zone="customer_details_notes_bottom" additional-data="Model"/>
     </div>
 </div>
-<p>
-    <strong>
-        @Loc["Admin.Customers.CustomerNotes.AddTitle"]
-    </strong>
-</p>
 <script>
     $(document).ready(function () {
         $("#@Html.IdFor(model => model.AddCustomerNoteHasDownload)").change(toggleAddCustomerNoteHasDownload);
@@ -56,52 +52,23 @@
 
 </script>
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="AddCustomerTitle"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AddCustomerTitle"/>
-                <span asp-validation-for="AddCustomerTitle"></span>
-            </div>
+<admin-card title="@Loc["Admin.Customers.CustomerNotes.AddTitle"]">
+    <div class="grand-fields">
+        <admin-field asp-for="AddCustomerTitle"/>
+        <admin-field asp-for="AddCustomerNoteMessage">
+            <admin-textarea asp-for="AddCustomerNoteMessage"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="AddCustomerNoteHasDownload" asp-label-for="AddCustomerNoteDownloadId"/>
+        <div id="pnlAddCustomerNoteDownloadId">
+            <admin-input asp-for="AddCustomerNoteDownloadId"/>
+            <span asp-validation-for="AddCustomerNoteDownloadId"></span>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="AddCustomerNoteMessage"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="AddCustomerNoteMessage"></admin-textarea>
-                <span asp-validation-for="AddCustomerNoteMessage"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AddCustomerNoteDownloadId"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddCustomerNoteHasDownload"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <div id="pnlAddCustomerNoteDownloadId">
-                    <admin-input asp-for="AddCustomerNoteDownloadId"/>
-                    <span asp-validation-for="AddCustomerNoteDownloadId"></span>
-                </div>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AddCustomerNoteDisplayToCustomer"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddCustomerNoteDisplayToCustomer"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AddCustomerNoteDisplayToCustomer"></span>
-            </div>
-        </div>
-        <div class="form-actions">
-            <div class="offset-md-3 col-md-9 col-sm-9">
-                <input type="button" id="addCustomerNote" class="btn btn-default btn-sm" value="@Loc["Admin.Customers.CustomerNotes.AddButton"]"/>
-            </div>
-        </div>
+        <admin-field asp-for="AddCustomerNoteDisplayToCustomer"/>
     </div>
-</div>
+    <div class="mt-3">
+        <button type="button" id="addCustomerNote" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.CustomerNotes.AddButton"]</button>
+    </div>
+</admin-card>
 
 <script>
     $(document).ready(function () {

@@ -1,47 +1,17 @@
 ﻿@model AffiliatedOrderListModel
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="StartDate"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="StartDate"/>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="EndDate"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="EndDate"/>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="OrderStatusId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="PaymentStatusId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ShippingStatusId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses"/>
-            </div>
-        </div>
+@* the affiliate's orders: the criteria in a filter bar above the grid, which loads on Search;
+   Search is an outline button because Save is the screen's primary action *@
+<admin-filters id="affiliate-order-filters" submit-id="search-orders" expanded="true" secondary-submit="true">
+    <div class="grand-range">
+        <admin-field asp-for="StartDate"/>
+        <admin-field asp-for="EndDate"/>
     </div>
-    <div class="form-actions">
-        <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-            <button class="btn btn-success filter-submit" id="search-orders">
-                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-            </button>
-        </div>
-    </div>
-</div>
-<div class="x_content">
+    <admin-field asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
+    <admin-field asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
+    <admin-field asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses"/>
+</admin-filters>
+<admin-card flush>
     <admin-grid id="orders-grid"
                 read-url="@Url.Action("AffiliatedOrderList", "Affiliate", new { area = Constants.AreaAdmin })"
                 additional-data="additionalData"
@@ -69,7 +39,7 @@
         <grid-column field="OrderTotal" title="@Loc["Admin.Affiliates.Orders.OrderTotal"]"/>
         <grid-column field="CreatedOn" title="@Loc["Admin.Affiliates.Orders.CreatedOn"]" format="{0:G}"/>
     </admin-grid>
-</div>
+</admin-card>
 <script>
 
     var selectedIds = [];

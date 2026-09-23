@@ -3,12 +3,10 @@
 {
     var controlId = $"attributes[{attribute.Id}]";
     var textPrompt = attribute.Name;
-    <div class="form-horizontal">
-        <div class="form-body">
-            <label class="control-label col-md-3">
-                @textPrompt
-            </label>
-            <div class="col-md-9 col-sm-9">
+    @* one field of the customer info card per attribute: the label above the control *@
+    <div class="grand-field">
+        <label class="grand-field__label" for="@(controlId)">@textPrompt</label>
+        <div class="grand-field__control">
 
                 @switch (attribute.AttributeControlType)
                 {
@@ -31,9 +29,9 @@
                         <div class="radio-list">
                             @foreach (var attributeValue in attribute.Values)
                             {
-                                <div>
-                                    <input id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected"/>
-                                    <label for="@(controlId)_@(attributeValue.Id)">@attributeValue.Name</label>
+                                <div class="form-check">
+                                    <input id="@(controlId)_@(attributeValue.Id)" class="form-check-input" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected"/>
+                                    <label class="form-check-label" for="@(controlId)_@(attributeValue.Id)">@attributeValue.Name</label>
                                 </div>
                             }
                         </div>
@@ -45,9 +43,9 @@
                         <div class="checkbox-list">
                             @foreach (var attributeValue in attribute.Values)
                             {
-                                <div>
-                                    <input id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@attributeValue.Id" checked="@(attributeValue.IsPreSelected)" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)/>
-                                    <label for="@(controlId)_@(attributeValue.Id)">@attributeValue.Name</label>
+                                <div class="form-check">
+                                    <input id="@(controlId)_@(attributeValue.Id)" class="form-check-input" type="checkbox" name="@(controlId)" value="@attributeValue.Id" checked="@(attributeValue.IsPreSelected)" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)/>
+                                    <label class="form-check-label" for="@(controlId)_@(attributeValue.Id)">@attributeValue.Name</label>
                                 </div>
                             }
                         </div>
@@ -60,7 +58,7 @@
                         break;
                     case AttributeControlType.MultilineTextbox:
                     {
-                        <textarea id="@(controlId)" style="Height: 150px;" class="form-control" name="@(controlId)">@(attribute.DefaultValue)</textarea>
+                        <textarea id="@(controlId)" rows="5" class="form-control" name="@(controlId)">@(attribute.DefaultValue)</textarea>
                     }
                         break;
                     case AttributeControlType.Datepicker:
@@ -72,7 +70,6 @@
                     }
                         break;
                 }
-            </div>
         </div>
     </div>
 }

@@ -4,100 +4,62 @@
     ViewBag.Title = Loc["Admin.VendorReviews"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit popup-window">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-boxes"></i>
-                    @Loc["Admin.VendorReviews"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <button type="button" id="approve-selected" class="btn btn-default btn-sm"><span class="bi bi-check-circle"></span>&nbsp;@Loc["Admin.VendorReviews.ApproveSelected"]</button>
-                    <button type="button" id="disapprove-selected" class="btn btn-default btn-sm"><span class="bi bi-x-circle"></span>&nbsp;@Loc["Admin.VendorReviews.DisapproveSelected"]</button>
-                    <vc:admin-widget widget-zone="vendor_review_list_buttons" additional-data="Model"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="main-header col-12 px-0">
-                            <div class="row align-items-end">
-                                <div class="col-md-8 col-ms-12 col-12">
-                                    <div class="mb-0">
-                                        <admin-label asp-for="SearchText" class="control-labe"/>
-                                        <admin-input asp-for="SearchText"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-sm-12 col-12">
-                                    <div class="form-actions">
-                                        <div class="btn-group">
-                                            <button class="btn btn-success filter-submit" id="search-vendorreviews">
-                                                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                            </button>
-                                            <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container w-100">
-                                <div class="mb-3">
-                                    <admin-label asp-for="CreatedOnFrom"/>
-                                    <div class="col-md-4 col-sm-6">
-                                        <admin-input asp-for="CreatedOnFrom"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="CreatedOnTo"/>
-                                    <div class="col-md-4 col-sm-6">
-                                        <admin-input asp-for="CreatedOnTo"/>
-                                    </div>
-                                </div>
-                                <partial name="Partials/SearchVendor" model="Model"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="x_content">
-                        <admin-grid id="vendorreviews-grid"
-                                    key="Ids"
-                                    read-url="@Url.Action("List", "VendorReview", new { area = Constants.AreaAdmin })"
-                                    additional-data="additionalData"
-                                    selectable="Checkbox"
-                                    on-change="onVendorReviewsSelectionChange">
-                            <grid-column field="VendorName" title="@Loc["Admin.VendorReviews.Fields.Vendor"]" width="200">
-                                <cell-template>
-                                    <a href="@Url.Action("Edit", "Vendor", new { area = Constants.AreaAdmin })/{{ VendorId }}">{{ VendorName }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CustomerId" title="@Loc["Admin.VendorReviews.Fields.Customer"]" width="200">
-                                <cell-template>
-                                    <a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Title" title="@Loc["Admin.VendorReviews.Fields.Title"]" width="200">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}?VendorId={{ VendorId }}">{{ Title }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Rating" title="@Loc["Admin.VendorReviews.Fields.Rating"]" width="100"/>
-                            <grid-column field="IsApproved" title="@Loc["Admin.VendorReviews.Fields.IsApproved"]" width="100" align="Center">
-                                <cell-template>
-                                    <i data-if="IsApproved" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CreatedOn" title="@Loc["Admin.VendorReviews.Fields.CreatedOn"]" width="200" format="{0:G}"/>
-                        </admin-grid>
-                    </div>
-                </div>
-            </div>
+@* The product review list's shape: the filter bar searches the review text with the dates and
+   vendor behind Filters, the grid in a flush card, and approve/disapprove in the bulk bar that
+   appears once reviews are ticked. The ids the scripts look up are unchanged. *@
+<admin-page title="@Loc["Admin.VendorReviews"]" icon="bi-boxes">
+    <page-actions>
+        <vc:admin-widget widget-zone="vendor_review_list_buttons" additional-data="Model"/>
+    </page-actions>
+
+    <admin-filters id="vendorreview-filters" submit-id="search-vendorreviews">
+        <filters-search>
+            <admin-input asp-for="SearchText"/>
+        </filters-search>
+        <div class="grand-range">
+            <admin-field asp-for="CreatedOnFrom"/>
+            <admin-field asp-for="CreatedOnTo"/>
         </div>
-    </div>
-</div>
+        <partial name="Partials/SearchVendor" model="Model"/>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-bulkbar grid-id="vendorreviews-grid">
+            <button type="button" id="approve-selected" class="btn btn-outline-secondary btn-sm"><span class="bi bi-check-circle"></span> @Loc["Admin.VendorReviews.ApproveSelected"]</button>
+            <button type="button" id="disapprove-selected" class="btn btn-outline-secondary btn-sm"><span class="bi bi-x-circle"></span> @Loc["Admin.VendorReviews.DisapproveSelected"]</button>
+        </admin-bulkbar>
+        <admin-grid id="vendorreviews-grid"
+                    key="Ids"
+                    read-url="@Url.Action("List", "VendorReview", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData"
+                    selectable="Checkbox"
+                    on-change="onVendorReviewsSelectionChange">
+            <grid-column field="VendorName" title="@Loc["Admin.VendorReviews.Fields.Vendor"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Vendor", new { area = Constants.AreaAdmin })/{{ VendorId }}">{{ VendorName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CustomerId" title="@Loc["Admin.VendorReviews.Fields.Customer"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Title" title="@Loc["Admin.VendorReviews.Fields.Title"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}?VendorId={{ VendorId }}">{{ Title }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Rating" title="@Loc["Admin.VendorReviews.Fields.Rating"]" width="100"/>
+            <grid-column field="IsApproved" title="@Loc["Admin.VendorReviews.Fields.IsApproved"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="IsApproved" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedOn" title="@Loc["Admin.VendorReviews.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 
 <script>

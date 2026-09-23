@@ -1,52 +1,30 @@
 ﻿@model VendorReviewModel
 @Html.ValidationSummary(false)
 <input asp-for="Id" type="hidden"/>
-<div class="form-horizontal">
-    <div class="form-body">
-
-        <div class="mb-3">
-            <admin-label asp-for="CustomerInfo"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">
-                    <label class="control-label">@Model.CustomerInfo)</label>
-                </label>
-            </div>
+@* the admin review screen minus the vendor, which is always the signed-in one, and minus the
+   link to the customer, whom a vendor cannot open *@
+<admin-card>
+    <div class="grand-facts">
+        <div>
+            <admin-label asp-for="CustomerInfo" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.CustomerInfo</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="Title"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Title"/>
-                <span asp-validation-for="Title"></span>
-            </div>
+        <div>
+            <admin-label asp-for="Rating" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.Rating</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="ReviewText"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="ReviewText" style="height: 100px;"></admin-textarea>
-                <span asp-validation-for="ReviewText"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Rating"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.Rating</label>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IsApproved"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsApproved"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsApproved"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CreatedOn"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.CreatedOn)</label>
-            </div>
+        <div>
+            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.CreatedOn</div>
         </div>
     </div>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields">
+        <admin-field asp-for="Title"/>
+        <admin-field asp-for="ReviewText">
+            <admin-textarea asp-for="ReviewText"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="IsApproved"/>
+    </div>
+</admin-card>

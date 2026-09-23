@@ -9,10 +9,11 @@
 
     if (Model.ShowMessageContactForm)
     {
-        <strong>@Loc["Admin.System.ContactForm"]</strong>
-
-        <div class="panel panel-default">
-            <div class="panel-body">
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc["Admin.System.ContactForm"]</h2>
+            </div>
+            <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="contactform-grid"
                             read-url="@Url.Action("ContactFormList", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
                             page-size="@(defaultGridPageSize)"
@@ -29,7 +30,7 @@
                     <grid-column field="Subject" title="@Loc["Admin.System.ContactForm.Fields.Subject"]" width="300"/>
                     <grid-column field="Id" title="@Loc["Admin.Common.View"]" width="30">
                         <cell-template>
-                            <a href="@Url.Action("Details", "ContactForm", new { area = Constants.AreaAdmin })/{{ Id }}">{{ $texts.view }}</a>
+                            <a class="text-decoration-none" href="@Url.Action("Details", "ContactForm", new { area = Constants.AreaAdmin })/{{ Id }}">{{ $texts.view }}</a>
                         </cell-template>
                     </grid-column>
                 </admin-grid>
@@ -39,11 +40,11 @@
 
     @if (await permissionService.Authorize(PermissionSystemName.MessageQueue) && !string.IsNullOrEmpty(Model.Email))
     {
-        <br/>
-        <strong>@Loc["Admin.System.QueuedEmails"]</strong>
-
-        <div class="panel panel-default">
-            <div class="panel-body">
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc["Admin.System.QueuedEmails"]</h2>
+            </div>
+            <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="queuedEmails-grid"
                             read-url="@Url.Action("QueuedEmailList", "QueuedEmail", new { area = Constants.AreaAdmin })"
                             additional-data="queadditionalData"

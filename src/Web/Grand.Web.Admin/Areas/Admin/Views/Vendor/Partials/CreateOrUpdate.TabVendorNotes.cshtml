@@ -1,37 +1,29 @@
 ﻿@model VendorModel
 
-<admin-grid id="vendornotes-grid"
-            read-url="@Url.Action("VendorNotesSelect", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin })"
-            destroy-url="@Url.Action("VendorNoteDelete", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin })"
-            pager="Compact"
-            auto-bind="false">
-    <grid-column field="CreatedOn" title="@Loc["Admin.Vendors.VendorNotes.Fields.CreatedOn"]" width="200" format="{0:G}"/>
-    <grid-column field="Note" title="@Loc["Admin.Vendors.VendorNotes.Fields.Note"]"/>
-    <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
-</admin-grid>
-<p>
-    <strong>
-        @Loc["Admin.Vendors.VendorNotes.AddTitle"]
-    </strong>
-</p>
-<div class="form-horizontal">
+@* the merchandise return notes' shape: the notes grid in a flush card, then a card to add one *@
+<admin-card flush>
+    <admin-grid id="vendornotes-grid"
+                read-url="@Url.Action("VendorNotesSelect", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin })"
+                destroy-url="@Url.Action("VendorNoteDelete", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin })"
+                pager="Compact"
+                auto-bind="false">
+        <grid-column field="CreatedOn" title="@Loc["Admin.Vendors.VendorNotes.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        <grid-column field="Note" title="@Loc["Admin.Vendors.VendorNotes.Fields.Note"]"/>
+        <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+    </admin-grid>
+</admin-card>
+<admin-card title="@Loc["Admin.Vendors.VendorNotes.AddTitle"]">
     <vc:admin-widget widget-zone="vendor_details_notes_top" additional-data="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="AddVendorNoteMessage"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="AddVendorNoteMessage" style="height: 100px;"></admin-textarea>
-                <span asp-validation-for="AddVendorNoteMessage"></span>
-            </div>
-        </div>
+    <div class="grand-fields">
+        <admin-field asp-for="AddVendorNoteMessage">
+            <admin-textarea asp-for="AddVendorNoteMessage"></admin-textarea>
+        </admin-field>
     </div>
-    <div class="actions">
-        <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-            <input type="button" id="addVendorNote" class="btn btn-default btn-sm" value="@Loc["Admin.Vendors.VendorNotes.AddButton"]"/>
-        </div>
+    <div class="mt-3">
+        <button type="button" id="addVendorNote" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Vendors.VendorNotes.AddButton"]</button>
     </div>
     <vc:admin-widget widget-zone="vendor_details_notes_bottom" additional-data="Model"/>
-</div>
+</admin-card>
 <script>
     $(document).ready(function () {
         $('#addVendorNote').click(function () {

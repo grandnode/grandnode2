@@ -6,42 +6,16 @@
 <div id="sendemail-window" style="display:none;">
     <form asp-area="@area" asp-controller="Customer" asp-action="SendEmail" method="post" asp-route-id="Id">
         <input type="hidden" asp-for="Id" id="sendemail_customerId"/>
-        <div class="form-horizontal">
-            <div class="form-body">
-                <div class="mb-3">
-                    <admin-label asp-for="Subject"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="Subject"/>
-                        <span asp-validation-for="Subject"></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="Body"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-textarea asp-for="Body"></admin-textarea>
-                        <span asp-validation-for="Body"></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="SendImmediately"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="SendImmediately"/>
-                        <span asp-validation-for="SendImmediately"></span>
-                    </div>
-                </div>
-                <div class="mb-3" id="pnl-send-date">
-                    <admin-label asp-for="DontSendBeforeDate"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="DontSendBeforeDate"/>
-                        <span asp-validation-for="DontSendBeforeDate"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-actions">
-                <div class="offset-md-3 offset-sm-3 col-md-6 col-sm-6">
-                    <button type="submit" class="btn btn-default btn-sm"><span class="bi bi-envelope"></span>&nbsp;@Loc["Admin.Customers.Customers.SendEmail"]</button>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Subject"/>
+            <admin-field asp-for="Body">
+                <admin-textarea asp-for="Body"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="SendImmediately"/>
+            <admin-field asp-for="DontSendBeforeDate" id="pnl-send-date"/>
+        </div>
+        <div class="form-actions mt-3">
+            <button type="submit" class="btn btn-success"><span class="bi bi-envelope"></span> @Loc["Admin.Customers.Customers.SendEmail"]</button>
         </div>
     </form>
 </div>
@@ -56,7 +30,7 @@
         //timing of send email section
         $("#pnl-send-date").hide();
 
-        $("#sendemail-window .check-box").click(function () {
+        $("#@Html.IdFor(model => model.SendImmediately)").click(function () {
             $("#pnl-send-date").toggle();
         });
 

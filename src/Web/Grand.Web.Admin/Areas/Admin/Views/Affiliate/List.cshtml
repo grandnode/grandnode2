@@ -4,108 +4,52 @@
     ViewBag.Title = Loc["Admin.Affiliates"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit popup-window">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-box"></i>
-                    @Loc["Admin.Affiliates"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <vc:admin-widget widget-zone="affiliate_list_buttons" additional-data="null"/>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="main-header col-12 px-0">
-                            <div class="row align-items-end">
-                                <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="mb-0">
-                                        <admin-label asp-for="SearchFirstName" class="control-label"/>
-                                        <admin-input asp-for="SearchFirstName"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-ms-12 col-12">
-                                    <div class="mb-0">
-                                        <admin-label asp-for="SearchLastName" class="control-label"/>
-                                        <admin-input asp-for="SearchLastName"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-sm-12 col-12">
-                                    <div class="form-actions">
-                                        <div class="btn-group">
-                                            <button class="btn btn-success filter-submit" id="search-affiliates">
-                                                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                            </button>
-                                            <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container w-100">
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchFriendlyUrlName" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchFriendlyUrlName"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="LoadOnlyWithOrders" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                            <admin-input asp-for="LoadOnlyWithOrders"/>
-                                            <div class="control__indicator"></div>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="mb-3" id="pnlOrdersCreatedFromUtc">
-                                    <admin-label asp-for="OrdersCreatedFromUtc" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="OrdersCreatedFromUtc"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3" id="pnlOrdersCreatedToUtc">
-                                    <admin-label asp-for="OrdersCreatedToUtc" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="OrdersCreatedToUtc"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="x_content">
-                <admin-grid id="affiliates-grid"
-                            read-url="@Url.Action("List", "Affiliate", new { area = Constants.AreaAdmin })"
-                            additional-data="additionalData">
-                    <grid-column field="Address.Email" title="@Loc["Admin.Address.Fields.Email"]" width="200">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Address.Email }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Address.FirstName" title="@Loc["Admin.Address.Fields.FirstName"]" width="200"/>
-                    <grid-column field="Address.LastName" title="@Loc["Admin.Address.Fields.LastName"]" width="200"/>
-                    <grid-column field="Active" title="@Loc["Admin.Affiliates.Fields.Active"]" width="100" align="Center">
-                        <cell-template>
-                            <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                </admin-grid>
+@* the list screen's shape: Add new as the one primary action, the name search always visible
+   with the rest behind Filters, the grid in a flush card. The order dates are revealed by
+   LoadOnlyWithOrders and keep the pnl* ids its script toggles. *@
+<admin-page title="@Loc["Admin.Affiliates"]" icon="bi-box">
+    <page-actions>
+        <vc:admin-widget widget-zone="affiliate_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-filters id="affiliate-filters" submit-id="search-affiliates" secondary-submit="true">
+        <filters-search>
+            <admin-input asp-for="SearchFirstName"/>
+        </filters-search>
+        <admin-field asp-for="SearchLastName"/>
+        <admin-field asp-for="SearchFriendlyUrlName"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="LoadOnlyWithOrders"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="OrdersCreatedFromUtc" id="pnlOrdersCreatedFromUtc"/>
+                <admin-field asp-for="OrdersCreatedToUtc" id="pnlOrdersCreatedToUtc"/>
             </div>
         </div>
-    </div>
-</div>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="affiliates-grid"
+                    read-url="@Url.Action("List", "Affiliate", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData">
+            <grid-column field="Address.Email" title="@Loc["Admin.Address.Fields.Email"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Address.Email }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Address.FirstName" title="@Loc["Admin.Address.Fields.FirstName"]" width="200"/>
+            <grid-column field="Address.LastName" title="@Loc["Admin.Address.Fields.LastName"]" width="200"/>
+            <grid-column field="Active" title="@Loc["Admin.Affiliates.Fields.Active"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Active" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
     $(document).ready(function () {

@@ -2,9 +2,9 @@
 @inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.OrdersTop" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="order-grid"
                         read-url="@Url.Action("OrderList", "Customer", new { customerId = Model.Id, area = area })"
                         auto-bind="false">
@@ -20,13 +20,11 @@
                 </grid-column>
                 <grid-column field="OrderStatus" title="@Loc["Admin.Customers.Customers.Orders.OrderStatus"]" width="160">
                     <cell-template>
-                        <h4>
-                            <span data-if="OrderStatusId == 10" class="label label-warning">{{ OrderStatus }}</span>
-                            <span data-if="OrderStatusId == 20 || OrderStatusId == 25" class="label label-info">{{ OrderStatus }}</span>
-                            <span data-if="OrderStatusId == 30" class="label label-success">{{ OrderStatus }}</span>
-                            <span data-if="OrderStatusId == 40" class="label label-danger">{{ OrderStatus }}</span>
-                            <span data-if="OrderStatusId != 10 && OrderStatusId != 20 && OrderStatusId != 25 && OrderStatusId != 30 && OrderStatusId != 40" class="label label-">{{ OrderStatus }}</span>
-                        </h4>
+                        @* a status is a chip, as on the order list *@
+                        <span data-if="OrderStatusId == 10" class="grand-chip grand-chip--amber">{{ OrderStatus }}</span>
+                        <span data-if="OrderStatusId == 30" class="grand-chip grand-chip--green">{{ OrderStatus }}</span>
+                        <span data-if="OrderStatusId == 40" class="grand-chip grand-chip--red">{{ OrderStatus }}</span>
+                        <span data-if="OrderStatusId != 10 && OrderStatusId != 30 && OrderStatusId != 40" class="grand-chip">{{ OrderStatus }}</span>
                     </cell-template>
                 </grid-column>
                 <grid-column field="PaymentStatus" title="@Loc["Admin.Customers.Customers.Orders.PaymentStatus"]" width="180"/>

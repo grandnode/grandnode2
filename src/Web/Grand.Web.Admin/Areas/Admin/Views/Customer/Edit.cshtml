@@ -5,48 +5,48 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Customer" asp-action="Edit" method="post" id="customer-form">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-person"></i>
-                        @Loc["Admin.Customers.Customers.EditCustomerDetails"] - @Model.LastName @Model.FirstName
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Customers.Customers.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <button class="btn btn-info" type="submit" id="sendemail"><i class="bi bi-send" aria-hidden="true"></i> &nbsp;@Loc["Admin.Customers.Customers.SendEmail"] </button>
-                            <button class="btn btn-info" type="submit" name="impersonate" asp-action="Impersonate"><i class="bi bi-cart" aria-hidden="true"></i>&nbsp;@Loc["Admin.Customers.Customers.Impersonate.Button"]</button>
-                            @if (Model.AllowSendingOfWelcomeMessage)
-                            {
-                                <button class="btn btn-primary" type="submit" name="send-welcome-message" asp-action="SendWelcomeMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="bi bi-arrow-clockwise"></span> &nbsp;@Loc["Admin.Customers.Customers.SendWelcomeMessage"] </button>
-                            }
-                            @if (Model.AllowReSendingOfActivationMessage)
-                            {
-                                <button class="btn btn-primary" type="submit" name="resend-activation-message" asp-action="ReSendActivationMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="bi bi-arrow-clockwise"></span> &nbsp;@Loc["Admin.Customers.Customers.ReSendActivationMessage"] </button>
-                            }
-                            <span id="customer-delete" class="btn red">
-                                <i class="bi bi-trash"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span>
-                            </span>
-                            <vc:admin-widget widget-zone="customer_details_buttons" additional-data="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the customer's name as the title and Save as the one primary action; e-mail and
+       impersonation beside it, the messages that ask first and Delete in the overflow menu *@
+    <admin-page sticky
+                title="@Model.LastName @Model.FirstName"
+                icon="bi-person"
+                meta="@Loc["Admin.Customers.Customers.EditCustomerDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Customers.Customers.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" id="sendemail"><i class="bi bi-send" aria-hidden="true"></i> @Loc["Admin.Customers.Customers.SendEmail"]</button>
+            <button class="btn btn-outline-secondary" type="submit" name="impersonate" asp-action="Impersonate"><i class="bi bi-cart" aria-hidden="true"></i> @Loc["Admin.Customers.Customers.Impersonate.Button"]</button>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                @if (Model.AllowSendingOfWelcomeMessage)
+                {
+                    <admin-action submit="true" name="send-welcome-message" icon="bi-arrow-clockwise"
+                                  url="@Url.Action("SendWelcomeMessage", new { id = Model.Id, area = Constants.AreaAdmin })"
+                                  text="@Loc["Admin.Customers.Customers.SendWelcomeMessage"]"
+                                  data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
+                                  data-confirm-title="@Loc["Admin.Customers.Customers.SendWelcomeMessage"]"/>
+                }
+                @if (Model.AllowReSendingOfActivationMessage)
+                {
+                    <admin-action submit="true" name="resend-activation-message" icon="bi-arrow-clockwise"
+                                  url="@Url.Action("ReSendActivationMessage", new { id = Model.Id, area = Constants.AreaAdmin })"
+                                  text="@Loc["Admin.Customers.Customers.ReSendActivationMessage"]"
+                                  data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
+                                  data-confirm-title="@Loc["Admin.Customers.Customers.ReSendActivationMessage"]"/>
+                }
+                <admin-action id="customer-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="customer_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="customer-delete"/>
 

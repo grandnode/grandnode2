@@ -3,48 +3,34 @@
     ViewBag.Title = Loc["Admin.Customers.SalesEmployees"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-people"></i>
-                    @Loc["Admin.Customers.SalesEmployees"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="employees-grid"
-                                        read-url="@Url.Action("List", "SalesEmployee", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("Add", "SalesEmployee", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("Update", "SalesEmployee", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("Delete", "SalesEmployee", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline"
-                                        confirm-destroy="true">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Customers.SalesEmployee.Fields.Name"]" width="200" editor="Text"/>
-                                <grid-column field="Email" title="@Loc["Admin.Customers.SalesEmployee.Fields.Email"]" width="200" editor="Text"/>
-                                <grid-column field="Phone" title="@Loc["Admin.Customers.SalesEmployee.Fields.Phone"]" width="100" editor="Text"/>
-                                <grid-column field="Active" title="@Loc["Admin.Customers.SalesEmployee.Fields.Active"]" width="50" align="Center" editor="Checkbox" default-value="true">
-                                    <cell-template>
-                                        <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Commission" title="@Loc["Admin.Customers.SalesEmployee.Fields.Commission"]" width="100" editor="Numeric" default-value=""/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.SalesEmployee.Fields.DisplayOrder"]" width="50" format="{0:0}" editor="Integer" default-value="0"/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The inline grid in a flush card: grid.js moves its Add new into the card header, which makes
+   it the page's only add; there is nothing else to save. *@
+<admin-page title="@Loc["Admin.Customers.SalesEmployees"]" icon="bi-people">
+    <admin-card flush>
+        <admin-grid id="employees-grid"
+                    read-url="@Url.Action("List", "SalesEmployee", new { area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("Add", "SalesEmployee", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("Update", "SalesEmployee", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("Delete", "SalesEmployee", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline"
+                    confirm-destroy="true">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Customers.SalesEmployee.Fields.Name"]" width="200" editor="Text"/>
+            <grid-column field="Email" title="@Loc["Admin.Customers.SalesEmployee.Fields.Email"]" width="200" editor="Text"/>
+            <grid-column field="Phone" title="@Loc["Admin.Customers.SalesEmployee.Fields.Phone"]" width="100" editor="Text"/>
+            <grid-column field="Active" title="@Loc["Admin.Customers.SalesEmployee.Fields.Active"]" width="50" align="Center" editor="Checkbox" default-value="true">
+                <cell-template>
+                    <i data-if="Active" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Commission" title="@Loc["Admin.Customers.SalesEmployee.Fields.Commission"]" width="100" editor="Numeric" default-value=""/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.SalesEmployee.Fields.DisplayOrder"]" width="50" format="{0:0}" editor="Integer" default-value="0"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 <script>
     function markAsPrimaryWeight(id) {
         if (confirm('@Loc["Admin.Common.AreYouSure"]')) {

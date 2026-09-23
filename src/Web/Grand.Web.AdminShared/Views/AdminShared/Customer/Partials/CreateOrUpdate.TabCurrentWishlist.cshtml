@@ -5,11 +5,11 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        @Loc["Admin.Customers.Customers.CurrentWishlist"]
+<div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title">@Loc["Admin.Customers.Customers.CurrentWishlist"]</h2>
     </div>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <partial name="Partials/WidgetZone.WishlistTop" model="Model"/>
         <admin-grid id="currentwishlist-grid"
                     read-url="@Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.Wishlist, area = area })"
@@ -20,7 +20,7 @@
             @*AttributeInfo is markup built by the product attribute formatter*@
             <grid-column field="ProductName" title="@Loc["Admin.CurrentCarts.Product"]" width="500">
                 <cell-template>
-                    <a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
                     <span data-if="AttributeInfo && AttributeInfo.length > 0"><br />{{{ AttributeInfo }}}</span>
                 </cell-template>
             </grid-column>

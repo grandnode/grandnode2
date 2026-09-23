@@ -585,6 +585,7 @@
 .grand-page .grand-tabstrip .grand-card ~ .grand-card,
 .grand-page .grand-tabstrip .grand-card ~ .grand-fields,
 .grand-page .grand-tabstrip .grand-fields ~ .grand-card,
+.grand-page .grand-tabstrip .grand-filters ~ .grand-card,
 .grand-popup .grand-card ~ .grand-card {
     margin-block-start: var(--grand-gap);
 }

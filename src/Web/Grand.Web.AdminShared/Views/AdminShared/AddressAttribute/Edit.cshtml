@@ -1,5 +1,6 @@
 @using Grand.Web.AdminShared.Models.Common
 @model AddressAttributeModel
+
 @{
     //page title
     var isReadOnly = Model.IsGlobalAttribute;
@@ -8,49 +9,39 @@
 }
 <form asp-area="@area" asp-controller="AddressAttribute" asp-action="Edit" method="post" id="addressattribute-form">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-list-ol"></i>
-                        @Loc["Admin.Address.AddressAttributes.EditAttributeDetails"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Address.AddressAttributes.BackToList"], "List")
-                        </small>
-                    </div>
-                    @if (!isReadOnly)
-                    {
-                        <div class="actions">
-                            <div class="btn-group btn-group-devided">
-                                <button class="btn btn-success" type="submit" name="save">
-                                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                                </button>
-                                <button class="btn btn-success" type="submit" name="save-continue">
-                                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                                </button>
-                                <span id="addressattribute-delete" class="btn red">
-                                    <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                                </span>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="actions">
-                            <div class="alert alert-info mb-0 py-2">
-                                <i class="bi bi-info-circle"></i> @Loc["Admin.Address.AddressAttributes.GlobalReadOnly"]
-                            </div>
-                        </div>
-                    }
-                    <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
+    @* the attribute's name as the title, Save as the one primary action and Delete in the
+       overflow menu; a global attribute a store owner opens has no actions, only the notice *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-list-ol"
+                meta="@Loc["Admin.Address.AddressAttributes.EditAttributeDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Address.AddressAttributes.BackToList"]">
+        <page-actions>
+            @if (!isReadOnly)
+            {
+                <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                </button>
+                <button class="btn btn-primary" type="submit" name="save">
+                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+                </button>
+                <admin-action-menu>
+                    <admin-action id="addressattribute-delete" destructive="true" icon="bi-trash"
+                                  text="@Loc["Admin.Common.Delete"]"/>
+                </admin-action-menu>
+            }
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        @if (isReadOnly)
+        {
+            <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle"></i> @Loc["Admin.Address.AddressAttributes.GlobalReadOnly"]
             </div>
-        </div>
-    </div>
+        }
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 @if (!isReadOnly)
 {

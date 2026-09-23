@@ -2,55 +2,34 @@
 @inject IContextAccessor contextAccessor
 @Html.ValidationSummary(false)
 <input asp-for="Id" type="hidden"/>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="VendorName"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Html.ActionLink(Model.VendorName, "Edit", "Vendor", new { id = Model.VendorId }, new { })</label>
-            </div>
+@* the product review screen's shape: who, the rating and when are facts of the review; what the
+   customer wrote and whether it is approved are editable *@
+<admin-card>
+    <div class="grand-facts">
+        <div>
+            <admin-label asp-for="VendorName" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.ActionLink(Model.VendorName, "Edit", "Vendor", new { id = Model.VendorId }, new { })</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="CustomerInfo"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { })</label>
-            </div>
+        <div>
+            <admin-label asp-for="CustomerInfo" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { })</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="Title"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Title"/>
-                <span asp-validation-for="Title"></span>
-            </div>
+        <div>
+            <admin-label asp-for="Rating" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.Rating</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="ReviewText"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="ReviewText" style="height: 100px;"></admin-textarea>
-                <span asp-validation-for="ReviewText"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Rating"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.Rating</label>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IsApproved"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsApproved"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsApproved"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CreatedOn"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.CreatedOn)</label>
-            </div>
+        <div>
+            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.CreatedOn</div>
         </div>
     </div>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields">
+        <admin-field asp-for="Title"/>
+        <admin-field asp-for="ReviewText">
+            <admin-textarea asp-for="ReviewText"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="IsApproved"/>
+    </div>
+</admin-card>

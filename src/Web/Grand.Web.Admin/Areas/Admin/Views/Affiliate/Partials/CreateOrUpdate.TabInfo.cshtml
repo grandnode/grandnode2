@@ -1,60 +1,36 @@
 ﻿@model AffiliateModel
 
-<div class="form-horizontal">
-    <vc:admin-widget widget-zone="affiliate_details_info_top" additional-data="Model"/>
-    <div class="form-body">
-
-        @if (!string.IsNullOrEmpty(Model.Id))
-        {
-            <div class="mb-3">
-                <admin-label asp-for="Id"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.Id</label>
-                </div>
+<vc:admin-widget widget-zone="affiliate_details_info_top" additional-data="Model"/>
+@* the affiliate's own fields, its address, then the notes; the address keeps the shared Address
+   editor template the other panels' address forms use *@
+<admin-card>
+    @if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <div class="grand-facts mb-3">
+            <div>
+                <admin-label asp-for="Id" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.Id</div>
             </div>
-            <div class="mb-3">
-                <admin-label asp-for="Url"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.Url</label>
-                </div>
-            </div>
-        }
-        <div class="mb-3">
-            <admin-label asp-for="Active"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Active"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="Active"></span>
+            <div>
+                <admin-label asp-for="Url" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.Url</div>
             </div>
         </div>
-        <div class="form-body">
-            <admin-label asp-for="Name"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name"/>
-                <span asp-validation-for="Name"></span>
-            </div>
-        </div>
+    }
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Name"/>
+        <admin-field asp-for="Active"/>
     </div>
-</div>
-<admin-input asp-for="Address" asp-template="Address"/>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="AdminComment"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="AdminComment"></admin-textarea>
-                <span asp-validation-for="AdminComment"></span>
-            </div>
-        </div>
-        <div class="form-body">
-            <admin-label asp-for="FriendlyUrlName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="FriendlyUrlName"/>
-                <span asp-validation-for="FriendlyUrlName"></span>
-            </div>
-        </div>
+</admin-card>
+<admin-card>
+    <admin-input asp-for="Address" asp-template="Address"/>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="AdminComment">
+            <admin-textarea asp-for="AdminComment"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="FriendlyUrlName"/>
     </div>
-    <vc:admin-widget widget-zone="affiliate_details_info_bottom" additional-data="Model"/>
-</div>
+</admin-card>
+<vc:admin-widget widget-zone="affiliate_details_info_bottom" additional-data="Model"/>

@@ -5,27 +5,18 @@
 }
 <form asp-area="@Constants.AreaVendor" asp-controller="VendorInfo" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc["Vendor.EditVendorDetails"] - @Model.Name
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Vendor.Common.Save"]
-                            </button>
-                            <vc:vendor-widget widget-zone="vendor_vendor_details_buttons" additional-data="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the vendor's own details: its name as the title and Save as the one primary action *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-box"
+                meta="@Loc["Vendor.EditVendorDetails"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Vendor.Common.Save"]
+            </button>
+            <vc:vendor-widget widget-zone="vendor_vendor_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>

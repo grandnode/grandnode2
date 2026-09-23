@@ -37,81 +37,36 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name" disabled="@isReadOnly"/>
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
             <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
         </div>;
+    var attributeControlTypes =
+        EnumTranslationService.ToSelectList(
+        ((AttributeControlType)Model.AttributeControlTypeId), valuesToExclude: //custom customer attributes don't support some attribute control types
+            [(int)AttributeControlType.FileUpload, (int)AttributeControlType.Datepicker, (int)AttributeControlType.ColorSquares, (int)AttributeControlType.ImageSquares, (int)AttributeControlType.ReadonlyCheckboxes]);
 }
 
-<div class="form-horizontal">
-    <localized-editor localized-template="@template" name="customerattribute-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name" disabled="@isReadOnly"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
+@* The localized name, then one card of two-column fields. IsRequired sits beside IsReadOnly,
+   the switch that hides it, and keeps its pnlIsRequired id for the script above. A global
+   attribute opened by a store owner is shown in a disabled fieldset: nothing on it can be saved. *@
+<admin-card>
+    <fieldset disabled="@isReadOnly">
+        <localized-editor localized-template="@template" name="customerattribute-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+            <div class="grand-fields">
+                <admin-field asp-for="Name"/>
             </div>
+        </localized-editor>
+        <div class="grand-fields grand-fields--2col mt-3">
+            <admin-field asp-for="AttributeControlTypeId" asp-items="attributeControlTypes" size="md"/>
+            <admin-field asp-for="DisplayOrder" size="sm"/>
+            <admin-field asp-for="IsReadOnly"/>
+            <admin-field asp-for="IsRequired" id="pnlIsRequired"/>
+            @if (area == "Admin")
+            {
+                <admin-field asp-for="Stores"/>
+            }
         </div>
-    </localized-editor>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="IsReadOnly"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsReadOnly" disabled="@isReadOnly"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsReadOnly"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlIsRequired">
-            <admin-label asp-for="IsRequired"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsRequired" disabled="@isReadOnly"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsRequired"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AttributeControlTypeId"/>
-            <div class="col-md-9 col-sm-9">
-                @{
-                    var attributeControlTypes =
-                        EnumTranslationService.ToSelectList(
-                        ((AttributeControlType)Model.AttributeControlTypeId), valuesToExclude: //custom customer attributes don't support some attribute control types
-                            [(int)AttributeControlType.FileUpload, (int)AttributeControlType.Datepicker, (int)AttributeControlType.ColorSquares, (int)AttributeControlType.ImageSquares, (int)AttributeControlType.ReadonlyCheckboxes]);
-                }
-                <admin-select asp-for="AttributeControlTypeId" asp-items="attributeControlTypes" disabled="@isReadOnly"/>
-                <span asp-validation-for="AttributeControlTypeId"></span>
-            </div>
-        </div>
-        @if (area == "Admin")
-        {
-            <div class="mb-3">
-                <admin-label asp-for="Stores"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Stores"/>
-                    <span asp-validation-for="Stores"></span>
-                </div>
-            </div>
-        }
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder" disabled="@isReadOnly"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-    </div>
-</div>
+    </fieldset>
+</admin-card>
 <partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

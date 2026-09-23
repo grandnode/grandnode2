@@ -3,32 +3,24 @@
     ViewBag.Title = Loc["Admin.Customers.CustomerTags"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-tags"></i>
-                    @Loc["Admin.Customers.CustomerTags"]
-                </div>
-                <div class="actions">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="customertags-grid"
-                            read-url="@Url.Action("List", "CustomerTag", new { area = Constants.AreaAdmin })"
-                            pager="Compact">
-                    <grid-column field="Name" title="@Loc["Admin.Customers.CustomerTags.Fields.Name"]" width="300">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Count" title="@Loc["Admin.Customers.CustomerTags.Fields.Count"]" width="50"/>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* Add new as the one primary action in the page header, the grid in a flush card *@
+<admin-page title="@Loc["Admin.Customers.CustomerTags"]" icon="bi-tags">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="customertags-grid"
+                    read-url="@Url.Action("List", "CustomerTag", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["Admin.Customers.CustomerTags.Fields.Name"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Count" title="@Loc["Admin.Customers.CustomerTags.Fields.Count"]" width="50"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

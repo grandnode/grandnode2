@@ -1,29 +1,29 @@
 ﻿@model VendorModel
 
-<div class="panel panel-default">
+<div class="grand-card">
     <vc:admin-widget widget-zone="vendor_details_reviews_top" additional-data="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="reviews-grid"
                     read-url="@Url.Action("Reviews", "Vendor", new { VendorId = Model.Id, area = Constants.AreaAdmin })"
                     auto-bind="false">
             <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
             <grid-column field="CustomerId" title="@Loc["Admin.VendorReviews.Fields.Customer"]" width="200">
                 <cell-template>
-                    <a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerInfo }}</a>
                 </cell-template>
             </grid-column>
             <grid-column field="Title" title="@Loc["Admin.VendorReviews.Fields.Title"]" width="300"/>
             <grid-column field="Rating" title="@Loc["Admin.VendorReviews.Fields.Rating"]" width="100"/>
             <grid-column field="IsApproved" title="@Loc["Admin.VendorReviews.Fields.IsApproved"]" width="100" align="Center">
                 <cell-template>
-                    <i data-if="IsApproved" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                    <i data-if="IsApproved" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                 </cell-template>
             </grid-column>
             <grid-column field="CreatedOn" title="@Loc["Admin.Orders.Fields.CreatedOn"]" width="200" format="{0:G}"/>
             <grid-column field="Id" title="@Loc["Admin.Common.View"]" width="100">
                 <cell-template>
-                    <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "VendorReview", new { area = Constants.AreaAdmin })/{{ Id }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Edit", "VendorReview", new { area = Constants.AreaAdmin })/{{ Id }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
                 </cell-template>
             </grid-column>
         </admin-grid>

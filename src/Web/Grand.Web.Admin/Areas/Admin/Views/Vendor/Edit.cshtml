@@ -5,50 +5,44 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Vendor" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc["Admin.Vendors.EditVendorDetails"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Vendors.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            @if (Model.Active)
-                            {
-                                <button type="submit" name="activatevendor" asp-action="Activate" value="deactive" class="btn purple" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
-                                    @Loc["Admin.Common.Deactivate"]
-                                </button>
-                            }
-                            else
-                            {
-                                <button type="submit" name="activatevendor" asp-action="Activate" value="active" class="btn bg-orange"
-                                        onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
-                                    @Loc["Admin.Common.Activate"]
-                                </button>
-                            }
-                            <span id="vendor-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                            <vc:admin-widget widget-zone="vendor_details_buttons" additional-data="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the vendor's name as the title, Save as the one primary action; activate or deactivate and Delete in the overflow menu, each asking the panel modal first *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-box"
+                meta="@Loc["Admin.Vendors.EditVendorDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Vendors.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                @if (Model.Active)
+                {
+                    <admin-action submit="true" name="activatevendor" value="deactive" icon="bi-pause-circle"
+                                  url="@Url.Action("Activate", new { id = Model.Id, area = Constants.AreaAdmin })"
+                                  text="@Loc["Admin.Common.Deactivate"]"
+                                  data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
+                                  data-confirm-title="@Loc["Admin.Common.Deactivate"]"/>
+                }
+                else
+                {
+                    <admin-action submit="true" name="activatevendor" value="active" icon="bi-play-circle"
+                                  url="@Url.Action("Activate", new { id = Model.Id, area = Constants.AreaAdmin })"
+                                  text="@Loc["Admin.Common.Activate"]"
+                                  data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
+                                  data-confirm-title="@Loc["Admin.Common.Activate"]"/>
+                }
+                <admin-action id="vendor-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="vendor_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="vendor-delete"/>
