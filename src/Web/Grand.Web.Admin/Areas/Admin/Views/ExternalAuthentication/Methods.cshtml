@@ -3,44 +3,37 @@
     ViewBag.Title = Loc["Admin.Plugins.ExternalAuthenticationMethods"];
 }
 
-<vc:admin-widget widget-zone="external_authentication_list_buttons" additional-data="null"/>
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-facebook"></i>
-                    @Loc["Admin.Plugins.ExternalAuthenticationMethods"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="authenticationmethods-grid"
-                            key="SystemName"
-                            read-url="@Url.Action("Methods", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
-                            update-url="@Url.Action("MethodUpdate", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
-                            pager="Compact"
-                            edit-mode="Inline">
-                    <grid-column field="FriendlyName" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.FriendlyName"]" width="250">
-                        <cell-template>
-                            <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="SystemName" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.SystemName"]" width="250">
-                        <cell-template>
-                            <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="DisplayOrder" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
-                    <grid-column field="IsActive" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.IsActive"]" width="100" align="Center" editor="Checkbox">
-                        <cell-template>
-                            <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* the methods in a flush card; the grid edits inline, so there is no primary action on this screen *@
+<admin-page title="@Loc["Admin.Plugins.ExternalAuthenticationMethods"]" icon="bi-facebook">
+    <page-actions>
+        <vc:admin-widget widget-zone="external_authentication_list_buttons" additional-data="null"/>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="authenticationmethods-grid"
+                    key="SystemName"
+                    read-url="@Url.Action("Methods", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("MethodUpdate", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-column field="FriendlyName" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.FriendlyName"]" width="250">
+                <cell-template>
+                    <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SystemName" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.SystemName"]" width="250">
+                <cell-template>
+                    <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
+            <grid-column field="IsActive" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.IsActive"]" width="100" align="Center" editor="Checkbox">
+                <cell-template>
+                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

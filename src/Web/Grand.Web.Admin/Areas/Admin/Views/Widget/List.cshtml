@@ -3,52 +3,37 @@
     ViewBag.Title = Loc["Admin.Plugins.Widgets"];
 }
 
+@* the widgets in a flush card; the grid edits inline, so there is no primary action on this screen *@
+<admin-page title="@Loc["Admin.Plugins.Widgets"]" icon="bi-list-task">
+    <page-actions>
+        <vc:admin-widget widget-zone="widget_list_buttons" additional-data="Model"/>
+    </page-actions>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-list-task"></i>
-                    @Loc["Admin.Plugins.Widgets"]
-                </div>
-                <vc:admin-widget widget-zone="widget_list_buttons" additional-data="Model"/>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="widgets-grid"
-                                        key="SystemName"
-                                        read-url="@Url.Action("List", "Widget", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("WidgetUpdate", "Widget", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-column field="FriendlyName" title="@Loc["Admin.Plugins.Widgets.Fields.FriendlyName"]" width="250">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SystemName" title="@Loc["Admin.Plugins.Widgets.Fields.SystemName"]" width="250">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Plugins.Widgets.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
-                                <grid-column field="IsActive" title="@Loc["Admin.Plugins.Widgets.Fields.IsActive"]" width="100" align="Center" editor="Checkbox">
-                                    <cell-template>
-                                        <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
+    <admin-card flush>
+        <admin-grid id="widgets-grid"
+                    key="SystemName"
+                    read-url="@Url.Action("List", "Widget", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("WidgetUpdate", "Widget", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-column field="FriendlyName" title="@Loc["Admin.Plugins.Widgets.Fields.FriendlyName"]" width="250">
+                <cell-template>
+                    <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SystemName" title="@Loc["Admin.Plugins.Widgets.Fields.SystemName"]" width="250">
+                <cell-template>
+                    <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Plugins.Widgets.Fields.DisplayOrder"]" width="100" format="{0:0}"/>
+            <grid-column field="IsActive" title="@Loc["Admin.Plugins.Widgets.Fields.IsActive"]" width="100" align="Center" editor="Checkbox">
+                <cell-template>
+                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

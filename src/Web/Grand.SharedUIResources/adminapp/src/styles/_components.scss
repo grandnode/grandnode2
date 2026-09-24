@@ -852,3 +852,103 @@
     border-start-end-radius: 0 !important;
     border-end-end-radius: 0 !important;
 }
+
+/*
+ * The local plugins list (Plugin/List.cshtml): a heading per plugin group, then one row per plugin
+ * with its logo, name, facts and actions. The script builds the rows, and its classes
+ * (.item-installed-*, .install-*, .button-*) still drive what is shown; _custom.scss keeps the
+ * layout and the show/hide rules, this only moves the colours and spacing onto the tokens inside a
+ * flush card.
+ */
+.grand-card .plugins-table {
+    margin: 0;
+    padding: 0;
+}
+
+.grand-card .plugins-table .category {
+    padding: .75rem var(--grand-pad);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--grand-title);
+    background-color: var(--grand-surface-sunken);
+    border-block-end: 1px solid var(--grand-rule);
+}
+
+.grand-card .plugins-table ul.main-list {
+    background-color: transparent;
+    border-inline-start: 0;
+    border-inline-end: 0;
+}
+
+.grand-card .plugins-table ul.main-list > li {
+    gap: .5rem 0;
+    padding: 1rem var(--grand-pad);
+    border-block-end: 1px solid var(--grand-rule);
+}
+
+.grand-card .plugins-table ul.main-list > li.item-installed-true {
+    background-color: var(--grand-accent-soft);
+}
+
+.grand-card .plugins-table ul.main-list li .logo {
+    width: 4rem;
+    height: 4rem;
+    margin: 0;
+    margin-inline-end: 1rem;
+}
+
+.grand-card .plugins-table .title {
+    gap: .5rem;
+    margin: 0 0 .5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--grand-title);
+}
+
+.grand-card .plugins-table .title span {
+    margin: 0;
+}
+
+//the same shape as .grand-chip; the script writes the class, so it is restyled here
+.grand-card .plugins-table .install-true,
+.grand-card .plugins-table .install-false {
+    padding: .1rem .5rem;
+    font-size: .75rem;
+    font-weight: 600;
+    border-radius: 999px !important;
+}
+
+.grand-card .plugins-table .install-true {
+    color: var(--grand-green);
+    background-color: var(--grand-green-soft);
+}
+
+.grand-card .plugins-table .install-false {
+    color: var(--grand-red);
+    background-color: var(--grand-red-soft);
+}
+
+.grand-card .plugins-table ul.info li {
+    font-size: .875rem;
+    font-weight: 400;
+    color: var(--grand-muted);
+}
+
+.grand-card .plugins-table ul.info li span {
+    font-weight: 500;
+    color: var(--grand-title);
+}
+
+.grand-card .plugins-table .buttons {
+    gap: .5rem;
+    padding: 0;
+    margin-inline-start: auto;
+}
+
+//the script hides the action a plugin's state rules out (Install once installed, Uninstall before);
+//`.grand-page .btn { display: inline-flex }` comes later at the same weight and brought them back
+.grand-card .plugins-table .button-null,
+.grand-card .plugins-table .button-installed-true,
+.grand-card .plugins-table .button-false {
+    display: none;
+}
