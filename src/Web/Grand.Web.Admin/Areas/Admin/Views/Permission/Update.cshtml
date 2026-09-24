@@ -5,61 +5,23 @@
     ViewBag.Title = Loc["Admin.Configuration.Permissions.AddNew"];
 }
 <form id="PermissionPopup" asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="Update" method="post">
-    <div asp-validation-summary="All"></div>
     <input asp-for="Id" type="hidden"/>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        <text> @Loc["Admin.Configuration.Permissions.Update"] @Model.SystemName</text>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="Name"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="Name"/>
-                                    <span asp-validation-for="Name"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SystemName"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="SystemName" asp-disabled="true"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Area"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="Area"/>
-                                    <span asp-validation-for="Area"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Category"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="Category"/>
-                                    <span asp-validation-for="Category"></span>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                                    <button class="btn btn-success" type="submit" name="save">
-                                        <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-popup title="@(Loc["Admin.Configuration.Permissions.Update"] + " " + Model.SystemName)" icon="bi-boxes">
+        <div asp-validation-summary="All"></div>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="SystemName">
+                <admin-input asp-for="SystemName" asp-disabled="true"/>
+            </admin-field>
+            <admin-field asp-for="Area"/>
+            <admin-field asp-for="Category"/>
         </div>
-    </div>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#PermissionPopup").submit(function (e) {

@@ -5,44 +5,28 @@
 }
 <form asp-area="@area" asp-controller="EmailAccount" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        @if (area == "Admin")
-                        {
-                            <i class="bi bi-people"></i>
-                        }
-                        else
-                        {
-                            <i class="bi bi-envelope"></i>
-                        }
-                        @Loc["Admin.Configuration.EmailAccounts.EditEmailAccountDetails"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i> @Html.ActionLink(Loc["Admin.Configuration.EmailAccounts.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <span id="emailAccount-delete" class="btn red">
-                                <i class="bi bi-trash"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span>
-                            </span>
-                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the address as the title, Save as the one primary action, Delete in the overflow menu *@
+    <admin-page sticky
+                title="@Model.Email"
+                icon="bi-envelope"
+                meta="@Loc["Admin.Configuration.EmailAccounts.EditEmailAccountDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Configuration.EmailAccounts.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="emailAccount-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="emailAccount-delete"/>

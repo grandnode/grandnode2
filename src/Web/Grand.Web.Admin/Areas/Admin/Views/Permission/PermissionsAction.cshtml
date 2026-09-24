@@ -7,43 +7,23 @@
 <form id="PermissionsAction" asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="PermissionsAction" method="post">
     <input asp-for="SystemName" type="hidden"/>
     <input asp-for="CustomerGroupId" type="hidden"/>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-person-badge"></i>
-                        @Loc["Admin.Configuration.Permissions.Actions"] (@Model.PermissionName - @Model.CustomerGroupName)
-                    </div>
-
-                </div>
-                <div class="x_content form">
-                    <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save">
-                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                        </button>
-                    </div>
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="mt-checkbox-list">
-                                        @foreach (var action in Model.AvailableActions)
-                                        {
-                                            <label class="mt-checkbox mt-checkbox-outline control control-checkbox control control-checkbox">
-                                                <input type="checkbox" name="SelectedActions" value="@action" checked="@(!Model.DeniedActions.Contains(action))"/>@action
-                                                <div class="control__indicator"></div>
-                                            </label>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-popup title="@Loc["Admin.Configuration.Permissions.Actions"]" icon="bi-person-badge">
+        <p class="text-body-secondary">@Model.PermissionName - @Model.CustomerGroupName</p>
+        <div class="grand-fields grand-fields--2col">
+            @foreach (var action in Model.AvailableActions)
+            {
+                <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" name="SelectedActions" value="@action" checked="@(!Model.DeniedActions.Contains(action))"/>
+                    <span class="form-check-label">@action</span>
+                </label>
+            }
         </div>
-    </div>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#PermissionsAction").submit(function (e) {

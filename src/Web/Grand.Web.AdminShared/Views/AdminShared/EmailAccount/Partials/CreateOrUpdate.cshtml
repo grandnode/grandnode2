@@ -10,99 +10,38 @@
 {
     <input asp-for="StoreId" type="hidden"/>
 }
-<div class="form-horizontal">
-    <partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Email"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Email"/>
-                <span asp-validation-for="Email"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisplayName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayName"/>
-                <span asp-validation-for="DisplayName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Host"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Host"/>
-                <span asp-validation-for="Host"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Port"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Port"/>
-                <span asp-validation-for="Port"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Username"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Username"/>
-                <span asp-validation-for="Username"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Password"/>
-            <div class="col-md-9 col-sm-9">
-                <div class="input-group">
-                    <div class="input-icon">
-                        <i class="bi bi-lock bi-fw"></i>
-                        <admin-input asp-for="Password" autocomplete="off"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="UseServerCertificateValidation"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="UseServerCertificateValidation"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="UseServerCertificateValidation"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="SecureSocketOptionsId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="SecureSocketOptionsId" asp-items="EnumTranslationService.ToSelectList((SecureSocketOptions)Model.SecureSocketOptionsId)"/>
-            </div>
-        </div>
+<partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
+
+@* the sender, then the SMTP server it sends through *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Email"/>
+        <admin-field asp-for="DisplayName"/>
         @if (area == "Admin")
         {
-            <div class="mb-3">
-                <admin-label asp-for="StoreId"/>
-                <div class="col-md-9 col-sm-9">
-                    <select asp-for="StoreId" asp-items="Model.AvailableStores" class="form-select"></select>
-                </div>
-            </div>
-        }
-        @if (!string.IsNullOrEmpty(Model.Id))
-        {
-            <div class="mb-3">
-                <div class="note note-info">
-                    @Loc["Admin.Configuration.EmailAccounts.SendTestEmail"]
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="SendTestEmailTo"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="SendTestEmailTo"/>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-9 col-sm-9 offset-md-3">
-                    <input type="submit" name="sendtestemail" asp-action="SendTestEmail" class="btn btn-default btn-sm" value="@Loc["Admin.Configuration.EmailAccounts.SendTestEmail.Button"]"/>
-                </div>
-            </div>
+            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores" size="md"/>
         }
     </div>
-    <partial name="Partials/WidgetZone.DetailsBottom" model="Model"/>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Host"/>
+        <admin-field asp-for="Port" size="sm"/>
+        <admin-field asp-for="Username"/>
+        <admin-field asp-for="Password">
+            <admin-input asp-for="Password" autocomplete="off"/>
+        </admin-field>
+        <admin-field asp-for="SecureSocketOptionsId" asp-items="EnumTranslationService.ToSelectList((SecureSocketOptions)Model.SecureSocketOptionsId)" size="md"/>
+        <admin-field asp-for="UseServerCertificateValidation"/>
+    </div>
+</admin-card>
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <admin-card title="@Loc["Admin.Configuration.EmailAccounts.SendTestEmail"]" icon="bi-send">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="SendTestEmailTo"/>
+        </div>
+        <input type="submit" name="sendtestemail" asp-action="SendTestEmail" class="btn btn-outline-secondary btn-sm mt-2" value="@Loc["Admin.Configuration.EmailAccounts.SendTestEmail.Button"]"/>
+    </admin-card>
+}
+<partial name="Partials/WidgetZone.DetailsBottom" model="Model"/>
