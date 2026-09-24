@@ -4,34 +4,19 @@
 }
 <input id="active-menu-item" type="hidden" value="/Store/Tax/Providers"/>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Tax.FixedRate.FriendlyName"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="tax-categories-grid"
-                                        key="TaxCategoryId"
-                                        read-url="@Url.Action("Configure", "TaxFixedRate", new { area = "Store" })"
-                                        update-url="@Url.Action("TaxRateUpdate", "TaxFixedRate", new { area = "Store" })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.FixedRate.Fields.TaxCategoryName"]" width="400"/>
-                                <grid-column field="Rate" title="@Loc["Plugins.Tax.FixedRate.Fields.Rate"]" width="200" format="{0:n4}" editor="Numeric" decimals="8"/>
-                                @*a shared/global rate (empty StoreId) is managed by the administrator; only a store specific rate can be edited - the controller checks it too*@
-                                <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150" visible-if="StoreId"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* the grid edits inline, so there is no primary action on this screen *@
+<admin-page title="@Loc["Tax.FixedRate.FriendlyName"]" icon="bi-percent">
+    <admin-card flush>
+        <admin-grid id="tax-categories-grid"
+                    key="TaxCategoryId"
+                    read-url="@Url.Action("Configure", "TaxFixedRate", new { area = "Store" })"
+                    update-url="@Url.Action("TaxRateUpdate", "TaxFixedRate", new { area = "Store" })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.FixedRate.Fields.TaxCategoryName"]" width="400"/>
+            <grid-column field="Rate" title="@Loc["Plugins.Tax.FixedRate.Fields.Rate"]" width="200" format="{0:n4}" editor="Numeric" decimals="8"/>
+            @*a shared/global rate (empty StoreId) is managed by the administrator; only a store specific rate can be edited - the controller checks it too*@
+            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150" visible-if="StoreId"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

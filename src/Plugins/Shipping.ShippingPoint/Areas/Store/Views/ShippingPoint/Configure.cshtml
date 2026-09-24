@@ -3,46 +3,36 @@
     ViewBag.Title = Loc["Admin.Configuration.Shipping.Providers"];
 }
 <input id="active-menu-item" type="hidden" value="/Store/Shipping/Providers"/>
-
+@* the points grid in a flush card, Add new in its header; the grid deletes and the popups save,
+   so the screen has no primary action of its own *@
 <form asp-controller="ShippingPoint" asp-action="Configure" asp-route-area="Store" method="post" id="shipping-instore-form">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-geo-alt"></i>
-                        @Loc["Shipping.ShippingPoint.FriendlyName"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <admin-grid id="shipping-points-grid"
-                                read-url="@Url.Action("List", "ShippingPoint", new { area = "Store" })"
-                                destroy-url="@Url.Action("Delete", "ShippingPoint", new { area = "Store" })"
-                                pager="Compact"
-                                confirm-destroy="true"
-                                on-data-bound="bindShippingPointEditPopups">
-                        <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
-                        <grid-column field="ShippingPointName" title="@Loc["Shipping.ShippingPoint.Fields.ShippingPointName"]" width="200"/>
-                        <grid-column field="OpeningHours" title="@Loc["Shipping.ShippingPoint.Fields.OpeningHours"]" width="200"/>
-                        <grid-column field="PickupFee" title="@Loc["Shipping.ShippingPoint.Fields.PickupFee"]" width="150"/>
-                        <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
-                            <cell-template>
-                                <a href="@Url.Action("Edit", "ShippingPoint", new { area = "Store" })?id={{ Id }}&btnId=btnRefresh&formId=shipping-instore-form" class='btn btn-default btn-sm editpopup'>{{ $texts.edit }}</a>
-                            </cell-template>
-                        </grid-column>
-                        <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
-                    </admin-grid>
-                </div>
-                <div class="panel-footer">
-                    <a id="btnAddNewOption" class="btn btn-primary" href="@(Url.Action("Create", "ShippingPoint", new { area = "Store" }) + "?btnId=btnRefresh&formId=shipping-instore-form")">
-                        @Loc["Admin.Common.AddNew"]
-                    </a>
-                    <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none"/>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <admin-page title="@Loc["Shipping.ShippingPoint.FriendlyName"]" icon="bi-geo-alt">
+        <admin-card flush>
+            <card-actions>
+                <a id="btnAddNewOption" class="btn btn-outline-secondary btn-sm" href="@(Url.Action("Create", "ShippingPoint", new { area = "Store" }) + "?btnId=btnRefresh&formId=shipping-instore-form")">
+                    <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+                </a>
+                <input type="submit" id="btnRefresh" style="display: none"/>
+            </card-actions>
+            <admin-grid id="shipping-points-grid"
+                        read-url="@Url.Action("List", "ShippingPoint", new { area = "Store" })"
+                        destroy-url="@Url.Action("Delete", "ShippingPoint", new { area = "Store" })"
+                        pager="Compact"
+                        confirm-destroy="true"
+                        on-data-bound="bindShippingPointEditPopups">
+                <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+                <grid-column field="ShippingPointName" title="@Loc["Shipping.ShippingPoint.Fields.ShippingPointName"]" width="200"/>
+                <grid-column field="OpeningHours" title="@Loc["Shipping.ShippingPoint.Fields.OpeningHours"]" width="200"/>
+                <grid-column field="PickupFee" title="@Loc["Shipping.ShippingPoint.Fields.PickupFee"]" width="150"/>
+                <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
+                    <cell-template>
+                        <a href="@Url.Action("Edit", "ShippingPoint", new { area = "Store" })?id={{ Id }}&btnId=btnRefresh&formId=shipping-instore-form" class='btn btn-outline-secondary btn-sm editpopup'>{{ $texts.edit }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
     <script>
         $(document).ready(function () {
             $('#btnAddNewOption').magnificPopup({

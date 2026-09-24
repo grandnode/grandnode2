@@ -12,70 +12,20 @@
     </script>
 }
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="ShippingPointName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ShippingPointName"/>
-                <span asp-validation-for="ShippingPointName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Description"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="Description"></admin-textarea>
-                <span asp-validation-for="Description"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CountryId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="CountryId" asp-items="Model.AvailableCountries"/>
-                <span asp-validation-for="CountryId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="City"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="City"/>
-                <span asp-validation-for="City"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Address1"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Address1"/>
-                <span asp-validation-for="Address1"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ZipPostalCode"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ZipPostalCode"/>
-                <span asp-validation-for="ZipPostalCode"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="OpeningHours"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="OpeningHours"/>
-                <span asp-validation-for="OpeningHours"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="PickupFee"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PickupFee"/>
-                <span asp-validation-for="PickupFee"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="StoreId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                <span asp-validation-for="StoreId"></span>
-            </div>
-        </div>
-    </div>
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="ShippingPointName"/>
+    <admin-field asp-for="OpeningHours"/>
+</div>
+<div class="grand-fields">
+    <admin-field asp-for="Description">
+        <admin-textarea asp-for="Description"></admin-textarea>
+    </admin-field>
+</div>
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="CountryId" asp-items="Model.AvailableCountries"/>
+    <admin-field asp-for="City"/>
+    <admin-field asp-for="Address1"/>
+    <admin-field asp-for="ZipPostalCode" size="md"/>
+    <admin-field asp-for="PickupFee" size="md"/>
+    <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
 </div>

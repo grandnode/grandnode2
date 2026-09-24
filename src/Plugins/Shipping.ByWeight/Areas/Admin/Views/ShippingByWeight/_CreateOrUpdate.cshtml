@@ -35,122 +35,26 @@
     });
 </script>
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="StoreId" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                <span asp-validation-for="StoreId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="WarehouseId" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
-                <span asp-validation-for="WarehouseId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="CountryId" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="CountryId" asp-items="Model.AvailableCountries"/>
-                <span asp-validation-for="CountryId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="StateProvinceId" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StateProvinceId" asp-items="Model.AvailableStates"/>
-                <span asp-validation-for="StateProvinceId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="Zip" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Zip"/>
-                <span asp-validation-for="Zip"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="ShippingMethodId" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="ShippingMethodId" asp-items="Model.AvailableShippingMethods"/>
-                <span asp-validation-for="ShippingMethodId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="From" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="From"/> [@Model.BaseWeightIn]
-                <span asp-validation-for="From"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="To" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="To"/> [@Model.BaseWeightIn]
-                <span asp-validation-for="To"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="AdditionalFixedCost" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AdditionalFixedCost"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="AdditionalFixedCost"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="LowerWeightLimit" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="LowerWeightLimit"/>
-                <span asp-validation-for="LowerWeightLimit"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="RatePerWeightUnit" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="RatePerWeightUnit"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="RatePerWeightUnit"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3 text-end">
-                <admin-label asp-for="PercentageRateOfSubtotal" class="control-label"/>
-            </div>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PercentageRateOfSubtotal"/>
-                <span asp-validation-for="PercentageRateOfSubtotal"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                <button class="btn btn-success" type="submit" name="save">
-                    <i class="bi bi-check-lg"></i>@Loc["Admin.Common.Save"]
-                </button>
-            </div>
-        </div>
-    </div>
+@* where the rate applies, then the weight range and what it costs; the units are the ends of
+   their controls instead of bare text after them *@
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+    <admin-field asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
+    <admin-field asp-for="CountryId" asp-items="Model.AvailableCountries"/>
+    <admin-field asp-for="StateProvinceId" asp-items="Model.AvailableStates"/>
+    <admin-field asp-for="Zip"/>
+    <admin-field asp-for="ShippingMethodId" asp-items="Model.AvailableShippingMethods"/>
+</div>
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="From" size="md" suffix="@Model.BaseWeightIn"/>
+    <admin-field asp-for="To" size="md" suffix="@Model.BaseWeightIn"/>
+    <admin-field asp-for="AdditionalFixedCost" size="md" suffix="@Model.PrimaryStoreCurrencyCode"/>
+    <admin-field asp-for="LowerWeightLimit" size="md"/>
+    <admin-field asp-for="RatePerWeightUnit" size="md" suffix="@Model.PrimaryStoreCurrencyCode"/>
+    <admin-field asp-for="PercentageRateOfSubtotal" size="md"/>
+</div>
+<div class="grand-popup__actions">
+    <button class="btn btn-primary" type="submit" name="save">
+        <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+    </button>
 </div>

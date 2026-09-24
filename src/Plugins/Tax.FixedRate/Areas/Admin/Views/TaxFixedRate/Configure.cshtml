@@ -1,14 +1,20 @@
 ﻿@{
-    Layout = "_ConfigurePlugin";
+    Layout = "_AdminLayout";
+    ViewBag.Title = Loc["Tax.FixedRate.FriendlyName"];
 }
 <input id="active-menu-item" type="hidden" value="/Admin/Tax/Providers"/>
-<admin-grid id="tax-categories-grid"
-            key="TaxCategoryId"
-            read-url="@Url.Action("Configure", "TaxFixedRate")"
-            update-url="@Url.Action("TaxRateUpdate", "TaxFixedRate")"
-            pager="Compact"
-            edit-mode="Inline">
-    <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.FixedRate.Fields.TaxCategoryName"]" width="400"/>
-    <grid-column field="Rate" title="@Loc["Plugins.Tax.FixedRate.Fields.Rate"]" width="200" editor="Numeric" decimals="8"/>
-    <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
-</admin-grid>
+@* the grid edits inline, so there is no primary action on this screen *@
+<admin-page title="@Loc["Tax.FixedRate.FriendlyName"]" icon="bi-percent">
+    <admin-card flush>
+        <admin-grid id="tax-categories-grid"
+                    key="TaxCategoryId"
+                    read-url="@Url.Action("Configure", "TaxFixedRate")"
+                    update-url="@Url.Action("TaxRateUpdate", "TaxFixedRate")"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.FixedRate.Fields.TaxCategoryName"]" width="400"/>
+            <grid-column field="Rate" title="@Loc["Plugins.Tax.FixedRate.Fields.Rate"]" width="200" editor="Numeric" decimals="8"/>
+            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

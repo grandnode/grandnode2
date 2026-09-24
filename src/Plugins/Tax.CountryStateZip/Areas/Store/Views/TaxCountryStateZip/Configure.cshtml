@@ -6,42 +6,6 @@
 }
 <input id="active-menu-item" type="hidden" value="/Store/Tax/Providers"/>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Tax.CountryStateZip.FriendlyName"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="tax-countrystatezip-grid"
-                                        read-url="@Url.Action("RatesList", "TaxCountryStateZip", new { area = "Store" })"
-                                        update-url="@Url.Action("RateUpdate", "TaxCountryStateZip", new { area = "Store" })"
-                                        destroy-url="@Url.Action("RateDelete", "TaxCountryStateZip", new { area = "Store" })"
-                                        page-size="15"
-                                        page-sizes="15,30,50"
-                                        edit-mode="Inline">
-                                <grid-column field="CountryName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Country"]" width="200"/>
-                                <grid-column field="StateProvinceName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.StateProvince"]" width="200"/>
-                                <grid-column field="Zip" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Zip"]" width="200" editor="Text"/>
-                                <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.TaxCategory"]" width="200"/>
-                                <grid-column field="Percentage" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Percentage"]" width="100" editor="Numeric" decimals="4"/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <script>
     $(document).ready(function () {
         $("#@Html.IdFor(model => model.AddCountryId)").change(function () {
@@ -66,91 +30,68 @@
     });
 </script>
 
-<form asp-controller="TaxCountryStateZip" asp-action="Configure" asp-route-area="Store" method="post">
-    <div class="form-horizontal">
-        <div class="form-body">
-            <div class="mb-3">
-                <div class="note note-info">
-                    @Loc["Plugins.Tax.CountryStateZip.AddRecord.Hint"]
-                </div>
+@* the rates grid edits inline; adding a rate is the screen's one primary action. The form wraps
+   only the add card, as it wrapped only the add fields before, because the #addtaxrate script
+   posts $(this.form).serialize() *@
+<admin-page title="@Loc["Tax.CountryStateZip.FriendlyName"]" icon="bi-percent">
+    <admin-card flush>
+        <admin-grid id="tax-countrystatezip-grid"
+                    read-url="@Url.Action("RatesList", "TaxCountryStateZip", new { area = "Store" })"
+                    update-url="@Url.Action("RateUpdate", "TaxCountryStateZip", new { area = "Store" })"
+                    destroy-url="@Url.Action("RateDelete", "TaxCountryStateZip", new { area = "Store" })"
+                    page-size="15"
+                    page-sizes="15,30,50"
+                    edit-mode="Inline">
+            <grid-column field="CountryName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Country"]" width="200"/>
+            <grid-column field="StateProvinceName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.StateProvince"]" width="200"/>
+            <grid-column field="Zip" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Zip"]" width="200" editor="Text"/>
+            <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.CountryStateZip.Fields.TaxCategory"]" width="200"/>
+            <grid-column field="Percentage" title="@Loc["Plugins.Tax.CountryStateZip.Fields.Percentage"]" width="100" editor="Numeric" decimals="4"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+    <form asp-controller="TaxCountryStateZip" asp-action="Configure" asp-route-area="Store" method="post">
+        <admin-card>
+            <div class="note note-info">
+                @Loc["Plugins.Tax.CountryStateZip.AddRecord.Hint"]
             </div>
-            <div class="mb-3">
-                <div class="col-md-3 col-sm-3 text-end">
-                    <admin-label asp-for="AddCountryId" class="control-label"/>
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddCountryId" asp-items="Model.AvailableCountries"/>
-                    <span asp-validation-for="AddCountryId"></span>
-                </div>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AddCountryId" asp-items="Model.AvailableCountries"/>
+                <admin-field asp-for="AddStateProvinceId" asp-items="Model.AvailableStates"/>
+                <admin-field asp-for="AddZip"/>
+                <admin-field asp-for="AddTaxCategoryId" asp-items="Model.AvailableTaxCategories"/>
+                <admin-field asp-for="AddPercentage" size="md"/>
             </div>
-            <div class="mb-3">
-                <div class="col-md-3 col-sm-3 text-end">
-                    <admin-label asp-for="AddStateProvinceId" class="control-label"/>
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddStateProvinceId" asp-items="Model.AvailableStates"/>
-                    <span asp-validation-for="AddStateProvinceId"></span>
-                </div>
+            <div class="grand-popup__actions">
+                <button type="button" id="addtaxrate" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> @Loc["Plugins.Tax.CountryStateZip.AddRecord"]
+                </button>
             </div>
-            <div class="mb-3">
-                <div class="col-md-3 col-sm-3 text-end">
-                    <admin-label asp-for="AddZip" class="control-label"/>
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AddZip"/>
-                    <span asp-validation-for="AddZip"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-3 col-sm-3 text-end">
-                    <admin-label asp-for="AddTaxCategoryId" class="control-label"/>
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddTaxCategoryId" asp-items="Model.AvailableTaxCategories"/>
-                    <span asp-validation-for="AddTaxCategoryId"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-3 col-sm-3 text-end">
-                    <admin-label asp-for="AddPercentage" class="control-label"/>
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AddPercentage"/>
-                    <span asp-validation-for="AddPercentage"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-actions">
-            <div class="row">
-                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                    <input type="button" id="addtaxrate" class="btn green" value="@Loc["Plugins.Tax.CountryStateZip.AddRecord"]"/>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        $(function () {
-            $('#addtaxrate').click(function () {
+        </admin-card>
+        <script>
+            $(function () {
+                $('#addtaxrate').click(function () {
 
-                var postData = $(this.form).serialize();
-                addAntiForgeryToken(postData);
+                    var postData = $(this.form).serialize();
+                    addAntiForgeryToken(postData);
 
-                $.ajax({
-                    cache: false,
-                    type: 'POST',
-                    url: "@Html.Raw(Url.Action("AddTaxRate", "TaxCountryStateZip", new { area = "Store" }))",
-                    data: postData,
-                    dataType: 'json',
-                    success: function (data) {
-                        var grid = $("#tax-countrystatezip-grid").data('kendoGrid');
-                        grid.dataSource.read();
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        alert('Failed to add record.');
-                    }
+                    $.ajax({
+                        cache: false,
+                        type: 'POST',
+                        url: "@Html.Raw(Url.Action("AddTaxRate", "TaxCountryStateZip", new { area = "Store" }))",
+                        data: postData,
+                        dataType: 'json',
+                        success: function (data) {
+                            var grid = $("#tax-countrystatezip-grid").data('kendoGrid');
+                            grid.dataSource.read();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Failed to add record.');
+                        }
+                    });
+                    return false;
                 });
-                return false;
             });
-        });
-    </script>
-</form>
+        </script>
+    </form>
+</admin-page>

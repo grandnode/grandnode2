@@ -7,22 +7,9 @@
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-card-list"></i>
-                        @Loc["Admin.Common.AddNew"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="_CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-popup title="@Loc["Admin.Common.AddNew"]" icon="bi-truck">
+        <partial name="_CreateOrUpdate" model="Model"/>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#AddPopup").submit(function (e) {

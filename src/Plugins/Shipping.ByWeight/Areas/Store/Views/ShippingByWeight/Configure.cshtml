@@ -4,60 +4,62 @@
     ViewBag.Title = Loc["Admin.Configuration.Shipping.Providers"];
 }
 <input id="active-menu-item" type="hidden" value="/Store/Shipping/Providers"/>
-
+@* the rates grid in a flush card with Add record in its header, then the general settings; Save
+   (which posts those settings through the #savegeneralsettings script) is the one primary action.
+   The form still wraps everything the script serializes *@
 <form asp-controller="ShippingByWeight" asp-action="Configure" asp-route-area="Store" method="post" id="shipping-byweight-form">
-
-    <div class="note note-info">
-        <strong>@Loc["Plugins.Shipping.ByWeight.Formula"]:</strong>
-        @Loc["Plugins.Shipping.ByWeight.Formula.Value"]
-    </div>
-
     @{
         var addNewUrl = Url.Action("AddPopup", "ShippingByWeight", new { area = "Store", btnId = "btnRefresh", formId = "shipping-byweight-form" });
     }
+    <admin-page title="@Loc["Shipping.ByWeight.FriendlyName"]" icon="bi-truck">
+        <page-actions>
+            <button type="button" id="savegeneralsettings" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-card-list"></i>
-                        @Loc["Shipping.ByWeight.FriendlyName"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <admin-grid id="shipping-byweight-grid"
-                                read-url="@Url.Action("RatesList", "ShippingByWeight", new { area = "Store" })"
-                                destroy-url="@Url.Action("RateDelete", "ShippingByWeight", new { area = "Store" })"
-                                page-size="15"
-                                page-sizes="15,30,50"
-                                on-data-bound="bindShippingByWeightEditPopups">
-                        <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
-                        <grid-column field="WarehouseName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Warehouse"]" width="300"/>
-                        <grid-column field="CountryName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Country"]" width="200"/>
-                        <grid-column field="StateProvinceName" title="@Loc["Plugins.Shipping.ByWeight.Fields.StateProvince"]" width="200"/>
-                        <grid-column field="Zip" title="@Loc["Plugins.Shipping.ByWeight.Fields.Zip"]" width="200"/>
-                        <grid-column field="ShippingMethodName" title="@Loc["Plugins.Shipping.ByWeight.Fields.ShippingMethod"]" width="200"/>
-                        @*DataHtml is markup the plugin builds from the rate values*@
-                        <grid-column field="DataHtml" title="@Loc["Plugins.Shipping.ByWeight.Fields.DataHtml"]" width="200" encoded="false"/>
-                        <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
-                            <cell-template>
-                                <a href="@Url.Action("EditPopup", "ShippingByWeight", new { area = "Store" })?id={{ Id }}&btnId=btnRefresh&formId=shipping-byweight-form" class='btn btn-default btn-sm editpopup'>{{ $texts.edit }}</a>
-                            </cell-template>
-                        </grid-column>
-                        <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
-                    </admin-grid>
-                </div>
-                <div class="panel-footer">
-                    <a id="btnAddNewOption" href="@(addNewUrl)" class="btn default">
-                        @Loc["Plugins.Shipping.ByWeight.AddRecord"]
-                    </a>
-                    <input type="submit" id="btnRefresh" style="display: none"/>
-                </div>
-            </div>
+        <div class="note note-info">
+            <strong>@Loc["Plugins.Shipping.ByWeight.Formula"]:</strong>
+            @Loc["Plugins.Shipping.ByWeight.Formula.Value"]
         </div>
-    </div>
 
+        <admin-card flush>
+            <card-actions>
+                <a id="btnAddNewOption" href="@(addNewUrl)" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-plus-lg"></i> @Loc["Plugins.Shipping.ByWeight.AddRecord"]
+                </a>
+                <input type="submit" id="btnRefresh" style="display: none"/>
+            </card-actions>
+            <admin-grid id="shipping-byweight-grid"
+                        read-url="@Url.Action("RatesList", "ShippingByWeight", new { area = "Store" })"
+                        destroy-url="@Url.Action("RateDelete", "ShippingByWeight", new { area = "Store" })"
+                        page-size="15"
+                        page-sizes="15,30,50"
+                        on-data-bound="bindShippingByWeightEditPopups">
+                <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+                <grid-column field="WarehouseName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Warehouse"]" width="300"/>
+                <grid-column field="CountryName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Country"]" width="200"/>
+                <grid-column field="StateProvinceName" title="@Loc["Plugins.Shipping.ByWeight.Fields.StateProvince"]" width="200"/>
+                <grid-column field="Zip" title="@Loc["Plugins.Shipping.ByWeight.Fields.Zip"]" width="200"/>
+                <grid-column field="ShippingMethodName" title="@Loc["Plugins.Shipping.ByWeight.Fields.ShippingMethod"]" width="200"/>
+                @*DataHtml is markup the plugin builds from the rate values*@
+                <grid-column field="DataHtml" title="@Loc["Plugins.Shipping.ByWeight.Fields.DataHtml"]" width="200" encoded="false"/>
+                <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
+                    <cell-template>
+                        <a href="@Url.Action("EditPopup", "ShippingByWeight", new { area = "Store" })?id={{ Id }}&btnId=btnRefresh&formId=shipping-byweight-form" class='btn btn-outline-secondary btn-sm editpopup'>{{ $texts.edit }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+            </admin-grid>
+        </admin-card>
+
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="LimitMethodsToCreated"/>
+                <admin-field asp-for="DisplayOrder" size="sm"/>
+            </div>
+        </admin-card>
+    </admin-page>
     <script>
         $(document).ready(function () {
             $('#btnAddNewOption').magnificPopup({
@@ -102,47 +104,6 @@
             });
         });
     </script>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="LimitMethodsToCreated" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="LimitMethodsToCreated"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="LimitMethodsToCreated"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="DisplayOrder" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DisplayOrder"/>
-                                    <span asp-validation-for="DisplayOrder"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <div class="row">
-                                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                                    <input type="button" id="savegeneralsettings" class="btn green" value="@Loc["Admin.Common.Save"]"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         $(function () {

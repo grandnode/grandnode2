@@ -9,85 +9,45 @@
 }
 <form id="ProductAddPopup" asp-controller="HasAllProducts" asp-action="ProductAddPopup" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc["Plugins.DiscountRules.HasAllProducts.Fields.Products.Choose"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchProductName" class="col-sm-3"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="SearchProductName"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchCategoryId" class="col-sm-3"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="SearchCategoryId"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchCollectionId" class="col-sm-3"/>
-                                <div class="col-md-9  col-sm-9">
-                                    <admin-input asp-for="SearchCollectionId"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchStoreId" class="col-sm-3"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchVendorId" class="col-sm-3"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="SearchVendorId" asp-items="Model.AvailableVendors"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SearchProductTypeId" class="col-sm-3"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <div class="row">
-                                    <div class="col-md-offset-1 col-md-11 col-sm-11 btn-group btn-group-devided">
-                                        <input type="button" id="search-products" class="btn default" value="@Loc["Admin.Common.Search"]"/>
-                                        <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    @* the Category product picker's shape: the name as the quick search, the rest behind Filters,
+       the grid in a flush card. A row's Select adds the product; Save is the popup's one primary,
+       so Search is the outline submit *@
+    <admin-popup title="@Loc["Plugins.DiscountRules.HasAllProducts.Fields.Products.Choose"]" icon="bi-boxes">
+        <admin-filters id="product-picker-filters" submit-id="search-products" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchProductName"/>
+            </filters-search>
+            <admin-field asp-for="SearchCategoryId"/>
+            <admin-field asp-for="SearchCollectionId"/>
+            <admin-field asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+            <admin-field asp-for="SearchVendorId" asp-items="Model.AvailableVendors"/>
+            <admin-field asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
+        </admin-filters>
+        <admin-card flush>
+            <admin-grid id="products-grid"
+                        read-url="@(Url.RouteUrl("Plugin.DiscountRules.HasAllProducts.ProductAddPopupList"))"
+                        additional-data="additionalData">
+                <grid-text name="select" value="@Loc["Admin.Common.Select"]"/>
+                <grid-column field="Name" title="@Loc["Admin.Common.Select"]" width="50">
+                    <cell-template>
+                        <input type="button" value="{{ $texts.select }}" data-grid-click="selectRequiredProductRow" class="btn btn-outline-secondary btn-sm" />
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Name" title="@Loc["Admin.Catalog.Products.Fields.Name"]"/>
+                <grid-column field="Published" title="@Loc["Admin.Catalog.Products.Fields.Published"]" width="100" align="Center">
+                    <cell-template>
+                        <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    </cell-template>
+                </grid-column>
+            </admin-grid>
+        </admin-card>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
         </div>
-    </div>
-    <admin-grid id="products-grid"
-                read-url="@(Url.RouteUrl("Plugin.DiscountRules.HasAllProducts.ProductAddPopupList"))"
-                additional-data="additionalData">
-        <grid-text name="select" value="@Loc["Admin.Common.Select"]"/>
-        <grid-column field="Name" title="@Loc["Admin.Common.Select"]" width="50">
-            <cell-template>
-                <input type="button" value="{{ $texts.select }}" data-grid-click="selectRequiredProductRow" class="btn btn-default btn-sm" />
-            </cell-template>
-        </grid-column>
-        <grid-column field="Name" title="@Loc["Admin.Catalog.Products.Fields.Name"]"/>
-        <grid-column field="Published" title="@Loc["Admin.Catalog.Products.Fields.Published"]" width="100" align="Center">
-            <cell-template>
-                <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-            </cell-template>
-        </grid-column>
-    </admin-grid>
+    </admin-popup>
     <script>
             var mfp = $.magnificPopup.instance;
             $("#ProductAddPopup").submit(function (e) {
