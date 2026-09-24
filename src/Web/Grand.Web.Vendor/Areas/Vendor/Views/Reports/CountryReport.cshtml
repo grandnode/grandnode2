@@ -4,83 +4,31 @@
     ViewBag.Title = Loc["Vendor.Reports.Country"];
 }
 
+@* The shared country report's shape, without the order status criterion the vendor panel never
+   offered: the filter bar opened on load, the grid in a flush card, Search as the one primary
+   action. The ids the script below looks up are unchanged. *@
+<admin-page title="@Loc["Vendor.Reports.Country"]" icon="bi-card-list">
+    <vc:vendor-widget widget-zone="vendor_country_report" additional-data="Model"/>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit popup-window">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Vendor.Reports.Country"]
-                </div>
-
-            </div>
-            <div class="x_content form">
-                <vc:vendor-widget widget-zone="vendor_country_report" additional-data="Model"/>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <div class="form-horizontal">
-                                <div class="form-body">
-                                    <div class="main-header col-12 px-0">
-                                        <div class="row align-items-end">
-                                            <div class="col-md-4 col-ms-12 col-12">
-                                                <div class="mb-0">
-                                                    <admin-label asp-for="StartDate" class="control-label"/>
-                                                    <admin-input asp-for="StartDate"/>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-ms-12 col-12">
-                                                <div class="mb-0">
-                                                    <admin-label asp-for="EndDate" class="control-label"/>
-                                                    <admin-input asp-for="EndDate"/>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-sm-12 col-12">
-                                                <div class="form-actions">
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-success filter-submit" id="search-countryreport">
-                                                            <i class="bi bi-search"></i> @Loc["Vendor.Reports.Country.RunReport"]
-                                                        </button>
-                                                        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                            <i class="bi bi-funnel"></i>&nbsp; @Loc["Vendor.Common.Filters"]
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="collapse" id="filterCollapse">
-                                        <div class="drop-filters-container w-100">
-                                            <div class="mb-3">
-                                                <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3"/>
-                                                <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="x_content">
-                                    <admin-grid id="countryreport-grid"
-                                                read-url="@Url.Action("CountryReportList", "Reports", new { area = Constants.AreaVendor })"
-                                                additional-data="additionalData"
-                                                pager="Compact">
-                                        <grid-column field="CountryName" title="@Loc["Vendor.Reports.Country.Fields.CountryName"]"/>
-                                        <grid-column field="TotalOrders" title="@Loc["Vendor.Reports.Country.Fields.TotalOrders"]"/>
-                                        <grid-column field="SumOrders" title="@Loc["Vendor.Reports.Country.Fields.SumOrders"]"/>
-                                    </admin-grid>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-filters id="countryreport-filters" submit-id="search-countryreport" expanded="true">
+        <div class="grand-range">
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
         </div>
-    </div>
-</div>
+        <admin-field asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
+    </admin-filters>
 
-
+    <admin-card flush>
+        <admin-grid id="countryreport-grid"
+                    read-url="@Url.Action("CountryReportList", "Reports", new { area = Constants.AreaVendor })"
+                    additional-data="additionalData"
+                    pager="Compact">
+            <grid-column field="CountryName" title="@Loc["Vendor.Reports.Country.Fields.CountryName"]"/>
+            <grid-column field="TotalOrders" title="@Loc["Vendor.Reports.Country.Fields.TotalOrders"]"/>
+            <grid-column field="SumOrders" title="@Loc["Vendor.Reports.Country.Fields.SumOrders"]"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
 

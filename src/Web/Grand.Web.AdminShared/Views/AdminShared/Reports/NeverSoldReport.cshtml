@@ -6,64 +6,30 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc[$"{Scope.ResourceKeyPrefix}.Reports.NeverSold"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <partial name="Partials/WidgetZone.NeverSold" model="Model"/>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <div class="form-horizontal">
-                                <div class="form-body">
-                                    <div class="row align-items-end mb-3">
-                                        <div class="col-md-3 col-sm-12 col-12">
-                                            <div class="mb-0">
-                                                <admin-label asp-for="StartDate" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                                <admin-input asp-for="StartDate" class="w-100"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-sm-12 col-12">
-                                            <div class="mb-0">
-                                                <admin-label asp-for="EndDate" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                                <admin-input asp-for="EndDate" class="w-100"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5 col-sm-12 col-12 mt-md-0 mt-3">
-                                            <div class="form-actions">
-                                                <button class="btn btn-success filter-submit" id="search-neversoldreport">
-                                                    <i class="bi bi-search"></i> @Loc["Admin.Reports.NeverSold.RunReport"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="x_content">
-                                    <admin-grid id="neversoldreport-grid"
-                                                read-url="@Url.Action("NeverSoldReportList", "Reports", new { area })"
-                                                additional-data="additionalData">
-                                        <grid-column field="ProductName" title="@Loc["Admin.Reports.NeverSold.Fields.Name"]">
-                                            <cell-template>
-                                                <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}">{{ ProductName }}</a>
-                                            </cell-template>
-                                        </grid-column>
-                                    </admin-grid>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* the dates in a filter bar opened on load, the grid in a flush card, Search as the one primary
+   action; the ids the script below looks up are unchanged *@
+<admin-page title="@Loc[$"{Scope.ResourceKeyPrefix}.Reports.NeverSold"]" icon="bi-card-list">
+    <partial name="Partials/WidgetZone.NeverSold" model="Model"/>
 
+    <admin-filters id="neversoldreport-filters" submit-id="search-neversoldreport" expanded="true">
+        <div class="grand-range">
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+        </div>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="neversoldreport-grid"
+                    read-url="@Url.Action("NeverSoldReportList", "Reports", new { area })"
+                    additional-data="additionalData">
+            <grid-column field="ProductName" title="@Loc["Admin.Reports.NeverSold.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}">{{ ProductName }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
 
