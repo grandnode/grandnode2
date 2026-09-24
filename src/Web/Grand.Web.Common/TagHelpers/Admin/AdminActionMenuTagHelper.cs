@@ -53,7 +53,9 @@ public class AdminActionMenuTagHelper : TagHelper
         output.PreContent.AppendHtml(toggle);
 
         var menu = new TagBuilder("div");
-        menu.AddCssClass("dropdown-menu dropdown-menu-end");
+        //grand-action-menu scopes the component style: the rich-text editor on the same page
+        //draws its own .dropdown-menu, which must keep its legacy look
+        menu.AddCssClass("dropdown-menu dropdown-menu-end grand-action-menu");
         menu.InnerHtml.AppendHtml(items);
         output.Content.SetHtmlContent(menu);
     }

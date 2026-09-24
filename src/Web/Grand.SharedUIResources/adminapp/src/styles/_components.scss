@@ -400,6 +400,73 @@
     --#{$prefix}btn-hover-border-color: var(--grand-red);
 }
 
+/*
+ * The overflow menu of <admin-action-menu>. The legacy .dropdown-menu (_custom.scss) is 12px,
+ * square and flat, which made Delete and Copy the smallest things in a header of 16px buttons.
+ * Its entries read like those buttons: body-size text, a padded row, an icon, the card's surface.
+ * Scoped to the tag helper's own class: the rich-text editor draws .dropdown-menu too.
+ * Radii are !important against the blanket reset in _custom.scss; the colour of a destructive
+ * entry against Bootstrap's !important .text-danger.
+ */
+.grand-action-menu {
+    min-width: 14rem;
+    padding: .375rem;
+    font-size: .9375rem;
+    background-color: var(--grand-surface);
+    border: 1px solid var(--grand-border);
+    border-radius: var(--grand-radius) !important;
+    box-shadow: var(--grand-shadow);
+}
+
+.grand-action-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .6rem .8rem;
+    font-size: .9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--#{$prefix}body-color);
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-action-menu .dropdown-item i {
+    font-size: 1.1rem;
+    color: var(--grand-muted);
+}
+
+.grand-action-menu .dropdown-item:hover,
+.grand-action-menu .dropdown-item:focus {
+    color: var(--#{$prefix}body-color);
+    background-color: var(--grand-surface-sunken);
+}
+
+.grand-action-menu .dropdown-item.text-danger,
+.grand-action-menu .dropdown-item.text-danger i {
+    color: var(--grand-red) !important;
+}
+
+.grand-action-menu .dropdown-item.text-danger:hover,
+.grand-action-menu .dropdown-item.text-danger:focus {
+    background-color: var(--grand-red-soft);
+}
+
+/* a destructive entry after the others stands apart, under a rule */
+.grand-action-menu .dropdown-item:not(.text-danger) + .dropdown-item.text-danger {
+    margin-top: .75rem;
+    overflow: visible;
+    position: relative;
+}
+
+.grand-action-menu .dropdown-item:not(.text-danger) + .dropdown-item.text-danger::before {
+    content: "";
+    position: absolute;
+    top: -.4rem;
+    left: .25rem;
+    right: .25rem;
+    border-top: 1px solid var(--grand-rule);
+}
+
 /* the switch of a yes/no field: the accent, and the label beside it rather than above */
 
 /*

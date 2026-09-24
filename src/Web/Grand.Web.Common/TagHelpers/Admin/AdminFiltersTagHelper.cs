@@ -41,11 +41,11 @@ public class AdminFiltersTagHelper : TagHelper
     public bool Expanded { get; set; }
 
     /// <summary>
-    ///     Renders Search as an outline button, for a screen whose one primary action is elsewhere -
-    ///     a batch grid's Save changes, say.
+    ///     Renders Search as an outline button (the default): the screen's one primary action is
+    ///     elsewhere - Add new on a list, a batch grid's Save changes. False makes Search primary.
     /// </summary>
     [HtmlAttributeName("secondary-submit")]
-    public bool SecondarySubmit { get; set; }
+    public bool SecondarySubmit { get; set; } = true;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

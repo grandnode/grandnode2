@@ -139,21 +139,21 @@ public class AdminComponentTagHelperTests
     }
 
     [TestMethod]
-    public async Task Filters_SearchIsPrimaryUnlessTheScreenHasItsOwn()
+    public async Task Filters_SearchIsAnOutlineButtonUnlessAskedToBePrimary()
     {
-        var primary = Output("admin-filters");
-        await new AdminFiltersTagHelper(_contextAccessorMock.Object, _translationServiceMock.Object)
-            .ProcessAsync(Context(), primary);
-        StringAssert.Contains(Render(primary), "btn btn-primary");
-
-        //a batch grid's Save changes is the screen's one primary, so Search steps down
+        //Add new is a list's one primary, so Search is an outline button by default
         var secondary = Output("admin-filters");
-        await new AdminFiltersTagHelper(_contextAccessorMock.Object, _translationServiceMock.Object) {
-            SecondarySubmit = true
-        }.ProcessAsync(Context(), secondary);
+        await new AdminFiltersTagHelper(_contextAccessorMock.Object, _translationServiceMock.Object)
+            .ProcessAsync(Context(), secondary);
         var html = Render(secondary);
         StringAssert.Contains(html, "btn btn-outline-secondary");
         Assert.IsFalse(html.Contains("btn-primary", StringComparison.Ordinal));
+
+        var primary = Output("admin-filters");
+        await new AdminFiltersTagHelper(_contextAccessorMock.Object, _translationServiceMock.Object) {
+            SecondarySubmit = false
+        }.ProcessAsync(Context(), primary);
+        StringAssert.Contains(Render(primary), "btn btn-primary");
     }
 
     [TestMethod]
@@ -244,6 +244,8 @@ public class AdminComponentTagHelperTests
         StringAssert.Contains(html, "data-bs-toggle=\"dropdown\"");
         StringAssert.Contains(html, "aria-label=\"Actions\"");
         StringAssert.Contains(html, "dropdown-menu");
+        //the component style keys off its own class, not the editor's shared .dropdown-menu
+        StringAssert.Contains(html, "grand-action-menu");
         StringAssert.Contains(html, "Copy");
     }
 
