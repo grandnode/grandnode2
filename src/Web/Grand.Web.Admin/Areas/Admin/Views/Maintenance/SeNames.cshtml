@@ -5,74 +5,53 @@
 }
 
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-diagram-3"></i>
-                    @Loc["admin.configuration.senames"]
-                </div>
-                <vc:admin-widget widget-zone="senames_buttons" additional-data="null"/>
-                <div class="actions btn-group btn-group-devided">
-                    <span id="delete-selected" class="btn red">
-                        <i class="bi bi-trash"></i> @Loc["admin.configuration.senames.DeleteSelected"]
-                    </span>
-                </div>
-            </div>
-            <div class="x_content form">
-                <vc:admin-widget widget-zone="senames_top" additional-data="null"/>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="row align-items-end mb-3">
-                            <div class="col-md-6 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="SeName" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-input asp-for="SeName"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="SearchActiveId" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-select asp-for="SearchActiveId" asp-items="Model.AvailableActiveOptions"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
-                                <div class="form-actions">
-                                    <button class="btn btn-success filter-submit" id="search-senames">
-                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <vc:admin-widget widget-zone="senames_bottom" additional-data="null"/>
-            </div>
-            <div class="x_content">
-                <admin-grid id="sename-grid"
-                            read-url="@Url.Action("SeNames", "Maintenance", new { area = Constants.AreaAdmin })"
-                            additional-data="additionalData"
-                            selectable="Checkbox"
-                            on-change="onSeNameSelectionChange">
-                    <grid-column field="Name" title="@Loc["admin.configuration.senames.Name"]" width="300">
-                        <cell-template>
-                            <a data-if="DetailsUrl && DetailsUrl.length > 0" class="text-decoration-none" href="{{ DetailsUrl }}">{{ Name }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="EntityName" title="@Loc["admin.configuration.senames.EntityName"]" width="100"/>
-                    <grid-column field="IsActive" title="@Loc["admin.configuration.senames.IsActive"]" width="50" align="Center">
-                        <cell-template>
-                            <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Language" title="@Loc["admin.configuration.senames.Language"]" width="100"/>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* The country list's shape: the name as the quick search with the active state behind the
+   Filters toggle, Delete selected in the bulk bar that appears while rows are ticked, and the grid
+   in a flush card. There is no Add new, so Search is the screen's one primary button. The ids the
+   script below looks up are unchanged. *@
+<admin-page title="@Loc["admin.configuration.senames"]" icon="bi-diagram-3">
+    <page-actions>
+        <vc:admin-widget widget-zone="senames_buttons" additional-data="null"/>
+    </page-actions>
+
+    <vc:admin-widget widget-zone="senames_top" additional-data="null"/>
+
+    <admin-filters id="senames-filters" submit-id="search-senames">
+        <filters-search>
+            <admin-input asp-for="SeName"/>
+        </filters-search>
+        <admin-field asp-for="SearchActiveId" asp-items="Model.AvailableActiveOptions"/>
+    </admin-filters>
+
+    <vc:admin-widget widget-zone="senames_bottom" additional-data="null"/>
+
+    <admin-card flush>
+        <admin-bulkbar grid-id="sename-grid">
+            <button type="button" id="delete-selected" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash"></i> @Loc["admin.configuration.senames.DeleteSelected"]
+            </button>
+        </admin-bulkbar>
+        <admin-grid id="sename-grid"
+                    read-url="@Url.Action("SeNames", "Maintenance", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData"
+                    selectable="Checkbox"
+                    on-change="onSeNameSelectionChange">
+            <grid-column field="Name" title="@Loc["admin.configuration.senames.Name"]" width="300">
+                <cell-template>
+                    <a data-if="DetailsUrl && DetailsUrl.length > 0" class="text-decoration-none" href="{{ DetailsUrl }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="EntityName" title="@Loc["admin.configuration.senames.EntityName"]" width="100"/>
+            <grid-column field="IsActive" title="@Loc["admin.configuration.senames.IsActive"]" width="50" align="Center">
+                <cell-template>
+                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Language" title="@Loc["admin.configuration.senames.Language"]" width="100"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 
 <script>

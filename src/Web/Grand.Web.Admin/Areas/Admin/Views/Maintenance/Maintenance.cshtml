@@ -5,125 +5,73 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Maintenance" asp-action="Maintenance" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-database"></i>
-                        @Loc["Admin.System.Maintenance"]
-                    </div>
-                    <vc:admin-widget widget-zone="maintenance_buttons" additional-data="null"/>
-                </div>
-                <div class="x_content form">
-                    <vc:admin-widget widget-zone="maintenance_top" additional-data="null"/>
-                    <div class="form-horizontal">
-                        <div class="form-body panel panel-default">
-                            <div class="mb-3">
-                                <div class="note note-info">
-                                    <strong>@Loc["Admin.System.Maintenance.DeleteGuests"]</strong>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="DeleteGuests.StartDate"/>
-                                <div class="col-8 col-md-4 col-sm-4">
-                                    <admin-input asp-for="DeleteGuests.StartDate"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="DeleteGuests.EndDate"/>
-                                <div class="col-8 col-md-4 col-sm-4">
-                                    <admin-input asp-for="DeleteGuests.EndDate"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="DeleteGuests.OnlyWithoutShoppingCart"/>
-                                <div class="col-8 col-md-4 col-sm-4">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="DeleteGuests.OnlyWithoutShoppingCart"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <input type="submit" name="delete-guests" asp-action="MaintenanceDeleteGuests" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]"/>
-                            </div>
-                            @if (Model.DeleteGuests.NumberOfDeletedCustomers.HasValue)
-                            {
-                                <label class="offset-md-3">@string.Format(Loc["Admin.System.Maintenance.DeleteGuests.TotalDeleted"], Model.DeleteGuests.NumberOfDeletedCustomers.Value)</label>
-                            }
+    @* A card per task, each with its own action at the foot. Nothing here commits a form, so the
+       screen has no primary button: the deletes are outline-danger, as they were red before. *@
+    <admin-page title="@Loc["Admin.System.Maintenance"]" icon="bi-database">
+        <page-actions>
+            <vc:admin-widget widget-zone="maintenance_buttons" additional-data="null"/>
+        </page-actions>
+
+        <vc:admin-widget widget-zone="maintenance_top" additional-data="null"/>
+
+        <admin-card title="@Loc["Admin.System.Maintenance.DeleteGuests"]">
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="DeleteGuests.StartDate" size="md"/>
+                <admin-field asp-for="DeleteGuests.EndDate" size="md"/>
+                <admin-field asp-for="DeleteGuests.OnlyWithoutShoppingCart"/>
+            </div>
+            <div class="mt-3">
+                <input type="submit" name="delete-guests" asp-action="MaintenanceDeleteGuests" class="btn btn-outline-danger btn-sm" value="@Loc["Admin.Common.Delete"]"/>
+            </div>
+            @if (Model.DeleteGuests.NumberOfDeletedCustomers.HasValue)
+            {
+                <div class="grand-field__hint mt-2">@string.Format(Loc["Admin.System.Maintenance.DeleteGuests.TotalDeleted"], Model.DeleteGuests.NumberOfDeletedCustomers.Value)</div>
+            }
+        </admin-card>
+
+        <admin-card title="@Loc["Admin.System.Maintenance.ClearMostViewed"]">
+            <input type="submit" name="clear-most-view" asp-action="MaintenanceClearMostViewed" class="btn btn-outline-danger btn-sm" value="@Loc["Admin.Common.Delete"]"/>
+        </admin-card>
+
+        <admin-card title="@Loc["Admin.System.Maintenance.DeleteExportedFiles"]">
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="DeleteExportedFiles.StartDate" size="md"/>
+                <admin-field asp-for="DeleteExportedFiles.EndDate" size="md"/>
+            </div>
+            <div class="mt-3">
+                <input type="submit" name="delete-exported-files" asp-action="MaintenanceDeleteFiles" class="btn btn-outline-danger btn-sm" value="@Loc["Admin.Common.Delete"]"/>
+            </div>
+            @if (Model.DeleteExportedFiles.NumberOfDeletedFiles.HasValue)
+            {
+                <div class="grand-field__hint mt-2">@string.Format(Loc["Admin.System.Maintenance.DeleteExportedFiles.TotalDeleted"], Model.DeleteExportedFiles.NumberOfDeletedFiles.Value)</div>
+            }
+        </admin-card>
+
+        <admin-card title="@Loc["Admin.System.Maintenance.ConvertPicture"]">
+            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#convertPicutresConfirmationModal">@Loc["Admin.System.Maintenance.ConvertPicture.Button"]</button>
+            <div class="modal fade" id="convertPicutresConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">@Loc["Admin.Common.AreYouSure"]</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Loc["Common.Close"]"></button>
                         </div>
-                        <div class="form-body panel panel-default">
-                            <div class="mb-3">
-                                <div class="note note-info">
-                                    <strong>@Loc["Admin.System.Maintenance.ClearMostViewed"]</strong>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <input type="submit" name="clear-most-view" asp-action="MaintenanceClearMostViewed" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]"/>
-                            </div>
+                        <div class="modal-body">
+                            @Loc["Admin.Common.UndoneChange"]
                         </div>
-                        <div class="form-body panel panel-default">
-                            <div class="mb-3">
-                                <div class="note note-info">
-                                    <strong>@Loc["Admin.System.Maintenance.DeleteExportedFiles"]</strong>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="DeleteExportedFiles.StartDate"/>
-                                <div class="col-8 col-md-4 col-sm-4">
-                                    <admin-input asp-for="DeleteExportedFiles.StartDate"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="DeleteExportedFiles.EndDate"/>
-                                <div class="col-8 col-md-4 col-sm-4">
-                                    <admin-input asp-for="DeleteExportedFiles.EndDate"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <input type="submit" name="delete-exported-files" asp-action="MaintenanceDeleteFiles" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]"/>
-                            </div>
-                            @if (Model.DeleteExportedFiles.NumberOfDeletedFiles.HasValue)
-                            {
-                                <label class="offset-md-3">@string.Format(Loc["Admin.System.Maintenance.DeleteExportedFiles.TotalDeleted"], Model.DeleteExportedFiles.NumberOfDeletedFiles.Value)</label>
-                            }
-                        </div>
-                        <div class="form-body panel panel-default">
-                            <div class="note note-info form-actions">
-                                <strong>@Loc["Admin.System.Maintenance.ConvertPicture"]</strong>
-                            </div>
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-danger red offset-md-3" data-bs-toggle="modal" data-bs-target="#convertPicutresConfirmationModal">@Loc["Admin.System.Maintenance.ConvertPicture.Button"]</button>
-                                <div class="modal fade" id="convertPicutresConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="exampleModalLabel">@Loc["Admin.Common.AreYouSure"]</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Loc["Common.Close"]"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                @Loc["Admin.Common.UndoneChange"]
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Loc["Common.Close"]</button>
-                                                <input type="submit" name="convert-picture-webp" asp-action="MaintenanceConvertPicture" class="btn red offset-md-3" value="@Loc["Admin.Common.SaveChanges"]"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @if (Model.ConvertedPictureModel.NumberOfConvertItems >= 0)
-                            {
-                                <div class="mb-3">
-                                    <label class="offset-md-3">@Loc["Admin.System.Maintenance.ConvertPicture.Number"] : @Model.ConvertedPictureModel.NumberOfConvertItems</label>
-                                </div>
-                            }
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Loc["Common.Close"]</button>
+                            <input type="submit" name="convert-picture-webp" asp-action="MaintenanceConvertPicture" class="btn btn-outline-danger" value="@Loc["Admin.Common.SaveChanges"]"/>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="maintenance_bottom" additional-data="null"/>
                 </div>
             </div>
-        </div>
-    </div>
+            @if (Model.ConvertedPictureModel.NumberOfConvertItems >= 0)
+            {
+                <div class="grand-field__hint mt-2">@Loc["Admin.System.Maintenance.ConvertPicture.Number"] : @Model.ConvertedPictureModel.NumberOfConvertItems</div>
+            }
+        </admin-card>
+
+        <vc:admin-widget widget-zone="maintenance_bottom" additional-data="null"/>
+    </admin-page>
 </form>

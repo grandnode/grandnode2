@@ -8,223 +8,142 @@
     ViewBag.Title = Loc["Admin.System.SystemInfo"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-list-task"></i>
-                    @Loc["Admin.System.SystemInfo"]
-                </div>
-                <vc:admin-widget widget-zone="system_info_buttons" additional-data="null"/>
+@* One page for both of the old panels: the environment as read-only facts, the two long lists in
+   cards of their own with the Show/Hide link in the header, and the warnings as a list with a
+   state icon per line. The toggled panels and their links keep the ids the script uses. *@
+<admin-page title="@Loc["Admin.System.SystemInfo"]" icon="bi-list-task">
+    <page-actions>
+        <vc:admin-widget widget-zone="system_info_buttons" additional-data="null"/>
+    </page-actions>
+
+    <vc:admin-widget widget-zone="system_info_top" additional-data="null"/>
+
+    <admin-card>
+        <div class="grand-facts">
+            <div>
+                <admin-label asp-for="GrandVersion" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.GrandVersion</div>
             </div>
-            <div class="x_content form">
-                <vc:admin-widget widget-zone="system_info_top" additional-data="null"/>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <div class="form-horizontal">
-                                <div class="form-body">
-                                    <div class="mb-3">
-                                        <admin-label asp-for="GrandVersion"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.GrandVersion</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="GitBranch"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.GitBranch</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="GitCommit"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.GitCommit</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="OperatingSystem"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.OperatingSystem</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="MachineName"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.MachineName</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="AspNetInfo"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.AspNetInfo</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="WebRootPath"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.WebRootPath</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="ContentRootPath"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.ContentRootPath</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="EnvironmentName"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.EnvironmentName</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="ServerTimeZone"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.ServerTimeZone</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="ServerLocalTime"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.ServerLocalTime.ToString("F")</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="ApplicationTime"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.ApplicationTime.ToString("F")</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="UtcTime"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@Model.UtcTime.ToString("F")</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="RequestScheme"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@httpContextAccessor.HttpContext.Request.Scheme</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="IsHttps"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">@httpContextAccessor.HttpContext.Request.IsHttps</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="ServerVariables"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">
-                                                <a id="serverVariablesShowHide" href="javascript:toggleLoadedServerVariables();">@Loc["Admin.Common.Show"]</a>
-                                            </label>
-                                            <div id="pnlServerVariables" style="display:none">
-                                                @foreach (var serverVariable in Model.ServerVariables)
-                                                {
-                                                    @serverVariable.Name<text>:</text>
-                                                    @serverVariable.Value
-                                                    <br/>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="LoadedAssemblies"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="control-label">
-                                                <a id="loadedAssembliesShowHide" href="javascript:toggleLoadedAssemblies();">@Loc["Admin.Common.Show"]</a>
-                                            </label>
-                                            <div id="pnlLoadedAssemblies" style="display:none">
-                                                @foreach (var assembly in Model.LoadedAssemblies)
-                                                {
-                                                    @assembly.FullName
-                                                    if (!string.IsNullOrEmpty(assembly.Location))
-                                                    {
-                                                        <br/>
-                                                        <em>@assembly.Location</em>
-                                                    }
-
-                                                    <br/>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <vc:admin-widget widget-zone="system_info_bottom" additional-data="null"/>
+            <div>
+                <admin-label asp-for="GitBranch" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.GitBranch</div>
+            </div>
+            <div>
+                <admin-label asp-for="GitCommit" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.GitCommit</div>
+            </div>
+            <div>
+                <admin-label asp-for="OperatingSystem" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.OperatingSystem</div>
+            </div>
+            <div>
+                <admin-label asp-for="MachineName" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.MachineName</div>
+            </div>
+            <div>
+                <admin-label asp-for="AspNetInfo" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.AspNetInfo</div>
+            </div>
+            <div>
+                <admin-label asp-for="EnvironmentName" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.EnvironmentName</div>
+            </div>
+            <div>
+                <admin-label asp-for="ServerTimeZone" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.ServerTimeZone</div>
+            </div>
+            <div>
+                <admin-label asp-for="ServerLocalTime" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.ServerLocalTime.ToString("F")</div>
+            </div>
+            <div>
+                <admin-label asp-for="ApplicationTime" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.ApplicationTime.ToString("F")</div>
+            </div>
+            <div>
+                <admin-label asp-for="UtcTime" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.UtcTime.ToString("F")</div>
+            </div>
+            <div>
+                <admin-label asp-for="RequestScheme" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@httpContextAccessor.HttpContext.Request.Scheme</div>
+            </div>
+            <div>
+                <admin-label asp-for="IsHttps" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@httpContextAccessor.HttpContext.Request.IsHttps</div>
             </div>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-list-task"></i>
-                    @Loc["Admin.System.Warnings"]
-                </div>
-                <vc:admin-widget widget-zone="warnings_buttons" additional-data="null"/>
+        @* the two paths are long, so they get a row of their own and half the width each *@
+        <div class="grand-facts mt-3">
+            <div>
+                <admin-label asp-for="WebRootPath" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.WebRootPath</div>
             </div>
-            <vc:admin-widget widget-zone="warnings_top" additional-data="null"/>
-            <div class="form-horizontal">
-                <div class="form-body">
-                    <div class="x_content">
-                        <div class="form-horizontal">
-                            @foreach (var warning in Model.SystemWarnings)
-                            {
-                                switch (warning.Level)
-                                {
-                                    case SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass:
-                                    {
-                                        <div class="mb-3">
-                                            <div class="offset-md-2 col-md-10 col-sm-10">
-                                                <label class="control-label">
-                                                    @warning.Text
-                                                </label>
-                                            </div>
-                                        </div>
-                                    }
-                                        break;
-                                    case SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning:
-                                    {
-                                        <div class="mb-3">
-                                            <div class="offset-md-2 col-md-10 col-sm-10">
-                                                <label class="control-label">
-                                                    @warning.Text
-                                                </label>
-                                            </div>
-                                        </div>
-                                    }
-                                        break;
-                                    case SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail:
-                                    {
-                                        <div class="mb-3">
-                                            <div class="offset-md-2 col-md-10 col-sm-10">
-                                                <label class="control-label">
-                                                    @warning.Text
-                                                </label>
-                                            </div>
-                                        </div>
-                                    }
-                                        break;
-                                }
-                            }
-                            <vc:admin-widget widget-zone="warnings_bottom" additional-data="null"/>
-                        </div>
-                    </div>
-                </div>
+            <div>
+                <admin-label asp-for="ContentRootPath" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.ContentRootPath</div>
             </div>
         </div>
-    </div>
-</div>
+    </admin-card>
+
+    <admin-card title="@Loc["Admin.System.SystemInfo.ServerVariables"]">
+        <card-actions>
+            <a id="serverVariablesShowHide" class="btn btn-outline-secondary btn-sm" href="javascript:toggleLoadedServerVariables();">@Loc["Admin.Common.Show"]</a>
+        </card-actions>
+        <div id="pnlServerVariables" class="text-break small" style="display:none">
+            @foreach (var serverVariable in Model.ServerVariables)
+            {
+                @serverVariable.Name<text>:</text>
+                @serverVariable.Value
+                <br/>
+            }
+        </div>
+    </admin-card>
+
+    <admin-card title="@Loc["Admin.System.SystemInfo.LoadedAssemblies"]">
+        <card-actions>
+            <a id="loadedAssembliesShowHide" class="btn btn-outline-secondary btn-sm" href="javascript:toggleLoadedAssemblies();">@Loc["Admin.Common.Show"]</a>
+        </card-actions>
+        <div id="pnlLoadedAssemblies" class="text-break small" style="display:none">
+            @foreach (var assembly in Model.LoadedAssemblies)
+            {
+                @assembly.FullName
+                if (!string.IsNullOrEmpty(assembly.Location))
+                {
+                    <br/>
+                    <em>@assembly.Location</em>
+                }
+
+                <br/>
+            }
+        </div>
+    </admin-card>
+
+    <vc:admin-widget widget-zone="system_info_bottom" additional-data="null"/>
+
+    <admin-card title="@Loc["Admin.System.Warnings"]">
+        <card-actions>
+            <vc:admin-widget widget-zone="warnings_buttons" additional-data="null"/>
+        </card-actions>
+        <vc:admin-widget widget-zone="warnings_top" additional-data="null"/>
+        <ul class="list-unstyled mb-0">
+            @foreach (var warning in Model.SystemWarnings)
+            {
+                var icon = warning.Level switch
+                {
+                    SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass => "bi-check-circle text-success",
+                    SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning => "bi-exclamation-triangle text-warning",
+                    _ => "bi-x-circle text-danger"
+                };
+                <li class="d-flex gap-2 py-1">
+                    <i class="bi @icon" aria-hidden="true"></i>
+                    <span>@warning.Text</span>
+                </li>
+            }
+        </ul>
+        <vc:admin-widget widget-zone="warnings_bottom" additional-data="null"/>
+    </admin-card>
+</admin-page>
 
 <script>
     function toggleLoadedAssemblies() {
