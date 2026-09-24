@@ -1,101 +1,24 @@
 ﻿@model ContentSettingsModel
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.Enabled" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BlogSettings.Enabled"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="BlogSettings.Enabled"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.PostsPageSize" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="BlogSettings.PostsPageSize"/>
-                <span asp-validation-for="BlogSettings.PostsPageSize"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.AllowNotRegisteredUsersToLeaveComments" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BlogSettings.AllowNotRegisteredUsersToLeaveComments"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="BlogSettings.AllowNotRegisteredUsersToLeaveComments"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.NotifyAboutNewBlogComments" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BlogSettings.NotifyAboutNewBlogComments"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="BlogSettings.NotifyAboutNewBlogComments"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.NumberOfTags" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="BlogSettings.NumberOfTags"/>
-                <span asp-validation-for="BlogSettings.NumberOfTags"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.ShowBlogOnHomePage" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BlogSettings.ShowBlogOnHomePage"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="BlogSettings.ShowBlogOnHomePage"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.HomePageBlogCount" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="BlogSettings.HomePageBlogCount"/>
-                <span asp-validation-for="BlogSettings.HomePageBlogCount"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.MaxTextSizeHomePage" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="BlogSettings.MaxTextSizeHomePage"/>
-                <span asp-validation-for="BlogSettings.MaxTextSizeHomePage"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="BlogSettings.ShowBlogPostsInSearchAutoComplete" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BlogSettings.ShowBlogPostsInSearchAutoComplete"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="BlogSettings.ShowBlogPostsInSearchAutoComplete"></span>
-            </div>
-        </div>
+
+@* the blog and its listing, then comments on posts, then what the home page shows of it *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="BlogSettings.Enabled"/>
+        <admin-field asp-for="BlogSettings.ShowBlogPostsInSearchAutoComplete"/>
+        <admin-field asp-for="BlogSettings.PostsPageSize" size="sm"/>
+        <admin-field asp-for="BlogSettings.NumberOfTags" size="sm"/>
     </div>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="BlogSettings.AllowNotRegisteredUsersToLeaveComments"/>
+        <admin-field asp-for="BlogSettings.NotifyAboutNewBlogComments"/>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="BlogSettings.ShowBlogOnHomePage"/>
+        <admin-field asp-for="BlogSettings.HomePageBlogCount" size="sm"/>
+        <admin-field asp-for="BlogSettings.MaxTextSizeHomePage" size="sm"/>
+    </div>
+</admin-card>

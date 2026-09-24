@@ -17,39 +17,27 @@
     }
 </script>
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationEnabled" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="CustomerSettings.TwoFactorAuthenticationEnabled"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationEnabled"></span>
+@* two-factor sign-in and the method it reveals, the password rules with the pattern a password
+   must match last because it carries its example, then the lockout after failed attempts *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="CustomerSettings.TwoFactorAuthenticationEnabled"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="CustomerSettings.TwoFactorAuthenticationType" id="twofactortype" asp-items="EnumTranslationService.ToSelectList((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType)" size="md"/>
             </div>
         </div>
-        <div class="mb-3" id="twofactortype">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationType" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.TwoFactorAuthenticationType" asp-items="EnumTranslationService.ToSelectList((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType)"/>
-                <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationType"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.PasswordRegularExpression" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.PasswordRegularExpression"/>
-                <span asp-validation-for="CustomerSettings.PasswordRegularExpression"></span>
-            </div>
-        </div>
-        <div class="mb-3">
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="CustomerSettings.PasswordLifetime" size="sm"/>
+        <admin-field asp-for="CustomerSettings.UnduplicatedPasswordsNumber" size="sm"/>
+        <admin-field asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" size="sm"/>
+    </div>
+    <div class="grand-fields mt-3">
+        <admin-field asp-for="CustomerSettings.PasswordRegularExpression">
+            <admin-input asp-for="CustomerSettings.PasswordRegularExpression"/>
             <div class="note note-info">
                 You can use this regex: <br>
                 ^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@@$%^&*-]).{8,}$<br>
@@ -60,44 +48,17 @@
                 • At least one special character<br>
                 • Minimum 8 in length
             </div>
-        </div>
-
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.PasswordLifetime" class="control-label"/>
+        </admin-field>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="CustomerSettings.FailedPasswordAllowedAttempts" size="sm"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="CustomerSettings.FailedPasswordLockoutMinutes" id="pnlFailedPasswordLockoutMinutes" size="sm"/>
             </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.PasswordLifetime"/>
-                <span asp-validation-for="CustomerSettings.PasswordLifetime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.UnduplicatedPasswordsNumber" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.UnduplicatedPasswordsNumber"/>
-                <span asp-validation-for="CustomerSettings.UnduplicatedPasswordsNumber"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid"/>
-                <span asp-validation-for="CustomerSettings.PasswordRecoveryLinkDaysValid"></span>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.FailedPasswordAllowedAttempts" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.FailedPasswordAllowedAttempts"/>
-                <span asp-validation-for="CustomerSettings.FailedPasswordAllowedAttempts"></span>
-                <script>
+            <script>
 	                $(document).ready(function () {
 	                    var attempts = document.getElementById("@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)");
 	                    // the numeric widget edits in its own input, so the blur happens there
@@ -114,17 +75,7 @@
 			                    }
 		                    }
 		                });
-                </script>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlFailedPasswordLockoutMinutes">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="CustomerSettings.FailedPasswordLockoutMinutes" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.FailedPasswordLockoutMinutes"/>
-                <span asp-validation-for="CustomerSettings.FailedPasswordLockoutMinutes"></span>
-            </div>
+            </script>
         </div>
     </div>
-</div>
+</admin-card>

@@ -5,101 +5,38 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="PushNotifications" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc["Admin.PushNotifications"]
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="alert alert-info">
-                                <p>@Loc["Admin.Settings.PushNotifications.PushNotifications.Info"]</p>
-                            </div>
-                            <div class="alert alert-danger">
-                                <p>@Loc["Admin.Settings.PushNotifications.PushNotifications.Warning"]</p>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Enabled"/>
-                                <div class="col-md-9">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="Enabled"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="PrivateApiKey"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="PrivateApiKey"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="PushApiKey"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="PushApiKey"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="AuthDomain"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="AuthDomain"/>
-                                </div>
-                            </div>
-                            @*<div class="mb-3">
-                                <admin-label asp-for="DatabaseUrl" />
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DatabaseUrl" />
-                                </div>
-                            </div>*@
-                            <div class="mb-3">
-                                <admin-label asp-for="ProjectId"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ProjectId"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="StorageBucket"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="StorageBucket"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="SenderId"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="SenderId"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="AppId"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="AppId"/>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="AllowGuestNotifications"/>
-                                <div class="col-md-9">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="AllowGuestNotifications"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    @* what push notifications are and the warning that goes with them, whether they are on, then
+       the Firebase project they are sent through *@
+    <admin-page title="@Loc["Admin.PushNotifications"]" icon="bi-boxes">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="alert alert-info">
+                <p>@Loc["Admin.Settings.PushNotifications.PushNotifications.Info"]</p>
             </div>
-        </div>
-    </div>
+            <div class="alert alert-danger">
+                <p>@Loc["Admin.Settings.PushNotifications.PushNotifications.Warning"]</p>
+            </div>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="Enabled"/>
+                <admin-field asp-for="AllowGuestNotifications"/>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="PrivateApiKey"/>
+                <admin-field asp-for="PushApiKey"/>
+                <admin-field asp-for="AuthDomain"/>
+                @*<admin-field asp-for="DatabaseUrl"/>*@
+                <admin-field asp-for="ProjectId"/>
+                <admin-field asp-for="StorageBucket"/>
+                <admin-field asp-for="SenderId"/>
+                <admin-field asp-for="AppId"/>
+            </div>
+        </admin-card>
+    </admin-page>
 </form>
