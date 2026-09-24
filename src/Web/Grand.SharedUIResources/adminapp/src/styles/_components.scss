@@ -581,6 +581,22 @@
     border-end-end-radius: var(--grand-radius-sm) !important;
 }
 
+/*
+ * A value that reads as a sentence with its fields inside it - "Each [10] USD spent will earn
+ * [1] loyalty points." - as the child content of an <admin-field>. The numeric widget is 22rem
+ * wide on its own, which pushed every word after it onto a line of its own.
+ */
+.grand-sentence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+.grand-sentence > .grand-numeric-group {
+    width: 9rem;
+}
+
 //~ rather than +: a tab often has a <script> or a widget zone between two cards
 .grand-page .grand-tabstrip .grand-card ~ .grand-card,
 .grand-page .grand-tabstrip .grand-card ~ .grand-fields,

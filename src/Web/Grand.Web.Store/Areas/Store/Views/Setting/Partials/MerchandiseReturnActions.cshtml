@@ -1,24 +1,18 @@
-<div class="panel panel-default">
-    <div class="note note-info">
-        <p>
-            <h4>@Loc["Admin.Settings.Order.MerchandiseReturnActions"]</h4>
-        </p>
-    </div>
-    <div class="panel-body">
-        <admin-grid id="merchandisereturnactions-grid"
-                    read-url="@Url.Action("MerchandiseReturnActionList", new { area = Constants.AreaStore })"
-                    pager="Compact">
-            <grid-column field="Name" title="@Loc["Admin.Settings.Order.MerchandiseReturnActions.Name"]" width="300">
-                <cell-template>
-                    <a class="text-decoration-none" href="@Url.Action("MerchandiseReturnActionEdit", "Setting", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
-                </cell-template>
-            </grid-column>
-            <grid-column field="DisplayOrder" title="@Loc["Admin.Settings.Order.MerchandiseReturnActions.DisplayOrder"]" width="100"/>
-        </admin-grid>
-    </div>
-    <div class="panel-footer">
-        <a href="@Url.Action("MerchandiseReturnActionCreate", new { area = Constants.AreaStore })" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Common.AddNew"]</a>
-    </div>
-</div>
-
-
+@* the grid is read-only; a row opens its own edit screen *@
+<admin-card title="@Loc["Admin.Settings.Order.MerchandiseReturnActions"]" flush>
+    <card-actions>
+        <a href="@Url.Action("MerchandiseReturnActionCreate", new { area = Constants.AreaStore })" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </card-actions>
+    <admin-grid id="merchandisereturnactions-grid"
+                read-url="@Url.Action("MerchandiseReturnActionList", new { area = Constants.AreaStore })"
+                pager="Compact">
+        <grid-column field="Name" title="@Loc["Admin.Settings.Order.MerchandiseReturnActions.Name"]" width="300">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("MerchandiseReturnActionEdit", "Setting", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="DisplayOrder" title="@Loc["Admin.Settings.Order.MerchandiseReturnActions.DisplayOrder"]" width="100"/>
+    </admin-grid>
+</admin-card>
