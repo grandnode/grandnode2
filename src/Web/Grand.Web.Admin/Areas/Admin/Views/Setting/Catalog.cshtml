@@ -6,90 +6,73 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="Catalog" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-fw bi-sliders"></i>
-                        @Loc["Admin.Settings.Catalog"]
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
+    @* the store scope, then one tab per settings group; Save commits every tab *@
+    <admin-page sticky title="@Loc["Admin.Settings.Catalog"]" icon="bi-sliders">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <vc:admin-widget widget-zone="catalog_settings_buttons" additional-data="null"/>
+        </page-actions>
+
+        @await Component.InvokeAsync("StoreScope")
+
+        <vc:admin-widget widget-zone="catalog_settings_top" additional-data="null"/>
+        <admin-tabstrip name="catalogsettings-edit">
+            <items>
+                <tabstrip-item text="@Loc["Admin.Settings.Catalog.General"]" tab-index="0">
+                    <content>
+                        <div>
+                            <partial name="Partials/Catalog.TabGeneralSettings" model="Model"/>
                         </div>
-                    </div>
-                    <vc:admin-widget widget-zone="catalog_settings_buttons" additional-data="null"/>
-                </div>
-                <div class="x_content">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            @await Component.InvokeAsync("StoreScope")
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Settings.Catalog.Performance"]" tab-index="1">
+                    <content>
+                        <div>
+                            <partial name="Partials/Catalog.TabPerformance" model="Model"/>
                         </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <vc:admin-widget widget-zone="catalog_settings_top" additional-data="null"/>
-                    <admin-tabstrip name="catalogsettings-edit">
-                        <items>
-                            <tabstrip-item text="@Loc["Admin.Settings.Catalog.General"]" tab-index="0">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Catalog.TabGeneralSettings" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Admin.Settings.Catalog.Performance"]" tab-index="1">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Catalog.TabPerformance" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Admin.Settings.Catalog.ProductReviews"]" tab-index="2">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Catalog.TabProductReviews" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Admin.Settings.Catalog.Search"]" tab-index="3">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Catalog.TabSearchSettings" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Admin.Settings.Catalog.CompareProducts"]" tab-index="4">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Catalog.TabCompareProducts" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Admin.Settings.Catalog.Sharing"]" tab-index="5">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Catalog.TabSharing" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Admin.Settings.Catalog.SortOptions"]" tab-index="6">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Catalog.TabSortOptions" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <vc:admin-widget widget-zone="catalog_settings_details_tabs" additional-data="Model"/>
-                        </items>
-                    </admin-tabstrip>
-                    <vc:admin-widget widget-zone="catalog_settings_bottom" additional-data="null"/>
-                </div>
-            </div>
-        </div>
-    </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Settings.Catalog.ProductReviews"]" tab-index="2">
+                    <content>
+                        <div>
+                            <partial name="Partials/Catalog.TabProductReviews" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Settings.Catalog.Search"]" tab-index="3">
+                    <content>
+                        <div>
+                            <partial name="Partials/Catalog.TabSearchSettings" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Settings.Catalog.CompareProducts"]" tab-index="4">
+                    <content>
+                        <div>
+                            <partial name="Partials/Catalog.TabCompareProducts" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Settings.Catalog.Sharing"]" tab-index="5">
+                    <content>
+                        <div>
+                            <partial name="Partials/Catalog.TabSharing" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Settings.Catalog.SortOptions"]" tab-index="6">
+                    <content>
+                        <div>
+                            <partial name="Partials/Catalog.TabSortOptions" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <vc:admin-widget widget-zone="catalog_settings_details_tabs" additional-data="Model"/>
+            </items>
+        </admin-tabstrip>
+        <vc:admin-widget widget-zone="catalog_settings_bottom" additional-data="null"/>
+    </admin-page>
     <div asp-validation-summary="All"></div>
 </form>

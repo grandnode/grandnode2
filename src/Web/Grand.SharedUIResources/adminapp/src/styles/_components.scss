@@ -786,6 +786,19 @@
     height: auto;
 }
 
+//a preview worth looking at - a store theme - with its name under the picture
+.grand-picture-choice--large img {
+    width: 11rem;
+}
+
+.grand-picture-choice__caption {
+    display: block;
+    margin-block-start: .35rem;
+    font-size: .875rem;
+    font-weight: 600;
+    text-align: center;
+}
+
 //an explanation a popup opens with, before its fields
 .grand-popup__lead {
     margin: 0;
