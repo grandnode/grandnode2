@@ -4,21 +4,9 @@
 }
 <form id="StateCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="StateCreatePopup"
       asp-route-countryId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["countryId"])">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-globe"></i>
-                        @Loc["Admin.Configuration.Countries.States.AddNew"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateState" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-popup title="@Loc["Admin.Configuration.Countries.States.AddNew"]" icon="bi-globe">
+        <partial name="Partials/CreateOrUpdateState" model="Model"/>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#StateCreatePopup").submit(function (e) {

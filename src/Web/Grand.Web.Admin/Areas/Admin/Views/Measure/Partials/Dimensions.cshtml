@@ -1,46 +1,39 @@
-﻿<div class="row">
-    <div class="col-md-12">
-        <div class="panel">
-            <div class="x_content form">
-                <div class="note note-info">
-                    @Loc["Admin.Configuration.Measures.Dimensions.Description"]
-                </div>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="measuredimension-grid"
-                                        read-url="@Url.Action("Dimensions", "Measure", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("DimensionAdd", "Measure", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("DimensionUpdate", "Measure", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("DimensionDelete", "Measure", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-toolbar-create/>
-                                <grid-text name="markAsPrimaryDimension" value="@Loc["Admin.Configuration.Measures.Dimensions.Fields.MarkAsPrimaryDimension"]"/>
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.Name"]" width="300" editor="Text"/>
-                                <grid-column field="SystemKeyword" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.SystemKeyword"]" width="200" editor="Text"/>
-                                <grid-column field="Ratio" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.Ratio"]" width="200" editor="Numeric" decimals="8" default-value="0"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
-                                <grid-column field="Id" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.IsPrimaryDimension"]" width="150" editable="false">
-                                    <cell-template>
-                                        <a class="btn btn-default btn-sm" data-grid-click="markAsPrimaryDimension">
-                                        <i data-if="IsPrimaryDimension" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
-                                        {{ $texts.markAsPrimaryDimension }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+﻿<div class="note note-info">
+    @Loc["Admin.Configuration.Measures.Dimensions.Description"]
 </div>
+@* the grid edits inline; its Add new moves into the card header (grid.js) *@
+<admin-card flush>
+    <admin-grid id="measuredimension-grid"
+                read-url="@Url.Action("Dimensions", "Measure", new { area = Constants.AreaAdmin })"
+                create-url="@Url.Action("DimensionAdd", "Measure", new { area = Constants.AreaAdmin })"
+                update-url="@Url.Action("DimensionUpdate", "Measure", new { area = Constants.AreaAdmin })"
+                destroy-url="@Url.Action("DimensionDelete", "Measure", new { area = Constants.AreaAdmin })"
+                pager="Compact"
+                edit-mode="Inline">
+        <grid-toolbar-create/>
+        <grid-text name="markAsPrimaryDimension" value="@Loc["Admin.Configuration.Measures.Dimensions.Fields.MarkAsPrimaryDimension"]"/>
+        <grid-column field="Name" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.Name"]" width="300" editor="Text"/>
+        <grid-column field="SystemKeyword" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.SystemKeyword"]" width="200" editor="Text"/>
+        <grid-column field="Ratio" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.Ratio"]" width="200" editor="Numeric" decimals="8" default-value="0"/>
+        <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+        <grid-column field="Id" title="@Loc["Admin.Configuration.Measures.Dimensions.Fields.IsPrimaryDimension"]" width="150" editable="false">
+            <cell-template>
+                <a class="btn btn-outline-secondary btn-sm" data-grid-click="markAsPrimaryDimension">
+                <i data-if="IsPrimaryDimension" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                {{ $texts.markAsPrimaryDimension }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-commands edit="true" destroy="true" width="200"/>
+    </admin-grid>
+</admin-card>
 <script>
     function markAsPrimaryDimension(dimension) {
-        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+        GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]', {
+            confirmText: '@Loc["Admin.Common.Yes"]',
+            cancelText: '@Loc["Admin.Common.No"]'
+        }).then(function (confirmed) {
+            if (!confirmed) return;
             var postData = {
                 id: dimension.Id
             };
@@ -58,6 +51,6 @@
                     alert('Failed to update dimension');
                 }
             });
-        }
+        });
     };
 </script>

@@ -4,39 +4,24 @@
     Layout = Constants.LayoutStore;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Admin.Configuration.Tax.Categories"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="tax-categories-grid"
-                                        controller="Tax"
-                                        read-action="Categories"
-                                        create-action="CategoryAdd"
-                                        update-action="CategoryUpdate"
-                                        destroy-action="CategoryDelete"
-                                        pager="Compact"
-                                        edit-mode="Inline"
-                                        confirm-destroy="true">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]" width="300" editor="Text"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
-                                @*only the store's own categories can be changed (StoreTaxCategoryDataScope); global ones are read-only*@
-                                <grid-commands edit="true" destroy="true" width="200"
-                                               visible-if="StoreId == '@Model.StoreId'"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* the grid edits inline; its Add new moves into the card header (grid.js) *@
+<admin-page title="@Loc["Admin.Configuration.Tax.Categories"]" icon="bi-cash">
+    <admin-card flush>
+        <admin-grid id="tax-categories-grid"
+                    controller="Tax"
+                    read-action="Categories"
+                    create-action="CategoryAdd"
+                    update-action="CategoryUpdate"
+                    destroy-action="CategoryDelete"
+                    pager="Compact"
+                    edit-mode="Inline"
+                    confirm-destroy="true">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]" width="300" editor="Text"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
+            @*only the store's own categories can be changed (StoreTaxCategoryDataScope); global ones are read-only*@
+            <grid-commands edit="true" destroy="true" width="200"
+                           visible-if="StoreId == '@Model.StoreId'"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

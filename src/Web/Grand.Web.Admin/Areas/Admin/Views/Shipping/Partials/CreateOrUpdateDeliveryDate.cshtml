@@ -3,14 +3,8 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name"/>
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
             <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
         </div>;
 }
@@ -25,49 +19,26 @@
                     <input asp-for="Id" type="hidden"/>
                     <vc:admin-widget widget-zone="delivery_date_details_top" additional-data="Model"/>
                     <input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Shipping/DeliveryDates"/>
-                    <div class="form-horizontal">
+                    <admin-card>
                         <localized-editor localized-template="@template" name="delivery-date-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-                            <div class="form-body">
-                                <div class="mb-3">
-                                    <admin-label asp-for="Name"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="Name"/>
-                                        <span asp-validation-for="Name"></span>
-                                    </div>
-                                </div>
+                            <div class="grand-fields">
+                                <admin-field asp-for="Name"/>
                             </div>
                         </localized-editor>
-
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="ColorSquaresRgb"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ColorSquaresRgb"/>
-                                    <div id="color-picker"></div>
-                                    <script>
+                        <div class="grand-fields grand-fields--2col mt-3">
+                            <admin-field asp-for="ColorSquaresRgb">
+                                <admin-input asp-for="ColorSquaresRgb"/>
+                                <div id="color-picker"></div>
+                                <script>
                     $(document).ready(function () {
                         $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
                     });
-                                    </script>
-                                    <span asp-validation-for="ColorSquaresRgb"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="DisplayOrder"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DisplayOrder"/>
-                                    <span asp-validation-for="DisplayOrder"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="StoreId"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                                    <span asp-validation-for="StoreId"></span>
-                                </div>
-                            </div>
+                                </script>
+                            </admin-field>
+                            <admin-field asp-for="DisplayOrder" size="sm"/>
+                            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
                         </div>
-                    </div>
+                    </admin-card>
                     <vc:admin-widget widget-zone="delivery_date_details_bottom" additional-data="Model"/>
                 </div>
             </content>
@@ -75,9 +46,7 @@
         <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="1">
             <content>
                 <div>
-                    <div class="form-horizontal">
-                        <partial name="Partials/UserFields" model="Model"/>
-                    </div>
+                    <partial name="Partials/UserFields" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>

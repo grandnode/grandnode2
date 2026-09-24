@@ -3,59 +3,50 @@
     Layout = Constants.LayoutStore;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Admin.Configuration.Currencies"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="currencies-grid"
-                            read-url="@Url.Action("ListData", "Currency", new { area = Constants.AreaStore })"
-                            pager="None">
-                    <grid-text name="isPrimaryStoreCurrency" value="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"/>
-                    <grid-text name="assignStore" value="@Loc["Admin.Configuration.Currencies.AssignStore"]"/>
-                    <grid-text name="unassignStore" value="@Loc["Admin.Configuration.Currencies.UnassignStore"]"/>
-                    <grid-text name="setDefaultCurrency" value="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"/>
-                    <grid-text name="unsetDefaultCurrency" value="@Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]"/>
-                    <grid-column field="Name" title="@Loc["Admin.Configuration.Currencies.Fields.Name"]" width="200">
-                        <cell-template>
-                            {{ Name }}
-                            <span data-if="IsPrimaryStoreCurrency" class="badge text-bg-warning" title="{{ $texts.isPrimaryStoreCurrency }}"><i class="bi bi-star"></i></span>
-                            <span data-if="IsAssignedToCurrentStore" class="badge text-bg-success" title="{{ $texts.assignStore }}"><i class="bi bi-check-lg"></i></span>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="CurrencyCode" title="@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]" width="100"/>
-                    <grid-column field="LimitedToStores" title="@Loc["Admin.Configuration.Currencies.Fields.LimitedToStores"]" width="120" align="Center">
-                        <cell-template>
-                            <i data-if="LimitedToStores" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="IsDefaultStoreCurrency" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]" width="180" align="Center">
-                        <cell-template>
-                            <span data-if="IsDefaultStoreCurrency" class="badge text-bg-info"><i class="bi bi-house"></i> {{ $texts.setDefaultCurrency }}</span>
-                            <a data-if="IsDefaultStoreCurrency" data-grid-click="unsetDefaultCurrency" class="btn btn-sm btn-warning" title="{{ $texts.unsetDefaultCurrency }}"><i class="bi bi-house"></i> {{ $texts.unsetDefaultCurrency }}</a>
-                            <a data-if="!IsDefaultStoreCurrency && IsAssignedToCurrentStore" data-grid-click="setDefaultCurrency" class="btn btn-sm btn-info" title="{{ $texts.setDefaultCurrency }}"><i class="bi bi-house"></i> {{ $texts.setDefaultCurrency }}</a>
-                            <span data-if="!IsDefaultStoreCurrency && !IsAssignedToCurrentStore" class="text-muted">-</span>
-                        </cell-template>
-                    </grid-column>
-                    @* the store manager may only assign currencies the server lets it manage (CanManage) *@
-                    <grid-column title="@Loc["Admin.Common.Actions"]" width="220" align="Center">
-                        <cell-template>
-                            <span data-if="!CanManage" class="text-muted">-</span>
-                            <a data-if="CanManage && IsAssignedToCurrentStore" data-grid-click="unassignStore" class="btn btn-sm btn-danger" title="{{ $texts.unassignStore }}"><i class="bi bi-dash-lg"></i> {{ $texts.unassignStore }}</a>
-                            <a data-if="CanManage && !IsAssignedToCurrentStore" data-grid-click="assignStore" class="btn btn-sm btn-success" title="{{ $texts.assignStore }}"><i class="bi bi-plus-lg"></i> {{ $texts.assignStore }}</a>
-                        </cell-template>
-                    </grid-column>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* the store manager assigns currencies to its store and picks the default one; each row carries its own actions, so there is no primary action on this screen *@
+<admin-page title="@Loc["Admin.Configuration.Currencies"]" icon="bi-cash">
+    <admin-card flush>
+        <admin-grid id="currencies-grid"
+                    read-url="@Url.Action("ListData", "Currency", new { area = Constants.AreaStore })"
+                    pager="None">
+            <grid-text name="isPrimaryStoreCurrency" value="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"/>
+            <grid-text name="assignStore" value="@Loc["Admin.Configuration.Currencies.AssignStore"]"/>
+            <grid-text name="unassignStore" value="@Loc["Admin.Configuration.Currencies.UnassignStore"]"/>
+            <grid-text name="setDefaultCurrency" value="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"/>
+            <grid-text name="unsetDefaultCurrency" value="@Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]"/>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Currencies.Fields.Name"]" width="200">
+                <cell-template>
+                    {{ Name }}
+                    <span data-if="IsPrimaryStoreCurrency" class="grand-chip grand-chip--amber" title="{{ $texts.isPrimaryStoreCurrency }}"><i class="bi bi-star"></i></span>
+                    <span data-if="IsAssignedToCurrentStore" class="grand-chip grand-chip--green" title="{{ $texts.assignStore }}"><i class="bi bi-check-lg"></i></span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CurrencyCode" title="@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]" width="100"/>
+            <grid-column field="LimitedToStores" title="@Loc["Admin.Configuration.Currencies.Fields.LimitedToStores"]" width="120" align="Center">
+                <cell-template>
+                    <i data-if="LimitedToStores" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="IsDefaultStoreCurrency" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]" width="180" align="Center">
+                <cell-template>
+                    <span data-if="IsDefaultStoreCurrency" class="grand-chip"><i class="bi bi-house"></i> {{ $texts.setDefaultCurrency }}</span>
+                    <a data-if="IsDefaultStoreCurrency" data-grid-click="unsetDefaultCurrency" class="btn btn-sm btn-outline-secondary" title="{{ $texts.unsetDefaultCurrency }}"><i class="bi bi-house"></i> {{ $texts.unsetDefaultCurrency }}</a>
+                    <a data-if="!IsDefaultStoreCurrency && IsAssignedToCurrentStore" data-grid-click="setDefaultCurrency" class="btn btn-sm btn-outline-secondary" title="{{ $texts.setDefaultCurrency }}"><i class="bi bi-house"></i> {{ $texts.setDefaultCurrency }}</a>
+                    <span data-if="!IsDefaultStoreCurrency && !IsAssignedToCurrentStore" class="text-muted">-</span>
+                </cell-template>
+            </grid-column>
+            @* the store manager may only assign currencies the server lets it manage (CanManage) *@
+            <grid-column title="@Loc["Admin.Common.Actions"]" width="220" align="Center">
+                <cell-template>
+                    <span data-if="!CanManage" class="text-muted">-</span>
+                    <a data-if="CanManage && IsAssignedToCurrentStore" data-grid-click="unassignStore" class="btn btn-sm btn-outline-danger" title="{{ $texts.unassignStore }}"><i class="bi bi-dash-lg"></i> {{ $texts.unassignStore }}</a>
+                    <a data-if="CanManage && !IsAssignedToCurrentStore" data-grid-click="assignStore" class="btn btn-sm btn-outline-secondary" title="{{ $texts.assignStore }}"><i class="bi bi-plus-lg"></i> {{ $texts.assignStore }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
     function assignStore(currency) {
@@ -81,25 +72,30 @@
     }
 
     function unassignStore(currency) {
-        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
-        var postData = { id: currency.Id };
-        addAntiForgeryToken(postData);
-        $.ajax({
-            cache: false,
-            type: "POST",
-            url: "@Html.Raw(Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore }))",
-            data: postData,
-            success: function (data) {
-                if (data.success) {
-                    var grid = $("#currencies-grid").data('kendoGrid');
-                    grid.dataSource.read();
-                } else {
-                    alert(data.message);
+        GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]', {
+            confirmText: '@Loc["Admin.Common.Yes"]',
+            cancelText: '@Loc["Admin.Common.No"]'
+        }).then(function (confirmed) {
+            if (!confirmed) return;
+            var postData = { id: currency.Id };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@Html.Raw(Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore }))",
+                data: postData,
+                success: function (data) {
+                    if (data.success) {
+                        var grid = $("#currencies-grid").data('kendoGrid');
+                        grid.dataSource.read();
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function () {
+                    alert('Failed to update currency');
                 }
-            },
-            error: function () {
-                alert('Failed to update currency');
-            }
+            });
         });
     }
 
@@ -126,25 +122,30 @@
     }
 
     function unsetDefaultCurrency(currency) {
-        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
-        var postData = { id: currency.Id };
-        addAntiForgeryToken(postData);
-        $.ajax({
-            cache: false,
-            type: "POST",
-            url: "@Html.Raw(Url.Action("UnsetDefaultCurrency", "Currency", new { area = Constants.AreaStore }))",
-            data: postData,
-            success: function (data) {
-                if (data.success) {
-                    var grid = $("#currencies-grid").data('kendoGrid');
-                    grid.dataSource.read();
-                } else {
-                    alert(data.message);
+        GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]', {
+            confirmText: '@Loc["Admin.Common.Yes"]',
+            cancelText: '@Loc["Admin.Common.No"]'
+        }).then(function (confirmed) {
+            if (!confirmed) return;
+            var postData = { id: currency.Id };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@Html.Raw(Url.Action("UnsetDefaultCurrency", "Currency", new { area = Constants.AreaStore }))",
+                data: postData,
+                success: function (data) {
+                    if (data.success) {
+                        var grid = $("#currencies-grid").data('kendoGrid');
+                        grid.dataSource.read();
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function () {
+                    alert('Failed to unset default currency');
                 }
-            },
-            error: function () {
-                alert('Failed to unset default currency');
-            }
+            });
         });
     }
 </script>

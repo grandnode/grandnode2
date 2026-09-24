@@ -1,57 +1,39 @@
 ﻿@using Grand.Domain.Localization
 @model LanguageModel
 <vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model"/>
-<div class="panel panel-default">
-    @if (string.IsNullOrEmpty(Model.Id))
-    {
-        <div class="note note-info">
-            @Loc["Admin.Configuration.Languages.Resources.SaveBeforeEdit"]
-        </div>
-    }
-    <div class="form-horizontal">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Search.ResourceName"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Search.ResourceName"/>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="Search.ResourceValue"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Search.ResourceValue"/>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-9 offset-md-3">
-                    <button type="button" id="search-resources" class="btn btn-primary btn-search">
-                        <i class="bi bi-search"></i>
-                        @Loc["Admin.Common.Search"]
-                    </button>
-                </div>
-            </div>
-        </div>
+@if (string.IsNullOrEmpty(Model.Id))
+{
+    <div class="note note-info">
+        @Loc["Admin.Configuration.Languages.Resources.SaveBeforeEdit"]
     </div>
-    @if (!string.IsNullOrEmpty(Model.Id))
-    {
-        <div class="panel-body">
-            <admin-grid id="resources-grid"
-                        read-url="@Url.Action("Resources", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin })"
-                        create-url="@Url.Action("ResourceAdd", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin })"
-                        update-url="@Url.Action("ResourceUpdate", "Language", new { area = Constants.AreaAdmin })"
-                        destroy-url="@Url.Action("ResourceDelete", "Language", new { area = Constants.AreaAdmin })"
-                        additional-data="additionalData"
-                        edit-mode="Inline">
-                <grid-toolbar-create/>
-                <grid-column field="Name" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Name"]" width="300" editor="Text"/>
-                <grid-column field="Value" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Value"]" width="300" editor="Text"/>
-                <grid-column field="Area" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Area"]" width="100"
-                             editor="Select" options="EnumTranslationService.ToSelectList(TranslationResourceArea.Common)"/>
-                <grid-commands edit="true" destroy="true" width="200"/>
-            </admin-grid>
-        </div>
-    }
-</div>
+}
+else
+{
+    @* the screen's Save is its primary action, so Search is a secondary one; the grid's Add new
+       moves into the card header (grid.js) *@
+    <admin-filters id="resources-filters" submit-id="search-resources" expanded="true" secondary-submit="true">
+        <filters-search>
+            <admin-input asp-for="Search.ResourceName"/>
+        </filters-search>
+        <admin-field asp-for="Search.ResourceValue"/>
+    </admin-filters>
+    <admin-card flush>
+        <admin-grid id="resources-grid"
+                    read-url="@Url.Action("Resources", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("ResourceAdd", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("ResourceUpdate", "Language", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("ResourceDelete", "Language", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Name"]" width="300" editor="Text"/>
+            <grid-column field="Value" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Value"]" width="300" editor="Text"/>
+            <grid-column field="Area" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Area"]" width="100"
+                         editor="Select" options="EnumTranslationService.ToSelectList(TranslationResourceArea.Common)"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+}
 <vc:admin-widget widget-zone="language_details_resources_bottom" additional-data="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {

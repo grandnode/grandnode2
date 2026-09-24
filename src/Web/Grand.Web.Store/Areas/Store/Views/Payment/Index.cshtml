@@ -3,74 +3,59 @@
     Layout = Constants.LayoutStore;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Admin.Configuration.Payment.Methods"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="paymentmethods-grid"
-                                        key="SystemName"
-                                        read-url="@Url.Action("Methods", "Payment", new { area = Constants.AreaStore })"
-                                        update-url="@Url.Action("MethodUpdate", "Payment", new { area = Constants.AreaStore })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-column field="FriendlyName" title="@Loc["Admin.Configuration.Payment.Methods.Fields.FriendlyName"]">
-                                    <cell-template>
-                                        <a data-if="ConfigurationUrl" class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
-                                        <span data-else>{{ FriendlyName }}</span>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SystemName" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SystemName"]">
-                                    <cell-template>
-                                        <a data-if="ConfigurationUrl" class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
-                                        <span data-else>{{ SystemName }}</span>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SupportCapture" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportCapture"]" align="Center">
-                                    <cell-template>
-                                        <i data-if="SupportCapture" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SupportRefund" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportRefund"]" align="Center">
-                                    <cell-template>
-                                        <i data-if="SupportRefund" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SupportPartiallyRefund" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportPartiallyRefund"]" align="Center">
-                                    <cell-template>
-                                        <i data-if="SupportPartiallyRefund" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SupportVoid" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportVoid"]" align="Center">
-                                    <cell-template>
-                                        <i data-if="SupportVoid" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Payment.Methods.Fields.DisplayOrder"]" format="{0:0}"/>
-                                <grid-column field="IsActive" title="@Loc["Admin.Configuration.Payment.Methods.Fields.IsActive"]" align="Center" editor="Checkbox">
-                                    <cell-template>
-                                        <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* the grid edits inline, so there is no primary action on this screen *@
+<admin-page title="@Loc["Admin.Configuration.Payment.Methods"]" icon="bi-cash">
+    <admin-card flush>
+        <admin-grid id="paymentmethods-grid"
+                    key="SystemName"
+                    read-url="@Url.Action("Methods", "Payment", new { area = Constants.AreaStore })"
+                    update-url="@Url.Action("MethodUpdate", "Payment", new { area = Constants.AreaStore })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-column field="FriendlyName" title="@Loc["Admin.Configuration.Payment.Methods.Fields.FriendlyName"]">
+                <cell-template>
+                    <a data-if="ConfigurationUrl" class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
+                    <span data-else>{{ FriendlyName }}</span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SystemName" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SystemName"]">
+                <cell-template>
+                    <a data-if="ConfigurationUrl" class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
+                    <span data-else>{{ SystemName }}</span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SupportCapture" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportCapture"]" align="Center">
+                <cell-template>
+                    <i data-if="SupportCapture" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SupportRefund" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportRefund"]" align="Center">
+                <cell-template>
+                    <i data-if="SupportRefund" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SupportPartiallyRefund" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportPartiallyRefund"]" align="Center">
+                <cell-template>
+                    <i data-if="SupportPartiallyRefund" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SupportVoid" title="@Loc["Admin.Configuration.Payment.Methods.Fields.SupportVoid"]" align="Center">
+                <cell-template>
+                    <i data-if="SupportVoid" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Payment.Methods.Fields.DisplayOrder"]" format="{0:0}"/>
+            <grid-column field="IsActive" title="@Loc["Admin.Configuration.Payment.Methods.Fields.IsActive"]" align="Center" editor="Checkbox">
+                <cell-template>
+                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

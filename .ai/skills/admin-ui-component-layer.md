@@ -82,6 +82,7 @@ A grid with `<grid-toolbar-create>` inside a `.grand-card` gets its add button m
 - **Bundle noise.** `npm run build` rewrites every bundle; restore the ones whose diff is line endings only (`git diff --stat --ignore-cr-at-eol`) before committing.
 - **A filter bar inside a tab.** A tab pane is not a flex column, so `<admin-filters>` followed by a grid card needs the `.grand-tabstrip .grand-filters ~ .grand-card` gap rule (`_components.scss`); the affiliate Orders tab is the example. In a tab whose screen already has Save, the bar takes `secondary-submit="true"`.
 - **`disabled="@x"` on `<admin-input>` does nothing.** The helper suppresses its own element, so an unbound `disabled` never reaches the control. A read-only form (a global attribute a store owner opens) wraps its fields in `<fieldset disabled="@isReadOnly">` instead (`CustomerAttribute/Partials/CreateOrUpdate.TabInfo.cshtml`).
+- **The store scope owns its card.** `@await Component.InvokeAsync("StoreScope")` renders a whole `.grand-card` with the scope select as a field, and nothing at all on a single-store installation. Write it straight into `<admin-page>`; an `<admin-card>` around it stays behind as an empty 34px box (`Payment/Settings.cshtml`).
 - **Views compile into the DLL.** AdminShared, Store and Vendor views are precompiled; a view change needs `dotnet build src/Web/Grand.Web/Grand.Web.csproj` and a restart, not only a refresh.
 
 ### Procedure For One Screen

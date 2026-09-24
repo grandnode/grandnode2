@@ -3,35 +3,33 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <admin-grid id="states-grid"
-                            read-url="@Url.Action("States", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin })"
-                            destroy-url="@Url.Action("StateDelete", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin })"
-                            pager="Compact"
-                            confirm-destroy="true"
-                            on-data-bound="onStatesGridDataBound">
-                    <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.States.Fields.Name"]" width="300">
-                        <cell-template>
-                            <a class="text-decoration-none editstate" href="@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/{{ Id }}?countryId=@(Model.Id)">{{ Name }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Abbreviation" title="@Loc["Admin.Configuration.Countries.States.Fields.Abbreviation"]" width="150"/>
-                    <grid-column field="Published" title="@Loc["Admin.Configuration.Countries.States.Fields.Published"]" width="100" align="Center">
-                        <cell-template>
-                            <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Countries.States.Fields.DisplayOrder"]" width="100"/>
-                    <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
-                </admin-grid>
-            </div>
-            <div class="panel-footer">
-                <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</a>
+        <admin-card flush>
+            <card-actions>
+                <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Configuration.Countries.States.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none"/>
-            </div>
-        </div>
+            </card-actions>
+            <admin-grid id="states-grid"
+                        read-url="@Url.Action("States", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin })"
+                        destroy-url="@Url.Action("StateDelete", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin })"
+                        pager="Compact"
+                        confirm-destroy="true"
+                        on-data-bound="onStatesGridDataBound">
+                <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.States.Fields.Name"]" width="300">
+                    <cell-template>
+                        <a class="text-decoration-none editstate" href="@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/{{ Id }}?countryId=@(Model.Id)">{{ Name }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Abbreviation" title="@Loc["Admin.Configuration.Countries.States.Fields.Abbreviation"]" width="150"/>
+                <grid-column field="Published" title="@Loc["Admin.Configuration.Countries.States.Fields.Published"]" width="100" align="Center">
+                    <cell-template>
+                        <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Countries.States.Fields.DisplayOrder"]" width="100"/>
+                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+            </admin-grid>
+        </admin-card>
 
         <script>
             $(document).ready(function () {
