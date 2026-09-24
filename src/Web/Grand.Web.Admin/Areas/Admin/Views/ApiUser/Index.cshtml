@@ -3,49 +3,38 @@
     ViewBag.Title = Loc["Admin.System.APIUsers"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-list-task"></i>
-                    @Loc["Admin.System.APIUsers"]
-                </div>
-                <vc:admin-widget widget-zone="api_user_list_buttons" additional-data="null"/>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="apiuser-grid"
-                                        read-url="@Url.Action("List", "ApiUser", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("Insert", "ApiUser", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("Update", "ApiUser", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("Delete", "ApiUser", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline"
-                                        confirm-destroy="true"
-                                        on-edit="OnEdit">
-                                <grid-toolbar-create/>
-                                <grid-column field="Email" title="@Loc["Admin.System.UserApi.Email"]" width="300" editor="Text"/>
-                                <grid-column field="Password" title="@Loc["Admin.System.UserApi.Password"]" width="300" editor="Text">
-                                    <cell-template>****</cell-template>
-                                </grid-column>
-                                <grid-column field="IsActive" title="@Loc["Admin.System.UserApi.IsActive"]" width="100" editor="Checkbox">
-                                    <cell-template>
-                                        <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* An inline-edit grid in a flush card; its Add new moves into the card header on its own
+   (grid.js), so the screen has no primary button. The ids and the OnEdit hook are unchanged. *@
+<admin-page title="@Loc["Admin.System.APIUsers"]" icon="bi-list-task">
+    <page-actions>
+        <vc:admin-widget widget-zone="api_user_list_buttons" additional-data="null"/>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="apiuser-grid"
+                    read-url="@Url.Action("List", "ApiUser", new { area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("Insert", "ApiUser", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("Update", "ApiUser", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("Delete", "ApiUser", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline"
+                    confirm-destroy="true"
+                    on-edit="OnEdit">
+            <grid-toolbar-create/>
+            <grid-column field="Email" title="@Loc["Admin.System.UserApi.Email"]" width="300" editor="Text"/>
+            <grid-column field="Password" title="@Loc["Admin.System.UserApi.Password"]" width="300" editor="Text">
+                <cell-template>****</cell-template>
+            </grid-column>
+            <grid-column field="IsActive" title="@Loc["Admin.System.UserApi.IsActive"]" width="100" editor="Checkbox">
+                <cell-template>
+                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
         function OnEdit(e) {

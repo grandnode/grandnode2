@@ -6,185 +6,99 @@
 }
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
-<div class="form-horizontal">
-    <vc:admin-widget widget-zone="queued_email_details_top" additional-data="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="PriorityName"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.PriorityName</label>
-            </div>
+<vc:admin-widget widget-zone="queued_email_details_top" additional-data="Model"/>
+@* what the e-mail is, read-only, above the addresses and the message that can still be edited
+   before it is sent; the send-date field sits beside the switch that hides it *@
+<admin-card>
+    <div class="grand-facts">
+        <div>
+            <admin-label asp-for="PriorityName" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.PriorityName</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="From"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="From"/>
-                <span asp-validation-for="From"></span>
-            </div>
+        <div>
+            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.CreatedOn</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="FromName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="FromName"/>
-                <span asp-validation-for="FromName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="To"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="To"/>
-                <span asp-validation-for="To"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ToName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ToName"/>
-                <span asp-validation-for="ToName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ReplyTo"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ReplyTo"/>
-                <span asp-validation-for="ReplyTo"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ReplyToName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ReplyToName"/>
-                <span asp-validation-for="ReplyToName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CC"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CC"/>
-                <span asp-validation-for="CC"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Bcc"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Bcc"/>
-                <span asp-validation-for="Bcc"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Subject"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Subject"/>
-                <span asp-validation-for="Subject"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Body"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Body" asp-template="Editor"/>
-                <span asp-validation-for="Body"></span>
-            </div>
-        </div>
-        @if (!string.IsNullOrEmpty(Model.AttachmentFilePath))
-        {
-            <div class="mb-3">
-                <admin-label asp-for="AttachmentFilePath"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.AttachmentFilePath</label>
-                </div>
-            </div>
-        }
-        @if (!string.IsNullOrEmpty(Model.AttachedDownloadId))
-        {
-            <div class="mb-3">
-                <admin-label asp-for="AttachedDownloadId"/>
-                <div class="col-md-9 col-sm-9">
-                    @{
-                        //Static file attachments do not support URLs yet
-                        //A store owner have to upload a file
-                        //we store a value into "ViewData" and then use it in the Download.cshtml file
-                        ViewData["Grand.DownloadEditor.DisableUrl"] = true;
-                    }
-                    <div>
-                        <admin-input asp-for="AttachedDownloadId"/>
-                        <span asp-validation-for="AttachedDownloadId"></span>
-                    </div>
-                </div>
-            </div>
-        }
-        <div class="mb-3">
-            <admin-label asp-for="CreatedOn"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.CreatedOn</label>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="SendImmediately"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="SendImmediately"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="SendImmediately"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnl-send-date">
-            <admin-label asp-for="DontSendBeforeDate"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DontSendBeforeDate"/>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="SentTries"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="SentTries"/>
-                <span asp-validation-for="SentTries"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="SentOn"/>
-            <div class="col-md-9 col-sm-9">
+        <div>
+            <admin-label asp-for="SentOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">
                 @if (Model.SentOn.HasValue)
                 {
-                    <label class="control-label">@Model.SentOn</label>
+                    @Model.SentOn
                 }
                 else
                 {
-                    <label class="control-label">@Loc["Admin.System.QueuedEmails.Fields.SentOn.NotSent"]</label>
+                    @Loc["Admin.System.QueuedEmails.Fields.SentOn.NotSent"]
                 }
             </div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="ReadOn"/>
-            <div class="col-md-9 col-sm-9">
+        <div>
+            <admin-label asp-for="ReadOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">
                 @if (Model.ReadOn.HasValue)
                 {
-                    <label class="control-label">@Model.ReadOn</label>
+                    @Model.ReadOn
                 }
                 else
                 {
-                    <label class="control-label">@Loc["Admin.System.QueuedEmails.Fields.ReadOn.NotRead"]</label>
+                    @Loc["Admin.System.QueuedEmails.Fields.ReadOn.NotRead"]
                 }
             </div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="EmailAccountName"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.EmailAccountName</label>
-            </div>
+        <div>
+            <admin-label asp-for="EmailAccountName" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.EmailAccountName</div>
         </div>
         @if (!string.IsNullOrEmpty(Model.ObjectId))
         {
-            <div class="mb-3">
-                <admin-label asp-for="Reference"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.Reference - @Model.ObjectId</label>
-                </div>
+            <div>
+                <admin-label asp-for="Reference" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.Reference - @Model.ObjectId</div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.AttachmentFilePath))
+        {
+            <div>
+                <admin-label asp-for="AttachmentFilePath" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value text-break">@Model.AttachmentFilePath</div>
             </div>
         }
     </div>
-    <vc:admin-widget widget-zone="queued_email_details_bottom" additional-data="Model"/>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="From"/>
+        <admin-field asp-for="FromName"/>
+        <admin-field asp-for="To"/>
+        <admin-field asp-for="ToName"/>
+        <admin-field asp-for="ReplyTo"/>
+        <admin-field asp-for="ReplyToName"/>
+        <admin-field asp-for="CC"/>
+        <admin-field asp-for="Bcc"/>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields">
+        <admin-field asp-for="Subject"/>
+        <admin-field asp-for="Body" asp-template="Editor"/>
+        @if (!string.IsNullOrEmpty(Model.AttachedDownloadId))
+        {
+            //Static file attachments do not support URLs yet
+            //A store owner have to upload a file
+            //we store a value into "ViewData" and then use it in the Download.cshtml file
+            ViewData["Grand.DownloadEditor.DisableUrl"] = true;
+            <admin-field asp-for="AttachedDownloadId"/>
+        }
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="SendImmediately"/>
+        <admin-field asp-for="DontSendBeforeDate" id="pnl-send-date"/>
+        <admin-field asp-for="SentTries" size="sm"/>
+    </div>
+</admin-card>
+<vc:admin-widget widget-zone="queued_email_details_bottom" additional-data="Model"/>
 
 <script>
     $(document).ready(function () {
