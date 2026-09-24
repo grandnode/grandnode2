@@ -113,7 +113,8 @@
 
         //generate combinations
         $('#btnGenerateAllCombinations').click(function () {
-            if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
+            GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]').then(function (confirmed) {
+                if (!confirmed) return;
 
                 var postData = {
                 };
@@ -134,13 +135,14 @@
                         alert('Error while generating attribute combinations');
                     }
                 });
-            }
+            });
             return false;
         });
 
         //clear combinations
         $('#btnClearAllCombinations').click(function () {
-            if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
+            GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]').then(function (confirmed) {
+                if (!confirmed) return;
 
                 var postData = {
                 };
@@ -161,7 +163,7 @@
                         alert('Error while clearing attribute combinations');
                     }
                 });
-            }
+            });
             return false;
         });
 

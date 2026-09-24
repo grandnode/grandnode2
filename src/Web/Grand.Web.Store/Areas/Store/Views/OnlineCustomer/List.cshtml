@@ -3,27 +3,17 @@
     ViewBag.Title = Loc["Admin.Dashboards.OnlineCustomers"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-people"></i>
-                    @Loc["Admin.Dashboards.OnlineCustomers"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="onlinecustomers-grid" read-url="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaStore })">
-                    <grid-column field="Id" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.CustomerInfo"]" width="220">
-                        <cell-template>
-                            <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ Id }}">{{ CustomerInfo }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="LastIpAddress" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.IPAddress"]" width="100"/>
-                    <grid-column field="LastActivityDate" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.LastActivityDate"]" width="200" format="{0:G}"/>
-                    <grid-column field="LastVisitedPage" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage"]" width="400"/>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+<admin-page title="@Loc["Admin.Dashboards.OnlineCustomers"]" icon="bi-people">
+    <admin-card flush>
+        <admin-grid id="onlinecustomers-grid" read-url="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaStore })">
+            <grid-column field="Id" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.CustomerInfo"]" width="220">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ Id }}">{{ CustomerInfo }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="LastIpAddress" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.IPAddress"]" width="100"/>
+            <grid-column field="LastActivityDate" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.LastActivityDate"]" width="200" format="{0:G}"/>
+            <grid-column field="LastVisitedPage" title="@Loc["Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage"]" width="400"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

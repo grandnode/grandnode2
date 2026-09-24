@@ -33,7 +33,8 @@
 </admin-page>
 <script>
     function markAsPrimaryWeight(id) {
-        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+        GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]').then(function (confirmed) {
+            if (!confirmed) return;
             var postData = {
                 id: id
             };
@@ -51,6 +52,6 @@
                     alert('Failed to update weight');
                 }
             });
-        }
+        });
     };
 </script>

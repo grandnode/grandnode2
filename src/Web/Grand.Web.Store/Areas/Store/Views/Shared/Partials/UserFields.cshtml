@@ -14,86 +14,72 @@
             });    
 }
 <vc:admin-widget widget-zone="userfield_details_info_top" additional-data="Model"/>
-<div class="form-horizontal form-userfield" id="form-userfield">
-    @for (var item = 0; item < userFields.Count; item++)
+@* one card: the add form on top, the fields under it - addUserFields() appends a new one to
+   #form-userfield, so it lands right below the form; every row keeps .form-body, which
+   deleteUserFields() renumbers by, and one text box, one hidden key and one select *@
+<admin-card>
+    @if (!readOnly)
     {
-        <div id="UserFieldsItem_@item" class="form-body">
-            <div class="mb-3">
-                <label class="control-label col-md-3 col-sm-3">@userFields[item].Key</label>
-                <div class="col-md-6 col-sm-6">
-                    <admin-input asp-for="@userFields[item].Value"/>
-                    <input type="hidden" asp-for="@userFields[item].Key"/>
-                </div>
-                <div class="col-md-3 col-sm-3 input-group custom-input-group">
-                    <admin-select asp-for="@userFields[item].StoreId" asp-items="@stores"/>
-                    @if (!readOnly)
-                    {
-                        <span class="input-group-addon btn red deleteuserfield" data-id="@item" onclick="deleteUserFields(@item)">
-                            <i class="bi bi-x-lg"></i>
-                        </span>
-                    }
+        <div class="grand-fields grand-fields--2col">
+            <div class="grand-field">
+                <label class="grand-field__label" for="ga_key">@Loc["Admin.Common.UserFields.Fields.Key"]</label>
+                <div class="grand-field__control">
+                    <input class="form-control text-box single-line valid" id="ga_key" name="ga_key" type="text" value="">
                 </div>
             </div>
+            <div class="grand-field">
+                <label class="grand-field__label" for="ga_value">@Loc["Admin.Common.UserFields.Fields.Value"]</label>
+                <div class="grand-field__control">
+                    <input class="form-control text-box single-line valid" id="ga_value" name="ga_value" type="text" value="">
+                </div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <button type="button" id="addUserField" onclick="addUserFields()" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.UserFields.AddNew.Button"]
+            </button>
         </div>
     }
-</div>
-
-<script id="template" type="text/html">
-    <div id="UserFieldsItem_${id}" class="form-body">
-        <div class="mb-3">
-            <label class="control-label col-md-3 col-sm-3">${key}</label>
-            <div class="col-md-6 col-sm-6">
-                <input class="form-control text-box single-line valid"
-                       id="UserFields_${id}__Value" name="UserFields[${id}].Value" type="text" value="${value}">
-                <input type="hidden" id="UserFields_${id}__Key" name="UserFields[${id}].Key" value="${key}">
-            </div>
-            <div class="col-md-3 col-sm-3 input-group custom-input-group">
-                <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-select valid">
-                    @foreach (var store in stores)
+    <div class="form-userfield grand-fields mt-3" id="form-userfield">
+        @for (var item = 0; item < userFields.Count; item++)
+        {
+            <div id="UserFieldsItem_@item" class="form-body grand-field">
+                <label class="grand-field__label">@userFields[item].Key</label>
+                <div class="grand-field__control input-group">
+                    <admin-input asp-for="@userFields[item].Value"/>
+                    <input type="hidden" asp-for="@userFields[item].Key"/>
+                    <admin-select asp-for="@userFields[item].StoreId" asp-items="@stores" class="flex-grow-0 w-auto"/>
+                    @if (!readOnly)
                     {
-                        <option value="@store.Value">@store.Text</option>
+                        <button type="button" class="btn btn-outline-danger deleteuserfield" data-id="@item" onclick="deleteUserFields(@item)">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
                     }
-                </select>
-                <span class="input-group-addon btn red deleteuserfield" data-id="${id}" onclick="deleteUserFields(${id})">
-                    <i class="bi bi-x-lg"></i>
-                </span>
-            </div>
-        </div>
-    </div>
-
-</script>
-
-@if (!readOnly)
-{
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <p>
-                <strong>@Loc["Admin.Common.UserFields.AddNew"]</strong>
-            </p>
-            <div class="form-horizontal">
-                <div class="form-body">
-                    <div class="mb-3">
-                        <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Key"]</label>
-                        <div class="col-md-9 col-sm-9">
-                            <input class="form-control text-box single-line valid" id="ga_key" name="ga_key" type="text" value="">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Value"]</label>
-                        <div class="col-md-9 col-sm-9">
-                            <input class="form-control text-box single-line valid" id="ga_value" name="ga_value" type="text" value="">
-                        </div>
-                    </div>
                 </div>
             </div>
-        </div>
-        <div class="panel-footer">
-            <button type="button" id="addUserField" onclick="addUserFields()" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg"></i>@Loc["Admin.Common.UserFields.AddNew.Button"]
+        }
+    </div>
+</admin-card>
+
+<script id="template" type="text/html">
+    <div id="UserFieldsItem_${id}" class="form-body grand-field">
+        <label class="grand-field__label">${key}</label>
+        <div class="grand-field__control input-group">
+            <input class="form-control text-box single-line valid"
+                   id="UserFields_${id}__Value" name="UserFields[${id}].Value" type="text" value="${value}">
+            <input type="hidden" id="UserFields_${id}__Key" name="UserFields[${id}].Key" value="${key}">
+            <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-select valid flex-grow-0 w-auto">
+                @foreach (var store in stores)
+                {
+                    <option value="@store.Value">@store.Text</option>
+                }
+            </select>
+            <button type="button" class="btn btn-outline-danger deleteuserfield" data-id="${id}" onclick="deleteUserFields(${id})">
+                <i class="bi bi-x-lg"></i>
             </button>
         </div>
     </div>
-}
+</script>
 <script>
     var counter = @userFields.Count;
 

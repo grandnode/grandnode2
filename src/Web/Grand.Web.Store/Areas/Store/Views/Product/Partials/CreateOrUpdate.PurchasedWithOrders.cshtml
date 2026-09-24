@@ -1,37 +1,32 @@
 ﻿@model ProductModel
 
-<div class="panel panel-default">
+<admin-card flush>
     <vc:store-widget widget-zone="store_product_details_purchased_with_orders_top" additional-data="Model"/>
-    <div class="panel-body">
-        <admin-grid id="purchased-with-orders-grid"
-                    read-url="@Url.Action("PurchasedWithOrders", "Product", new { productId = Model.Id, area = Constants.AreaStore })"
-                    auto-bind="false">
-            <grid-column field="OrderNumber" title="@Loc["Admin.Orders.Fields.ID"]" width="80">
-                <cell-template>
-                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaStore })/{{ Id }}">{{ OrderNumber }}</a>
-                </cell-template>
-            </grid-column>
-            <grid-column field="CustomerEmail" title="@Loc["Admin.Orders.Fields.CustomerEmail"]" width="200" min-screen-width="500">
-                <cell-template>
-                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerEmail }}</a>
-                </cell-template>
-            </grid-column>
-            <grid-column field="OrderStatus" title="@Loc["Admin.Orders.Fields.OrderStatus"]" width="100" min-screen-width="500">
-                <cell-template>
-                    @* the Kendo template built the label class in code: one label per status *@
-                    <h4>
-                        <span data-if="OrderStatusId == 10" class="label label-warning">{{ OrderStatus }}</span>
-                        <span data-if="OrderStatusId == 20 || OrderStatusId == 25" class="label label-info">{{ OrderStatus }}</span>
-                        <span data-if="OrderStatusId == 30" class="label label-success">{{ OrderStatus }}</span>
-                        <span data-if="OrderStatusId == 40" class="label label-danger">{{ OrderStatus }}</span>
-                        <span data-if="OrderStatusId != 10 && OrderStatusId != 20 && OrderStatusId != 25 && OrderStatusId != 30 && OrderStatusId != 40" class="label label-">{{ OrderStatus }}</span>
-                    </h4>
-                </cell-template>
-            </grid-column>
-            <grid-column field="PaymentStatus" title="@Loc["Admin.Orders.Fields.PaymentStatus"]" width="100" min-screen-width="500"/>
-            <grid-column field="ShippingStatus" title="@Loc["Admin.Orders.Fields.ShippingStatus"]" width="100" min-screen-width="500"/>
-            <grid-column field="CreatedOn" title="@Loc["Admin.Orders.Fields.CreatedOn"]" width="150" format="{0:G}"/>
-        </admin-grid>
-    </div>
+    <admin-grid id="purchased-with-orders-grid"
+                read-url="@Url.Action("PurchasedWithOrders", "Product", new { productId = Model.Id, area = Constants.AreaStore })"
+                auto-bind="false">
+        <grid-column field="OrderNumber" title="@Loc["Admin.Orders.Fields.ID"]" width="80">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaStore })/{{ Id }}">{{ OrderNumber }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="CustomerEmail" title="@Loc["Admin.Orders.Fields.CustomerEmail"]" width="200" min-screen-width="500">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="OrderStatus" title="@Loc["Admin.Orders.Fields.OrderStatus"]" width="100" min-screen-width="500">
+            <cell-template>
+                @* a status is a chip, as on the order list *@
+                <span data-if="OrderStatusId == 10" class="grand-chip grand-chip--amber">{{ OrderStatus }}</span>
+                <span data-if="OrderStatusId == 30" class="grand-chip grand-chip--green">{{ OrderStatus }}</span>
+                <span data-if="OrderStatusId == 40" class="grand-chip grand-chip--red">{{ OrderStatus }}</span>
+                <span data-if="OrderStatusId != 10 && OrderStatusId != 30 && OrderStatusId != 40" class="grand-chip">{{ OrderStatus }}</span>
+            </cell-template>
+        </grid-column>
+        <grid-column field="PaymentStatus" title="@Loc["Admin.Orders.Fields.PaymentStatus"]" width="100" min-screen-width="500"/>
+        <grid-column field="ShippingStatus" title="@Loc["Admin.Orders.Fields.ShippingStatus"]" width="100" min-screen-width="500"/>
+        <grid-column field="CreatedOn" title="@Loc["Admin.Orders.Fields.CreatedOn"]" width="150" format="{0:G}"/>
+    </admin-grid>
     <vc:store-widget widget-zone="store_product_details_purchased_with_orders_bottom" additional-data="Model"/>
-</div>
+</admin-card>

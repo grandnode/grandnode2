@@ -4,21 +4,9 @@
 }
 
 <div class="modal-access-denied">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        @Loc["Admin.AccessDenied.Title"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="note note-danger">
-                        @(string.IsNullOrEmpty(Model) ? Loc["Admin.AccessDenied.Description"] : Model)
-                    </div>
-                </div>
-            </div>
+    <admin-popup title="@Loc["Admin.AccessDenied.Title"]" icon="bi-exclamation-triangle">
+        <div class="note note-danger">
+            @(string.IsNullOrEmpty(Model) ? Loc["Admin.AccessDenied.Description"] : Model)
         </div>
-    </div>
+    </admin-popup>
 </div>
