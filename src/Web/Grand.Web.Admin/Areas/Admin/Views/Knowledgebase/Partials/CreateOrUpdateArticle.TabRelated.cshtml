@@ -2,8 +2,13 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related"]</h2>
+            <a id="btnAddNewRelatedArticle" href="@(Url.Action("ArticlesPopup", "Knowledgebase", new { articleId = Model.Id, btnId = "btnRefreshRelatedArticles", formId = "article-form", area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"]</a>
+            <input type="submit" id="btnRefreshRelatedArticles" style="display: none"/>
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="relatedarticles-grid"
                         read-url="@Url.Action("RelatedArticlesList", "Knowledgebase", new { articleId = Model.Id, area = Constants.AreaAdmin })"
                         destroy-url="@Url.Action("RelatedArticleDelete", "Knowledgebase", new { articleId = Model.Id, area = Constants.AreaAdmin })"
@@ -16,16 +21,12 @@
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.DisplayOrder"]" width="10" format="{0:0}"/>
                 <grid-column field="Published" title="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Published"]" width="10" align="Center">
                     <cell-template>
-                        <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                        <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                     </cell-template>
                 </grid-column>
                 <grid-commands destroy="true" width="10"/>
             </admin-grid>
-        </div>
-        <div class="panel-footer">
-            <a id="btnAddNewRelatedArticle" href="@(Url.Action("ArticlesPopup", "Knowledgebase", new { articleId = Model.Id, btnId = "btnRefreshRelatedArticles", formId = "article-form", area = Constants.AreaAdmin }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"]</a>
-            <input type="submit" id="btnRefreshRelatedArticles" style="display: none"/>
         </div>
     </div>
 

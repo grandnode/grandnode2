@@ -3,39 +3,25 @@
     ViewBag.Title = Loc["Admin.Configuration.Menu"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-diagram-3"></i>
-                    @Loc["Admin.Configuration.Menu"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="menu-grid"
-                                        read-url="@Url.Action("ListItem", "Menu", new { area = Constants.AreaAdmin })"
-                                        pager="None">
-                                <grid-column field="SystemName" title="@Loc["Admin.Configuration.Menu.Fields.SystemName"]" width="400">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ SystemName }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Menu.Fields.DisplayOrder"]" width="125" align="Center"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The product list's shape without filters: Add new as the one primary action in the page header
+   and the grid in a flush card. *@
+<admin-page title="@Loc["Admin.Configuration.Menu"]" icon="bi-diagram-3">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="menu-grid"
+                    read-url="@Url.Action("ListItem", "Menu", new { area = Constants.AreaAdmin })"
+                    pager="None">
+            <grid-column field="SystemName" title="@Loc["Admin.Configuration.Menu.Fields.SystemName"]" width="400">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ SystemName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Menu.Fields.DisplayOrder"]" width="125" align="Center"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

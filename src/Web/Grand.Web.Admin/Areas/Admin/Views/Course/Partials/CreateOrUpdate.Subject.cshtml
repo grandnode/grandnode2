@@ -2,23 +2,21 @@
 <vc:admin-widget widget-zone="course_details_subject_top" additional-data="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <admin-grid id="subjects-grid"
-                        read-url="@Url.Action("Subjects", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
-                        create-url="@Url.Action("SubjectAdd", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
-                        update-url="@Url.Action("SubjectUpdate", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
-                        destroy-url="@Url.Action("SubjectDelete", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
-                        pager="Compact"
-                        edit-mode="Inline">
-                <grid-toolbar-create/>
-                <grid-column field="Name" title="@Loc["Admin.Courses.Course.Subject.Fields.Name"]" width="400" editor="Text"/>
-                <grid-column field="DisplayOrder" title="@Loc["Admin.Courses.Course.Subject.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
-                <grid-commands edit="true" destroy="true" width="200"/>
-            </admin-grid>
-        </div>
-    </div>
-
+    @* an inline-edit grid in a titled card; grid.js moves its Add new into the card header *@
+    <admin-card title="@Loc["Admin.Courses.Course.Subjects"]" flush>
+        <admin-grid id="subjects-grid"
+                    read-url="@Url.Action("Subjects", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("SubjectAdd", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("SubjectUpdate", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("SubjectDelete", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Courses.Course.Subject.Fields.Name"]" width="400" editor="Text"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Courses.Course.Subject.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
 }
 else
 {

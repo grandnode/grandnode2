@@ -4,70 +4,43 @@
     ViewBag.Title = Loc["Admin.Content.MessageTemplates"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-envelope"></i>
-                    @Loc["Admin.Content.MessageTemplates"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <vc:admin-widget widget-zone="message_template_list_buttons" additional-data="null"/>
-                </div>
+@* The product list's shape: Add new in the page header, the name as the quick search with the
+   store behind the Filters toggle, and the grid in a flush card. The ids the script below looks
+   up are unchanged. *@
+<admin-page title="@Loc["Admin.Content.MessageTemplates"]" icon="bi-envelope">
+    <page-actions>
+        <vc:admin-widget widget-zone="message_template_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="row align-items-end mb-1">
-                            <div class="col-md-3 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="Name" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-input asp-for="Name"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
-                                <div class="form-actions">
-                                    <button class="btn btn-success filter-submit" id="search-templates">
-                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="x_content">
-                        <admin-grid id="templates-grid"
-                                    read-url="@Url.Action("List", "MessageTemplate", new { area = Constants.AreaAdmin })"
-                                    additional-data="additionalData">
-                            <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="200">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="100"/>
-                            <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="50" align="Center">
-                                <cell-template>
-                                    <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                </cell-template>
-                            </grid-column>
-                        </admin-grid>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <admin-filters id="template-filters" submit-id="search-templates" secondary-submit="true">
+        <filters-search>
+            <admin-input asp-for="Name"/>
+        </filters-search>
+        <admin-field asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="templates-grid"
+                    read-url="@Url.Action("List", "MessageTemplate", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData">
+            <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="100"/>
+            <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="50" align="Center">
+                <cell-template>
+                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
 

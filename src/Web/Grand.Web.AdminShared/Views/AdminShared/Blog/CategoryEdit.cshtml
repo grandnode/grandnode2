@@ -7,37 +7,27 @@
 
 <form asp-area="@area" asp-controller="Blog" asp-action="CategoryEdit" method="post" id="category-form">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-chat"></i>
-                        @Loc["Admin.Content.Blog.BlogCategory.EditBlogCategoryDetails"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Content.Blog.BlogCategory.BackToList"], "CategoryList")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <span id="blogcategory-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <partial name="Partials/WidgetZone.CategoryButtons" model="Model"/>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateCategory" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-chat"
+                meta="@Loc["Admin.Content.Blog.BlogCategory.EditBlogCategoryDetails"]"
+                back-url="@Url.Action("CategoryList")"
+                back-text="@Loc["Admin.Content.Blog.BlogCategory.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="blogcategory-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.CategoryButtons" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdateCategory" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="blogcategory-delete" action-name="CategoryDelete"/>

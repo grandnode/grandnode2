@@ -6,54 +6,26 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name"/>
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
             <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
         </div>;
 }
 
-<div class="form-horizontal">
-    <partial name="Partials/WidgetZone.CategoryInfo.Top" model="Model"/>
+<partial name="Partials/WidgetZone.CategoryInfo.Top" model="Model"/>
+<admin-card>
     <localized-editor localized-template="@template" name="blogcategory-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
         </div>
     </localized-editor>
-    <div class="mb-3">
-        <admin-label asp-for="SeName"/>
-        <div class="col-md-9 col-sm-9">
-            <admin-input asp-for="SeName"/>
-            <span asp-validation-for="SeName"></span>
-        </div>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="SeName"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="Stores"/>
+        }
     </div>
-    <div class="mb-3">
-        <admin-label asp-for="DisplayOrder"/>
-        <div class="col-md-9 col-sm-9">
-            <admin-input asp-for="DisplayOrder"/>
-            <span asp-validation-for="DisplayOrder"></span>
-        </div>
-    </div>
-    @if (area == "Admin")
-    {
-        <div class="mb-3">
-            <admin-label asp-for="Stores"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores"/>
-                <span asp-validation-for="Stores"></span>
-            </div>
-        </div>
-    }
-    <partial name="Partials/WidgetZone.CategoryInfo.Bottom" model="Model"/>
-</div>
+</admin-card>
+<partial name="Partials/WidgetZone.CategoryInfo.Bottom" model="Model"/>

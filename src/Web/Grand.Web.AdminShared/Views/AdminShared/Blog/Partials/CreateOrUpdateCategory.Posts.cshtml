@@ -5,8 +5,13 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc["Admin.Content.Blog.BlogCategory.Posts"]</h2>
+            <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
+            <input type="submit" id="btnRefreshPosts" style="display: none"/>
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="posts-grid"
                         read-url="@Url.Action("CategoryPostList", "Blog", new { categoryId = Model.Id, area })"
                         destroy-url="@Url.Action("CategoryPostDelete", "Blog", new { categoryId = Model.Id, area })">
@@ -17,10 +22,6 @@
                 </grid-column>
                 <grid-commands destroy="true"/>
             </admin-grid>
-        </div>
-        <div class="panel-footer">
-            <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
-            <input type="submit" id="btnRefreshPosts" style="display: none"/>
         </div>
     </div>
     <script>

@@ -6,33 +6,21 @@
 }
 <form asp-area="@area" asp-controller="Blog" asp-action="CategoryCreate" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-chat"></i>
-                        @Loc["Admin.Content.Blog.BlogCategory.AddNew"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Content.Blog.BlogCategory.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <partial name="Partials/WidgetZone.CategoryButtonsCreate"/>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateCategory" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-page sticky
+                title="@Loc["Admin.Content.Blog.BlogCategory.AddNew"]"
+                icon="bi-chat"
+                back-url="@Url.Action("CategoryList")"
+                back-text="@Loc["Admin.Content.Blog.BlogCategory.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.CategoryButtonsCreate"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdateCategory" model="Model"/>
+    </admin-page>
 </form>

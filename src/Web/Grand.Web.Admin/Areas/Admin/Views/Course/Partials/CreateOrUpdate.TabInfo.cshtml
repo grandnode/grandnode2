@@ -18,120 +18,54 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name"/>
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].ShortDescription"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
-                    <span asp-validation-for="@Model.Locales[item].ShortDescription"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
-                    <span asp-validation-for="@Model.Locales[item].Description"></span>
-                </div>
-            </div>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].ShortDescription">
+                <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
             <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
         </div>;
 }
 
-<div class="form-horizontal">
+@* Two cards instead of one column of 3/9 rows: what the course says, then how it is sold and
+   shown. The product it comes with keeps its chooser and remove buttons beside the name; the ids
+   the scripts use - purchased-with-product-name, purchased-with-product-name-remove,
+   btnAssociateProductToCoursePopup, btnRefreshPurchasedWithProduct - are unchanged. *@
+<admin-card>
     <localized-editor localized-template="@template" name="course-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="ShortDescription"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-textarea asp-for="ShortDescription"></admin-textarea>
-                    <span asp-validation-for="ShortDescription"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Description" asp-template="Editor"/>
-                    <span asp-validation-for="Description"></span>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="ShortDescription">
+                <admin-textarea asp-for="ShortDescription"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="Description" asp-template="Editor"/>
         </div>
     </localized-editor>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="PictureId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PictureId"/>
-                <span asp-validation-for="PictureId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="LevelId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="LevelId" asp-items="Model.AvailableLevels"/>
-                <span asp-validation-for="LevelId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Published"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Published"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="Published"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Stores"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores"/>
-                <span asp-validation-for="Stores"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ProductId"/>
-            <div class="col-md-9 col-sm-9">
-                <input asp-for="ProductId" type="hidden"/>
-                <label class="control-label" id="purchased-with-product-name">
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="LevelId" asp-items="Model.AvailableLevels"/>
+        <admin-field asp-for="Published"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="Stores"/>
+        <admin-field asp-for="ProductId">
+            <input asp-for="ProductId" type="hidden"/>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span id="purchased-with-product-name">
                     @if (!string.IsNullOrEmpty(Model.ProductId) && !string.IsNullOrEmpty(Model.ProductName))
                     {
                         @Html.ActionLink(Model.ProductName, "Edit", "Product", new { id = Model.ProductId })
                     }
-                </label>
-                <span asp-validation-for="ProductId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-md-3 col-sm-3"></div>
-            <div class="col-md-9 col-sm-9">
-                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course", new { productIdInput = Html.IdFor(model => model.ProductId), productNameInput = "purchased-with-product-name", btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="btn btn-default btn-sm">
+                </span>
+                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course", new { productIdInput = Html.IdFor(model => model.ProductId), productNameInput = "purchased-with-product-name", btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Choose"]
                 </a>
-                <button type="button" id="purchased-with-product-name-remove" class="btn btn-default btn-sm">
+                <button type="button" id="purchased-with-product-name-remove" class="btn btn-outline-danger btn-sm">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Remove"]
                 </button>
                 <input type="button" id="btnRefreshPurchasedWithProduct" style="display: none"/>
+            </div>
                 <script>
                             $(document).ready(function () {
                                 $('#btnAssociateProductToCoursePopup').magnificPopup({
@@ -161,9 +95,9 @@
                                 });
                             });
                 </script>
-            </div>
-        </div>
+        </admin-field>
+        <admin-field asp-for="PictureId"/>
     </div>
-</div>
+</admin-card>
 
 <vc:admin-widget widget-zone="course_details_info_bottom" additional-data="Model"/>

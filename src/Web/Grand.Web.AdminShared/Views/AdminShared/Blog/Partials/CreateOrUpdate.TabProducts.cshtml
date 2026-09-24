@@ -4,9 +4,14 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <partial name="Partials/WidgetZone.Products.Top" model="Model"/>
-        <div class="panel-body">
+    <partial name="Partials/WidgetZone.Products.Top" model="Model"/>
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc["Admin.Content.Blog.BlogPosts.Products"]</h2>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Blog", new { blogPostId = Model.Id, btnId = "btnRefreshProducts", formId = "blog-edit", area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Content.Blog.BlogPosts.Products.AddNew"]</a>
+            <input type="button" id="btnRefreshProducts" style="display: none"/>
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="product-grid"
                         read-url="@Url.Action("Products", "Blog", new { blogPostId = Model.Id, area })"
                         update-url="@Url.Action("UpdateProduct", "Blog", new { blogPostId = Model.Id, area })"
@@ -22,12 +27,8 @@
                 <grid-commands edit="true" destroy="true" width="200"/>
             </admin-grid>
         </div>
-        <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Blog", new { blogPostId = Model.Id, btnId = "btnRefreshProducts", formId = "blog-edit", area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Content.Blog.BlogPosts.Products.AddNew"]</a>
-            <input type="button" id="btnRefreshProducts" style="display: none"/>
-        </div>
-        <partial name="Partials/WidgetZone.Products.Bottom" model="Model"/>
     </div>
+    <partial name="Partials/WidgetZone.Products.Bottom" model="Model"/>
     <script>
         $(document).ready(function () {
             $('#btnAddNewProduct').magnificPopup({

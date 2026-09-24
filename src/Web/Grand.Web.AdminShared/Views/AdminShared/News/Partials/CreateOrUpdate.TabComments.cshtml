@@ -6,27 +6,25 @@
 <partial name="Partials/WidgetZone.DetailsCommentsList" model="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <partial name="Partials/WidgetZone.DetailsCommentsTop" model="Model"/>
-        <div class="panel-body">
-            <admin-grid id="comments-grid"
-                        read-url="@Url.Action("Comments", "News", new { filterByNewsItemId = Model.Id, area })"
-                        destroy-url="@Url.Action("CommentDelete", "News", new { area })"
-                        confirm-destroy="true">
-                <grid-column field="CustomerId" title="@Loc["Admin.Content.News.Comments.Fields.Customer"]" width="200">
-                    <cell-template>
-                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
-                    </cell-template>
-                </grid-column>
-                <grid-column field="CommentTitle" title="@Loc["Admin.Content.News.Comments.Fields.CommentTitle"]"/>
-                @*CommentText is encoded and has its line breaks turned into <br /> by the server (FormatText)*@
-                <grid-column field="CommentText" title="@Loc["Admin.Content.News.Comments.Fields.CommentText"]" encoded="false"/>
-                <grid-column field="CreatedOn" title="@Loc["Admin.Content.News.Comments.Fields.CreatedOn"]" width="200" format="{0:G}"/>
-                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
-            </admin-grid>
-        </div>
-        <partial name="Partials/WidgetZone.DetailsCommentsBottom" model="Model"/>
-    </div>
+    <partial name="Partials/WidgetZone.DetailsCommentsTop" model="Model"/>
+    <admin-card flush>
+        <admin-grid id="comments-grid"
+                    read-url="@Url.Action("Comments", "News", new { filterByNewsItemId = Model.Id, area })"
+                    destroy-url="@Url.Action("CommentDelete", "News", new { area })"
+                    confirm-destroy="true">
+            <grid-column field="CustomerId" title="@Loc["Admin.Content.News.Comments.Fields.Customer"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CommentTitle" title="@Loc["Admin.Content.News.Comments.Fields.CommentTitle"]"/>
+            @*CommentText is encoded and has its line breaks turned into <br /> by the server (FormatText)*@
+            <grid-column field="CommentText" title="@Loc["Admin.Content.News.Comments.Fields.CommentText"]" encoded="false"/>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Content.News.Comments.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+        </admin-grid>
+    </admin-card>
+    <partial name="Partials/WidgetZone.DetailsCommentsBottom" model="Model"/>
 }
 else
 {

@@ -4,45 +4,31 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-chat"></i>
-                    @Loc["Admin.Content.Blog.BlogPosts"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="blogpost-grid" read-url="@Url.Action("List", "Blog", new { area })">
-                                <grid-text name="comments" value="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]"/>
-                                <grid-column field="Title" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Title"]" width="400">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Comments" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]" width="200">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Comments?filterByBlogPostId={{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="StartDate" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.StartDate"]" width="150" format="{0:G}"/>
-                                <grid-column field="EndDate" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.EndDate"]" width="150" format="{0:G}"/>
-                                <grid-column field="CreatedOn" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.CreatedOn"]" width="200" format="{0:G}"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The product list's shape without filters: Add new as the one primary action in the page header
+   and the grid in a flush card. *@
+<admin-page title="@Loc["Admin.Content.Blog.BlogPosts"]" icon="bi-chat">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="blogpost-grid" read-url="@Url.Action("List", "Blog", new { area })">
+            <grid-text name="comments" value="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]"/>
+            <grid-column field="Title" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Title"]" width="400">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Comments" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Comments?filterByBlogPostId={{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="StartDate" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.StartDate"]" width="150" format="{0:G}"/>
+            <grid-column field="EndDate" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.EndDate"]" width="150" format="{0:G}"/>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
