@@ -835,6 +835,18 @@
     border-end-end-radius: var(--grand-radius-sm) !important;
 }
 
+//the date field is one control the same way: the input and its calendar button meet square,
+//which the rounded .form-control and .grand-page .btn above (both !important) undid
+.grand-datepicker > .grand-dateinput {
+    border-start-end-radius: 0 !important;
+    border-end-end-radius: 0 !important;
+}
+
+.grand-datepicker > .grand-datepicker-toggle {
+    border-start-start-radius: 0 !important;
+    border-end-start-radius: 0 !important;
+}
+
 //followed by a unit (suffix="USD"), the spinner is the middle of the group, square on both sides
 .grand-field__control.input-group > .grand-numeric-group > .grand-numeric-spin {
     border-start-end-radius: 0 !important;
