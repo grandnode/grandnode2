@@ -499,13 +499,19 @@
     grid-row: 2;
 }
 
+//a tick box is square (the permissions of a menu item, the discounts of a product); only a
+//switch - the yes/no of an <admin-field>, which carries form-switch - is the wider pill
 .grand-field--check .form-check-input {
     flex: 0 0 auto;
     //Bootstrap floats a form-check input; here the field itself is the row
     float: none;
-    width: 2.2em;
+    width: 1.2em;
     height: 1.2em;
     margin: 0;
+}
+
+.grand-field--check.form-switch .form-check-input {
+    width: 2.2em;
 }
 
 .grand-field--check .form-check-input:checked {
