@@ -177,11 +177,6 @@ Commands (run from `adminapp/`):
 | `npm run build` | Vite build to `wwwroot/administration/bundles/` |
 | `npm run lint` | eslint over the whole project (`src`, `scripts`, `e2e`, configs) |
 | `npm test` | Vitest, once |
-| `npm run analyze:grids` | read-only inventory of every `kendoGrid` in `src/Web` and `src/Plugins`, classified A/B/C, written to git-ignored `reports/`; must stay at 0 |
-| `npm run codemod:grids -- --path <text> [--write]` | converts `kendoGrid` scripts into `<admin-grid>` markup (dry run prints a diff); resolve and remove every `CODEMOD-REVIEW` marker before committing |
-| `npm run codemod:bs5 -- [--path <text>] [--write]` | rewrites the Bootstrap 4 class names and data attributes of the panel views |
-| `npm run codemod:icons -- [--report] [--write]` | rewrites Font Awesome 4 and simple-line-icons classes to bootstrap-icons; `--report` lists what the table does not cover |
-| `npm run codemod:kclasses -- [--write]` | replaces `k-button`, `k-link`, `k-icon`, `k-input` and `k-state-active` with their Bootstrap 5 equivalents |
 | `npm run e2e` | Playwright smoke specs for the three panels (needs `GRAND_ADMIN_URL` and panel credentials, see README) |
 | `npm run e2e:har` | records HAR files of representative grid pages into git-ignored `e2e/har/` |
 | `npm run e2e:payloads` | records what the admin forms would post into git-ignored `e2e/payloads/` (`GRAND_PAYLOAD_DIR` picks the directory), for comparing two builds |

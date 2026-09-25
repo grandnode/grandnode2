@@ -1,8 +1,7 @@
 //Bootstrap 4 data attributes, renamed to data-bs-* in Bootstrap 5, for third-party plugins.
 //
-//The views of this repository are rewritten by scripts/codemods/bootstrap4-to-bootstrap5.mjs,
-//but a third-party plugin view still ships the Bootstrap 4 spelling, and so does markup a
-//view loads over AJAX into a modal. Bootstrap 5 reads the attributes off the DOM when the
+//The views of this repository use the Bootstrap 5 spelling, but a third-party plugin view
+//still ships the Bootstrap 4 spelling, and so does markup a view loads over AJAX into a modal. Bootstrap 5 reads the attributes off the DOM when the
 //click happens, so renaming them as the elements appear is enough - no widget has to be
 //constructed here.
 

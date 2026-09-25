@@ -1,10 +1,9 @@
 /*
  * The Kendo class names, for third-party plugin views only.
  *
- * No view in this repository carries a k-* class any more: the codemod
- * (scripts/codemods/kendo-classes-to-bootstrap.mjs) replaced k-button, k-link, k-icon,
- * k-input and k-state-active with their Bootstrap 5 equivalents, and the sheet that
- * reproduced the Kendo Material look for them is gone with them.
+ * No view in this repository carries a k-* class any more: k-button, k-link, k-icon,
+ * k-input and k-state-active were replaced with their Bootstrap 5 equivalents, and the
+ * sheet that reproduced the Kendo Material look for them is gone with them.
  *
  * What is left is the other half of admin.legacy.js: a plugin written against an older
  * GrandNode renders its own k-* markup from its own Configure view, and admin.legacy.js

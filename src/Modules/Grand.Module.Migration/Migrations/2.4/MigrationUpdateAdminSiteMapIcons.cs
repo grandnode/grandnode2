@@ -17,7 +17,7 @@ namespace Grand.Module.Migration.Migrations._2._4;
 /// </summary>
 public class MigrationUpdateAdminSiteMapIcons : IMigration
 {
-    //the same table the view codemod used (adminapp/scripts/codemods/lib/icons-to-bootstrap-icons.mjs)
+    //the same table the views were converted with, Font Awesome 4 and simple-line-icons to bootstrap-icons
     private static readonly Dictionary<string, string> IconMap = new() {
         { "fa fa-dot-circle-o", "bi bi-record-circle" },
         { "fa fa-arrow-circle-o-right", "bi bi-arrow-right-circle" },

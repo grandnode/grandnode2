@@ -41,23 +41,12 @@ npx playwright install chromium
 | --- | --- |
 | `npm run build` | builds the shipped bundles into `../wwwroot/administration/bundles/` (see below); `npm run build -- <entry>` builds one named entry, e.g. `admin.core` |
 | `npm run lint` | eslint over the whole project (`src`, `scripts`, `e2e`, config files) |
-| `npm test` | Vitest, once, over `src/**/*.test.js` and `scripts/**/*.test.mjs` |
-| `npm run analyze:grids` | read-only inventory of every `kendoGrid(...)` left in the views of `src/Web` and `src/Plugins`, classified A/B/C; writes `reports/kendo-grids.csv` and `reports/kendo-grids.summary.md` (git-ignored). Reports 0 today and must stay at 0 |
-| `npm run codemod:grids -- --path <text> [--write]` | converts `kendoGrid(...)` scripts into `<admin-grid>` markup; without `--write` it prints a diff |
-| `npm run codemod:bs5 -- [--path <text>] [--write]` | rewrites Bootstrap 4 class names and `data-toggle`/`data-target`/`data-dismiss` in views |
-| `npm run codemod:icons -- [--report] [--write]` | rewrites Font Awesome 4 and simple-line-icons classes to bootstrap-icons; `--report` lists what is used and what the table does not cover |
-| `npm run codemod:kclasses -- [--write]` | replaces `k-button`, `k-link`, `k-icon`, `k-input`, `k-state-active` with their Bootstrap 5 equivalents |
+| `npm test` | Vitest, once, over `src/**/*.test.js` |
 | `npm run e2e` | Playwright smoke specs for the three panels against a running instance (all projects; pass `-- --project=en-US` etc. to narrow) |
 | `npm run e2e:visual` | one full-page screenshot per page of `e2e/support/visual-pages.js` |
 | `npm run e2e:payloads` | records what the admin forms would post, without sending it |
 | `npm run e2e:har` | records one HAR file per page of `e2e/support/har-pages.js` into `e2e/har/` |
 | `npm run audit:prod` | `npm audit` of the production dependencies at moderate level |
-
-The codemods skip the storefront (`Grand.Web` and the half of a plugin outside `Areas/`,
-except the discount rule configuration views the Admin renders). They are kept for
-third-party plugin authors converting their own views: run them with `--root <repo root>`
-pointing at a checkout that contains the plugin. A converted grid may carry
-`@* CODEMOD-REVIEW: reason *@` comments; resolve and remove every one before committing.
 
 ## What the build produces
 
@@ -247,8 +236,7 @@ plugin that linked any of those paths directly must ship its own copy.
 
 The shims register only when Kendo itself is absent, so a plugin that loads its own Kendo
 keeps the real widgets. They do not depend on any Kendo file. New code should use
-`<admin-grid>` and `window.GrandAdmin` directly; the codemods above do most of a
-conversion.
+`<admin-grid>` and `window.GrandAdmin` directly.
 
 ## Lint and test
 
