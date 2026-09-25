@@ -79,11 +79,14 @@ public partial class InstallationService
         };
         discounts.ForEach(x => _discountRepository.Insert(x));
 
-        //category target - Outdoor & Active (subcategories Camping, Cycling and Running share the
-        //parent category's product assignment where applicable)
-        var outdoorCategory = _categoryRepository.Table.Single(x => x.Name == "Outdoor & Active");
-        outdoorCategory.AppliedDiscounts.Add(outdoorAndActive15.Id);
-        await _categoryRepository.UpdateAsync(outdoorCategory);
+        //category target - Outdoor & Active; category discounts apply only to a product's own
+        //categories, and products sit in the subcategories, so the discount goes on all of them
+        foreach (var categoryName in new[] { "Outdoor & Active", "Camping", "Cycling", "Running" })
+        {
+            var category = _categoryRepository.Table.Single(x => x.Name == categoryName);
+            category.AppliedDiscounts.Add(outdoorAndActive15.Id);
+            await _categoryRepository.UpdateAsync(category);
+        }
 
         //product target - Slow Morning Coffee Bundle
         var coffeeBundleProduct = ProductByName("Slow Morning Coffee Bundle");
