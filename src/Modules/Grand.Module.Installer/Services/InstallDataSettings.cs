@@ -477,7 +477,7 @@ public partial class InstallationService
         });
 
         await _settingRepository.SaveSetting(new KnowledgebaseSettings {
-            Enabled = false,
+            Enabled = installSampleData,
             AllowNotRegisteredUsersToLeaveComments = false,
             NotifyAboutNewArticleComments = false
         });
