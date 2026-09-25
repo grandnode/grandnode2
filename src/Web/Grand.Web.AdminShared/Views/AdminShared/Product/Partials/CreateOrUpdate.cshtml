@@ -2,16 +2,18 @@
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 <input asp-for="Ticks" type="hidden"/>
+@* grand-tab-quick: the tabs the bulk-edit popup (EditPopup) shows; the others are rendered
+   there too, hidden, because the form posts the whole product *@
 <admin-tabstrip name="product-edit" SetTabPos="true" BindGrid="true">
     <items>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Info"]" tab-index="0">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Info"]" tab-index="0" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Info" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Prices"]" tab-index="1" id="tab-price-product">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Prices"]" tab-index="1" class="grand-tab-quick" id="tab-price-product">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Prices" model="Model"/>
@@ -25,7 +27,7 @@
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.SEO"]" tab-index="3">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.SEO"]" tab-index="3" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.SEO" model="Model"/>
@@ -39,7 +41,7 @@
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Mappings"]" tab-index="5">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Mappings"]" tab-index="5" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Categories" model="Model"/>
@@ -47,21 +49,21 @@
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Inventory"]" tab-index="6" id="tab-inventory-product">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Inventory"]" tab-index="6" class="grand-tab-quick" id="tab-inventory-product">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Inventory" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes"]" tab-index="7">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes"]" tab-index="7" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.SpecificationAttributes" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes"]" tab-index="8" id="tab-attributes-product">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes"]" tab-index="8" class="grand-tab-quick" id="tab-attributes-product">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.ProductAttributes" model="Model"/>

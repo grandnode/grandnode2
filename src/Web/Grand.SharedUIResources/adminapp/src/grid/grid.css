@@ -198,6 +198,21 @@
     z-index: 1;
 }
 
+/* a row added in batch mode and not saved yet: the edit tint and marker until Save changes */
+.grand-grid .tabulator-row.grand-grid-new-row,
+.grand-grid .tabulator-row.grand-grid-new-row:hover {
+    --grand-grid-row-bg: var(--grand-grid-edit-bg);
+}
+
+.grand-grid .tabulator-row.grand-grid-new-row::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background-color: var(--grand-grid-edit-marker);
+}
+
 .grand-grid .tabulator-row.grand-grid-edit-row .tabulator-cell {
     padding-top: 4px;
     padding-bottom: 4px;
@@ -251,8 +266,19 @@
     color: var(--grand-grid-false-color);
 }
 
+/* the batch buttons (Save changes, Cancel changes) side by side with a gap between them,
+   not touching: they are appended one after another, with no whitespace to space them */
 .grand-grid .grand-grid-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
     padding: 0 0 8px;
+}
+
+/* a grid that fills a flush card: the toolbar keeps the card's padding off the edge */
+.grand-card__body--flush > .grand-grid > .grand-grid-toolbar {
+    padding: .75rem 1rem;
 }
 
 .grand-grid .grand-grid-command-buttons {

@@ -126,6 +126,8 @@ export class GrandGrid {
         this._cellEdit = null
         this._dirty = new Map()
         this._originals = new Map()
+        //rows added in batch mode, posted to create with the next saveChanges
+        this._created = new Set()
         this._expanded = new Map()
         this._detailGrids = new Map()
         this._headerCheckbox = null
@@ -222,7 +224,7 @@ export class GrandGrid {
         element.textContent = ''
 
         const toolbarConfig = this.config.toolbar || {}
-        const hasCreate = toolbarConfig.create && this.editMode === 'Inline' && this.config.transport?.create
+        const hasCreate = toolbarConfig.create && (this.editMode === 'Inline' || this.editMode === 'Batch') && this.config.transport?.create
         const hasBatchButtons = this.editMode === 'Batch' && (toolbarConfig.save || toolbarConfig.cancel)
         if (hasCreate || hasBatchButtons) {
             const toolbar = el(doc, 'div', 'grand-grid-toolbar')
@@ -240,7 +242,7 @@ export class GrandGrid {
                 toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-success grand-grid-add', 'bi bi-plus-lg', toolbarConfig.create, () => this.addRow()))
             }
             if (hasBatchButtons && toolbarConfig.save) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-primary grand-grid-save-changes', 'bi bi-check-lg', toolbarConfig.save, () => this.saveChanges()))
-            if (hasBatchButtons && toolbarConfig.cancel) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel-changes', 'bi bi-slash-circle', toolbarConfig.cancel, () => this.cancelChanges()))
+            if (hasBatchButtons && toolbarConfig.cancel) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-outline-secondary grand-grid-cancel-changes', 'bi bi-slash-circle', toolbarConfig.cancel, () => this.cancelChanges()))
             if (toolbar.childElementCount) element.appendChild(toolbar)
         }
         this.tableElement = el(doc, 'div', 'grand-grid-table')
@@ -550,6 +552,7 @@ export class GrandGrid {
         const item = row.getData()
         const rowElement = row.getElement()
         rowElement.classList.toggle('grand-grid-edit-row', this._isEditing(row))
+        rowElement.classList.toggle('grand-grid-new-row', this._created.has(item))
         if (this.selectableRow) rowElement.classList.toggle('grand-grid-selected', this._selectedItem === item)
         const holder = this._expanded.get(item)
         if (holder) rowElement.appendChild(holder)
@@ -733,7 +736,7 @@ export class GrandGrid {
     }
 
     hasChanges() {
-        return this._dirty.size > 0 || this.dataSource.hasChanges()
+        return this._dirty.size > 0 || this._created.size > 0 || this.dataSource.hasChanges()
     }
 
     /**
@@ -743,7 +746,9 @@ export class GrandGrid {
      */
     async saveChanges() {
         if (!this.commitCell()) return false
-        const updated = this.dataSource.data().filter(item => this._dirty.has(item))
+        //an added row nobody typed into is not a record
+        const created = this.dataSource.data().filter(item => this._created.has(item) && this._dirty.has(item))
+        const updated = this.dataSource.data().filter(item => this._dirty.has(item) && !this._created.has(item))
         const removed = this.dataSource._destroyed.map(entry => entry.item)
         let ok = true
         const prefix = this.config.batchPrefix
@@ -762,13 +767,17 @@ export class GrandGrid {
             }
             return true
         }
+        //create last: updates and deletes can be sent again after a failure, a create cannot
         if (updated.length) ok = await send('update', updated)
         if (ok && removed.length) ok = await send('destroy', removed)
+        if (ok && created.length) ok = await send('create', created)
         if (!ok) return false
+        const untouched = this._created.size > created.length
         this._dirty.clear()
         this._originals.clear()
+        this._created.clear()
         this.dataSource._destroyed = []
-        if (updated.length || removed.length) await this.dataSource.read()
+        if (updated.length || removed.length || created.length || untouched) await this.dataSource.read()
         return true
     }
 
@@ -776,6 +785,7 @@ export class GrandGrid {
     cancelChanges() {
         this.cancelEdit()
         this._cellEdit = null
+        for (const item of this._created) this._dropCreated(item)
         for (const [item, original] of this._originals) {
             for (const key of Object.keys(item)) if (!(key in original)) delete item[key]
             Object.assign(item, original)
@@ -817,6 +827,7 @@ export class GrandGrid {
                 this._originals.delete(item)
             }
         }
+        for (const item of Array.from(this._created)) if (!rows.includes(item)) this._created.delete(item)
         this._detailGrids.forEach(grid => grid.destroy())
         this._detailGrids.clear()
         this._expanded.clear()
@@ -888,18 +899,51 @@ export class GrandGrid {
         }
     }
 
-    async addRow() {
-        if (this.editMode !== 'Inline') return
-        await this.ready
-        if (this._edit) this.cancelEdit()
+    _newItem() {
         const item = { [NEW_ROW]: true }
         for (const column of this.columns) {
-            if (column.field && column.defaultValue !== undefined) item[column.field] = column.defaultValue
+            if (!column.field || column.defaultValue === undefined) continue
+            //default-value is an attribute's text; a checkbox cell reads a boolean
+            item[column.field] = column.editor === 'Checkbox' && typeof column.defaultValue === 'string'
+                ? column.defaultValue.toLowerCase() === 'true'
+                : column.defaultValue
         }
         Object.assign(item, this.config.newItem || {})
         if (!(this.key in item)) item[this.key] = ''
+        return item
+    }
+
+    async addRow() {
+        if (this.editMode === 'Batch') return this._addBatchRow()
+        if (this.editMode !== 'Inline') return
+        await this.ready
+        if (this._edit) this.cancelEdit()
+        const item = this._newItem()
         await this.table.addRow(item, true)
         this.editRow(item)
+    }
+
+    /**
+     * Batch mode (Kendo incell addRow): the row joins the page on top, its first editable cell
+     * opens, and the next saveChanges posts it to create together with the changed rows.
+     */
+    async _addBatchRow() {
+        await this.ready
+        if (!this.commitCell()) return
+        const item = this._newItem()
+        this.dataSource._data.unshift(item)
+        this._created.add(item)
+        await this._render()
+        const first = this.columns.find(c => c.field && c.editor && c.editor !== 'None' && c.editable !== false)
+        if (first) this.editCell(item, first)
+    }
+
+    _dropCreated(item) {
+        const index = this.dataSource._data.indexOf(item)
+        if (index >= 0) this.dataSource._data.splice(index, 1)
+        this._created.delete(item)
+        this._dirty.delete(item)
+        this._originals.delete(item)
     }
 
     /** Validates the editors and posts create or update. */
@@ -942,6 +986,12 @@ export class GrandGrid {
         if (this.editMode === 'Batch') {
             //removed locally; saveChanges sends it (Kendo incell mode)
             if (this._cellEdit?.item === item) this._cellEdit = null
+            if (this._created.has(item)) {
+                //never sent, so there is nothing to delete on the server
+                this._dropCreated(item)
+                await this._render()
+                return true
+            }
             this.dataSource.remove(item)
             return true
         }

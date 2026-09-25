@@ -168,6 +168,32 @@ public class BaseProductControllerTests
     }
 
     [TestMethod]
+    public async Task EditGet_Popup_ShowsThePopupView()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("p1", popup: true);
+
+        Assert.AreEqual("EditPopup", ((ViewResult)result).ViewName);
+    }
+
+    [TestMethod]
+    public async Task EditPost_Popup_ScopeDenies_StaysInThePopup()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.Edit(new ProductModel { Id = "p1" }, continueEditing: false, popup: true);
+
+        var redirect = (RedirectToActionResult)result;
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual(true, redirect.RouteValues["popup"]);
+    }
+
+    [TestMethod]
     public async Task EditGet_UsesCanViewNotHasAccess_LooserRuleWins()
     {
         // Regression guard for the review fix: Edit(GET) must gate on the looser CanView, not the
@@ -3026,6 +3052,29 @@ public class BaseProductControllerTests
         await _controller.BulkEditSelect(new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.AreEqual("preset", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task BulkEditCreate_NullProducts_DoesNotCallService()
+    {
+        var result = await _controller.BulkEditCreate(null);
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        _productViewModelServiceMock.Verify(
+            s => s.InsertBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task BulkEditCreate_PassesOnlyRowsWithAName()
+    {
+        await _controller.BulkEditCreate(new List<BulkEditProductModel> {
+            new() { Id = "", Name = "New product" },
+            new() { Id = "", Name = " " }
+        });
+
+        _productViewModelServiceMock.Verify(
+            s => s.InsertBulkEdit(It.Is<List<BulkEditProductModel>>(
+                l => l.Count == 1 && l[0].Name == "New product")), Times.Once);
     }
 
     [TestMethod]

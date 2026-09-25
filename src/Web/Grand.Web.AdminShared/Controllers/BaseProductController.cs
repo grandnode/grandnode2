@@ -119,8 +119,12 @@ public abstract class BaseProductController(
         return View(model);
     }
 
+    /// <param name="popup">
+    /// true: the screen opened inside a popup of the bulk-edit grid (EditPopup) - no panel chrome,
+    /// only the quick-edit tabs shown, and every save stays in the popup.
+    /// </param>
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public async Task<IActionResult> Edit(string id)
+    public async Task<IActionResult> Edit(string id, bool popup = false)
     {
         var product = await productService.GetProductById(id, true);
         if (product == null) return RedirectToAction("List");
@@ -148,22 +152,22 @@ public abstract class BaseProductController(
             locale.SeName = product.GetSeName(languageId, false);
         });
 
-        return View(model);
+        return popup ? View("EditPopup", model) : View(model);
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Edit(ProductModel model, bool continueEditing)
+    public async Task<IActionResult> Edit(ProductModel model, bool continueEditing, bool popup = false)
     {
         var product = await productService.GetProductById(model.Id, true);
         if (product == null) return RedirectToAction("List");
-        if (!await scope.HasAccess(product)) return RedirectToAction("Edit", new { id = product.Id });
+        if (!await scope.HasAccess(product)) return RedirectToAction("Edit", new { id = product.Id, popup });
 
         if (model.Ticks != product.Ticks)
         {
             Error(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Fields.ChangedWarning"));
-            return RedirectToAction("Edit", new { id = product.Id });
+            return RedirectToAction("Edit", new { id = product.Id, popup });
         }
 
         if (ModelState.IsValid)
@@ -176,10 +180,11 @@ public abstract class BaseProductController(
 
             product = await productViewModelService.UpdateProductModel(product, model);
             Success(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Updated"));
-            if (continueEditing)
+            //a popup has no list to go back to: it stays on the tab that was saved
+            if (continueEditing || popup)
             {
                 await SaveSelectedTabIndex();
-                return RedirectToAction("Edit", new { id = product.Id });
+                return RedirectToAction("Edit", new { id = product.Id, popup });
             }
 
             return RedirectToAction("List");
@@ -187,7 +192,7 @@ public abstract class BaseProductController(
 
         if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;
         await productViewModelService.PrepareProductModel(model, product, false, true);
-        return View(model);
+        return popup ? View("EditPopup", model) : View(model);
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Delete)]
@@ -1938,6 +1943,21 @@ public abstract class BaseProductController(
     {
         var validProducts = await FilterBulkEditProductsByAccess(products);
         if (validProducts.Count > 0) await productViewModelService.UpdateBulkEdit(validProducts);
+
+        return new JsonResult("");
+    }
+
+    /// <summary>
+    /// Rows added in the bulk-edit grid: a simple product each, with the fields of the row. The ids
+    /// are the grid's empty ones, so there is nothing to scope-check; ownership of the new product
+    /// is set by the service (store for Store, vendor for Vendor) the way the Create screen sets it.
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [HttpPost]
+    public async Task<IActionResult> BulkEditCreate(IEnumerable<BulkEditProductModel> products)
+    {
+        var newProducts = products?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? [];
+        if (newProducts.Count > 0) await productViewModelService.InsertBulkEdit(newProducts);
 
         return new JsonResult("");
     }

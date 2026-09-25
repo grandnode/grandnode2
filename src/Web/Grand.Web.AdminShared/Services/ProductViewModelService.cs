@@ -1331,7 +1331,8 @@ public class ProductViewModelService(
             pageSize: pageSize,
             showHidden: true)).products;
 
-        return (products.Select((Func<Product, BulkEditProductModel>)(x =>
+        var items = new List<BulkEditProductModel>();
+        foreach (var x in products)
         {
             var productModel = new BulkEditProductModel {
                 Id = x.Id,
@@ -1344,8 +1345,10 @@ public class ProductViewModelService(
                 StockQuantity = x.StockQuantity,
                 Published = x.Published
             };
-            return productModel;
-        })), products.TotalCount);
+            items.Add(productModel);
+        }
+
+        return (items, products.TotalCount);
     }
 
     public virtual async Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products)
@@ -1376,6 +1379,33 @@ public class ProductViewModelService(
                     product.Published)
                     await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
             }
+        }
+    }
+
+    public virtual async Task InsertBulkEdit(IEnumerable<BulkEditProductModel> products)
+    {
+        foreach (var pModel in products)
+        {
+            if (string.IsNullOrWhiteSpace(pModel.Name))
+                continue;
+
+            //the defaults and the path of the Create screen: layout, tax category, store and
+            //vendor ownership and the search engine name come out the same as there
+            var model = new ProductModel { StoreId = scope.DefaultStoreId };
+            await PrepareProductModel(model, null, true, true);
+            model.ProductTypeId = (int)ProductType.SimpleProduct;
+            model.ProductLayoutId = model.AvailableProductLayouts.FirstOrDefault()?.Value;
+            model.Name = pModel.Name.Trim();
+            model.Sku = pModel.Sku;
+            model.Price = pModel.Price;
+            model.OldPrice = pModel.OldPrice;
+            model.StockQuantity = pModel.StockQuantity;
+            model.ManageInventoryMethodId = pModel.ManageInventoryMethodId;
+            model.Published = pModel.Published;
+            if (scope.DefaultStoreId is not null)
+                model.Stores = [scope.DefaultStoreId];
+
+            await InsertProductModel(model);
         }
     }
 

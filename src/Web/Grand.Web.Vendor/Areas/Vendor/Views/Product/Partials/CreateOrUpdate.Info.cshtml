@@ -447,8 +447,11 @@
 <admin-card>
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="Published"/>
-        <admin-field asp-for="AvailableStartDateTime"/>
-        <admin-field asp-for="AvailableEndDateTime"/>
+        @* one availability window: from and to side by side in one cell *@
+        <div class="grand-range">
+            <admin-field asp-for="AvailableStartDateTime"/>
+            <admin-field asp-for="AvailableEndDateTime"/>
+        </div>
         <div class="grand-reveal">
             <admin-field asp-for="MarkAsNew"/>
             <div class="grand-reveal__body grand-fields grand-fields--2col">

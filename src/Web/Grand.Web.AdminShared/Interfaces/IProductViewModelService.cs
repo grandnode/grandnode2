@@ -72,6 +72,8 @@ public interface IProductViewModelService
 
     Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products);
 
+    Task InsertBulkEdit(IEnumerable<BulkEditProductModel> products);
+
     Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products);
 
     //tierprices

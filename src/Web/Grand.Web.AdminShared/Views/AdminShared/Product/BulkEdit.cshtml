@@ -6,7 +6,10 @@
 }
 @* The product list's shape: one search field with the rest of the criteria behind the Filters
    toggle, and the batch grid in a flush card. The grid's Save changes commits the screen, so it is
-   the one primary and Search is an outline button. The ids the script looks up are unchanged. *@
+   the one primary and Search is an outline button. The ids the script looks up are unchanged.
+   The grid is the quick editor of a product: name, SKU, prices and stock edited in place, rows
+   added with the card's Add new (a simple product, named in the row), and the rest - mappings,
+   attributes, SEO - in the product screen the row's popup opens. *@
 <form asp-area="@area" asp-controller="Product" asp-action="BulkEdit" method="post">
     <admin-page title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit"]" icon="bi-boxes">
         <page-actions>
@@ -30,29 +33,40 @@
         <admin-card flush>
             <admin-grid id="products-grid"
                         read-url="@Url.Action("BulkEditSelect", "Product", new { area = area })"
+                        create-url="@Url.Action("BulkEditCreate", "Product", new { area = area })"
                         update-url="@Url.Action("BulkEditUpdate", "Product", new { area = area })"
                         destroy-url="@Url.Action("BulkEditDelete", "Product", new { area = area })"
                         additional-data="additionalData"
                         edit-mode="Batch"
                         batch-prefix="products"
                         confirm-destroy="true">
+                <grid-toolbar-create text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.AddNew"]"/>
                 <grid-toolbar-save/>
                 <grid-toolbar-cancel/>
-                <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
-                <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Name"]" width="200" editor="Text"/>
-                <grid-column field="ProductId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]" width="80">
+                <grid-text name="edit" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]"/>
+                <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Name"]" width="220" editor="Text" required="true"/>
+                <grid-column field="Sku" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Sku"]" width="110" editor="Text"/>
+                @*prices are posted with four decimals in the request culture, like the Kendo parameterMap*@
+                <grid-column field="Price" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Price"]" width="100" align="Right" editor="Numeric" decimals="4" default-value="0"/>
+                <grid-column field="OldPrice" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.OldPrice"]" width="100" align="Right" editor="Numeric" decimals="4" default-value="0" min-screen-width="1400"/>
+                <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.StockQuantity"]" width="90" align="Right" format="{0:0}" editor="Integer" default-value="0"/>
+                <grid-column field="ManageInventoryMethodId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.ManageInventoryMethod"]" width="150"
+                             editor="Select" options="EnumTranslationService.ToSelectList(ManageInventoryMethod.DontManageStock)" text-field="ManageInventoryMethod"
+                             default-value="0" min-screen-width="1150"/>
+                <grid-column field="Published" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Published"]" width="90" align="Center" editor="Checkbox" default-value="true"/>
+                @* more fields in a popup, and the rest of the product on its own screen - in a tab of
+                   its own, so the changes not saved here stay; a row not saved yet has neither *@
+                <grid-text name="details" value="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"]"/>
+                <grid-column field="Id" title="" width="96" align="Center">
                     <cell-template>
-                        <a href="@Url.Action("Edit", "Product", new { area = area })/{{ Id }}">{{ $texts.view }}</a>
+                        <div data-if="Id" class="d-inline-flex gap-1">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-grid-click="openBulkEditDetails"
+                                    title="{{ $texts.details }}" aria-label="{{ $texts.details }}"><i class="bi bi-sliders"></i></button>
+                            <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Edit", "Product", new { area = area })/{{ Id }}" target="_blank"
+                               title="{{ $texts.edit }}" aria-label="{{ $texts.edit }}"><i class="bi bi-box-arrow-up-right"></i></a>
+                        </div>
                     </cell-template>
                 </grid-column>
-                <grid-column field="Sku" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Sku"]" width="100" editor="Text"/>
-                @*prices are posted with four decimals in the request culture, like the Kendo parameterMap*@
-                <grid-column field="Price" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Price"]" width="100" editor="Numeric" decimals="4"/>
-                <grid-column field="OldPrice" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.OldPrice"]" width="100" editor="Numeric" decimals="4"/>
-                <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.StockQuantity"]" width="100" format="{0:0}" editor="Integer"/>
-                <grid-column field="ManageInventoryMethodId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.ManageInventoryMethod"]" width="150"
-                             editor="Select" options="EnumTranslationService.ToSelectList(ManageInventoryMethod.DontManageStock)" text-field="ManageInventoryMethod"/>
-                <grid-column field="Published" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Published"]" width="90" editor="Checkbox"/>
                 <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" width="100"/>
             </admin-grid>
         </admin-card>
@@ -74,6 +88,27 @@
                     }
                 });
             });
+
+            //the product screen with the quick-edit tabs, in a popup over the grid. Closing it
+            //reloads the grid to show what was saved there, so what was typed in the grid is
+            //saved first rather than lost; a save that fails (a required name left empty) keeps
+            //the popup closed and the grid as it is
+            async function openBulkEditDetails(item) {
+                var grid = $('#products-grid').data('kendoGrid');
+                if (grid.dataSource.hasChanges() && !(await grid.saveChanges()))
+                    return;
+                $.magnificPopup.open({
+                    items: { src: '@Url.Action("Edit", "Product", new { area = area })/' + encodeURIComponent(item.Id) + '?popup=true' },
+                    type: 'iframe',
+                    mainClass: 'grand-mfp-frame',
+                    closeOnBgClick: false,
+                    callbacks: {
+                        close: function () {
+                            grid.dataSource.read();
+                        }
+                    }
+                });
+            }
 
             function additionalData() {
                 var data = {

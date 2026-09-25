@@ -1048,3 +1048,28 @@
 .grand-card .plugins-table .button-false {
     display: none;
 }
+
+//a tab strip that shows a subset of its tabs - the product screen in the bulk-edit popup: the
+//tabs without grand-tab-quick stay in the page, because their fields are posted with the form,
+//but not in the strip. !important: a script may .show() a tab (the product type ones)
+.grand-tabs-quick > .grand-tabstrip > .nav-tabs > li:not(.grand-tab-quick) {
+    display: none !important;
+}
+
+//a magnific popup holding a whole admin screen in an iframe (mainClass: 'grand-mfp-frame'):
+//nearly the whole window, where the default is a 900px 16:9 video frame
+.grand-mfp-frame .mfp-content {
+    width: 96vw;
+    max-width: 1500px;
+    height: 92vh;
+}
+
+.grand-mfp-frame .mfp-iframe-scaler {
+    height: 100%;
+    padding-top: 0;
+}
+
+.grand-mfp-frame .mfp-iframe {
+    background: var(--bs-body-bg);
+    border-radius: 12px;
+}

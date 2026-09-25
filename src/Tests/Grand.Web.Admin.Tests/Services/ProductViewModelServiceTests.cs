@@ -349,6 +349,34 @@ public class ProductViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task InsertBulkEdit_StoreScope_CreatesSimpleProductInTheStore()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+        Product inserted = null;
+        _productServiceMock.Setup(p => p.InsertProduct(It.IsAny<Product>()))
+            .Callback<Product>(p =>
+            {
+                p.Id = "new1";
+                inserted = p;
+            })
+            .Returns(Task.CompletedTask);
+
+        await _productViewModelService.InsertBulkEdit([
+            new BulkEditProductModel { Id = "", Name = " Quick one ", Sku = "Q1", Price = 9.5, Published = true },
+            new BulkEditProductModel { Id = "", Name = "  " }
+        ]);
+
+        _productServiceMock.Verify(p => p.InsertProduct(It.IsAny<Product>()), Times.Once);
+        Assert.IsNotNull(inserted);
+        Assert.AreEqual("Quick one", inserted.Name);
+        Assert.AreEqual("Q1", inserted.Sku);
+        Assert.AreEqual(9.5, inserted.Price);
+        Assert.AreEqual(ProductType.SimpleProduct, inserted.ProductTypeId);
+        Assert.IsTrue(inserted.VisibleIndividually);
+        CollectionAssert.AreEqual(new[] { "store1" }, inserted.Stores.ToArray());
+    }
+
+    [TestMethod]
     public async Task PrepareProductsModel_VendorScope_OverridesModelVendorId()
     {
         _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");

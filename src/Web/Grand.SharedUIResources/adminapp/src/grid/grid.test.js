@@ -340,6 +340,68 @@ describe('batch editing', () => {
         expect(updates.map(p => [p.Id, p.Price])).toEqual([['1', '11.0000'], ['2', '22.0000']])
     })
 
+    it('adds a row on top, opens its first editor and posts it to create with the changed rows', async () => {
+        const post = vi.fn(async url => (url === '/select' ? data() : ''))
+        const grid = bulkGrid(post, {
+            transport: { read: '/select', create: '/create', update: '/update', destroy: '/delete' },
+            toolbar: { create: 'Add new', save: 'Save changes' },
+            columns: [
+                { field: 'Name', editor: 'Text' },
+                { field: 'Price', editor: 'Numeric', decimals: 4 },
+                { field: 'Published', editor: 'Checkbox', defaultValue: 'true' }
+            ]
+        })
+        await grid.ready
+        await grid.dataSource.read()
+
+        grid.element.querySelector('.grand-grid-add').click()
+        await vi.waitFor(() => expect(grid.dataSource.data()).toHaveLength(4))
+        const added = grid.dataSource.data()[0]
+        expect(added.Id).toBe('')
+        //a checkbox default is the boolean the cell draws as a tick, not the attribute's text
+        expect(added.Published).toBe(true)
+        expect(rows(grid)[0].classList.contains('grand-grid-new-row')).toBe(true)
+        expect(grid._cellEdit?.column.field).toBe('Name')
+        rows(grid)[0].querySelector('.grand-grid-column-0 input').value = 'New one'
+        grid.commitCell()
+        expect(grid.hasChanges()).toBe(true)
+
+        grid.editCell(grid.dataSource.data()[1], grid.columns[0])
+        rows(grid)[1].querySelector('.grand-grid-column-0 input').value = 'A2'
+        grid.commitCell()
+
+        await grid.saveChanges()
+        const [, created] = post.mock.calls.find(([url]) => url === '/create')
+        expect(created).toMatchObject({ 'products[0].Id': '', 'products[0].Name': 'New one' })
+        const [, updated] = post.mock.calls.find(([url]) => url === '/update')
+        expect(updated).toMatchObject({ 'products[0].Id': '1', 'products[0].Name': 'A2' })
+        expect(Object.keys(updated).some(k => k.startsWith('products[1]'))).toBe(false)
+        expect(grid.hasChanges()).toBe(false)
+    })
+
+    it('drops added rows on cancel, on delete without a request, and never posts an untouched one', async () => {
+        const post = vi.fn(async url => (url === '/select' ? data() : ''))
+        const grid = bulkGrid(post, { transport: { read: '/select', create: '/create', update: '/update', destroy: '/delete' }, toolbar: { create: 'Add new', save: 'Save changes', cancel: 'Cancel' } })
+        await grid.ready
+        await grid.dataSource.read()
+
+        await grid.addRow()
+        grid.commitCell()
+        await grid.cancelChanges()
+        expect(grid.dataSource.data().map(x => x.Name)).toEqual(['A', 'B', 'C'])
+        expect(grid.hasChanges()).toBe(false)
+
+        await grid.addRow()
+        await grid.destroyRow(grid.dataSource.data()[0])
+        expect(grid.dataSource.data()).toHaveLength(3)
+        expect(grid.hasChanges()).toBe(false)
+
+        await grid.addRow()
+        grid.commitCell()
+        await grid.saveChanges()
+        expect(post.mock.calls.some(([url]) => url === '/create' || url === '/delete')).toBe(false)
+    })
+
     it('does not open editors for columns without one', async () => {
         const post = vi.fn(async () => data())
         const grid = bulkGrid(post, { columns: [{ field: 'Name' }, { field: 'Price', editor: 'Numeric' }] })

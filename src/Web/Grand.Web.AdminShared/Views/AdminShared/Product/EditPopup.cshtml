@@ -1,0 +1,36 @@
+@model ProductModel
+@{
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+@* The product screen inside the bulk-edit popup (an iframe): the same form, posted to the same
+   Edit action, without the panel's menu and top bar (the empty sections below) and with only the
+   quick-edit tabs in the strip. The other tabs are still rendered, hidden, because the form posts
+   the whole product and a field left out would be saved empty. Save stays in the popup. *@
+@section headermenu { }
+@section header { }
+@section popupwindow { }
+<form asp-area="@area" asp-controller="Product" asp-action="Edit" method="post" id="product-form">
+    <input type="hidden" name="popup" value="true"/>
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-box"
+                meta="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"]">
+        <page-actions>
+            <a class="btn btn-outline-secondary" href="@Url.Action("Edit", "Product", new { area, id = Model.Id })" target="_blank">
+                <i class="bi bi-box-arrow-up-right"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]
+            </a>
+            @if (!readOnly)
+            {
+                <button class="btn btn-primary" type="submit" name="save-continue">
+                    <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                </button>
+            }
+        </page-actions>
+
+        <div class="grand-tabs-quick">
+            <partial name="Partials/CreateOrUpdate" model="Model"/>
+        </div>
+    </admin-page>
+</form>
