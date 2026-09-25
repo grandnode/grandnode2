@@ -58,7 +58,6 @@ public class MessageTemplateSeedTests
     }
 
     [TestMethod]
-    [Ignore("enabled after 12a-f")]
     public void NoDoubleSlashAfterStoreUrl()
     {
         foreach (var t in MessageTemplateSeed.Build("ea"))
