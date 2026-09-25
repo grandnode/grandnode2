@@ -8,7 +8,7 @@ public partial class InstallationService
     {
         var taxCategories = new List<TaxCategory> {
             new() {
-                Name = "Lego",
+                Name = "Home & Living",
                 DisplayOrder = 1
             },
             new() {
@@ -20,7 +20,7 @@ public partial class InstallationService
                 DisplayOrder = 10
             },
             new() {
-                Name = "Balls",
+                Name = "Sports & Outdoor",
                 DisplayOrder = 15
             },
             new() {

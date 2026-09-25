@@ -292,13 +292,15 @@ public partial class InstallationService : IInstallationService
             await InstallProductAttributes();
             await InstallCategories();
             await InstallBrands();
+            await InstallVendors();
+            await InstallWarehouses();
             await InstallProducts(defaultUserEmail);
+            await InstallCollections();
             await InstallDiscounts();
             await InstallBlogPosts();
             await InstallNews();
-            await InstallWarehouses();
+            await InstallKnowledgebase();
             await InstallPickupPoints();
-            await InstallVendors();
             await InstallAffiliates();
             await InstallOrderTags();
         }
