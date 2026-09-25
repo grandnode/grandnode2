@@ -59,7 +59,7 @@
             data: postData,
             success: function (data) {
                 if (data.success) {
-                    var grid = $("#currencies-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#currencies-grid");
                     grid.dataSource.read();
                 } else {
                     alert(data.message);
@@ -86,7 +86,7 @@
                 data: postData,
                 success: function (data) {
                     if (data.success) {
-                        var grid = $("#currencies-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#currencies-grid");
                         grid.dataSource.read();
                     } else {
                         alert(data.message);
@@ -109,7 +109,7 @@
             data: postData,
             success: function (data) {
                 if (data.success) {
-                    var grid = $("#currencies-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#currencies-grid");
                     grid.dataSource.read();
                 } else {
                     alert(data.message);
@@ -136,7 +136,7 @@
                 data: postData,
                 success: function (data) {
                     if (data.success) {
-                        var grid = $("#currencies-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#currencies-grid");
                         grid.dataSource.read();
                     } else {
                         alert(data.message);

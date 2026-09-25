@@ -105,7 +105,7 @@
             //search button
             $('#search-products').click(function () {
                 //search
-                var grid = $('#products-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#products-grid');
                 grid.dataSource.page(1);
                 grid.clearSelection();
                 return false;
@@ -145,7 +145,7 @@
                         url: "@(Url.Action("DeleteSelected", "Product", new { area = Constants.AreaAdmin }))",
                         data: postData,
                         complete: function (data) {
-                            var grid = $('#products-grid').data('kendoGrid');
+                            var grid = GrandAdmin.grids.get('#products-grid');
                             grid.clearSelection();
                             grid.dataSource.read();
                         },

@@ -97,9 +97,9 @@
 <script>
     $(document).ready(function () {
         $('#search-pages').click(function () {
-            var sg = $('#store-pages-grid').data('kendoGrid');
+            var sg = GrandAdmin.grids.get('#store-pages-grid');
             if (sg) sg.dataSource.read();
-            var gg = $('#global-pages-grid').data('kendoGrid');
+            var gg = GrandAdmin.grids.get('#global-pages-grid');
             if (gg) gg.dataSource.read();
             return false;
         });

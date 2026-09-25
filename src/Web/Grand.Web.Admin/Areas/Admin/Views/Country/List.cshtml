@@ -103,7 +103,7 @@
                     data: postData,
                     complete: function (data) {
                         //reload grid
-                        var grid = $('#countries-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#countries-grid');
                         grid.dataSource.read();
                     },
                     error:function (xhr, ajaxOptions, thrownError){
@@ -130,7 +130,7 @@
                     data: postData,
                     complete: function (data) {
                         //reload grid
-                        var grid = $('#countries-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#countries-grid');
                         grid.dataSource.read();
                     },
                     error:function (xhr, ajaxOptions, thrownError){
@@ -160,7 +160,7 @@
         //search button
         $('#search-countries').click(function () {
             //search
-            var grid = $('#countries-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#countries-grid');
             grid.dataSource.read();
         });
 

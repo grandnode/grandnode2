@@ -59,7 +59,7 @@
     $(document).ready(function () {
 
         $('#search-giftvouchers').click(function () {
-            var grid = $('#giftvouchers-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#giftvouchers-grid');
             grid.dataSource.page(1);
             return false;
         });

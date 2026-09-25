@@ -64,7 +64,7 @@
         //search button
         $('#search-brands').click(function () {
             //search
-            var grid = $('#brands-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#brands-grid');
             grid.dataSource.page(1);
             return false;
         });

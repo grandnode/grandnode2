@@ -64,7 +64,7 @@
                 url: "@(Url.Action("ShipmentNoteAdd", "Shipment", new { area = Constants.AreaVendor }))",
                 data: postData,
                 success: function (data) {
-                    var grid = $("#shipmentnotes-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#shipmentnotes-grid");
                     grid.dataSource.read();
                     $('#addShipmentNote').attr('disabled', false);
                 },

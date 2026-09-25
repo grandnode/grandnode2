@@ -63,7 +63,7 @@
             data: postData,
             success: function (data) {
                 if (data.success) {
-                    var grid = $("#languages-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#languages-grid");
                     grid.dataSource.read();
                 } else {
                     alert(data.message);
@@ -90,7 +90,7 @@
                 data: postData,
                 success: function (data) {
                     if (data.success) {
-                        var grid = $("#languages-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#languages-grid");
                         grid.dataSource.read();
                     } else {
                         alert(data.message);
@@ -113,7 +113,7 @@
             data: postData,
             success: function (data) {
                 if (data.success) {
-                    var grid = $("#languages-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#languages-grid");
                     grid.dataSource.read();
                 } else {
                     alert(data.message);
@@ -140,7 +140,7 @@
                 data: postData,
                 success: function (data) {
                     if (data.success) {
-                        var grid = $("#languages-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#languages-grid");
                         grid.dataSource.read();
                     } else {
                         alert(data.message);

@@ -117,7 +117,7 @@
                 url: "@(Url.Action("MarkAsPrimaryExchangeRateCurrency", "Currency", new { area = Constants.AreaAdmin }))",
                 data: postData,
             success: function(data) {
-                var grid = $("#currencies-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#currencies-grid");
                 grid.dataSource.read();
             },
             error: function(xhr, ajaxOptions, thrownError) {
@@ -142,7 +142,7 @@
                 url: "@(Url.Action("MarkAsPrimaryStoreCurrency", "Currency", new { area = Constants.AreaAdmin }))",
                 data: postData,
             success: function(data) {
-                var grid = $("#currencies-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#currencies-grid");
                 grid.dataSource.read();
             },
             error: function(xhr, ajaxOptions, thrownError) {
@@ -168,7 +168,7 @@
                 url: "@(Url.Action("ApplyRate", new { area = Constants.AreaAdmin }))",
                 data: postData,
                 success: function(data) {
-                    var grid = $("#currencies-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#currencies-grid");
                     grid.dataSource.read();
                 },
                 error: function(xhr, ajaxOptions, thrownError) {

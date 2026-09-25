@@ -32,7 +32,7 @@
     $(document).ready(function () {
 
         $('#search-best-customers-ordertotal').click(function () {
-            var grid = $('#best-customers-ordertotal-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#best-customers-ordertotal-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

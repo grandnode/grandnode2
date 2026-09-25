@@ -103,7 +103,7 @@
         //refresh button
         $('#btnRefreshCombinations').click(function () {
             //refresh grid
-            var grid = $("#attributecombinations-grid").data('kendoGrid');
+            var grid = GrandAdmin.grids.get("#attributecombinations-grid");
             grid.dataSource.read();
 
             //return false to don't reload a page
@@ -128,7 +128,7 @@
                     dataType: 'json',
                     success: function(data) {
                         //refresh grid
-                        var grid = $("#attributecombinations-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#attributecombinations-grid");
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
@@ -156,7 +156,7 @@
                     dataType: 'json',
                     success: function(data) {
                         //refresh grid
-                        var grid = $("#attributecombinations-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#attributecombinations-grid");
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {

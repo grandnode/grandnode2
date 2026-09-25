@@ -106,7 +106,7 @@
         $(document).ready(function () {
             $('#btnRefreshProductSpec').click(function () {
                 //refresh grid
-                var grid = $("#specificationattributes-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#specificationattributes-grid");
                 grid.dataSource.read();
                 //return false to don't reload a page
                 return false;

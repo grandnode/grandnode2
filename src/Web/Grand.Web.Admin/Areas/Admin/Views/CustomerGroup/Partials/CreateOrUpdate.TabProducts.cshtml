@@ -58,7 +58,7 @@
     <script>
             $(document).ready(function () {
                 $('#btnRefreshProducts').click(function () {
-                    var grid = $("#products-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#products-grid");
                     grid.dataSource.read();
                     return false;
                 });

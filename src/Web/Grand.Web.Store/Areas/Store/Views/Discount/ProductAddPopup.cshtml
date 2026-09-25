@@ -69,7 +69,7 @@
         });
 
         $('#search-products').click(function() {
-            var grid = $('#products-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#products-grid');
             grid.dataSource.page(1);
             grid.clearSelection();
             return false;

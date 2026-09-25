@@ -57,7 +57,7 @@
         //search button
         $('#search-collections').click(function () {
             //search
-            var grid = $('#collections-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#collections-grid');
             grid.dataSource.page(1);
             return false;
         });

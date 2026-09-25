@@ -147,7 +147,7 @@
 
         $(document).ready(function () {
             $('#btnRefreshTierPrices').click(function () {
-                $("#tierprices-grid").data('kendoGrid').dataSource.read();
+                GrandAdmin.grids.get("#tierprices-grid").dataSource.read();
                 return false;
             });
         });

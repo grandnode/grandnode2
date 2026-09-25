@@ -28,7 +28,7 @@
         $(document).ready(function () {
             $('#btnRefreshArticles').click(function () {
                 //refresh grid
-                var grid = $("#articles-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#articles-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

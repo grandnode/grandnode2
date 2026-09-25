@@ -64,7 +64,7 @@ for (const entry of HAR_PAGES) {
                 //Kendo only syncs dirty items; mark the unchanged row dirty so the
                 //payload is exactly the row as loaded (<admin-grid> always posts the row)
                 await page.evaluate(id => {
-                    const widget = $('#' + id).data('kendoGrid')
+                    const widget = window.GrandAdmin.grids.get('#' + id)
                     if (!widget.grandGrid) widget.dataSource.data()[0].dirty = true
                 }, entry.grid)
                 await grid.locator(gridSelectors.editRow).locator(gridSelectors.updateButton).click()

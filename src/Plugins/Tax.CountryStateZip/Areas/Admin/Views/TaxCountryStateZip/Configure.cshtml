@@ -83,7 +83,7 @@
                         data: postData,
                         dataType: 'json',
                         success: function (data) {
-                            var grid = $("#tax-countrystatezip-grid").data('kendoGrid');
+                            var grid = GrandAdmin.grids.get("#tax-countrystatezip-grid");
                             grid.dataSource.read();
                         },
                         error: function (xhr, ajaxOptions, thrownError) {

@@ -40,7 +40,7 @@ else
     <script>
             $(document).ready(function() {
                 $('#search-resources').click(function() {
-                    var grid = $('#resources-grid').data('kendoGrid');
+                    var grid = GrandAdmin.grids.get('#resources-grid');
                     grid.dataSource.page(1);
                     return false;
                 });

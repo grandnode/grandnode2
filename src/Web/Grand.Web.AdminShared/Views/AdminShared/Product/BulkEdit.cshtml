@@ -75,7 +75,7 @@
     <script>
         $(document).ready(function () {
             $('#search-products').click(function () {
-                    var grid = $('#products-grid').data('kendoGrid');
+                    var grid = GrandAdmin.grids.get('#products-grid');
                     grid.dataSource.page(1); //new search. Set page size to 1
                                              //grid.dataSource.read(); we already loaded the grid above using "page" function
                     return false;
@@ -94,7 +94,7 @@
             //saved first rather than lost; a save that fails (a required name left empty) keeps
             //the popup closed and the grid as it is
             async function openBulkEditDetails(item) {
-                var grid = $('#products-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#products-grid');
                 if (grid.dataSource.hasChanges() && !(await grid.saveChanges()))
                     return;
                 $.magnificPopup.open({

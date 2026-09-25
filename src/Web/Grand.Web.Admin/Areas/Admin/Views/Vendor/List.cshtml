@@ -49,7 +49,7 @@
         //search button
         $('#search-vendors').click(function () {
             //search
-            var grid = $('#vendors-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#vendors-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

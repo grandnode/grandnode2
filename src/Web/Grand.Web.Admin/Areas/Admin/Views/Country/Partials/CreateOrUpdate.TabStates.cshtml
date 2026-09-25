@@ -67,7 +67,7 @@
             $(document).ready(function () {
                 $('#btnRefresh').click(function () {
                     //refresh grid
-                    var grid = $("#states-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#states-grid");
                     grid.dataSource.read();
 
                     //return false to don't reload a page

@@ -112,7 +112,7 @@
             });
 
             $('#search-shipments').click(function () {
-                var grid = $('#shipments-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#shipments-grid');
                 grid.dataSource.page(1);
                 grid.clearSelection();
                 return false;
@@ -132,7 +132,7 @@
                     url: "@(Url.Action("SetAsShippedSelected", "Shipment", new { area = area }))",
                     data: postData,
                     complete: function(data) {
-                        var grid = $('#shipments-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#shipments-grid');
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
@@ -157,7 +157,7 @@
                     url: "@(Url.Action("SetAsDeliveredSelected", "Shipment", new { area = area }))",
                     data: postData,
                     complete: function(data) {
-                        var grid = $('#shipments-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#shipments-grid');
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {

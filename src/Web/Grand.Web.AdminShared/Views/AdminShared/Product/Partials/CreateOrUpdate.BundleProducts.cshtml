@@ -61,7 +61,7 @@
         $(document).ready(function () {
             $('#btnRefreshBundleProducts').click(function () {
                 //refresh grid
-                var grid = $("#bundleproducts-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#bundleproducts-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

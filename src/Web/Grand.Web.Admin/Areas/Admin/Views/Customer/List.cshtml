@@ -126,10 +126,10 @@
 
                 //search button
                 $('#search-customers').click(function () {
-                    var grid = $('#customers-grid').data('kendoGrid');
+                    var grid = GrandAdmin.grids.get('#customers-grid');
                     grid.dataSource.page(1); //new search. Set page size to 1
                     //grid.dataSource.read(); we already loaded the grid above using "page" function
-                    $('#customers-grid').data('kendoGrid').clearSelection();
+                    GrandAdmin.grids.get('#customers-grid').clearSelection();
                     return false;
                 });
                 $("#@Html.IdFor(model => model.SearchCustomerTagIds)").keydown(function (event) {
@@ -217,7 +217,7 @@
                             data: postData,
                             complete: function (data) {
                                 //reload grid
-                                var grid = $('#customers-grid').data('kendoGrid');
+                                var grid = GrandAdmin.grids.get('#customers-grid');
                                 grid.clearSelection();
                                 grid.dataSource.read();
                             },

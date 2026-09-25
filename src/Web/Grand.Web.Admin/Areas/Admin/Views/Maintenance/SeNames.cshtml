@@ -66,10 +66,10 @@
         //search button
         $('#search-senames').click(function() {
             //search
-            var grid = $('#sename-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#sename-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
-            $('#sename-grid').data('kendoGrid').clearSelection();
+            GrandAdmin.grids.get('#sename-grid').clearSelection();
             return false;
         });
 
@@ -96,10 +96,10 @@
                 data: postData,
                 complete: function(data) {
                     //reload grid
-                    var grid = $('#sename-grid').data('kendoGrid');
+                    var grid = GrandAdmin.grids.get('#sename-grid');
                     grid.dataSource.page(1); //new search. Set page size to 1
                     //grid.dataSource.read(); we already loaded the grid above using "page" function
-                    $('#sename-grid').data('kendoGrid').clearSelection();
+                    GrandAdmin.grids.get('#sename-grid').clearSelection();
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
                     alert(thrownError);

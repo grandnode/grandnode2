@@ -51,7 +51,7 @@
     }
 
     function deleteRow(id) {
-        var grid = $("#currentshoppingcart-grid").data("kendoGrid");
+        var grid = GrandAdmin.grids.get("#currentshoppingcart-grid");
         var dataItem = grid.dataSource.get(id);
         var tokenInput = $('input[name=__RequestVerificationToken]');
         $.ajax({

@@ -79,7 +79,7 @@
                 $(document).ready(function () {
                     $('#btnRefreshProductPictures').click(function () {
                         //refresh grid
-                        var grid = $("#productpictures-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#productpictures-grid");
                         grid.dataSource.read();
 
                         //return false to don't reload a page

@@ -70,7 +70,7 @@
                     url: "@(Url.Action("LoyaltyPointsHistoryAdd", "Customer", new { area = area }))",
                     data: postData,
                     success: function (data) {
-                        var grid = $("#customer-loyaltypoints-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#customer-loyaltypoints-grid");
                         grid.dataSource.read();
                         $('#addLoyaltyPoints').attr('disabled', false);
                     },

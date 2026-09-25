@@ -52,7 +52,7 @@
         $(document).ready(function () {
             $('#btnRefreshRelatedArticles').click(function () {
                 //refresh grid
-                var grid = $("#relatedarticles-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#relatedarticles-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

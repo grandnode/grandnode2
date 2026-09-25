@@ -48,7 +48,7 @@
 <script>
     $(document).ready(function () {
         $('#search-products').click(function () {
-            var grid = $('#products-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#products-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;
@@ -75,7 +75,7 @@
     }
 
     function onChange(e) {
-        var grid = $('#products-grid').data('kendoGrid');
+        var grid = GrandAdmin.grids.get('#products-grid');
         var selectedItem = grid.dataItem(grid.select());
         var productId = selectedItem.Id;
         //load "product details page" block

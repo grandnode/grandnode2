@@ -44,7 +44,7 @@
                 url: "@(Url.Action("MarkAsPrimaryDimension", "Measure", new { area = Constants.AreaAdmin }))",
                 data: postData,
                 success: function(data) {
-                    var grid = $("#measuredimension-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#measuredimension-grid");
                     grid.dataSource.read();
                 },
                 error: function(xhr, ajaxOptions, thrownError) {

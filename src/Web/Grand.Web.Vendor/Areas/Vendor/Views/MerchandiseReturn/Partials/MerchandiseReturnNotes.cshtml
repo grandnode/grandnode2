@@ -62,7 +62,7 @@
                 url: "@(Url.Action("MerchandiseReturnNoteAdd", "MerchandiseReturn", new { area = Constants.AreaVendor }))",
                 data: postData,
                 success: function (data) {
-                    var grid = $("#merchandisereturnnotes-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#merchandisereturnnotes-grid");
                     grid.dataSource.read();
                     $('#addMerchandiseReturnNote').attr('disabled', false);
                 },

@@ -60,7 +60,7 @@
     <script>
         $(document).ready(function() {
             $('#search-subscriptions').click(function() {
-                var grid = $('#newsletter-subscriptions-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#newsletter-subscriptions-grid');
                 grid.dataSource.page(1);
                 return false;
             });

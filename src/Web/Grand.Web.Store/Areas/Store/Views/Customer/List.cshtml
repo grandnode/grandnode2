@@ -80,7 +80,7 @@
         $(document).ready(function () {
 
             $('#search-customers').click(function () {
-                var grid = $('#customers-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#customers-grid');
                 grid.dataSource.page(1);
                 return false;
             });

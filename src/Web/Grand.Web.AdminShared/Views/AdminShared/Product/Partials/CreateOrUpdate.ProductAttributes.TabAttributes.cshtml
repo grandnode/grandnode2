@@ -174,7 +174,7 @@
     $(document).ready(function () {
         $('#btnRefreshProductAttributes').click(function () {
             //refresh grid
-            var grid = $("#productattributemappings-grid").data('kendoGrid');
+            var grid = GrandAdmin.grids.get("#productattributemappings-grid");
             grid.dataSource.read();
             //return false to don't reload a page
             return false;
@@ -182,7 +182,7 @@
         $('#btnRefreshProductAttributesValues').click(function (e) {
             //refresh grid value
             var dataid = $(this).attr("data-id");
-            var grid = $('[data-id="' + dataid + '"]').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('[data-id="' + dataid + '"]');
             grid.dataSource.read();
             //return false to don't reload a page
             return false;

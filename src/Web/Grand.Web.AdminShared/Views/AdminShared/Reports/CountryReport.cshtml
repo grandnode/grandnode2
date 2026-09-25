@@ -37,7 +37,7 @@
         $(document).ready(function () {
 
             $('#search-countryreport').click(function () {
-                var grid = $('#countryreport-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#countryreport-grid');
                 grid.dataSource.read();
                 return false;
             });

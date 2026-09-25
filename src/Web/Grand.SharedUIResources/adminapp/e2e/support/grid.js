@@ -2,7 +2,7 @@ import { expect } from '@playwright/test'
 
 /*
  * Helpers that work for both grid engines: Kendo grids built in script and <admin-grid>
- * (admin.grid.js). They read the widget through $(el).data('kendoGrid') - the API both
+ * (admin.grid.js). They read the widget through window.GrandAdmin.grids.get(el) - the API both
  * provide - and use a selector for each engine where the markup differs.
  */
 
@@ -34,7 +34,7 @@ export async function waitForGrid(page, gridId) {
     await page.waitForLoadState('networkidle')
     await expect(grid.locator(gridSelectors.loading)).toHaveCount(0)
     const state = await page.evaluate(id => {
-        const widget = $('#' + id).data('kendoGrid')
+        const widget = window.GrandAdmin.grids.get('#' + id)
         if (!widget) return null
         const element = $('#' + id)
         const rows = widget.grandGrid
@@ -46,7 +46,7 @@ export async function waitForGrid(page, gridId) {
             dataLength: widget.dataSource.data().length
         }
     }, gridId)
-    expect(state, `#${gridId} is a kendoGrid`).not.toBeNull()
+    expect(state, `#${gridId} is an <admin-grid>`).not.toBeNull()
     //either rows were rendered for the data that came back, or the grid is empty
     if (state.dataLength > 0) expect(state.rows).toBeGreaterThan(0)
     else expect(state.total).toBe(0)
@@ -56,7 +56,7 @@ export async function waitForGrid(page, gridId) {
 /** Returns a field of the first data item, e.g. the Id to open an edit page. */
 export async function firstItemField(page, gridId, field = 'Id') {
     return page.evaluate(([id, name]) => {
-        const item = $('#' + id).data('kendoGrid').dataSource.data()[0]
+        const item = window.GrandAdmin.grids.get('#' + id).dataSource.data()[0]
         return item ? item[name] : undefined
     }, [gridId, field])
 }

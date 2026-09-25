@@ -179,7 +179,7 @@
                     data: postData,
                     success: function (data) {
                         if (data.success) {
-                            var grid = $("#reservations-grid").data('kendoGrid');
+                            var grid = GrandAdmin.grids.get("#reservations-grid");
                             grid.dataSource.read();
                         }
                         else {
@@ -211,7 +211,7 @@
                         dataType: 'json',
                         data: postData,
                         success: function (data) {
-                            var grid = $("#reservations-grid").data('kendoGrid');
+                            var grid = GrandAdmin.grids.get("#reservations-grid");
                             grid.dataSource.read();
                         },
                         error: function () {
@@ -235,7 +235,7 @@
                     dataType: 'json',
                     data: postData,
                     success: function (data) {
-                        var grid = $("#reservations-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#reservations-grid");
                         grid.dataSource.read();
                     },
                     error: function () {

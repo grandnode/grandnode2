@@ -48,7 +48,7 @@
         //search button
         $('#search-templates').click(function () {
             //search
-            var grid = $('#templates-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#templates-grid');
             grid.dataSource.read();
         });
 

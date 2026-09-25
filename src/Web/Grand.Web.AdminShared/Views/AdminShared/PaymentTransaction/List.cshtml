@@ -85,7 +85,7 @@
     $(document).ready(function () {
         $('#search-paymenttransaction').click(function () {
             //search
-            var grid = $('#paymenttransactions-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#paymenttransactions-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

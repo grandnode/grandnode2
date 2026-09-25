@@ -71,7 +71,7 @@
                     });
 
                     $('#btnRefresh').click(function () {
-                        var grid = $("#contactattributevalues-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#contactattributevalues-grid");
                         grid.dataSource.read();
                         return false;
                     });

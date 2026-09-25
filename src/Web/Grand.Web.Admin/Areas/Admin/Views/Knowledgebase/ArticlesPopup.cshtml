@@ -69,7 +69,7 @@
 
 
             $('#search-articles').click(function () {
-                var grid = $('#articles-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#articles-grid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
                 grid.clearSelection();

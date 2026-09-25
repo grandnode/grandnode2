@@ -70,13 +70,13 @@ function tabstrip_on_tab_show(e, load) {
     var element = '.k-state-active';
     if (load === undefined) {
         $(e.contentElement).find('[data-role="grid"]').each(function (x) {
-            var grid = $(this).data('kendoGrid');
+            var grid = GrandAdmin.grids.get(this);
             grid.dataSource.page(1);
         });
     }
     else {
         $(element).find('[data-role="grid"]').each(function (x) {
-            var grid = $(this).data('kendoGrid');
+            var grid = GrandAdmin.grids.get(this);
             grid.dataSource.page(1);
         });
     }

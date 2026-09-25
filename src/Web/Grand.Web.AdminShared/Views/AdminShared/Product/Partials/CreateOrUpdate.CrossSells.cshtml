@@ -56,7 +56,7 @@
         $(document).ready(function () {
             $('#btnRefreshCrossSellProducts').click(function () {
                 //refresh grid
-                var grid = $("#crosssellproducts-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#crosssellproducts-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

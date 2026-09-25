@@ -303,7 +303,7 @@
         if ($.isFunction(window.initReportOrderTimeChart)) {
             initReportOrderTimeChart(false);
         };
-        var gridOrders = $('#latest-orders-grid').data('kendoGrid');
+        var gridOrders = GrandAdmin.grids.get('#latest-orders-grid');
         if (gridOrders != undefined) {
             gridOrders.dataSource.read();
         }

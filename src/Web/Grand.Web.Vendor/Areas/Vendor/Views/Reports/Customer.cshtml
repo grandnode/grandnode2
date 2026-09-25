@@ -34,7 +34,7 @@
         $(document).ready(function () {
 
             $('#search-customerreport').click(function () {
-                var grid = $('#bestsellers-byamount-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#bestsellers-byamount-grid');
                 grid.dataSource.read();
                 return false;
             });

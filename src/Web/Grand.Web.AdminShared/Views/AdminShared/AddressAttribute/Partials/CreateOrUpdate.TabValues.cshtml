@@ -72,7 +72,7 @@
                     });
 
                     $('#btnRefresh').click(function () {
-                        var grid = $("#addressattributevalues-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#addressattributevalues-grid");
                         grid.dataSource.read();
                         return false;
                     });

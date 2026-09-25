@@ -101,7 +101,7 @@
                 url: "@(Url.Action("OrderNoteAdd", "Order", new { area = area }))",
                 data: postData,
                 success: function (data) {
-                    var grid = $("#ordernotes-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#ordernotes-grid");
                     grid.dataSource.read();
                     $('#addOrderNote').attr('disabled', false);
                 },

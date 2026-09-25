@@ -48,7 +48,7 @@
             $(document).ready(function () {
                 $('#btnRefreshPersonalizedProducts').click(function () {
                     //refresh grid
-                    var grid = $("#personalizedproduct-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#personalizedproduct-grid");
                     grid.dataSource.read();
 
                     //return false to don't reload a page

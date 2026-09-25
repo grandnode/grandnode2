@@ -58,7 +58,7 @@ $(document).ready(function () {
     //search button
     $('#search-contactform').click(function () {
         //search
-        var grid = $('#contactform-grid').data('kendoGrid');
+        var grid = GrandAdmin.grids.get('#contactform-grid');
         grid.dataSource.page(1); //new search. Set page size to 1
         //grid.dataSource.read(); we already loaded the grid above using "page" function
         return false;

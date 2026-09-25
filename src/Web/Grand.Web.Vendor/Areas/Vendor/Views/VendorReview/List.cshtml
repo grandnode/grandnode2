@@ -66,7 +66,7 @@
                     //search button
                     $('#search-vendorreviews').click(function () {
                         //search
-                        var grid = $('#vendorreviews-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#vendorreviews-grid');
                         grid.dataSource.page(1); //new search. Set page size to 1
                         //grid.dataSource.read(); we already loaded the grid above using "page" function
                         //clear the selection
@@ -90,7 +90,7 @@
                             data: postData,
                             complete: function (data) {
                                 //reload grid
-                                var grid = $('#vendorreviews-grid').data('kendoGrid');
+                                var grid = GrandAdmin.grids.get('#vendorreviews-grid');
                                 grid.dataSource.read();
                             },
                             error:function (xhr, ajaxOptions, thrownError){
@@ -117,7 +117,7 @@
                             data: postData,
                             complete: function (data) {
                                 //reload grid
-                                var grid = $('#vendorreviews-grid').data('kendoGrid');
+                                var grid = GrandAdmin.grids.get('#vendorreviews-grid');
                                 grid.dataSource.read();
                             },
                             error:function (xhr, ajaxOptions, thrownError){

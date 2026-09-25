@@ -56,7 +56,7 @@
         $(document).ready(function () {
             $('#btnRefreshRecommendedProducts').click(function () {
                 //refresh grid
-                var grid = $("#recommendedproducts-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#recommendedproducts-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

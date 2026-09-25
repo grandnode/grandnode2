@@ -59,7 +59,7 @@
         //search button
         $('#search-pages').click(function () {
             //search
-            var grid = $('#pages-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#pages-grid');
             grid.dataSource.read();
             return false;
         });

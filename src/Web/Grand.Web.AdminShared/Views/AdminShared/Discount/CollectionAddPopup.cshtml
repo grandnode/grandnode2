@@ -71,7 +71,7 @@
             });
         });
             $('#search-collections').click(function() {
-                var grid = $('#collections-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#collections-grid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 grid.clearSelection();
                 return false;

@@ -50,7 +50,7 @@
         //search button
         $('#search-orders').click(function () {
             //search
-            var grid = $('#orders-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#orders-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

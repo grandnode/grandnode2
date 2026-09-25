@@ -171,18 +171,16 @@ describe('detail grids', () => {
 
         const init = vi.fn()
         grid.config.events = { detailInit: init }
-        window.jQuery = { data: vi.fn(), removeData: vi.fn() }
         vi.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true, text: async () => '{"Data":[],"Total":0}' })
         grid.toggleDetail(grid.dataSource.data()[0])
         const child = grid._detailGrids.get(grid.dataSource.data()[0])
         expect(child.config.transport.read).toBe('/values?productAttributeMappingId=m1')
         expect(child.config.transport.destroy).toBe('/valueDelete?productAttributeMappingId=m1')
-        expect(window.jQuery.data).toHaveBeenCalledWith(child.element, 'kendoGrid', child.api)
+        expect(child.element.grandGrid).toBe(child)
         expect(init.mock.calls[0][0].detailGrid).toBe(child.api)
         expect(init.mock.calls[0][0].detailElement).toBe(child.element)
         await child.ready
         await vi.waitFor(() => expect(globalThis.fetch).toHaveBeenCalledWith('/values?productAttributeMappingId=m1', expect.anything()))
-        delete window.jQuery
     })
 
     it('expands the rows of a recursive detail to the same detail, one level further down', async () => {

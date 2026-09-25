@@ -103,10 +103,10 @@
         //search button
         $('#search-productreviews').click(function () {
             //search
-            var grid = $('#productreviews-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#productreviews-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
-            $('#productreviews-grid').data('kendoGrid').clearSelection();
+            GrandAdmin.grids.get('#productreviews-grid').clearSelection();
             return false;
         });
 
@@ -126,7 +126,7 @@
                 data: postData,
                 complete: function (data) {
                     //reload grid
-                    var grid = $('#productreviews-grid').data('kendoGrid');
+                    var grid = GrandAdmin.grids.get('#productreviews-grid');
                     grid.dataSource.read();
                 },
                 error:function (xhr, ajaxOptions, thrownError){
@@ -153,7 +153,7 @@
                 data: postData,
                 complete: function (data) {
                     //reload grid
-                    var grid = $('#productreviews-grid').data('kendoGrid');
+                    var grid = GrandAdmin.grids.get('#productreviews-grid');
                     grid.dataSource.read();
                 },
                 error:function (xhr, ajaxOptions, thrownError){

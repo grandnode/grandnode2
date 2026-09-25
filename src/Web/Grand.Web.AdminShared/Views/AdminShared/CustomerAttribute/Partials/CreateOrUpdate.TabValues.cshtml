@@ -70,7 +70,7 @@
                     });
 
                     $('#btnRefresh').click(function () {
-                        var grid = $("#customerattributevalues-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#customerattributevalues-grid");
                         grid.dataSource.read();
                         return false;
                     });

@@ -1,4 +1,4 @@
-//The instance API the views and plugins reach through $(el).data('kendoGrid'): 177 calls
+//The instance API the views and plugins reach through GrandAdmin.grids.get(el): 177 calls
 //across the panels, mostly dataSource.read() and dataSource.page(1) (admin.common.js
 //tabstrip_on_tab_show among them), plus dataItem, select, sync, remove and get.
 //Only that subset exists; everything else is intentionally absent so a missing method

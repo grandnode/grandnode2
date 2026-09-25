@@ -70,7 +70,7 @@
     <script>
         $(document).ready(function () {
             $('#btnRefresh').click(function () {
-                var grid = $("#shipping-points-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#shipping-points-grid");
                 grid.dataSource.read();
                 return false;
             });

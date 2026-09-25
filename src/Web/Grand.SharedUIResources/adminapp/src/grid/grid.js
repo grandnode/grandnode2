@@ -592,8 +592,8 @@ export class GrandGrid {
                 if (this.detail.recursive) childConfig.detail = this.detail
                 child = new GrandGrid(childElement, childConfig, { ...this.deps, parent: this })
                 this._detailGrids.set(item, child)
-                //$(detailElement).data('kendoGrid') works for detail grids too
-                if (window.jQuery) window.jQuery.data(childElement, 'kendoGrid', child.api)
+                //GrandAdmin.grids.get(detailElement) finds a detail grid too
+                childElement.grandGrid = child
                 child.ready.then(() => child.dataSource.read())
             }
             this._fire('detailInit', { sender: this.api, data: item, detailCell: holder, masterRow: row.getElement(), detailElement: childElement, detailGrid: child?.api })
@@ -1024,6 +1024,6 @@ export class GrandGrid {
         this._detailGrids.forEach(grid => grid.destroy())
         this._detailGrids.clear()
         this.table.destroy()
-        if (window.jQuery) window.jQuery.removeData(this.element, 'kendoGrid')
+        if (this.element.grandGrid === this) delete this.element.grandGrid
     }
 }

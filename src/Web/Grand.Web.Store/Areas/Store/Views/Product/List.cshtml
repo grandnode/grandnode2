@@ -94,9 +94,9 @@
             //search button
             $('#search-products').click(function () {
                 //search
-                var grid = $('#products-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#products-grid');
                 grid.dataSource.page(1);
-                $('#products-grid').data('kendoGrid').clearSelection();
+                GrandAdmin.grids.get('#products-grid').clearSelection();
                 return false;
             });
 

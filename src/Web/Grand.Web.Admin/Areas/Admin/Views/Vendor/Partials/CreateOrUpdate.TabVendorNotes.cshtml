@@ -42,7 +42,7 @@
                 url: "@(Url.Action("VendorNoteAdd", "Vendor", new { area = Constants.AreaAdmin }))",
                 data: postData,
                 success: function (data) {
-                    var grid = $("#vendornotes-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#vendornotes-grid");
                     grid.dataSource.read();
                     $('#addVendorNote').attr('disabled', false);
                 },

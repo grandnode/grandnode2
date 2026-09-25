@@ -45,7 +45,7 @@
         $(document).ready(function () {
             $('#btnRefreshPosts').click(function () {
                 //refresh grid
-                var grid = $("#posts-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#posts-grid");
                 grid.dataSource.read();
                 //return false to don't reload a page
                 return false;

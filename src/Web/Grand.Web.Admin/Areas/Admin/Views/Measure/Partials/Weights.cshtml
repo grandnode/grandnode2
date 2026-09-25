@@ -45,7 +45,7 @@
                 url: "@(Url.Action("MarkAsPrimaryWeight", "Measure", new { area = Constants.AreaAdmin }))",
                 data: postData,
                 success: function(data) {
-                    var grid = $("#measureweight-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#measureweight-grid");
                     grid.dataSource.read();
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
