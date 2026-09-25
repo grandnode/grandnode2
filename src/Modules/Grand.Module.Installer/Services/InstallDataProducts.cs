@@ -43,6 +43,7 @@ public partial class InstallationService
         await InstallProductRelations(allProducts, ctx);
     }
 
+    // Counts the tag and adds it to the product; the caller saves the product.
     private async Task AddProductTag(Product product, string tag)
     {
         var productTag = _productTagRepository.Table.FirstOrDefault(pt => pt.Name == tag);
@@ -59,6 +60,5 @@ public partial class InstallationService
         productTag.Count = productTag.Count + 1;
         await _productTagRepository.UpdateAsync(productTag);
         product.ProductTags.Add(productTag.Name);
-        await _productRepository.UpdateAsync(product);
     }
 }
