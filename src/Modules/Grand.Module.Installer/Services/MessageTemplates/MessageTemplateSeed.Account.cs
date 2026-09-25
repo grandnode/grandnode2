@@ -9,65 +9,118 @@ public static partial class MessageTemplateSeed
         return new List<MessageTemplate> {
             new() {
                 Name = "Customer.WelcomeMessage",
-                Subject = "Welcome to {{Store.Name}}",
-                Body =
-                    "We welcome you to <a href=\"{{Store.URL}}\"> {{Store.Name}}</a>.<br />\r\n<br />\r\nYou can now take part in the various services we have to offer you. Some of these services include:<br />\r\n<br />\r\nPermanent Cart - Any products added to your online cart remain there until you remove them, or check them out.<br />\r\nAddress Book - We can now deliver your products to another address other than yours! This is perfect to send birthday gifts direct to the birthday-person themselves.<br />\r\nOrder History - View your history of purchases that you have made with us.<br />\r\nProducts Reviews - Share your opinions on products with our other customers.<br />\r\n<br />\r\nFor help with any of our online services, please email the store-owner: <a href=\"mailto:{{Store.Email}}\">{{Store.Email}}</a>.<br />\r\n<br />\r\nNote: This email address was provided on our registration page. If you own the email and did not register on our site, please send an email to <a href=\"mailto:{{Store.Email}}\">{{Store.Email}}</a>.",
+                Subject = "{{Store.Name}} — Welcome to your new account",
+                Body = Layout(
+                    "Welcome to {{Store.Name}} — here's what your account can do",
+                    "Welcome to {{Store.Name}}",
+                    @"
+                <p>Thanks for creating an account with <strong>{{Store.Name}}</strong>. You can now enjoy a faster, more personal shopping experience.</p>
+                <p>Here is what your account gives you:</p>
+                <p>
+                <strong>Cart that remembers you</strong> — anything you add stays in your cart until you check out.<br />
+                <strong>Address book</strong> — save more than one delivery address, handy for sending gifts.<br />
+                <strong>Order history</strong> — see every purchase you have made with us.<br />
+                <strong>Product reviews</strong> — share your opinion with other shoppers.
+                </p>" +
+                    Button("{{Store.URL}}", "Start shopping") + @"
+                <p>Need a hand with anything? Email us at <a href='mailto:{{Store.Email}}'>{{Store.Email}}</a>.</p>
+                <p>This address was used to register on our site. If that was not you, please let us know at <a href='mailto:{{Store.Email}}'>{{Store.Email}}</a>.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },
             new() {
                 Name = "Customer.EmailValidationMessage",
-                Subject = "{{Store.Name}}. Email validation",
-                Body =
-                    "<a href=\"{{Store.URL}}\">{{Store.Name}}</a>  <br />\r\n  <br />\r\n  To activate your account <a href=\"{{Customer.AccountActivationURL}}\">click here</a>.     <br />\r\n  <br />\r\n  {{Store.Name}}",
+                Subject = "{{Store.Name}} — Confirm your email address",
+                Body = Layout(
+                    "Confirm your email to activate your account",
+                    "Confirm your email address",
+                    @"
+                <p>Thanks for registering at <strong>{{Store.Name}}</strong>. Please confirm your email address to activate your account.</p>" +
+                    Button("{{Customer.AccountActivationURL}}", "Activate my account") + @"
+                <p>If you did not create an account with us, you can safely ignore this email.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },
             new() {
                 Name = "Customer.EmailTokenValidationMessage",
-                Subject = "{{Store.Name}} - Email Verification Code",
-                Body =
-                    "Hello {{Customer.FullName}}, <br /><br />\r\n Enter this 6 digit code on the sign in page to confirm your identity:<br /><br /> \r\n <b>{{Customer.Token}}</b><br /><br />\r\n Yours securely, <br /> \r\n Team",
+                Subject = "{{Store.Name}} — Your verification code",
+                Body = Layout(
+                    "Your sign-in verification code",
+                    "Verify your identity",
+                    @"
+                <p>Hello {{Customer.FullName}},</p>
+                <p>Enter this 6-digit code on the sign-in page to confirm it is you:</p>
+                <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='margin: 16px 0;'>
+                <tr><td style='padding: 0.8em 1em; background-color: #f4f4f5; border-radius: 6px; text-align: center; font-size: 26px; font-weight: bold; letter-spacing: 6px; color: #18181b;'>{{Customer.Token}}</td></tr>
+                </table>
+                <p>If you did not request this code, you can ignore this email — your account is still secure.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },
             new() {
                 Name = "Customer.PasswordRecovery",
-                Subject = "{{Store.Name}}. Password recovery",
-                Body =
-                    "<a href=\"{{Store.URL}}\">{{Store.Name}}</a>  <br />\r\n  <br />\r\n  To change your password <a href=\"{{Customer.PasswordRecoveryURL}}\">click here</a>.     <br />\r\n  <br />\r\n  {{Store.Name}}",
+                Subject = "{{Store.Name}} — Reset your password",
+                Body = Layout(
+                    "Reset the password for your account",
+                    "Reset your password",
+                    @"
+                <p>We received a request to reset the password for your account at <strong>{{Store.Name}}</strong>.</p>" +
+                    Button("{{Customer.PasswordRecoveryURL}}", "Reset my password") + @"
+                <p>If you did not request a password reset, you can safely ignore this email — your password will not be changed.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },
             new() {
                 Name = "Customer.NewPM",
-                Subject = "{{Store.Name}}. You have received a new private message",
-                Body =
-                    "<p><a href=\"{{Store.URL}}\">{{Store.Name}}</a> <br />\r\n<br />\r\nYou have received a new private message.</p>",
+                Subject = "{{Store.Name}} — You have a new private message",
+                Body = Layout(
+                    "You have received a new private message",
+                    "New private message",
+                    @"
+                <p>You have received a new private message.</p>" +
+                    Button("{{Store.URL}}", "Visit {{Store.Name}}")),
                 IsActive = true,
                 EmailAccountId = ea
             },
             new() {
                 Name = "Customer.NewCustomerNote",
-                Subject = "New customer note has been added",
-                Body =
-                    "<p><br />\r\nHello {{Customer.FullName}}, <br />\r\nNew customer note has been added to your account:<br />\r\n\"{{Customer.NewTitleText}}\".<br />\r\n</p>",
+                Subject = "{{Store.Name}} — A note has been added to your account",
+                Body = Layout(
+                    "A new note has been added to your account",
+                    "New note on your account",
+                    @"
+                <p>Hello {{Customer.FullName}},</p>
+                <p>{{Store.Name}} has added the following note to your account:</p>
+                <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='margin: 16px 0;'>
+                <tr><td style='padding: 0.8em 1em; background-color: #f4f4f5; border-radius: 6px;'>{{Customer.NewTitleText}}</td></tr>
+                </table>
+                <p>If you have any questions, just reply to this email.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },
             new() {
                 Name = "NewsLetterSubscription.ActivationMessage",
-                Subject = "{{Store.Name}}. Subscription activation message.",
-                Body =
-                    "<p><a href=\"{{NewsLetterSubscription.ActivationUrl}}\">Click here to confirm your subscription to our list.</a></p><p>If you received this email by mistake, simply delete it.</p>",
+                Subject = "{{Store.Name}} — Confirm your newsletter subscription",
+                Body = Layout(
+                    "Confirm your newsletter subscription",
+                    "Confirm your subscription",
+                    @"
+                <p>Thanks for subscribing to updates from <strong>{{Store.Name}}</strong>.</p>" +
+                    Button("{{NewsLetterSubscription.ActivationUrl}}", "Confirm my subscription") + @"
+                <p>If you did not request this, simply ignore this email — you will not be subscribed.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },
             new() {
                 Name = "NewsLetterSubscription.DeactivationMessage",
-                Subject = "{{Store.Name}}. Subscription deactivation message.",
-                Body =
-                    "<p><a href=\"{{NewsLetterSubscription.DeactivationUrl}}\">Click here to unsubscribe from our newsletter.</a></p><p>If you received this email by mistake, simply delete it.</p>",
+                Subject = "{{Store.Name}} — Confirm you want to unsubscribe",
+                Body = Layout(
+                    "Confirm you want to leave our newsletter",
+                    "Unsubscribe from our newsletter",
+                    @"
+                <p>We received a request to remove this email address from the <strong>{{Store.Name}}</strong> newsletter.</p>" +
+                    Button("{{NewsLetterSubscription.DeactivationUrl}}", "Unsubscribe me") + @"
+                <p>If you did not request this, simply ignore this email — you will stay subscribed.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },
