@@ -17,8 +17,13 @@ public class SampleNamesTests
     {
         var code = string.Join("\n", Directory.GetFiles(RepositoryPaths.InstallerServices, "*.cs").Select(File.ReadAllText));
         var seeded = string.Join("\n", Directory.GetFiles(RepositoryPaths.InstallerServices, seedGlob).Select(File.ReadAllText));
-        var names = Regex.Matches(code, helper + @"\(""([^""]+)""\)").Select(m => m.Groups[1].Value).Distinct();
-        var missing = names.Where(n => !seeded.Contains($"Name = \"{n}\"")).ToList();
+        // (?<![A-Za-z0-9_]) avoids e.g. "TaxCategoryId(" being matched as a "CategoryId(" call.
+        var names = Regex.Matches(code, @"(?<![A-Za-z0-9_])" + helper + @"\(""([^""]+)""\)")
+            .Select(m => m.Groups[1].Value).Distinct();
+        // A seeded name is either assigned directly (Name = "...", as brands/vendors/tax categories
+        // do) or passed as a literal argument to a local seeding helper (as categories do, e.g.
+        // AddSubcategory(parent, "Wearables", ...)) - either way it appears as a quoted literal.
+        var missing = names.Where(n => !seeded.Contains($"\"{n}\"")).ToList();
         Assert.AreEqual(0, missing.Count, $"{helper}: no seeded entity named {string.Join(", ", missing)}");
     }
 }
