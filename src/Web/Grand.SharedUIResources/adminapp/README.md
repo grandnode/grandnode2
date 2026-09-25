@@ -190,7 +190,8 @@ Grids are markup, rendered by the `<admin-grid>` tag helper
 - `selectable="Checkbox"` or `"Row"`, `on-change`, `on-data-bound`, `auto-bind="false"` and
   the rest are listed in `.ai/standards/razor-frontend.md` (section *Admin grids*), which is
   the full reference.
-- `$(el).data('kendoGrid')` still answers the calls views make (`dataSource.read`,
+- `GrandAdmin.grids.get('#products-grid')` (an id, a selector, an element or a jQuery
+  object) returns a grid's API for the calls views make (`dataSource.read`,
   `dataItem(tr)`, `select()`, `refresh()` ...).
 
 Only views change for a new grid; no rebuild is needed unless you touch `src/grid`.
@@ -224,8 +225,10 @@ plugin that linked any of those paths directly must ship its own copy.
 There is no compatibility layer either: `$.fn.kendoGrid`, the other Kendo widgets,
 `kendo.*` helpers, the `k-*` classes and the Bootstrap 4 `data-toggle` / `data-target` /
 `data-dismiss` attributes do nothing in the panels. A plugin view uses `<admin-grid>`,
-`window.GrandAdmin` and Bootstrap 5 (`data-bs-*`). `$('#grid').data('kendoGrid')` still
-returns the grid's API, for the views that read a grid that way.
+`window.GrandAdmin` and Bootstrap 5 (`data-bs-*`). A grid's API is
+`GrandAdmin.grids.get('#grid')`; `$('#grid').data('kendoGrid')` is gone as well.
+The step-by-step upgrade, with the Kendo-to-`<admin-grid>` mapping, is
+`.ai/prompts/upgrade-kendo-view.md`.
 
 ## Lint and test
 
