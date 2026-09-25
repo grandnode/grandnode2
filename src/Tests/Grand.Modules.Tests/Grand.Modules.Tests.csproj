@@ -25,4 +25,8 @@
     <ProjectReference Include="..\Grand.Data.Tests\Grand.Data.Tests.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Installer\message-template-tokens.baseline.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
