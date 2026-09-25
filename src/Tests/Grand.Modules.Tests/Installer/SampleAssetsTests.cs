@@ -24,7 +24,6 @@ public class SampleAssetsTests
     }
 
     [TestMethod]
-    [Ignore("enabled in Task 15")]
     public void NoOrphanSampleImages()
     {
         var referenced = ReferencedFiles().ToHashSet(StringComparer.OrdinalIgnoreCase);
