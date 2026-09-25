@@ -33,6 +33,7 @@ Use this file before making or reviewing repository changes.
 - Use `.ai/prompts/add-migration.md` to add an upgrade migration for existing installations.
 - Use `.ai/prompts/write-tests.md` to add or extend unit tests.
 - Use `.ai/prompts/explore-repository.md` to answer "where does X live" or "how does X work".
+- Use `.ai/prompts/convert-admin-screens.md` to convert one admin module (list, edit, tabs, popups) to the component layer across Admin, Store and Vendor.
 - Use `.ai/prompts/upgrade-kendo-view.md` to move an admin or plugin view off Kendo UI, Bootstrap 4 and Font Awesome onto `<admin-grid>`, `window.GrandAdmin` and Bootstrap 5.
 
 ## Workflow Routing

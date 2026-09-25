@@ -12,7 +12,7 @@ Nothing of the old stack is loaded any more and there is no compatibility layer:
 
 ## When Not To Use
 - The storefront (`Grand.Web` views, themes, `vueapp`) - it never used Kendo.
-- A view already on `<admin-grid>` that only needs the component-layer look: use `.ai/skills/admin-ui-component-layer.md`.
+- A view already on `<admin-grid>` that only needs the component-layer look: use `.ai/prompts/convert-admin-screens.md` and `.ai/skills/admin-ui-component-layer.md`.
 
 ## Inputs Required
 - The view(s) to upgrade, and the controller actions they call.
