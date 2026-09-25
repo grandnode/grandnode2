@@ -1,5 +1,5 @@
 //npm run build: one Vite build per shipped bundle entry (IIFE output cannot be code-split).
-//npm run build -- admin.legacy builds a named entry instead.
+//npm run build -- admin.core builds a named entry instead.
 //
 //After admin.bootstrap is built, its stylesheet is mirrored into admin.bootstrap.rtl.css
 //with rtlcss. That file used to be a hand-maintained 7 382-line copy

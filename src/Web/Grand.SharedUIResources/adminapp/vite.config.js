@@ -9,14 +9,13 @@ export const entries = {
     'admin.core': './src/admin.core.js',
     'admin.bootstrap': './src/admin.bootstrap.js',
     'admin.grid': './src/admin.grid.js',
-    'admin.ui': './src/admin.ui.js',
-    'admin.legacy': './src/admin.legacy.js'
+    'admin.ui': './src/admin.ui.js'
 }
 
 //Entries a panel loads; only these are written by a plain `npm run build`. The others
 //are built on request (`npm run build -- admin.core`) and must not be committed until
 //a Head* partial references them.
-export const shippedEntries = ['admin.bootstrap', 'admin.grid', 'admin.ui', 'admin.legacy']
+export const shippedEntries = ['admin.bootstrap', 'admin.grid', 'admin.ui']
 
 export default defineConfig(() => {
     const entry = process.env.ADMIN_ENTRY || 'admin.grid'

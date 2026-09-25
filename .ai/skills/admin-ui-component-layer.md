@@ -11,7 +11,7 @@ Use this skill when you create an admin view, or change one that still uses the 
 Use it together with `.ai/skills/admin-area-changes.md` (which panel owns the file, what Store and Vendor get) and `.ai/skills/frontend-bundle-workflow.md` (building and committing the bundles).
 
 ## When Not To Use
-Not for the storefront (Grand.Web views, themes, vueapp). Not for plugin views you do not own - third-party plugins keep the legacy classes working, which is why none of them is deleted yet.
+Not for the storefront (Grand.Web views, themes, vueapp). Not for plugin views you do not own - third-party plugin views may still use the old chrome classes of `_custom.scss`, which is why none of them is deleted yet.
 
 ## The Style In One Screen
 - **Page:** a header - title (1.5rem/600) with an accent icon, an optional subtitle and back link, and the actions at the end - above a column of cards spaced by `--grand-gap` (1rem).

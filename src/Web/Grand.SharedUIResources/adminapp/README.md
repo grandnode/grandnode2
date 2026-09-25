@@ -61,7 +61,6 @@ inputs), then mirrors the stylesheet into its right-to-left copy with rtlcss. Ou
 | `fonts/bootstrap-icons.woff`, `.woff2` | `node_modules/bootstrap-icons` | the icon font |
 | `admin.grid.js`, `admin.grid.css` | `src/admin.grid.js`, `src/grid/` | the `<admin-grid>` runtime, an adapter over Tabulator 6: `window.GrandAdmin.grids` |
 | `admin.ui.js`, `admin.ui.css` | `src/admin.ui.js`, `src/ui/` | the widgets: `window.GrandAdmin.modal`, `.tabs`, `.numeric`, `.dateInput`, `.select`, `.format`, `.ui.init` (Tom Select for the lists) |
-| `admin.legacy.js`, `admin.legacy.css` | `src/admin.legacy.js`, `src/legacy/` | the compatibility layer for third-party plugin views (see below) |
 
 `admin.core.js` (`src/admin.core.js`, only reserves `window.GrandAdmin`) is not loaded by
 any panel; a plain `npm run build` does not write it.
@@ -79,12 +78,12 @@ of each area) load, under `Constants.WwwRoot` + `/administration/`:
 1. `admin.theme.js` synchronously in `<head>`, before anything paints (dark mode, below);
 2. the vendored stylesheets still in use (daterangepicker, magnific-popup, summernote,
    the jQuery UI smoothness theme, elFinder in Admin, farbtastic), then
-   `bundles/admin.legacy.css`, `bundles/admin.grid.css`, `bundles/admin.ui.css`, and
+   `bundles/admin.grid.css`, `bundles/admin.ui.css`, and
    `bundles/admin.bootstrap.css` - or `bundles/admin.bootstrap.rtl.css` when the working
    language is right-to-left and `IgnoreRtlPropertyForAdminArea` is off;
 3. in the head: jQuery, jQuery UI, moment, daterangepicker, typeahead (with
    `admin.search.js` in Admin), jquery.validate (+ unobtrusive), `admin.common.js`, then
-   `bundles/admin.grid.js`, `bundles/admin.ui.js`, `bundles/admin.legacy.js`;
+   `bundles/admin.grid.js`, `bundles/admin.ui.js`;
 4. in the footer: `bundles/admin.bootstrap.js`, `build/js/smartresize.js`,
    `build/js/custom.js`, summernote, elFinder (Admin), magnific-popup, jquery.tmpl,
    farbtastic.
@@ -120,8 +119,8 @@ gives the dark mode the panel's slate palette by redefining those variables unde
 draw. The grid paints itself from `--grand-grid-*` tokens in `src/grid/grid.css` - a
 Bootstrap variable where the light look is one, otherwise a light value with its dark one
 in a single `[data-bs-theme="dark"]` block; the last block hands Tabulator's own dark
-surfaces back to those tokens. The widgets (`src/ui/ui.css`) and the legacy classes
-(`src/legacy/legacy.css`) follow the same variables. Add a new colour as a token with both
+surfaces back to those tokens. The widgets (`src/ui/ui.css`) follow the same
+variables. Add a new colour as a token with both
 values, never as a literal in a rule.
 
 **Right-to-left.** `admin.bootstrap.rtl.css` is generated: rtlcss mirrors the left-to-right
@@ -214,7 +213,7 @@ Widgets live in `src/ui/`, one module per widget with a `*.test.js` next to it (
 5. `npm run lint && npm test && npm run build`, and commit the rebuilt `admin.ui.*` with
    the source.
 
-## For plugin authors: `admin.legacy.js` and what was removed
+## For plugin authors: what was removed
 
 Kendo UI, Bootstrap 4, Font Awesome and simple-line-icons are no longer loaded by any
 panel, and their files are gone from `wwwroot/administration/`. So are Roxy Fileman, the
@@ -222,21 +221,11 @@ unused jQuery UI sources/stylesheets/themes, the glyphicons font, unused webfont
 unminified duplicates of elFinder and Fine Uploader, and the CodeMirror demo pages. A
 plugin that linked any of those paths directly must ship its own copy.
 
-`admin.legacy.js` keeps a plugin view written against Kendo working:
-
-- `$.fn.kendoGrid` over `<admin-grid>`'s runtime, with the Kendo template compiler;
-- the `kendoWindow`, `kendoNumericTextBox`, `kendoDropDownList`, `kendoMultiSelect` and
-  `kendoTabStrip` mini-shims over `window.GrandAdmin`, plus `kendo.toString`,
-  `kendo.htmlEncode`, `kendo.culture` and `kendo.parseDate`; each warns once in the console
-  that it is transitional;
-- the rename of the Bootstrap 4 `data-toggle` / `data-target` / `data-dismiss` attributes
-  to `data-bs-*`, including markup loaded over AJAX;
-- `admin.legacy.css`, which maps `k-button`, `k-link`, `k-icon` (`k-i-*` glyphs from
-  bootstrap-icons), `k-input`, `k-widget` and `k-header` onto the current look.
-
-The shims register only when Kendo itself is absent, so a plugin that loads its own Kendo
-keeps the real widgets. They do not depend on any Kendo file. New code should use
-`<admin-grid>` and `window.GrandAdmin` directly.
+There is no compatibility layer either: `$.fn.kendoGrid`, the other Kendo widgets,
+`kendo.*` helpers, the `k-*` classes and the Bootstrap 4 `data-toggle` / `data-target` /
+`data-dismiss` attributes do nothing in the panels. A plugin view uses `<admin-grid>`,
+`window.GrandAdmin` and Bootstrap 5 (`data-bs-*`). `$('#grid').data('kendoGrid')` still
+returns the grid's API, for the views that read a grid that way.
 
 ## Lint and test
 

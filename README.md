@@ -259,7 +259,7 @@ npm run lint && npm test && npm run build
 ```
 
 That writes `admin.bootstrap.js/.css/.rtl.css`, `admin.grid.js/.css`,
-`admin.ui.js/.css` and `admin.legacy.js/.css` into
+and `admin.ui.js/.css` into
 `src/Web/Grand.SharedUIResources/wwwroot/administration/bundles`. The same rule
 applies: the bundles are committed, so rebuild and commit them with every change
 under `adminapp/src`. The panels no longer use Kendo UI. Scripts, styles, the

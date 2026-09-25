@@ -18,9 +18,6 @@
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css"/>
 
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/farbtastic/farbtastic.css"/>
-    @*the Kendo class names a third-party plugin view may still render, mapped onto the
-      Bootstrap 5 look of the panel; no view in this repository carries one*@
-    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.legacy.css" asp-append-version="true"/>
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.css" asp-append-version="true"/>
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.ui.css" asp-append-version="true"/>
 
@@ -52,15 +49,9 @@
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.js" asp-append-version="true"></script>
     @*tab strip, modal, numeric, date and select widgets; replaced the Kendo widgets*@
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.ui.js" asp-append-version="true"></script>
-    @*Kendo compatibility for third-party plugin views: $.fn.kendoGrid, kendoWindow,
-      kendoNumericTextBox, kendoDropDownList, kendoMultiSelect, kendoTabStrip. Loaded after
-      the two bundles above because it maps onto them. Nothing in this repository needs it.*@
-    <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.legacy.js" asp-append-version="true"></script>
 
 
-    @*Bootstrap 5.3 with Popper 2 bundled in, plus the rename of the Bootstrap 4
-      data-toggle/data-target/data-dismiss attributes a third-party plugin view may
-      still carry; replaced popper.min.js and bootstrap.min.js*@
+    @*Bootstrap 5.3 with Popper 2 bundled in; replaced popper.min.js and bootstrap.min.js*@
     <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.bootstrap.js" asp-append-version="true"></script>
     <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/build/js/smartresize.js"></script>
     <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/build/js/custom.js"></script>
