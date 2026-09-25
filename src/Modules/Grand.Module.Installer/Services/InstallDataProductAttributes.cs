@@ -12,32 +12,28 @@ public partial class InstallationService
                 SeName = "color"
             },
             new() {
-                Name = "Custom Text",
-                SeName = "custom-text"
-            },
-            new() {
-                Name = "HDD",
-                SeName = "hdd"
-            },
-            new() {
-                Name = "OS",
-                SeName = "os"
-            },
-            new() {
-                Name = "Processor",
-                SeName = "processor"
-            },
-            new() {
-                Name = "RAM",
-                SeName = "ram"
-            },
-            new() {
                 Name = "Size",
                 SeName = "size"
             },
             new() {
-                Name = "Software",
-                SeName = "software"
+                Name = "Material",
+                SeName = "material"
+            },
+            new() {
+                Name = "Capacity",
+                SeName = "capacity"
+            },
+            new() {
+                Name = "Engraving",
+                SeName = "engraving"
+            },
+            new() {
+                Name = "Grind",
+                SeName = "grind"
+            },
+            new() {
+                Name = "Rental add-ons",
+                SeName = "rental-add-ons"
             }
         };
         productAttributes.ForEach(x => _productAttributeRepository.Insert(x));
