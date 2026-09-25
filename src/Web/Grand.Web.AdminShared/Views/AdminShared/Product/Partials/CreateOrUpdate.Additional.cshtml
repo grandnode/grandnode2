@@ -1,99 +1,16 @@
-@using Grand.Domain.Media
 @model ProductModel
-@{
-    ViewData["DownloadType"] = DownloadType.Product;
-    ViewData["ReferenceId"] = Model.Id;
-    var area = ViewContext.RouteData.Values["area"]?.ToString();
-    //a product the store may see but not change (see BaseProductController.Edit)
-    bool readOnly = ViewBag.IsReadOnly == true;
-}
 <partial name="Partials/WidgetZone.Additional.Top" model="Model"/>
 
 @* A card per group, which is what the four form-horizontal blocks already were - each one is
    shown or hidden as a whole by the script in CreateOrUpdate.Info.cshtml, so group-order,
    group-giftvoucher, group-recurring and group-required-other-products keep their ids, as do
    the panels inside them. Inside a card the switch comes first and what it reveals sits in a
-   .grand-reveal body right under it. *@
-<admin-card id="group-order">
-    <div class="grand-fields grand-fields--2col">
-        <admin-field asp-for="DisplayOrderCategory" size="sm"/>
-        <admin-field asp-for="DisplayOrderBrand" size="sm"/>
-        <admin-field asp-for="DisplayOrderCollection" size="sm"/>
-        <admin-field asp-for="OnSale"/>
-    </div>
-</admin-card>
-
-<admin-card id="group-giftvoucher">
-    <div class="grand-reveal">
-        <admin-field asp-for="IsGiftVoucher"/>
-        <div class="grand-reveal__body grand-fields grand-fields--2col">
-            <admin-field asp-for="GiftVoucherTypeId" id="pnlGiftVoucherType" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
-            <admin-field asp-for="OverGiftAmount" id="pnlOverriddenGiftVoucherAmount"/>
-        </div>
-    </div>
-</admin-card>
-
+   .grand-reveal body right under it. Each card is a partial of its own: the bulk-edit popup
+   (EditPopup) gives each one a tab instead of stacking them here. *@
+<partial name="Partials/Additional.Order" model="Model"/>
+<partial name="Partials/Additional.GiftVoucher" model="Model"/>
 <partial name="Partials/Additional.Downloads" model="Model"/>
+<partial name="Partials/Additional.Recurring" model="Model"/>
+<partial name="Partials/Additional.RequiredProducts" model="Model"/>
 
-<admin-card id="group-recurring">
-    <div class="grand-reveal">
-        <admin-field asp-for="IsRecurring"/>
-        <div class="grand-reveal__body grand-fields grand-fields--2col">
-            <admin-field asp-for="RecurringCycleLength" id="pnlCycleLength" size="sm"/>
-            <admin-field asp-for="RecurringCyclePeriodId" id="pnlCyclePeriod" asp-items="EnumTranslationService.ToSelectList((RecurringCyclePeriod)Model.RecurringCyclePeriodId)"/>
-            <admin-field asp-for="RecurringTotalCycles" id="pnlTotalCycles" size="sm"/>
-        </div>
-    </div>
-</admin-card>
-
-<admin-card id="group-required-other-products">
-    <div class="grand-reveal">
-        <admin-field asp-for="RequireOtherProducts"/>
-        <div class="grand-reveal__body grand-fields">
-            @* the product picker is a field with a button and a progress line under it, so the
-               control is handed to admin-field rather than built from the metadata *@
-            <div class="grand-fields" id="pnlRequiredProductIds">
-                <admin-field asp-for="RequiredProductIds">
-                    <div class="input-group">
-                        <admin-input asp-for="RequiredProductIds"/>
-                        @if (!readOnly)
-                        {
-                            <a id="btnAddNewRequiredProduct"
-                               href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = area }))"
-                               class="btn btn-outline-secondary">
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.AddNew"]
-                            </a>
-                        }
-                    </div>
-                </admin-field>
-                <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-                <input type="submit" id="btnRefreshRequiredProducts" style="display: none"/>
-                <span id="required-product-names" class="required-product-names"></span>
-            </div>
-            <admin-field asp-for="AutoAddRequiredProducts" id="pnlAutomaticallyAddRequiredProducts"/>
-        </div>
-    </div>
-</admin-card>
-
-<script>
-    $(document).ready(function () {
-        $('#btnAddNewRequiredProduct').magnificPopup({
-            type: 'ajax',
-            settings: { cache: false, async: false },
-            midClick: true,
-            callbacks: {
-                parseAjax: function (mfpResponse) {
-                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                },
-                ajaxContentAdded: function () {
-                    $('.mfp-wrap').removeAttr('tabindex');
-                }
-            }
-        });
-        $('#btnRefreshRequiredProducts').click(function () {
-            loadRequiredProductFriendlyNames();
-            return false;
-        });
-    });
-</script>
 <partial name="Partials/WidgetZone.Additional.Bottom" model="Model"/>

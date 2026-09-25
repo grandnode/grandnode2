@@ -1,0 +1,10 @@
+@model ProductModel
+@* display order in the catalog lists and the on-sale flag (group-order) *@
+<admin-card id="group-order">
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="DisplayOrderCategory" size="sm"/>
+        <admin-field asp-for="DisplayOrderBrand" size="sm"/>
+        <admin-field asp-for="DisplayOrderCollection" size="sm"/>
+        <admin-field asp-for="OnSale"/>
+    </div>
+</admin-card>

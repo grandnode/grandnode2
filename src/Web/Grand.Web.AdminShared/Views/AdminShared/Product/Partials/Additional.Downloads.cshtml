@@ -1,5 +1,10 @@
 @using Grand.Domain.Media
 @model ProductModel
+@{
+    //what the download pickers upload for
+    ViewData["DownloadType"] = DownloadType.Product;
+    ViewData["ReferenceId"] = Model.Id;
+}
 @* One card, the same id the script toggles as a whole (group-downloads), with the panels
    inside it keeping theirs. Each switch comes before what it reveals: the file and its limits
    under "Is download", the agreement text under "Has user agreement", the sample file under

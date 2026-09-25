@@ -1,6 +1,8 @@
 @model ProductModel
 @{
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"];
+    //CreateOrUpdate shows the quick-edit tabs and splits Additional into a tab per card
+    ViewData["QuickTabs"] = true;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     bool readOnly = ViewBag.IsReadOnly == true;
 }
