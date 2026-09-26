@@ -1,0 +1,432 @@
+/*
+    Nordic Editorial - product card (grid and list) and, from Task 7, the listings.
+    Markup: Views/Nordic/Shared/Partials/CatalogProductView.cshtml, CatalogProductListView.cshtml
+    and their client twins under Views/Nordic/Catalog/Partials/Client.
+
+    Every rule is scoped to .nordic-card, so a Default card rendered by a view the theme
+    does not override keeps Default's look. [dark-theme="true"] twins answer the Default
+    dark rules that would otherwise out-rank them.
+*/
+
+/* ---------- card shell ---------- */
+
+.product-box.nordic-card,
+[dark-theme="true"] .product-box.nordic-card {
+    background: transparent;
+    border: 0;
+    color: var(--nordic-ink);
+}
+
+.product-box.nordic-card::before,
+.product-box.nordic-card:hover::before,
+[dark-theme="true"] .product-box.nordic-card::before,
+[dark-theme="true"] .product-box.nordic-card:hover::before {
+    display: none;
+}
+
+.product-box.nordic-card:not(.mobile):hover,
+[dark-theme="true"] .product-box.nordic-card:not(.mobile):hover {
+    background: transparent;
+}
+
+/* ---------- image: 4:5, full-bleed ---------- */
+
+.product-box.nordic-card .picture-container .img-container::before {
+    padding-top: 125%;
+}
+
+.product-box.nordic-card .picture-container .img-container img,
+[dark-theme="true"] .product-box.nordic-card .picture-container .img-container img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    background-color: var(--nordic-surface);
+}
+
+[dark-theme="true"] .product-box.nordic-card .picture-container .img-container {
+    border: 0;
+}
+
+.product-box.nordic-card .main-product-img {
+    transition: transform .6s ease;
+}
+
+.product-box.nordic-card:not(.mobile):hover .main-product-img {
+    transform: scale(1.02);
+}
+
+/* ---------- badges ---------- */
+
+.nordic-card__badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.nordic-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: var(--nordic-bg);
+    color: var(--nordic-ink);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.nordic-badge--sale {
+    color: var(--nordic-sale);
+}
+
+.nordic-badge--auction {
+    background: var(--nordic-ink);
+    color: var(--nordic-bg);
+}
+
+.product-box.nordic-card .nordic-card__badges .product-label {
+    position: static;
+}
+
+.product-box.nordic-card .product-label .badge {
+    padding: 4px 8px;
+    background: var(--nordic-bg) !important;
+    color: var(--nordic-ink) !important;
+}
+
+/* ---------- quick view: a bar across the foot of the image ---------- */
+
+.product-box.nordic-card .quick-view-button,
+[dark-theme="true"] .product-box.nordic-card .quick-view-button {
+    z-index: 3;
+    padding: 10px;
+    background: color-mix(in srgb, var(--nordic-bg) 92%, transparent);
+    border: 0;
+    color: var(--nordic-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+}
+
+.product-box.nordic-card .quick-view-button .b-icon {
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.product-box.nordic-card:hover .quick-view-button,
+.product-box.nordic-card:focus-within .quick-view-button {
+    transform: translateY(0);
+}
+
+.product-box.nordic-card .quick-view-button:hover {
+    background: var(--nordic-ink);
+    color: var(--nordic-bg);
+}
+
+/* ---------- text ---------- */
+
+.product-box.nordic-card .card-body {
+    padding: 14px 0 0;
+    background: transparent;
+}
+
+.nordic-card__brand {
+    margin-bottom: 3px;
+    color: var(--nordic-muted-text);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.product-box.nordic-card .card-title {
+    margin: 0;
+    line-height: 1.3;
+}
+
+.product-box.nordic-card .card-title a,
+[dark-theme="true"] .product-box.nordic-card .card-title a {
+    color: var(--nordic-ink);
+    font-family: var(--nordic-serif);
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-decoration: none;
+}
+
+.product-box.nordic-card .card-title a:hover {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.product-box.nordic-card .sku {
+    color: var(--nordic-muted-text);
+    font-size: 11px;
+}
+
+.product-box.nordic-card .prices-rating {
+    margin-top: 6px;
+}
+
+.product-box.nordic-card .prices {
+    align-items: baseline;
+    gap: 0 8px;
+}
+
+.product-box.nordic-card .actual-price,
+[dark-theme="true"] .product-box.nordic-card .actual-price {
+    color: var(--nordic-ink);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.product-box.nordic-card .prices.is-sale .actual-price,
+[dark-theme="true"] .product-box.nordic-card .prices.is-sale .actual-price {
+    color: var(--nordic-sale);
+}
+
+.product-box.nordic-card .old-price {
+    margin: 0;
+    color: var(--nordic-muted-text);
+    font-size: 13px;
+}
+
+.product-box.nordic-card .nordic-card__countdown {
+    margin-top: 4px;
+    color: var(--nordic-muted-text);
+    font-size: 11.5px;
+}
+
+.product-box.nordic-card .nordic-card__countdown .col-form-label {
+    padding: 0;
+    font-weight: 500;
+    color: var(--nordic-muted-text);
+}
+
+.product-box.nordic-card .rating {
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+.product-box.nordic-card .rating .b-rating + a,
+[dark-theme="true"] .product-box.nordic-card .rating .b-rating + a {
+    color: var(--nordic-muted-text);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+/* ---------- footer: colour dots and actions, always visible ---------- */
+
+.product-box.nordic-card .card-footer,
+.product-box.nordic-card:hover .card-footer,
+.product-box.nordic-card.mobile:hover .card-footer,
+[dark-theme="true"] .product-box.nordic-card .card-footer {
+    position: static;
+    padding: 8px 0 0;
+    background: transparent;
+    border: 0;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+.product-box.nordic-card .card-footer::before,
+[dark-theme="true"] .product-box.nordic-card .card-footer::before {
+    display: none;
+}
+
+/* the grid card keeps to image, name, price and colours; the rest is in the list row */
+.product-box.nordic-card:not(.nordic-card--list) .spec-container,
+.product-box.nordic-card:not(.nordic-card--list) .desc,
+.product-box.nordic-card:not(.nordic-card--list) .attr-container .attr:not(.attr--color) {
+    display: none;
+}
+
+.product-box.nordic-card .attr-container table {
+    width: auto;
+}
+
+.product-box.nordic-card .attr--color .attr-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+.product-box.nordic-card .attr--color .attr-value {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+}
+
+.product-box.nordic-card .attr-value .btn.color-container,
+[dark-theme="true"] .product-box.nordic-card .attr-value .btn.color-container {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--nordic-line);
+    border-radius: 50%;
+}
+
+.product-box.nordic-card .attr-value .btn.color-container:hover,
+.product-box.nordic-card .attr-value .btn.color-container:focus-visible {
+    outline: 1px solid var(--nordic-ink);
+    outline-offset: 2px;
+}
+
+.product-box.nordic-card .color-container .color {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    font-size: 0;
+}
+
+.product-box.nordic-card .attr-value .btn.name:not(.color-container) {
+    padding: 2px 8px;
+    background: transparent;
+    border: 1px solid var(--nordic-line);
+    color: var(--nordic-ink);
+    font-size: 11px;
+    letter-spacing: .06em;
+}
+
+.product-box.nordic-card .catalog-quantity {
+    max-width: 64px;
+    margin-top: 8px;
+}
+
+.product-box.nordic-card .nordic-card__actions {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    margin: 10px 0 0;
+}
+
+.product-box.nordic-card .nordic-card__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 0 !important;
+    background: transparent;
+    border: 1px solid var(--nordic-line);
+    color: var(--nordic-ink);
+    font-size: 10.5px;
+}
+
+.product-box.nordic-card .nordic-card__actions .btn:hover,
+.product-box.nordic-card .nordic-card__actions .btn:focus-visible {
+    background: var(--nordic-ink);
+    border-color: var(--nordic-ink);
+    color: var(--nordic-bg);
+}
+
+.product-box.nordic-card .nordic-card__cart {
+    flex: 1 1 auto;
+}
+
+.product-box.nordic-card .nordic-card__cart .add-cart-text {
+    font-size: 10.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-box.nordic-card .nordic-card__icon {
+    flex: 0 0 34px;
+    width: 34px;
+}
+
+.product-box.nordic-card .nordic-card__actions .b-icon.bi {
+    font-size: 13px;
+}
+
+/* ---------- list row ---------- */
+
+.nordic-list-row.border-bottom {
+    border-color: var(--nordic-line) !important;
+}
+
+.product-box.nordic-card.nordic-card--list {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: 24px;
+}
+
+.product-box.nordic-card--list .picture-container {
+    grid-row: 1 / span 2;
+}
+
+.product-box.nordic-card--list .card-body {
+    padding: 0;
+}
+
+.product-box.nordic-card--list .card-footer {
+    padding-top: 6px;
+}
+
+.product-box.nordic-card--list .desc,
+[dark-theme="true"] .product-box.nordic-card--list .desc {
+    max-height: 4.8em;
+    margin-top: 6px;
+    color: var(--nordic-muted-text);
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.product-box.nordic-card--list .spec-container {
+    margin-top: 8px;
+    font-size: 12.5px;
+}
+
+.product-box.nordic-card--list .spec-name,
+[dark-theme="true"] .product-box.nordic-card--list .spec-name {
+    color: var(--nordic-ink);
+    font-size: 12.5px;
+}
+
+.product-box.nordic-card--list .spec-value,
+[dark-theme="true"] .product-box.nordic-card--list .spec-value {
+    color: var(--nordic-muted-text);
+    font-size: 12.5px;
+}
+
+.product-box.nordic-card--list .nordic-card__actions {
+    width: auto;
+    max-width: 360px;
+}
+
+@media (max-width: 575.98px) {
+    .product-box.nordic-card.nordic-card--list {
+        grid-template-columns: 110px minmax(0, 1fr);
+        column-gap: 14px;
+    }
+
+    .product-box.nordic-card .card-title a {
+        font-size: 15px;
+    }
+
+    /* two cards a row on phones: icons only in the action row */
+    .product-box.nordic-card:not(.nordic-card--list) .nordic-card__cart .add-cart-text {
+        display: none;
+    }
+
+    .product-box.nordic-card .nordic-card__countdown {
+        padding: 0;
+        font-size: 11px;
+    }
+}
