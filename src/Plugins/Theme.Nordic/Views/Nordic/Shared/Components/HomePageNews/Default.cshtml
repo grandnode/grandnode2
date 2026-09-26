@@ -1,0 +1,19 @@
+@model HomePageNewsItemsModel
+@inject DisplayOrderHomePage order
+<section class="news-list-homepage nordic-section nordic-news order-@order.HomePageNews">
+    <div class="nordic-section-head">
+        <h2 class="nordic-section-title">@Loc["News"]</h2>
+        <a class="nordic-section-link" href="@Url.RouteUrl("NewsArchive")">@Loc["News.ViewAll"] <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <ul class="nordic-news__strip">
+        @foreach (var item in Model.NewsItems)
+        {
+            <li class="nordic-news__item">
+                <small class="nordic-kicker">@item.CreatedOn.ToString("D")</small>
+                <h3 class="nordic-news__title">
+                    <a href="@Url.RouteUrl("NewsItem", new { item.SeName })">@item.Title</a>
+                </h3>
+            </li>
+        }
+    </ul>
+</section>

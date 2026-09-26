@@ -35,10 +35,18 @@
     }
 }
 
-<div class="page home-page custom-container d-flex flex-column mt-0">
+@*
+    Nordic: sections in the editorial order of the spec (collections before brands, the
+    journal before news). Each "home_page_before_X" zone moves with its section, so it still
+    renders directly before it. DisplayOrderHomePage keeps working: every section still
+    carries its order-N class inside this flex column.
+*@
+<div class="page home-page nordic-home custom-container d-flex flex-column mt-0">
     @await Component.InvokeAsync("PushNotificationsRegistration")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_top" })
-    @await Component.InvokeAsync("PageBlock", new { systemName = "HomePageText" })
+    <div class="nordic-intro">
+        @await Component.InvokeAsync("PageBlock", new { systemName = "HomePageText" })
+    </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_categories" })
     @await Component.InvokeAsync("HomePageCategories")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_products" })
@@ -48,15 +56,15 @@
     @await Component.InvokeAsync("HomePageProducts")
     @await Component.InvokeAsync("HomePageNewProducts")
     @await Component.InvokeAsync("CategoryFeaturedProducts")
-    @await Component.InvokeAsync("HomePageBrands")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_best_sellers" })
     @await Component.InvokeAsync("HomePageBestSellers")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_collections" })
     @await Component.InvokeAsync("HomePageCollections")
     @await Component.InvokeAsync("CollectionFeaturedProducts")
-    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_news" })
-    @await Component.InvokeAsync("HomePageNews")
+    @await Component.InvokeAsync("HomePageBrands")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_blog" })
     @await Component.InvokeAsync("HomePageBlog")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_news" })
+    @await Component.InvokeAsync("HomePageNews")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_bottom" })
 </div>

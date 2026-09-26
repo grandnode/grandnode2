@@ -1,0 +1,37 @@
+@model HomePageBlogItemsModel
+@inject DisplayOrderHomePage order
+@if (Model.Items.Any())
+{
+    <section class="blog-list-homepage nordic-section nordic-journal order-@order.HomePageBlog">
+        <div class="nordic-section-head">
+            <h2 class="nordic-section-title">@Loc["Blog.Latest"]</h2>
+            <a class="nordic-section-link" href="@Url.RouteUrl("Blog")">@Loc["Blog.ViewAll"] <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        <div class="nordic-journal__grid">
+            @foreach (var item in Model.Items)
+            {
+                <article class="nordic-post">
+                    @if (item.PictureModel != null && !string.IsNullOrEmpty(item.PictureModel.ImageUrl))
+                    {
+                        <a class="nordic-post__media" href="@Url.RouteUrl("BlogPost", new { item.SeName })" tabindex="-1" aria-hidden="true">
+                            <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
+                        </a>
+                    }
+                    <div class="nordic-kicker">
+                        @if (!string.IsNullOrEmpty(item.Category))
+                        {
+                            <span>@item.Category</span><span aria-hidden="true"> &middot; </span>
+                        }
+                        <span>@item.CreatedOn.ToString("D")</span>
+                    </div>
+                    <h3 class="nordic-post__title">
+                        <a href="@Url.RouteUrl("BlogPost", new { item.SeName })">@item.Title</a>
+                    </h3>
+                    <div class="nordic-post__short" v-pre>
+                        @Html.Raw(item.Short)
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+}

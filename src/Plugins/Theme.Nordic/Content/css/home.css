@@ -1,0 +1,508 @@
+/*
+    Nordic Editorial - home page.
+    Markup: Views/Nordic/Home/Index.cshtml and Views/Nordic/Shared/Components/HomePage*.
+*/
+
+.nordic-home {
+    gap: 0;
+}
+
+/* ---------- section rhythm ---------- */
+
+.nordic-section {
+    margin-top: 64px;
+}
+
+.nordic-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 24px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--nordic-line);
+}
+
+.nordic-section-title,
+.nordic-home .nordic-section-title.generalTitle {
+    margin: 0;
+    color: var(--nordic-ink);
+    font-family: var(--nordic-serif);
+    font-size: clamp(1.45rem, 1.2rem + .8vw, 1.75rem);
+    font-weight: 400;
+    text-align: left;
+}
+
+.nordic-section-link {
+    color: var(--nordic-ink);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.nordic-section-link:hover {
+    text-decoration: underline;
+    text-underline-offset: .25em;
+}
+
+/* the other product components (new, best sellers, featured, personalised...) keep Default
+   markup around the Nordic card; give their titles the same section treatment */
+.nordic-home > .product-grid:not(.nordic-products) {
+    margin-top: 64px;
+}
+
+.nordic-home > .product-grid:not(.nordic-products) > .generalTitle,
+.nordic-home > .product-grid:not(.nordic-products) h2.generalTitle {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--nordic-line);
+    font-size: clamp(1.45rem, 1.2rem + .8vw, 1.75rem);
+    font-weight: 400;
+    text-align: left !important;
+}
+
+/* ---------- slider (Widgets.Slider markup, not modified) ---------- */
+
+.home-page #GrandCarousel .carousel-item .carousel-caption .slideRow {
+    align-items: flex-end;
+    margin: 0;
+}
+
+.home-page #GrandCarousel .carousel-item .carousel-caption .slideRow > div {
+    justify-content: flex-end !important;
+    align-items: flex-start !important;
+    max-width: 560px;
+    padding: 0 0 48px 48px;
+    text-align: left;
+}
+
+.home-page #GrandCarousel .carousel-item .carousel-caption:has(.animate-center-title)::before {
+    background: linear-gradient(20deg, rgba(20, 16, 12, .62) 0%, rgba(20, 16, 12, .32) 45%, rgba(20, 16, 12, 0) 72%);
+}
+
+.home-page #GrandCarousel .carousel-item .animate-top {
+    padding: 0 0 10px;
+    font-family: var(--nordic-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.home-page #GrandCarousel .carousel-item .animate-center-title {
+    margin-bottom: 10px;
+    font-family: var(--nordic-serif);
+    font-size: clamp(2rem, 1.2rem + 2.2vw, 2.9rem);
+    font-weight: 300;
+    line-height: 1.04;
+    letter-spacing: -.01em;
+}
+
+.home-page #GrandCarousel .carousel-item .animate-center-content {
+    padding: 0;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.home-page #GrandCarousel .carousel-item .animate-bottom.btn {
+    width: auto;
+    margin: 22px 0 0;
+    padding: .75rem 1.5rem;
+    border-radius: 0;
+    font-size: 11.5px;
+    letter-spacing: .12em;
+}
+
+.home-page #GrandCarousel .carousel-indicators [data-bs-slide-to] {
+    width: 28px;
+    height: 2px;
+    background-color: #fff;
+}
+
+/* ---------- intro (PageBlock HomePageText) ---------- */
+
+.nordic-intro {
+    max-width: 640px;
+    margin: 48px auto 0;
+    text-align: center;
+}
+
+.nordic-intro .generalMarginSupporter,
+.nordic-intro .page-block-body {
+    padding: 0 !important;
+}
+
+.nordic-intro .generalTitle {
+    margin-bottom: 14px;
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem);
+    text-align: center;
+}
+
+.nordic-intro .page-block-body,
+.nordic-intro .page-block-body p {
+    color: var(--nordic-ink);
+    font-family: var(--nordic-serif);
+    font-size: clamp(17px, 16px + .3vw, 20px);
+    font-weight: 300;
+    line-height: 1.55;
+}
+
+.nordic-intro .page-block-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* ---------- category tiles ---------- */
+
+.nordic-cats__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+}
+
+.nordic-cats--3 .nordic-cats__grid,
+.nordic-cats--6 .nordic-cats__grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.nordic-tile {
+    position: relative;
+    min-width: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--nordic-surface);
+}
+
+.nordic-tile__link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nordic-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .8s ease;
+}
+
+.nordic-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(20, 16, 12, .55) 0%, rgba(20, 16, 12, 0) 45%);
+    pointer-events: none;
+}
+
+.nordic-tile:hover img,
+.nordic-tile:focus-within img {
+    transform: scale(1.03);
+}
+
+.nordic-tile__name,
+.nordic-home .nordic-tile__name {
+    position: absolute;
+    left: 16px;
+    bottom: 14px;
+    z-index: 1;
+    margin: 0;
+    color: #fff;
+    font-family: var(--nordic-serif);
+    font-size: clamp(18px, 16px + .5vw, 22px);
+    font-weight: 400;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, .45);
+}
+
+/* five: one large tile and four smaller ones */
+@media (min-width: 768px) {
+    .nordic-cats--5 .nordic-cats__grid {
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: repeat(2, minmax(190px, 16vw));
+    }
+
+    .nordic-cats--5 .nordic-tile {
+        aspect-ratio: auto;
+    }
+
+    .nordic-cats--5 .nordic-tile:first-child {
+        grid-row: span 2;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .nordic-cats__grid,
+    .nordic-cats--3 .nordic-cats__grid,
+    .nordic-cats--6 .nordic-cats__grid,
+    .nordic-cats--5 .nordic-cats__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ---------- collections: split banners ---------- */
+
+.nordic-colls__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.nordic-colls--1 .nordic-coll,
+.nordic-colls--3 .nordic-coll:first-child {
+    grid-column: 1 / -1;
+}
+
+.nordic-coll {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-width: 0;
+    background: var(--nordic-surface);
+}
+
+.nordic-colls--1 .nordic-coll,
+.nordic-colls--3 .nordic-coll:first-child {
+    grid-template-columns: 3fr 2fr;
+}
+
+.nordic-coll__media {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+
+.nordic-colls--1 .nordic-coll__media,
+.nordic-colls--3 .nordic-coll:first-child .nordic-coll__media {
+    aspect-ratio: 16 / 9;
+}
+
+.nordic-coll__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .8s ease;
+}
+
+.nordic-coll:hover .nordic-coll__media img {
+    transform: scale(1.03);
+}
+
+.nordic-coll__text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 28px 26px;
+}
+
+.nordic-coll__name {
+    margin: 0 0 8px;
+    font-family: var(--nordic-serif);
+    font-size: clamp(22px, 19px + .6vw, 28px);
+    font-weight: 400;
+}
+
+.nordic-coll__name a {
+    color: var(--nordic-ink);
+    text-decoration: none;
+}
+
+.nordic-coll__desc {
+    margin: 0 0 18px;
+    color: var(--nordic-muted-text);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+@media (max-width: 767.98px) {
+    .nordic-colls__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nordic-coll,
+    .nordic-colls--1 .nordic-coll,
+    .nordic-colls--3 .nordic-coll:first-child {
+        grid-template-columns: 1fr;
+    }
+
+    .nordic-coll__media,
+    .nordic-colls--1 .nordic-coll__media,
+    .nordic-colls--3 .nordic-coll:first-child .nordic-coll__media {
+        aspect-ratio: 16 / 9;
+    }
+}
+
+/* ---------- brands: editorial strip ---------- */
+
+.nordic-brands__strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 8px 40px;
+    margin: 0;
+    padding: 20px 10px;
+    list-style: none;
+    border-top: 1px solid var(--nordic-line);
+    border-bottom: 1px solid var(--nordic-line);
+}
+
+.nordic-brands .nordic-section-head {
+    border-bottom: 0;
+    margin-bottom: 0;
+}
+
+.nordic-brands__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--nordic-muted-text);
+    font-family: var(--nordic-serif);
+    font-size: clamp(18px, 16px + .5vw, 22px);
+    font-weight: 400;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.nordic-brands__link:hover,
+.nordic-brands__link:focus-visible {
+    color: var(--nordic-ink);
+}
+
+.nordic-brands__pic {
+    display: none;
+    width: 34px;
+    height: 34px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+@media (min-width: 992px) {
+    .nordic-brands__pic {
+        display: inline-block;
+        width: 0;
+        opacity: 0;
+        transition: width .2s ease, opacity .2s ease;
+    }
+
+    .nordic-brands__link:hover .nordic-brands__pic,
+    .nordic-brands__link:focus-visible .nordic-brands__pic {
+        width: 34px;
+        opacity: 1;
+    }
+}
+
+/* ---------- journal ---------- */
+
+.nordic-journal__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.nordic-post__media {
+    display: block;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: var(--nordic-surface);
+}
+
+.nordic-post__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .8s ease;
+}
+
+.nordic-post:hover .nordic-post__media img {
+    transform: scale(1.03);
+}
+
+.nordic-post__title {
+    margin: 6px 0 8px;
+    font-family: var(--nordic-serif);
+    font-size: clamp(19px, 17px + .5vw, 23px);
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+.nordic-post__title a,
+.nordic-news__title a {
+    color: var(--nordic-ink);
+    text-decoration: none;
+}
+
+.nordic-post__title a:hover,
+.nordic-news__title a:hover {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.nordic-post__short {
+    color: var(--nordic-muted-text);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.nordic-post__short p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+    .nordic-journal__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- news: hairline strip ---------- */
+
+.nordic-news .nordic-section-head {
+    border-bottom: 0;
+    margin-bottom: 0;
+}
+
+.nordic-news__strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--nordic-line);
+}
+
+.nordic-news__item {
+    padding: 14px 20px 14px 0;
+}
+
+.nordic-news__item + .nordic-news__item {
+    padding-left: 20px;
+    border-left: 1px solid var(--nordic-line);
+}
+
+.nordic-news__title {
+    margin: 4px 0 0;
+    font-family: var(--nordic-serif);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.35;
+}
+
+@media (max-width: 767.98px) {
+    .nordic-news__strip {
+        grid-template-columns: 1fr;
+    }
+
+    .nordic-news__item,
+    .nordic-news__item + .nordic-news__item {
+        padding: 14px 0;
+        border-left: 0;
+        border-bottom: 1px solid var(--nordic-line);
+    }
+}
