@@ -10,6 +10,11 @@
                         <a href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">
                             <img class="card-img" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
                         </a>
+                        <h4 class="title">
+                            <a href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">
+                                @item.Name
+                            </a>
+                        </h4>
                     </div>
                 </div>
             }
