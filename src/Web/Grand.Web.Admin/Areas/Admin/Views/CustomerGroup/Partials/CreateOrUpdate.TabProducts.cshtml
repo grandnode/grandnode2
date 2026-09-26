@@ -12,8 +12,13 @@
         @Html.Raw(Loc["Admin.Customers.CustomerGroups.Products.Info"])
     </div>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc["Admin.Customers.CustomerGroups.Products"]</h2>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "CustomerGroup", new { customerGroupId = Model.Id, btnId = "btnRefreshProducts", formId = "customergroup-form", area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.CustomerGroups.Products.Fields.AddNew"]</a>
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="products-grid"
                         read-url="@Url.Action("Products", "CustomerGroup", new { customerGroupId = Model.Id, area = Constants.AreaAdmin })"
                         update-url="@Url.Action("ProductUpdate", "CustomerGroup", new { area = Constants.AreaAdmin })"
@@ -29,10 +34,6 @@
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.CustomerGroups.Products.Fields.DisplayOrder"]" width="100" editor="Integer"/>
                 <grid-commands edit="true" destroy="true" width="200"/>
             </admin-grid>
-        </div>
-        <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "CustomerGroup", new { customerGroupId = Model.Id, btnId = "btnRefreshProducts", formId = "customergroup-form", area = Constants.AreaAdmin }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.CustomerGroups.Products.Fields.AddNew"]</a>
-            <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
     </div>
 
@@ -57,7 +58,7 @@
     <script>
             $(document).ready(function () {
                 $('#btnRefreshProducts').click(function () {
-                    var grid = $("#products-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#products-grid");
                     grid.dataSource.read();
                     return false;
                 });

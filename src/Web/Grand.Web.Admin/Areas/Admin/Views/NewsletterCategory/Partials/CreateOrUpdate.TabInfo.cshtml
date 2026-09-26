@@ -3,68 +3,29 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name"/>
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
-                    <span asp-validation-for="@Model.Locales[item].Description"></span>
-                </div>
-            </div>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].Description">
+                <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
+            </admin-field>
             <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
         </div>;
 }
 
-<div class="form-horizontal">
+@* The name and the rich-text description in the localized editor, each a full row, then the
+   remaining fields two to a row. *@
+<admin-card>
     <localized-editor localized-template="@template" name="newslettercategory-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Description" asp-template="Editor"/>
-                    <span asp-validation-for="Description"></span>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="Description">
+                <admin-input asp-for="Description" asp-template="Editor"/>
+            </admin-field>
         </div>
     </localized-editor>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Selected"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Selected"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="Selected"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Stores"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores"/>
-                <span asp-validation-for="Stores"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="Selected"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="Stores"/>
     </div>
-</div>
+</admin-card>

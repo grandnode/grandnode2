@@ -1,10 +1,10 @@
 ﻿@{
-    Layout = "_ConfigurePlugin";
+    Layout = "_AdminLayout";
+    ViewBag.Title = Loc["Widgets.GoogleAnalytics.FriendlyName"];
 }
 @using System.Text.Encodings.Web
 @model Widgets.GoogleAnalytics.Models.ConfigurationModel
 
-@await Component.InvokeAsync("StoreScope")
 @{
     //default values
     var googleAnalytics_trackingScript = Html.Raw(JavaScriptEncoder.Default.Encode(@"<!-- Google tag (gtag.js) -->
@@ -32,134 +32,70 @@
     }
 
 </script>
+@* the setup steps stay a note; the id and the scripts in one card, with the pre-configure button
+   (which fills the three scripts) in its header; the cookie consent in another card. Save is the
+   one primary action instead of the _ConfigurePlugin chrome *@
 <form asp-controller="WidgetsGoogleAnalytics" asp-action="Configure" method="post">
+    <admin-page title="@Loc["Widgets.GoogleAnalytics.FriendlyName"]" icon="bi-graph-up">
+        <page-actions>
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
 
-    <div class="form-horizonal">
-        <div class="form-body">
-            <div class="mb-3">
-                <div class="note note-info">
-                    <p>
-                        Google Analytics is a free website stats tool from Google. It keeps track of statistics
-                        about the visitors and ecommerce conversion on your website.
-                    </p>
-                    <p>
-                        Follow the next steps to enable Google Analytics integration:
-                    </p>
-                    <ul>
-                        <li>
-                            <a href="http://www.google.com/analytics/" target="_blank">
-                                Create a Google Analytics
-                                account
-                            </a> and follow the wizard to add your website
-                        </li>
-                        <li>Copy the Tracking ID into the 'ID' box below</li>
-                        <li>Click the 'Save' button below and Google Analytics will be integrated into your store</li>
-                    </ul>
-                    <input type="button" id="pre-configure-google-analytics" class="btn btn-default btn-sm" value="Pre-configure Google Analytics"/>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="GoogleId" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
-                    <admin-input asp-for="GoogleId"/>
-                    <span asp-validation-for="GoogleId"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="TrackingScript" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
+        @await Component.InvokeAsync("StoreScope")
+
+        <div class="note note-info">
+            <p>
+                Google Analytics is a free website stats tool from Google. It keeps track of statistics
+                about the visitors and ecommerce conversion on your website.
+            </p>
+            <p>
+                Follow the next steps to enable Google Analytics integration:
+            </p>
+            <ul>
+                <li>
+                    <a href="http://www.google.com/analytics/" target="_blank">
+                        Create a Google Analytics
+                        account
+                    </a> and follow the wizard to add your website
+                </li>
+                <li>Copy the Tracking ID into the 'ID' box below</li>
+                <li>Click the 'Save' button below and Google Analytics will be integrated into your store</li>
+            </ul>
+        </div>
+        <admin-card>
+            <card-actions>
+                <input type="button" id="pre-configure-google-analytics" class="btn btn-outline-secondary btn-sm" value="Pre-configure Google Analytics"/>
+            </card-actions>
+            <div class="grand-fields">
+                <admin-field asp-for="GoogleId" size="lg"/>
+                <admin-field asp-for="TrackingScript">
                     <admin-textarea asp-for="TrackingScript"></admin-textarea>
-                    <span asp-validation-for="TrackingScript"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="EcommerceScript" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
+                </admin-field>
+                <admin-field asp-for="EcommerceScript">
                     <admin-textarea asp-for="EcommerceScript"></admin-textarea>
-                    <span asp-validation-for="EcommerceScript"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="EcommerceDetailScript" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
+                </admin-field>
+                <admin-field asp-for="EcommerceDetailScript">
                     <admin-textarea asp-for="EcommerceDetailScript"></admin-textarea>
-                    <span asp-validation-for="EcommerceDetailScript"></span>
-                </div>
+                </admin-field>
+                <admin-field asp-for="IncludingTax"/>
             </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="IncludingTax" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
-                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <admin-input asp-for="IncludingTax"/>
-                        <div class="control__indicator"></div>
-                    </label>
-                    <span asp-validation-for="IncludingTax"></span>
-                </div>
+            <div class="note note-info mt-3">
+                <em>Please note that {ECOMMERCE} line works only when you have "Disable order completed page" order setting unticked.</em>
             </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="AllowToDisableConsentCookie" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
-                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <admin-input asp-for="AllowToDisableConsentCookie"/>
-                        <div class="control__indicator"></div>
-                    </label>
-                    <span asp-validation-for="AllowToDisableConsentCookie"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="ConsentDefaultState" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
-                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <admin-input asp-for="ConsentDefaultState"/>
-                        <div class="control__indicator"></div>
-                    </label>
-                    <span asp-validation-for="ConsentDefaultState"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="ConsentName" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AllowToDisableConsentCookie"/>
+                <admin-field asp-for="ConsentDefaultState"/>
+                <admin-field asp-for="ConsentName">
                     <admin-textarea asp-for="ConsentName"></admin-textarea>
-                    <span asp-validation-for="ConsentName"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <div class="col-md-4 col-sm-4 text-end">
-                    <admin-label asp-for="ConsentDescription" class="control-label"/>
-                </div>
-                <div class="col-md-8 col-sm-8">
+                </admin-field>
+                <admin-field asp-for="ConsentDescription">
                     <admin-textarea asp-for="ConsentDescription"></admin-textarea>
-                    <span asp-validation-for="ConsentDescription"></span>
-                </div>
+                </admin-field>
             </div>
-            <div class="mb-3">
-                <div class="col-md-12 col-sm-12">
-                    <div class="note note-info">
-                        <em>Please note that {ECOMMERCE} line works only when you have "Disable order completed page" order setting unticked.</em>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-actions">
-            <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]"/>
-            </div>
-        </div>
-    </div>
+        </admin-card>
+    </admin-page>
 </form>

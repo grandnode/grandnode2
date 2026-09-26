@@ -1,20 +1,20 @@
 ﻿@{
-    Layout = "_ConfigurePlugin";
+    Layout = "_AdminLayout";
+    ViewBag.Title = Loc["Shipping.FixedRate.FriendlyName"];
 }
 <input id="active-menu-item" type="hidden" value="/Admin/Shipping/Providers"/>
-<div class="panel-group">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <admin-grid id="shipping-rate-grid"
-                        key="ShippingMethodId"
-                        read-url="@Url.Action("Configure", "ShippingFixedRate")"
-                        update-url="@Url.Action("ShippingRateUpdate", "ShippingFixedRate")"
-                        pager="Compact"
-                        edit-mode="Inline">
-                <grid-column field="ShippingMethodName" title="@Loc["Plugins.Shipping.FixedRateShipping.Fields.ShippingMethodName"]" width="400"/>
-                <grid-column field="Rate" title="@Loc["Plugins.Shipping.FixedRateShipping.Fields.Rate"]" width="200" editor="Numeric" decimals="8"/>
-                <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
-            </admin-grid>
-        </div>
-    </div>
-</div>
+@* the grid edits inline, so there is no primary action on this screen *@
+<admin-page title="@Loc["Shipping.FixedRate.FriendlyName"]" icon="bi-truck">
+    <admin-card flush>
+        <admin-grid id="shipping-rate-grid"
+                    key="ShippingMethodId"
+                    read-url="@Url.Action("Configure", "ShippingFixedRate")"
+                    update-url="@Url.Action("ShippingRateUpdate", "ShippingFixedRate")"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-column field="ShippingMethodName" title="@Loc["Plugins.Shipping.FixedRateShipping.Fields.ShippingMethodName"]" width="400"/>
+            <grid-column field="Rate" title="@Loc["Plugins.Shipping.FixedRateShipping.Fields.Rate"]" width="200" editor="Numeric" decimals="8"/>
+            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

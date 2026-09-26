@@ -4,9 +4,14 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options"]</h2>
+                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
+                <input type="submit" id="btnRefresh" style="display: none"/>
+            </div>
             <partial name="Partials/WidgetZone.Options.Top"/>
-            <div class="panel-body">
+            <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="specificationattributeoptions-grid"
                             read-url="@Url.Action("OptionList", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area })"
                             destroy-url="@Url.Action("OptionDelete", "SpecificationAttribute", new { area })"
@@ -23,10 +28,6 @@
                     <grid-column field="NumberOfAssociatedProducts" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.NumberOfAssociatedProducts"]" width="150"/>
                     <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
                 </admin-grid>
-            </div>
-            <div class="panel-footer">
-                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
-                <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
             <partial name="Partials/WidgetZone.Options.Bottom" model="Model"/>
         </div>
@@ -67,7 +68,7 @@
             $(document).ready(function () {
                 $('#btnRefresh').click(function () {
                     //refresh grid
-                    var grid = $("#specificationattributeoptions-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#specificationattributeoptions-grid");
                     grid.dataSource.read();
 
                     //return false to don't reload a page

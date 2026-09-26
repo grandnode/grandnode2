@@ -164,42 +164,33 @@
 
         </script>
 
-        <!-- Template container -->
-        <div class="form-horizontal" id="discountRequirementContainer">
+        @* Each saved requirement is a card: its rule type as the title, Remove in the header and
+           the rule's own configuration form (loaded from the plugin) as the body. The ids the
+           script above and the rule plugins use are unchanged. *@
+        <div class="grand-fields" id="discountRequirementContainer">
         </div>
         <!-- Discount requirement template -->
         <script id="discountRequirementTemplate" type="text/html">
-            <div class="form-body" id="editrequirement{{= discountRequirementId }}">
-                <div class="note note-info">
-                    @Loc["admin.marketing.Discounts.Requirements.DiscountRequirementType"] <strong>{{= ruleName }}</strong>
+            <div class="grand-card" id="editrequirement{{= discountRequirementId }}">
+                <div class="grand-card__header">
+                    <h2 class="grand-card__title">@Loc["admin.marketing.Discounts.Requirements.DiscountRequirementType"] <strong>{{= ruleName }}</strong></h2>
+                    <div class="grand-card__actions">
+                        <input type="button" id="deleterequirement{{= discountRequirementId }}" onclick="deleteRequirement('{{= discountRequirementId }}')" class="btn btn-outline-danger btn-sm" value="@Loc["admin.marketing.Discounts.Requirements.Remove"]"/>
+                    </div>
                 </div>
-                <div class="mb-3" id="editrequirementplaceholder{{= discountRequirementId }}"></div>
-                <div class="offset-md-3 offset-sm-3 pb-3">
-                    <input type="button" id="deleterequirement{{= discountRequirementId }}" onclick="deleteRequirement('{{= discountRequirementId }}')" class="btn btn-default btn-sm" value="@Loc["admin.marketing.Discounts.Requirements.Remove"]"/>
+                <div class="grand-card__body">
+                    <div id="editrequirementplaceholder{{= discountRequirementId }}"></div>
                 </div>
             </div>
         </script>
 
-        <div class="form-horizontal">
-            <div class="form-body">
-                <div class="note note-info">
-                    <strong>@Loc["admin.marketing.Discounts.Requirements.AddNew"]</strong>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="AddDiscountRequirement"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-select asp-for="AddDiscountRequirement" asp-items="Model.AvailableDiscountRequirementRules"/>
-                        <span asp-validation-for="AddDiscountRequirement"></span>
-                    </div>
-                </div>
+        <admin-card title="@Loc["admin.marketing.Discounts.Requirements.AddNew"]">
+            <div class="grand-fields">
+                <admin-field asp-for="AddDiscountRequirement" size="md" asp-items="Model.AvailableDiscountRequirementRules"/>
             </div>
-        </div>
-        <div class="form-horizontal">
-            <div class="form-body">
-                <div id="addrequirementplaceholder">
-                </div>
+            <div id="addrequirementplaceholder" class="mt-3">
             </div>
-        </div>
+        </admin-card>
     }
     else
     {

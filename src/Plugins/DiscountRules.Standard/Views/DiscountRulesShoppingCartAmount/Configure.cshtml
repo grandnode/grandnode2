@@ -30,16 +30,13 @@
         });
 </script>
 
-<div class="form-horizontal">
-    <div class="mb-3">
-        <admin-label asp-for="SpentAmount"/>
-        <div class="col-md-9 col-sm-9">
-            <div>
-                @Html.EditorFor(model => model.SpentAmount)
-                <input type="button" id="saveShoppingCartrequirement@(Model.RequirementId)" class="btn btn-default btn-sm"
-                       value="@Loc["Admin.Common.Save"]"/>
-            </div>
-            <div id="pnl-save-requirement-result@(Model.RequirementId)" style="display:none;">@Loc["admin.marketing.Discounts.Requirements.Saved"]</div>
-        </div>
+@* the rule's form inside the discount's requirement card: the field, then Save for this rule
+   alone (outline - the discount's own Save is the screen's primary) and the saved message the
+   script fades in *@
+<div class="grand-fields">
+    <admin-field asp-for="SpentAmount" size="md"/>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <input type="button" id="saveShoppingCartrequirement@(Model.RequirementId)" class="btn btn-outline-secondary btn-sm" value="@Loc["Admin.Common.Save"]"/>
+        <div id="pnl-save-requirement-result@(Model.RequirementId)" class="text-success" style="display:none;">@Loc["admin.marketing.Discounts.Requirements.Saved"]</div>
     </div>
 </div>

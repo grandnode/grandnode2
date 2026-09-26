@@ -6,103 +6,61 @@
 <form asp-area="@Constants.AreaAdmin" asp-controller="NewsletterSubscription" asp-action="List" method="post">
 
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-envelope"></i>
-                        @Loc["admin.marketing.NewsLetterSubscriptions"]
-                    </div>
-                    <div class="actions btn-group btn-group-devided">
-                        <input type="submit" name="exportcsv" asp-action="ExportCsv" class="btn default" value="@Loc["Admin.Common.ExportToCsv"]"/>
-                        <input type="submit" id="importcsv" name="importcsv" class="btn default" value="@Loc["Admin.Common.ImportFromCsv"]"/>
-                        <vc:admin-widget widget-zone="newsletter_subscription_list_buttons" additional-data="null"/>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchEmail" class="control-label"/>
-                                            <admin-input asp-for="SearchEmail"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-success filter-submit" id="search-subscriptions">
-                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container w-100">
-                                <div class="mb-3">
-                                    <admin-label asp-for="ActiveId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="ActiveId" asp-items="Model.ActiveList"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="StoreId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchCategoryIds" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchCategoryIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCategories"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content">
-                    <admin-grid id="newsletter-subscriptions-grid"
-                                read-url="@Url.Action("SubscriptionList", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
-                                update-url="@Url.Action("SubscriptionUpdate", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
-                                destroy-url="@Url.Action("SubscriptionDelete", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
-                                additional-data="additionalData"
-                                edit-mode="Inline">
-                        <grid-column field="Email" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Email"]" width="300" editor="Text"/>
-                        <grid-column field="Active" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Active"]" width="100" align="Center" editor="Checkbox">
-                            <cell-template>
-                                <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                            </cell-template>
-                        </grid-column>
-                        @if (!adminAreaSettings.HideStoreColumn)
-                        {
-                            <grid-column field="StoreName" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Store"]" width="150"/>
-                        }
-                        <grid-column field="Categories" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Categories"]" width="300"/>
-                        <grid-column field="CreatedOn" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.CreatedOn"]" width="150"/>
-                        <grid-commands edit="true" destroy="true" width="200"/>
-                    </admin-grid>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* The product list's shape: export and import in the overflow menu, the e-mail as the quick
+       search with the rest of the criteria behind the Filters toggle, and the inline-edit grid in
+       a flush card. There is no Add new - a subscription comes from the storefront or an import -
+       so Search is the one primary action. The ids the script below looks up are unchanged. *@
+    <admin-page title="@Loc["admin.marketing.NewsLetterSubscriptions"]" icon="bi-envelope">
+        <page-actions>
+            <admin-action-menu text="@Loc["Admin.Common.Export"]">
+                <admin-action submit="true" name="exportcsv"
+                              url="@Url.Action("ExportCsv", new { area = Constants.AreaAdmin })"
+                              icon="bi-download" text="@Loc["Admin.Common.ExportToCsv"]"/>
+                <admin-action id="importcsv" name="importcsv" icon="bi-upload" text="@Loc["Admin.Common.ImportFromCsv"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="newsletter_subscription_list_buttons" additional-data="null"/>
+        </page-actions>
 
+        <admin-filters id="newsletter-subscription-filters" submit-id="search-subscriptions">
+            <filters-search>
+                <admin-input asp-for="SearchEmail"/>
+            </filters-search>
+            <admin-field asp-for="ActiveId" asp-items="Model.ActiveList"/>
+            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+            <admin-field asp-for="SearchCategoryIds">
+                <admin-input asp-for="SearchCategoryIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCategories"/>
+            </admin-field>
+        </admin-filters>
 
+        <admin-card flush>
+            <admin-grid id="newsletter-subscriptions-grid"
+                        read-url="@Url.Action("SubscriptionList", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
+                        update-url="@Url.Action("SubscriptionUpdate", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
+                        destroy-url="@Url.Action("SubscriptionDelete", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
+                        additional-data="additionalData"
+                        edit-mode="Inline">
+                <grid-column field="Email" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Email"]" width="300" editor="Text"/>
+                <grid-column field="Active" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Active"]" width="100" align="Center" editor="Checkbox">
+                    <cell-template>
+                        <i data-if="Active" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    </cell-template>
+                </grid-column>
+                @if (!adminAreaSettings.HideStoreColumn)
+                {
+                    <grid-column field="StoreName" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Store"]" width="150"/>
+                }
+                <grid-column field="Categories" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Categories"]" width="300"/>
+                <grid-column field="CreatedOn" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.CreatedOn"]" width="150"/>
+                <grid-commands edit="true" destroy="true" width="200"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
 
     <script>
         $(document).ready(function() {
             $('#search-subscriptions').click(function() {
-                var grid = $('#newsletter-subscriptions-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#newsletter-subscriptions-grid');
                 grid.dataSource.page(1);
                 return false;
             });

@@ -1,8 +1,5 @@
 node_modules/
 
-# analyzer output (npm run analyze:grids)
-reports/
-
 # Playwright output; HAR captures contain real session cookies and store data
 e2e/har/
 # recorded form payloads (npm run e2e:payloads); real store data

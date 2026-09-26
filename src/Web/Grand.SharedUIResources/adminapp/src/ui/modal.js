@@ -155,8 +155,54 @@ export function closeModal(target, doc = globalThis.document) {
     return modal ? modal.close() : null
 }
 
+/**
+ * The confirmation a destructive action asks for, in a modal of the panel rather than the
+ * browser's own confirm() - which a screen cannot style, which blocks the page, and which the
+ * panels still used for "delete selected". Resolves true when confirmed, false otherwise.
+ */
+export function confirmModal(message, options = {}, doc = globalThis.document) {
+    const element = doc.createElement('div')
+    element.className = 'grand-confirm'
+    const text = doc.createElement('p')
+    text.className = 'grand-confirm__message'
+    text.textContent = message == null ? '' : String(message)
+    const buttons = doc.createElement('div')
+    buttons.className = 'grand-confirm__actions'
+    const confirm = doc.createElement('button')
+    confirm.type = 'button'
+    confirm.className = 'btn btn-danger'
+    confirm.textContent = options.confirmText || 'OK'
+    const cancel = doc.createElement('button')
+    cancel.type = 'button'
+    cancel.className = 'btn btn-outline-secondary'
+    cancel.textContent = options.cancelText || 'Cancel'
+    buttons.appendChild(cancel)
+    buttons.appendChild(confirm)
+    element.appendChild(text)
+    element.appendChild(buttons)
+    doc.body.appendChild(element)
+
+    const widget = getModal(element, { title: options.title || '' }, doc)
+    return new Promise(resolve => {
+        let answered = false
+        const settle = answer => {
+            if (answered) return
+            answered = true
+            resolve(answer)
+            widget.destroy()
+            element.remove()
+        }
+        confirm.addEventListener('click', () => settle(true))
+        cancel.addEventListener('click', () => settle(false))
+        //the close button, the overlay and Escape all mean "no"
+        element.addEventListener('grand-modal:close', () => settle(false))
+        widget.open()
+    })
+}
+
 export const modal = {
     get: getModal,
     open: openModal,
-    close: closeModal
+    close: closeModal,
+    confirm: confirmModal
 }

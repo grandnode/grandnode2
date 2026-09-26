@@ -1,45 +1,96 @@
 @model ProductModel
+@{
+    //set by EditPopup: the quick-edit tabs, with the Additional cards split into tabs of their own
+    var quickTabs = ViewData["QuickTabs"] is true;
+}
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 <input asp-for="Ticks" type="hidden"/>
+@* grand-tab-quick: the tabs the bulk-edit popup (EditPopup) shows; the others are rendered
+   there too, hidden, because the form posts the whole product *@
 <admin-tabstrip name="product-edit" SetTabPos="true" BindGrid="true">
     <items>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Info"]" tab-index="0">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Info"]" tab-index="0" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Info" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Prices"]" tab-index="1" id="tab-price-product">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Prices"]" tab-index="1" class="grand-tab-quick" id="tab-price-product">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Prices" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Additional"]" tab-index="2">
-            <content>
-                <div>
-                    <partial name="Partials/CreateOrUpdate.Additional" model="Model"/>
-                </div>
-            </content>
-        </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.SEO"]" tab-index="3">
+        @if (!quickTabs)
+        {
+            <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Additional"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.Additional" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        else
+        {
+            @* the same cards as CreateOrUpdate.Additional, a tab each; data-follows hides a tab
+               while the product type hides its card, or when the panel has no such card *@
+            <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Additional"]" tab-index="2" class="grand-tab-quick">
+                <content>
+                    <div>
+                        <partial name="Partials/WidgetZone.Additional.Top" model="Model"/>
+                        <partial name="Partials/Additional.Order" model="Model"/>
+                        <partial name="Partials/WidgetZone.Additional.Bottom" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.GiftVouchers"]" tab-index="20" class="grand-tab-quick" data-follows="group-giftvoucher">
+                <content>
+                    <div>
+                        <partial name="Partials/Additional.GiftVoucher" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Catalog.Products.Fields.IsDownload"]" tab-index="21" class="grand-tab-quick" data-follows="group-downloads">
+                <content>
+                    <div>
+                        <partial name="Partials/Additional.Downloads" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Catalog.Products.Fields.IsRecurring"]" tab-index="22" class="grand-tab-quick" data-follows="group-recurring">
+                <content>
+                    <div>
+                        <partial name="Partials/Additional.Recurring" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Catalog.Products.Fields.RequiredProductIds"]" tab-index="23" class="grand-tab-quick" data-follows="group-required-other-products">
+                <content>
+                    <div>
+                        <partial name="Partials/Additional.RequiredProducts" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.SEO"]" tab-index="3" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.SEO" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures"]" tab-index="4">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures"]" tab-index="4" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Pictures" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Mappings"]" tab-index="5">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Mappings"]" tab-index="5" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Categories" model="Model"/>
@@ -47,21 +98,21 @@
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Inventory"]" tab-index="6" id="tab-inventory-product">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Inventory"]" tab-index="6" class="grand-tab-quick" id="tab-inventory-product">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.Inventory" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes"]" tab-index="7">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes"]" tab-index="7" class="grand-tab-quick">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.SpecificationAttributes" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes"]" tab-index="8" id="tab-attributes-product">
+        <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes"]" tab-index="8" class="grand-tab-quick" id="tab-attributes-product">
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.ProductAttributes" model="Model"/>
@@ -128,3 +179,18 @@
         <partial name="Partials/WidgetZone.Tabs" model="Model"/>
     </items>
 </admin-tabstrip>
+@if (quickTabs)
+{
+    <script>
+        //a tab with data-follows is shown while the card it holds is: the product type script
+        //(CreateOrUpdate.Info) shows and hides the cards with jQuery, which writes their style
+        document.querySelectorAll('li[data-follows]').forEach(function (tab) {
+            var card = document.getElementById(tab.getAttribute('data-follows'));
+            var sync = function () {
+                tab.style.display = !card || card.style.display === 'none' ? 'none' : '';
+            };
+            sync();
+            if (card) new MutationObserver(sync).observe(card, { attributes: true, attributeFilter: ['style'] });
+        });
+    </script>
+}

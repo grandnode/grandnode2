@@ -1,42 +1,18 @@
 ﻿@model OrderModel.AddOrderProductModel.GiftVoucherModel
 @if (Model.IsGiftVoucher)
 {
-    <div class="mb-3">
-        <div class="mb-3">
-            <admin-label asp-for="RecipientName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="RecipientName"/>
-            </div>
-        </div>
-        <div class="mb-3">
-            @if (Model.GiftVoucherType == GiftVoucherType.Virtual)
-            {
-                <admin-label asp-for="RecipientEmail"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="RecipientEmail"/>
-                </div>
-            }
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="SenderName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="SenderName"/>
-            </div>
-        </div>
-        <div class="mb-3">
-            @if (Model.GiftVoucherType == GiftVoucherType.Virtual)
-            {
-                <admin-label asp-for="SenderEmail"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="SenderEmail"/>
-                </div>
-            }
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Message"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="Message"></admin-textarea>
-            </div>
-        </div>
-    </div>
+    @* direct children of the caller's field grid, so they pair up with the other fields *@
+    <admin-field asp-for="RecipientName"/>
+    @if (Model.GiftVoucherType == GiftVoucherType.Virtual)
+    {
+        <admin-field asp-for="RecipientEmail"/>
+    }
+    <admin-field asp-for="SenderName"/>
+    @if (Model.GiftVoucherType == GiftVoucherType.Virtual)
+    {
+        <admin-field asp-for="SenderEmail"/>
+    }
+    <admin-field asp-for="Message">
+        <admin-textarea asp-for="Message"></admin-textarea>
+    </admin-field>
 }

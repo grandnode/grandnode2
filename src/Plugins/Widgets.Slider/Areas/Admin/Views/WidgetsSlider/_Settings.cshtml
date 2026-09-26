@@ -3,62 +3,43 @@
 
 @inject SliderWidgetSettings setting
 
+@* the widget settings post through the #savegeneralsettings script, not the page: the form wraps
+   only this card, and its Save stays an outline button because Add new is the list's primary *@
 <form method="post" id="widget-settings-form">
     @Html.AntiForgeryToken()
-    <div class="panel-group">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="form-body">
-                    <div class="mb-3">
-                        <div class="col-md-3 col-sm-3 text-end">
-                            <admin-label asp-for="DisplayOrder" class="control-label"/>
-                        </div>
-                        <div class="col-md-9 col-sm-9">
-                            <admin-input asp-for="DisplayOrder"/>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <admin-label asp-for="CustomerGroups"/>
-                        <div class="col-md-9 col-sm-9">
-                            <admin-input asp-for="CustomerGroups"/>
-                            <span asp-validation-for="CustomerGroups"></span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <admin-label asp-for="Stores"/>
-                        <div class="col-md-9 col-sm-9">
-                            <admin-input asp-for="Stores"/>
-                            <span asp-validation-for="Stores"></span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <input type="button" id="savegeneralsettings" class="btn default" value="@Loc["Admin.Common.Save"]"/>
-                        <script>
-                    $(function () {
-                        $('#savegeneralsettings').click(function () {
-
-                            var postData = $(this.form).serialize();
-
-                            $.ajax({
-                                cache: false,
-                                type: 'POST',
-                                url: '@Url.Action("Configure", "WidgetsSlider")',
-                                data: postData,
-                                dataType: 'json',
-                                success: function (data) {
-                                    alert('Saved');
-                                },
-                                error: function (xhr, ajaxOptions, thrownError) {
-                                    alert('Failed to add record.');
-                                }
-                            });
-                            return false;
-                        });
-                    });
-                        </script>
-                    </div>
-                </div>
-            </div>
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="DisplayOrder" size="sm"/>
+            <admin-field asp-for="CustomerGroups"/>
+            <admin-field asp-for="Stores"/>
         </div>
-    </div>
+        <div class="grand-popup__actions">
+            <button type="button" id="savegeneralsettings" class="btn btn-outline-secondary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-card>
+        <script>
+    $(function () {
+        $('#savegeneralsettings').click(function () {
+
+            var postData = $(this.form).serialize();
+
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("Configure", "WidgetsSlider")',
+                data: postData,
+                dataType: 'json',
+                success: function (data) {
+                    alert('Saved');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to add record.');
+                }
+            });
+            return false;
+        });
+    });
+        </script>
 </form>

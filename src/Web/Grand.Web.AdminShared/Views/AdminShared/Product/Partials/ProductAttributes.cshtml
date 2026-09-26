@@ -1,20 +1,16 @@
-﻿@model IList<ProductAttributeCombinationModel.ProductAttributeModel>
+@model IList<ProductAttributeCombinationModel.ProductAttributeModel>
+@* The attribute choices of a new combination: one field per attribute, in the field layout of
+   the rest of the popup. Every control keeps the attributes[{id}] name the controller reads. *@
 @if (Model.Count > 0)
 {
-    <div class="mb-3">
+    <div class="grand-fields grand-fields--2col">
         @foreach (var attribute in Model)
         {
             var controlId = $"attributes[{attribute.Id}]";
             var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
-            <div class="mb-3">
-                <div class="col-md-3 col-sm-3">
-                    @if (attribute.IsRequired)
-                    {
-                        <span class="required">*</span>
-                    }
-                    <label class="control-label">@textPrompt</label>
-                </div>
-                <div class="col-md-9 col-sm-9">
+            <div class="grand-field">
+                <label class="grand-field__label@(attribute.IsRequired ? " required" : "")" for="@(controlId)">@textPrompt</label>
+                <div class="grand-field__control">
                     @switch (attribute.AttributeControlType)
                     {
                         case AttributeControlType.DropdownList:
@@ -39,12 +35,10 @@
                         {
                             foreach (var attributeValue in attribute.Values)
                             {
-                                <div>
-                                    <label>
-                                        <input id="@(controlId)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected"/>
-                                        @attributeValue.Name
-                                    </label>
-                                </div>
+                                <label class="form-check">
+                                    <input id="@(controlId)" class="form-check-input" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected"/>
+                                    <span class="form-check-label">@attributeValue.Name</span>
+                                </label>
                             }
                         }
                             break;
@@ -53,12 +47,10 @@
                         {
                             foreach (var attributeValue in attribute.Values)
                             {
-                                <div>
-                                    <label>
-                                        <input id="@(controlId)" type="checkbox" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)/>
-                                        @attributeValue.Name
-                                    </label>
-                                </div>
+                                <label class="form-check">
+                                    <input id="@(controlId)" class="form-check-input" type="checkbox" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)/>
+                                    <span class="form-check-label">@attributeValue.Name</span>
+                                </label>
                             }
                         }
                             break;

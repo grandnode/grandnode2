@@ -1,20 +1,22 @@
 @model CategoryModel
 <partial name="Partials/WidgetZone.Discounts.Top" model="Model"/>
+@* the discount list of the product Prices tab: one check per discount, two to a row *@
 @if (Model.AvailableDiscounts is { Count: > 0 })
 {
-    <div class="mt-checkbox-list">
-        @foreach (var discount in Model.AvailableDiscounts)
-        {
-            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
-                       @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id))
-                       {
-                           <text> checked="checked" </text>
-                       }/>@discount.Name
-                <div class="control__indicator"></div>
-            </label>
-        }
-    </div>
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            @foreach (var discount in Model.AvailableDiscounts)
+            {
+                <div class="grand-field grand-field--check form-check">
+                    <div class="grand-field__control">
+                        <input type="checkbox" class="form-check-input" id="discount-@discount.Id" name="SelectedDiscountIds" value="@discount.Id"
+                               checked="@(Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id))"/>
+                    </div>
+                    <label class="grand-field__label" for="discount-@discount.Id">@discount.Name</label>
+                </div>
+            }
+        </div>
+    </admin-card>
 }
 else
 {

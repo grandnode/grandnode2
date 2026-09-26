@@ -1,34 +1,10 @@
 ﻿@model StoreModel
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="BankAccount.BankCode"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BankAccount.BankCode"/>
-                <span asp-validation-for="BankAccount.BankCode"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="BankAccount.BankName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BankAccount.BankName"/>
-                <span asp-validation-for="BankAccount.BankName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="BankAccount.SwiftCode"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BankAccount.SwiftCode"/>
-                <span asp-validation-for="BankAccount.SwiftCode"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="BankAccount.AccountNumber"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BankAccount.AccountNumber"/>
-                <span asp-validation-for="BankAccount.AccountNumber"></span>
-            </div>
-        </div>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="BankAccount.BankCode" size="md"/>
+        <admin-field asp-for="BankAccount.BankName"/>
+        <admin-field asp-for="BankAccount.SwiftCode" size="md"/>
+        <admin-field asp-for="BankAccount.AccountNumber"/>
     </div>
-</div>
+</admin-card>

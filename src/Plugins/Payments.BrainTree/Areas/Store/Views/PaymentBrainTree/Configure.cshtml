@@ -5,102 +5,34 @@
 }
 <input id="active-menu-item" type="hidden" value="/Store/Payment/Index"/>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Payments.BrainTree.FriendlyName"]
-                </div>
+@* the mode switches, the credentials and the fee; Save as the one primary action *@
+<form asp-controller="PaymentBrainTree" asp-action="Configure" asp-area="Store" method="post">
+    <admin-page title="@Loc["Payments.BrainTree.FriendlyName"]" icon="bi-credit-card">
+        <page-actions>
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="Use3DS"/>
+                <admin-field asp-for="UseSandBox"/>
             </div>
-            <div class="x_content form">
-                <form asp-controller="PaymentBrainTree" asp-action="Configure" asp-area="Store" method="post">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="Use3DS" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="Use3DS"/>
-                                    <span asp-validation-for="Use3DS"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="UseSandBox" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="UseSandBox"/>
-                                    <span asp-validation-for="UseSandBox"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="MerchantId" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="MerchantId"/>
-                                    <span asp-validation-for="MerchantId"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="PrivateKey" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="PrivateKey"/>
-                                    <span asp-validation-for="PrivateKey"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="PublicKey" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="PublicKey"/>
-                                    <span asp-validation-for="PublicKey"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="AdditionalFee" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="AdditionalFee"/>
-                                    <span asp-validation-for="AdditionalFee"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="AdditionalFeePercentage" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="AdditionalFeePercentage"/>
-                                    <span asp-validation-for="AdditionalFeePercentage"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-md-3 col-sm-3 text-end">
-                                    <admin-label asp-for="DisplayOrder" class="control-label"/>
-                                </div>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DisplayOrder"/>
-                                    <span asp-validation-for="DisplayOrder"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <div class="row">
-                                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                                    <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="MerchantId"/>
+                <admin-field asp-for="PublicKey"/>
+                <admin-field asp-for="PrivateKey"/>
             </div>
-        </div>
-    </div>
-</div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AdditionalFee" size="md"/>
+                <admin-field asp-for="AdditionalFeePercentage"/>
+                <admin-field asp-for="DisplayOrder" size="sm"/>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

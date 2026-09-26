@@ -3,43 +3,34 @@
     ViewBag.Title = Loc["Admin.Configuration.EmailAccounts"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-people"></i>
-                    @Loc["Admin.Configuration.EmailAccounts"]
-                </div>
-                <div class="actions">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <vc:admin-widget widget-zone="email_account_list_buttons" additional-data="null"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="email-accounts-grid"
-                            read-url="@Url.Action("List", "EmailAccount", new { area = Constants.AreaAdmin })"
-                            pager="Compact">
-                    <grid-text name="markAsDefaultEmail" value="@Loc["Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail"]"/>
-                    <grid-column field="Email" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="DisplayName" title="@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"/>
-                    <grid-column field="Host" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"/>
-                    <grid-column field="Id" title="@Loc["Admin.Configuration.EmailAccounts.Fields.IsDefaultEmailAccount"]">
-                        <cell-template>
-                            <a href="@Url.Action("MarkAsDefaultEmail", "EmailAccount", new { area = Constants.AreaAdmin })/{{ Id }}" class="btn btn-default btn-sm">
-                            <i data-if="IsDefaultEmailAccount" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
-                            {{ $texts.markAsDefaultEmail }}</a>
-                        </cell-template>
-                    </grid-column>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+<admin-page title="@Loc["Admin.Configuration.EmailAccounts"]" icon="bi-envelope">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+        <vc:admin-widget widget-zone="email_account_list_buttons" additional-data="null"/>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="email-accounts-grid"
+                    read-url="@Url.Action("List", "EmailAccount", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-text name="markAsDefaultEmail" value="@Loc["Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail"]"/>
+            <grid-column field="Email" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayName" title="@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"/>
+            <grid-column field="Host" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"/>
+            <grid-column field="Id" title="@Loc["Admin.Configuration.EmailAccounts.Fields.IsDefaultEmailAccount"]">
+                <cell-template>
+                    <a href="@Url.Action("MarkAsDefaultEmail", "EmailAccount", new { area = Constants.AreaAdmin })/{{ Id }}" class="btn btn-outline-secondary btn-sm">
+                    <i data-if="IsDefaultEmailAccount" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    {{ $texts.markAsDefaultEmail }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>

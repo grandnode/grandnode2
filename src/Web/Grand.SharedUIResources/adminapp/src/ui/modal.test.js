@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest'
-import { getModal, openModal, closeModal } from './modal.js'
+import { getModal, openModal, closeModal, modal } from './modal.js'
 
 describe('modal', () => {
     beforeEach(() => {
@@ -61,5 +61,28 @@ describe('modal', () => {
     it('answers null for an element that is not on the page', () => {
         expect(openModal('#missing')).toBeNull()
         expect(closeModal('#missing')).toBeNull()
+    })
+})
+
+describe('confirmation', () => {
+    it('resolves true when confirmed and cleans up after itself', async () => {
+        const answer = modal.confirm('Delete 3 products?', { title: 'Are you sure?', confirmText: 'Delete' })
+        const buttons = [...document.querySelectorAll('.grand-confirm__actions button')]
+        expect(document.querySelector('.grand-confirm__message').textContent).toBe('Delete 3 products?')
+        buttons.find(b => b.textContent === 'Delete').click()
+        expect(await answer).toBe(true)
+        expect(document.querySelector('.grand-confirm')).toBe(null)
+    })
+
+    it('resolves false when cancelled', async () => {
+        const answer = modal.confirm('Delete?', { cancelText: 'No' })
+        document.querySelector('.grand-confirm__actions button').click()
+        expect(await answer).toBe(false)
+    })
+
+    it('treats closing the window as a no', async () => {
+        const answer = modal.confirm('Delete?')
+        document.querySelector('.grand-confirm').dispatchEvent(new CustomEvent('grand-modal:close', { bubbles: true }))
+        expect(await answer).toBe(false)
     })
 })

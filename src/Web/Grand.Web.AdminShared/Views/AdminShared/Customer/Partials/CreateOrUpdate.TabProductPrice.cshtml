@@ -1,10 +1,14 @@
 @model CustomerModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-    <strong>@Loc["Admin.Customers.Customers.ProductPrice"]</strong>
-    <div class="panel panel-default">
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc["Admin.Customers.Customers.ProductPrice"]</h2>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.ProductPrice.AddNew"]</a>
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
+        </div>
         <partial name="Partials/WidgetZone.ProductPriceTop" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="productprice-grid"
                         read-url="@Url.Action("ProductsPrice", "Customer", new { customerId = Model.Id, area = area })"
                         update-url="@Url.Action("UpdateProductPrice", "Customer", new { area = area })"
@@ -14,20 +18,16 @@
                         reload-after-save="false">
                 <grid-column field="ProductName" title="@Loc["Admin.Customers.Customers.ProductPrice.ProductName"]" width="300">
                     <cell-template>
-                        <a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}" target="_blank">{{ ProductName }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}" target="_blank">{{ ProductName }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="Price" title="@Loc["Admin.Customers.Customers.ProductPrice.Price"]" width="100" editor="Numeric"/>
                 <grid-commands edit="true" destroy="true" width="200"/>
             </admin-grid>
         </div>
-        <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.Customers.ProductPrice.AddNew"]</a>
-            <input type="submit" id="btnRefreshProducts" style="display: none"/>
-        </div>
         <partial name="Partials/WidgetZone.ProductPriceBottom" model="Model"/>
     </div>
-    <div class="note note-info">
+    <div class="note note-info mt-3">
         @Loc["Admin.Customers.Customers.ProductPrice.Price.Warning"]
     </div>
 
@@ -52,7 +52,7 @@
         $(document).ready(function () {
             $('#btnRefreshProducts').click(function () {
                 //refresh grid
-                var grid = $("#productprice-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#productprice-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

@@ -4,8 +4,13 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
-            <div class="panel-body">
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc["Admin.Orders.CheckoutAttributes.Values"]</h2>
+                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]</a>
+                <input type="submit" id="btnRefresh" style="display: none"/>
+            </div>
+            <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="checkoutattributevalues-grid"
                             read-url="@Url.Action("ValueList", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area })"
                             destroy-url="@Url.Action("ValueDelete", "CheckoutAttribute", new { area })"
@@ -21,17 +26,13 @@
                     <grid-column field="WeightAdjustment" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.WeightAdjustment"]" width="150" min-screen-width="750"/>
                     <grid-column field="IsPreSelected" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.IsPreSelected"]" width="100" align="Center" min-screen-width="500">
                         <cell-template>
-                            <i data-if="IsPreSelected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsPreSelected" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                            <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="DisplayOrder" title="@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.DisplayOrder"]" width="100" align="Center"/>
                     <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
                 </admin-grid>
-            </div>
-            <div class="panel-footer">
-                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]</a>
-                <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
         </div>
 
@@ -71,7 +72,7 @@
             $(document).ready(function () {
                 $('#btnRefresh').click(function () {
                     //refresh grid
-                    var grid = $("#checkoutattributevalues-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#checkoutattributevalues-grid");
                     grid.dataSource.read();
 
                     //return false to don't reload a page

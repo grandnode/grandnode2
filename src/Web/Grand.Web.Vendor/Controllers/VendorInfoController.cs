@@ -119,7 +119,7 @@ public class VendorInfoController : BaseVendorController
     public async Task<IActionResult> Edit()
     {
         if (!_vendorSettings.AllowVendorsToEditInfo)
-            throw new Exception("Vendor can't edit info");
+            return RedirectToAction("AccessDenied", "Home", new { area = Constants.AreaVendor });
 
         var vendor = await _vendorService.GetVendorById(_contextAccessor.WorkContext.CurrentVendor.Id);
         if (vendor == null || vendor.Deleted)
@@ -148,7 +148,7 @@ public class VendorInfoController : BaseVendorController
     public async Task<IActionResult> Edit(VendorModel model)
     {
         if (!_vendorSettings.AllowVendorsToEditInfo)
-            throw new Exception("Vendor can't edit info");
+            return RedirectToAction("AccessDenied", "Home", new { area = Constants.AreaVendor });
 
         var vendor = await _vendorService.GetVendorById(model.Id);
         if (vendor == null || vendor.Deleted || vendor.Id != _contextAccessor.WorkContext.CurrentVendor.Id)

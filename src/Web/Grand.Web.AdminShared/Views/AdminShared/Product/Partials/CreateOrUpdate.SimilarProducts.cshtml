@@ -8,11 +8,16 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts"]
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts"]</h2>
+            @if (!readOnly)
+            {
+                <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
+                <input type="submit" id="btnRefreshSimilarProducts" style="display: none"/>
+            }
         </div>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="similarproducts-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("SimilarProductList", "Product", new { productId = Model.Id, area = area })"
@@ -30,13 +35,6 @@
                 <grid-commands edit="true" destroy="true"/>
             </admin-grid>
         </div>
-        @if (!readOnly)
-        {
-            <div class="panel-footer">
-                <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
-                <input type="submit" id="btnRefreshSimilarProducts" style="display: none"/>
-            </div>
-        }
     </div>
 
     <script>
@@ -61,7 +59,7 @@
         $(document).ready(function () {
             $('#btnRefreshSimilarProducts').click(function () {
                 //refresh grid
-                var grid = $("#similarproducts-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#similarproducts-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

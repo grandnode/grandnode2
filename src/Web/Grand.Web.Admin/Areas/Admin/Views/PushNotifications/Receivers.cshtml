@@ -6,52 +6,38 @@
 }
 
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-boxes"></i>
-                    @Loc["Admin.PushNotifications.Receivers"]
-                </div>
+@* The allowed/denied split as a chart card above the receivers in a flush card. *@
+<admin-page title="@Loc["Admin.PushNotifications.Receivers"]" icon="bi-boxes">
+    @if (!(Model.Allowed == 0 && Model.Denied == 0))
+    {
+        <admin-card>
+            <div class="piechart w-50">
+                <canvas id="piechart"></canvas>
             </div>
+        </admin-card>
+    }
 
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            @if (!(Model.Allowed == 0 && Model.Denied == 0))
-                            {
-                                <div class="piechart">
-                                    <canvas id="piechart"></canvas>
-                                </div>
-                            }
-
-                            <admin-grid id="receivers-grid"
-                                        read-url="@Url.Action("PushReceiversList", "PushNotifications", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("DeleteReceiver", "PushNotifications", new { area = Constants.AreaAdmin })"
-                                        confirm-destroy="true">
-                                <grid-column field="CustomerId" title="@Loc["Admin.PushNotifications.Message.Fields.CustomerEmail"]" width="100">
-                                    <cell-template>
-                                        <a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerEmail }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Allowed" title="@Loc["Admin.PushNotifications.Message.Fields.Allowed"]" width="100" align="Center">
-                                    <cell-template>
-                                        <i data-if="Allowed" class="bi bi-check-lg true-icon" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg false-icon" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="RegisteredOn" title="@Loc["Admin.PushNotifications.Message.Fields.RegisteredOn"]" width="200" format="{0:G}"/>
-                                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="50"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <admin-card flush>
+        <admin-grid id="receivers-grid"
+                    read-url="@Url.Action("PushReceiversList", "PushNotifications", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("DeleteReceiver", "PushNotifications", new { area = Constants.AreaAdmin })"
+                    confirm-destroy="true">
+            <grid-column field="CustomerId" title="@Loc["Admin.PushNotifications.Message.Fields.CustomerEmail"]" width="100">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Allowed" title="@Loc["Admin.PushNotifications.Message.Fields.Allowed"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Allowed" class="bi bi-check-lg true-icon text-success"></i>
+                    <i data-else class="bi bi-x-lg false-icon text-danger"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="RegisteredOn" title="@Loc["Admin.PushNotifications.Message.Fields.RegisteredOn"]" width="200" format="{0:G}"/>
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="50"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 
 @if (!(Model.Allowed == 0 && Model.Denied == 0))

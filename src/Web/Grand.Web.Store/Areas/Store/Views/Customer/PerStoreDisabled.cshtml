@@ -2,22 +2,10 @@
     ViewBag.Title = Loc["Admin.Customers.Customers"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-people"></i>
-                    @Loc["Admin.Customers.Customers"]
-                </div>
-            </div>
-            <div class="x_content">
-                <div class="alert alert-warning">
-                    Customer management from the store panel is disabled. It requires per-store customer
-                    identity. Ask an administrator to set <strong>Customer:RegisterCustomersPerStore</strong>
-                    to <strong>true</strong> in appsettings.json.
-                </div>
-            </div>
-        </div>
+<admin-page title="@Loc["Admin.Customers.Customers"]" icon="bi-people">
+    <div class="alert alert-warning mb-0">
+        Customer management from the store panel is disabled. It requires per-store customer
+        identity. Ask an administrator to set <strong>Customer:RegisterCustomersPerStore</strong>
+        to <strong>true</strong> in appsettings.json.
     </div>
-</div>
+</admin-page>

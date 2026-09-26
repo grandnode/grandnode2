@@ -3,73 +3,68 @@
     Layout = Constants.LayoutStore;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-envelope"></i>
-                    @Loc["Admin.Content.MessageTemplates"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <vc:store-widget widget-zone="store_message_template_list_buttons" additional-data="null"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-tabstrip name="messagetemplates-tabs">
-                    <items>
-                        <tabstrip-item text="@Loc["Admin.Content.MessageTemplates.Tab.Store"]" tab-index="0">
-                            <content>
-                                <admin-grid id="store-templates-grid" read-url="@Url.Action("ListStore", "MessageTemplate", new { area = Constants.AreaStore })">
-                                    <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="300">
-                                        <cell-template>
-                                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                        </cell-template>
-                                    </grid-column>
-                                    <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>
-                                    <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="80" align="Center">
-                                        <cell-template>
-                                            <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                        </cell-template>
-                                    </grid-column>
-                                </admin-grid>
-                            </content>
-                        </tabstrip-item>
-                        <tabstrip-item text="@Loc["Admin.Content.MessageTemplates.Tab.Global"]" tab-index="1">
-                            <content>
-                                <admin-grid id="global-templates-grid" read-url="@Url.Action("ListGlobal", "MessageTemplate", new { area = Constants.AreaStore })">
-                                    <grid-text name="copy" value="@Loc["Admin.Content.MessageTemplates.Copy"]"/>
-                                    <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="300">
-                                        <cell-template>
-                                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                        </cell-template>
-                                    </grid-column>
-                                    <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>
-                                    <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="80" align="Center">
-                                        <cell-template>
-                                            <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                        </cell-template>
-                                    </grid-column>
-                                    @* the Kendo cell posted a form of its own; the row now fills the form below *@
-                                    <grid-column title="@Loc["Admin.Common.Copy"]" width="100" align="Center">
-                                        <cell-template>
-                                            <button type="button" class="btn btn-sm btn-info" data-grid-click="copyMessageTemplate" title="{{ $texts.copy }}"><i class="bi bi-files"></i></button>
-                                        </cell-template>
-                                    </grid-column>
-                                </admin-grid>
-                            </content>
-                        </tabstrip-item>
-                    </items>
-                </admin-tabstrip>
-            </div>
-        </div>
-    </div>
-</div>
+@* The admin list's shape for a store owner: Add new in the page header, and the store's own
+   templates and the global ones each a flush grid card under a tab. *@
+<admin-page title="@Loc["Admin.Content.MessageTemplates"]" icon="bi-envelope">
+    <page-actions>
+        <vc:store-widget widget-zone="store_message_template_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-tabstrip name="messagetemplates-tabs">
+        <items>
+            <tabstrip-item text="@Loc["Admin.Content.MessageTemplates.Tab.Store"]" tab-index="0">
+                <content>
+                    <admin-card flush>
+                        <admin-grid id="store-templates-grid" read-url="@Url.Action("ListStore", "MessageTemplate", new { area = Constants.AreaStore })">
+                            <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="300">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>
+                            <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="80" align="Center">
+                                <cell-template>
+                                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                                </cell-template>
+                            </grid-column>
+                        </admin-grid>
+                    </admin-card>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Content.MessageTemplates.Tab.Global"]" tab-index="1">
+                <content>
+                    <admin-card flush>
+                        <admin-grid id="global-templates-grid" read-url="@Url.Action("ListGlobal", "MessageTemplate", new { area = Constants.AreaStore })">
+                            <grid-text name="copy" value="@Loc["Admin.Content.MessageTemplates.Copy"]"/>
+                            <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="300">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="200"/>
+                            <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="80" align="Center">
+                                <cell-template>
+                                    <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                                </cell-template>
+                            </grid-column>
+                            @* the Kendo cell posted a form of its own; the row now fills the form below *@
+                            <grid-column title="@Loc["Admin.Common.Copy"]" width="100" align="Center">
+                                <cell-template>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-grid-click="copyMessageTemplate" title="{{ $texts.copy }}"><i class="bi bi-files"></i></button>
+                                </cell-template>
+                            </grid-column>
+                        </admin-grid>
+                    </admin-card>
+                </content>
+            </tabstrip-item>
+        </items>
+    </admin-tabstrip>
+</admin-page>
 
 <form method="post" action="@Url.Action("CopyTemplate", "MessageTemplate", new { area = Constants.AreaStore })" id="copy-template-form">
     <input type="hidden" name="Id" id="copy-template-id" value=""/>
@@ -78,8 +73,13 @@
 
 <script>
     function copyMessageTemplate(template) {
-        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
-        $('#copy-template-id').val(template.Id);
-        $('#copy-template-form').submit();
+        //a modal of the panel, not the browser's confirm()
+        GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]', {
+            cancelText: '@Loc["Admin.Common.Cancel"]'
+        }).then(function (confirmed) {
+            if (!confirmed) return;
+            $('#copy-template-id').val(template.Id);
+            $('#copy-template-form').submit();
+        });
     }
 </script>

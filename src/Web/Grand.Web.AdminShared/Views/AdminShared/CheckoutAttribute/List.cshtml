@@ -4,48 +4,33 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Admin.Orders.CheckoutAttributes"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <partial name="Partials/WidgetZone.ListButtons"/>
-                </div>
+@* The product attribute list's shape: Add new as the one primary action in the page header and
+   the grid in a flush card. *@
+<admin-page title="@Loc["Admin.Orders.CheckoutAttributes"]" icon="bi-card-list">
+    <page-actions>
+        <partial name="Partials/WidgetZone.ListButtons"/>
+        <a href="@Url.Action("Create", new { area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="checkoutattributes-grid"
-                                        read-url="@Url.Action("List", "CheckoutAttribute", new { area })"
-                                        pager="Compact">
-                                <grid-column field="Name" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("Edit", "CheckoutAttribute", new { area })/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="AttributeControlTypeName" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.AttributeControlType"]" width="200" align="Center" min-screen-width="750"/>
-                                <grid-column field="IsRequired" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.IsRequired"]" width="100" align="Center">
-                                    <cell-template>
-                                        <i data-if="IsRequired" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.DisplayOrder"]" width="100" min-screen-width="750"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+    <admin-card flush>
+        <admin-grid id="checkoutattributes-grid"
+                    read-url="@Url.Action("List", "CheckoutAttribute", new { area })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "CheckoutAttribute", new { area })/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="AttributeControlTypeName" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.AttributeControlType"]" width="200" align="Center" min-screen-width="750"/>
+            <grid-column field="IsRequired" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.IsRequired"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="IsRequired" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Orders.CheckoutAttributes.Fields.DisplayOrder"]" width="100" min-screen-width="750"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

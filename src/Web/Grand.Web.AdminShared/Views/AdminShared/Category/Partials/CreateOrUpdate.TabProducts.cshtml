@@ -5,8 +5,13 @@
 <partial name="Partials/WidgetZone.Products.Top" model="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc["Admin.Catalog.Categories.Products"]</h2>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="products-grid"
                         read-url="@Url.Action("ProductList", "Category", new { categoryId = Model.Id, area = area })"
                         update-url="@Url.Action("ProductUpdate", "Category", new { area = area })"
@@ -20,17 +25,13 @@
                 </grid-column>
                 <grid-column field="IsFeaturedProduct" title="@Loc["Admin.Catalog.Categories.Products.Fields.IsFeaturedProduct"]" width="175" align="Center" min-screen-width="750" editor="Checkbox">
                     <cell-template>
-                        <i data-if="IsFeaturedProduct" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                        <i data-if="IsFeaturedProduct" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Categories.Products.Fields.DisplayOrder"]" width="125" align="Center" format="{0:0}" min-screen-width="750" editor="Integer"/>
                 <grid-commands edit="true" destroy="true"/>
             </admin-grid>
-        </div>
-        <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
-            <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
     </div>
     <script>
@@ -54,7 +55,7 @@
         $(document).ready(function () {
             $('#btnRefreshProducts').click(function () {
                 //refresh grid
-                var grid = $("#products-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#products-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

@@ -127,7 +127,7 @@ describe('the select editor of a row, with admin.ui.js loaded', () => {
     it('is the list of the forms, in the size of a row, with no search box of its own', () => {
         withSelectWidget()
         const editor = fixed()
-        expect(editor.element.className).toBe('grand-grid-select')
+        expect(editor.element.className).toBe('grand-grid-select-editor')
         expect(editor.element.querySelector('input[type=search]')).toBeNull()
         expect(editor.element.querySelector('.ts-wrapper').className).toContain('form-select-sm')
         //the value the row carries is the one in the field, and it is the one that is posted

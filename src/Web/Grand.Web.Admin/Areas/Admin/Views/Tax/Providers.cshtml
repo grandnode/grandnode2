@@ -3,55 +3,37 @@
     ViewBag.Title = Loc["Admin.Configuration.Tax.Providers"];
 }
 
+@* the store scope first, then the providers; marking a primary provider is a link per row *@
+<admin-page title="@Loc["Admin.Configuration.Tax.Providers"]" icon="bi-cash">
+    <page-actions>
+        <vc:admin-widget widget-zone="tax_provider_list_buttons" additional-data="null"/>
+    </page-actions>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Admin.Configuration.Tax.Providers"]
-                </div>
-                <vc:admin-widget widget-zone="tax_provider_list_buttons" additional-data="null"/>
-            </div>
-            <div class="x_content">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        @await Component.InvokeAsync("StoreScope")
-                    </div>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="tax-providers-grid"
-                                        read-url="@Url.Action("Providers", "Tax", new { area = Constants.AreaAdmin })"
-                                        pager="Compact">
-                                <grid-text name="markAsPrimaryProvider" value="@Loc["Admin.Configuration.Tax.Providers.Fields.MarkAsPrimaryProvider"]"/>
-                                <grid-column field="FriendlyName" title="@Loc["Admin.Configuration.Tax.Providers.Fields.FriendlyName"]" width="250">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SystemName" title="@Loc["Admin.Configuration.Tax.Providers.Fields.SystemName"]" width="250">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="SystemName" title="@Loc["Admin.Configuration.Tax.Providers.Fields.IsPrimaryTaxProvider"]" width="200">
-                                    <cell-template>
-                                        <a href="@Url.Action("MarkAsPrimaryProvider", "Tax", new { area = Constants.AreaAdmin })/?systemName={{ SystemName }}" class="btn btn-default btn-sm">
-                                        <i data-if="IsPrimaryTaxProvider" class="bi bi-check-lg" aria-hidden="true" style="color:green;margin-right:5px;"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red;margin-right:5px;"></i>
-                                        {{ $texts.markAsPrimaryProvider }}</a>
-                                    </cell-template>
-                                </grid-column>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    @await Component.InvokeAsync("StoreScope")
+
+    <admin-card flush>
+        <admin-grid id="tax-providers-grid"
+                    read-url="@Url.Action("Providers", "Tax", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-text name="markAsPrimaryProvider" value="@Loc["Admin.Configuration.Tax.Providers.Fields.MarkAsPrimaryProvider"]"/>
+            <grid-column field="FriendlyName" title="@Loc["Admin.Configuration.Tax.Providers.Fields.FriendlyName"]" width="250">
+                <cell-template>
+                    <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ FriendlyName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SystemName" title="@Loc["Admin.Configuration.Tax.Providers.Fields.SystemName"]" width="250">
+                <cell-template>
+                    <a class="text-decoration-none" href="{{ ConfigurationUrl }}">{{ SystemName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="SystemName" title="@Loc["Admin.Configuration.Tax.Providers.Fields.IsPrimaryTaxProvider"]" width="200">
+                <cell-template>
+                    <a href="@Url.Action("MarkAsPrimaryProvider", "Tax", new { area = Constants.AreaAdmin })/?systemName={{ SystemName }}" class="btn btn-outline-secondary btn-sm">
+                    <i data-if="IsPrimaryTaxProvider" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    {{ $texts.markAsPrimaryProvider }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>

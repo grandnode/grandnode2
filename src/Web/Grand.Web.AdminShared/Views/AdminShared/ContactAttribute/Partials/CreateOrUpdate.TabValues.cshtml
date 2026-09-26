@@ -7,8 +7,18 @@
 
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
-            <div class="panel-body">
+        @* the checkout attribute values tab: a titled card with Add new in its header, the grid
+           flush; a read-only attribute keeps the grid and the refresh hook but no Add new *@
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc["Admin.Catalog.Attributes.ContactAttributes.Values"]</h2>
+                @if (!isReadOnly)
+                {
+                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "ContactAttribute", new { contactAttributeId = Model.Id, area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Attributes.ContactAttributes.Values.AddNew"]</a>
+                }
+                <input type="submit" id="btnRefresh" style="display: none"/>
+            </div>
+            <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="contactattributevalues-grid"
                             read-url="@Url.Action("ValueList", "ContactAttribute", new { contactAttributeId = Model.Id, area })"
                             destroy-url="@(isReadOnly ? null : Url.Action("ValueDelete", "ContactAttribute", new { area }))"
@@ -29,8 +39,8 @@
                     </grid-column>
                     <grid-column field="IsPreSelected" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.IsPreSelected"]" width="100" align="Center" min-screen-width="500">
                         <cell-template>
-                            <i data-if="IsPreSelected" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                            <i data-if="IsPreSelected" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                            <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                         </cell-template>
                     </grid-column>
                     <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.DisplayOrder"]" width="100" align="Center"/>
@@ -40,17 +50,6 @@
                     }
                 </admin-grid>
             </div>
-            @if (!isReadOnly)
-            {
-                <div class="panel-footer">
-                    <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "ContactAttribute", new { contactAttributeId = Model.Id, area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.AddNew"]</a>
-                    <input type="submit" id="btnRefresh" style="display: none"/>
-                </div>
-            }
-            else
-            {
-                <input type="submit" id="btnRefresh" style="display: none"/>
-            }
         </div>
 
         if (!isReadOnly)
@@ -72,7 +71,7 @@
                     });
 
                     $('#btnRefresh').click(function () {
-                        var grid = $("#contactattributevalues-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#contactattributevalues-grid");
                         grid.dataSource.read();
                         return false;
                     });

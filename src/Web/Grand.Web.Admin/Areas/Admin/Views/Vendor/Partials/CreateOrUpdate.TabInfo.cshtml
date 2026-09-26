@@ -20,170 +20,90 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-                       <div class="mb-3">
-                           <admin-label asp-for="@Model.Locales[item].Name"/>
-                           <div class="col-md-9 col-sm-9">
-                               <admin-input asp-for="@Model.Locales[item].Name"/>
-                               <span asp-validation-for="@Model.Locales[item].Name"></span>
-                           </div>
-                       </div>
-                       <div class="mb-3">
-                           <admin-label asp-for="@Model.Locales[item].Description"/>
-                           <div class="col-md-9 col-sm-9">
-                               <admin-textarea asp-for="@Model.Locales[item].Description"></admin-textarea>
-                               <span asp-validation-for="@Model.Locales[item].Description"></span>
-                           </div>
-                       </div>
+        template = @<div class="grand-fields">
+                       <admin-field asp-for="@Model.Locales[item].Name"/>
+                       <admin-field asp-for="@Model.Locales[item].Description">
+                           <admin-textarea asp-for="@Model.Locales[item].Description"></admin-textarea>
+                       </admin-field>
                        <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
                    </div>;
 }
-<div class="form-horizontal">
+@* The brand info tab's shape: what the vendor says, who it is, how its page is shown, then its
+   address. Active is changed by the Activate/Deactivate action, so it reads as a fact here. The
+   ids the script above toggles - pnlPageSize, pnlPageSizeOptions - sit on the same fields. *@
+<admin-card>
     <localized-editor localized-template="@template" name="vendor-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-textarea asp-for="Description"></admin-textarea>
-                    <span asp-validation-for="Description"></span>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="Description">
+                <admin-textarea asp-for="Description"></admin-textarea>
+            </admin-field>
         </div>
     </localized-editor>
-    <div class="mb-3">
-        <admin-label asp-for="Active"/>
-        <div class="col-md-9 col-sm-9">
-            <label class="control-label">@Model.Active</label>
-        </div>
-    </div>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Email"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Email"/>
-                <span asp-validation-for="Email"></span>
-            </div>
+</admin-card>
+@{
+    ViewData["Reference"] = "Vendor";
+    ViewData["ObjectId"] = Model.Id;
+}
+<admin-card>
+    <div class="grand-facts mb-3">
+        <div>
+            <admin-label asp-for="Active" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.Active</div>
         </div>
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <div class="mb-3">
-                <admin-label asp-for="AssociatedCustomers"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">
-                        @if (Model.AssociatedCustomers.Count > 0)
+            <div>
+                <admin-label asp-for="AssociatedCustomers" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">
+                    @if (Model.AssociatedCustomers.Count > 0)
+                    {
+                        for (var i = 0; i < Model.AssociatedCustomers.Count; i++)
                         {
-                            for (var i = 0; i < Model.AssociatedCustomers.Count; i++)
+                            if (!string.IsNullOrEmpty(Model.AssociatedCustomers[i].Email))
                             {
-                                if (!string.IsNullOrEmpty(Model.AssociatedCustomers[i].Email))
+                                @Html.ActionLink(Model.AssociatedCustomers[i].Email, "Edit", "Customer", new { id = Model.AssociatedCustomers[i].Id }, new { })
+                                if (i != Model.AssociatedCustomers.Count - 1)
                                 {
-                                    @Html.ActionLink(Model.AssociatedCustomers[i].Email, "Edit", "Customer", new { id = Model.AssociatedCustomers[i].Id }, new { })
-                                    if (i != Model.AssociatedCustomers.Count - 1)
-                                    {
-                                        <text>, </text>
-                                    }
+                                    <text>, </text>
                                 }
                             }
                         }
-                        else
-                        {
-                            @Loc["Admin.Vendors.Fields.AssociatedCustomerEmails.None"]
-                        }
-                    </label>
+                    }
+                    else
+                    {
+                        @Loc["Admin.Vendors.Fields.AssociatedCustomerEmails.None"]
+                    }
                 </div>
             </div>
         }
-        <div class="mb-3">
-            @{
-                ViewData["Reference"] = "Vendor";
-                ViewData["ObjectId"] = Model.Id;
-            }
-            <admin-label asp-for="PictureId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PictureId"/>
-                <span asp-validation-for="PictureId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="StoreId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                <span asp-validation-for="StoreId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AdminComment"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="AdminComment"></admin-textarea>
-                <span asp-validation-for="AdminComment"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AllowCustomersToSelectPageSize"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AllowCustomersToSelectPageSize"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AllowCustomersToSelectPageSize"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlPageSize">
-            <admin-label asp-for="PageSize"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PageSize"/>
-                <span asp-validation-for="PageSize"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlPageSizeOptions">
-            <admin-label asp-for="PageSizeOptions"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PageSizeOptions"/>
-                <span asp-validation-for="PageSizeOptions"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AllowCustomerReviews"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AllowCustomerReviews"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AllowCustomerReviews"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Commission"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Commission"/> [%]
-                <span asp-validation-for="Commission"></span>
-            </div>
-        </div>
     </div>
-</div>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Email"/>
+        <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+        <admin-field asp-for="Commission" size="md" suffix="%"/>
+        <admin-field asp-for="AllowCustomerReviews"/>
+        <admin-field asp-for="AdminComment">
+            <admin-textarea asp-for="AdminComment"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="PictureId">
+            <admin-input asp-for="PictureId"/>
+        </admin-field>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="AllowCustomersToSelectPageSize"/>
+        <admin-field asp-for="PageSize" id="pnlPageSize" size="sm"/>
+        <admin-field asp-for="PageSizeOptions" id="pnlPageSizeOptions"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+    </div>
+</admin-card>
 @if (Model.Address.FaxEnabled || Model.Address.PhoneEnabled || Model.Address.StateProvinceEnabled || Model.Address.StreetAddressEnabled || Model.Address.ZipPostalCodeEnabled ||
      Model.Address.CityEnabled || Model.Address.CompanyEnabled || Model.Address.CountryEnabled || Model.Address.StreetAddress2Enabled)
 {
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            @Loc["Admin.Vendors.Fields.Address"]
-        </div>
-        <div class="panel-body">
-            <admin-input asp-for="Address" asp-template="Address"/>
-        </div>
-    </div>
+    <admin-card title="@Loc["Admin.Vendors.Fields.Address"]">
+        <admin-input asp-for="Address" asp-template="Address"/>
+    </admin-card>
 }
 <vc:admin-widget widget-zone="vendor_details_info_bottom" additional-data="Model"/>

@@ -4,60 +4,50 @@
     ViewBag.Title = Loc["Admin.System.ScheduleTasks"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-list-task"></i>
-                    @Loc["Admin.System.ScheduleTasks"]
-                </div>
-                <vc:admin-widget widget-zone="schedule_task_list_buttons" additional-data="null"/>
-            </div>
-            <div class="note note-info">
-                <strong>@Loc["Admin.System.ScheduleTasks.RestartApplication"]</strong>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="schedule-tasks-grid"
-                                        read-url="@Url.Action("List", "ScheduleTask", new { area = Constants.AreaAdmin })"
-                                        pager="Compact">
-                                <grid-text name="runNow" value="@Loc["Admin.System.ScheduleTasks.RunNow"]"/>
-                                <grid-column field="ScheduleTaskName" title="@Loc["Admin.System.ScheduleTasks.Name"]" width="300">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="EditScheduler/{{ Id }}">{{ ScheduleTaskName }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Enabled" title="@Loc["Admin.System.ScheduleTasks.Enabled"]" width="100" align="Center">
-                                    <cell-template>
-                                        <i data-if="Enabled" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="StopOnError" title="@Loc["Admin.System.ScheduleTasks.StopOnError"]" width="100" align="Center">
-                                    <cell-template>
-                                        <i data-if="StopOnError" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="LastStartUtc" title="@Loc["Admin.System.ScheduleTasks.LastStart"]" width="200" format="{0:G}"/>
-                                <grid-column field="LastSuccessUtc" title="@Loc["Admin.System.ScheduleTasks.LastSuccess"]" width="200" format="{0:G}"/>
-                                <grid-column field="LastEndUtc" title="@Loc["Admin.System.ScheduleTasks.LastEnd"]" width="200" format="{0:G}"/>
-                                <grid-column field="Id" title="@Loc["Admin.System.ScheduleTasks.RunNow"]" width="100">
-                                    <cell-template>
-                                        <a href="@Url.Action("RunNow", "ScheduleTask", new { area = Constants.AreaAdmin })/{{ Id }}" class="btn btn-default btn-sm run-now"><i class="bi bi-fast-forward"></i> {{ $texts.runNow }}</a>
-                                    </cell-template>
-                                </grid-column>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+@* the restart warning stays a note - it is a genuine message - above the grid in a flush card;
+   the list has no action of its own, so the screen has no primary button *@
+<admin-page title="@Loc["Admin.System.ScheduleTasks"]" icon="bi-list-task">
+    <page-actions>
+        <vc:admin-widget widget-zone="schedule_task_list_buttons" additional-data="null"/>
+    </page-actions>
+
+    <div class="note note-info mb-0">
+        <strong>@Loc["Admin.System.ScheduleTasks.RestartApplication"]</strong>
     </div>
-</div>
+
+    <admin-card flush>
+        <admin-grid id="schedule-tasks-grid"
+                    read-url="@Url.Action("List", "ScheduleTask", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-text name="runNow" value="@Loc["Admin.System.ScheduleTasks.RunNow"]"/>
+            <grid-column field="ScheduleTaskName" title="@Loc["Admin.System.ScheduleTasks.Name"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="EditScheduler/{{ Id }}">{{ ScheduleTaskName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Enabled" title="@Loc["Admin.System.ScheduleTasks.Enabled"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Enabled" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="StopOnError" title="@Loc["Admin.System.ScheduleTasks.StopOnError"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="StopOnError" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="LastStartUtc" title="@Loc["Admin.System.ScheduleTasks.LastStart"]" width="200" format="{0:G}"/>
+            <grid-column field="LastSuccessUtc" title="@Loc["Admin.System.ScheduleTasks.LastSuccess"]" width="200" format="{0:G}"/>
+            <grid-column field="LastEndUtc" title="@Loc["Admin.System.ScheduleTasks.LastEnd"]" width="200" format="{0:G}"/>
+            <grid-column field="Id" title="@Loc["Admin.System.ScheduleTasks.RunNow"]" width="100">
+                <cell-template>
+                    <a href="@Url.Action("RunNow", "ScheduleTask", new { area = Constants.AreaAdmin })/{{ Id }}" class="btn btn-outline-secondary btn-sm run-now"><i class="bi bi-fast-forward"></i> {{ $texts.runNow }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 <script>
     $(document).ready(function () {
         $("#schedule-tasks-grid").on("click", ".run-now", function (e) {

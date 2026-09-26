@@ -4,9 +4,10 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="panel panel-default">
+@* the notes tabs' shape: the history grid in a flush card, then a card to add points *@
+<div class="grand-card">
     <partial name="Partials/WidgetZone.LoyaltyPointsTop" model="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="customer-loyaltypoints-grid"
                     read-url="@Url.Action("LoyaltyPointsHistorySelect", "Customer", new { customerId = Model.Id, area = area })"
                     pager="Compact"
@@ -24,42 +25,19 @@
     <partial name="Partials/WidgetZone.LoyaltyPointsBottom" model="Model"/>
 </div>
 
-<p>
-    <strong> @Loc["Admin.Customers.Customers.LoyaltyPoints.AddTitle"]</strong>
-</p>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="AddLoyaltyPointsValue"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AddLoyaltyPointsValue"/>
-                <span asp-validation-for="AddLoyaltyPointsValue"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AddLoyaltyPointsMessage"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AddLoyaltyPointsMessage"/>
-                <span asp-validation-for="AddLoyaltyPointsMessage"></span>
-            </div>
-        </div>
+<admin-card title="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddTitle"]">
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="AddLoyaltyPointsValue" size="md"/>
+        <admin-field asp-for="AddLoyaltyPointsMessage"/>
         @if (area == "Admin")
         {
-            <div class="mb-3">
-                <admin-label asp-for="AddLoyaltyPointsStoreId"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddLoyaltyPointsStoreId" asp-items="Model.LoyaltyPointsAvailableStores"/>
-                    <span asp-validation-for="AddLoyaltyPointsStoreId"></span>
-                </div>
-            </div>
+            <admin-field asp-for="AddLoyaltyPointsStoreId" asp-items="Model.LoyaltyPointsAvailableStores"/>
         }
     </div>
-    <div class="form-actions">
-        <div class="offset-md-3">
-            <input type="button" id="addLoyaltyPoints" class="btn btn-default btn-sm" value="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]"/>
-        </div>
+    <div class="mt-3">
+        <button type="button" id="addLoyaltyPoints" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]</button>
     </div>
-</div>
+</admin-card>
 <script>
         $(document).ready(function () {
             $('#addLoyaltyPoints').click(function () {
@@ -92,7 +70,7 @@
                     url: "@(Url.Action("LoyaltyPointsHistoryAdd", "Customer", new { area = area }))",
                     data: postData,
                     success: function (data) {
-                        var grid = $("#customer-loyaltypoints-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#customer-loyaltypoints-grid");
                         grid.dataSource.read();
                         $('#addLoyaltyPoints').attr('disabled', false);
                     },

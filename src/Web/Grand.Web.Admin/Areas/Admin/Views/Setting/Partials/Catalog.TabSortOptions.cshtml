@@ -1,22 +1,21 @@
 ﻿@model CatalogSettingsModel
 
-<div class="panel panel-default">
-    <div class="panel-body">
-        <admin-grid id="sortoptions-grid"
-                    read-url="@Url.Action("SortOptionsList", "Setting", new { area = Constants.AreaAdmin })"
-                    update-url="@Url.Action("SortOptionUpdate", "Setting", new { area = Constants.AreaAdmin })"
-                    pager="Compact"
-                    edit-mode="Inline">
-            <grid-column field="Name" title="@Loc["Admin.Settings.Catalog.SortOptions.Name"]" width="250"/>
-            <grid-column field="DisplayOrder" title="@Loc["Admin.Settings.Catalog.SortOptions.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
-            <grid-column field="IsActive" title="@Loc["Admin.Settings.Catalog.SortOptions.IsActive"]" width="100" align="Center" editor="Checkbox">
-                <cell-template>
-                    <i data-if="IsActive" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                </cell-template>
-            </grid-column>
-            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
-        </admin-grid>
-    </div>
-</div>
+@* the grid edits inline; the sort options are fixed, so there is no Add new *@
+<admin-card flush>
+    <admin-grid id="sortoptions-grid"
+                read-url="@Url.Action("SortOptionsList", "Setting", new { area = Constants.AreaAdmin })"
+                update-url="@Url.Action("SortOptionUpdate", "Setting", new { area = Constants.AreaAdmin })"
+                pager="Compact"
+                edit-mode="Inline">
+        <grid-column field="Name" title="@Loc["Admin.Settings.Catalog.SortOptions.Name"]" width="250"/>
+        <grid-column field="DisplayOrder" title="@Loc["Admin.Settings.Catalog.SortOptions.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
+        <grid-column field="IsActive" title="@Loc["Admin.Settings.Catalog.SortOptions.IsActive"]" width="100" align="Center" editor="Checkbox">
+            <cell-template>
+                <i data-if="IsActive" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+            </cell-template>
+        </grid-column>
+        <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
+    </admin-grid>
+</admin-card>
 

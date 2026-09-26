@@ -1,4 +1,4 @@
-using Grand.Mapping;
+﻿using Grand.Mapping;
 using Grand.Business.Core.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Mapper;
@@ -16,6 +16,8 @@ public class ProductProfile : Profile, IAutoMapperProfile
             .ForMember(dest => dest.AssociatedToProductId, mo => mo.Ignore())
             .ForMember(dest => dest.AssociatedToProductName, mo => mo.Ignore())
             .ForMember(dest => dest.StockQuantityStr, mo => mo.Ignore())
+            .ForMember(dest => dest.BrandName, mo => mo.Ignore())
+            .ForMember(dest => dest.CategoryName, mo => mo.Ignore())
             .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
             .ForMember(dest => dest.UpdatedOn, mo => mo.Ignore())
             .ForMember(dest => dest.ProductTags, mo => mo.Ignore())

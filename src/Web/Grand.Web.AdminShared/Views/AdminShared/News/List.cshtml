@@ -6,87 +6,60 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-newspaper"></i>
-                    @Loc["Admin.Content.News.NewsItems"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <partial name="Partials/WidgetZone.ListButtons"/>
-                </div>
-            </div>
-            @if (area == "Admin")
-            {
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="row align-items-end mb-1">
-                                <div class="col-md-3 col-sm-12 col-12">
-                                    <div class="mb-0">
-                                        <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                        <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
-                                    <div class="form-actions">
-                                        <button class="btn btn-success filter-submit" id="search-newsitem">
-                                            <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-            <div class="x_content">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="newsitem-grid"
-                                        read-url="@Url.Action("List", "News", new { area })"
-                                        additional-data="additionalData">
-                                <grid-text name="comments" value="@Loc["Admin.Content.News.NewsItems.Fields.Comments"]"/>
-                                <grid-column field="Title" title="@Loc["Admin.Content.News.NewsItems.Fields.Title"]" width="300">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Comments" title="@Loc["Admin.Content.News.NewsItems.Fields.Comments"]" width="200">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="StartDate" title="@Loc["Admin.Content.News.NewsItems.Fields.StartDate"]" width="150" format="{0:G}"/>
-                                <grid-column field="EndDate" title="@Loc["Admin.Content.News.NewsItems.Fields.EndDate"]" width="150" format="{0:G}"/>
-                                <grid-column field="Published" title="@Loc["Admin.Content.News.NewsItems.Fields.Published"]" width="100" align="Center">
-                                    <cell-template>
-                                        <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="CreatedOn" title="@Loc["Admin.Content.News.NewsItems.Fields.CreatedOn"]" width="200" format="{0:G}"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The product list's shape: Add new in the page header, the store (Admin only - a store owner
+   sees one store) as the only filter, and the grid in a flush card. The ids the script below
+   looks up are unchanged. *@
+<admin-page title="@Loc["Admin.Content.News.NewsItems"]" icon="bi-newspaper">
+    <page-actions>
+        <partial name="Partials/WidgetZone.ListButtons"/>
+        <a href="@Url.Action("Create", new { area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    @if (area == "Admin")
+    {
+        <admin-filters id="newsitem-filters" submit-id="search-newsitem" secondary-submit="true">
+            <filters-search>
+                <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+            </filters-search>
+        </admin-filters>
+    }
+
+    <admin-card flush>
+        <admin-grid id="newsitem-grid"
+                    read-url="@Url.Action("List", "News", new { area })"
+                    additional-data="additionalData">
+            <grid-text name="comments" value="@Loc["Admin.Content.News.NewsItems.Fields.Comments"]"/>
+            <grid-column field="Title" title="@Loc["Admin.Content.News.NewsItems.Fields.Title"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Comments" title="@Loc["Admin.Content.News.NewsItems.Fields.Comments"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="StartDate" title="@Loc["Admin.Content.News.NewsItems.Fields.StartDate"]" width="150" format="{0:G}"/>
+            <grid-column field="EndDate" title="@Loc["Admin.Content.News.NewsItems.Fields.EndDate"]" width="150" format="{0:G}"/>
+            <grid-column field="Published" title="@Loc["Admin.Content.News.NewsItems.Fields.Published"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Content.News.NewsItems.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 <script>
 
     $(document).ready(function () {
         //search button
         $('#search-newsitem').click(function () {
             //search
-            var grid = $('#newsitem-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#newsitem-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

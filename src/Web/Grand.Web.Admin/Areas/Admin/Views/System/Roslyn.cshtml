@@ -5,37 +5,31 @@
 }
 
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title level-caption">
-                <div class="caption level-caption">
-                    <i class="bi bi-diagram-3"></i>
-                    @Loc["Admin.System.Roslyn"]
-                </div>
-                <vc:admin-widget widget-zone="roslyn_buttons" additional-data="null"/>
-            </div>
-            @if (!Model)
-            {
-                <div class="note note-success">
-                    @Loc["Admin.System.Roslyn.Disabled"]
-                </div>
-            }
-            <div class="x_content">
-                <vc:admin-widget widget-zone="roslyn_top" additional-data="null"/>
-                <admin-grid id="roslyn-grid" read-url="@Url.Action("Roslyn", "System", new { area = Constants.AreaAdmin })">
-                    <grid-column field="FileName" title="@Loc["Admin.System.Roslyn.FileName"]" width="100"/>
-                    <grid-column field="IsCompiled" title="@Loc["Admin.System.Roslyn.IsCompiled"]" width="50" align="Center">
-                        <cell-template>
-                            <i data-if="IsCompiled" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Errors" title="@Loc["Admin.System.Roslyn.Errors"]" width="500"/>
-                </admin-grid>
-                <vc:admin-widget widget-zone="roslyn_bottom" additional-data="null"/>
-            </div>
-        </div>
-    </div>
-</div>
+@* the disabled notice stays a note - a genuine message - and the grid sits in a flush card *@
+<admin-page title="@Loc["Admin.System.Roslyn"]" icon="bi-diagram-3">
+    <page-actions>
+        <vc:admin-widget widget-zone="roslyn_buttons" additional-data="null"/>
+    </page-actions>
 
+    @if (!Model)
+    {
+        <div class="note note-success mb-0">
+            @Loc["Admin.System.Roslyn.Disabled"]
+        </div>
+    }
+
+    <vc:admin-widget widget-zone="roslyn_top" additional-data="null"/>
+    <admin-card flush>
+        <admin-grid id="roslyn-grid" read-url="@Url.Action("Roslyn", "System", new { area = Constants.AreaAdmin })">
+            <grid-column field="FileName" title="@Loc["Admin.System.Roslyn.FileName"]" width="100"/>
+            <grid-column field="IsCompiled" title="@Loc["Admin.System.Roslyn.IsCompiled"]" width="50" align="Center">
+                <cell-template>
+                    <i data-if="IsCompiled" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Errors" title="@Loc["Admin.System.Roslyn.Errors"]" width="500"/>
+        </admin-grid>
+    </admin-card>
+    <vc:admin-widget widget-zone="roslyn_bottom" additional-data="null"/>
+</admin-page>

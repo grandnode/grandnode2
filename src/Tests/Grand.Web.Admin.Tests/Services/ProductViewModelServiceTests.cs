@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
@@ -134,6 +135,7 @@ public class ProductViewModelServiceTests
             currencyServiceMock.Object,
             _measureServiceMock.Object,
             new Mock<IDateTimeService>().Object,
+            new Mock<IBrandService>().Object,
             new Mock<ICollectionService>().Object,
             new Mock<IProductCollectionService>().Object,
             new Mock<ICategoryService>().Object,
@@ -344,6 +346,34 @@ public class ProductViewModelServiceTests
         await _productViewModelService.PrepareBulkEditProductModel(new BulkEditListModel(), 1, 10);
 
         VerifySearchProductsCalledWithVendorId("");
+    }
+
+    [TestMethod]
+    public async Task InsertBulkEdit_StoreScope_CreatesSimpleProductInTheStore()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+        Product inserted = null;
+        _productServiceMock.Setup(p => p.InsertProduct(It.IsAny<Product>()))
+            .Callback<Product>(p =>
+            {
+                p.Id = "new1";
+                inserted = p;
+            })
+            .Returns(Task.CompletedTask);
+
+        await _productViewModelService.InsertBulkEdit([
+            new BulkEditProductModel { Id = "", Name = " Quick one ", Sku = "Q1", Price = 9.5, Published = true },
+            new BulkEditProductModel { Id = "", Name = "  " }
+        ]);
+
+        _productServiceMock.Verify(p => p.InsertProduct(It.IsAny<Product>()), Times.Once);
+        Assert.IsNotNull(inserted);
+        Assert.AreEqual("Quick one", inserted.Name);
+        Assert.AreEqual("Q1", inserted.Sku);
+        Assert.AreEqual(9.5, inserted.Price);
+        Assert.AreEqual(ProductType.SimpleProduct, inserted.ProductTypeId);
+        Assert.IsTrue(inserted.VisibleIndividually);
+        CollectionAssert.AreEqual(new[] { "store1" }, inserted.Stores.ToArray());
     }
 
     [TestMethod]

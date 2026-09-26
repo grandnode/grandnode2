@@ -18,165 +18,58 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="SystemSetting" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc["Admin.Settings.System"]
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="OrderIdent" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <admin-input asp-for="OrderIdent"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="DeleteGuestTaskOlderThanMinutes" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <admin-input asp-for="DeleteGuestTaskOlderThanMinutes"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="DaysToCancelUnpaidOrder" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <admin-input asp-for="DaysToCancelUnpaidOrder"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="PicturesStoredIntoDatabase" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <div class="note note-info">
-                                        @if (Model.PicturesStoredIntoDatabase)
-                                        {
-                                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Database"]
-                                        }
-                                        else
-                                        {
-                                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.FileSystem"]
-                                        }
-                                    </div>
-                                    <button type="submit" name="change-picture-storage" asp-action="ChangePictureStorage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');" class="btn btn-default btn-sm"><span class="bi bi-arrow-clockwise"></span>&nbsp;@Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Change"]</button>
-                                    <p>&nbsp;</p>
-                                    <div class="note note-warning">
-                                        <span>@Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Note"]</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="UseIsoDateTimeConverterInJson" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                    <admin-input asp-for="UseIsoDateTimeConverterInJson"/>
-                                    <div class="control__indicator"></div>
-                                </label>
-                                <span asp-validation-for="UseIsoDateTimeConverterInJson"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="DefaultGridPageSize" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <admin-input asp-for="DefaultGridPageSize"/>
-                                <span asp-validation-for="DefaultGridPageSize"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="GridPageSizes" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <admin-input asp-for="GridPageSizes"/>
-                                <span asp-validation-for="GridPageSizes"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="HideStoreColumn" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                    <admin-input asp-for="HideStoreColumn"/>
-                                    <div class="control__indicator"></div>
-                                </label>
-                                <span asp-validation-for="HideStoreColumn"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="DefaultAdminLanguageId" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <admin-select asp-for="DefaultAdminLanguageId" asp-items="languages"/>
-                                <span asp-validation-for="DefaultAdminLanguageId"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="AutomaticallyDetectLanguage" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                    <admin-input asp-for="AutomaticallyDetectLanguage"/>
-                                    <div class="control__indicator"></div>
-                                </label>
-                                <span asp-validation-for="AutomaticallyDetectLanguage"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="IgnoreRtlPropertyForAdminArea" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                    <admin-input asp-for="IgnoreRtlPropertyForAdminArea"/>
-                                    <div class="control__indicator"></div>
-                                </label>
-                                <span asp-validation-for="IgnoreRtlPropertyForAdminArea"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-8 col-md-4 col-sm-4 text-end">
-                                <admin-label asp-for="DocumentPageSizeSettings" class="control-label"/>
-                            </div>
-                            <div class="col-4 col-md-8 col-sm-8">
-                                <admin-input asp-for="DocumentPageSizeSettings"/>
-                                <span asp-validation-for="DocumentPageSizeSettings"></span>
-                            </div>
-                        </div>
+    @* orders and guests, where pictures are kept with the switch that moves them, then the admin
+       panel's own grid, language and document settings *@
+    <admin-page title="@Loc["Admin.Settings.System"]" icon="bi-boxes">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="OrderIdent" size="sm"/>
+                <admin-field asp-for="DaysToCancelUnpaidOrder" size="sm"/>
+                <admin-field asp-for="DeleteGuestTaskOlderThanMinutes" size="sm"/>
+                <admin-field asp-for="UseIsoDateTimeConverterInJson"/>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-facts">
+                <div>
+                    <admin-label asp-for="PicturesStoredIntoDatabase" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">
+                        @if (Model.PicturesStoredIntoDatabase)
+                        {
+                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Database"]
+                        }
+                        else
+                        {
+                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.FileSystem"]
+                        }
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+            <div class="mt-3">
+                <button type="submit" name="change-picture-storage" asp-action="ChangePictureStorage" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-clockwise"></i> @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Change"]
+                </button>
+            </div>
+            <div class="note note-warning mt-3">
+                <span>@Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Note"]</span>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="DefaultGridPageSize" size="sm"/>
+                <admin-field asp-for="GridPageSizes" size="md"/>
+                <admin-field asp-for="HideStoreColumn"/>
+                <admin-field asp-for="DocumentPageSizeSettings" size="md"/>
+                <admin-field asp-for="DefaultAdminLanguageId" asp-items="languages" size="md"/>
+                <admin-field asp-for="AutomaticallyDetectLanguage"/>
+                <admin-field asp-for="IgnoreRtlPropertyForAdminArea"/>
+            </div>
+        </admin-card>
+    </admin-page>
 </form>

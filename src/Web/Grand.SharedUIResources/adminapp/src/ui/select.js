@@ -44,6 +44,15 @@ export function renderItem(data, escape) {
     return data.value === '' ? '<div></div>' : `<div>${escape(data.text)}</div>`
 }
 
+/**
+ * The chosen value of a list whose empty value is a choice in its own right - "All customer
+ * groups", "All stores" in a tier price row. There the empty option is what the person picked,
+ * and drawing it as nothing made the pick look as if it had not happened.
+ */
+export function renderChoice(data, escape) {
+    return `<div>${escape(data.text)}</div>`
+}
+
 function baseSettings(options) {
     const texts = options.texts || {}
     return {
@@ -121,6 +130,7 @@ export function createSelect(element, options = {}) {
     //'body' for a list inside a grid cell: the dropdown must not be clipped by the table
     if (options.dropdownParent) settings.dropdownParent = options.dropdownParent
     if (options.onChange) settings.onChange = options.onChange
+    if (options.emptyIsChoice) settings.render = { ...settings.render, item: renderChoice }
     widget = new TomSelect(element, settings)
     if (multiple && options.emptyValue != null) applyEmptyValue(widget, String(options.emptyValue))
     instances.set(element, widget)

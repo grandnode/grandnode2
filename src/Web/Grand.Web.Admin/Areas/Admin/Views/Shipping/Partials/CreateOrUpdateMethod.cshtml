@@ -8,60 +8,27 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-                       <div class="mb-3">
-                           <admin-label asp-for="@Model.Locales[item].Name"/>
-                           <div class="col-md-9 col-sm-9">
-                               <admin-input asp-for="@Model.Locales[item].Name"/>
-                               <span asp-validation-for="@Model.Locales[item].Name"></span>
-                           </div>
-                       </div>
-                       <div class="mb-3">
-                           <admin-label asp-for="@Model.Locales[item].Description"/>
-                           <div class="col-md-9 col-sm-9">
-                               <admin-textarea asp-for="@Model.Locales[item].Description"></admin-textarea>
-                               <span asp-validation-for="@Model.Locales[item].Description"></span>
-                           </div>
-                       </div>
-                       <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
-                   </div>;
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].Description">
+                <admin-textarea asp-for="@Model.Locales[item].Description"></admin-textarea>
+            </admin-field>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
 }
 
-<div class="form-horizontal">
+<admin-card>
     <localized-editor localized-template="@template" name="shipping-method-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-textarea asp-for="Description"></admin-textarea>
-                    <span asp-validation-for="Description"></span>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="Description">
+                <admin-textarea asp-for="Description"></admin-textarea>
+            </admin-field>
         </div>
     </localized-editor>
-
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="StoreId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                <span asp-validation-for="StoreId"></span>
-            </div>
-        </div>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
     </div>
-</div>
+</admin-card>
 <vc:admin-widget widget-zone="shipping_method_details_bottom" additional-data="Model"/>

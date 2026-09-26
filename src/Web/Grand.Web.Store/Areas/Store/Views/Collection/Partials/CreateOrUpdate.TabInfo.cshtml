@@ -19,194 +19,75 @@
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name"/>
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
-                    <span asp-validation-for="@Model.Locales[item].Description"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].BottomDescription"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].BottomDescription" asp-template="Editor"/>
-                    <span asp-validation-for="@Model.Locales[item].BottomDescription"></span>
-                </div>
-            </div>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
+            <admin-field asp-for="@Model.Locales[item].BottomDescription" asp-template="Editor"/>
             <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
         </div>;
 }
-
-<div class="form-horizontal">
-    <vc:store-widget widget-zone="store_collection_details_info_top" additional-data="Model"/>
+@* The Admin tab without the customer group and store mappings a store owner does not set.
+   Three cards instead of one column of 3/9 rows: what the collection says, where it sits, and how
+   it is shown. The ids the script above shows and hides - pnlPageSize, pnlPageSizeOptions - sit
+   on the same fields as before. *@
+<vc:store-widget widget-zone="store_collection_details_info_top" additional-data="Model"/>
+<admin-card>
     <localized-editor localized-template="@template" name="collection-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="Description"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Description" asp-template="Editor"/>
-                    <span asp-validation-for="Description"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="BottomDescription"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="BottomDescription" asp-template="Editor"/>
-                    <span asp-validation-for="BottomDescription"></span>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="Description" asp-template="Editor"/>
+            <admin-field asp-for="BottomDescription" asp-template="Editor"/>
         </div>
     </localized-editor>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="CollectionLayoutId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="CollectionLayoutId" asp-items="Model.AvailableCollectionLayouts"/>
-                <span asp-validation-for="CollectionLayoutId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            @{
-                ViewData["Reference"] = "Collection";
-                ViewData["ObjectId"] = Model.Id;
-            }
-
-            <admin-label asp-for="PictureId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PictureId"/>
-                <span asp-validation-for="PictureId"></span>
-                @if (!string.IsNullOrEmpty(Model.PictureId))
-                {
-                    <label class="control-label">
-                        <a class='text-decoration-none editpicture' href="@Url.Action("PicturePopup", "Collection", new { area = Constants.AreaStore })/?collectionId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
-                    </label>
-                    <script>
-                        $(document).ready(function () {
-                            $('.editpicture').magnificPopup({
-                                type: 'ajax',
-                                settings: { cache: false, async: false },
-                                midClick: true,
-                                callbacks: {
-                                    parseAjax: function (mfpResponse) {
-                                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                                    },
-                                    ajaxContentAdded: function () {
-                                        $('.mfp-wrap').removeAttr('tabindex');
-                                    }
+</admin-card>
+@{
+    ViewData["Reference"] = "Collection";
+    ViewData["ObjectId"] = Model.Id;
+}
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Icon"/>
+        <admin-field asp-for="CollectionLayoutId" asp-items="Model.AvailableCollectionLayouts"/>
+        <admin-field asp-for="PictureId">
+            <admin-input asp-for="PictureId"/>
+            @if (!string.IsNullOrEmpty(Model.PictureId))
+            {
+                <div class="mt-2">
+                    <a class='text-decoration-none editpicture' href="@Url.Action("PicturePopup", "Collection", new { area = Constants.AreaStore })/?collectionId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $('.editpicture').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            midClick: true,
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
                                 }
-                            });
+                            }
                         });
-                    </script>
-                }
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ShowOnHomePage"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="ShowOnHomePage"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="ShowOnHomePage"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="FeaturedProductsOnHomePage"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="FeaturedProductsOnHomePage"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="FeaturedProductsOnHomePage"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IncludeInMenu"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IncludeInMenu"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IncludeInMenu"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AllowCustomersToSelectPageSize"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AllowCustomersToSelectPageSize"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AllowCustomersToSelectPageSize"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlPageSize">
-            <admin-label asp-for="PageSize"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PageSize"/>
-                <span asp-validation-for="PageSize"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlPageSizeOptions">
-            <admin-label asp-for="PageSizeOptions"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PageSizeOptions"/>
-                <span asp-validation-for="PageSizeOptions"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DefaultSort"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DefaultSort" asp-items="Model.AvailableSortOptions"/>
-                <span asp-validation-for="DefaultSort"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Icon"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Icon"/>
-                <span asp-validation-for="Icon"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Published"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Published"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="Published"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ExternalId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ExternalId"/>
-                <span asp-validation-for="ExternalId"></span>
-            </div>
-        </div>
+                    });
+                </script>
+            }
+        </admin-field>
     </div>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="ShowOnHomePage"/>
+        <admin-field asp-for="FeaturedProductsOnHomePage"/>
+        <admin-field asp-for="IncludeInMenu"/>
+        <admin-field asp-for="AllowCustomersToSelectPageSize"/>
+        <admin-field asp-for="PageSize" id="pnlPageSize" size="sm"/>
+        <admin-field asp-for="PageSizeOptions" id="pnlPageSizeOptions"/>
+        <admin-field asp-for="DefaultSort" asp-items="Model.AvailableSortOptions"/>
+        <admin-field asp-for="Published"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="ExternalId"/>
+    </div>
+</admin-card>
 <vc:store-widget widget-zone="store_collection_details_info_bottom" additional-data="Model"/>

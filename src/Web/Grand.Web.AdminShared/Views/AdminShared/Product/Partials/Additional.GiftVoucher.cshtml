@@ -1,0 +1,11 @@
+@model ProductModel
+@* shown or hidden as a whole by the product type script in CreateOrUpdate.Info (group-giftvoucher) *@
+<admin-card id="group-giftvoucher">
+    <div class="grand-reveal">
+        <admin-field asp-for="IsGiftVoucher"/>
+        <div class="grand-reveal__body grand-fields grand-fields--2col">
+            <admin-field asp-for="GiftVoucherTypeId" id="pnlGiftVoucherType" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
+            <admin-field asp-for="OverGiftAmount" id="pnlOverriddenGiftVoucherAmount"/>
+        </div>
+    </div>
+</admin-card>

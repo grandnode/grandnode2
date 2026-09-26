@@ -6,12 +6,17 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.CrossSells.Top" model="Model"/>
-        <div class="panel-heading">
-            @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells"]
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells"]</h2>
+            @if (!readOnly)
+            {
+                <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
+                <input type="submit" id="btnRefreshCrossSellProducts" style="display: none"/>
+            }
         </div>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="crosssellproducts-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("CrossSellProductList", "Product", new { productId = Model.Id, area = area })"
@@ -26,13 +31,6 @@
                 <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"/>
             </admin-grid>
         </div>
-        @if (!readOnly)
-        {
-            <div class="panel-footer">
-                <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
-                <input type="submit" id="btnRefreshCrossSellProducts" style="display: none"/>
-            </div>
-        }
         <partial name="Partials/WidgetZone.CrossSells.Bottom" model="Model"/>
     </div>
 
@@ -58,7 +56,7 @@
         $(document).ready(function () {
             $('#btnRefreshCrossSellProducts').click(function () {
                 //refresh grid
-                var grid = $("#crosssellproducts-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#crosssellproducts-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

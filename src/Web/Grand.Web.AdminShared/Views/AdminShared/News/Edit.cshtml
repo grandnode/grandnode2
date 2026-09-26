@@ -7,44 +7,35 @@
 }
 <form asp-area="@area" asp-controller="News" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-newspaper"></i>
-                        @Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"] - @Model.Title
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Content.News.NewsItems.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            @if (!string.IsNullOrEmpty(Model.SeName))
-                            {
-                                <button type="button" onclick="window.open('@Url.RouteUrl("NewsItem", new { Model.SeName })','_blank');" class="btn purple">
-                                    <i class="bi bi-eye"></i>
-                                    @Loc["Admin.Common.Preview"]
-                                </button>
-                            }
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <span id="newsitem-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                            <partial name="Partials/WidgetZone.DetailsButtons.Edit" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the product edit screen's shell: the item's title as the title, Save as the one primary
+       action, and Delete in the overflow menu rather than beside Save *@
+    <admin-page sticky
+                title="@Model.Title"
+                icon="bi-newspaper"
+                meta="@Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Content.News.NewsItems.BackToList"]">
+        <page-actions>
+            @if (!string.IsNullOrEmpty(Model.SeName))
+            {
+                <button type="button" onclick="window.open('@Url.RouteUrl("NewsItem", new { Model.SeName })','_blank');" class="btn btn-outline-secondary">
+                    <i class="bi bi-eye"></i> @Loc["Admin.Common.Preview"]
+                </button>
+            }
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="newsitem-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons.Edit" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="newsitem-delete"/>

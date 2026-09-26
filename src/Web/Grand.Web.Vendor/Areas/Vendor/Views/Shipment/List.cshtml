@@ -4,126 +4,73 @@
 }
 
 <form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="List" method="post">
+    @* The product list's shape: packaging slips in the overflow menu, the tracking number as the
+       quick search, and ship / deliver / print for the ticked rows in the bulk bar. There is no
+       Add new - a shipment is added from its order - so Search is the one primary action. *@
+    <admin-page title="@Loc["Vendor.Orders.Shipments.List"]" icon="bi-truck">
+        <page-actions>
+            <admin-action-menu>
+                <admin-action submit="true" name="exportpackagingslips-all"
+                              url="@Url.Action("PdfPackagingSlipAll", new { area = Constants.AreaVendor })"
+                              icon="bi-file-earmark-pdf" text="@Loc["Vendor.Orders.Shipments.PrintPackagingSlip.All"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-truck"></i>
-                        @Loc["Vendor.Orders.Shipments.List"]
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button type="submit" name="exportpackagingslips-all" asp-action="PdfPackagingSlipAll" class="btn purple">
-                                <i class="bi bi-file-earmark-pdf"></i>
-                                @Loc["Vendor.Orders.Shipments.PrintPackagingSlip.All"]
-                            </button>
-                            <button type="submit" id="exportpackagingslips-selected" class="btn blue">
-                                <i class="bi bi-file-earmark-pdf"></i>
-                                @Loc["Vendor.Orders.Shipments.PrintPackagingSlip.Selected"]
-                            </button>
-                            <button class="btn btn-success" type="submit" id="ship-selected">
-                                <i class="bi bi-check-lg"></i> @Loc["Vendor.Orders.Shipments.ShipSelected"]
-                            </button>
-                            <button class="btn btn-success" type="submit" id="deliver-selected">
-                                <i class="bi bi-check-circle"></i> @Loc["Vendor.Orders.Shipments.DeliverySelected"]
-                            </button>
-                            <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="TrackingNumber" class="control-label"/>
-                                            <admin-input asp-for="TrackingNumber"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-success filter-submit" id="search-shipments">
-                                                    <i class="bi bi-search"></i> @Loc["Vendor.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Vendor.Common.Filters"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="collapse" id="filterCollapse">
-                                <div class="drop-filters-container w-100">
-                                    <div class="mb-3">
-                                        <admin-label asp-for="StartDate" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="StartDate"/>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="EndDate" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="EndDate"/>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="LoadNotShipped" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                                <admin-input asp-for="LoadNotShipped"/>
-                                                <div class="control__indicator"></div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <admin-grid id="shipments-grid"
-                                        read-url="@Url.Action("ShipmentListSelect", "Shipment", new { area = Constants.AreaVendor })"
-                                        additional-data="additionalData"
-                                        selectable="Checkbox"
-                                        on-change="onShipmentSelectionChange">
-                                <grid-column field="ShipmentNumber" title="@Loc["Vendor.Orders.Shipments.ID"]" width="100">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ ShipmentNumber }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="OrderNumber" title="@Loc["Vendor.Orders.Shipments.OrderID"]" width="100">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/{{ OrderId }}">{{ OrderNumber }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="TrackingNumber" title="@Loc["Vendor.Orders.Shipments.TrackingNumber"]" width="100">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ TrackingNumber }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="TotalWeight" title="@Loc["Vendor.Orders.Shipments.TotalWeight"]" width="80" min-screen-width="770"/>
-                                <grid-column field="ShippedDate" title="@Loc["Vendor.Orders.Shipments.ShippedDate"]" width="180" format="{0:G}"/>
-                                <grid-column field="DeliveryDate" title="@Loc["Vendor.Orders.Shipments.DeliveryDate"]" width="180" format="{0:G}"/>
-                                <grid-detail read-url="@Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = Constants.AreaVendor })" param="shipmentId:Id">
-                                    <grid-column field="ProductName" title="@Loc["Vendor.Orders.Shipments.Products.ProductName"]" width="400"/>
-                                    <grid-column field="ShippedFromWarehouse" title="@Loc["Vendor.Orders.Shipments.Products.Warehouse"]" width="150"/>
-                                    <grid-column field="QuantityInThisShipment" title="@Loc["Vendor.Orders.Shipments.Products.QtyShipped"]" width="150"/>
-                                    <grid-column field="ItemWeight" title="@Loc["Vendor.Orders.Shipments.Products.ItemWeight"]" width="150"/>
-                                    <grid-column field="ItemDimensions" title="@Loc["Vendor.Orders.Shipments.Products.ItemDimensions"]" width="150"/>
-                                </grid-detail>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        <admin-filters id="shipment-filters" submit-id="search-shipments">
+            <filters-search>
+                <admin-input asp-for="TrackingNumber"/>
+            </filters-search>
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+            <admin-field asp-for="LoadNotShipped"/>
+        </admin-filters>
 
-
+        <admin-card flush>
+            <admin-bulkbar grid-id="shipments-grid">
+                <button class="btn btn-outline-secondary btn-sm" type="submit" id="ship-selected">
+                    <i class="bi bi-check-lg"></i> @Loc["Vendor.Orders.Shipments.ShipSelected"]
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" type="submit" id="deliver-selected">
+                    <i class="bi bi-check-circle"></i> @Loc["Vendor.Orders.Shipments.DeliverySelected"]
+                </button>
+                <button type="submit" id="exportpackagingslips-selected" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-file-earmark-pdf"></i> @Loc["Vendor.Orders.Shipments.PrintPackagingSlip.Selected"]
+                </button>
+            </admin-bulkbar>
+            <admin-grid id="shipments-grid"
+                        read-url="@Url.Action("ShipmentListSelect", "Shipment", new { area = Constants.AreaVendor })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        on-change="onShipmentSelectionChange">
+                <grid-column field="ShipmentNumber" title="@Loc["Vendor.Orders.Shipments.ID"]" width="100">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ ShipmentNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="OrderNumber" title="@Loc["Vendor.Orders.Shipments.OrderID"]" width="100">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/{{ OrderId }}">{{ OrderNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="TrackingNumber" title="@Loc["Vendor.Orders.Shipments.TrackingNumber"]" width="100">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/{{ Id }}">{{ TrackingNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="TotalWeight" title="@Loc["Vendor.Orders.Shipments.TotalWeight"]" width="80" min-screen-width="770"/>
+                <grid-column field="ShippedDate" title="@Loc["Vendor.Orders.Shipments.ShippedDate"]" width="180" format="{0:G}"/>
+                <grid-column field="DeliveryDate" title="@Loc["Vendor.Orders.Shipments.DeliveryDate"]" width="180" format="{0:G}"/>
+                <grid-detail read-url="@Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = Constants.AreaVendor })" param="shipmentId:Id">
+                    <grid-column field="ProductName" title="@Loc["Vendor.Orders.Shipments.Products.ProductName"]" width="400"/>
+                    <grid-column field="ShippedFromWarehouse" title="@Loc["Vendor.Orders.Shipments.Products.Warehouse"]" width="150"/>
+                    <grid-column field="QuantityInThisShipment" title="@Loc["Vendor.Orders.Shipments.Products.QtyShipped"]" width="150"/>
+                    <grid-column field="ItemWeight" title="@Loc["Vendor.Orders.Shipments.Products.ItemWeight"]" width="150"/>
+                    <grid-column field="ItemDimensions" title="@Loc["Vendor.Orders.Shipments.Products.ItemDimensions"]" width="150"/>
+                </grid-detail>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
     <script>
 
         var selectedIds = [];
@@ -142,7 +89,7 @@
             });
 
             $('#search-shipments').click(function () {
-                var grid = $('#shipments-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#shipments-grid');
                 grid.dataSource.page(1);
                 grid.clearSelection();
                 return false;
@@ -162,7 +109,7 @@
                     url: "@(Url.Action("SetAsShippedSelected", "Shipment", new { area = Constants.AreaVendor }))",
                     data: postData,
                     complete: function(data) {
-                        var grid = $('#shipments-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#shipments-grid');
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
@@ -187,7 +134,7 @@
                     url: "@(Url.Action("SetAsDeliveredSelected", "Shipment", new { area = Constants.AreaVendor }))",
                     data: postData,
                     complete: function(data) {
-                        var grid = $('#shipments-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#shipments-grid');
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {

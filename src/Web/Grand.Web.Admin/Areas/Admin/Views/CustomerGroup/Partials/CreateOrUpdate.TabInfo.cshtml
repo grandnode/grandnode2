@@ -1,81 +1,22 @@
 ﻿@model CustomerGroupModel
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Name"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name"/>
-                <span asp-validation-for="Name"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="SystemName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="SystemName"/>
-                <span asp-validation-for="SystemName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="FreeShipping"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="FreeShipping"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="FreeShipping"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="TaxExempt"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="TaxExempt"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="TaxExempt"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Active"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Active"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="Active"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="EnablePasswordLifetime"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="EnablePasswordLifetime"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="EnablePasswordLifetime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="MinOrderAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MinOrderAmount"/>
-                <span asp-validation-for="MinOrderAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="MaxOrderAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MaxOrderAmount"/>
-                <span asp-validation-for="MaxOrderAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IsSystem"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label"> @Model.IsSystem.ToString()</label>
-                <input asp-for="IsSystem" type="hidden"/>
-                <span asp-validation-for="IsSystem"></span>
-            </div>
+@* one card of two-column fields; IsSystem is not editable, so it reads as a fact and posts back
+   through its hidden input *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Name"/>
+        <admin-field asp-for="SystemName"/>
+        <admin-field asp-for="FreeShipping"/>
+        <admin-field asp-for="TaxExempt"/>
+        <admin-field asp-for="Active"/>
+        <admin-field asp-for="EnablePasswordLifetime"/>
+        <admin-field asp-for="MinOrderAmount" size="md"/>
+        <admin-field asp-for="MaxOrderAmount" size="md"/>
+    </div>
+    <div class="grand-facts mt-3">
+        <div>
+            <admin-label asp-for="IsSystem" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.IsSystem.ToString()</div>
         </div>
     </div>
-</div>
+    <input asp-for="IsSystem" type="hidden"/>
+</admin-card>

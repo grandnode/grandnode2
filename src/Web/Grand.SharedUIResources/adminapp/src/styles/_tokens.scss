@@ -1,0 +1,91 @@
+//The design tokens of the three panels. Colours are declared once for the light mode and
+//redefined for the dark one, so no component names a colour of its own.
+//
+//They began on .grand-dashboard, which left .grand-card - a top-level class - without a
+//surface on any other screen. The --grand-dash-* names are kept as aliases, so _dashboard.scss
+//stays as it was written while _components.scss builds on the shared names.
+
+/*
+ * The panel's design tokens. They started on .grand-dashboard, which meant .grand-card - a
+ * top-level class - rendered without a surface anywhere else. They now sit on :root so every
+ * screen can use the components in _components.scss, and the --grand-dash-* names stay as
+ * aliases so the dashboard's own rules below are untouched.
+ */
+:root {
+    --grand-gap: 1rem;
+    --grand-pad: 1.25rem;
+    --grand-radius: .75rem;
+    --grand-radius-sm: .375rem;
+    --grand-surface: var(--#{$prefix}body-bg);
+    --grand-surface-sunken: #f7f9fb;
+    --grand-border: #e3e8ee;
+    --grand-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 16px rgba(15, 23, 42, .05);
+    --grand-title: var(--#{$prefix}emphasis-color);
+    --grand-muted: var(--#{$prefix}secondary-color);
+    --grand-rule: #edf1f5;
+    --grand-accent: var(--grand-form-accent, #0b7285);
+    --grand-accent-soft: rgba(11, 114, 133, .1);
+    --grand-welcome-from: rgba(11, 114, 133, .09);
+
+    //the tint of each stat and activity icon: foreground on a soft background
+    --grand-teal: #0b7285;
+    --grand-teal-soft: rgba(11, 114, 133, .1);
+    --grand-violet: #5f3dc4;
+    --grand-violet-soft: rgba(95, 61, 196, .1);
+    --grand-amber: #a14d00;
+    --grand-amber-soft: rgba(245, 159, 0, .15);
+    --grand-red: #b02a37;
+    --grand-red-soft: rgba(176, 42, 55, .1);
+    --grand-green: #2b8a3e;
+    --grand-green-soft: rgba(43, 138, 62, .1);
+    --grand-slate: #495057;
+    --grand-slate-soft: rgba(73, 80, 87, .1);
+
+    //the names the dashboard rules were written against
+    --grand-dash-gap: var(--grand-gap);
+    --grand-dash-radius: var(--grand-radius);
+    --grand-dash-card-bg: var(--grand-surface);
+    --grand-dash-card-border: var(--grand-border);
+    --grand-dash-card-shadow: var(--grand-shadow);
+    --grand-dash-title: var(--grand-title);
+    --grand-dash-muted: var(--grand-muted);
+    --grand-dash-rule: var(--grand-rule);
+    --grand-dash-accent: var(--grand-accent);
+    --grand-dash-accent-soft: var(--grand-accent-soft);
+    --grand-dash-welcome-from: var(--grand-welcome-from);
+    --grand-dash-teal: var(--grand-teal);
+    --grand-dash-teal-soft: var(--grand-teal-soft);
+    --grand-dash-violet: var(--grand-violet);
+    --grand-dash-violet-soft: var(--grand-violet-soft);
+    --grand-dash-amber: var(--grand-amber);
+    --grand-dash-amber-soft: var(--grand-amber-soft);
+    --grand-dash-red: var(--grand-red);
+    --grand-dash-red-soft: var(--grand-red-soft);
+    --grand-dash-green: var(--grand-green);
+    --grand-dash-green-soft: var(--grand-green-soft);
+    --grand-dash-slate: var(--grand-slate);
+    --grand-dash-slate-soft: var(--grand-slate-soft);
+}
+
+[data-bs-theme="dark"] {
+    --grand-surface: var(--#{$prefix}tertiary-bg);
+    --grand-surface-sunken: rgba(255, 255, 255, .03);
+    --grand-border: rgba(255, 255, 255, .08);
+    --grand-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+    --grand-rule: rgba(255, 255, 255, .08);
+    --grand-accent-soft: rgba(102, 217, 232, .14);
+    --grand-welcome-from: rgba(102, 217, 232, .12);
+
+    --grand-teal: #66d9e8;
+    --grand-teal-soft: rgba(102, 217, 232, .14);
+    --grand-violet: #b197fc;
+    --grand-violet-soft: rgba(177, 151, 252, .14);
+    --grand-amber: #ffc078;
+    --grand-amber-soft: rgba(255, 192, 120, .14);
+    --grand-red: #ffa8a8;
+    --grand-red-soft: rgba(255, 168, 168, .14);
+    --grand-green: #8ce99a;
+    --grand-green-soft: rgba(140, 233, 154, .14);
+    --grand-slate: #ced4da;
+    --grand-slate-soft: rgba(206, 212, 218, .12);
+}

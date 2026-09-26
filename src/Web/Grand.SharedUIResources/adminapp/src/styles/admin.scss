@@ -23,10 +23,12 @@
 @import "icons";
 
 // 4. the panel chrome
+@import "tokens";
 @import "custom";
 @import "sidebar";
 @import "forms";
 @import "dashboard";
+@import "components";
 @import "topbar";
 
 // 5. what stacks above the panel chrome, in terms of Bootstrap's own z-index properties

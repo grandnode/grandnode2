@@ -12,8 +12,8 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0)
 {
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="grand-card">
+        <div class="grand-card__body grand-card__body--flush">
             @*loaded by tabstrip_on_tab_show when the Prices tab opens*@
             <admin-grid id="productprices-grid"
                         read-only="@readOnly"

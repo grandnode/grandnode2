@@ -7,9 +7,17 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title"></h2>
+            @if (!readOnly)
+            {
+                <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.AddNew"]</a>
+                <input type="submit" id="btnRefreshBundleProducts" style="display: none"/>
+            }
+        </div>
         <partial name="Partials/WidgetZone.BundleProducts.Top" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="bundleproducts-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = area })"
@@ -28,15 +36,6 @@
                 <grid-commands edit="true" destroy="true"/>
             </admin-grid>
         </div>
-        @if (!readOnly)
-        {
-            <div class="panel-footer">
-                <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="btn btn-default btn-sm">
-                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.AddNew"]
-                </a>
-                <input type="submit" id="btnRefreshBundleProducts" style="display: none"/>
-            </div>
-        }
         <partial name="Partials/WidgetZone.BundleProducts.Bottom" model="Model"/>
     </div>
 
@@ -62,7 +61,7 @@
         $(document).ready(function () {
             $('#btnRefreshBundleProducts').click(function () {
                 //refresh grid
-                var grid = $("#bundleproducts-grid").data('kendoGrid');
+                var grid = GrandAdmin.grids.get("#bundleproducts-grid");
                 grid.dataSource.read();
 
                 //return false to don't reload a page

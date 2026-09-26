@@ -1,58 +1,48 @@
-﻿
-@{
+﻿@{
     //page title
     ViewBag.Title = Loc["Admin.Customers.CustomerGroups"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-people"></i>
-                    @Loc["Admin.Customers.CustomerGroups"]
-                </div>
-                <div class="actions">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <vc:admin-widget widget-zone="customer_group_list_buttons" additional-data="null"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="customergroups-grid" read-url="@Url.Action("List", "CustomerGroup", new { area = Constants.AreaAdmin })">
-                    <grid-column field="Name" title="@Loc["Admin.Customers.CustomerGroups.Fields.Name"]" width="300">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="FreeShipping" title="@Loc["Admin.Customers.CustomerGroups.Fields.FreeShipping"]" width="100" align="Center">
-                        <cell-template>
-                            <i data-if="FreeShipping" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="TaxExempt" title="@Loc["Admin.Customers.CustomerGroups.Fields.TaxExempt"]" width="80" align="Center">
-                        <cell-template>
-                            <i data-if="TaxExempt" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Active" title="@Loc["Admin.Customers.CustomerGroups.Fields.Active"]" width="80" align="Center">
-                        <cell-template>
-                            <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="IsSystem" title="@Loc["Admin.Customers.CustomerGroups.Fields.IsSystem"]" width="80" align="Center">
-                        <cell-template>
-                            <i data-if="IsSystem" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* Add new as the one primary action in the page header, the grid in a flush card *@
+<admin-page title="@Loc["Admin.Customers.CustomerGroups"]" icon="bi-people">
+    <page-actions>
+        <vc:admin-widget widget-zone="customer_group_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="customergroups-grid" read-url="@Url.Action("List", "CustomerGroup", new { area = Constants.AreaAdmin })">
+            <grid-column field="Name" title="@Loc["Admin.Customers.CustomerGroups.Fields.Name"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="FreeShipping" title="@Loc["Admin.Customers.CustomerGroups.Fields.FreeShipping"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="FreeShipping" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="TaxExempt" title="@Loc["Admin.Customers.CustomerGroups.Fields.TaxExempt"]" width="80" align="Center">
+                <cell-template>
+                    <i data-if="TaxExempt" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Active" title="@Loc["Admin.Customers.CustomerGroups.Fields.Active"]" width="80" align="Center">
+                <cell-template>
+                    <i data-if="Active" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="IsSystem" title="@Loc["Admin.Customers.CustomerGroups.Fields.IsSystem"]" width="80" align="Center">
+                <cell-template>
+                    <i data-if="IsSystem" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>

@@ -3,9 +3,13 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
-            <partial name="Partials/WidgetZone.AppliedToCollections.Top" model="Model"/>
-            <div class="panel-body">
+        <partial name="Partials/WidgetZone.AppliedToCollections.Top" model="Model"/>
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
+                <input type="submit" id="btnRefreshCollections" style="display: none"/>
+            </div>
+            <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="collections-grid"
                             key="CollectionId"
                             read-url="@Url.Action("CollectionList", "Discount", new { discountId = Model.Id, area = area })"
@@ -19,12 +23,8 @@
                     <grid-commands destroy="true" width="150"/>
                 </admin-grid>
             </div>
-            <div class="panel-footer">
-                <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
-                <input type="submit" id="btnRefreshCollections" style="display: none"/>
-            </div>
-            <partial name="Partials/WidgetZone.AppliedToCollections.Bottom" model="Model"/>
         </div>
+        <partial name="Partials/WidgetZone.AppliedToCollections.Bottom" model="Model"/>
         <script>
             $(document).ready(function () {
                 $('#btnAddNewCollection').magnificPopup({
@@ -46,7 +46,7 @@
             $(document).ready(function () {
                 $('#btnRefreshCollections').click(function () {
                     //refresh grid
-                    var grid = $("#collections-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#collections-grid");
                     grid.dataSource.read();
 
                     //return false to don't reload a page

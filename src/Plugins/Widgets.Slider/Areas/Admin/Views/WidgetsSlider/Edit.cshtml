@@ -2,36 +2,25 @@
 @{
     //page title
     ViewBag.Title = Loc["Widgets.Slider.Edit"];
-    Layout = "_ConfigurePlugin";
+    Layout = "_AdminLayout";
 }
+@* the detail screen's shell: Save as the one primary action, Save and continue beside it, the
+   back link to the slide list under the title *@
 <form asp-controller="WidgetsSlider" asp-action="Edit" method="post" id="slider-form">
+    <admin-page sticky
+                title="@Loc["Widgets.Slider.Edit"]"
+                icon="bi-diagram-3"
+                back-url="@Url.Action("Configure")"
+                back-text="@Loc["Widgets.Slider.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-diagram-3"></i>
-                        @Loc["Widgets.Slider.Edit"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Widgets.Slider.BackToList"], "Configure")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="_CreateOrUpdate.cshtml" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+        <partial name="_CreateOrUpdate.cshtml" model="Model"/>
+    </admin-page>
 </form>

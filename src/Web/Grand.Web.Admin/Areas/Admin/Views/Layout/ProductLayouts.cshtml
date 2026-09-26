@@ -3,39 +3,25 @@
     ViewBag.Title = Loc["Admin.Configuration.Layouts.Product"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-list-task"></i>
-                    @Loc["Admin.Configuration.Layouts.Product"]
-                </div>
-                <vc:admin-widget widget-zone="product_layout_list_buttons" additional-data="null"/>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="layout-grid"
-                                        read-url="@Url.Action("ProductLayouts", "Layout", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("ProductLayoutAdd", "Layout", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("ProductLayoutUpdate", "Layout", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("ProductLayoutDelete", "Layout", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Layouts.Product.Name"]" width="300" editor="Text"/>
-                                <grid-column field="ViewPath" title="@Loc["Admin.Configuration.Layouts.Product.ViewPath"]" width="300" editor="Text"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Layouts.Product.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* the grid edits inline; its Add new moves into the card header (grid.js) *@
+<admin-page title="@Loc["Admin.Configuration.Layouts.Product"]" icon="bi-list-task">
+    <page-actions>
+        <vc:admin-widget widget-zone="product_layout_list_buttons" additional-data="null"/>
+    </page-actions>
 
-
+    <admin-card flush>
+        <admin-grid id="layout-grid"
+                    read-url="@Url.Action("ProductLayouts", "Layout", new { area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("ProductLayoutAdd", "Layout", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("ProductLayoutUpdate", "Layout", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("ProductLayoutDelete", "Layout", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Layouts.Product.Name"]" width="300" editor="Text"/>
+            <grid-column field="ViewPath" title="@Loc["Admin.Configuration.Layouts.Product.ViewPath"]" width="300" editor="Text"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Layouts.Product.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

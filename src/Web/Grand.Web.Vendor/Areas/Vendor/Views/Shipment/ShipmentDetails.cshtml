@@ -5,95 +5,59 @@
 }
 <form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
     <input type="hidden" asp-for="Id"/>
-    <script>
-        $(document).ready(function () {
-            toggleShippedDate(false);
-            toggleDeliveryDate(false);
-        });
-
-        function toggleShippedDate(editmode) {
-            if (editmode) {
-                $('#lblShippedDate').hide();
-                $('#divShippedDate').show();
-                $('#btnEditShippedDate').hide();
-                $('#btnSaveShippedDate').show();
-                $('#btnCancelShippedDate').show();
-            }
-            else {
-                $('#lblShippedDate').show();
-                $('#divShippedDate').hide();
-                $('#btnEditShippedDate').show();
-                $('#btnSaveShippedDate').hide();
-                $('#btnCancelShippedDate').hide();
-            }
-        }
-
-        function toggleDeliveryDate(editmode) {
-            if (editmode) {
-                $('#lblDeliveryDate').hide();
-                $('#divDeliveryDate').show();
-                $('#btnEditDeliveryDate').hide();
-                $('#btnSaveDeliveryDate').show();
-                $('#btnCancelDeliveryDate').show();
-            }
-            else {
-                $('#lblDeliveryDate').show();
-                $('#divDeliveryDate').hide();
-                $('#btnEditDeliveryDate').show();
-                $('#btnSaveDeliveryDate').hide();
-                $('#btnCancelDeliveryDate').hide();
-            }
-        }
-    </script>
     <div asp-validation-summary="All"></div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-truck"></i>
-                        @Loc["Vendor.Orders.Shipments.ViewDetails"] - @Model.ShipmentNumber
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>
-                            @Html.ActionLink(Loc["Vendor.Orders.Shipments.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = Constants.AreaVendor })" class="btn purple">
-                                <i class="bi bi-file-earmark-pdf"></i> @Loc["Vendor.Orders.Shipments.PrintPackagingSlip"]
-                            </a>
-                            <span id="shipment-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Vendor.Common.Delete"]
-                            </span>
-                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <admin-tabstrip name="shipment-edit" SetTabPos="true">
-                        <items>
-                            <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ViewDetails.Info"]" tab-index="0">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/Info" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ShipmentNotes"]" tab-index="1">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/ShipmentNotes" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
-                        </items>
-                    </admin-tabstrip>
-                </div>
-            </div>
+    @* The order screen's shell: the shipment number as the title. Shipping and delivering
+       notify the customer and cannot be undone, so they ask first and stay outline buttons
+       beside the packaging slip; the Info tab's Save is the screen's one primary action, and
+       Delete is in the overflow menu. *@
+    <admin-page sticky
+                title="@Model.ShipmentNumber.ToString()"
+                icon="bi-truck"
+                meta="@Loc["Vendor.Orders.Shipments.ViewDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Vendor.Orders.Shipments.BackToList"]">
+        <page-actions>
+            @if (Model.CanShip)
+            {
+                <input type="submit" name="setasshipped" asp-action="SetAsShipped" id="setasshipped"
+                       value="@Loc["Vendor.Orders.Shipments.ShippedDate.Button"]" class="btn btn-outline-secondary"
+                       data-grand-confirm="@Loc["Vendor.Common.AreYouSure"]" data-confirm-title="@Loc["Vendor.Orders.Shipments.ShippedDate.Button"]"/>
+            }
+            @if (Model.CanDeliver)
+            {
+                <input type="submit" name="setasdelivered" asp-action="SetAsDelivered" id="setasdelivered"
+                       value="@Loc["Vendor.Orders.Shipments.DeliveryDate.Button"]" class="btn btn-outline-secondary"
+                       data-grand-confirm="@Loc["Vendor.Common.AreYouSure"]" data-confirm-title="@Loc["Vendor.Orders.Shipments.DeliveryDate.Button"]"/>
+            }
+            <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = Constants.AreaVendor })" class="btn btn-outline-secondary">
+                <i class="bi bi-file-earmark-pdf"></i> @Loc["Vendor.Orders.Shipments.PrintPackagingSlip"]
+            </a>
+            <admin-action-menu>
+                <admin-action id="shipment-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Vendor.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
 
-        </div>
-    </div>
+        <admin-tabstrip name="shipment-edit" SetTabPos="true">
+            <items>
+                <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ViewDetails.Info"]" tab-index="0">
+                    <content>
+                        <div>
+                            <partial name="Partials/Info" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ShipmentNotes"]" tab-index="1">
+                    <content>
+                        <div>
+                            <partial name="Partials/ShipmentNotes" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
+            </items>
+        </admin-tabstrip>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="shipment-delete" action-name="DeleteShipment"/>

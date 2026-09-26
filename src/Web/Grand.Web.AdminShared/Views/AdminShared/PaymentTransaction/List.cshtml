@@ -6,119 +6,68 @@
 }
 <form asp-area="@area" asp-controller="PaymentTransaction" asp-action="List" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-truck"></i>
-                        @Loc["Admin.Orders.PaymentTransaction"]
-                    </div>
-                    <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
+    @* The product list's shape: the customer's email as the quick search, the order number with
+       its Go beside the other criteria behind the Filters toggle, and the grid in a flush card.
+       Transactions come from orders, so Search is the one primary action. *@
+    <admin-page title="@Loc["Admin.Orders.PaymentTransaction"]" icon="bi-truck">
+        <page-actions>
+            <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
+        </page-actions>
+
+        <admin-filters id="paymenttransaction-filters" submit-id="search-paymenttransaction">
+            <filters-search>
+                <admin-input asp-for="SearchCustomerEmail"/>
+            </filters-search>
+            <admin-field asp-for="OrderNumber">
+                <div class="input-group">
+                    <admin-input asp-for="OrderNumber"/>
+                    <input type="submit" id="go-to-ordernumber" asp-action="GoToOrderNumber" name="go-to-ordernumber"
+                           class="btn btn-outline-secondary" value="@Loc["Admin.Common.Go"]"/>
                 </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-4 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchCustomerEmail" class="control-label"/>
-                                            <admin-input asp-for="SearchCustomerEmail"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="OrderNumber" class="control-label"/>
-                                            <div class="input-group mb-0" style="text-align:left">
-                                                <admin-input asp-for="OrderNumber"/>
-                                                <span class="">
-                                                    <input type="submit" id="go-to-ordernumber" asp-action="GoToOrderNumber" name="go-to-ordernumber" class="btn default" value="@Loc["Admin.Common.Go"]"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-success filter-submit" id="search-paymenttransaction">
-                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container w-100">
-                                <div class="mb-3">
-                                    <admin-label asp-for="StartDate" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="StartDate"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="EndDate" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="EndDate"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchTransactionStatus" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchTransactionStatus" asp-items="Model.PaymentTransactionStatus"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="x_content">
-                        <admin-grid id="paymenttransactions-grid"
-                                    read-url="@Url.Action("List", "PaymentTransaction", new { area = area })"
-                                    additional-data="additionalData">
-                            <grid-column field="PaymentMethodSystemName" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaymentMethodSystemName"]" width="80">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ PaymentMethodSystemName }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="TransactionAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.TransactionAmount"]" width="80">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ TransactionAmount | n2 }} {{ CurrencyCode }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="PaidAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaidAmount"]" width="100">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ PaidAmount | n2 }} {{ CurrencyCode }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CustomerId" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Customer"]" width="200">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerEmail }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="OrderNumber" title="@Loc["Admin.Orders.PaymentTransaction.Fields.OrderNumber"]" width="80">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Status" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Status"]" width="130">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Status }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CreatedOn" title="@Loc["Admin.Orders.PaymentTransaction.Fields.CreatedOn"]" width="100" format="{0:G}"/>
-                        </admin-grid>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </admin-field>
+            <admin-field asp-for="SearchTransactionStatus" asp-items="Model.PaymentTransactionStatus"/>
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+        </admin-filters>
+
+        <admin-card flush>
+            <admin-grid id="paymenttransactions-grid"
+                        read-url="@Url.Action("List", "PaymentTransaction", new { area = area })"
+                        additional-data="additionalData">
+                <grid-column field="PaymentMethodSystemName" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaymentMethodSystemName"]" width="80">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ PaymentMethodSystemName }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="TransactionAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.TransactionAmount"]" width="80">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ TransactionAmount | n2 }} {{ CurrencyCode }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="PaidAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaidAmount"]" width="100">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ PaidAmount | n2 }} {{ CurrencyCode }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="CustomerId" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Customer"]" width="200">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="OrderNumber" title="@Loc["Admin.Orders.PaymentTransaction.Fields.OrderNumber"]" width="80">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Status" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Status"]" width="130">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Status }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="CreatedOn" title="@Loc["Admin.Orders.PaymentTransaction.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
 </form>
 
 <script>
@@ -136,7 +85,7 @@
     $(document).ready(function () {
         $('#search-paymenttransaction').click(function () {
             //search
-            var grid = $('#paymenttransactions-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#paymenttransactions-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

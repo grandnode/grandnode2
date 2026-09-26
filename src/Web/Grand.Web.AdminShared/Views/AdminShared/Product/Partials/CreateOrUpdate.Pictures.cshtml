@@ -6,9 +6,9 @@
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.Pictures.Top" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="productpictures-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = area })"
@@ -31,8 +31,8 @@
                 </grid-column>
                 <grid-column field="IsDefault" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.IsDefault"]" width="100" align="Center">
                     <cell-template>
-                        <i data-if="IsDefault" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                        <i data-if="IsDefault" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.DisplayOrder"]" width="100" align="Center" format="{0:0}" min-screen-width="750"/>
@@ -63,38 +63,31 @@
 
     @if (!readOnly)
     {
-        <p>
-            <strong>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.AddNew"]</strong>
-        </p>
-        <div class="form-horizontal">
-            <div class="form-body">
-                <div class="mb-3">
-                    @{
-                        ViewData["Reference"] = "Product";
-                        ViewData["ObjectId"] = Model.Id;
-                        ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
-                        ViewData["Click"] = "btnRefreshProductPictures";
-                    }
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="AddPictureModel.PictureId"/>
-                        <span asp-validation-for="AddPictureModel.PictureId"></span>
-                    </div>
-                    <input type="submit" id="btnRefreshProductPictures" style="display: none"/>
-                    <script>
-                        $(document).ready(function () {
-                            $('#btnRefreshProductPictures').click(function () {
-                                //refresh grid
-                                var grid = $("#productpictures-grid").data('kendoGrid');
-                                grid.dataSource.read();
+        @* the uploader posts each file itself and then clicks the hidden refresh button, which
+           reloads the grid above; nothing in this card is submitted with the product form *@
+        <admin-card title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.AddNew"]" icon="bi-image">
+            @{
+                ViewData["Reference"] = "Product";
+                ViewData["ObjectId"] = Model.Id;
+                ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
+                ViewData["Click"] = "btnRefreshProductPictures";
+            }
+            <admin-input asp-for="AddPictureModel.PictureId"/>
+            <span asp-validation-for="AddPictureModel.PictureId"></span>
+            <input type="submit" id="btnRefreshProductPictures" class="d-none"/>
+            <script>
+                $(document).ready(function () {
+                    $('#btnRefreshProductPictures').click(function () {
+                        //refresh grid
+                        var grid = GrandAdmin.grids.get("#productpictures-grid");
+                        grid.dataSource.read();
 
-                                //return false to don't reload a page
-                                return false;
-                            });
-                        });
-                    </script>
-                </div>
-            </div>
-        </div>
+                        //return false to don't reload a page
+                        return false;
+                    });
+                });
+            </script>
+        </admin-card>
     }
 }
 else

@@ -5,82 +5,62 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="ContactForm" asp-action="Details" method="post">
 
+    @* a read-only record: who wrote and when as facts, the subject and the message in a card of their own,
+       and Delete - the only action - in the overflow menu *@
     <input asp-for="Id" type="hidden"/>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-envelope"></i>
-                        @Loc["Admin.System.ContactForm.Details"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.System.ContactForm.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <span id="contactform-delete" class="btn red">
-                            <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                        </span>
-                    </div>
+    <admin-page title="@Loc["Admin.System.ContactForm.Details"]"
+                icon="bi-envelope"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.System.ContactForm.BackToList"]">
+        <page-actions>
+            <admin-action-menu>
+                <admin-action id="contactform-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+        </page-actions>
+
+        <vc:admin-widget widget-zone="contact_form_details_top" additional-data="Model"/>
+        <admin-card>
+            <div class="grand-facts">
+                <div>
+                    <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.CreatedOn</div>
                 </div>
-                <div class="x_content form">
-                    <vc:admin-widget widget-zone="contact_form_details_top" additional-data="Model"/>
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="CreatedOn"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label">@Model.CreatedOn</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Email"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label" style="text-align:left">@Model.FullName - @Model.Email</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Subject"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label" style="text-align:left">@Model.Subject</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Enquiry"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label" style="text-align:left">@Html.Raw(Model.Enquiry)</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="ContactAttributeDescription"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label" style="text-align:left">@Html.Raw(Model.ContactAttributeDescription)</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="IpAddress"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label">@Model.IpAddress</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Store"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label">@Model.Store</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="EmailAccountName"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label">@Model.EmailAccountName</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <vc:admin-widget widget-zone="contact_form_details_bottom" additional-data="Model"/>
+                <div>
+                    <admin-label asp-for="Email" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.FullName - @Model.Email</div>
+                </div>
+                <div>
+                    <admin-label asp-for="IpAddress" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.IpAddress</div>
+                </div>
+                <div>
+                    <admin-label asp-for="Store" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.Store</div>
+                </div>
+                <div>
+                    <admin-label asp-for="EmailAccountName" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.EmailAccountName</div>
                 </div>
             </div>
-        </div>
-    </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-facts">
+                <div>
+                    <admin-label asp-for="Subject" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.Subject</div>
+                </div>
+                <div>
+                    <admin-label asp-for="Enquiry" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Html.Raw(Model.Enquiry)</div>
+                </div>
+                <div>
+                    <admin-label asp-for="ContactAttributeDescription" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Html.Raw(Model.ContactAttributeDescription)</div>
+                </div>
+            </div>
+        </admin-card>
+        <vc:admin-widget widget-zone="contact_form_details_bottom" additional-data="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="contactform-delete"/>

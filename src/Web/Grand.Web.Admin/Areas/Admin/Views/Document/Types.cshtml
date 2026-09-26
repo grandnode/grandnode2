@@ -3,39 +3,24 @@
     ViewBag.Title = Loc["Admin.Documents.Type"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-tags"></i>
-                    @Loc["Admin.Documents.Type"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("CreateType", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="types-grid"
-                                        read-url="@Url.Action("ListType", "Document", new { area = Constants.AreaAdmin })"
-                                        pager="Compact">
-                                <grid-column field="Name" title="@Loc["Admin.Documents.Type.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="EditType/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The product list's shape without filters: Add new as the one primary action in the page header
+   and the grid in a flush card. *@
+<admin-page title="@Loc["Admin.Documents.Type"]" icon="bi-tags">
+    <page-actions>
+        <a href="@Url.Action("CreateType", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
-
+    <admin-card flush>
+        <admin-grid id="types-grid"
+                    read-url="@Url.Action("ListType", "Document", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["Admin.Documents.Type.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="EditType/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>

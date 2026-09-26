@@ -1,108 +1,41 @@
-﻿@model SalesSettingsModel
+@model SalesSettingsModel
 
 <vc:admin-widget widget-zone="loyalty_points_settings_top" additional-data="null"/>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <div class="note note-info">
-                @Loc["Admin.Settings.LoyaltyPoints.Description"]
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.Enabled" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="LoyaltyPointsSettings.Enabled"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="LoyaltyPointsSettings.Enabled"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.ExchangeRate" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
+@* the program and what a point is worth, then how points are earned; the rate and the purchase
+   rule read as the sentences they are, with the fields inside them *@
+<admin-card>
+    <div class="note note-info">
+        @Loc["Admin.Settings.LoyaltyPoints.Description"]
+    </div>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="LoyaltyPointsSettings.Enabled"/>
+        <admin-field asp-for="LoyaltyPointsSettings.ExchangeRate">
+            <div class="grand-sentence">
                 @Loc["Admin.Settings.LoyaltyPoints.ExchangeRate.Hint2"]
                 <admin-input asp-for="LoyaltyPointsSettings.ExchangeRate"/>
                 @Model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode
-                <span asp-validation-for="LoyaltyPointsSettings.ExchangeRate"></span>
             </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.MinimumLoyaltyPointsToUse" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="LoyaltyPointsSettings.MinimumLoyaltyPointsToUse"/>
-                <span asp-validation-for="LoyaltyPointsSettings.MinimumLoyaltyPointsToUse"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="note note-info">
-                @Loc["Admin.Settings.LoyaltyPoints.Earning"]
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.PointsForRegistration" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="LoyaltyPointsSettings.PointsForRegistration"/>
-                <span asp-validation-for="LoyaltyPointsSettings.PointsForRegistration"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.PointsForPurchases_Amount" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
+        </admin-field>
+        <admin-field asp-for="LoyaltyPointsSettings.MinimumLoyaltyPointsToUse" size="sm"/>
+    </div>
+</admin-card>
+<admin-card title="@Loc["Admin.Settings.LoyaltyPoints.Earning"]">
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="LoyaltyPointsSettings.PointsForRegistration" size="sm"/>
+        <admin-field asp-for="LoyaltyPointsSettings.PointsForPurchases_Amount">
+            <div class="grand-sentence">
                 @Loc["Admin.Settings.LoyaltyPoints.Earning.Hint1"]
                 <admin-input asp-for="LoyaltyPointsSettings.PointsForPurchases_Amount"/>
                 @Model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode
-                &nbsp;
                 @Loc["Admin.Settings.LoyaltyPoints.Earning.Hint2"]
                 <admin-input asp-for="LoyaltyPointsSettings.PointsForPurchases_Points"/>
                 @Loc["Admin.Settings.LoyaltyPoints.Earning.Hint3"]
-                <span asp-validation-for="LoyaltyPointsSettings.PointsForPurchases_Amount"></span>
-                <span asp-validation-for="LoyaltyPointsSettings.PointsForPurchases_Points"></span>
             </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.PointsForPurchases_Awarded" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="LoyaltyPointsSettings.PointsForPurchases_Awarded" asp-items="Model.LoyaltyPointsSettings.PointsForPurchases_Awarded_OrderStatuses"/>
-                <span asp-validation-for="LoyaltyPointsSettings.PointsForPurchases_Awarded"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="LoyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="LoyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="LoyaltyPointsSettings.DisplayHowMuchWillBeEarned" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="LoyaltyPointsSettings.DisplayHowMuchWillBeEarned"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="LoyaltyPointsSettings.DisplayHowMuchWillBeEarned"></span>
-            </div>
-        </div>
+            <span asp-validation-for="LoyaltyPointsSettings.PointsForPurchases_Points"></span>
+        </admin-field>
+        <admin-field asp-for="LoyaltyPointsSettings.PointsForPurchases_Awarded" asp-items="Model.LoyaltyPointsSettings.PointsForPurchases_Awarded_OrderStatuses" size="md"/>
+        <admin-field asp-for="LoyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder"/>
+        <admin-field asp-for="LoyaltyPointsSettings.DisplayHowMuchWillBeEarned"/>
     </div>
-</div>
+</admin-card>
 <vc:admin-widget widget-zone="loyalty_points_settings_bottom" additional-data="null"/>

@@ -2,9 +2,13 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <vc:admin-widget widget-zone="menu_details_documents_top" additional-data="Model"/>
-        <div class="panel-body">
+    <vc:admin-widget widget-zone="menu_details_documents_top" additional-data="Model"/>
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc["Admin.Configuration.Menu.Child"]</h2>
+            <a href="@Url.Action("Create", "Menu", new { parentId = Model.Id, area = Constants.AreaAdmin })" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]</a>
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="menu-grid"
                         read-url="@Url.Action("ChildItem", "Menu", new { ParentId = Model.Id, area = Constants.AreaAdmin })"
                         pager="None">
@@ -16,11 +20,8 @@
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Menu.Fields.DisplayOrder"]" width="125" align="Center"/>
             </admin-grid>
         </div>
-        <div class="panel-footer">
-            <button type="button" class="btn btn-default btn-sm" onclick="location.href='@Url.Action("Create", "Menu", new { parentId = Model.Id, area = Constants.AreaAdmin })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Common.AddNew"]</button>
-        </div>
-        <vc:admin-widget widget-zone="menu_details_documents_bottom" additional-data="Model"/>
     </div>
+    <vc:admin-widget widget-zone="menu_details_documents_bottom" additional-data="Model"/>
 }
 else
 {

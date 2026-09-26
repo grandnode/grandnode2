@@ -32,115 +32,27 @@
     }
 </script>
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="SearchPageAllowCustomersToSelectPageSize" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="SearchPageAllowCustomersToSelectPageSize"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="SearchPageAllowCustomersToSelectPageSize"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlSearchPageProductsPerPage">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="SearchPageProductsPerPage" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="SearchPageProductsPerPage"/>
-                <span asp-validation-for="SearchPageProductsPerPage"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlSearchPagePageSizeOptions">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="SearchPagePageSizeOptions" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="SearchPagePageSizeOptions"/>
-                <span asp-validation-for="SearchPagePageSizeOptions"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="ProductSearchAutoCompleteEnabled" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="ProductSearchAutoCompleteEnabled"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="ProductSearchAutoCompleteEnabled"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlProductSearchAutoCompleteNumberOfProducts">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="ProductSearchAutoCompleteNumberOfProducts" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="ProductSearchAutoCompleteNumberOfProducts"/>
-                <span asp-validation-for="ProductSearchAutoCompleteNumberOfProducts"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlShowProductImagesInSearchAutoComplete">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="ShowProductImagesInSearchAutoComplete" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="ShowProductImagesInSearchAutoComplete"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="ShowProductImagesInSearchAutoComplete"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="ProductSearchTermMinimumLength" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="ProductSearchTermMinimumLength"/>
-                <span asp-validation-for="ProductSearchTermMinimumLength"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="SearchBySku" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="SearchBySku"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="SearchBySku"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="SearchByDescription" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="SearchByDescription"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="SearchByDescription"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="SaveSearchAutoComplete" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="SaveSearchAutoComplete"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="SaveSearchAutoComplete"></span>
-            </div>
-        </div>
+@* the page size of the search page - the fixed number while customers may not choose it, the
+   options they choose from while they may - then autocomplete and what search looks at *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="SearchPageAllowCustomersToSelectPageSize"/>
+        <admin-field asp-for="SearchPageProductsPerPage" id="pnlSearchPageProductsPerPage" size="sm"/>
+        <admin-field asp-for="SearchPagePageSizeOptions" id="pnlSearchPagePageSizeOptions" size="md"/>
     </div>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="ProductSearchAutoCompleteEnabled"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="ProductSearchAutoCompleteNumberOfProducts" id="pnlProductSearchAutoCompleteNumberOfProducts" size="sm"/>
+                <admin-field asp-for="ShowProductImagesInSearchAutoComplete" id="pnlShowProductImagesInSearchAutoComplete"/>
+            </div>
+        </div>
+        <admin-field asp-for="ProductSearchTermMinimumLength" size="sm"/>
+        <admin-field asp-for="SaveSearchAutoComplete"/>
+        <admin-field asp-for="SearchBySku"/>
+        <admin-field asp-for="SearchByDescription"/>
+    </div>
+</admin-card>

@@ -6,21 +6,23 @@
     var permissions = await PermissionService.GetAllPermissions();
 }
 <vc:admin-widget widget-zone="menu_details_permissions_top" additional-data="Model"/>
+@* the discount list of the product Prices tab: one check per permission, two to a row *@
 @if (permissions is { Count: > 0 })
 {
-    <div class="mt-checkbox-list">
-        @foreach (var permission in permissions)
-        {
-            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                <input type="checkbox" name="PermissionNames" value="@permission.SystemName"
-                       @if (Model.PermissionNames != null && Model.PermissionNames.Contains(permission.SystemName))
-                       {
-                           <text> checked="checked" </text>
-                       }/>@permission.Name
-                <div class="control__indicator"></div>
-            </label>
-        }
-    </div>
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            @foreach (var permission in permissions)
+            {
+                <div class="grand-field grand-field--check form-check">
+                    <div class="grand-field__control">
+                        <input type="checkbox" class="form-check-input" id="permission-@permission.SystemName" name="PermissionNames" value="@permission.SystemName"
+                               checked="@(Model.PermissionNames != null && Model.PermissionNames.Contains(permission.SystemName))"/>
+                    </div>
+                    <label class="grand-field__label" for="permission-@permission.SystemName">@permission.Name</label>
+                </div>
+            }
+        </div>
+    </admin-card>
 }
 else
 {

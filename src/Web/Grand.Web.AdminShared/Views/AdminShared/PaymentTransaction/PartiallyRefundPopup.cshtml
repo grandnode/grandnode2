@@ -15,37 +15,17 @@
     <input asp-for="MaxAmountToRefund" type="hidden"/>
     <input asp-for="CurrencyCode" type="hidden"/>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-tag"></i>
-                        @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
-                    </div>
-                </div>
-                <partial name="Partials/WidgetZone.PartiallyRefundButtons" model="Model"/>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="AmountToRefund"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="AmountToRefund"/> &nbsp;
-                                    <span style="white-space: nowrap">
-                                        @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund.Max"], Model.MaxAmountToRefund.ToString("G29"), Model.CurrencyCode)
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <input type="submit" name="partialrefundpaymenttransaction" asp-action="PartiallyRefundPopup" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="partialrefundpaymenttransaction" class="btn default"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    @* the popup shell: the amount with its ceiling as the hint, one primary action *@
+    <admin-popup title="@Loc["Admin.PaymentTransaction.Fields.PartialRefund"]" icon="bi-tag">
+        <div class="grand-fields">
+            <admin-field asp-for="AmountToRefund" size="md" suffix="@Model.CurrencyCode"
+                         hint="@string.Format(Loc["Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund.Max"], Model.MaxAmountToRefund.ToString("G29"), Model.CurrencyCode)"/>
         </div>
-    </div>
+        <div class="grand-popup__actions">
+            <partial name="Partials/WidgetZone.PartiallyRefundButtons" model="Model"/>
+            <input type="submit" name="partialrefundpaymenttransaction" asp-action="PartiallyRefundPopup" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="partialrefundpaymenttransaction" class="btn btn-primary"/>
+        </div>
+    </admin-popup>
 
     <div asp-validation-summary="All"></div>
     @if (Model.RefreshPage)

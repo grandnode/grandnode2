@@ -16,50 +16,28 @@
 </style>
 
 <form asp-area="@Grand.Web.Admin.Extensions.Constants.AreaAdmin" asp-controller="Maintenance" asp-action="RobotsTxt" method="post">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-fw bi-sliders"></i>
-                        @Loc["Admin.System.RobotsTxt"]
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                        </div>
-                    </div>
-                    <vc:admin-widget widget-zone="robots_txt_buttons" additional-data="null"/>
-                </div>
-                <div class="x_content">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            @await Component.InvokeAsync("StoreScope")
-                        </div>
-                    </div>
-                </div>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="mb-3">
-                            <admin-label asp-for="Name"/>
-                            <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="Name"/>
-                                <span asp-validation-for="Name"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="col-12">
-                                <textarea id="Text" name="Text">@Model.Text</textarea>
-                                <span asp-validation-for="Text"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    @* The store scope owns its card, so it goes straight into the page; the name and the file's
+       text share the one card below it. *@
+    <admin-page title="@Loc["Admin.System.RobotsTxt"]" icon="bi-sliders">
+        <page-actions>
+            <vc:admin-widget widget-zone="robots_txt_buttons" additional-data="null"/>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        @await Component.InvokeAsync("StoreScope")
+
+        <admin-card>
+            <div class="grand-fields">
+                <admin-field asp-for="Name" size="lg"/>
             </div>
-        </div>
-    </div>
+            <div class="mt-3">
+                <textarea id="Text" name="Text">@Model.Text</textarea>
+                <span asp-validation-for="Text"></span>
+            </div>
+        </admin-card>
+    </admin-page>
     <script>
         $(document).ready(function () {
             CodeMirror.fromTextArea(document.getElementById('Text'), {

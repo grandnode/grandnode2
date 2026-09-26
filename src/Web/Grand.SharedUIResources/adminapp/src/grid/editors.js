@@ -369,7 +369,7 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
     const timers = doc.defaultView || globalThis
     timers.setTimeout(sweepClosedLists, 0)
     const holder = doc.createElement('div')
-    holder.className = 'grand-grid-select'
+    holder.className = 'grand-grid-select-editor'
     holder.appendChild(element)
     //a column that names an operator is filtered by the server as the person types, like the
     //search box did; one with fixed options - or a remote one that never filtered - is
@@ -380,6 +380,9 @@ function panelSelectEditor(ctx, { element, fill, textField }, factory) {
     const widget = factory(element, {
         mode: 'single',
         placeholder: column.optionLabel || undefined,
+        //a cell edits a value, so an empty option with a text of its own ("All customer
+        //groups") is a value like any other, not the "nothing chosen" of a filter
+        emptyIsChoice: true,
         //the list of a cell hangs on <body>: inside the cell the table, a card or a modal
         //body would cut it off at its own edge
         dropdownParent: 'body',

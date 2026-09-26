@@ -5,37 +5,28 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Shipping" asp-action="EditWarehouse" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-card-list"></i>
-                        @Loc["Admin.Configuration.Shipping.Warehouses.EditWarehouseDetails"] - @Model.Name (@Model.Code)
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Configuration.Shipping.Warehouses.BackToList"], "Warehouses")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <span id="warehouse-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                            <vc:admin-widget widget-zone="warehouse_details_buttons" additional-data="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateWarehouse" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the record name as the title, Save as the one primary action, Delete in the overflow menu *@
+    <admin-page sticky
+                title="@Model.Name (@Model.Code)"
+                icon="bi-card-list"
+                meta="@Loc["Admin.Configuration.Shipping.Warehouses.EditWarehouseDetails"]"
+                back-url="@Url.Action("Warehouses", "Shipping", new { area = Constants.AreaAdmin })"
+                back-text="@Loc["Admin.Configuration.Shipping.Warehouses.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="warehouse-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="warehouse_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdateWarehouse" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="warehouse-delete" action-name="DeleteWarehouse"/>

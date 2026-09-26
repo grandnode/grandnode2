@@ -5,30 +5,21 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="OrderTags" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc["Admin.Orders.OrderTags.EditTagDetails"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Orders.OrderTags.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <vc:admin-widget widget-zone="order_tag_details_buttons" additional-data="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the product tag screen's shell: the tag's name as the title and Save as the one primary
+       action; a tag is deleted from the list, so there is no overflow menu *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-box"
+                meta="@Loc["Admin.Orders.OrderTags.EditTagDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Orders.OrderTags.BackToList"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <vc:admin-widget widget-zone="order_tag_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>

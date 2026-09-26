@@ -3,39 +3,25 @@
     ViewBag.Title = Loc["Admin.Configuration.Layouts.Category"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-list-task"></i>
-                    @Loc["Admin.Configuration.Layouts.Category"]
-                </div>
-                <vc:admin-widget widget-zone="category_template_list_buttons" additional-data="null"/>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="templates-grid"
-                                        read-url="@Url.Action("CategoryLayouts", "Layout", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("CategoryLayoutAdd", "Layout", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("CategoryLayoutUpdate", "Layout", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("CategoryLayoutDelete", "Layout", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Layouts.Category.Name"]" width="300" editor="Text"/>
-                                <grid-column field="ViewPath" title="@Loc["Admin.Configuration.Layouts.Category.ViewPath"]" width="300" editor="Text"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Layouts.Category.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* the grid edits inline; its Add new moves into the card header (grid.js) *@
+<admin-page title="@Loc["Admin.Configuration.Layouts.Category"]" icon="bi-list-task">
+    <page-actions>
+        <vc:admin-widget widget-zone="category_template_list_buttons" additional-data="null"/>
+    </page-actions>
 
-
+    <admin-card flush>
+        <admin-grid id="templates-grid"
+                    read-url="@Url.Action("CategoryLayouts", "Layout", new { area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("CategoryLayoutAdd", "Layout", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("CategoryLayoutUpdate", "Layout", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("CategoryLayoutDelete", "Layout", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Layouts.Category.Name"]" width="300" editor="Text"/>
+            <grid-column field="ViewPath" title="@Loc["Admin.Configuration.Layouts.Category.ViewPath"]" width="300" editor="Text"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Layouts.Category.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

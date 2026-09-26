@@ -3,39 +3,23 @@
     Layout = Constants.LayoutStore;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Admin.Configuration.Shipping.DeliveryDates"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("CreateDeliveryDate", "Shipping", new { area = Constants.AreaStore })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"]</span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="deliverydate-grid"
-                                        read-url="@Url.Action("DeliveryDatesListData", "Shipping", new { area = Constants.AreaStore })"
-                                        pager="Compact">
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("EditDeliveryDate", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.DisplayOrder"]" width="120"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<admin-page title="@Loc["Admin.Configuration.Shipping.DeliveryDates"]" icon="bi-card-list">
+    <page-actions>
+        <a href="@Url.Action("CreateDeliveryDate", "Shipping", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="deliverydate-grid"
+                    read-url="@Url.Action("DeliveryDatesListData", "Shipping", new { area = Constants.AreaStore })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("EditDeliveryDate", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.DisplayOrder"]" width="120"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

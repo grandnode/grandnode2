@@ -1,84 +1,15 @@
 ﻿@model CatalogSettingsModel
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="ProductReviewsMustBeApproved" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="ProductReviewsMustBeApproved"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="ProductReviewsMustBeApproved"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="AllowAnonymousUsersToReviewProduct" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AllowAnonymousUsersToReviewProduct"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AllowAnonymousUsersToReviewProduct"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="NotifyStoreOwnerAboutNewProductReviews" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="NotifyStoreOwnerAboutNewProductReviews"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="NotifyStoreOwnerAboutNewProductReviews"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="ProductReviewPossibleOnlyAfterPurchasing" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="ProductReviewPossibleOnlyAfterPurchasing"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="ProductReviewPossibleOnlyAfterPurchasing"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="ProductReviewPossibleOnlyOnce" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="ProductReviewPossibleOnlyOnce"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="ProductReviewPossibleOnlyOnce"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="DefaultProductRatingValue" class="control-label"/>
-            </div>
-            <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="DefaultProductRatingValue"/>
-                <span asp-validation-for="DefaultProductRatingValue"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="col-8 col-md-4 col-sm-4 text-end">
-                <admin-label asp-for="FilterProductRating" class="control-label"/>
-            </div>
-            <div class="col-2 col-md-2 col-sm-2">
-                <admin-input asp-for="FilterProductRating"/>
-                <span asp-validation-for="FilterProductRating"></span>
-            </div>
-        </div>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="ProductReviewsMustBeApproved"/>
+        <admin-field asp-for="AllowAnonymousUsersToReviewProduct"/>
+        <admin-field asp-for="NotifyStoreOwnerAboutNewProductReviews"/>
+        <admin-field asp-for="ProductReviewPossibleOnlyAfterPurchasing"/>
+        <admin-field asp-for="ProductReviewPossibleOnlyOnce"/>
     </div>
-</div>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="DefaultProductRatingValue" size="sm"/>
+        <admin-field asp-for="FilterProductRating" size="md"/>
+    </div>
+</admin-card>

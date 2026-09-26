@@ -278,16 +278,60 @@ public abstract class BaseShipmentController(
         return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
     }
 
+    /// <summary>The one Save of the shipment info form. The per-field actions above are kept for
+    /// callers outside the panel; shipping and delivering stay separate because they notify the
+    /// customer. A date is only written when the shipment already has one — the first value comes
+    /// from ShipCommand / DeliveryCommand, which the form must not trigger.</summary>
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> SetAsShipped(string id)
+    public async Task<IActionResult> SaveShipmentInfo(ShipmentInfoModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
         if (denied != null) return denied;
 
         try
         {
-            await mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
+            if (shipment.ShippedDateUtc.HasValue)
+            {
+                if (!model.ShippedDate.HasValue) throw new Exception("Enter shipped date");
+                shipment.ShippedDateUtc = model.ShippedDate.ConvertToUtcTime(dateTimeService);
+            }
+
+            if (shipment.DeliveryDateUtc.HasValue)
+            {
+                if (!model.DeliveryDate.HasValue) throw new Exception("Enter delivery date");
+                shipment.DeliveryDateUtc = model.DeliveryDate.ConvertToUtcTime(dateTimeService);
+            }
+
+            shipment.TrackingNumber = model.TrackingNumber;
+            shipment.AdminComment = model.AdminComment;
+            await shipmentService.UpdateShipment(shipment);
+
+            Success(translationService.GetResource("Admin.Orders.Shipments.Updated"));
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+        }
+
+        return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    /// <summary>Takes the whole info form, because its shipped date - which the screen offers
+    /// before a shipment is shipped - is the date to stamp. An empty one means now.</summary>
+    public async Task<IActionResult> SetAsShipped(ShipmentInfoModel model)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
+        if (denied != null) return denied;
+
+        try
+        {
+            await mediator.Send(new ShipCommand {
+                Shipment = shipment, NotifyCustomer = true,
+                ShippedDateUtc = model.ShippedDate?.ConvertToUtcTime(dateTimeService)
+            });
             return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
         }
         catch (Exception exc)
@@ -321,14 +365,19 @@ public abstract class BaseShipmentController(
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> SetAsDelivered(string id)
+    /// <summary>Same as SetAsShipped: the delivery date of the info form is the date to stamp,
+    /// and an empty one means now.</summary>
+    public async Task<IActionResult> SetAsDelivered(ShipmentInfoModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
         if (denied != null) return denied;
 
         try
         {
-            await mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
+            await mediator.Send(new DeliveryCommand {
+                Shipment = shipment, NotifyCustomer = true,
+                DeliveryDateUtc = model.DeliveryDate?.ConvertToUtcTime(dateTimeService)
+            });
             return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
         }
         catch (Exception exc)

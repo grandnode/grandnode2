@@ -4,40 +4,28 @@
     ViewBag.Title = Loc["Admin.Configuration.Tax.Categories"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-cash"></i>
-                    @Loc["Admin.Configuration.Tax.Categories"]
-                </div>
-                <vc:admin-widget widget-zone="tax_category_list_buttons" additional-data="null"/>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="tax-categories-grid"
-                                        controller="Tax"
-                                        read-action="Categories"
-                                        create-action="CategoryAdd"
-                                        update-action="CategoryUpdate"
-                                        destroy-action="CategoryDelete"
-                                        pager="Compact"
-                                        edit-mode="Inline"
-                                        confirm-destroy="true">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]" width="250" editor="Text"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
-                                <grid-column field="StoreId" title="@Loc["Admin.Common.Store"]" width="200"
-                                             editor="Select" options="Model.AvailableStores" text-field="StoreName" default-value=""/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* the grid edits inline; its Add new moves into the card header (grid.js) *@
+<admin-page title="@Loc["Admin.Configuration.Tax.Categories"]" icon="bi-cash">
+    <page-actions>
+        <vc:admin-widget widget-zone="tax_category_list_buttons" additional-data="null"/>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="tax-categories-grid"
+                    controller="Tax"
+                    read-action="Categories"
+                    create-action="CategoryAdd"
+                    update-action="CategoryUpdate"
+                    destroy-action="CategoryDelete"
+                    pager="Compact"
+                    edit-mode="Inline"
+                    confirm-destroy="true">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]" width="250" editor="Text"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
+            <grid-column field="StoreId" title="@Loc["Admin.Common.Store"]" width="200"
+                         editor="Select" options="Model.AvailableStores" text-field="StoreName" default-value=""/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

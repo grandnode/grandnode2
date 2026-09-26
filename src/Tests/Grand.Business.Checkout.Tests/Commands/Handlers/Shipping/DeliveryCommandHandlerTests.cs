@@ -46,4 +46,35 @@ public class DeliveryCommandHandlerTests
         //Assert
         _shipmentServiceMock.Verify(c => c.UpdateShipment(It.IsAny<Shipment>()), Times.Once);
     }
+
+    [TestMethod]
+    public async Task Handle_WithoutDate_StampsNow()
+    {
+        //Arrange
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
+            .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
+        var shipment = new Shipment { ShippedDateUtc = DateTime.UtcNow };
+        var before = DateTime.UtcNow;
+        //Act
+        await _deliveryCommandHandler.Handle(new DeliveryCommand { Shipment = shipment }, CancellationToken.None);
+        //Assert
+        Assert.IsTrue(shipment.DeliveryDateUtc >= before && shipment.DeliveryDateUtc <= DateTime.UtcNow);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithDate_KeepsGivenDate()
+    {
+        //Arrange
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
+            .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
+        var shipment = new Shipment { ShippedDateUtc = new DateTime(2026, 3, 10, 8, 0, 0, DateTimeKind.Utc) };
+        var deliveredOn = new DateTime(2026, 3, 14, 16, 45, 0, DateTimeKind.Utc);
+        //Act
+        await _deliveryCommandHandler.Handle(
+            new DeliveryCommand { Shipment = shipment, DeliveryDateUtc = deliveredOn }, CancellationToken.None);
+        //Assert
+        Assert.AreEqual(deliveredOn, shipment.DeliveryDateUtc);
+    }
 }

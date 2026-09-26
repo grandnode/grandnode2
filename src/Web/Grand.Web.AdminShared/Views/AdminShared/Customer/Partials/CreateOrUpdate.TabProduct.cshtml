@@ -1,10 +1,14 @@
 @model CustomerModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-    <strong>@Html.Raw(Loc["Admin.Customers.Customers.PersonalizedProduct"])</strong>
-    <div class="panel panel-default">
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Html.Raw(Loc["Admin.Customers.Customers.PersonalizedProduct"])</h2>
+            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
+            <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none"/>
+        </div>
         <partial name="Partials/WidgetZone.ProductTop" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="personalizedproduct-grid"
                         read-url="@Url.Action("PersonalizedProducts", "Customer", new { customerId = Model.Id, area = area })"
                         update-url="@Url.Action("UpdatePersonalizedProduct", "Customer", new { area = area })"
@@ -14,16 +18,12 @@
                         reload-after-save="false">
                 <grid-column field="ProductName" title="@Loc["Admin.Customers.Customers.PersonalizedProduct.ProductName"]" width="300">
                     <cell-template>
-                        <a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}" target="_blank">{{ ProductName }}</a>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}" target="_blank">{{ ProductName }}</a>
                     </cell-template>
                 </grid-column>
                 <grid-column field="DisplayOrder" title="@Loc["Admin.Customers.Customers.PersonalizedProduct.DisplayOrder"]" width="100" editor="Integer"/>
                 <grid-commands edit="true" destroy="true" width="200"/>
             </admin-grid>
-        </div>
-        <div class="panel-footer">
-            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
-            <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none"/>
         </div>
         <partial name="Partials/WidgetZone.ProductBottom" model="Model"/>
     </div>
@@ -48,7 +48,7 @@
             $(document).ready(function () {
                 $('#btnRefreshPersonalizedProducts').click(function () {
                     //refresh grid
-                    var grid = $("#personalizedproduct-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#personalizedproduct-grid");
                     grid.dataSource.read();
 
                     //return false to don't reload a page

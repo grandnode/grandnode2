@@ -1,14 +1,16 @@
 ﻿@model AffiliateModel
 @{
     <vc:admin-widget widget-zone="affiliate_details_customers_top" additional-data="Model"/>
-    <admin-grid id="customers-grid"
-                read-url="@Url.Action("AffiliatedCustomerList", "Affiliate", new { affiliateId = Model.Id, area = Constants.AreaAdmin })"
-                auto-bind="false">
-        <grid-column field="Name" title="@Loc["Admin.Affiliates.Customers.Name"]">
-            <cell-template>
-                <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
-            </cell-template>
-        </grid-column>
-    </admin-grid>
+    <admin-card flush>
+        <admin-grid id="customers-grid"
+                    read-url="@Url.Action("AffiliatedCustomerList", "Affiliate", new { affiliateId = Model.Id, area = Constants.AreaAdmin })"
+                    auto-bind="false">
+            <grid-column field="Name" title="@Loc["Admin.Affiliates.Customers.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
     <vc:admin-widget widget-zone="affiliate_details_customers_bottom" additional-data="Model"/>
 }

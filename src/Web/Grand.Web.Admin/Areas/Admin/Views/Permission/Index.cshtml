@@ -5,29 +5,19 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="Index" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-person-badge"></i>
-                        @Loc["Admin.Configuration.Permissions"]
-                    </div>
-                    <div class="actions">
-                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green" id="btnAddNewPermission">
-                            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                        </a>
-                        <button class="btn btn-success" type="submit" name="save">
-                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                        </button>
-                    </div>
-                    <vc:admin-widget widget-zone="permission_list_buttons" additional-data="null"/>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-md-12 col-sm-12">
+    @* Save commits the matrix, so it is the one primary action; Add new opens a popup *@
+    <admin-page title="@Loc["Admin.Configuration.Permissions"]" icon="bi-person-badge">
+        <page-actions>
+            <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-outline-secondary" id="btnAddNewPermission">
+                <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+            </a>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <vc:admin-widget widget-zone="permission_list_buttons" additional-data="null"/>
+        </page-actions>
+
+        <admin-card flush>
                                     @if (Model.AvailablePermissions.Count == 0)
                                     {
                                         <text>No permissions defined</text>
@@ -72,10 +62,7 @@
                                                             <th scope="col">
                                                                 <div class="d-flex flex-column align-items-center justify-content-center">
                                                                     <strong>@cr.Name</strong>
-                                                                    <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'>
-                                                                        <input type="checkbox" id="selectall-@(cr.Id)"/>
-                                                                        <div class="control__indicator"></div>
-                                                                    </label>
+                                                                    <input class="form-check-input" type="checkbox" id="selectall-@(cr.Id)"/>
                                                                 </div>
                                                             </th>
                                                         }
@@ -96,7 +83,7 @@
                                                                 @{
                                                                     var groupList = pr.ToList();
                                                                 }
-                                                                <button type="button" class="btn btn-info title" data-bs-toggle="collapse" data-bs-target=".multi-collapse-@groupList[0].Category.GetHashCode()" aria-expanded="true" aria-controls="@groupList[0].Category.GetHashCode()-collapseMain">
+                                                                <button type="button" class="btn btn-outline-secondary title" data-bs-toggle="collapse" data-bs-target=".multi-collapse-@groupList[0].Category.GetHashCode()" aria-expanded="true" aria-controls="@groupList[0].Category.GetHashCode()-collapseMain">
                                                                     @groupList[0].Category <i class="bi bi-chevron-down" aria-hidden="true"></i>
                                                                 </button>
                                                                 <ul id="@groupList[0].Category.GetHashCode()-collapseMain" class="collapse show multi-collapse-@groupList[0].Category.GetHashCode()">
@@ -113,23 +100,17 @@
                                                                 <td class="checkbox-container">
                                                                     <div class="title">
                                                                         <span>@cr.Name</span>
-                                                                        <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'>
-                                                                            <input type="checkbox" onclick="checkCategory(this)"/>
-                                                                            <div class="control__indicator"></div>
-                                                                        </label>
+                                                                        <input class="form-check-input" type="checkbox" onclick="checkCategory(this)"/>
                                                                     </div>
                                                                     <ul class="collapse show multi-collapse-@groupList[0].Category.GetHashCode()">
                                                                         @foreach (var item in groupList)
                                                                         {
                                                                             var allowed = Model.Allowed.ContainsKey(item.SystemName) && Model.Allowed[item.SystemName][cr.Id];
                                                                             <li>
-                                                                                <label class='mt-checkbox mt-checkbox-outline control control-checkbox @if (!item.Actions) { <text>no-action</text> }'>
-                                                                                    <input class="allow_@(cr.Id)" type="checkbox" value="@(item.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null)/>
-                                                                                    <div class="control__indicator"></div>
-                                                                                </label>
+                                                                                <input class="form-check-input allow_@(cr.Id)" type="checkbox" value="@(item.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null)/>
                                                                                 @if (item.Actions)
                                                                                 {
-                                                                                    <a class='text-decoration-none permissionlink'
+                                                                                    <a class='text-decoration-none permissionlink ms-2'
                                                                                        href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=@(item.SystemName)&customeGroupId=@cr.Id">
                                                                                         <i class="bi bi-gear"></i>
                                                                                     </a>
@@ -163,14 +144,8 @@
                                             </div>
                                         </div>
                                     }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        </admin-card>
+    </admin-page>
 </form>
 
 

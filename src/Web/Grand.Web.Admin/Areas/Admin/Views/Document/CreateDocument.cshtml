@@ -5,39 +5,29 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Document" asp-action="CreateDocument" method="post" id="document-form">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-diagram-3"></i>
-                        @Loc["Admin.Documents.Document.AddNew"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Documents.Document.BackToList"], "List")
-                        </small>
-                        @if (!string.IsNullOrEmpty(Model.CustomerId))
-                        {
-                            <small>
-                                <i class="bi bi-person"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToCustomer"], "Edit", "Customer", new { id = Model.CustomerId })
-                            </small>
-                        }
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <vc:admin-widget widget-zone="document_details_buttons" additional-data="null"/>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateDocument" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the same shell as EditDocument, minus what a document that does not exist yet cannot offer;
+       the customer it is being made for stays one click away *@
+    <admin-page sticky
+                title="@Loc["Admin.Documents.Document.AddNew"]"
+                icon="bi-diagram-3"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Documents.Document.BackToList"]">
+        <page-actions>
+            @if (!string.IsNullOrEmpty(Model.CustomerId))
+            {
+                <a href="@Url.Action("Edit", "Customer", new { id = Model.CustomerId })" class="btn btn-outline-secondary">
+                    <i class="bi bi-person"></i> @Loc["Admin.Documents.Document.GoToCustomer"]
+                </a>
+            }
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <vc:admin-widget widget-zone="document_details_buttons" additional-data="null"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdateDocument" model="Model"/>
+    </admin-page>
 </form>

@@ -4,9 +4,16 @@
     //a product the store may see but not change (see BaseProductController.Edit)
     bool readOnly = ViewBag.IsReadOnly == true;
 }
-<div class="panel panel-default">
+<div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title"></h2>
+        @if (!readOnly)
+        {
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Marketing.Document.Add"]</button>
+        }
+    </div>
     <partial name="Partials/WidgetZone.Documents.Top" model="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="product-documents-grid"
                     read-only="@readOnly"
                     read-url="@Url.Action("ListDocuments", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, StatusId = -1, area = area })"
@@ -29,12 +36,6 @@
             </grid-column>
         </admin-grid>
     </div>
-    @if (!readOnly)
-    {
-        <div class="panel-footer">
-            <button type="button" class="btn btn-default btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Marketing.Document.Add"]</button>
-        </div>
-    }
     <partial name="Partials/WidgetZone.Documents.Bottom" model="Model"/>
 </div>
 

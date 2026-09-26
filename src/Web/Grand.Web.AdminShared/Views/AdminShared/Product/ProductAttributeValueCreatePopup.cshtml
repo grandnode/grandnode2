@@ -13,21 +13,10 @@
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateProductAttributeValue" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-popup title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"]" icon="bi-box">
+        <partial name="Partials/CreateOrUpdateProductAttributeValue" model="Model"/>
+
+    </admin-popup>
     <script>
         $("#ProductAttributeValueCreatePopup").submit(function (e) {
             e.preventDefault();

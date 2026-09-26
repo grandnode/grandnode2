@@ -1,69 +1,48 @@
 ﻿@model OrderModel
-
-<div class="form-horizontal">
-    <vc:vendor-widget widget-zone="vendor_order_details_info_top" additional-data="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="OrderNumber" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label">@Model.OrderNumber</label>
-            </div>
+@* what the order states, read as facts *@
+<vc:vendor-widget widget-zone="vendor_order_details_info_top" additional-data="Model"/>
+<admin-card>
+    <div class="grand-facts">
+        <div>
+            <admin-label asp-for="OrderNumber" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.OrderNumber</div>
         </div>
-
         @if (Model.OrderStatusId == (int)OrderStatusSystem.Cancelled)
         {
-            <div class="mb-3">
-                <admin-label asp-for="OrderStatus" asp-display-hint="false" class="control-label col-12 col-md-3 col-sm-3"></admin-label>
-                <div class="col-12 col-md-9 col-sm-9">
-                    <label class="control-label text-danger">
-                        <strong>
-                            @Model.OrderStatus
-                        </strong>
-                    </label>
-                </div>
+            <div>
+                <admin-label asp-for="OrderStatus" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value"><span class="grand-chip grand-chip--red">@Model.OrderStatus</span></div>
             </div>
         }
-        <div class="mb-3">
-            <admin-label asp-for="PaymentStatus" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label">
-                    @Model.PaymentStatus
-                </label>
-            </div>
+        <div>
+            <admin-label asp-for="PaymentStatus" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.PaymentStatus</div>
         </div>
         @if (!string.IsNullOrEmpty(Model.Code))
         {
-            <div class="mb-3">
-                <admin-label asp-for="Code" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.Code</label>
-                </div>
+            <div>
+                <admin-label asp-for="Code" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.Code</div>
             </div>
         }
-        <div class="mb-3">
-            <admin-label asp-for="CurrencyCode" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label">
-                    @Model.CurrencyCode
-                    @if (Model.CurrencyRate != 1)
-                    {
-                        <text>(@Model.CurrencyRate)</text>
-                    }
-                </label>
+        <div>
+            <admin-label asp-for="CurrencyCode" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">
+                @Model.CurrencyCode
+                @if (Model.CurrencyRate != 1)
+                {
+                    <text>(@Model.CurrencyRate)</text>
+                }
             </div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="StoreName" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label">@Model.StoreName</label>
-            </div>
+        <div>
+            <admin-label asp-for="StoreName" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.StoreName</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label"> @Html.DisplayFor(model => model.CreatedOn)</label>
-            </div>
+        <div>
+            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.DisplayFor(model => model.CreatedOn)</div>
         </div>
     </div>
-    <vc:vendor-widget widget-zone="vendor_order_details_info_bottom" additional-data="Model"/>
-</div>
+</admin-card>
+<vc:vendor-widget widget-zone="vendor_order_details_info_bottom" additional-data="Model"/>

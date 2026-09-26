@@ -5,45 +5,41 @@
 }
 <form asp-area="@area" asp-controller="MessageTemplate" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-envelope"></i>
-                        @Loc["Admin.Content.MessageTemplates.EditMessageTemplateDetails"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Content.MessageTemplates.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            @if (!Model.IsReadOnly)
-                            {
-                                <button class="btn btn-success" type="submit" name="save">
-                                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                                </button>
-                                <button class="btn btn-success" type="submit" name="save-continue">
-                                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                                </button>
-                                <span id="message-template-delete" class="btn red">
-                                    <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                                </span>
-                            }
-                            @if (Model.CanCopy)
-                            {
-                                <input type="submit" name="message-template-copy" asp-action="CopyTemplate" class="btn blue" value="@Loc["Admin.Content.MessageTemplates.Copy"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"/>
-                            }
-                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the product edit screen's shell: the template name as the title, Save as the one primary
+       action and Delete in the overflow menu. A read-only template (a global one a store owner
+       opens) has neither - Copy, which makes it the store's own, is then its action. *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-envelope"
+                meta="@Loc["Admin.Content.MessageTemplates.EditMessageTemplateDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Content.MessageTemplates.BackToList"]">
+        <page-actions>
+            @if (Model.CanCopy)
+            {
+                <button type="submit" name="message-template-copy" asp-action="CopyTemplate" class="btn btn-outline-secondary"
+                        data-grand-confirm="@Loc["Admin.Common.AreYouSure"]">
+                    <i class="bi bi-files"></i> @Loc["Admin.Content.MessageTemplates.Copy"]
+                </button>
+            }
+            @if (!Model.IsReadOnly)
+            {
+                <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                </button>
+                <button class="btn btn-primary" type="submit" name="save">
+                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+                </button>
+                <admin-action-menu>
+                    <admin-action id="message-template-delete" destructive="true" icon="bi-trash"
+                                  text="@Loc["Admin.Common.Delete"]"/>
+                </admin-action-menu>
+            }
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 @if (!Model.IsReadOnly)
 {

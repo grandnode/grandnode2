@@ -2,20 +2,27 @@ import { GrandGrid } from './grid.js'
 import { registerEditor } from './editors.js'
 
 //window.GrandAdmin.grids: finds <div data-grand-grid='{json}'> elements rendered by the
-//<admin-grid> tag helper, creates one GrandGrid per element and registers the Kendo
-//compatible API under jQuery.data(el, 'kendoGrid') so existing callers keep working.
+//<admin-grid> tag helper and creates one GrandGrid per element. A view reaches a grid's
+//API with GrandAdmin.grids.get('#products-grid') - an id, a selector, an element or a
+//jQuery object.
 
 export function createRegistry({ Tabulator, doc = document }) {
     const grids = new Map()
-    //culture and texts of the first <admin-grid> on the page, reused by shim grids
-    const defaults = { culture: null, texts: {} }
+
+    /** The element of a grid: 'id', '#id', any selector, an element or a jQuery object. */
+    function elementOf(target) {
+        if (!target) return null
+        if (typeof target === 'string') {
+            return /^#?[\w-]+$/.test(target) ? doc.getElementById(target.replace(/^#/, '')) : doc.querySelector(target)
+        }
+        if (target.jquery) return target[0] || null
+        return target.nodeType === 1 ? target : null
+    }
 
     function create(element, config) {
-        const existing = window.jQuery ? window.jQuery.data(element, 'kendoGrid') : null
-        if (existing?.grandGrid) return existing
+        if (element.grandGrid) return element.grandGrid.api
         const grid = new GrandGrid(element, config, { Tabulator })
         element.grandGrid = grid
-        if (window.jQuery) window.jQuery.data(element, 'kendoGrid', grid.api)
         if (element.id) grids.set(element.id, grid)
         if (config.autoBind !== false) grid.ready.then(() => grid.dataSource.read())
         return grid.api
@@ -36,10 +43,6 @@ export function createRegistry({ Tabulator, doc = document }) {
                 console.error(`[admin-grid] invalid configuration on #${element.id}`, error)
                 continue
             }
-            if (!defaults.culture && config.culture) {
-                defaults.culture = config.culture
-                defaults.texts = config.texts || {}
-            }
             created.push(create(element, config))
         }
         return created
@@ -58,17 +61,17 @@ export function createRegistry({ Tabulator, doc = document }) {
     }
 
     return {
-        /** Kendo-compatible API of a grid by element id. */
-        get: id => grids.get(id)?.api,
+        /**
+         * The API of a grid (dataSource.read/page, dataItem, select, saveChanges ...), found by
+         * 'id', '#id', any selector, an element or a jQuery object; a detail grid too.
+         */
+        get: target => elementOf(target)?.grandGrid?.api,
         /** The GrandGrid instance (adapter internals) by element id. */
         instance: id => grids.get(id),
         all: () => Array.from(grids.values()).map(grid => grid.api),
         init,
         create,
         observe,
-        defaults,
-        /** Builds a GrandGrid without registering or loading it (used by the Kendo shim). */
-        construct: (element, config) => new GrandGrid(element, config, { Tabulator }),
         editors: { register: registerEditor }
     }
 }

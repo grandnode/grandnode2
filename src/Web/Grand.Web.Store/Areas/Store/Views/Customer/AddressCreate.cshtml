@@ -4,25 +4,20 @@
 }
 <form asp-area="@Constants.AreaStore" asp-controller="Customer" asp-action="AddressCreate" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-person-plus"></i>
-                        @Loc["Admin.Customers.Customers.Addresses.AddNew"]
-                        <small>@Html.ActionLink("(" + Loc["Admin.Customers.Customers.Addresses.BackToCustomer"] + ")", "Edit", new { id = Model.CustomerId })</small>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save">
-                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                        </button>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateAddress" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* one address form: Save as the one primary action, back to the customer it belongs to *@
+    <admin-page sticky
+                title="@Loc["Admin.Customers.Customers.Addresses.AddNew"]"
+                icon="bi-person-plus"
+                back-url="@Url.Action("Edit", new { id = Model.CustomerId })"
+                back-text="@Loc["Admin.Customers.Customers.Addresses.BackToCustomer"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <partial name="Partials/CreateOrUpdateAddress" model="Model"/>
+        </admin-card>
+    </admin-page>
 </form>

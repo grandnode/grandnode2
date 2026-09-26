@@ -2,14 +2,12 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <admin-grid id="history-grid" read-url="@Url.Action("History", "Campaign", new { campaignId = Model.Id, area = Constants.AreaAdmin })">
-                    <grid-column field="Email" title="@Loc["admin.marketing.Campaigns.Fields.Email"]"/>
-                    <grid-column field="SentDate" title="@Loc["admin.marketing.Campaigns.Fields.SentDate"]" format="{0:G}"/>
-                </admin-grid>
-            </div>
-        </div>
+        <admin-card flush>
+            <admin-grid id="history-grid" read-url="@Url.Action("History", "Campaign", new { campaignId = Model.Id, area = Constants.AreaAdmin })">
+                <grid-column field="Email" title="@Loc["admin.marketing.Campaigns.Fields.Email"]"/>
+                <grid-column field="SentDate" title="@Loc["admin.marketing.Campaigns.Fields.SentDate"]" format="{0:G}"/>
+            </admin-grid>
+        </admin-card>
     }
     else
     {

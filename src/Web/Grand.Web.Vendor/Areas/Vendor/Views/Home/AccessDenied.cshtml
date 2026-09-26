@@ -1,20 +1,12 @@
 ﻿<input id="active-menu-item" type="hidden" value="/Vendor"/>
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <vc:vendor-widget widget-zone="vendor_security_access_denied_top" additional-data="null"/>
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Vendor.AccessDenied.Title"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="note note-warning">
-                    @Loc["Vendor.AccessDenied.Description"]
-                </div>
-            </div>
-            <vc:vendor-widget widget-zone="vendor_security_access_denied_bottom" additional-data="null"/>
+<admin-page title="@Loc["Vendor.AccessDenied.Title"]" icon="bi-shield-lock">
+    <vc:vendor-widget widget-zone="vendor_security_access_denied_top" additional-data="null"/>
+    @* the panel's empty state: nothing here the account may see *@
+    <admin-card>
+        <div class="grand-empty">
+            <i class="bi bi-shield-lock grand-empty__icon"></i>
+            <p class="mb-0">@Loc["Vendor.AccessDenied.Description"]</p>
         </div>
-    </div>
-</div>
+    </admin-card>
+    <vc:vendor-widget widget-zone="vendor_security_access_denied_bottom" additional-data="null"/>
+</admin-page>

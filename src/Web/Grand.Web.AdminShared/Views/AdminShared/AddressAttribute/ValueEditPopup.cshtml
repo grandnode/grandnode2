@@ -7,22 +7,10 @@
 }
 <form id="ValueEditPopup" asp-area="@area" asp-controller="AddressAttribute" asp-action="ValueEditPopup"
       asp-route-addressAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["addressAttributeId"])">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-card-list"></i>
-                        @Loc["Admin.Address.AddressAttributes.Values.EditValueDetails"]
-                    </div>
-                </div>
-                <partial name="Partials/WidgetZone.ValueButtons" model="Model"/>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdateValue" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-popup title="@Loc["Admin.Address.AddressAttributes.Values.EditValueDetails"]" icon="bi-card-list">
+        <partial name="Partials/WidgetZone.ValueButtons" model="Model"/>
+        <partial name="Partials/CreateOrUpdateValue" model="Model"/>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#ValueEditPopup").submit(function (e) {

@@ -51,176 +51,95 @@
 <!-- #region languages template -->
 @{
     Func<int, HelperResult>
-        template = @<div class="form-body">
-                       <div class="mb-3">
-                           <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3 control-label"/>
-                           <div class="col-md-9 col-sm-9">
-                               <admin-input asp-for="@Model.Locales[item].Name"/>
-                               <span asp-validation-for="@Model.Locales[item].Name"></span>
-                           </div>
-                       </div>
+        template = @<div class="grand-fields">
+                       <admin-field asp-for="@Model.Locales[item].Name"/>
                        <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
                    </div>;
 }
 <!-- #endregion -->
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="AttributeValueTypeId" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="AttributeValueTypeId" asp-items="EnumTranslationService.ToSelectList(Model.AttributeValueTypeId)"/>
-                <span asp-validation-for="AttributeValueTypeId"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="group-associated-product">
-            <admin-label asp-for="AssociatedProductId" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <input asp-for="AssociatedProductId" type="hidden"/>
+@* the group-* ids are what toggleProductType() above shows and hides; the product and quantity
+   of an "associated to product" value sit right under the type that reveals them *@
+<div class="grand-reveal">
+    <admin-field asp-for="AttributeValueTypeId" size="md" asp-items="EnumTranslationService.ToSelectList(Model.AttributeValueTypeId)"/>
+    <div class="grand-reveal__body grand-fields grand-fields--2col">
+        <admin-field asp-for="AssociatedProductId" id="group-associated-product">
+            <input asp-for="AssociatedProductId" type="hidden"/>
+            <div class="d-flex flex-wrap align-items-center gap-2">
                 <span id="associate-product-name">@Model.AssociatedProductName</span>
-                <span asp-validation-for="AssociatedProductId"></span>
-                <a id="btnAssociateProductToAttributeValuePopup" href="@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = area }))" class="btn btn-default btn-sm">
+                <a id="btnAssociateProductToAttributeValuePopup" href="@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = area }))" class="btn btn-outline-secondary btn-sm">
                     @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
                 </a>
             </div>
-        </div>
-        <div class="mb-3" id="group-quantity">
-            <admin-label asp-for="Quantity" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Quantity"/>
-                <span asp-validation-for="Quantity"></span>
-            </div>
-        </div>
+        </admin-field>
+        <admin-field asp-for="Quantity" id="group-quantity" size="sm"/>
     </div>
+</div>
 
-    <localized-editor localized-template="@template" name="productattributevalue-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-        <div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="Name" class="col-sm-3 control-label"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name"/>
-                    <span asp-validation-for="Name"></span>
-                </div>
-            </div>
-        </div>
-    </localized-editor>
+<localized-editor localized-template="@template" name="productattributevalue-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+    <div class="grand-fields">
+        <admin-field asp-for="Name"/>
+    </div>
+</localized-editor>
 
-    <div class="form-body">
-        @if (Model.DisplayColorSquaresRgb)
+<div class="grand-fields grand-fields--2col">
+    @if (Model.DisplayColorSquaresRgb)
+    {
+        <admin-field asp-for="ColorSquaresRgb">
+            <admin-input asp-for="ColorSquaresRgb"/>
+            <div id="color-picker"></div>
+            <script>
+                $(document).ready(function(){
+                    $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
+                });
+            </script>
+        </admin-field>
+    }
+    @if (Model.DisplayImageSquaresPicture)
+    {
+        ViewData["Reference"] = "Product";
+        ViewData["ObjectId"] = Model.ProductId;
+        <admin-field asp-for="ImageSquaresPictureId"/>
+    }
+    <admin-field asp-for="PriceAdjustment" id="group-price-adjustment" suffix="@Model.PrimaryStoreCurrencyCode" size="md"/>
+    <admin-field asp-for="WeightAdjustment" id="group-weight-adjustment" size="md"/>
+    <admin-field asp-for="Cost" id="group-cost" suffix="@Model.PrimaryStoreCurrencyCode" size="md"/>
+    <admin-field asp-for="DisplayOrder" size="sm"/>
+    <admin-field asp-for="IsPreSelected"/>
+</div>
+
+<admin-field asp-for="PictureId">
+    @* one radio per product picture, and a "no picture" one; the pictures are the labels *@
+    <ul class="grand-picture-choice">
+        <li>
+            <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
+                   @if (!string.IsNullOrEmpty(Model.PictureId))
+                   {
+                       <text> checked="checked" </text>
+                   }>
+            <label for="id_image_0">
+                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Picture.NoPicture"]
+            </label>
+        </li>
+        @foreach (var picture in Model.ProductPictureModels)
         {
-            <div class="mb-3">
-                <admin-label asp-for="ColorSquaresRgb" class="col-sm-3 control-label"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="ColorSquaresRgb"/>
-                    <div id="color-picker"></div>
-                    <script>
-                        $(document).ready(function(){
-                            $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
-                        });
-                    </script>
-                    <span asp-validation-for="ColorSquaresRgb"></span>
-                </div>
-            </div>
-        }
-        @if (Model.DisplayImageSquaresPicture)
-        {
-            <div class="mb-3">
-                @{
-                    ViewData["Reference"] = "Product";
-                    ViewData["ObjectId"] = Model.ProductId;
-                }
-                <admin-label asp-for="ImageSquaresPictureId" class="col-sm-3 control-label"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="ImageSquaresPictureId"/>
-                    <span asp-validation-for="ImageSquaresPictureId"></span>
-                </div>
-            </div>
-        }
-        <div class="mb-3" id="group-price-adjustment">
-            <admin-label asp-for="PriceAdjustment" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PriceAdjustment"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="PriceAdjustment"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="group-weight-adjustment">
-            <admin-label asp-for="WeightAdjustment" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="WeightAdjustment"/>
-                <span asp-validation-for="WeightAdjustment"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="group-cost">
-            <admin-label asp-for="Cost" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Cost"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="Cost"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IsPreSelected" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsPreSelected"/>
-                    <div class="control__indicator"></div>
+            <li>
+                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
+                       @if (picture.PictureId == Model.PictureId)
+                       {
+                           <text> checked="checked" </text>
+                       }>
+                <label for="id_image_@picture.PictureId">
+                    <img src="@picture.PictureUrl" alt="" title="">
                 </label>
-                <span asp-validation-for="IsPreSelected"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="PictureId" class="col-sm-3 control-label"/>
-            <div class="col-md-9 col-sm-9">
-                <ul style="list-style: none;">
-                    <li style="float: left; width: 110px;">
-                        <p style="float: left; padding-top: 20px;">
-                            <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
-                                   @if (!string.IsNullOrEmpty(Model.PictureId))
-                                   {
-                                       <text> checked="checked" </text>
-                                   }>
-                        </p>
-                        <p style="float: left; padding-top: 20px;">
-                            <label for="id_image_0">
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Picture.NoPicture"]
-                            </label>
-                        </p>
-                    </li>
-                    @foreach (var picture in Model.ProductPictureModels)
-                    {
-                        <li style="float: left; width: 110px;">
-                            <p style="float: left; padding-top: 20px;">
-                                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
-                                       @if (picture.PictureId == Model.PictureId)
-                                       {
-                                           <text> checked="checked" </text>
-                                       }>
-                            </p>
-                            <p style="float: left;">
-                                <label for="id_image_@picture.PictureId">
-                                    <img src="@picture.PictureUrl" alt="" title="" width="75">
-                                </label>
-                            </p>
-                        </li>
-                    }
-                </ul>
-                <span asp-validation-for="PictureId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                <button class="btn btn-success" type="submit" name="save">
-                    <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
-                </button>
-                <partial name="Partials/WidgetZone.AttributeValueButtons"/>
-            </div>
-        </div>
-    </div>
+            </li>
+        }
+    </ul>
+</admin-field>
 
+<div class="grand-popup__actions">
+    <partial name="Partials/WidgetZone.AttributeValueButtons"/>
+    <button class="btn btn-primary" type="submit" name="save">
+        <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+    </button>
 </div>

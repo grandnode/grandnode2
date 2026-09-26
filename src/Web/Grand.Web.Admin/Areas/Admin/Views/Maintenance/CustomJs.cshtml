@@ -22,30 +22,23 @@
     }
 </style>
 <antiforgery-token/>
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-diagram-3"></i>
-                    @Loc["Admin.System.CustomJs"]
-                </div>
-            </div>
-            <div class="note note-info">
-                <strong>@Loc["Admin.System.CustomJs.Tip"]</strong>
-            </div>
-            <div class="actions">
-                <div class="util-btn-margin-bottom-5">
-                    <button id="btnSave" class="btn btn-success">
-                        <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                    </button>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="col-12">
-                    <textarea id="Content" name="Content">@Model.Content</textarea>
-                </div>
-                <script>
+@* The editor fills the one card; the tip stays a note because it is a genuine message, not a
+   heading. Save is the screen's one primary button and keeps its id - the script posts on it. *@
+<admin-page title="@Loc["Admin.System.CustomJs"]" icon="bi-diagram-3">
+    <page-actions>
+        <button id="btnSave" class="btn btn-primary">
+            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+        </button>
+    </page-actions>
+
+    <admin-card>
+        <div class="note note-info">
+            <strong>@Loc["Admin.System.CustomJs.Tip"]</strong>
+        </div>
+        <textarea id="Content" name="Content">@Model.Content</textarea>
+    </admin-card>
+</admin-page>
+<script>
                     $(document).ready(function () {
                         var editor = CodeMirror.fromTextArea(document.getElementById('Content'), {
                             lineNumbers: true,
@@ -77,8 +70,4 @@
                         }
 
                     });
-                </script>
-            </div>
-        </div>
-    </div>
-</div>
+</script>

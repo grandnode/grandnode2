@@ -3,63 +3,54 @@
     Layout = Constants.LayoutStore;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-translate"></i>
-                    @Loc["Admin.Configuration.Languages"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="languages-grid"
-                            read-url="@Url.Action("ListData", "Language", new { area = Constants.AreaStore })"
-                            pager="None">
-                    <grid-text name="assignStore" value="@Loc["Admin.Configuration.Languages.AssignStore"]"/>
-                    <grid-text name="unassignStore" value="@Loc["Admin.Configuration.Languages.UnassignStore"]"/>
-                    <grid-text name="setDefaultLanguage" value="@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]"/>
-                    <grid-text name="unsetDefaultLanguage" value="@Loc["Admin.Configuration.Languages.UnsetDefaultLanguage"]"/>
-                    <grid-column field="Name" title="@Loc["Admin.Configuration.Languages.Fields.Name"]" width="200">
-                        <cell-template>
-                            {{ Name }}
-                            <span data-if="IsAssignedToCurrentStore" class="badge text-bg-success" title="{{ $texts.assignStore }}"><i class="bi bi-check-lg"></i></span>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="LanguageCulture" title="@Loc["Admin.Configuration.Languages.Fields.LanguageCulture"]" width="120"/>
-                    <grid-column field="LimitedToStores" title="@Loc["Admin.Configuration.Languages.Fields.LimitedToStores"]" width="120" align="Center">
-                        <cell-template>
-                            <i data-if="LimitedToStores" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Published" title="@Loc["Admin.Configuration.Languages.Fields.Published"]" width="100" align="Center">
-                        <cell-template>
-                            <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="IsDefaultStoreLanguage" title="@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]" width="200" align="Center">
-                        <cell-template>
-                            <span data-if="IsDefaultStoreLanguage" class="badge text-bg-info"><i class="bi bi-house"></i> {{ $texts.setDefaultLanguage }}</span>
-                            <a data-if="IsDefaultStoreLanguage" data-grid-click="unsetDefaultLanguage" class="btn btn-sm btn-warning" title="{{ $texts.unsetDefaultLanguage }}"><i class="bi bi-house"></i> {{ $texts.unsetDefaultLanguage }}</a>
-                            <a data-if="!IsDefaultStoreLanguage && IsAssignedToCurrentStore" data-grid-click="setDefaultLanguage" class="btn btn-sm btn-info" title="{{ $texts.setDefaultLanguage }}"><i class="bi bi-house"></i> {{ $texts.setDefaultLanguage }}</a>
-                            <span data-if="!IsDefaultStoreLanguage && !IsAssignedToCurrentStore" class="text-muted">-</span>
-                        </cell-template>
-                    </grid-column>
-                    @* the store manager may only assign languages the server lets it manage (CanManage) *@
-                    <grid-column title="@Loc["Admin.Common.Actions"]" width="220" align="Center">
-                        <cell-template>
-                            <span data-if="!CanManage" class="text-muted">-</span>
-                            <a data-if="CanManage && IsAssignedToCurrentStore" data-grid-click="unassignStore" class="btn btn-sm btn-danger" title="{{ $texts.unassignStore }}"><i class="bi bi-dash-lg"></i> {{ $texts.unassignStore }}</a>
-                            <a data-if="CanManage && !IsAssignedToCurrentStore" data-grid-click="assignStore" class="btn btn-sm btn-success" title="{{ $texts.assignStore }}"><i class="bi bi-plus-lg"></i> {{ $texts.assignStore }}</a>
-                        </cell-template>
-                    </grid-column>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* the store manager assigns languages to its store and picks the default one; each row carries its own actions, so there is no primary action on this screen *@
+<admin-page title="@Loc["Admin.Configuration.Languages"]" icon="bi-translate">
+    <admin-card flush>
+        <admin-grid id="languages-grid"
+                    read-url="@Url.Action("ListData", "Language", new { area = Constants.AreaStore })"
+                    pager="None">
+            <grid-text name="assignStore" value="@Loc["Admin.Configuration.Languages.AssignStore"]"/>
+            <grid-text name="unassignStore" value="@Loc["Admin.Configuration.Languages.UnassignStore"]"/>
+            <grid-text name="setDefaultLanguage" value="@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]"/>
+            <grid-text name="unsetDefaultLanguage" value="@Loc["Admin.Configuration.Languages.UnsetDefaultLanguage"]"/>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Languages.Fields.Name"]" width="200">
+                <cell-template>
+                    {{ Name }}
+                    <span data-if="IsAssignedToCurrentStore" class="grand-chip grand-chip--green" title="{{ $texts.assignStore }}"><i class="bi bi-check-lg"></i></span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="LanguageCulture" title="@Loc["Admin.Configuration.Languages.Fields.LanguageCulture"]" width="120"/>
+            <grid-column field="LimitedToStores" title="@Loc["Admin.Configuration.Languages.Fields.LimitedToStores"]" width="120" align="Center">
+                <cell-template>
+                    <i data-if="LimitedToStores" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Published" title="@Loc["Admin.Configuration.Languages.Fields.Published"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="IsDefaultStoreLanguage" title="@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]" width="200" align="Center">
+                <cell-template>
+                    <span data-if="IsDefaultStoreLanguage" class="grand-chip"><i class="bi bi-house"></i> {{ $texts.setDefaultLanguage }}</span>
+                    <a data-if="IsDefaultStoreLanguage" data-grid-click="unsetDefaultLanguage" class="btn btn-sm btn-outline-secondary" title="{{ $texts.unsetDefaultLanguage }}"><i class="bi bi-house"></i> {{ $texts.unsetDefaultLanguage }}</a>
+                    <a data-if="!IsDefaultStoreLanguage && IsAssignedToCurrentStore" data-grid-click="setDefaultLanguage" class="btn btn-sm btn-outline-secondary" title="{{ $texts.setDefaultLanguage }}"><i class="bi bi-house"></i> {{ $texts.setDefaultLanguage }}</a>
+                    <span data-if="!IsDefaultStoreLanguage && !IsAssignedToCurrentStore" class="text-muted">-</span>
+                </cell-template>
+            </grid-column>
+            @* the store manager may only assign languages the server lets it manage (CanManage) *@
+            <grid-column title="@Loc["Admin.Common.Actions"]" width="220" align="Center">
+                <cell-template>
+                    <span data-if="!CanManage" class="text-muted">-</span>
+                    <a data-if="CanManage && IsAssignedToCurrentStore" data-grid-click="unassignStore" class="btn btn-sm btn-outline-danger" title="{{ $texts.unassignStore }}"><i class="bi bi-dash-lg"></i> {{ $texts.unassignStore }}</a>
+                    <a data-if="CanManage && !IsAssignedToCurrentStore" data-grid-click="assignStore" class="btn btn-sm btn-outline-secondary" title="{{ $texts.assignStore }}"><i class="bi bi-plus-lg"></i> {{ $texts.assignStore }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
     function assignStore(language) {
@@ -72,7 +63,7 @@
             data: postData,
             success: function (data) {
                 if (data.success) {
-                    var grid = $("#languages-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#languages-grid");
                     grid.dataSource.read();
                 } else {
                     alert(data.message);
@@ -85,25 +76,30 @@
     }
 
     function unassignStore(language) {
-        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
-        var postData = { id: language.Id };
-        addAntiForgeryToken(postData);
-        $.ajax({
-            cache: false,
-            type: "POST",
-            url: "@Html.Raw(Url.Action("UnassignStore", "Language", new { area = Constants.AreaStore }))",
-            data: postData,
-            success: function (data) {
-                if (data.success) {
-                    var grid = $("#languages-grid").data('kendoGrid');
-                    grid.dataSource.read();
-                } else {
-                    alert(data.message);
+        GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]', {
+            confirmText: '@Loc["Admin.Common.Yes"]',
+            cancelText: '@Loc["Admin.Common.No"]'
+        }).then(function (confirmed) {
+            if (!confirmed) return;
+            var postData = { id: language.Id };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@Html.Raw(Url.Action("UnassignStore", "Language", new { area = Constants.AreaStore }))",
+                data: postData,
+                success: function (data) {
+                    if (data.success) {
+                        var grid = GrandAdmin.grids.get("#languages-grid");
+                        grid.dataSource.read();
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function () {
+                    alert('Failed to update language');
                 }
-            },
-            error: function () {
-                alert('Failed to update language');
-            }
+            });
         });
     }
 
@@ -117,7 +113,7 @@
             data: postData,
             success: function (data) {
                 if (data.success) {
-                    var grid = $("#languages-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#languages-grid");
                     grid.dataSource.read();
                 } else {
                     alert(data.message);
@@ -130,25 +126,30 @@
     }
 
     function unsetDefaultLanguage(language) {
-        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
-        var postData = { id: language.Id };
-        addAntiForgeryToken(postData);
-        $.ajax({
-            cache: false,
-            type: "POST",
-            url: "@Html.Raw(Url.Action("UnsetDefaultLanguage", "Language", new { area = Constants.AreaStore }))",
-            data: postData,
-            success: function (data) {
-                if (data.success) {
-                    var grid = $("#languages-grid").data('kendoGrid');
-                    grid.dataSource.read();
-                } else {
-                    alert(data.message);
+        GrandAdmin.modal.confirm('@Loc["Admin.Common.AreYouSure"]', {
+            confirmText: '@Loc["Admin.Common.Yes"]',
+            cancelText: '@Loc["Admin.Common.No"]'
+        }).then(function (confirmed) {
+            if (!confirmed) return;
+            var postData = { id: language.Id };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@Html.Raw(Url.Action("UnsetDefaultLanguage", "Language", new { area = Constants.AreaStore }))",
+                data: postData,
+                success: function (data) {
+                    if (data.success) {
+                        var grid = GrandAdmin.grids.get("#languages-grid");
+                        grid.dataSource.read();
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function () {
+                    alert('Failed to unset default language');
                 }
-            },
-            error: function () {
-                alert('Failed to unset default language');
-            }
+            });
         });
     }
 </script>

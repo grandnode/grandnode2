@@ -4,87 +4,37 @@
     ViewBag.Title = Loc["Vendor.Reports.Customer"];
 }
 
+@* The vendor panel keeps one report (best customers by order total) instead of the shared tabs:
+   the filter bar opened on load, the grid in a flush card, Search as the one primary action. The
+   ids the script below looks up are unchanged, the grid's odd id included. *@
+<admin-page title="@Loc["Vendor.Reports.Customer"]" icon="bi-card-list">
+    <vc:vendor-widget widget-zone="vendor_customer_report" additional-data="Model"/>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit popup-window">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Vendor.Reports.Customer"]
-                </div>
-
-            </div>
-            <div class="x_content form">
-                <vc:vendor-widget widget-zone="vendor_customer_report" additional-data="Model"/>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <div class="form-horizontal">
-                                <div class="form-body">
-                                    <div class="main-header col-12 px-0">
-                                        <div class="row align-items-end">
-                                            <div class="col-md-4 col-ms-12 col-12">
-                                                <div class="mb-0">
-                                                    <admin-label asp-for="BestCustomersByOrderTotal.StartDate" class="control-label"/>
-                                                    <admin-input asp-for="BestCustomersByOrderTotal.StartDate"/>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-ms-12 col-12">
-                                                <div class="mb-0">
-                                                    <admin-label asp-for="BestCustomersByOrderTotal.EndDate" class="control-label"/>
-                                                    <admin-input asp-for="BestCustomersByOrderTotal.EndDate"/>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-sm-12 col-12">
-                                                <div class="form-actions">
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-success filter-submit" id="search-customerreport">
-                                                            <i class="bi bi-search"></i> @Loc["Vendor.Reports.Customer.RunReport"]
-                                                        </button>
-                                                        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                            <i class="bi bi-funnel"></i>&nbsp; @Loc["Vendor.Common.Filters"]
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="collapse" id="filterCollapse">
-                                        <div class="drop-filters-container w-100">
-                                            <div class="mb-3">
-                                                <admin-label asp-for="BestCustomersByOrderTotal.PaymentStatusId" class="control-label col-md-3 col-sm-3"/>
-                                                <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="BestCustomersByOrderTotal.PaymentStatusId" asp-items="Model.BestCustomersByOrderTotal.AvailablePaymentStatuses"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="x_content">
-                                    <admin-grid id="bestsellers-byamount-grid"
-                                                read-url="@Url.Action("ReportBestCustomersByOrderTotalList", "Reports", new { area = Constants.AreaVendor })"
-                                                additional-data="additionalData">
-                                        <grid-column field="CustomerName" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.Customer"]"/>
-                                        <grid-column field="OrderTotal" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderTotal"]"/>
-                                        <grid-column field="OrderCount" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderCount"]"/>
-                                    </admin-grid>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-filters id="customerreport-filters" submit-id="search-customerreport" expanded="true">
+        <div class="grand-range">
+            <admin-field asp-for="BestCustomersByOrderTotal.StartDate"/>
+            <admin-field asp-for="BestCustomersByOrderTotal.EndDate"/>
         </div>
-    </div>
-</div>
+        <admin-field asp-for="BestCustomersByOrderTotal.PaymentStatusId" asp-items="Model.BestCustomersByOrderTotal.AvailablePaymentStatuses"/>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="bestsellers-byamount-grid"
+                    read-url="@Url.Action("ReportBestCustomersByOrderTotalList", "Reports", new { area = Constants.AreaVendor })"
+                    additional-data="additionalData">
+            <grid-column field="CustomerName" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.Customer"]"/>
+            <grid-column field="OrderTotal" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderTotal"]"/>
+            <grid-column field="OrderCount" title="@Loc["Vendor.Reports.Customer.BestBy.Fields.OrderCount"]"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
 
         $(document).ready(function () {
 
             $('#search-customerreport').click(function () {
-                var grid = $('#bestsellers-byamount-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#bestsellers-byamount-grid');
                 grid.dataSource.read();
                 return false;
             });

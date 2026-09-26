@@ -18,96 +18,23 @@
     <input asp-for="ProductId" type="hidden"/>
     <input asp-for="Id" type="hidden"/>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        @if (string.IsNullOrEmpty(Model.Id))
-                        {
-                            <text> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</text>
-                        }
-                        else
-                        {
-                            <text>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Edit"]</text>
-                        }
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="ProductAttribute"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="ProductAttributeId" asp-items="Model.AvailableProductAttribute"/>
-                                    <span asp-validation-for="ProductAttributeId"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="TextPrompt"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="TextPrompt"/>
-                                    <span asp-validation-for="TextPrompt"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="IsRequired" class="col-sm-3 control-label"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="IsRequired"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="IsRequired"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="ShowOnCatalogPage" class="col-sm-3 control-label"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="ShowOnCatalogPage"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="ShowOnCatalogPage"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="AttributeControlType"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="AttributeControlTypeId" asp-items="EnumTranslationService.ToSelectList(Model.AttributeControlTypeId, valuesToExclude: [(int)AttributeControlType.Hidden])"/>
-                                    <span asp-validation-for="AttributeControlTypeId"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Combination" class="col-sm-3 control-label"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="Combination"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="Combination"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="DisplayOrder"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DisplayOrder"/>
-                                    <span asp-validation-for="DisplayOrder"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                                    <button class="btn btn-success" type="submit" name="save">
-                                        <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-popup title="@(string.IsNullOrEmpty(Model.Id) ? Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"] : Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Edit"])" icon="bi-boxes">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="ProductAttributeId" asp-label-for="ProductAttribute" asp-items="Model.AvailableProductAttribute"/>
+            <admin-field asp-for="TextPrompt"/>
+            <admin-field asp-for="AttributeControlTypeId" asp-label-for="AttributeControlType"
+                         asp-items="EnumTranslationService.ToSelectList(Model.AttributeControlTypeId, valuesToExclude: [(int)AttributeControlType.Hidden])"/>
+            <admin-field asp-for="DisplayOrder" size="sm"/>
+            <admin-field asp-for="IsRequired"/>
+            <admin-field asp-for="ShowOnCatalogPage"/>
+            <admin-field asp-for="Combination"/>
         </div>
-    </div>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#ProductAttributeMappingPopup").submit(function (e) {

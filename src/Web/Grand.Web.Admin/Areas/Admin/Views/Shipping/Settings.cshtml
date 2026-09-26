@@ -22,154 +22,41 @@
         }
     }
     </script>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-fw bi-sliders"></i>
-                        @Loc["Admin.Configuration.Shipping.Settings"]
+    @* the switches in two columns, free shipping with the fields it opens right under it, and the
+       origin address in a card of its own *@
+    <admin-page sticky title="@Loc["Admin.Configuration.Shipping.Settings"]" icon="bi-sliders">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <vc:admin-widget widget-zone="shipping_settings_buttons" additional-data="null"/>
+        </page-actions>
+
+        @await Component.InvokeAsync("StoreScope")
+
+        <vc:admin-widget widget-zone="shipping_settings_top" additional-data="null"/>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AllowPickUpInStore"/>
+                <admin-field asp-for="EstimateShippingEnabled"/>
+                <admin-field asp-for="DisplayShipmentEventsToCustomers"/>
+                <admin-field asp-for="DisplayShipmentEventsToStoreOwner"/>
+                <admin-field asp-for="SkipShippingMethodSelectionIfOnlyOne"/>
+                <admin-field asp-for="AdditionalShippingChargeByQty"/>
+                <div class="grand-reveal">
+                    <admin-field asp-for="FreeShippingOverXEnabled"/>
+                    <div class="grand-reveal__body grand-fields grand-fields--2col">
+                        <admin-field asp-for="FreeShippingOverXValue" id="pnlValueOfX" size="md"/>
+                        <admin-field asp-for="FreeShippingOverXIncludingTax" id="pnlValueOfXincltax"/>
                     </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                        </div>
-                    </div>
-                    <vc:admin-widget widget-zone="shipping_settings_buttons" additional-data="null"/>
-                </div>
-                <div class="x_content">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            @await Component.InvokeAsync("StoreScope")
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <vc:admin-widget widget-zone="shipping_settings_top" additional-data="null"/>
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="AllowPickUpInStore" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="AllowPickUpInStore"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="AllowPickUpInStore"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="FreeShippingOverXEnabled" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="FreeShippingOverXEnabled"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="FreeShippingOverXEnabled"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3" id="pnlValueOfX">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="FreeShippingOverXValue" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <admin-input asp-for="FreeShippingOverXValue"/>
-                                    <span asp-validation-for="FreeShippingOverXValue"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3" id="pnlValueOfXincltax">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="FreeShippingOverXIncludingTax" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="FreeShippingOverXIncludingTax"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="FreeShippingOverXIncludingTax"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="EstimateShippingEnabled" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="EstimateShippingEnabled"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="EstimateShippingEnabled"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="DisplayShipmentEventsToCustomers" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="DisplayShipmentEventsToCustomers"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="DisplayShipmentEventsToCustomers"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="DisplayShipmentEventsToStoreOwner" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="DisplayShipmentEventsToStoreOwner"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="DisplayShipmentEventsToStoreOwner"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="SkipShippingMethodSelectionIfOnlyOne" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="SkipShippingMethodSelectionIfOnlyOne"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="SkipShippingMethodSelectionIfOnlyOne"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-8 col-md-4 col-sm-4 text-end">
-                                    <admin-label asp-for="AdditionalShippingChargeByQty" class="control-label"/>
-                                </div>
-                                <div class="col-4 col-md-8 col-sm-8">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="AdditionalShippingChargeByQty"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="AdditionalShippingChargeByQty"></span>
-                                </div>
-                            </div>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    @Loc["Admin.Configuration.Shipping.Settings.shippingoriginaddress"]
-                                </div>
-                                <div class="mb-3" id="pnlShippingOriginAddress">
-                                    <div>
-                                        <admin-input asp-for="ShippingOriginAddress" asp-template="Address"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <vc:admin-widget widget-zone="shipping_settings_bottom" additional-data="null"/>
                 </div>
             </div>
-        </div>
-    </div>
+        </admin-card>
+        <admin-card title="@Loc["Admin.Configuration.Shipping.Settings.shippingoriginaddress"]">
+            <div id="pnlShippingOriginAddress">
+                <admin-input asp-for="ShippingOriginAddress" asp-template="Address"/>
+            </div>
+        </admin-card>
+        <vc:admin-widget widget-zone="shipping_settings_bottom" additional-data="null"/>
+    </admin-page>
 </form>

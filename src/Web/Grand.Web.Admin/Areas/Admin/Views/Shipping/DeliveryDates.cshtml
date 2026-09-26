@@ -3,44 +3,25 @@
     ViewBag.Title = Loc["Admin.Configuration.Shipping.DeliveryDates"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Admin.Configuration.Shipping.DeliveryDates"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("CreateDeliveryDate", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <vc:admin-widget widget-zone="delivery_date_buttons" additional-data="null"/>
-                </div>
+<admin-page title="@Loc["Admin.Configuration.Shipping.DeliveryDates"]" icon="bi-card-list">
+    <page-actions>
+        <a href="@Url.Action("CreateDeliveryDate", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+        <vc:admin-widget widget-zone="delivery_date_buttons" additional-data="null"/>
+    </page-actions>
 
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="deliverydate-grid"
-                                        read-url="@Url.Action("DeliveryDates", "Shipping", new { area = Constants.AreaAdmin })"
-                                        pager="Compact">
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Name"]" width="300">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="EditDeliveryDate/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="StoreName" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Store"]" width="200"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.DisplayOrder"]" width="100"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script type="text/javascript">
-</script>
+    <admin-card flush>
+        <admin-grid id="deliverydate-grid"
+                    read-url="@Url.Action("DeliveryDates", "Shipping", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Name"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="EditDeliveryDate/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="StoreName" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.Store"]" width="200"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.DeliveryDates.Fields.DisplayOrder"]" width="100"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

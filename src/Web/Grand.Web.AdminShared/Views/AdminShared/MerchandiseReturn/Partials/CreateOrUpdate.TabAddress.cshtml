@@ -1,15 +1,9 @@
 @model MerchandiseReturnModel
-<div class="form-horizontal">
-    <partial name="Partials/WidgetZone.TabAddress.Top" model="Model"/>
-    <div class="form-body">
-        @if (Model.PickupAddress != null)
-        {
-            <div class="mb-3">
-                <admin-label asp-for="PickupAddress"/>
-                <br/>
-                <admin-input asp-for="PickupAddress" asp-template="Address"/>
-            </div>
-        }
-    </div>
-    <partial name="Partials/WidgetZone.TabAddress.Bottom" model="Model"/>
-</div>
+<partial name="Partials/WidgetZone.TabAddress.Top" model="Model"/>
+@if (Model.PickupAddress != null)
+{
+    <admin-card title="@Loc["Admin.Orders.MerchandiseReturns.Fields.PickupAddress"]">
+        <admin-input asp-for="PickupAddress" asp-template="Address"/>
+    </admin-card>
+}
+<partial name="Partials/WidgetZone.TabAddress.Bottom" model="Model"/>

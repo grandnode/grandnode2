@@ -13,21 +13,9 @@
 
     <!-- #region languages template -->
     @{
-        Func<int, HelperResult> template = @<div class="form-body">
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].AltAttribute" class="col-sm-3 control-label"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].AltAttribute"/>
-                    <span asp-validation-for="@Model.Locales[item].AltAttribute"></span>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="@Model.Locales[item].TitleAttribute" class="col-sm-3 control-label"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].TitleAttribute"/>
-                    <span asp-validation-for="@Model.Locales[item].TitleAttribute"></span>
-                </div>
-            </div>
+        Func<int, HelperResult> template = @<div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="@Model.Locales[item].AltAttribute"/>
+            <admin-field asp-for="@Model.Locales[item].TitleAttribute"/>
             <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
         </div>;
     }
@@ -37,88 +25,34 @@
     <input asp-for="Id" type="hidden"/>
     <input asp-for="PictureUrl" type="hidden"/>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-boxes"></i>
-                        <text> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Details"]</text>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <admin-label asp-for="PictureUrl"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <a href="@Model.PictureUrl" target="_blank">
-                                        <img src="@Model.PictureUrl" width="150"/>
-                                    </a>
-                                </div>
-                            </div>
-                            <localized-editor localized-template="template" name="productpicturevalue-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-                                <div class="form-body">
-                                    <div class="mb-3">
-                                        <admin-label asp-for="AltAttribute" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="AltAttribute"/>
-                                            <span asp-validation-for="AltAttribute"></span>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="TitleAttribute" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="TitleAttribute"/>
-                                            <span asp-validation-for="TitleAttribute"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </localized-editor>
-                            <div class="mb-3">
-                                <admin-label asp-for="DisplayOrder"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DisplayOrder"/>
-                                    <span asp-validation-for="DisplayOrder"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="IsDefault"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="IsDefault"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span asp-validation-for="IsDefault"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="Style"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="Style"/>
-                                    <span asp-validation-for="Style"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <admin-label asp-for="ExtraField"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ExtraField"/>
-                                    <span asp-validation-for="ExtraField"></span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                                    <button class="btn btn-success" type="submit" name="save">
-                                        <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <admin-popup title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Details"]" icon="bi-image">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="PictureUrl">
+                <a href="@Model.PictureUrl" target="_blank" class="grand-thumb">
+                    <img src="@Model.PictureUrl" alt=""/>
+                </a>
+            </admin-field>
+            <div class="grand-fields">
+                <admin-field asp-for="DisplayOrder" size="sm"/>
+                <admin-field asp-for="IsDefault"/>
             </div>
         </div>
-    </div>
+        <localized-editor localized-template="template" name="productpicturevalue-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AltAttribute"/>
+                <admin-field asp-for="TitleAttribute"/>
+            </div>
+        </localized-editor>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="Style"/>
+            <admin-field asp-for="ExtraField"/>
+        </div>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#ProductPicturePopup").submit(function (e) {

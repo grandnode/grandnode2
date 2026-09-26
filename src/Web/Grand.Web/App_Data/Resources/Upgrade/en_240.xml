@@ -387,4 +387,25 @@
 	<Resource Name="admin.dashboard.welcome.edit" Area="Admin">
 		<Value>Edit this message</Value>
 	</Resource>
+	<Resource Name="admin.orders.shipments.updated" Area="Admin">
+		<Value>The shipment has been updated successfully.</Value>
+	</Resource>
+	<Resource Name="admin.orders.shipments.shippeddate.hint" Area="Admin">
+		<Value>Leave empty to stamp the current date and time when marking as shipped.</Value>
+	</Resource>
+	<Resource Name="admin.orders.shipments.deliverydate.hint" Area="Admin">
+		<Value>Leave empty to stamp the current date and time when marking as delivered.</Value>
+	</Resource>
+	<Resource Name="vendor.orders.shipments.shippeddate.hint" Area="Vendor">
+		<Value>Leave empty to stamp the current date and time when marking as shipped.</Value>
+	</Resource>
+	<Resource Name="vendor.orders.shipments.deliverydate.hint" Area="Vendor">
+		<Value>Leave empty to stamp the current date and time when marking as delivered.</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.selectedcount" Area="Admin">
+		<Value>{0} selected</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.published.unpublished" Area="Admin">
+		<Value>Unpublished</Value>
+	</Resource>
 </Language>

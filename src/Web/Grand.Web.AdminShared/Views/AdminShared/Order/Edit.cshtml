@@ -10,125 +10,117 @@
     var canManageMessageQueue = await permissionService.Authorize(StandardPermission.ManageMessageQueue);
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
+@* The product edit screen's shell: the order number as the title and the invoice as an outline
+   button. An order has no Save of its own - each tab saves its part - so there is no primary
+   action; cancelling and deleting the order live in the overflow menu. *@
 <form asp-area="@area" asp-controller="Order" asp-action="Edit" method="post" id="order-form">
     <input type="hidden" asp-for="Id"/>
     <div asp-validation-summary="All"></div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-basket"></i>
-                        @Loc["Admin.Orders.EditOrderDetails"] - @Model.OrderNumber
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Orders.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = area })" class="btn purple">
-                                <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.PdfInvoice"]
-                            </a>
-                            <span id="order-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                            <a asp-action="CancelOrder" asp-route-id="@Model.Id" class="btn border-red" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
-                                <i class="red bi bi-x-circle"></i>
-                                @Loc["Admin.Common.Cancel"]
-                            </a>
-                            <input type="submit" id="btnRefreshPage" style="display: none"/>
-                            <script>
-                                $(document).ready(function () {
-                                    $('#btnRefreshPage').click(function () {
-                                        //refresh page
-                                        location.reload();
-                                    });
-                                });
-                            </script>
-                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <admin-tabstrip name="order-edit" SetTabPos="true" BindGrid="true">
-                        <items>
-                            <tabstrip-item text="@Loc["Admin.Orders.Info"]" tab-index="0">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/OrderDetails.Info" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
+    <admin-page sticky
+                title="@Model.OrderNumber.ToString()"
+                icon="bi-basket"
+                meta="@Loc["Admin.Orders.EditOrderDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Orders.BackToList"]">
+        <page-actions>
+            <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = area })" class="btn btn-outline-secondary">
+                <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.PdfInvoice"]
+            </a>
+            <admin-action-menu>
+                <admin-action id="order-cancel" icon="bi-x-circle" destructive="true"
+                              url="@Url.Action("CancelOrder", new { id = Model.Id, area = area })"
+                              text="@Loc["Admin.Orders.Fields.OrderStatus.Cancel"]"
+                              data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
+                              data-confirm-title="@Loc["Admin.Orders.Fields.OrderStatus.Cancel"]"/>
+                <admin-action id="order-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <input type="submit" id="btnRefreshPage" style="display: none"/>
+            <script>
+                $(document).ready(function () {
+                    $('#btnRefreshPage').click(function () {
+                        //refresh page
+                        location.reload();
+                    });
+                });
+            </script>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
 
-                            <tabstrip-item text="@Loc["Admin.Orders.Addresses"]" tab-index="1">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/OrderDetails.Addresses" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            @if (Model.IsShippable)
-                            {
-                                <tabstrip-item text="@Loc["Admin.Orders.Shipments"]" tab-index="2">
-                                    <content>
-                                        <div>
-                                            <partial name="Partials/OrderDetails.Shipment" model="Model"/>
-                                        </div>
-                                    </content>
-                                </tabstrip-item>
-                            }
-                            <tabstrip-item text="@Loc["Admin.Orders.Products"]" tab-index="3">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/OrderDetails.Products" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            <tabstrip-item text="@Loc["Admin.Orders.OrderNotes"]" tab-index="4">
-                                <content>
-                                    <div>
-                                        <partial name="Partials/OrderDetails.Notes" model="Model"/>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            @if (canManageDocuments)
-                            {
-                                <tabstrip-item text="@Loc["Admin.Orders.Documents"]" tab-index="5">
-                                    <content>
-                                        <div>
-                                            <partial name="Partials/OrderDetails.Documents" model="Model"/>
-                                        </div>
-                                    </content>
-                                </tabstrip-item>
-                            }
-                            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="6">
-                                <content>
-                                    <div>
-                                        <div class="form-actions">
-                                            <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" asp-action="EditUserFields" class="btn btn-default btn-sm"/>
-                                        </div>
-                                        <div class="form-horizontal">
-                                            <partial name="Partials/UserFields" model="Model"/>
-                                        </div>
-                                    </div>
-                                </content>
-                            </tabstrip-item>
-                            @if (canManageMessageQueue)
-                            {
-                                <tabstrip-item text="@Loc["Admin.Orders.Notifications"]" tab-index="7">
-                                    <content>
-                                        <div>
-                                            <partial name="Partials/OrderDetails.Notifications" model="Model"/>
-                                        </div>
-                                    </content>
-                                </tabstrip-item>
-                            }
-                            <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
-                        </items>
-                    </admin-tabstrip>
-                </div>
-            </div>
-        </div>
-    </div>
+        <admin-tabstrip name="order-edit" SetTabPos="true" BindGrid="true">
+            <items>
+                <tabstrip-item text="@Loc["Admin.Orders.Info"]" tab-index="0">
+                    <content>
+                        <div>
+                            <partial name="Partials/OrderDetails.Info" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+
+                <tabstrip-item text="@Loc["Admin.Orders.Addresses"]" tab-index="1">
+                    <content>
+                        <div>
+                            <partial name="Partials/OrderDetails.Addresses" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                @if (Model.IsShippable)
+                {
+                    <tabstrip-item text="@Loc["Admin.Orders.Shipments"]" tab-index="2">
+                        <content>
+                            <div>
+                                <partial name="Partials/OrderDetails.Shipment" model="Model"/>
+                            </div>
+                        </content>
+                    </tabstrip-item>
+                }
+                <tabstrip-item text="@Loc["Admin.Orders.Products"]" tab-index="3">
+                    <content>
+                        <div>
+                            <partial name="Partials/OrderDetails.Products" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Orders.OrderNotes"]" tab-index="4">
+                    <content>
+                        <div>
+                            <partial name="Partials/OrderDetails.Notes" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                @if (canManageDocuments)
+                {
+                    <tabstrip-item text="@Loc["Admin.Orders.Documents"]" tab-index="5">
+                        <content>
+                            <div>
+                                <partial name="Partials/OrderDetails.Documents" model="Model"/>
+                            </div>
+                        </content>
+                    </tabstrip-item>
+                }
+                <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="6">
+                    <content>
+                        <admin-card>
+                            <card-actions>
+                                <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" asp-action="EditUserFields" class="btn btn-outline-secondary btn-sm"/>
+                            </card-actions>
+                            <partial name="Partials/UserFields" model="Model"/>
+                        </admin-card>
+                    </content>
+                </tabstrip-item>
+                @if (canManageMessageQueue)
+                {
+                    <tabstrip-item text="@Loc["Admin.Orders.Notifications"]" tab-index="7">
+                        <content>
+                            <div>
+                                <partial name="Partials/OrderDetails.Notifications" model="Model"/>
+                            </div>
+                        </content>
+                    </tabstrip-item>
+                }
+                <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
+            </items>
+        </admin-tabstrip>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="order-delete"/>

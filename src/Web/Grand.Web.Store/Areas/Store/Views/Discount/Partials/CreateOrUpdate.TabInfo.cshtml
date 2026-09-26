@@ -110,151 +110,56 @@
         }
     }
 </script>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Name"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name"/>
-                <span asp-validation-for="Name"></span>
+@* Three cards of two-column fields: what the discount is, how much it takes off, and when and
+   how often it applies. Each field a script shows or hides keeps its pnl* id and sits under the
+   switch or select that reveals it. *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Name"/>
+        <admin-field asp-for="IsEnabled"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="DiscountTypeId" size="md" asp-items="EnumTranslationService.ToSelectList((DiscountType)Model.DiscountTypeId)"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="MaximumDiscountedQuantity" size="sm" id="pnlMaximumDiscountedQuantity"/>
             </div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="DiscountTypeId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DiscountTypeId" asp-items="EnumTranslationService.ToSelectList((DiscountType)Model.DiscountTypeId)"/>
-                <span asp-validation-for="DiscountTypeId"></span>
+        <admin-field asp-for="IsCumulative"/>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="UsePercentage" id="pnlUsePercentage"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="DiscountAmount" size="md" id="pnlDiscountAmount"/>
+                <admin-field asp-for="DiscountPercentage" size="md" suffix="%" id="pnlDiscountPercentage"/>
+                <admin-field asp-for="MaximumDiscountAmount" size="md" id="pnlMaximumDiscountAmount"/>
             </div>
         </div>
-        <div class="mb-3" id="pnlUsePercentage">
-            <admin-label asp-for="UsePercentage"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="UsePercentage"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="UsePercentage"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlDiscountAmount">
-            <admin-label asp-for="DiscountAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DiscountAmount"/>
-                <span asp-validation-for="DiscountAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlDiscountPercentage">
-            <admin-label asp-for="DiscountPercentage"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DiscountPercentage"/>
-                <span asp-validation-for="DiscountPercentage"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CurrencyCode"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies"/>
-                <span asp-validation-for="CurrencyCode"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlMaximumDiscountAmount">
-            <admin-label asp-for="MaximumDiscountAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MaximumDiscountAmount"/>
-                <span asp-validation-for="MaximumDiscountAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlCalculateByPlugin">
-            <admin-label asp-for="CalculateByPlugin"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="CalculateByPlugin"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="CalculateByPlugin"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlDiscountPluginName">
-            <admin-label asp-for="DiscountPluginName"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DiscountPluginName" asp-items="Model.AvailableDiscountAmountProviders"/>
-                <span asp-validation-for="DiscountPluginName"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="StartDate"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="StartDate"/>
-                <span asp-validation-for="StartDate"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="EndDate"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="EndDate"/>
-                <span asp-validation-for="EndDate"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="RequiresCouponCode"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="RequiresCouponCode"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="RequiresCouponCode"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlReused">
-            <admin-label asp-for="Reused"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Reused"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="Reused"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IsCumulative"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsCumulative"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsCumulative"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DiscountLimitationId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DiscountLimitationId" asp-items="EnumTranslationService.ToSelectList((DiscountLimitationType)Model.DiscountLimitationId)"/>
-                <span asp-validation-for="DiscountLimitationId"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlLimitationTimes">
-            <admin-label asp-for="LimitationTimes"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="LimitationTimes"/>
-                <span asp-validation-for="LimitationTimes"></span> @Loc["admin.marketing.Discounts.Fields.LimitationTimes.Times"]
-            </div>
-        </div>
-        <div class="mb-3" id="pnlMaximumDiscountedQuantity">
-            <admin-label asp-for="MaximumDiscountedQuantity"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MaximumDiscountedQuantity"/>
-                <span asp-validation-for="MaximumDiscountedQuantity"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IsEnabled"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsEnabled"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsEnabled"></span>
+        <admin-field asp-for="CurrencyCode" size="md" asp-items="Model.AvailableCurrencies"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="CalculateByPlugin" id="pnlCalculateByPlugin"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="DiscountPluginName" asp-items="Model.AvailableDiscountAmountProviders" id="pnlDiscountPluginName"/>
             </div>
         </div>
     </div>
-</div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="StartDate"/>
+        <admin-field asp-for="EndDate"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="RequiresCouponCode"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="Reused" id="pnlReused"/>
+            </div>
+        </div>
+        <div class="grand-reveal">
+            <admin-field asp-for="DiscountLimitationId" size="md" asp-items="EnumTranslationService.ToSelectList((DiscountLimitationType)Model.DiscountLimitationId)"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="LimitationTimes" size="md" suffix="@Loc["admin.marketing.Discounts.Fields.LimitationTimes.Times"]" id="pnlLimitationTimes"/>
+            </div>
+        </div>
+    </div>
+</admin-card>

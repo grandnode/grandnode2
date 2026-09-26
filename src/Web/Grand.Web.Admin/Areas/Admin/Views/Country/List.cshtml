@@ -4,93 +4,79 @@
     ViewBag.Title = Loc["Admin.Configuration.Countries"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-globe"></i>
-                    @Loc["Admin.Configuration.Countries"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <input type="button" id="publish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.PublishSelected"]"/>
-                    <input type="button" id="unpublish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.UnpublishSelected"]"/>
-                    <a href="@Url.Action("ExportExcel", new { area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Configuration.Countries.ExportStatesToExcel"]</a>
-                    <input type="submit" id="importexcel" name="importexcel" class="btn yellow" value="@Loc["Admin.Configuration.Countries.ImportStatesFromExcel"]"/>
-                    <vc:admin-widget widget-zone="country_list_buttons" additional-data="null"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="row align-items-end mb-3">
-                            <div class="col-md-9 col-sm-12 col-12">
-                                <div class="mb-0">
-                                    <admin-label asp-for="CountryName" class="d-flex flex-column align-items-start mw-100 px-0 text-start"/>
-                                    <admin-input asp-for="CountryName"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
-                                <div class="form-actions">
-                                    <button class="btn btn-success filter-submit" id="search-countries">
-                                        <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="x_content">
-                        <admin-grid id="countries-grid"
-                                    read-url="@Url.Action("CountryList", "Country", new { area = Constants.AreaAdmin })"
-                                    additional-data="additionalData"
-                                    pager="Compact"
-                                    selectable="Checkbox"
-                                    on-change="onCountriesSelectionChange">
-                            <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.Fields.Name"]" width="300">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="AllowsBilling" title="@Loc["Admin.Configuration.Countries.Fields.AllowsBilling"]" width="100" align="Center">
-                                <cell-template>
-                                    <i data-if="AllowsBilling" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="AllowsShipping" title="@Loc["Admin.Configuration.Countries.Fields.AllowsShipping"]" width="100" align="Center">
-                                <cell-template>
-                                    <i data-if="AllowsShipping" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="TwoLetterIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.TwoLetterIsoCode"]" width="100"/>
-                            <grid-column field="ThreeLetterIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.ThreeLetterIsoCode"]" width="100"/>
-                            <grid-column field="NumericIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.NumericIsoCode"]" width="100"/>
-                            <grid-column field="SubjectToVat" title="@Loc["Admin.Configuration.Countries.Fields.SubjectToVat"]" width="100" align="Center">
-                                <cell-template>
-                                    <i data-if="SubjectToVat" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Countries.Fields.DisplayOrder"]" width="100"/>
-                            <grid-column field="Published" title="@Loc["Admin.Configuration.Countries.Fields.Published"]" width="100" align="Center">
-                                <cell-template>
-                                    <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                                </cell-template>
-                            </grid-column>
-                        </admin-grid>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The brand list's shape: Add new as the one primary action, the states export/import in the
+   overflow menu, the name search as the filter bar, and publish/unpublish in the bulk bar that
+   appears while rows are ticked. The ids the scripts below look up are unchanged. *@
+<admin-page title="@Loc["Admin.Configuration.Countries"]" icon="bi-globe">
+    <page-actions>
+        <admin-action-menu text="@Loc["Admin.Common.Export"]">
+            <admin-action url="@Url.Action("ExportExcel", new { area = Constants.AreaAdmin })"
+                          icon="bi-file-earmark-excel" text="@Loc["Admin.Configuration.Countries.ExportStatesToExcel"]"/>
+            <admin-action id="importexcel" name="importexcel" icon="bi-upload" text="@Loc["Admin.Configuration.Countries.ImportStatesFromExcel"]"/>
+        </admin-action-menu>
+        <vc:admin-widget widget-zone="country_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-filters id="country-filters" submit-id="search-countries" secondary-submit="true">
+        <filters-search>
+            <admin-input asp-for="CountryName"/>
+        </filters-search>
+    </admin-filters>
 
+    <admin-card flush>
+        <admin-bulkbar grid-id="countries-grid">
+            <button type="button" id="publish-selected" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-eye"></i> @Loc["Admin.Configuration.Countries.PublishSelected"]
+            </button>
+            <button type="button" id="unpublish-selected" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-eye-slash"></i> @Loc["Admin.Configuration.Countries.UnpublishSelected"]
+            </button>
+        </admin-bulkbar>
+        <admin-grid id="countries-grid"
+                    read-url="@Url.Action("CountryList", "Country", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData"
+                    pager="Compact"
+                    selectable="Checkbox"
+                    on-change="onCountriesSelectionChange">
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.Fields.Name"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="AllowsBilling" title="@Loc["Admin.Configuration.Countries.Fields.AllowsBilling"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="AllowsBilling" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="AllowsShipping" title="@Loc["Admin.Configuration.Countries.Fields.AllowsShipping"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="AllowsShipping" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="TwoLetterIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.TwoLetterIsoCode"]" width="100"/>
+            <grid-column field="ThreeLetterIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.ThreeLetterIsoCode"]" width="100"/>
+            <grid-column field="NumericIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.NumericIsoCode"]" width="100"/>
+            <grid-column field="SubjectToVat" title="@Loc["Admin.Configuration.Countries.Fields.SubjectToVat"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="SubjectToVat" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Countries.Fields.DisplayOrder"]" width="100"/>
+            <grid-column field="Published" title="@Loc["Admin.Configuration.Countries.Fields.Published"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
         var selectedIds = [];
@@ -117,7 +103,7 @@
                     data: postData,
                     complete: function (data) {
                         //reload grid
-                        var grid = $('#countries-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#countries-grid');
                         grid.dataSource.read();
                     },
                     error:function (xhr, ajaxOptions, thrownError){
@@ -144,7 +130,7 @@
                     data: postData,
                     complete: function (data) {
                         //reload grid
-                        var grid = $('#countries-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#countries-grid');
                         grid.dataSource.read();
                     },
                     error:function (xhr, ajaxOptions, thrownError){
@@ -174,7 +160,7 @@
         //search button
         $('#search-countries').click(function () {
             //search
-            var grid = $('#countries-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#countries-grid');
             grid.dataSource.read();
         });
 

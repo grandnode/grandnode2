@@ -2,28 +2,23 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-        <div class="form-horizontal">
-            <div class="form-body">
-                <div class="note note-danger">
-                    <strong>
-                        @Loc["admin.marketing.Campaigns.Warning"]
-                    </strong>
-                    <br/>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="TestEmail"/>
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="TestEmail"/>
-                        <span asp-validation-for="TestEmail"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-actions">
-                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                    <input type="submit" name="send-test-email" asp-action="SendTestEmail" class="btn btn-default btn-sm margin-top-10" value="@Loc["admin.marketing.Campaigns.SendTestEmail"]"/>
-                </div>
-            </div>
+        @* the warning is a genuine message, so it stays a note; the test address and its send
+           button form one input group *@
+        <div class="note note-danger">
+            <strong>
+                @Loc["admin.marketing.Campaigns.Warning"]
+            </strong>
         </div>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="TestEmail">
+                    <div class="input-group">
+                        <admin-input asp-for="TestEmail"/>
+                        <input type="submit" name="send-test-email" asp-action="SendTestEmail" class="btn btn-outline-secondary" value="@Loc["admin.marketing.Campaigns.SendTestEmail"]"/>
+                    </div>
+                </admin-field>
+            </div>
+        </admin-card>
     }
     else
     {

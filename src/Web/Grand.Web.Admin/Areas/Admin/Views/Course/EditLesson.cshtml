@@ -6,37 +6,29 @@
 <form asp-area="@Constants.AreaAdmin" asp-controller="Course" asp-action="EditLesson" method="post" id="course-lesson-form">
     <input asp-for="CourseId" type="hidden"/>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-diagram-3"></i>
-                        @Loc["Admin.Courses.Course.Lesson.Edit"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Courses.Course.BackToCourse"], "Edit", "Course", new { Id = Model.CourseId })
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <span id="course-lesson-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <vc:admin-widget widget-zone="course_lesson_details_buttons" additional-data="Model"/>
-                <div class="x_content form">
-                    <partial name="Partials/Lesson" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the product edit screen's shell: the lesson name as the title, back to its course, Save as
+       the one primary action, and Delete in the overflow menu rather than beside Save *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-diagram-3"
+                meta="@Loc["Admin.Courses.Course.Lesson.Edit"]"
+                back-url="@Url.Action("Edit", "Course", new { Id = Model.CourseId })"
+                back-text="@Loc["Admin.Courses.Course.BackToCourse"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="course-lesson-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="course_lesson_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/Lesson" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="course-lesson-delete" action-name="DeleteLesson"/>

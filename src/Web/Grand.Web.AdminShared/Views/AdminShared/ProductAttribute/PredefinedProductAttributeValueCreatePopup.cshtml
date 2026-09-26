@@ -4,21 +4,9 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 <form id="PredefinedProductAttributeValueCreatePopup" asp-area="@area" asp-controller="ProductAttribute" asp-action="PredefinedProductAttributeValueCreatePopup" method="post">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-card-list"></i>
-                        @Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdatePredefinedProductAttributeValue" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    <admin-popup title="@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]" icon="bi-card-list">
+        <partial name="Partials/CreateOrUpdatePredefinedProductAttributeValue" model="Model"/>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#PredefinedProductAttributeValueCreatePopup").submit(function (e) {

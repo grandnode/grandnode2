@@ -6,57 +6,47 @@
     //a product the store may see but not change: no Save or Delete (copying it is allowed)
     bool readOnly = ViewBag.IsReadOnly == true;
 }
+@* The reference detail screen: the header carries the product's name, one primary action
+   (Save) and everything else as an outline button, with Copy and Delete in the overflow menu
+   so Delete no longer sits a pixel from Save. sticky keeps the header and the tab strip in
+   view while a long tab scrolls. *@
 <form asp-area="@area" asp-controller="Product" asp-action="Edit" method="post" id="product-form">
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-box"
+                meta="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"]">
+        <page-actions>
+            @if (!string.IsNullOrEmpty(Model.SeName))
+            {
+                <button type="button" onclick="window.open('@Url.RouteUrl("Product", new { Model.SeName })','_blank');" class="btn btn-outline-secondary">
+                    <i class="bi bi-eye"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Preview"]
+                </button>
+            }
+            @if (!readOnly)
+            {
+                <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                    <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+                </button>
+                <button class="btn btn-primary" type="submit" name="save">
+                    <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                </button>
+            }
+            <admin-action-menu>
+                <admin-action id="copyproduct" name="copyproduct" icon="bi-files"
+                              text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]"/>
+                @if (!readOnly)
+                {
+                    <admin-action id="product-delete" destructive="true" icon="bi-trash"
+                                  text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"/>
+                }
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-box"></i>
-                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"] - @Model.Name
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            @if (!string.IsNullOrEmpty(Model.SeName))
-                            {
-                                <button type="button" onclick="window.open('@Url.RouteUrl("Product", new { Model.SeName })','_blank');" class="btn purple">
-                                    <i class="bi bi-eye"></i>
-                                    @Loc[$"{Scope.ResourceKeyPrefix}.Common.Preview"]
-                                </button>
-                            }
-                            @if (!readOnly)
-                            {
-                                <button class="btn btn-success" type="submit" name="save">
-                                    <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
-                                </button>
-                                <button class="btn btn-success" type="submit" name="save-continue">
-                                    <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
-                                </button>
-                            }
-                            <button type="button" name="copyproduct" class="btn blue" id="copyproduct">
-                                <i class="bi bi-files"></i>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]
-                            </button>
-                            @if (!readOnly)
-                            {
-                                <span id="product-delete" class="btn red">
-                                    <i class="bi bi-trash"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
-                                </span>
-                            }
-                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 
 @if (!readOnly)
@@ -67,32 +57,13 @@
     <form asp-area="@area" asp-controller="Product" asp-action="CopyProduct" method="post">
 
         <input asp-for="CopyProductModel.Id" type="hidden"/>
-        <div class="form-horizontal">
-            <div class="form-body">
-                <div class="mb-3">
-                    <admin-label asp-for="CopyProductModel.Name" class="control-label col-8 col-md-4 col-sm-4"/>
-                    <div class="col-4 col-md-8 col-sm-8">
-                        <admin-input asp-for="CopyProductModel.Name"/>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="CopyProductModel.Published" class="control-label col-8 col-md-4 col-sm-4"/>
-                    <div class="col-4 col-md-8 col-sm-8">
-                        <admin-input asp-for="CopyProductModel.Published"/>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="CopyProductModel.CopyImages" class="control-label col-8 col-md-4 col-sm-4"/>
-                    <div class="col-4 col-md-8 col-sm-8">
-                        <admin-input asp-for="CopyProductModel.CopyImages"/>
-                    </div>
-                </div>
-            </div>
-            <div class="form-actions">
-                <div class="offset-md-3 offset-sm-3 col-md-6 col-sm-6">
-                    <input type="submit" class="btn green" value="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]"/>
-                </div>
-            </div>
+        <div class="grand-fields">
+            <admin-field asp-for="CopyProductModel.Name"/>
+            <admin-field asp-for="CopyProductModel.Published"/>
+            <admin-field asp-for="CopyProductModel.CopyImages"/>
+        </div>
+        <div class="form-actions mt-3">
+            <input type="submit" class="btn btn-success" value="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]"/>
         </div>
     </form>
 </div>

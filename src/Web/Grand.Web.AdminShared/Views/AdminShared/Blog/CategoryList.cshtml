@@ -4,37 +4,21 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-chat"></i>
-                    @Loc["Admin.Content.Blog.BlogCategories"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("CategoryCreate", new { area })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="blogcategory-grid" read-url="@Url.Action("CategoryList", "Blog", new { area })">
-                                <grid-column field="Name" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.Name"]" width="600">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="CategoryEdit/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.DisplayOrder"]" width="100" align="Center"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<admin-page title="@Loc["Admin.Content.Blog.BlogCategories"]" icon="bi-chat">
+    <page-actions>
+        <a href="@Url.Action("CategoryCreate", new { area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="blogcategory-grid" read-url="@Url.Action("CategoryList", "Blog", new { area })">
+            <grid-column field="Name" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.Name"]" width="600">
+                <cell-template>
+                    <a class="text-decoration-none" href="CategoryEdit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.DisplayOrder"]" width="100" align="Center"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

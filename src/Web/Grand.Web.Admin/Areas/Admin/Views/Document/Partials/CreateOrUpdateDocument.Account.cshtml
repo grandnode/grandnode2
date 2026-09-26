@@ -1,63 +1,16 @@
 ﻿@model DocumentModel
 <vc:admin-widget widget-zone="document_details_account_top" additional-data="Model"/>
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="CustomerEmail"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CustomerEmail"/>
-                <span asp-validation-for="CustomerEmail"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Username"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Username"/>
-                <span asp-validation-for="Username"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CurrencyCode"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CurrencyCode"/>
-                <span asp-validation-for="CurrencyCode"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="TotalAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="TotalAmount"/>
-                <span asp-validation-for="TotalAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="OutstandAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="OutstandAmount"/>
-                <span asp-validation-for="OutstandAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Quantity"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Quantity"/>
-                <span asp-validation-for="Quantity"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DocDate"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DocDate"/>
-                <span asp-validation-for="DocDate"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DueDate"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DueDate"/>
-                <span asp-validation-for="DueDate"></span>
-            </div>
-        </div>
+@* the account side of the document: who it is for, the amounts in its currency, its dates *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="CustomerEmail"/>
+        <admin-field asp-for="Username"/>
+        <admin-field asp-for="CurrencyCode" size="sm"/>
+        <admin-field asp-for="Quantity" size="sm"/>
+        <admin-field asp-for="TotalAmount" size="md"/>
+        <admin-field asp-for="OutstandAmount" size="md"/>
+        <admin-field asp-for="DocDate"/>
+        <admin-field asp-for="DueDate"/>
     </div>
-</div>
+</admin-card>
 <vc:admin-widget widget-zone="document_details_account_bottom" additional-data="Model"/>

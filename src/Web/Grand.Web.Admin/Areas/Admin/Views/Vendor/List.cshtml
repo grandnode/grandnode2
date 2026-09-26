@@ -4,76 +4,52 @@
     ViewBag.Title = Loc["Admin.Vendors"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit popup-window">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-boxes"></i>
-                    @Loc["Admin.Vendors"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <vc:admin-widget widget-zone="vendor_list_buttons" additional-data="null"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="main-header col-12 px-0">
-                            <div class="row align-items-end">
-                                <div class="col-md-8 col-ms-12 col-12">
-                                    <div class="mb-0">
-                                        <admin-label asp-for="SearchName" class="control-labe"/>
-                                        <admin-input asp-for="SearchName"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-sm-12 col-12">
-                                    <div class="form-actions">
-                                        <button class="btn btn-success filter-submit" id="search-vendors">
-                                            <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="x_content">
-                <admin-grid id="vendors-grid"
-                            read-url="@Url.Action("List", "Vendor", new { area = Constants.AreaAdmin })"
-                            additional-data="additionalData">
-                    <grid-column field="Name" title="@Loc["Admin.Vendors.Fields.Name"]" width="300">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Email" title="@Loc["Admin.Vendors.Fields.Email"]" width="300">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="Active" title="@Loc["Admin.Vendors.Fields.Active"]" width="100" align="Center">
-                        <cell-template>
-                            <i data-if="Active" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                            <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                        </cell-template>
-                    </grid-column>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+@* Add new as the one primary action, the name search in a filter bar whose Search steps down,
+   the grid in a flush card *@
+<admin-page title="@Loc["Admin.Vendors"]" icon="bi-boxes">
+    <page-actions>
+        <vc:admin-widget widget-zone="vendor_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-filters id="vendor-filters" submit-id="search-vendors" secondary-submit="true">
+        <filters-search>
+            <admin-input asp-for="SearchName"/>
+        </filters-search>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="vendors-grid"
+                    read-url="@Url.Action("List", "Vendor", new { area = Constants.AreaAdmin })"
+                    additional-data="additionalData">
+            <grid-column field="Name" title="@Loc["Admin.Vendors.Fields.Name"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Email" title="@Loc["Admin.Vendors.Fields.Email"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Active" title="@Loc["Admin.Vendors.Fields.Active"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Active" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
 
 <script>
     $(document).ready(function () {
         //search button
         $('#search-vendors').click(function () {
             //search
-            var grid = $('#vendors-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#vendors-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

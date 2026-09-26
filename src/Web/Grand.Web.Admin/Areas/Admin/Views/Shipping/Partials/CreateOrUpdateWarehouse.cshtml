@@ -2,61 +2,22 @@
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 <input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Shipping/Warehouses"/>
-<div class="form-horizontal">
-    <vc:admin-widget widget-zone="warehouse_details_top" additional-data="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Code"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Code"/>
-                <span asp-validation-for="Code"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Name"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name"/>
-                <span asp-validation-for="Name"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AdminComment"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="AdminComment"></admin-textarea>
-                <span asp-validation-for="AdminComment"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Latitude"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Latitude"/>
-                <span asp-validation-for="Latitude"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="Longitude"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Longitude"/>
-                <span asp-validation-for="Longitude"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-input asp-for="Address" asp-template="Address"/>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisplayOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder"/>
-                <span asp-validation-for="DisplayOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="StoreId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-                <span asp-validation-for="StoreId"></span>
-            </div>
-        </div>
+<vc:admin-widget widget-zone="warehouse_details_top" additional-data="Model"/>
+@* the warehouse itself, then its address with the shared Address editor template *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Code"/>
+        <admin-field asp-for="Name"/>
+        <admin-field asp-for="AdminComment">
+            <admin-textarea asp-for="AdminComment"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+        <admin-field asp-for="Latitude" size="md"/>
+        <admin-field asp-for="Longitude" size="md"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
     </div>
-    <vc:admin-widget widget-zone="warehouse_details_bottom" additional-data="Model"/>
-</div>
+</admin-card>
+<admin-card>
+    <admin-input asp-for="Address" asp-template="Address"/>
+</admin-card>
+<vc:admin-widget widget-zone="warehouse_details_bottom" additional-data="Model"/>

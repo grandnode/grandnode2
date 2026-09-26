@@ -51,7 +51,9 @@ export function pageInfo(template, dataSource, culture) {
     const first = (dataSource.page() - 1) * size + 1
     const last = Math.min(total, first + dataSource.data().length - 1)
     const n = value => formatNumber(value, 'n0', culture)
-    return String(template || '{0} - {1} / {2}')
+    //the neutral default a database without Admin.Common.Grid.PageInfo falls back to;
+    //it reads as a sentence rather than as three numbers and a slash
+    return String(template || '{0}–{1} of {2}')
         .replace('{0}', n(first))
         .replace('{1}', n(Math.max(first, last)))
         .replace('{2}', n(total))
@@ -117,7 +119,7 @@ export function renderPager(container, { mode, dataSource, pageSizes, texts, cul
         }
         select.addEventListener('change', () => dataSource.pageSize(Number(select.value)))
         label.appendChild(select)
-        label.appendChild(doc.createTextNode(' ' + (t.itemsPerPage || '')))
+        label.appendChild(doc.createTextNode(' ' + (t.itemsPerPage || 'rows')))
         container.appendChild(label)
     }
 

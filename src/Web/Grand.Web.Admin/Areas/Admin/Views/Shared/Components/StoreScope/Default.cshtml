@@ -9,9 +9,16 @@
         })
         .ToList();
 }
-<div class="mb-3">
-    <div class="col-md-12">
-        <label class="control-label" style="float:left;margin-right:10px;">@Loc["Admin.Settings.StoreScope"]</label>
-        @Html.DropDownList("store-scope-configuration", stores, new { onchange = "setLocation(this.value);", style = "width: auto;min-width: 300px;", @class = "form-control" })
+@* the component owns its card: it renders nothing on a single-store installation, and a card
+   written around it in the view would stay behind empty. The same card reads as a block of its
+   own on the legacy settings pages that still render it inside their x_panel *@
+<div class="grand-card">
+    <div class="grand-card__body">
+        <div class="grand-field grand-field--md">
+            <label class="grand-field__label" for="store-scope-configuration">@Loc["Admin.Settings.StoreScope"]</label>
+            <div class="grand-field__control">
+                @Html.DropDownList("store-scope-configuration", stores, new { onchange = "setLocation(this.value);", @class = "form-select" })
+            </div>
+        </div>
     </div>
 </div>

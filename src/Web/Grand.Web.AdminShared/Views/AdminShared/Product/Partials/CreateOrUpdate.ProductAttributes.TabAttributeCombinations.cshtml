@@ -12,9 +12,19 @@
         @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Description2"]
     </p>
 </div>
-<div class="panel panel-default">
+<div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title"></h2>
+        @if (!readOnly)
+        {
+            <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
+            <button type="submit" id="btnGenerateAllCombinations" class="btn btn-outline-secondary btn-sm"><span class="bi bi-palette"></span> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
+            <button type="submit" id="btnClearAllCombinations" class="btn btn-outline-danger btn-sm"><span class="bi bi-scissors"></span> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
+            <input type="submit" id="btnRefreshCombinations" style="display: none"/>
+        }
+    </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Top" model="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="attributecombinations-grid"
                     read-only="@readOnly"
                     read-url="@Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = area })"
@@ -52,15 +62,6 @@
             <grid-commands destroy="true" width="50"/>
         </admin-grid>
     </div>
-    @if (!readOnly)
-    {
-        <div class="panel-footer">
-            <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
-            <button type="submit" id="btnGenerateAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-palette"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
-            <button type="submit" id="btnClearAllCombinations" class="btn btn-default btn-sm"><span class="bi bi-scissors"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
-            <input type="submit" id="btnRefreshCombinations" style="display: none"/>
-        </div>
-    }
     <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Bottom" model="Model"/>
 </div>
 
@@ -102,7 +103,7 @@
         //refresh button
         $('#btnRefreshCombinations').click(function () {
             //refresh grid
-            var grid = $("#attributecombinations-grid").data('kendoGrid');
+            var grid = GrandAdmin.grids.get("#attributecombinations-grid");
             grid.dataSource.read();
 
             //return false to don't reload a page
@@ -112,7 +113,8 @@
 
         //generate combinations
         $('#btnGenerateAllCombinations').click(function () {
-            if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
+            GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]').then(function (confirmed) {
+                if (!confirmed) return;
 
                 var postData = {
                 };
@@ -126,20 +128,21 @@
                     dataType: 'json',
                     success: function(data) {
                         //refresh grid
-                        var grid = $("#attributecombinations-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#attributecombinations-grid");
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
                         alert('Error while generating attribute combinations');
                     }
                 });
-            }
+            });
             return false;
         });
 
         //clear combinations
         $('#btnClearAllCombinations').click(function () {
-            if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
+            GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]').then(function (confirmed) {
+                if (!confirmed) return;
 
                 var postData = {
                 };
@@ -153,14 +156,14 @@
                     dataType: 'json',
                     success: function(data) {
                         //refresh grid
-                        var grid = $("#attributecombinations-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#attributecombinations-grid");
                         grid.dataSource.read();
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
                         alert('Error while clearing attribute combinations');
                     }
                 });
-            }
+            });
             return false;
         });
 

@@ -5,9 +5,9 @@
     ViewData["ReferenceId"] = Model.Id;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<div class="panel panel-default">
+<div class="grand-card">
     <partial name="Partials/WidgetZone.Notes.Top" model="Model"/>
-    <div class="panel-body">
+    <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="ordernotes-grid"
                     read-url="@Url.Action("OrderNotesSelect", "Order", new { orderId = Model.Id, area = area })"
                     destroy-url="@Url.Action("OrderNoteDelete", "Order", new { orderId = Model.Id, area = area })"
@@ -25,14 +25,14 @@
             </grid-column>
             <grid-column field="CreatedByCustomer" title="@Loc["Admin.Orders.OrderNotes.Fields.CreatedByCustomer"]" width="100" align="Center">
                 <cell-template>
-                    <i data-if="CreatedByCustomer" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                    <i data-if="CreatedByCustomer" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                 </cell-template>
             </grid-column>
             <grid-column field="DisplayToCustomer" title="@Loc["Admin.Orders.OrderNotes.Fields.DisplayToCustomer"]" width="100" align="Center">
                 <cell-template>
-                    <i data-if="DisplayToCustomer" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                    <i data-if="DisplayToCustomer" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
                 </cell-template>
             </grid-column>
             <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
@@ -40,11 +40,6 @@
     </div>
     <partial name="Partials/WidgetZone.Notes.Bottom" model="Model"/>
 </div>
-<p>
-    <strong>
-        @Loc["Admin.Orders.OrderNotes.AddTitle"]
-    </strong>
-</p>
 <script>
     $(document).ready(function () {
         $("#@Html.IdFor(model => model.AddOrderNoteHasDownload)").change(toggleAddOrderNoteHasDownload);
@@ -61,45 +56,22 @@
 
 </script>
 
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="AddOrderNoteMessage"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-textarea asp-for="AddOrderNoteMessage"></admin-textarea>
-                <span asp-validation-for="AddOrderNoteMessage"></span>
-            </div>
+<admin-card title="@Loc["Admin.Orders.OrderNotes.AddTitle"]">
+    <div class="grand-fields">
+        <admin-field asp-for="AddOrderNoteMessage">
+            <admin-textarea asp-for="AddOrderNoteMessage"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="AddOrderNoteHasDownload" asp-label-for="AddOrderNoteDownloadId"/>
+        <div id="pnlAddOrderNoteDownloadId">
+            <admin-input asp-for="AddOrderNoteDownloadId"/>
+            <span asp-validation-for="AddOrderNoteDownloadId"></span>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="AddOrderNoteDownloadId"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddOrderNoteHasDownload"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <div id="pnlAddOrderNoteDownloadId">
-                    <admin-input asp-for="AddOrderNoteDownloadId"/>
-                    <span asp-validation-for="AddOrderNoteDownloadId"></span>
-                </div>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AddOrderNoteDisplayToCustomer"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddOrderNoteDisplayToCustomer"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AddOrderNoteDisplayToCustomer"></span>
-            </div>
-        </div>
-        <div class="form-actions">
-            <div class="offset-md-3 col-md-9 col-sm-9">
-                <button type="button" id="addOrderNote" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.OrderNotes.AddButton"]</button>
-            </div>
-        </div>
+        <admin-field asp-for="AddOrderNoteDisplayToCustomer"/>
     </div>
-</div>
+    <div class="mt-3">
+        <button type="button" id="addOrderNote" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Orders.OrderNotes.AddButton"]</button>
+    </div>
+</admin-card>
 
 <script>
     $(document).ready(function () {
@@ -129,7 +101,7 @@
                 url: "@(Url.Action("OrderNoteAdd", "Order", new { area = area }))",
                 data: postData,
                 success: function (data) {
-                    var grid = $("#ordernotes-grid").data('kendoGrid');
+                    var grid = GrandAdmin.grids.get("#ordernotes-grid");
                     grid.dataSource.read();
                     $('#addOrderNote').attr('disabled', false);
                 },

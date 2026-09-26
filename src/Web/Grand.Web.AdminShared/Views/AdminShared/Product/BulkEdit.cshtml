@@ -4,120 +4,78 @@
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
+@* The product list's shape: one search field with the rest of the criteria behind the Filters
+   toggle, and the batch grid in a flush card. The grid's Save changes commits the screen, so it is
+   the one primary and Search is an outline button. The ids the script looks up are unchanged.
+   The grid is the quick editor of a product: name, SKU, prices and stock edited in place, rows
+   added with the card's Add new (a simple product, named in the row), and the rest - mappings,
+   attributes, SEO - in the product screen the row's popup opens. *@
 <form asp-area="@area" asp-controller="Product" asp-action="BulkEdit" method="post">
+    <admin-page title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit"]" icon="bi-boxes">
+        <page-actions>
+            <partial name="Partials/WidgetZone.BulkEditButtons"/>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-boxes"></i>
-                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit"]
-                    </div>
-                    <partial name="Partials/WidgetZone.BulkEditButtons"/>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-8 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchProductName" class="control-label"/>
-                                            <admin-input asp-for="SearchProductName"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-success filter-submit" id="search-products">
-                                                    <i class="bi bi-search"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc[$"{Scope.ResourceKeyPrefix}.Common.Filters"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="collapse" id="filterCollapse">
-                                <div class="drop-filters-container w-100">
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchCategoryId" class="col-sm-3 control-label"/>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchBrandId"/>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchCollectionId"/>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
-                                        </div>
-                                    </div>
-                                    @if (area == "Admin")
-                                    {
-                                        <div class="mb-3">
-                                            <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
-                                            <div class="col-md-9 col-sm-9">
-                                                <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                            <div class="x_content">
-                                <admin-grid id="products-grid"
-                                            read-url="@Url.Action("BulkEditSelect", "Product", new { area = area })"
-                                            update-url="@Url.Action("BulkEditUpdate", "Product", new { area = area })"
-                                            destroy-url="@Url.Action("BulkEditDelete", "Product", new { area = area })"
-                                            additional-data="additionalData"
-                                            edit-mode="Batch"
-                                            batch-prefix="products"
-                                            confirm-destroy="true">
-                                    <grid-toolbar-save/>
-                                    <grid-toolbar-cancel/>
-                                    <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
-                                    <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Name"]" width="200" editor="Text"/>
-                                    <grid-column field="ProductId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]" width="80">
-                                        <cell-template>
-                                            <a href="@Url.Action("Edit", "Product", new { area = area })/{{ Id }}">{{ $texts.view }}</a>
-                                        </cell-template>
-                                    </grid-column>
-                                    <grid-column field="Sku" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Sku"]" width="100" editor="Text"/>
-                                    @*prices are posted with four decimals in the request culture, like the Kendo parameterMap*@
-                                    <grid-column field="Price" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Price"]" width="100" editor="Numeric" decimals="4"/>
-                                    <grid-column field="OldPrice" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.OldPrice"]" width="100" editor="Numeric" decimals="4"/>
-                                    <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.StockQuantity"]" width="100" format="{0:0}" editor="Integer"/>
-                                    <grid-column field="ManageInventoryMethodId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.ManageInventoryMethod"]" width="150"
-                                                 editor="Select" options="EnumTranslationService.ToSelectList(ManageInventoryMethod.DontManageStock)" text-field="ManageInventoryMethod"/>
-                                    <grid-column field="Published" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Published"]" width="90" editor="Checkbox"/>
-                                    <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" width="100"/>
-                                </admin-grid>
-                            </div>
+        <admin-filters id="bulkedit-filters" submit-id="search-products" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchProductName"/>
+            </filters-search>
+            <admin-field asp-for="SearchCategoryId"/>
+            <admin-field asp-for="SearchBrandId"/>
+            <admin-field asp-for="SearchCollectionId"/>
+            <admin-field asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
+            @if (area == "Admin")
+            {
+                <admin-field asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+            }
+        </admin-filters>
+
+        <admin-card flush>
+            <admin-grid id="products-grid"
+                        read-url="@Url.Action("BulkEditSelect", "Product", new { area = area })"
+                        create-url="@Url.Action("BulkEditCreate", "Product", new { area = area })"
+                        update-url="@Url.Action("BulkEditUpdate", "Product", new { area = area })"
+                        destroy-url="@Url.Action("BulkEditDelete", "Product", new { area = area })"
+                        additional-data="additionalData"
+                        edit-mode="Batch"
+                        batch-prefix="products"
+                        confirm-destroy="true">
+                <grid-toolbar-create text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.AddNew"]"/>
+                <grid-toolbar-save/>
+                <grid-toolbar-cancel/>
+                <grid-text name="edit" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]"/>
+                <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Name"]" width="220" editor="Text" required="true"/>
+                <grid-column field="Sku" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Sku"]" width="110" editor="Text"/>
+                @*prices are posted with four decimals in the request culture, like the Kendo parameterMap*@
+                <grid-column field="Price" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Price"]" width="100" align="Right" editor="Numeric" decimals="4" default-value="0"/>
+                <grid-column field="OldPrice" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.OldPrice"]" width="100" align="Right" editor="Numeric" decimals="4" default-value="0" min-screen-width="1400"/>
+                <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.StockQuantity"]" width="90" align="Right" format="{0:0}" editor="Integer" default-value="0"/>
+                <grid-column field="ManageInventoryMethodId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.ManageInventoryMethod"]" width="150"
+                             editor="Select" options="EnumTranslationService.ToSelectList(ManageInventoryMethod.DontManageStock)" text-field="ManageInventoryMethod"
+                             default-value="0" min-screen-width="1150"/>
+                <grid-column field="Published" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Published"]" width="90" align="Center" editor="Checkbox" default-value="true"/>
+                @* more fields in a popup, and the rest of the product on its own screen - in a tab of
+                   its own, so the changes not saved here stay; a row not saved yet has neither *@
+                <grid-text name="details" value="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"]"/>
+                <grid-column field="Id" title="" width="96" align="Center">
+                    <cell-template>
+                        <div data-if="Id" class="d-inline-flex gap-1">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-grid-click="openBulkEditDetails"
+                                    title="{{ $texts.details }}" aria-label="{{ $texts.details }}"><i class="bi bi-sliders"></i></button>
+                            <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Edit", "Product", new { area = area })/{{ Id }}" target="_blank"
+                               title="{{ $texts.edit }}" aria-label="{{ $texts.edit }}"><i class="bi bi-box-arrow-up-right"></i></a>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    </cell-template>
+                </grid-column>
+                <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" width="100"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
 
     <script>
         $(document).ready(function () {
             $('#search-products').click(function () {
-                    var grid = $('#products-grid').data('kendoGrid');
+                    var grid = GrandAdmin.grids.get('#products-grid');
                     grid.dataSource.page(1); //new search. Set page size to 1
                                              //grid.dataSource.read(); we already loaded the grid above using "page" function
                     return false;
@@ -130,6 +88,27 @@
                     }
                 });
             });
+
+            //the product screen with the quick-edit tabs, in a popup over the grid. Closing it
+            //reloads the grid to show what was saved there, so what was typed in the grid is
+            //saved first rather than lost; a save that fails (a required name left empty) keeps
+            //the popup closed and the grid as it is
+            async function openBulkEditDetails(item) {
+                var grid = GrandAdmin.grids.get('#products-grid');
+                if (grid.dataSource.hasChanges() && !(await grid.saveChanges()))
+                    return;
+                $.magnificPopup.open({
+                    items: { src: '@Url.Action("Edit", "Product", new { area = area })/' + encodeURIComponent(item.Id) + '?popup=true' },
+                    type: 'iframe',
+                    mainClass: 'grand-mfp-frame',
+                    closeOnBgClick: false,
+                    callbacks: {
+                        close: function () {
+                            grid.dataSource.read();
+                        }
+                    }
+                });
+            }
 
             function additionalData() {
                 var data = {

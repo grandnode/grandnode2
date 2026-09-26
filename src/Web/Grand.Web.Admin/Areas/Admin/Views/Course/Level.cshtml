@@ -3,35 +3,20 @@
     ViewBag.Title = Loc["Admin.Courses.Level"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="bi bi-wrench"></i>
-                    @Loc["Admin.Courses.Level"]
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="level-grid"
-                                        read-url="@Url.Action("Levels", "Course", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("LevelAdd", "Course", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("LevelUpdate", "Course", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("LevelDelete", "Course", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Courses.Level.Fields.Name"]" width="400" editor="Text"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Courses.Level.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* an inline-edit grid in a flush card; grid.js moves its Add new into the card header *@
+<admin-page title="@Loc["Admin.Courses.Level"]" icon="bi-wrench">
+    <admin-card flush>
+        <admin-grid id="level-grid"
+                    read-url="@Url.Action("Levels", "Course", new { area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("LevelAdd", "Course", new { area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("LevelUpdate", "Course", new { area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("LevelDelete", "Course", new { area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="Name" title="@Loc["Admin.Courses.Level.Fields.Name"]" width="400" editor="Text"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Courses.Level.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+            <grid-commands edit="true" destroy="true" width="200"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

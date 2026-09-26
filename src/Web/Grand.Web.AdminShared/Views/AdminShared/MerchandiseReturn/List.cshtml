@@ -6,125 +6,68 @@
 }
 <form asp-area="@area" asp-controller="MerchandiseReturn" asp-action="List" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption level-caption">
-                        <i class="bi bi-truck"></i>
-                        @Loc["Admin.Orders.MerchandiseReturns"]
-                    </div>
-                    <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
+    @* The product list's shape: the customer's email as the quick search with the rest of the
+       criteria behind the Filters toggle, and the grid in a flush card. A return is raised by the
+       customer, so there is no Add new and Search is the one primary action. *@
+    <admin-page title="@Loc["Admin.Orders.MerchandiseReturns"]" icon="bi-truck">
+        <page-actions>
+            <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
+        </page-actions>
+
+        <admin-filters id="merchandisereturn-filters" submit-id="search-returnreqest">
+            <filters-search>
+                <admin-input asp-for="SearchCustomerEmail"/>
+            </filters-search>
+            <admin-field asp-for="GoDirectlyToId">
+                <div class="input-group">
+                    <admin-input asp-for="GoDirectlyToId"/>
+                    <input type="submit" id="go-to-merchandisereturn" asp-action="GoToId" name="go-to-merchandisereturn"
+                           class="btn btn-outline-secondary" value="@Loc["Admin.Common.Go"]"/>
                 </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-4 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchCustomerEmail" class="control-label"/>
-                                            <admin-input asp-for="SearchCustomerEmail"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="GoDirectlyToId" class="control-label"/>
-                                            <div class="input-group mb-0" style="text-align:left">
-                                                <admin-input asp-for="GoDirectlyToId"/>
-                                                <span class="">
-                                                    <input type="submit" id="go-to-merchandisereturn" asp-action="GoToId" name="go-to-merchandisereturn" class="btn default" value="@Loc["Admin.Common.Go"]"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-success filter-submit" id="search-returnreqest">
-                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container w-100">
-                                <div class="mb-3">
-                                    <admin-label asp-for="StartDate" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="StartDate"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="EndDate" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="EndDate"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchCustomerEmail" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchCustomerEmail"/>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <admin-label asp-for="SearchMerchandiseReturnStatusId" class="col-sm-3 control-label"/>
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="x_content">
-                        <admin-grid id="merchandisereturns-grid"
-                                    read-url="@Url.Action("List", "MerchandiseReturn", new { area = area })"
-                                    additional-data="additionalData">
-                            <grid-column field="ReturnNumber" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]" width="50">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ ReturnNumber }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Quantity }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="Total" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]" width="100">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Total }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CustomerId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]" width="200">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="OrderId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]" width="80">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="MerchandiseReturnStatusStr" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]" width="130">
-                                <cell-template>
-                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ MerchandiseReturnStatusStr }}</a>
-                                </cell-template>
-                            </grid-column>
-                            <grid-column field="CreatedOn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]" width="100" format="{0:G}"/>
-                        </admin-grid>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </admin-field>
+            <admin-field asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus"/>
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+        </admin-filters>
+
+        <admin-card flush>
+            <admin-grid id="merchandisereturns-grid"
+                        read-url="@Url.Action("List", "MerchandiseReturn", new { area = area })"
+                        additional-data="additionalData">
+                <grid-column field="ReturnNumber" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]" width="50">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ ReturnNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Quantity }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Total" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]" width="100">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Total }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="CustomerId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]" width="200">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="OrderId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]" width="80">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="MerchandiseReturnStatusStr" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]" width="130">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ MerchandiseReturnStatusStr }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="CreatedOn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
 </form>
 
 <script>
@@ -141,7 +84,7 @@
     $(document).ready(function () {
         $('#search-returnreqest').click(function () {
             //search
-            var grid = $('#merchandisereturns-grid').data('kendoGrid');
+            var grid = GrandAdmin.grids.get('#merchandisereturns-grid');
             grid.dataSource.page(1); //new search. Set page size to 1
             //grid.dataSource.read(); we already loaded the grid above using "page" function
             return false;

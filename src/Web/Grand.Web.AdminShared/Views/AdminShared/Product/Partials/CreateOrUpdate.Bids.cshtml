@@ -8,9 +8,9 @@
 {
     <input asp-for="AuctionEnded" type="hidden"/>
 
-    <div class="panel panel-default">
+    <div class="grand-card">
         <partial name="Partials/WidgetZone.Bids.Top" model="Model"/>
-        <div class="panel-body">
+        <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="bids-grid"
                         read-only="@readOnly"
                         read-url="@Url.Action("ListBids", "Product", new { productId = Model.Id, area = area })"

@@ -9,151 +9,85 @@
     <input type="hidden" asp-for="CalendarModel.ProductId"/>
 
     <partial name="Partials/WidgetZone.Calendar.Top" model="Model"/>
-    <div class="form-horizontal">
-        <h2>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Calendarconfiguration"]</h2>
-        <div class="form-body">
-            <div class="mb-3">
-                <div class="mb-3">
-                    <admin-label asp-for="CalendarModel.StartDate"/>
-                    <div class="col-md-3 col-sm-3">
-                        <admin-input asp-for="CalendarModel.StartDate"/>
-                    </div>
-                    <div class="col-md-6" id="pnlStartTime">
-                        <label class="col-md-3 control-label">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.StartTime"]</label>
-                        <div class="col-md-3 col-sm-3">
-                            <admin-input asp-for="CalendarModel.StartTime"/>
-                        </div>
-                    </div>
 
-                </div>
-                <div class="mb-3">
-                    <admin-label asp-for="CalendarModel.EndDate"/>
-                    <div class="col-md-3 col-sm-3">
-                        <admin-input asp-for="CalendarModel.EndDate"/>
-                    </div>
-                    <div class="col-md-6" id="pnlEndTime">
-                        <label class="col-md-3 control-label">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.EndTime"]</label>
-                        <div class="col-md-3 col-sm-3">
-                            <admin-input asp-for="CalendarModel.EndTime"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-3" id="pnlIncludeBothDates">
-                    <admin-label asp-for="CalendarModel.IncBothDate"/>
-                    <div class="col-md-9 col-sm-9">
-                        <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                            <admin-input asp-for="CalendarModel.IncBothDate"/>
-                            <div class="control__indicator"></div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <admin-label asp-for="CalendarModel.Interval"/>
-                <div class="col-md-9 col-sm-9">
+    @* The interval unit decides which fields apply - a day calendar takes a resource and whether
+       both end dates count, an hourly one its times, quantity and parameter - so the unit is the
+       reveal's trigger with all of them in its body. Every pnl* id the script below toggles is
+       still on the same field; pnlInterval still wraps only the number beside the unit. *@
+    <admin-card title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Calendarconfiguration"]">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="CalendarModel.StartDate" size="md"/>
+            <admin-field asp-for="CalendarModel.EndDate" size="md"/>
+        </div>
+        <div class="grand-reveal mt-3">
+            <admin-field asp-for="CalendarModel.Interval">
+                <div class="d-flex flex-wrap align-items-center gap-2">
                     <span id="pnlInterval">
                         <admin-input asp-for="CalendarModel.Interval"/>
                     </span>
-                    <admin-select asp-for="CalendarModel.IntervalUnit" asp-items="EnumTranslationService.ToSelectList((IntervalUnit)Model.CalendarModel.IntervalUnit)" class="form-control input-xsmall" style="height: 30px;padding: 0px; margin-bottom: 3px; margin-top: 3px; "/>
-                </div>
-            </div>
-            <div class="mb-3" id="pnlQuantity">
-                <admin-label asp-for="CalendarModel.Quantity"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CalendarModel.Quantity"/>
-                </div>
-            </div>
-
-            <div class="mb-3" id="pnlResource">
-                <admin-label asp-for="CalendarModel.Resource"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CalendarModel.Resource"/>
-                </div>
-            </div>
-
-            <div class="mb-3" id="pnlParameter">
-                <admin-label asp-for="CalendarModel.Parameter"/>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="CalendarModel.Parameter"/>
-                </div>
-            </div>
-            <div class="portlet">
-                <div class="x_title">
-                    <div class="caption">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.WeekDay"]</div>
-                </div>
-                <div class="x_content">
-                    <div class="mb-3">
-                        <div class="mt-checkbox-inline ">
-                            <label class="mt-checkbox control control-checkbox">
-                                <admin-input asp-for="CalendarModel.Monday"/>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Monday"]
-                                <div class="control__indicator"></div>
-                            </label>
-                            <label class="mt-checkbox control control-checkbox">
-                                <admin-input asp-for="CalendarModel.Tuesday"/>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Tuesday"]
-                                <div class="control__indicator"></div>
-                            </label>
-                            <label class="mt-checkbox control control-checkbox">
-                                <admin-input asp-for="CalendarModel.Wednesday"/>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Wednesday"]
-                                <div class="control__indicator"></div>
-                            </label>
-                            <label class="mt-checkbox control control-checkbox">
-                                <admin-input asp-for="CalendarModel.Thursday"/>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Thursday"]
-                                <div class="control__indicator"></div>
-                            </label>
-                            <label class="mt-checkbox control control-checkbox">
-                                <admin-input asp-for="CalendarModel.Friday"/>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Friday"]
-                                <div class="control__indicator"></div>
-                            </label>
-                            <label class="mt-checkbox control control-checkbox">
-                                <admin-input asp-for="CalendarModel.Saturday"/>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Saturday"]
-                                <div class="control__indicator"></div>
-                            </label>
-                            <label class="mt-checkbox control control-checkbox">
-                                <admin-input asp-for="CalendarModel.Sunday"/>
-                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Sunday"]
-                                <div class="control__indicator"></div>
-                            </label>
-                        </div>
+                    <div class="grand-field--md">
+                        <admin-select asp-for="CalendarModel.IntervalUnit" asp-items="EnumTranslationService.ToSelectList((IntervalUnit)Model.CalendarModel.IntervalUnit)"/>
                     </div>
                 </div>
+            </admin-field>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="CalendarModel.StartTime" id="pnlStartTime" size="sm"/>
+                <admin-field asp-for="CalendarModel.EndTime" id="pnlEndTime" size="sm"/>
+                <admin-field asp-for="CalendarModel.Quantity" id="pnlQuantity" size="sm"/>
+                <admin-field asp-for="CalendarModel.Parameter" id="pnlParameter" size="md"/>
+                <admin-field asp-for="CalendarModel.Resource" id="pnlResource" size="md"/>
+                <admin-field asp-for="CalendarModel.IncBothDate" id="pnlIncludeBothDates"/>
             </div>
         </div>
-    </div>
-    <div class="panel panel-default">
+    </admin-card>
+
+    <admin-card title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.WeekDay"]">
+        <div class="d-flex flex-wrap gap-4">
+            <admin-field asp-for="CalendarModel.Monday"/>
+            <admin-field asp-for="CalendarModel.Tuesday"/>
+            <admin-field asp-for="CalendarModel.Wednesday"/>
+            <admin-field asp-for="CalendarModel.Thursday"/>
+            <admin-field asp-for="CalendarModel.Friday"/>
+            <admin-field asp-for="CalendarModel.Saturday"/>
+            <admin-field asp-for="CalendarModel.Sunday"/>
+        </div>
+    </admin-card>
+
+    @* the product's Save is the screen's primary, so the calendar's actions are outline buttons
+       in the header of the card whose grid they fill or clear *@
+    <admin-card flush>
         @if (!readOnly)
         {
-            <div class="panel-footer">
-                <button id="generateCalendar" type="button" class="btn btn-primary">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Generatecalendar"]</button>
-                <button id="clearOld" type="button" class="btn btn-secondary" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearold"]</button>
-                <button id="clearCalendar" type="button" class="btn btn-danger" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]</button>
-            </div>
+            <card-actions>
+                <button id="generateCalendar" type="button" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-calendar-plus"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Generatecalendar"]
+                </button>
+                <button id="clearOld" type="button" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-calendar-minus"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearold"]
+                </button>
+                <button id="clearCalendar" type="button" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-calendar-x"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]
+                </button>
+            </card-actions>
         }
-        <div class="panel-body">
-            <admin-grid id="reservations-grid"
-                        read-only="@readOnly"
-                        read-url="@Url.Action("ListReservations", "Product", new { productId = Model.Id, area = area })"
-                        destroy-url="@Url.Action("ProductReservationDelete", "Product", new { area = area })"
-                        auto-bind="false">
-                <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
-                <grid-column field="Date" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Date"]" width="200" format="{0:G}"/>
-                <grid-column field="Resource" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Resource"]" width="200"/>
-                <grid-column field="Parameter" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Parameter"]" width="200"/>
-                <grid-column field="Duration" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Duration"]" width="200"/>
-                <grid-column field="OrderId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.OrderId"]" width="200">
-                    <cell-template>
-                        <a data-if="OrderId" class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
-                    </cell-template>
-                </grid-column>
-                <grid-commands destroy="true" width="100"/>
-            </admin-grid>
-        </div>
-    </div>
+        <admin-grid id="reservations-grid"
+                    read-only="@readOnly"
+                    read-url="@Url.Action("ListReservations", "Product", new { productId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("ProductReservationDelete", "Product", new { area = area })"
+                    auto-bind="false">
+            <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
+            <grid-column field="Date" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Date"]" width="200" format="{0:G}"/>
+            <grid-column field="Resource" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Resource"]" width="200"/>
+            <grid-column field="Parameter" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Parameter"]" width="200"/>
+            <grid-column field="Duration" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Duration"]" width="200"/>
+            <grid-column field="OrderId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.OrderId"]" width="200">
+                <cell-template>
+                    <a data-if="OrderId" class="btn btn-sm btn-outline-secondary" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" width="100"/>
+        </admin-grid>
+    </admin-card>
     <partial name="Partials/WidgetZone.Calendar.Bottom" model="Model"/>
 
     <script>
@@ -245,7 +179,7 @@
                     data: postData,
                     success: function (data) {
                         if (data.success) {
-                            var grid = $("#reservations-grid").data('kendoGrid');
+                            var grid = GrandAdmin.grids.get("#reservations-grid");
                             grid.dataSource.read();
                         }
                         else {
@@ -259,7 +193,11 @@
             });
 
             $("#clearCalendar").click(function () {
-                if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
+                GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]', {
+                    confirmText: '@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]',
+                    cancelText: '@Loc[$"{Scope.ResourceKeyPrefix}.Common.Cancel"]'
+                }).then(function (confirmed) {
+                    if (!confirmed) return;
                     var postData = {
                         productId: '@(Model.Id)'
                     };
@@ -273,14 +211,14 @@
                         dataType: 'json',
                         data: postData,
                         success: function (data) {
-                            var grid = $("#reservations-grid").data('kendoGrid');
+                            var grid = GrandAdmin.grids.get("#reservations-grid");
                             grid.dataSource.read();
                         },
                         error: function () {
                             alert('Error');
                         }
                     });
-                }
+                });
             });
 
             $("#clearOld").click(function () {
@@ -297,7 +235,7 @@
                     dataType: 'json',
                     data: postData,
                     success: function (data) {
-                        var grid = $("#reservations-grid").data('kendoGrid');
+                        var grid = GrandAdmin.grids.get("#reservations-grid");
                         grid.dataSource.read();
                     },
                     error: function () {

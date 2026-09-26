@@ -3,44 +3,28 @@
     Layout = Constants.LayoutStore;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Admin.Configuration.Shipping.Warehouses"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("CreateWarehouse", "Shipping", new { area = Constants.AreaStore })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"]</span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="warehouse-grid"
-                                        read-url="@Url.Action("WarehousesListData", "Shipping", new { area = Constants.AreaStore })"
-                                        pager="Compact">
-                                <grid-column field="Code" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Code"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Code }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder"]" width="120"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<admin-page title="@Loc["Admin.Configuration.Shipping.Warehouses"]" icon="bi-card-list">
+    <page-actions>
+        <a href="@Url.Action("CreateWarehouse", "Shipping", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="warehouse-grid"
+                    read-url="@Url.Action("WarehousesListData", "Shipping", new { area = Constants.AreaStore })"
+                    pager="Compact">
+            <grid-column field="Code" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Code"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Code }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("EditWarehouse", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder"]" width="120"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

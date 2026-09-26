@@ -3,14 +3,16 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 <partial name="Partials/WidgetZone.HistoryTop" model="Model"/>
-<admin-grid id="usagehistory-grid" read-url="@Url.Action("UsageHistoryList", "GiftVoucher", new { giftVoucherId = Model.Id, area })">
-    <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
-    <grid-column field="CreatedOn" title="@Loc["Admin.GiftVouchers.History.CreatedOn"]" width="200" format="{0:G}"/>
-    <grid-column field="OrderId" title="@Loc["Admin.GiftVouchers.History.Order"]" width="200">
-        <cell-template>
-            <a href="@Url.Action("Edit", "Order", new { area })/{{ OrderId }}" class="btn btn-default btn-sm"><span class="bi bi-eye"></span>&nbsp;{{ $texts.view }} {{ OrderNumber }}</a>
-        </cell-template>
-    </grid-column>
-    <grid-column field="UsedValue" title="@Loc["Admin.GiftVouchers.History.UsedValue"]" width="200"/>
-</admin-grid>
+<admin-card flush>
+    <admin-grid id="usagehistory-grid" read-url="@Url.Action("UsageHistoryList", "GiftVoucher", new { giftVoucherId = Model.Id, area })">
+        <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
+        <grid-column field="CreatedOn" title="@Loc["Admin.GiftVouchers.History.CreatedOn"]" width="200" format="{0:G}"/>
+        <grid-column field="OrderId" title="@Loc["Admin.GiftVouchers.History.Order"]" width="200">
+            <cell-template>
+                <a href="@Url.Action("Edit", "Order", new { area })/{{ OrderId }}" class="text-decoration-none"><i class="bi bi-eye"></i> {{ $texts.view }} {{ OrderNumber }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="UsedValue" title="@Loc["Admin.GiftVouchers.History.UsedValue"]" width="200"/>
+    </admin-grid>
+</admin-card>
 <partial name="Partials/WidgetZone.HistoryBottom" model="Model"/>

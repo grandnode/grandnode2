@@ -1,26 +1,15 @@
-﻿<div class="row">
-    <div class="col-md-12">
-        <div class="panel">
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="measureunit-grid"
-                                        read-url="@Url.Action("Units", "Measure", new { area = Constants.AreaAdmin })"
-                                        create-url="@Url.Action("UnitAdd", "Measure", new { area = Constants.AreaAdmin })"
-                                        update-url="@Url.Action("UnitUpdate", "Measure", new { area = Constants.AreaAdmin })"
-                                        destroy-url="@Url.Action("UnitDelete", "Measure", new { area = Constants.AreaAdmin })"
-                                        pager="Compact"
-                                        edit-mode="Inline">
-                                <grid-toolbar-create/>
-                                <grid-column field="Name" title="@Loc["Admin.Configuration.Measures.Units.Fields.Name"]" width="300" editor="Text"/>
-                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Measures.Weights.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
-                                <grid-commands edit="true" destroy="true" width="200"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+﻿@* the grid edits inline; its Add new moves into the card header (grid.js) *@
+<admin-card flush>
+    <admin-grid id="measureunit-grid"
+                read-url="@Url.Action("Units", "Measure", new { area = Constants.AreaAdmin })"
+                create-url="@Url.Action("UnitAdd", "Measure", new { area = Constants.AreaAdmin })"
+                update-url="@Url.Action("UnitUpdate", "Measure", new { area = Constants.AreaAdmin })"
+                destroy-url="@Url.Action("UnitDelete", "Measure", new { area = Constants.AreaAdmin })"
+                pager="Compact"
+                edit-mode="Inline">
+        <grid-toolbar-create/>
+        <grid-column field="Name" title="@Loc["Admin.Configuration.Measures.Units.Fields.Name"]" width="300" editor="Text"/>
+        <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Measures.Weights.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+        <grid-commands edit="true" destroy="true" width="200"/>
+    </admin-grid>
+</admin-card>

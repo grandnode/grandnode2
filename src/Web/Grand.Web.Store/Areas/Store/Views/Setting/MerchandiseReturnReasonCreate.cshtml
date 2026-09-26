@@ -3,31 +3,22 @@
     ViewBag.Title = Loc["Admin.Settings.Order.MerchandiseReturnReasons.AddNew"];
 }
 <form asp-area="@Constants.AreaStore" asp-controller="Setting" asp-action="MerchandiseReturnReasonCreate" method="post">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-card-list"></i>
-                        @Loc["Admin.Settings.Order.MerchandiseReturnReasons.AddNew"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>
-                            <a href="@Url.Action("Sales", "Setting", new { area = Constants.AreaStore })">@Loc["Admin.Settings.Order.MerchandiseReturnReasons.BackToList"]</a>
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save">
-                            <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                        </button>
-                        <button class="btn btn-success" type="submit" name="save-continue">
-                            <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                        </button>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate.MerchandiseReturnReason" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+
+    @* the same shell as Edit, minus what a record that does not exist yet cannot offer *@
+    <admin-page sticky
+                title="@Loc["Admin.Settings.Order.MerchandiseReturnReasons.AddNew"]"
+                icon="bi-card-list"
+                back-url="@Url.Action("Sales", "Setting", new { area = Constants.AreaStore })"
+                back-text="@Loc["Admin.Settings.Order.MerchandiseReturnReasons.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate.MerchandiseReturnReason" model="Model"/>
+    </admin-page>
 </form>

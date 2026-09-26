@@ -43,7 +43,7 @@ public class DeliveryCommandHandler : IRequestHandler<DeliveryCommand, bool>
         if (request.Shipment.DeliveryDateUtc.HasValue)
             throw new Exception("This shipment is already delivered");
 
-        request.Shipment.DeliveryDateUtc = DateTime.UtcNow;
+        request.Shipment.DeliveryDateUtc = request.DeliveryDateUtc ?? DateTime.UtcNow;
         await _shipmentService.UpdateShipment(request.Shipment);
 
         var shipments = await _shipmentService.GetShipmentsByOrder(request.Shipment.OrderId);

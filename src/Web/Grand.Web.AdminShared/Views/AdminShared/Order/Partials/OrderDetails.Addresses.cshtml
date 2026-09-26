@@ -2,439 +2,307 @@
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
+@* Two cards side by side, billing and shipping, each with its Edit in the card header. The
+   shipping method keeps the ids its inline editor toggles. *@
 <partial name="Partials/WidgetZone.Addresses.Top" model="Model"/>
-<div class="card col-md-6">
-    <div class="card-body">
-        <h4 class="card-title">@Loc["Admin.Orders.BillingInfo"]</h4>
-        <p class="card-text">
-            <table class="table table-bordered table-striped table-hover">
-                @if (Model.BillingAddress.FirstNameEnabled || Model.BillingAddress.LastNameEnabled)
-                {
-                    <tr>
-                        <td style="width:25%">
-                            @Loc["Admin.Orders.Address.FullName"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.FirstName @Model.BillingAddress.LastName
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.EmailEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.Email"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.Email
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.PhoneEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.Phone"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.PhoneNumber
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.FaxEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.Fax"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.FaxNumber
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.CompanyEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.Company"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.Company
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.VatNumberEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.VatNumber"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.VatNumber
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.StreetAddressEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.Address1"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.Address1
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.StreetAddress2Enabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.Address2"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.Address2
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.CityEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.City"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.City
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.StateProvinceEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.StateProvince"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.StateProvinceName
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.ZipPostalCodeEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.ZipPostalCode"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.ZipPostalCode
-                        </td>
-                    </tr>
-                }
-                @if (Model.BillingAddress.CountryEnabled)
-                {
-                    <tr>
-                        <td>
-                            @Loc["Admin.Orders.Address.Country"]:
-                        </td>
-                        <td>
-                            @Model.BillingAddress.CountryName
-                        </td>
-                    </tr>
-                }
-                @if (!string.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
-                {
-                    <tr class="custom-attributes-view">
-                        <td colspan="2">
-                            @Html.Raw(Model.BillingAddress.FormattedCustomAddressAttributes)
-                        </td>
-                    </tr>
-                }
-
-                <tr>
-                    <td colspan="2">
-                        <a href="@Url.Action("AddressEdit", new { addressId = Model.BillingAddress.Id, orderId = Model.Id, BillingAddress = true, area = area })" class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>
-                    </td>
-                </tr>
-
-            </table>
-        </p>
-    </div>
-</div>
+<div class="grand-fields grand-fields--2col">
+<admin-card title="@Loc["Admin.Orders.BillingInfo"]">
+    <card-actions>
+        <a href="@Url.Action("AddressEdit", new { addressId = Model.BillingAddress.Id, orderId = Model.Id, BillingAddress = true, area = area })" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> @Loc["Admin.Common.Edit"]</a>
+    </card-actions>
+    <table class="table table-sm mb-0">
+        @if (Model.BillingAddress.FirstNameEnabled || Model.BillingAddress.LastNameEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.FullName"]</td>
+                <td>@Model.BillingAddress.FirstName @Model.BillingAddress.LastName</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.EmailEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.Email"]</td>
+                <td>@Model.BillingAddress.Email</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.PhoneEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.Phone"]</td>
+                <td>@Model.BillingAddress.PhoneNumber</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.FaxEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.Fax"]</td>
+                <td>@Model.BillingAddress.FaxNumber</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.CompanyEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.Company"]</td>
+                <td>@Model.BillingAddress.Company</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.VatNumberEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.VatNumber"]</td>
+                <td>@Model.BillingAddress.VatNumber</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.StreetAddressEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.Address1"]</td>
+                <td>@Model.BillingAddress.Address1</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.StreetAddress2Enabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.Address2"]</td>
+                <td>@Model.BillingAddress.Address2</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.CityEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.City"]</td>
+                <td>@Model.BillingAddress.City</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.StateProvinceEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.StateProvince"]</td>
+                <td>@Model.BillingAddress.StateProvinceName</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.ZipPostalCodeEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.ZipPostalCode"]</td>
+                <td>@Model.BillingAddress.ZipPostalCode</td>
+            </tr>
+        }
+        @if (Model.BillingAddress.CountryEnabled)
+        {
+            <tr>
+                <td class="grand-fact__label">@Loc["Admin.Orders.Address.Country"]</td>
+                <td>@Model.BillingAddress.CountryName</td>
+            </tr>
+        }
+        @if (!string.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
+        {
+            <tr class="custom-attributes-view">
+                <td colspan="2">
+                    @Html.Raw(Model.BillingAddress.FormattedCustomAddressAttributes)
+                </td>
+            </tr>
+        }
+    </table>
+</admin-card>
 
 @if (Model.IsShippable)
 {
-    <div class="card col-md-6">
-        <div class="card-body">
-            <h4 class="card-title">@Loc["Admin.Orders.ShippingInfo"]</h4>
-            <p class="card-text">
-
-                @if (Model.ShippingAddress != null)
+    <admin-card title="@Loc["Admin.Orders.ShippingInfo"]">
+        @if (Model.ShippingAddress != null)
+        {
+            <card-actions>
+                <a href="@Url.Action("AddressEdit", new { addressId = Model.ShippingAddress.Id, orderId = Model.Id, area = area })" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> @Loc["Admin.Common.Edit"]</a>
+            </card-actions>
+            <table class="table table-sm mb-0">
+                @if (Model.ShippingAddress.FirstNameEnabled || Model.ShippingAddress.LastNameEnabled)
                 {
-                    <table class="table table-bordered table-striped table-hover">
-                        @if (Model.ShippingAddress.FirstNameEnabled || Model.ShippingAddress.LastNameEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.FullName"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.FirstName @Model.ShippingAddress.LastName
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.EmailEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.Email"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.Email
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.PhoneEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.Phone"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.PhoneNumber
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.FaxEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.Fax"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.FaxNumber
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.CompanyEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.Company"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.Company
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.StreetAddressEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.Address1"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.Address1
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.StreetAddress2Enabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.Address2"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.Address2
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.CityEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.City"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.City
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.StateProvinceEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.StateProvince"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.StateProvinceName
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.ZipPostalCodeEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.ZipPostalCode"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.ZipPostalCode
-                                </td>
-                            </tr>
-                        }
-                        @if (Model.ShippingAddress.CountryEnabled)
-                        {
-                            <tr>
-                                <td>
-                                    @Loc["Admin.Orders.Address.Country"]:
-                                </td>
-                                <td>
-                                    @Model.ShippingAddress.CountryName
-                                </td>
-                            </tr>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
-                        {
-                            <tr class="custom-attributes-view">
-                                <td colspan="2">
-                                    @Html.Raw(Model.ShippingAddress.FormattedCustomAddressAttributes)
-                                </td>
-                            </tr>
-                        }
-
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.FullName"]</td>
+                        <td>@Model.ShippingAddress.FirstName @Model.ShippingAddress.LastName</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.EmailEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.Email"]</td>
+                        <td>@Model.ShippingAddress.Email</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.PhoneEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.Phone"]</td>
+                        <td>@Model.ShippingAddress.PhoneNumber</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.FaxEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.Fax"]</td>
+                        <td>@Model.ShippingAddress.FaxNumber</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.CompanyEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.Company"]</td>
+                        <td>@Model.ShippingAddress.Company</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.StreetAddressEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.Address1"]</td>
+                        <td>@Model.ShippingAddress.Address1</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.StreetAddress2Enabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.Address2"]</td>
+                        <td>@Model.ShippingAddress.Address2</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.CityEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.City"]</td>
+                        <td>@Model.ShippingAddress.City</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.StateProvinceEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.StateProvince"]</td>
+                        <td>@Model.ShippingAddress.StateProvinceName</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.ZipPostalCodeEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.ZipPostalCode"]</td>
+                        <td>@Model.ShippingAddress.ZipPostalCode</td>
+                    </tr>
+                }
+                @if (Model.ShippingAddress.CountryEnabled)
+                {
+                    <tr>
+                        <td class="grand-fact__label">@Loc["Admin.Orders.Address.Country"]</td>
+                        <td>@Model.ShippingAddress.CountryName</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
+                {
+                    <tr class="custom-attributes-view">
+                        <td colspan="2">
+                            @Html.Raw(Model.ShippingAddress.FormattedCustomAddressAttributes)
+                        </td>
+                    </tr>
+                }
+            </table>
+            <div class="mt-3">
+                <i class="bi bi-geo-alt"></i>
+                <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" target="_blank">@Loc["Admin.Orders.Fields.ShippingAddress.ViewOnGoogleMaps"]</a>
+            </div>
+        }
+        @if (Model.PickupAddress != null)
+        {
+            <div class="mt-3">
+                <admin-label asp-for="PickupAddress" asp-display-hint="false" class="grand-fact__label"/>
+                <table class="table table-sm mb-0">
+                    @if (!string.IsNullOrEmpty(Model.PickupAddress.Address1))
+                    {
                         <tr>
-                            <td colspan="2">
-                                <a href="@Url.Action("AddressEdit", new { addressId = Model.ShippingAddress.Id, orderId = Model.Id, area = area })" class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>
-                            </td>
+                            <td class="grand-fact__label">@Loc["Admin.Orders.Address.Address1"]</td>
+                            <td>@Model.PickupAddress.Address1</td>
                         </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PickupAddress.City))
+                    {
+                        <tr>
+                            <td class="grand-fact__label">@Loc["Admin.Orders.Address.City"]</td>
+                            <td>@Model.PickupAddress.City</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                    {
+                        <tr>
+                            <td class="grand-fact__label">@Loc["Admin.Orders.Address.ZipPostalCode"]</td>
+                            <td>@Model.PickupAddress.ZipPostalCode</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PickupAddress.CountryName))
+                    {
+                        <tr>
+                            <td class="grand-fact__label">@Loc["Admin.Orders.Address.Country"]</td>
+                            <td>@Model.PickupAddress.CountryName</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
 
-                    </table>
-                    <div style="padding-top: 15px;">
-                        <img alt="google maps" src="@Url.Content($"{Grand.SharedUIResources.Constants.WwwRoot}/administration/build/images/google-maps.gif")"/>
-                        <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" target="_blank">@Loc["Admin.Orders.Fields.ShippingAddress.ViewOnGoogleMaps"]</a>
+        <div class="grand-fields mt-3">
+            <div class="grand-field">
+                <admin-label asp-for="ShippingMethod" asp-display-hint="false" class="grand-field__label"/>
+                <div class="grand-field__control">
+                    <span id="lblShippingMethod">@Model.ShippingMethod</span>
+
+                    <script>
+                            $(document).ready(function () {
+                                toggleEditShippingMethod(false);
+                            });
+
+
+                            function toggleEditShippingMethod(editmode) {
+                                if (editmode) {
+                                    $('#lblShippingMethod').hide();
+                                    $('#divShippingMethod').show();
+                                    $('#btnEditShippingMethod').hide();
+                                    $('#btnSaveShippingMethod').show();
+                                    $('#btnCancelShippingMethod').show();
+                                } else {
+                                    $('#lblShippingMethod').show();
+                                    $('#divShippingMethod').hide();
+                                    $('#btnEditShippingMethod').show();
+                                    $('#btnSaveShippingMethod').hide();
+                                    $('#btnCancelShippingMethod').hide();
+                                }
+                            }
+
+                        </script>
+                    <div id="divShippingMethod" style="display: none;">
+                        <admin-input asp-for="ShippingMethod"/>
                     </div>
-                }
-                @if (Model.PickupAddress != null)
-                {
-                    <div class="mb-3">
-                        <admin-label asp-for="PickupAddress"/>
-                        <div class="col-md-9 col-sm-9">
-                            <table class="table table-bordered table-striped table-hover">
-                                @if (!string.IsNullOrEmpty(Model.PickupAddress.Address1))
-                                {
-                                    <tr>
-                                        <td>
-                                            @Loc["Admin.Orders.Address.Address1"]:
-                                        </td>
-                                        <td>
-                                            @Model.PickupAddress.Address1
-                                        </td>
-                                    </tr>
-                                }
-                                @if (!string.IsNullOrEmpty(Model.PickupAddress.City))
-                                {
-                                    <tr>
-                                        <td>
-                                            @Loc["Admin.Orders.Address.City"]:
-                                        </td>
-                                        <td>
-                                            @Model.PickupAddress.City
-                                        </td>
-                                    </tr>
-                                }
-                                @if (!string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
-                                {
-                                    <tr>
-                                        <td>
-                                            @Loc["Admin.Orders.Address.ZipPostalCode"]:
-                                        </td>
-                                        <td>
-                                            @Model.PickupAddress.ZipPostalCode
-                                        </td>
-                                    </tr>
-                                }
-                                @if (!string.IsNullOrEmpty(Model.PickupAddress.CountryName))
-                                {
-                                    <tr>
-                                        <td>
-                                            @Loc["Admin.Orders.Address.Country"]:
-                                        </td>
-                                        <td>
-                                            @Model.PickupAddress.CountryName
-                                        </td>
-                                    </tr>
-                                }
-                            </table>
-                        </div>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <button type="submit" id="btnEditShippingMethod" onclick=" toggleEditShippingMethod(true);return false; " class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> @Loc["Admin.Common.Edit"]</button>
+                        <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveShippingMethod" asp-action="EditShippingMethod" name="save-shipping-method" class="btn btn-outline-secondary btn-sm"
+                               data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
+                        <input type="submit" value="@Loc["Admin.Common.Cancel"]" onclick=" toggleEditShippingMethod(false);return false; " id="btnCancelShippingMethod" class="btn btn-outline-secondary btn-sm"/>
                     </div>
-                }
 
-                @if (Model.IsShippable)
-                {
-                    <div class="form-horizontal">
-                        <div class="form-body">
-
-                            <div class="mb-3">
-                                <admin-label asp-for="ShippingMethod"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label" id="lblShippingMethod">@Model.ShippingMethod</label>
-
-                                    <script>
-                                            $(document).ready(function () {
-                                                toggleEditShippingMethod(false);
-                                            });
-
-
-                                            function toggleEditShippingMethod(editmode) {
-                                                if (editmode) {
-                                                    $('#lblShippingMethod').hide();
-                                                    $('#divShippingMethod').show();
-                                                    $('#btnEditShippingMethod').hide();
-                                                    $('#btnSaveShippingMethod').show();
-                                                    $('#btnCancelShippingMethod').show();
-                                                } else {
-                                                    $('#lblShippingMethod').show();
-                                                    $('#divShippingMethod').hide();
-                                                    $('#btnEditShippingMethod').show();
-                                                    $('#btnSaveShippingMethod').hide();
-                                                    $('#btnCancelShippingMethod').hide();
-                                                }
-                                            }
-
-                                        </script>
-                                    <div id="divShippingMethod" style="display: inline-block;">
-                                        <admin-input asp-for="ShippingMethod"/>
-                                    </div>
-                                    <button type="submit" id="btnEditShippingMethod" onclick=" toggleEditShippingMethod(true);return false; " class="btn btn-default btn-sm"><span class="bi bi-pencil"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>
-                                    <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveShippingMethod" asp-action="EditShippingMethod" name="save-shipping-method" class="btn btn-default btn-sm" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                                    <input type="submit" value="@Loc["Admin.Common.Cancel"]" onclick=" toggleEditShippingMethod(false);return false; " id="btnCancelShippingMethod" class="btn btn-default btn-sm"/>
-
-                                    @if (!string.IsNullOrEmpty(Model.ShippingAdditionDescription))
-                                    {
-                                        <br/>
-                                        <label>@Html.Raw(Model.ShippingAdditionDescription)</label>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <admin-label asp-for="ShippingStatus"/>
-                                <div class="col-md-9 col-sm-9">
-                                    <label class="control-label">@Model.ShippingStatus</label>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                }
-
-            </p>
+                    @if (!string.IsNullOrEmpty(Model.ShippingAdditionDescription))
+                    {
+                        <div class="grand-field__hint">@Html.Raw(Model.ShippingAdditionDescription)</div>
+                    }
+                </div>
+            </div>
+            <div class="grand-facts">
+                <div>
+                    <admin-label asp-for="ShippingStatus" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.ShippingStatus</div>
+                </div>
+            </div>
         </div>
-    </div>
+    </admin-card>
 }
 else
 {
-    <div class="card col-md-6">
+    <admin-card>
         <div class="note note-info">@Loc["Admin.Orders.ShippingInfo.NotRequired"]</div>
-    </div>
+    </admin-card>
 }
+</div>
 
 <partial name="Partials/WidgetZone.Addresses.Bottom" model="Model"/>

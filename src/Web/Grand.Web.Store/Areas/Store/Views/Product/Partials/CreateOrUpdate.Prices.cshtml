@@ -5,237 +5,112 @@
 }
 @inject AdminAreaSettings adminAreaSettings
 <vc:store-widget widget-zone="store_product_details_prices_top" additional-data="Model"/>
-<div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="Price"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Price"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="Price"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <partial name="Partials/CreateOrUpdate.ProductPrices" model="Model"/>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="OldPrice"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="OldPrice"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="OldPrice"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CatalogPrice"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CatalogPrice"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="CatalogPrice"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlStartPrice">
-            <admin-label asp-for="StartPrice"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="StartPrice"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="StartPrice"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="ProductCost"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ProductCost"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="ProductCost"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisableBuyButton"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="DisableBuyButton"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="DisableBuyButton"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="DisableWishlistButton"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="DisableWishlistButton"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="DisableWishlistButton"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="AvailableForPreOrder"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AvailableForPreOrder"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AvailableForPreOrder"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlPreOrderDateTime">
-            <admin-label asp-for="PreOrderDateTime"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PreOrderDateTime"/>
-                <span asp-validation-for="PreOrderDateTime"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="CallForPrice"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="CallForPrice"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="CallForPrice"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="EnteredPrice"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="EnteredPrice"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="EnteredPrice"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlMinEnteredPrice">
-            <admin-label asp-for="MinEnteredPrice"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MinEnteredPrice"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="MinEnteredPrice"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlMaxEnteredPrice">
-            <admin-label asp-for="MaxEnteredPrice"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MaxEnteredPrice"/> [@Model.PrimaryStoreCurrencyCode]
-                <span asp-validation-for="MaxEnteredPrice"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="BasepriceEnabled"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BasepriceEnabled"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="BasepriceEnabled"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlBasepriceAmount">
-            <admin-label asp-for="BasepriceAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BasepriceAmount"/>
-                <span asp-validation-for="BasepriceAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlBasepriceUnit">
-            <admin-label asp-for="BasepriceUnitId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="BasepriceUnitId" asp-items="Model.AvailableBasepriceUnits"/>
-                <span asp-validation-for="BasepriceUnitId"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlBasepriceBaseAmount">
-            <admin-label asp-for="BasepriceBaseAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BasepriceBaseAmount"/>
-                <span asp-validation-for="BasepriceBaseAmount"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlBasepriceBaseUnit">
-            <admin-label asp-for="BasepriceBaseUnitId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="BasepriceBaseUnitId" asp-items="Model.AvailableBasepriceBaseUnits"/>
-                <span asp-validation-for="BasepriceBaseUnitId"></span>
-            </div>
-        </div>
-        <div class="mb-3">
-            <admin-label asp-for="IsTaxExempt"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsTaxExempt"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsTaxExempt"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlTaxCategory">
-            <admin-label asp-for="TaxCategoryId"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="TaxCategoryId" asp-items="Model.AvailableTaxCategories"/>
-                <span asp-validation-for="TaxCategoryId"></span>
-            </div>
-        </div>
-        <div class="mb-3" id="pnlIsTelecommunicationsOrBroadcastingOrElectronicServices">
-            <admin-label asp-for="IsTele"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox white-bg">
-                    <admin-input asp-for="IsTele"/>
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsTele"></span>
-            </div>
-        </div>
 
+@* Three cards instead of one column of 3/9 rows: what the product costs, how it may be bought,
+   and what it is taxed as. A switch that reveals fields sits in a .grand-reveal with those
+   fields right under it. Every id the script
+   in CreateOrUpdate.Info.cshtml shows and hides - group-prices, pnlStartPrice,
+   pnlPreOrderDateTime, pnlMinEnteredPrice, pnlMaxEnteredPrice, pnlBaseprice*, pnlTaxCategory,
+   pnlIsTelecommunicationsOrBroadcastingOrElectronicServices - sits on the same field as before.
+   The store owner's copy of the Admin tab: the store's own widget zones, and tier prices a
+   store may only look at when the product is read-only (ViewBag.IsReadOnly). *@
+<admin-card id="group-prices">
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Price" suffix="@Model.PrimaryStoreCurrencyCode"/>
+        <admin-field asp-for="OldPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+        <admin-field asp-for="CatalogPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+        <admin-field asp-for="StartPrice" id="pnlStartPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+        <admin-field asp-for="ProductCost" suffix="@Model.PrimaryStoreCurrencyCode"/>
     </div>
-</div>
+</admin-card>
+
+@* the per-currency prices of the product: a grid of its own, so it keeps its own card *@
+<partial name="Partials/CreateOrUpdate.ProductPrices" model="Model"/>
+
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="DisableBuyButton"/>
+        <admin-field asp-for="DisableWishlistButton"/>
+        <admin-field asp-for="CallForPrice"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="AvailableForPreOrder"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="PreOrderDateTime" id="pnlPreOrderDateTime"/>
+            </div>
+        </div>
+        <div class="grand-reveal">
+            <admin-field asp-for="EnteredPrice"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="MinEnteredPrice" id="pnlMinEnteredPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+                <admin-field asp-for="MaxEnteredPrice" id="pnlMaxEnteredPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+            </div>
+        </div>
+        <div class="grand-reveal">
+            <admin-field asp-for="BasepriceEnabled"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="BasepriceAmount" id="pnlBasepriceAmount"/>
+                <admin-field asp-for="BasepriceUnitId" id="pnlBasepriceUnit" asp-items="Model.AvailableBasepriceUnits"/>
+                <admin-field asp-for="BasepriceBaseAmount" id="pnlBasepriceBaseAmount"/>
+                <admin-field asp-for="BasepriceBaseUnitId" id="pnlBasepriceBaseUnit" asp-items="Model.AvailableBasepriceBaseUnits"/>
+            </div>
+        </div>
+    </div>
+</admin-card>
+
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="IsTaxExempt"/>
+        <admin-field asp-for="TaxCategoryId" id="pnlTaxCategory" asp-items="Model.AvailableTaxCategories"/>
+        <admin-field asp-for="IsTele" id="pnlIsTelecommunicationsOrBroadcastingOrElectronicServices"/>
+    </div>
+</admin-card>
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            @Loc["Admin.Catalog.Products.TierPrices"]
-        </div>
-        <div class="panel-body">
-            @* Delete posts the whole row; the Kendo parameterMap posted only Id and ProductId, which are the
-               fields TierPriceDeleteModel binds *@
-            <admin-grid id="tierprices-grid"
-                        read-only="@readOnly"
-                        read-url="@Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaStore })"
-                        destroy-url="@Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaStore })"
-                        pager="Compact"
-                        auto-bind="false"
-                        on-data-bound="onTierPricesGridDataBound">
-                <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
-                @if (!adminAreaSettings.HideStoreColumn)
-                {
-                    <grid-column field="StoreId" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Store"]">
-                        <cell-template>{{ Store }}</cell-template>
-                    </grid-column>
-                }
-                <grid-column field="CustomerGroupId" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup"]">
-                    <cell-template>{{ CustomerGroup }}</cell-template>
-                </grid-column>
-                <grid-column field="Quantity" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Quantity"]" format="{0:0}"/>
-                <grid-column field="Price" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Price"]">
-                    <cell-template>{{ Price }} [{{ CurrencyCode }}]</cell-template>
-                </grid-column>
-                <grid-column field="StartDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.StartDateTime"]" format="{0:G}"/>
-                <grid-column field="EndDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]" format="{0:G}"/>
-                @if (!readOnly)
-                {
-                    <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
-                        <cell-template>
-                            <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaStore })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
-                        </cell-template>
-                    </grid-column>
-                }
-                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]"/>
-            </admin-grid>
-        </div>
+    <admin-card title="@Loc["Admin.Catalog.Products.TierPrices"]" flush>
         @if (!readOnly)
         {
-            <div class="panel-footer">
-                <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaStore }))" class="btn btn-default btn-sm"><i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
+            <card-actions>
+                <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaStore }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
                 <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
-            </div>
+            </card-actions>
         }
-    </div>
+        @* Delete posts the whole row; the Kendo parameterMap posted only Id and ProductId, which are the
+           fields TierPriceDeleteModel binds *@
+        <admin-grid id="tierprices-grid"
+                    read-only="@readOnly"
+                    read-url="@Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaStore })"
+                    destroy-url="@Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaStore })"
+                    pager="Compact"
+                    auto-bind="false"
+                    on-data-bound="onTierPricesGridDataBound">
+            <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+            @if (!adminAreaSettings.HideStoreColumn)
+            {
+                <grid-column field="StoreId" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Store"]">
+                    <cell-template>{{ Store }}</cell-template>
+                </grid-column>
+            }
+            <grid-column field="CustomerGroupId" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup"]">
+                <cell-template>{{ CustomerGroup }}</cell-template>
+            </grid-column>
+            <grid-column field="Quantity" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Quantity"]" format="{0:0}"/>
+            <grid-column field="Price" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.Price"]">
+                <cell-template>{{ Price }} [{{ CurrencyCode }}]</cell-template>
+            </grid-column>
+            <grid-column field="StartDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.StartDateTime"]" format="{0:G}"/>
+            <grid-column field="EndDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]" format="{0:G}"/>
+            @if (!readOnly)
+            {
+                <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
+                    <cell-template>
+                        <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaStore })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
+                    </cell-template>
+                </grid-column>
+            }
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]"/>
+        </admin-grid>
+    </admin-card>
 
     <script>
         $(document).ready(function () {
@@ -272,7 +147,7 @@
 
         $(document).ready(function () {
             $('#btnRefreshTierPrices').click(function () {
-                $("#tierprices-grid").data('kendoGrid').dataSource.read();
+                GrandAdmin.grids.get("#tierprices-grid").dataSource.read();
                 return false;
             });
         });
@@ -285,29 +160,22 @@ else
     </div>
 }
 
-
 @if (Model.AvailableDiscounts is { Count: > 0 })
 {
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            @Loc["Admin.Catalog.Products.AvailableDiscounts"]
+    <admin-card title="@Loc["Admin.Catalog.Products.AvailableDiscounts"]">
+        <div class="grand-fields grand-fields--2col">
+            @foreach (var discount in Model.AvailableDiscounts)
+            {
+                <div class="grand-field grand-field--check form-check">
+                    <div class="grand-field__control">
+                        <input type="checkbox" class="form-check-input" id="discount-@discount.Id" name="SelectedDiscountIds" value="@discount.Id"
+                               checked="@(Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id))"/>
+                    </div>
+                    <label class="grand-field__label" for="discount-@discount.Id">@discount.Name</label>
+                </div>
+            }
         </div>
-        <div class="panel-body">
-            <div class="mt-checkbox-list">
-                @foreach (var discount in Model.AvailableDiscounts)
-                {
-                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
-                               @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id))
-                               {
-                                   <text> checked="checked" </text>
-                               }/>@discount.Name
-                        <div class="control__indicator"></div>
-                    </label>
-                }
-            </div>
-        </div>
-    </div>
+    </admin-card>
 }
 else
 {

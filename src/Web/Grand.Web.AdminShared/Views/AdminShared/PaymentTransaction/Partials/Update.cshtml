@@ -3,133 +3,101 @@
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 
-
-<div class="form-horizontal">
-    <partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
-    <div class="form-body">
-        <div class="mb-3">
-            <admin-label asp-for="PaymentMethodSystemName"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.PaymentMethodSystemName</label>
-            </div>
+@* a transaction is read, not edited: what it is and what the gateway said, as facts *@
+<partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
+<admin-card>
+    <div class="grand-facts">
+        <div>
+            <admin-label asp-for="PaymentMethodSystemName" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.PaymentMethodSystemName</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="Status"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.Status</label>
-            </div>
+        <div>
+            <admin-label asp-for="Status" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.Status</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="TransactionAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.TransactionAmount [@Model.CurrencyCode]</label>
-            </div>
+        <div>
+            <admin-label asp-for="TransactionAmount" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.TransactionAmount [@Model.CurrencyCode]</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="PaidAmount"/>
-            <div class="col-md-9 col-sm-9">
-                <label class="control-label">@Model.PaidAmount [@Model.CurrencyCode]</label>
-            </div>
+        <div>
+            <admin-label asp-for="PaidAmount" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.PaidAmount [@Model.CurrencyCode]</div>
         </div>
         @if (Model.RefundedAmount > 0)
         {
-            <div class="mb-3">
-                <admin-label asp-for="RefundedAmount"/>
-                <div class="col-md-9 col-sm-9">
-                    <label class="control-label">@Model.RefundedAmount [@Model.CurrencyCode]</label>
-                </div>
+            <div>
+                <admin-label asp-for="RefundedAmount" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.RefundedAmount [@Model.CurrencyCode]</div>
             </div>
         }
-        <div class="mb-3">
-            <admin-label asp-for="CustomerId" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label">
-                    @Html.ActionLink(Model.CustomerEmail, "Edit", "Customer", new { id = Model.CustomerId }, new { })
-                </label>
-            </div>
+        <div>
+            <admin-label asp-for="CustomerId" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.ActionLink(Model.CustomerEmail, "Edit", "Customer", new { id = Model.CustomerId }, new { })</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="OrderId" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label">
-                    @Html.ActionLink(Model.OrderNumber.ToString(), "Edit", "Order", new { id = Model.OrderId }, new { })
-                </label>
-            </div>
+        <div>
+            <admin-label asp-for="OrderId" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.ActionLink(Model.OrderNumber.ToString(), "Edit", "Order", new { id = Model.OrderId }, new { })</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label"> @Html.DisplayFor(model => model.CreatedOn)</label>
-            </div>
+        <div>
+            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Html.DisplayFor(model => model.CreatedOn)</div>
         </div>
-        <div class="mb-3">
-            <admin-label asp-for="IPAddress" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-            <div class="col-9 col-md-9 col-sm-9">
-                <label class="control-label">@Model.IPAddress</label>
-            </div>
+        <div>
+            <admin-label asp-for="IPAddress" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.IPAddress</div>
         </div>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-facts">
         @if (!string.IsNullOrEmpty(Model.AdditionalInfo))
         {
-            <div class="mb-3">
-                <admin-label asp-for="AdditionalInfo" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.AdditionalInfo</label>
-                </div>
+            <div>
+                <admin-label asp-for="AdditionalInfo" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.AdditionalInfo</div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <div class="mb-3">
-                <admin-label asp-for="Description" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.Description</label>
-                </div>
+            <div>
+                <admin-label asp-for="Description" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.Description</div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.CaptureTransactionId))
         {
-            <div class="mb-3">
-                <admin-label asp-for="CaptureTransactionId" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.CaptureTransactionId</label>
-                </div>
+            <div>
+                <admin-label asp-for="CaptureTransactionId" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.CaptureTransactionId</div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.CaptureTransactionResult))
         {
-            <div class="mb-3">
-                <admin-label asp-for="CaptureTransactionResult" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.CaptureTransactionResult</label>
-                </div>
+            <div>
+                <admin-label asp-for="CaptureTransactionResult" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.CaptureTransactionResult</div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.AuthorizationTransactionId))
         {
-            <div class="mb-3">
-                <admin-label asp-for="AuthorizationTransactionId" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.AuthorizationTransactionId</label>
-                </div>
+            <div>
+                <admin-label asp-for="AuthorizationTransactionId" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.AuthorizationTransactionId</div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.AuthorizationTransactionCode))
         {
-            <div class="mb-3">
-                <admin-label asp-for="AuthorizationTransactionCode" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.AuthorizationTransactionCode</label>
-                </div>
+            <div>
+                <admin-label asp-for="AuthorizationTransactionCode" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.AuthorizationTransactionCode</div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.AuthorizationTransactionResult))
         {
-            <div class="mb-3">
-                <admin-label asp-for="AuthorizationTransactionResult" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-                <div class="col-9 col-md-9 col-sm-9">
-                    <label class="control-label">@Model.AuthorizationTransactionResult</label>
-                </div>
+            <div>
+                <admin-label asp-for="AuthorizationTransactionResult" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.AuthorizationTransactionResult</div>
             </div>
         }
     </div>
-</div>
+</admin-card>

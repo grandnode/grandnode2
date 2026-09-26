@@ -219,6 +219,14 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.StockQuantity")]
     public string StockQuantityStr { get; set; }
 
+    //the list screen shows what a product is, not only what it costs: filled per page by
+    //PrepareProductsModel, empty everywhere else
+    [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Brand")]
+    public string BrandName { get; set; }
+
+    [GrandResourceDisplayName("Admin.Catalog.Products.Categories.Fields.Category")]
+    public string CategoryName { get; set; }
+
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.DisplayStockAvailability")]
     public bool StockAvailability { get; set; }
 

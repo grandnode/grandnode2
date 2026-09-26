@@ -4,35 +4,23 @@
     ViewBag.Title = Loc["Admin.Catalog.Brands.AddNew"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
+@* The same shell as Edit, minus what a brand that does not exist yet cannot offer. *@
 <form asp-area="@area" asp-controller="Brand" asp-action="Create" method="post" id="brand-form">
+    <admin-page sticky
+                title="@Loc["Admin.Catalog.Brands.AddNew"]"
+                icon="bi-building"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Catalog.Brands.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.DetailsButtonsCreate"/>
+        </page-actions>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-building"></i>
-                        @Loc["Admin.Catalog.Brands.AddNew"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["Admin.Catalog.Brands.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <partial name="Partials/WidgetZone.DetailsButtonsCreate"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>

@@ -5,112 +5,61 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="QueuedEmail" asp-action="List" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-envelope"></i>
-                        @Loc["Admin.System.QueuedEmails"]
-                    </div>
-                    <div class="actions btn-group btn-group-devided">
-                        <input type="button" id="delete-selected" class="btn green" value="@Loc["Admin.System.QueuedEmails.DeleteSelected"]"/>
-                        <input type="submit" name="delete-all" asp-action="DeleteAll" class="btn red" value="@Loc["Admin.System.QueuedEmails.DeleteAll"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
-                        <vc:admin-widget widget-zone="queued_email_list_buttons" additional-data="null"/>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="main-header col-12 px-0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-3 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchFromEmail" class="control-label"/>
-                                            <admin-input asp-for="SearchFromEmail"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchToEmail" class="control-label"/>
-                                            <admin-input asp-for="SearchToEmail"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-ms-12 col-12">
-                                        <div class="mb-0">
-                                            <admin-label asp-for="SearchText" class="control-label"/>
-                                            <admin-input asp-for="SearchText"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-sm-12 col-12">
-                                        <div class="form-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-success filter-submit" id="search-queuedemails">
-                                                    <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
-                                                </button>
-                                                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="bi bi-funnel"></i>&nbsp; @Loc["Admin.Common.Filters"]
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="collapse" id="filterCollapse">
-                                <div class="drop-filters-container w-100">
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchStartDate" class="col-sm-3 control-label"/>
-                                        <div class="col-md-4 col-sm-6">
-                                            <admin-input asp-for="SearchStartDate"/>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchEndDate" class="col-sm-3 control-label"/>
-                                        <div class="col-md-4 col-sm-6">
-                                            <admin-input asp-for="SearchEndDate"/>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchLoadNotSent" class="col-sm-3 control-label"/>
-                                        <div class="col-md-4 col-sm-6">
-                                            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                                <admin-input asp-for="SearchLoadNotSent"/>
-                                                <div class="control__indicator"></div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <admin-label asp-for="SearchMaxSentTries" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchMaxSentTries"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content">
-                    <admin-grid id="queuedEmails-grid"
-                                read-url="@Url.Action("QueuedEmailList", "QueuedEmail", new { area = Constants.AreaAdmin })"
-                                additional-data="additionalData"
-                                selectable="Checkbox"
-                                on-change="onQueuedEmailsSelectionChange">
-                        <grid-column field="Subject" title="@Loc["Admin.System.QueuedEmails.Fields.Subject"]" width="300">
-                            <cell-template>
-                                <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Subject }}</a>
-                            </cell-template>
-                        </grid-column>
-                        <grid-column field="From" title="@Loc["Admin.System.QueuedEmails.Fields.From"]" width="100"/>
-                        <grid-column field="To" title="@Loc["Admin.System.QueuedEmails.Fields.To"]" width="100"/>
-                        <grid-column field="CreatedOn" title="@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]" width="100" format="{0:G}"/>
-                        <grid-column field="SentOn" title="@Loc["Admin.System.QueuedEmails.Fields.SentOn"]" width="100" format="{0:G}"/>
-                        <grid-column field="PriorityName" title="@Loc["Admin.System.QueuedEmails.Fields.Priority"]" width="50"/>
-                    </admin-grid>
-                </div>
+    @* The SeNames list's shape: the sender as the quick search with the rest behind Filters,
+       Delete selected in the bulk bar that appears while rows are ticked, Delete all in the
+       overflow menu behind the panel's confirm, and the grid in a flush card. There is no Add new,
+       so Search is the screen's one primary button. The ids the script below looks up are
+       unchanged. *@
+    <admin-page title="@Loc["Admin.System.QueuedEmails"]" icon="bi-envelope">
+        <page-actions>
+            <admin-action-menu>
+                <admin-action submit="true" name="delete-all" destructive="true" icon="bi-trash"
+                              url="@Url.Action("DeleteAll", new { area = Constants.AreaAdmin })"
+                              text="@Loc["Admin.System.QueuedEmails.DeleteAll"]"
+                              data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
+                              data-confirm-title="@Loc["Admin.System.QueuedEmails.DeleteAll"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="queued_email_list_buttons" additional-data="null"/>
+        </page-actions>
+
+        <admin-filters id="queuedemails-filters" submit-id="search-queuedemails">
+            <filters-search>
+                <admin-input asp-for="SearchFromEmail"/>
+            </filters-search>
+            <admin-field asp-for="SearchToEmail"/>
+            <admin-field asp-for="SearchText"/>
+            <div class="grand-range">
+                <admin-field asp-for="SearchStartDate"/>
+                <admin-field asp-for="SearchEndDate"/>
             </div>
-        </div>
-    </div>
+            <admin-field asp-for="SearchMaxSentTries" size="sm"/>
+            <admin-field asp-for="SearchLoadNotSent"/>
+        </admin-filters>
+
+        <admin-card flush>
+            <admin-bulkbar grid-id="queuedEmails-grid">
+                <button type="button" id="delete-selected" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash"></i> @Loc["Admin.System.QueuedEmails.DeleteSelected"]
+                </button>
+            </admin-bulkbar>
+            <admin-grid id="queuedEmails-grid"
+                        read-url="@Url.Action("QueuedEmailList", "QueuedEmail", new { area = Constants.AreaAdmin })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        on-change="onQueuedEmailsSelectionChange">
+                <grid-column field="Subject" title="@Loc["Admin.System.QueuedEmails.Fields.Subject"]" width="300">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Subject }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="From" title="@Loc["Admin.System.QueuedEmails.Fields.From"]" width="100"/>
+                <grid-column field="To" title="@Loc["Admin.System.QueuedEmails.Fields.To"]" width="100"/>
+                <grid-column field="CreatedOn" title="@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                <grid-column field="SentOn" title="@Loc["Admin.System.QueuedEmails.Fields.SentOn"]" width="100" format="{0:G}"/>
+                <grid-column field="PriorityName" title="@Loc["Admin.System.QueuedEmails.Fields.Priority"]" width="50"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
 
     <script>
         var selectedIds = [];
@@ -124,10 +73,10 @@
             //search button
             $('#search-queuedemails').click(function () {
                 //search
-                var grid = $('#queuedEmails-grid').data('kendoGrid');
+                var grid = GrandAdmin.grids.get('#queuedEmails-grid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
-                $('#queuedEmails-grid').data('kendoGrid').clearSelection();
+                GrandAdmin.grids.get('#queuedEmails-grid').clearSelection();
                 return false;
             });
 
@@ -167,10 +116,10 @@
                     data: postData,
                     complete: function (data) {
                         //reload grid
-                        var grid = $('#queuedEmails-grid').data('kendoGrid');
+                        var grid = GrandAdmin.grids.get('#queuedEmails-grid');
                         grid.dataSource.page(1); //new search. Set page size to 1
                         //grid.dataSource.read(); we already loaded the grid above using "page" function
-                        $('#queuedEmails-grid').data('kendoGrid').clearSelection();
+                        GrandAdmin.grids.get('#queuedEmails-grid').clearSelection();
                     },
                     error:function (xhr, ajaxOptions, thrownError){
                         alert(thrownError);

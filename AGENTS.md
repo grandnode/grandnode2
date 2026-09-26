@@ -33,6 +33,8 @@ Use this file before making or reviewing repository changes.
 - Use `.ai/prompts/add-migration.md` to add an upgrade migration for existing installations.
 - Use `.ai/prompts/write-tests.md` to add or extend unit tests.
 - Use `.ai/prompts/explore-repository.md` to answer "where does X live" or "how does X work".
+- Use `.ai/prompts/convert-admin-screens.md` to convert one admin module (list, edit, tabs, popups) to the component layer across Admin, Store and Vendor.
+- Use `.ai/prompts/upgrade-kendo-view.md` to move an admin or plugin view off Kendo UI, Bootstrap 4 and Font Awesome onto `<admin-grid>`, `window.GrandAdmin` and Bootstrap 5.
 
 ## Workflow Routing
 Use a workflow when the answer is not known at the start. Each ends by handing off to a prompt.
@@ -57,6 +59,7 @@ Use a workflow when the answer is not known at the start. Each ends by handing o
 - Use `.ai/skills/theme-creation.md` for storefront themes: IThemeView, GetViewLocations fallback, theme view folders, theme _ViewImports, theme Content assets, and theme project setup.
 - Use `.ai/skills/frontend-bundle-workflow.md` for Vue/Vite build, theme CSS changes, when to run `npm run build`, bundle output files, and committing bundles alongside source.
 - Use `.ai/skills/admin-area-changes.md` for admin-facing changes that may affect Main Admin, Store Owner, Vendor, shared admin models, permissions, navigation, validation, or scoped data access.
+- Use `.ai/skills/admin-ui-component-layer.md` to build or convert any admin screen, tab or popup to the panel's visual style: `<admin-page>`, `<admin-card>`, `<admin-field>`, `<admin-filters>`, `<admin-popup>`, button hierarchy, Add new placement, and the CSS traps already paid for.
 - Use `.ai/skills/project-structure.md` to understand repository structure, technology ownership, layer responsibilities, and how to expand GrandNode consistently.
 - Use `.ai/skills/settings-and-localization.md` for settings classes, store-scoped overrides, ISettingService, localization resources, ITranslationService, IPluginTranslateResource, localized domain entities, and localized admin models.
 - Use `.ai/skills/message-notification.md` for message templates, DotLiquid tokens and drops, IMessageProviderService, queued email lifecycle, LiquidObjectBuilder, MessageTokensAddedEvent plugin extension, and domain event notification handlers.

@@ -1,21 +1,19 @@
 ﻿@model PaymentMethodRestrictionModel
-<div class="form-horizontal">
-    <div class="form-body">
-        <div class="mb-3">
-            <div class="col-md-12 col-sm-12">
-                <div class="note note-info">
-                    @Loc["Admin.Configuration.Payment.MethodRestrictions.DescriptionCountry"]
-                </div>
-                @if (Model.AvailablePaymentMethods.Count == 0)
-                {
-                    <text>No payment methods installed</text>
-                }
-                else if (Model.AvailableCountries.Count == 0)
-                {
-                    <text>No countries available</text>
-                }
-                else
-                {
+
+<admin-card>
+    <div class="note note-info">
+        @Loc["Admin.Configuration.Payment.MethodRestrictions.DescriptionCountry"]
+    </div>
+    @if (Model.AvailablePaymentMethods.Count == 0)
+    {
+        <text>No payment methods installed</text>
+    }
+    else if (Model.AvailableCountries.Count == 0)
+    {
+        <text>No countries available</text>
+    }
+    else
+    {
                     <script>
                             $(document).ready(function () {
                                 @foreach (var pm in Model.AvailablePaymentMethods)
@@ -30,52 +28,42 @@
                                 }
                             });
                     </script>
-                    <table class="table table-bordered table-striped table-hover table-hover">
-                        <tbody>
-                        <tr>
-                            <th scope="col">
-                                <strong>@Loc["Admin.Configuration.Payment.MethodRestrictions.Country"]</strong>
-                            </th>
-                            @foreach (var pm in Model.AvailablePaymentMethods)
-                            {
-                                var systemNameWithoutDot = pm.SystemName.Replace(".", "");
-                                <th scope="col">
-                                    <strong>@pm.FriendlyName</strong>
-                                    <label class='mt-checkbox mt-checkbox-outline control control-checkbox'>
-                                        <input type="checkbox" id="selectall-@(systemNameWithoutDot)"/>
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                </th>
-                            }
-                        </tr>
-                        @{
-                            var altRow = true;
-                        }
-                        @foreach (var c in Model.AvailableCountries)
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <tbody>
+                <tr>
+                    <th scope="col">
+                        <strong>@Loc["Admin.Configuration.Payment.MethodRestrictions.Country"]</strong>
+                    </th>
+                    @foreach (var pm in Model.AvailablePaymentMethods)
+                    {
+                        var systemNameWithoutDot = pm.SystemName.Replace(".", "");
+                        <th scope="col" class="text-center">
+                            <strong>@pm.FriendlyName</strong>
+                            <br/>
+                            <input class="form-check-input" type="checkbox" id="selectall-@(systemNameWithoutDot)"/>
+                        </th>
+                    }
+                </tr>
+                @foreach (var c in Model.AvailableCountries)
+                {
+                    <tr>
+                        <td>
+                            <span>@c.Name</span>
+                        </td>
+                        @foreach (var pm in Model.AvailablePaymentMethods)
                         {
-                            altRow = !altRow;
-                            <tr class="@(altRow ? "altrowstyle" : "rowstyle")">
-                                <td>
-                                    <span>@c.Name</span>
-                                </td>
-                                @foreach (var pm in Model.AvailablePaymentMethods)
-                                {
-                                    var resticted = Model.Resticted.ContainsKey(pm.SystemName) && Model.Resticted[pm.SystemName][c.Id];
-
-                                    var systemNameWithoutDot = pm.SystemName.Replace(".", "");
-                                    <td style="text-align:center">
-                                        <label class='mt-checkbox mt-checkbox-outline control control-checkbox'>
-                                            <input class="restrict_@(systemNameWithoutDot)" type="checkbox" value="@(c.Id)" name="restrict_@(systemNameWithoutDot)" @(resticted ? " checked=checked" : null)/>
-                                            <div class="control__indicator"></div>
-                                        </label>
-                                    </td>
-                                }
-                            </tr>
+                            var resticted = Model.Resticted.ContainsKey(pm.SystemName) && Model.Resticted[pm.SystemName][c.Id];
+    
+                            var systemNameWithoutDot = pm.SystemName.Replace(".", "");
+                            <td class="text-center">
+                                <input class="restrict_@(systemNameWithoutDot) form-check-input" type="checkbox" value="@(c.Id)" name="restrict_@(systemNameWithoutDot)" @(resticted ? " checked=checked" : null)/>
+                            </td>
                         }
-                        </tbody>
-                    </table>
+                    </tr>
                 }
-            </div>
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
+    }
+</admin-card>

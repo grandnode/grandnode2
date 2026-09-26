@@ -1,30 +1,29 @@
 ﻿@model StoreModel
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <div class="panel panel-default">
-        <div class="panel-body">
-            @* Kendo also showed Save changes and Cancel changes toolbar buttons; with inline editing they only
-               repeated the row Update and Cancel buttons *@
-            <admin-grid id="domains-grid"
-                        read-url="@Url.Action("Domains", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
-                        create-url="@Url.Action("DomainInsert", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
-                        update-url="@Url.Action("DomainUpdate", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
-                        destroy-url="@Url.Action("DomainDelete", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
-                        pager="Compact"
-                        edit-mode="Inline">
-                <grid-toolbar-create/>
-                <grid-column field="Url" title="@Loc["Admin.Configuration.Stores.Domains.Fields.Url"]" editor="Text"/>
-                <grid-column field="HostName" title="@Loc["Admin.Configuration.Stores.Domains.Fields.HostName"]"/>
-                <grid-column field="Primary" title="@Loc["Admin.Configuration.Stores.Domains.Fields.Primary"]" align="Center">
-                    <cell-template>
-                        <i data-if="Primary" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
-                        <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
-                    </cell-template>
-                </grid-column>
-                <grid-commands edit="true" destroy="true"/>
-            </admin-grid>
-        </div>
-    </div>
+    @* the grid edits inline; its Add new moves into the card header (grid.js).
+       Kendo also showed Save changes and Cancel changes toolbar buttons; with inline editing they only
+       repeated the row Update and Cancel buttons *@
+    <admin-card flush>
+        <admin-grid id="domains-grid"
+                    read-url="@Url.Action("Domains", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
+                    create-url="@Url.Action("DomainInsert", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
+                    update-url="@Url.Action("DomainUpdate", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("DomainDelete", "Store", new { storeid = Model.Id, area = Constants.AreaAdmin })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-toolbar-create/>
+            <grid-column field="Url" title="@Loc["Admin.Configuration.Stores.Domains.Fields.Url"]" editor="Text"/>
+            <grid-column field="HostName" title="@Loc["Admin.Configuration.Stores.Domains.Fields.HostName"]"/>
+            <grid-column field="Primary" title="@Loc["Admin.Configuration.Stores.Domains.Fields.Primary"]" align="Center">
+                <cell-template>
+                    <i data-if="Primary" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands edit="true" destroy="true"/>
+        </admin-grid>
+    </admin-card>
 }
 else
 {

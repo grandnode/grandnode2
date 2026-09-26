@@ -3,33 +3,24 @@
     ViewBag.Title = Loc["Admin.Configuration.EmailAccounts"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-envelope"></i>
-                    @Loc["Admin.Configuration.EmailAccounts"]
-                </div>
-                <div class="actions">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-            </div>
-            <div class="x_content form">
-                <admin-grid id="email-accounts-grid"
-                            read-url="@Url.Action("List", "EmailAccount", new { area = Constants.AreaStore })"
-                            pager="Compact">
-                    <grid-column field="Email" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]">
-                        <cell-template>
-                            <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
-                        </cell-template>
-                    </grid-column>
-                    <grid-column field="DisplayName" title="@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"/>
-                    <grid-column field="Host" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"/>
-                </admin-grid>
-            </div>
-        </div>
-    </div>
-</div>
+<admin-page title="@Loc["Admin.Configuration.EmailAccounts"]" icon="bi-envelope">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="email-accounts-grid"
+                    read-url="@Url.Action("List", "EmailAccount", new { area = Constants.AreaStore })"
+                    pager="Compact">
+            <grid-column field="Email" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayName" title="@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"/>
+            <grid-column field="Host" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

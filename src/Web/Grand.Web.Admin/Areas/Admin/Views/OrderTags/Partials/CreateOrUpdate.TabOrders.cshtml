@@ -1,12 +1,10 @@
 ﻿@model OrderTagModel
-<div class="panel panel-default">
-    <div class="panel-body">
-        <admin-grid id="order-tags-grid" read-url="@Url.Action("Orders", "OrderTags", new { tagId = Model.Id, area = Constants.AreaAdmin })">
-            <grid-column field="OrderNumber" title="@Loc["Admin.Orders.OrderTags.Fields.OrderNumber"]" width="300">
-                <cell-template>
-                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderNumber }}</a>
-                </cell-template>
-            </grid-column>
-        </admin-grid>
-    </div>
-</div>
+<admin-card flush>
+    <admin-grid id="order-tags-grid" read-url="@Url.Action("Orders", "OrderTags", new { tagId = Model.Id, area = Constants.AreaAdmin })">
+        <grid-column field="OrderNumber" title="@Loc["Admin.Orders.OrderTags.Fields.OrderNumber"]" width="300">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderNumber }}</a>
+            </cell-template>
+        </grid-column>
+    </admin-grid>
+</admin-card>

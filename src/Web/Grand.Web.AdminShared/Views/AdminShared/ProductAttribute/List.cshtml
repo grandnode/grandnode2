@@ -3,37 +3,23 @@
     ViewBag.Title = Loc["Admin.Catalog.Attributes.ProductAttributes"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
+@* The product list's shape without filters: Add new as the one primary action in the page
+   header and the grid in a flush card. *@
+<admin-page title="@Loc["Admin.Catalog.Attributes.ProductAttributes"]" icon="bi-card-list">
+    <page-actions>
+        <partial name="Partials/WidgetZone.ListButtons"/>
+        <a href="@Url.Action("Create", new { area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-card-list"></i>
-                    @Loc["Admin.Catalog.Attributes.ProductAttributes"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                    <partial name="Partials/WidgetZone.ListButtons"/>
-                </div>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="productattributes-grid" read-url="@Url.Action("List", "ProductAttribute", new { area })">
-                                <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.ProductAttributes.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <admin-card flush>
+        <admin-grid id="productattributes-grid" read-url="@Url.Action("List", "ProductAttribute", new { area })">
+            <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.ProductAttributes.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>

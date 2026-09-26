@@ -5,35 +5,22 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="NewsletterCategory" asp-action="Create" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="bi bi-tag"></i>
-                        @Loc["admin.marketing.NewsletterCategory.AddNew"]
-                        <small>
-                            <i class="bi bi-arrow-left-circle"></i>@Html.ActionLink(Loc["admin.marketing.NewsletterCategory.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <span id="newslettercategory-delete" class="btn red">
-                                <i class="bi bi-trash"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the same shell as Edit, minus what a category that does not exist yet cannot offer - the
+       Delete this screen used to show had no confirmation behind it and nothing to delete *@
+    <admin-page sticky
+                title="@Loc["admin.marketing.NewsletterCategory.AddNew"]"
+                icon="bi-tag"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["admin.marketing.NewsletterCategory.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>

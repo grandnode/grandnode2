@@ -3,40 +3,26 @@
     ViewBag.Title = Loc["admin.marketing.Campaigns"];
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption">
-                    <i class="bi bi-envelope"></i>
-                    @Loc["admin.marketing.Campaigns"]
-                </div>
-                <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
-                        <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
-                    </a>
-                </div>
-                <vc:admin-widget widget-zone="campaign_list_buttons" additional-data="null"/>
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="x_content">
-                            <admin-grid id="campaigns-grid"
-                                        read-url="@Url.Action("List", "Campaign", new { area = Constants.AreaAdmin })"
-                                        pager="Compact">
-                                <grid-column field="Name" title="@Loc["admin.marketing.Campaigns.Fields.Name"]">
-                                    <cell-template>
-                                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
-                                    </cell-template>
-                                </grid-column>
-                                <grid-column field="CreatedOn" title="@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]" width="200" format="{0:G}"/>
-                            </admin-grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@* The product list's shape without filters: Add new as the one primary action in the page header
+   and the grid in a flush card. *@
+<admin-page title="@Loc["admin.marketing.Campaigns"]" icon="bi-envelope">
+    <page-actions>
+        <vc:admin-widget widget-zone="campaign_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
 
+    <admin-card flush>
+        <admin-grid id="campaigns-grid"
+                    read-url="@Url.Action("List", "Campaign", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["admin.marketing.Campaigns.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedOn" title="@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

@@ -7,29 +7,14 @@
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        @Loc["Admin.Common.AddNew"]
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <admin-popup title="@Loc["Admin.Common.AddNew"]" icon="bi-geo-alt">
+        <partial name="_CreateOrUpdate" model="Model"/>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
         </div>
-    </div>
-    <div class="content">
-        <div class="form-horizontal">
-            <partial name="_CreateOrUpdate" model="Model"/>
-        </div>
-    </div>
+    </admin-popup>
     <script>
         var mfp = $.magnificPopup.instance;
         $("#CreatePopup").submit(function (e) {
