@@ -467,3 +467,56 @@
         padding: 20px 0 0 !important;
     }
 }
+
+/* ---------- tablet: two columns already, so price and buy row stay above the fold ---------- */
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .nordic-pd .nordic-pd__gallery {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    .nordic-pd .nordic-pd__info {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 0 0 0 24px !important;
+    }
+
+    .nordic-pd .nordic-pd__title,
+    .nordic-pd .product-name .generalTitle {
+        font-size: 1.75rem;
+    }
+}
+
+/* ---------- phones ---------- */
+
+@media (max-width: 767.98px) {
+    /* tabs scroll sideways instead of wrapping onto three lines */
+    .nordic-pd .tabs .nav-tabs {
+        flex-wrap: nowrap;
+        justify-content: flex-start !important;
+        gap: 22px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .nordic-pd .tabs .nav-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nordic-pd .tabs .nav-tabs .nav-item {
+        flex: none;
+    }
+
+    .nordic-pd .tabs .nav-tabs .nav-link {
+        white-space: nowrap;
+    }
+
+    /* related, also purchased, similar: two cards a row, as in the listings */
+    .nordic-pd .product-grid .row > .product-container {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}

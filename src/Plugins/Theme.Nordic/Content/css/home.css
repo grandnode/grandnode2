@@ -506,3 +506,30 @@
         border-bottom: 1px solid var(--nordic-line);
     }
 }
+
+/* ---------- tablet (768-991px) ---------- */
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    /* two cards a row: three left orphans with the 8 featured and 4 best-selling products */
+    .nordic-home .product-grid .row > .product-container {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* collection banners one per row, image beside the text, so the text is not squeezed */
+    .nordic-colls__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .nordic-coll,
+    .nordic-colls--1 .nordic-coll,
+    .nordic-colls--3 .nordic-coll:first-child {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .nordic-coll__media,
+    .nordic-colls--1 .nordic-coll__media,
+    .nordic-colls--3 .nordic-coll:first-child .nordic-coll__media {
+        aspect-ratio: 4 / 3;
+    }
+}

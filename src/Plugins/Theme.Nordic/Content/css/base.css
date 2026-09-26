@@ -496,3 +496,16 @@ span.required,
     border-top: 1px solid var(--nordic-line);
     margin: 0;
 }
+
+/* ---------- alerts in the palette (Bootstrap info is a bright cyan) ---------- */
+
+.alert-info,
+[dark-theme="true"] .alert-info {
+    --bs-alert-bg: var(--nordic-surface);
+    --bs-alert-color: var(--nordic-ink);
+    --bs-alert-border-color: var(--nordic-line);
+    --bs-alert-link-color: var(--nordic-ink);
+    background-color: var(--nordic-surface);
+    border-color: var(--nordic-line);
+    color: var(--nordic-ink);
+}
