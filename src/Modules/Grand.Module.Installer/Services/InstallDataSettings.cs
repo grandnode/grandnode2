@@ -209,7 +209,7 @@ public partial class InstallationService
             ProductSearchAutoCompleteNumberOfProducts = 10,
             ProductSearchTermMinimumLength = 3,
             ShowProductImagesInSearchAutoComplete = true,
-            ShowBestsellersOnHomepage = false,
+            ShowBestsellersOnHomepage = installSampleData,
             NumberOfBestsellersOnHomepage = 4,
             BestsellersFromReports = false,
             PeriodBestsellers = 6,

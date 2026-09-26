@@ -86,7 +86,6 @@ public partial class InstallationService
             """,
             "Vertex Air 13: a silent, fanless 13.3-inch laptop with 16 GB of memory and an all-day battery.");
         air13.MarkAsNew = true;
-        air13.ShowOnHomePage = true;
         AddSpecs(air13,
             Spec("Processor", "Intel Core i5", 1),
             Spec("Memory", "16 GB", 2),

@@ -480,7 +480,6 @@ public partial class InstallationService
             Sku = "OA-009",
             Price = 139.00,
             MarkAsNew = true,
-            ShowOnHomePage = true,
             BestSeller = true,
             TaxCategoryId = taxCategoryId,
             DeliveryDateId = ctx.DeliveryDateId,
