@@ -165,7 +165,8 @@ public partial class InstallationService
             "Trailforge Roll Top Backpack",
             "Ember Leather Weekender Bag",
             "Loom Canvas Tote Bag",
-            "Studio Membership Monthly"
+            "Studio Membership Monthly",
+            "Vertex Air 13"
         ]);
     }
 

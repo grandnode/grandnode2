@@ -94,13 +94,31 @@ public partial class InstallationService
             "GPS watches, fitness bands, and smart rings for training, sleep, and everyday wear.",
             3, "category_wearables.jpg");
 
+        //Computers
+        var computers = await AddDepartment(
+            "Computers",
+            "<p>Laptops for work on the move and desktops you configure to the job, from a quiet mini PC to a creator workstation. Pick the processor, memory, and storage you need, and nothing you don't.</p>",
+            "Computers",
+            "Laptops and configurable desktop computers: choose the processor, memory, storage, and graphics.",
+            2, "category_computers.jpg");
+        await AddSubcategory(computers, "Laptops",
+            "<p>Thin, light, and built to last a working day. Filter by processor, memory, storage, and screen size to find the right fit.</p>",
+            "Laptops",
+            "Laptops filtered by processor, memory, storage, screen size, and graphics.",
+            1, "category_laptops.jpg");
+        await AddSubcategory(computers, "Desktops",
+            "<p>Build your own desktop: choose each component and see the price update as you go. Or start from a ready-made configuration.</p>",
+            "Desktops",
+            "Configurable desktop computers and workstations: build your own with the components you need.",
+            2, "category_desktops.jpg");
+
         //Home & Living
         var homeLiving = await AddDepartment(
             "Home & Living",
             "<p>Kitchen tools, lighting, and textiles made to be used every day, not put away for best. Quiet materials, honest craft.</p>",
             "Home & Living",
             "Kitchen and coffee gear, lighting, and textiles for a home that feels considered, not staged.",
-            2, "category_home_living.jpg");
+            3, "category_home_living.jpg");
         await AddSubcategory(homeLiving, "Kitchen & Coffee",
             "<p>Kettles, drippers, mugs, and beans for a slower, better morning ritual. Everything a good coffee corner needs.</p>",
             "Kitchen & Coffee",
@@ -123,7 +141,7 @@ public partial class InstallationService
             "<p>Considered clothing and accessories in natural fabrics, built to last past a single season. Fewer, better pieces.</p>",
             "Fashion",
             "Women's and men's clothing, bags, and accessories in natural fabrics and honest cuts.",
-            3, "category_fashion.jpg");
+            4, "category_fashion.jpg");
         await AddSubcategory(fashion, "Women",
             "<p>Knitwear, dresses, and everyday basics in merino, linen, and organic cotton, cut for movement and comfort.</p>",
             "Women's Clothing",
@@ -146,7 +164,7 @@ public partial class InstallationService
             "<p>Tents, bikes, and running gear tested on long weekends and longer trails. Built for people who actually go outside.</p>",
             "Outdoor & Active",
             "Camping, cycling, and running gear tested on real trails and longer trips.",
-            4, "category_outdoor_active.jpg", flagNew: true);
+            5, "category_outdoor_active.jpg", flagNew: true);
         await AddSubcategory(outdoorActive, "Camping",
             "<p>Tents, sleeping bags, and camp kitchen gear light enough to carry and tough enough to trust at altitude.</p>",
             "Camping",
@@ -169,7 +187,7 @@ public partial class InstallationService
             "<p>E-books, workshops, and gift vouchers you can send in seconds. Skills, guides, and gestures that need no shipping box.</p>",
             "Studio & Digital",
             "Downloadable guides, live workshops, and gift vouchers delivered instantly.",
-            5, "category_studio_digital.jpg");
+            6, "category_studio_digital.jpg");
         await AddSubcategory(studioDigital, "E-books & Guides",
             "<p>Downloadable guides on coffee, hiking, lighting, and wardrobe planning, written by the people who make the products.</p>",
             "E-books & Guides",
@@ -180,13 +198,11 @@ public partial class InstallationService
             "Workshops",
             "Online and in-person workshops on coffee, cycling, and craft skills.",
             2, "category_workshops.jpg");
-        //display order 6 so it follows the five departments on the home page (it is still last in Studio & Digital)
-        var giftVouchers = await AddSubcategory(studioDigital, "Gift vouchers",
+        await AddSubcategory(studioDigital, "Gift vouchers",
             "<p>Digital and printed gift vouchers in a few sizes, ready to send for any occasion.</p>",
             "Gift Vouchers",
             "Digital and printed gift vouchers for any occasion.",
-            6, "category_gift_vouchers.jpg");
-        giftVouchers.ShowOnHomePage = true;
+            3, "category_gift_vouchers.jpg");
 
         allCategories.ForEach(x => _categoryRepository.Insert(x));
 

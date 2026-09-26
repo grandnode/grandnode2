@@ -22,15 +22,19 @@ The brands, vendors, and products shown in the demo store are fictional. The pho
 | brand_luma_lighting.jpg | Vincent Thommessen | https://unsplash.com/photos/dJ4735gafcI | Unsplash License |
 | brand_nordvik_home.jpg | Md. Lutfor Rahman | https://unsplash.com/photos/bg-AIMGbwfg | Unsplash License |
 | brand_trailforge.jpg | Susan Flynn | https://unsplash.com/photos/7iLFhbiWNHc | Unsplash License |
+| brand_vertex_computing.jpg | Daniel Shapiro | https://unsplash.com/photos/WROdXvr9omQ | Unsplash License |
 | category_bags_accessories.jpg | Sydney Angove | https://unsplash.com/photos/wzXgOWBtNSc | Unsplash License |
 | category_camping.jpg | Alex Moliski | https://unsplash.com/photos/wnvf4Vb3ZpE | Unsplash License |
+| category_computers.jpg | Justin Schwartfigure | https://unsplash.com/photos/7OyMTNTdRTk | Unsplash License |
 | category_cycling.jpg | Mr Guyz | https://unsplash.com/photos/ViYbtYuTjIk | Unsplash License |
+| category_desktops.jpg | Nubelson Fernandes | https://unsplash.com/photos/5ibknxQ17tw | Unsplash License |
 | category_ebooks_guides.jpg | Stacy | https://unsplash.com/photos/0S-L_Cbg7ho | Unsplash License |
 | category_fashion.jpg | Tim Ziegelbaum | https://unsplash.com/photos/hljsm19I4Ps | Unsplash License |
 | category_gift_vouchers.jpg | Kelly Sikkema | https://unsplash.com/photos/WgaRVP5t1Kk | Unsplash License |
 | category_headphones_speakers.jpg | Will Suddreth | https://unsplash.com/photos/RA-HEsPBNZk | Unsplash License |
 | category_home_living.jpg | Eric Human | https://unsplash.com/photos/IIXtlWowNpQ | Unsplash License |
 | category_kitchen_coffee.jpg | Juan Pablo | https://unsplash.com/photos/Y0Ollukuwkc | Unsplash License |
+| category_laptops.jpg | elnaz asadi | https://unsplash.com/photos/DWpXAHmXtpU | Unsplash License |
 | category_lighting.jpg | Murphy Stay | https://unsplash.com/photos/5icqVpRlcvY | Unsplash License |
 | category_men.jpg | Nikita | https://unsplash.com/photos/Yb30HNEUAEs | Unsplash License |
 | category_outdoor_active.jpg | Intricate Explorer | https://unsplash.com/photos/_TJGk71ZGDc | Unsplash License |
@@ -136,6 +140,17 @@ The brands, vendors, and products shown in the demo store are fictional. The pho
 | product_trailforge_two_person_tent_1.jpg | maks_d | https://unsplash.com/photos/OORTGwNJoPE | Unsplash License |
 | product_trailforge_two_person_tent_2.jpg | yx z | https://unsplash.com/photos/xz_nCtL5XYk | Unsplash License |
 | product_trailforge_two_person_tent_3.jpg | Ben Bramhall | https://unsplash.com/photos/SKpxXZkRDdE | Unsplash License |
+| product_vertex_air_13_1.jpg | Md Mahdi | https://unsplash.com/photos/jD4P8ywW9Ec | Unsplash License |
+| product_vertex_air_13_2.jpg | Md Mahdi | https://unsplash.com/photos/omdlGQGcoGI | Unsplash License |
+| product_vertex_book_14_1.jpg | Rohan Krishnan | https://unsplash.com/photos/d8kp7EPgAmQ | Unsplash License |
+| product_vertex_build_your_own_desktop_1.jpg | Shoeib Abolhassani | https://unsplash.com/photos/X0rele9vNR4 | Unsplash License |
+| product_vertex_build_your_own_desktop_2.jpg | Shoeib Abolhassani | https://unsplash.com/photos/Um_oy1ZoA-c | Unsplash License |
+| product_vertex_creator_workstation_1.jpg | shri | https://unsplash.com/photos/J3bbFeVLqmE | Unsplash License |
+| product_vertex_flip_14_1.jpg | Rohit | https://unsplash.com/photos/hMz2euWjZZk | Unsplash License |
+| product_vertex_gaming_15_1.jpg | Francesco Liotti | https://unsplash.com/photos/4c-WqLMz118 | Unsplash License |
+| product_vertex_mini_pc_1.jpg | Onur Binay | https://unsplash.com/photos/Sa-0GdWMRRQ | Unsplash License |
+| product_vertex_pro_16_1.jpg | Evgen Kuhto | https://unsplash.com/photos/jERYgVYZ-es | Unsplash License |
+| product_vertex_pro_16_2.jpg | tim tdd | https://unsplash.com/photos/xvyrzBgexls | Unsplash License |
 | product_vintage_steel_road_bike_1984_1.jpg | Acelane Bikes | https://unsplash.com/photos/IXX44fgwqeI | Unsplash License |
 | product_vintage_steel_road_bike_1984_2.jpg | Adam Dillon | https://unsplash.com/photos/jcS4gZ1rmh0 | Unsplash License |
 | product_walnut_serving_board_1.jpg | Mockup Graphics | https://unsplash.com/photos/OOv2sCKwYAA | Unsplash License |

@@ -134,5 +134,95 @@ public partial class InstallationService
                 SeName = SeoExtensions.GenerateSlug(sa7Options[i], false, false, false)
             });
         await _specificationAttributeRepository.UpdateAsync(sa7);
+
+        var sa8 = new SpecificationAttribute {
+            Name = "Processor",
+            DisplayOrder = 8,
+            SeName = SeoExtensions.GenerateSlug("Processor", false, false, false)
+        };
+        await _specificationAttributeRepository.InsertAsync(sa8);
+
+        var sa8Options = new[] {
+            "Intel Core i5", "Intel Core i7", "Intel Core i9", "AMD Ryzen 5", "AMD Ryzen 7", "AMD Ryzen 9"
+        };
+        for (var i = 0; i < sa8Options.Length; i++)
+            sa8.SpecificationAttributeOptions.Add(new SpecificationAttributeOption {
+                Name = sa8Options[i],
+                DisplayOrder = i + 1,
+                SeName = SeoExtensions.GenerateSlug(sa8Options[i], false, false, false)
+            });
+        await _specificationAttributeRepository.UpdateAsync(sa8);
+
+        var sa9 = new SpecificationAttribute {
+            Name = "Memory",
+            DisplayOrder = 9,
+            SeName = SeoExtensions.GenerateSlug("Memory", false, false, false)
+        };
+        await _specificationAttributeRepository.InsertAsync(sa9);
+
+        var sa9Options = new[] {
+            "8 GB", "16 GB", "32 GB", "64 GB"
+        };
+        for (var i = 0; i < sa9Options.Length; i++)
+            sa9.SpecificationAttributeOptions.Add(new SpecificationAttributeOption {
+                Name = sa9Options[i],
+                DisplayOrder = i + 1,
+                SeName = SeoExtensions.GenerateSlug(sa9Options[i], false, false, false)
+            });
+        await _specificationAttributeRepository.UpdateAsync(sa9);
+
+        var sa10 = new SpecificationAttribute {
+            Name = "Storage",
+            DisplayOrder = 10,
+            SeName = SeoExtensions.GenerateSlug("Storage", false, false, false)
+        };
+        await _specificationAttributeRepository.InsertAsync(sa10);
+
+        var sa10Options = new[] {
+            "256 GB SSD", "512 GB SSD", "1 TB SSD", "2 TB SSD", "4 TB SSD"
+        };
+        for (var i = 0; i < sa10Options.Length; i++)
+            sa10.SpecificationAttributeOptions.Add(new SpecificationAttributeOption {
+                Name = sa10Options[i],
+                DisplayOrder = i + 1,
+                SeName = SeoExtensions.GenerateSlug(sa10Options[i], false, false, false)
+            });
+        await _specificationAttributeRepository.UpdateAsync(sa10);
+
+        var sa11 = new SpecificationAttribute {
+            Name = "Screen size",
+            DisplayOrder = 11,
+            SeName = SeoExtensions.GenerateSlug("Screen size", false, false, false)
+        };
+        await _specificationAttributeRepository.InsertAsync(sa11);
+
+        var sa11Options = new[] {
+            "13.3 in", "14 in", "15.6 in", "16 in"
+        };
+        for (var i = 0; i < sa11Options.Length; i++)
+            sa11.SpecificationAttributeOptions.Add(new SpecificationAttributeOption {
+                Name = sa11Options[i],
+                DisplayOrder = i + 1,
+                SeName = SeoExtensions.GenerateSlug(sa11Options[i], false, false, false)
+            });
+        await _specificationAttributeRepository.UpdateAsync(sa11);
+
+        var sa12 = new SpecificationAttribute {
+            Name = "Graphics",
+            DisplayOrder = 12,
+            SeName = SeoExtensions.GenerateSlug("Graphics", false, false, false)
+        };
+        await _specificationAttributeRepository.InsertAsync(sa12);
+
+        var sa12Options = new[] {
+            "Integrated graphics", "NVIDIA GeForce RTX 4050", "NVIDIA GeForce RTX 4060", "NVIDIA GeForce RTX 4070"
+        };
+        for (var i = 0; i < sa12Options.Length; i++)
+            sa12.SpecificationAttributeOptions.Add(new SpecificationAttributeOption {
+                Name = sa12Options[i],
+                DisplayOrder = i + 1,
+                SeName = SeoExtensions.GenerateSlug(sa12Options[i], false, false, false)
+            });
+        await _specificationAttributeRepository.UpdateAsync(sa12);
     }
 }

@@ -35,6 +35,7 @@ public partial class InstallationService
 
         var allProducts = new List<Product>();
         allProducts.AddRange(await InstallProductsTechAudio(ctx));
+        allProducts.AddRange(await InstallProductsComputers(ctx));
         allProducts.AddRange(await InstallProductsHomeLiving(ctx));
         allProducts.AddRange(await InstallProductsFashion(ctx));
         allProducts.AddRange(await InstallProductsOutdoor(ctx));

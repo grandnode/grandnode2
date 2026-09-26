@@ -190,6 +190,27 @@ public partial class InstallationService
                 PageSizeOptions = "12, 24, 36",
                 Published = true,
                 DisplayOrder = 8
+            },
+            new() {
+                Name = "Vertex Computing",
+                Description =
+                    "<p>Vertex Computing was founded by a handful of systems engineers who were tired of " +
+                    "choosing between computers that were powerful but loud and computers that were quiet " +
+                    "but compromised. They started building machines around cooling first, then picked " +
+                    "every component to match: processors, memory, and storage chosen for how they behave " +
+                    "under a real working day, not just in a benchmark.</p><p>Today we make laptops that " +
+                    "last from the first meeting to the last train home, and desktops you configure part by " +
+                    "part, so you pay for the performance you need and nothing you don't. Every machine is " +
+                    "assembled, tested, and burned in before it ships.</p>",
+                MetaTitle = "Vertex Computing",
+                MetaKeywords = "Vertex Computing, laptops, desktops, workstation, build your own PC",
+                MetaDescription = "Vertex Computing builds quiet, well-cooled laptops and desktops you configure part by part.",
+                BrandLayoutId = brandLayoutInGridAndLines.Id,
+                PageSize = 12,
+                AllowCustomersToSelectPageSize = true,
+                PageSizeOptions = "12, 24, 36",
+                Published = true,
+                DisplayOrder = 9
             }
         };
 
@@ -201,7 +222,8 @@ public partial class InstallationService
             ["Loom & Thread"] = "brand_loom_thread.jpg",
             ["Fieldstone Apparel"] = "brand_fieldstone_apparel.jpg",
             ["Trailforge"] = "brand_trailforge.jpg",
-            ["Kinetic"] = "brand_kinetic.jpg"
+            ["Kinetic"] = "brand_kinetic.jpg",
+            ["Vertex Computing"] = "brand_vertex_computing.jpg"
         };
 
         foreach (var brand in allBrands)

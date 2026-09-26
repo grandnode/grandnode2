@@ -119,6 +119,14 @@ public partial class InstallationService
         ("Gift Voucher 50", ["gift voucher", "gift"]),
         ("Gift Voucher 100", ["gift voucher", "gift"]),
         ("Printed Gift Voucher Card", ["gift voucher", "printed card"]),
+        ("Vertex Air 13", ["laptop", "lightweight", "fanless"]),
+        ("Vertex Book 14", ["laptop", "everyday", "office"]),
+        ("Vertex Flip 14", ["laptop", "2-in-1", "touchscreen"]),
+        ("Vertex Pro 16", ["laptop", "creator", "workstation"]),
+        ("Vertex Gaming 15", ["laptop", "gaming"]),
+        ("Vertex Build Your Own Desktop", ["desktop", "configurable", "build your own"]),
+        ("Vertex Creator Workstation", ["desktop", "creator", "workstation"]),
+        ("Vertex Mini PC", ["desktop", "compact", "office"]),
     ];
 
     private static readonly (string Product, string[] Related, string[] CrossSells)[] SampleProductRelations = [
@@ -145,6 +153,9 @@ public partial class InstallationService
         ("Kinetic Trail Running Shoes", ["Kinetic Lightweight Running Jacket", "Kinetic Hydration Vest"], ["Kinetic Running Socks Three Pack", "Kinetic Pace GPS Watch"]),
         ("The Slow Morning Coffee Guide", ["Home Barista Online Workshop", "Weekend Trails Field Guide"], ["Ember Single Origin Coffee Beans"]),
         ("Gift Voucher 50", ["Gift Voucher 25", "Gift Voucher 100", "Printed Gift Voucher Card"], []),
+        ("Vertex Air 13", ["Vertex Book 14", "Vertex Flip 14"], ["Aurora Pulse True Wireless Earbuds", "Loom Canvas Tote Bag"]),
+        ("Vertex Pro 16", ["Vertex Gaming 15", "Vertex Book 14"], ["Aurora Studio Wireless Headphones", "Trailforge Roll Top Backpack"]),
+        ("Vertex Build Your Own Desktop", ["Vertex Creator Workstation", "Vertex Mini PC"], ["Aurora Vinyl Bookshelf Speakers", "Luma Glow Table Lamp"]),
     ];
 
     private static readonly (string Product, string Title, string Text, int Rating)[] SampleProductReviews = [
@@ -224,5 +235,15 @@ public partial class InstallationService
             "Toe box is snug if you have wide feet. Once I swapped for the next size they were perfect.", 4),
         ("The Slow Morning Coffee Guide", "Clear and friendly",
             "Finally understood why my coffee was bitter. The brew ratio charts are now taped inside my cupboard.", 5),
+        ("Vertex Build Your Own Desktop", "Exactly the machine I needed",
+            "I picked the Ryzen 9 and 64 GB for video work and skipped the graphics upgrade. It arrived tested, silent, and ready in a week.", 5),
+        ("Vertex Build Your Own Desktop", "Configurator is clear",
+            "Seeing the price change with each option made it easy to stay on budget. Wish there were more case colours.", 4),
+        ("Vertex Pro 16", "Colour-accurate and quiet",
+            "The calibrated screen matches my external monitor out of the box, and the fans stay calm during exports.", 5),
+        ("Vertex Pro 16", "Heavy but worth it",
+            "At 2.1 kg it is not a travel laptop, but the performance for editing on location is excellent.", 4),
+        ("Vertex Air 13", "Silent and lasts all day",
+            "No fan means no noise at all in the library. I charge it every second day.", 5),
     ];
 }

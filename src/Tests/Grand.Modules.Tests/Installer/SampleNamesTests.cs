@@ -14,13 +14,14 @@ public class SampleNamesTests
     //                                            argument).
     // - AddSubcategory(\s*\w+\s*,\s*"..."        the category seed helper's subcategory name (2nd
     //                                            argument, after the parent category identifier).
-    // - NewDigitalProduct(\s*"...",\s*"..."      the Digital department's product factory (name is
-    //                                            the 2nd argument, after the SKU).
+    // - NewDigitalProduct|NewComputer(\s*"...",\s*"..."
+    //                                            the Digital and Computers product factories (name
+    //                                            is the 2nd argument, after the SKU).
     private static readonly Regex[] SeededNamePatterns = {
         new(@"Name\s*=\s*""([^""]+)"""),
         new(@"AddDepartment\(\s*""([^""]+)"""),
         new(@"AddSubcategory\(\s*\w+\s*,\s*""([^""]+)"""),
-        new(@"NewDigitalProduct\(\s*""[^""]*""\s*,\s*""([^""]+)""")
+        new(@"(?:NewDigitalProduct|NewComputer)\(\s*""[^""]*""\s*,\s*""([^""]+)""")
     };
 
     private static string ReadServices(string glob) =>

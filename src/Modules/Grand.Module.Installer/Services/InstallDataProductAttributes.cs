@@ -34,6 +34,30 @@ public partial class InstallationService
             new() {
                 Name = "Rental add-ons",
                 SeName = "rental-add-ons"
+            },
+            new() {
+                Name = "Processor",
+                SeName = "processor"
+            },
+            new() {
+                Name = "Memory",
+                SeName = "memory"
+            },
+            new() {
+                Name = "Storage",
+                SeName = "storage"
+            },
+            new() {
+                Name = "Graphics",
+                SeName = "graphics"
+            },
+            new() {
+                Name = "Operating system",
+                SeName = "operating-system"
+            },
+            new() {
+                Name = "Software",
+                SeName = "software"
             }
         };
         productAttributes.ForEach(x => _productAttributeRepository.Insert(x));
