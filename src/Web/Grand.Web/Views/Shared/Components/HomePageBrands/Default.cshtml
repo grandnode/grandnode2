@@ -1,6 +1,9 @@
 ﻿@model IList<BrandModel>
 @inject DisplayOrderHomePage order
 <div class="categoryGrid  order-@order.HomePageBrands">
+    <h2 class="generalTitle text-center mb-3">
+        @Loc["Brands"]
+    </h2>
     <div cols="12" class="col-12 px-0">
         <div class="row">
             @foreach (var item in Model)
