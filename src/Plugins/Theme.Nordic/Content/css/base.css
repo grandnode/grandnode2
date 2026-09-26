@@ -469,6 +469,14 @@ b, strong, .font-weight-bold, .fw-bold {
     --bs-pagination-disabled-border-color: var(--nordic-line);
 }
 
+/* ---------- required marks and validation: the sale colour meets AA on both schemes ---------- */
+
+span.required,
+.field-validation-error,
+.message-error ul {
+    color: var(--nordic-sale);
+}
+
 /* ---------- back-to-top button ---------- */
 
 .up-btn {

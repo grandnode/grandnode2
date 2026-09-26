@@ -184,6 +184,7 @@
 
 .nordic-pd .old-product-price,
 .nordic-pd .old-price,
+.product-details-page.nordic-pd .overview .old-price,
 .nordic-pd .non-discounted-price span {
     color: var(--nordic-muted-text);
     font-size: 15px;

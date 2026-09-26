@@ -96,7 +96,10 @@
 }
 
 .shopping-cart .attributes,
-.shopping-cart .sku-number {
+.shopping-cart .sku-number,
+.shopping-cart-container .attributes,
+.shopping-cart-container .attributes.small,
+.b-sidebar .item .attributes {
     color: var(--nordic-muted-text);
 }
 
