@@ -48,6 +48,7 @@
     <Project Path="src/Plugins/Tax.CountryStateZip/Tax.CountryStateZip.csproj" />
     <Project Path="src/Plugins/Tax.FixedRate/Tax.FixedRate.csproj" />
     <Project Path="src/Plugins/Theme.Modern/Theme.Modern.csproj" />
+    <Project Path="src/Plugins/Theme.Nordic/Theme.Nordic.csproj" />
     <Project Path="src/Plugins/Widgets.FacebookPixel/Widgets.FacebookPixel.csproj" />
     <Project Path="src/Plugins/Widgets.GoogleAnalytics/Widgets.GoogleAnalytics.csproj" />
     <Project Path="src/Plugins/Widgets.Slider/Widgets.Slider.csproj" />
