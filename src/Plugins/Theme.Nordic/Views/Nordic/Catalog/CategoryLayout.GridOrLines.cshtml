@@ -1,0 +1,243 @@
+@model CategoryModel
+@inject SeoSettings seoSettings
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
+    pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
+    var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
+    if (canonicalUrlsEnabled)
+    {
+        var categoryUrl = Url.RouteUrl("Category", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
+        pagebuilder.AddCanonicalUrlParts(categoryUrl);
+    }
+}
+
+@* Rendering category breadcrumbs*@
+
+@section Breadcrumb
+{
+    @if (Model.DisplayCategoryBreadcrumb)
+    {
+        var count = 0;
+
+        <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
+                <a href="@Url.RouteUrl("HomePage")" title="@Loc["Categories.Breadcrumb.Top"]">
+                    <i class="b-icon bi bi-house-door" style="font-size:1.25em; position:relative; top:-1.25px" aria-hidden="true"></i>
+                    <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
+                    <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
+                          id="@Url.RouteUrl("HomePage")">
+                    </span>
+                    <meta itemprop="position" content="@count"/>
+                </a>
+            </li>
+            @foreach (var cat in Model.CategoryBreadcrumb)
+            {
+                count++;
+                var isLastCategory = cat.Id == Model.Id;
+                @if (isLastCategory)
+                {
+                    <li class="breadcrumb-item active" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
+                        <a>
+                            <strong class="current-item" itemprop="name">@cat.Name</strong>
+                            <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new { cat.SeName })">
+                            </span>
+                            <meta itemprop="position" content="@count"/>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
+                        <a href="@Url.RouteUrl("Category", new { cat.SeName })" title="@cat.Name" itemprop="item">
+                            <span itemprop="name">@cat.Name</span>
+                            <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new { cat.SeName })">
+                            </span>
+                            <meta itemprop="position" content="@count"/>
+                        </a>
+                    </li>
+                }
+            }
+        </ol>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_breadcrumb", additionalData = Model.Id })
+    }
+}
+
+<div class="page category-page nordic-listing">
+    @*Nordic: heading panel - title and description on the surface colour beside the picture*@
+    <header class="nordic-listing-head@(string.IsNullOrEmpty(Model.PictureModel?.ImageUrl) ? "" : " has-picture")">
+        <div class="nordic-listing-head__text">
+            <h1 class="generalTitle h2">@Model.Name</h1>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_top", additionalData = Model.Id })
+            @*Rendering description*@
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="nordic-listing-head__desc " v-pre>
+                    @Html.Raw(Model.Description)
+                </div>
+            }
+        </div>
+        @if (!string.IsNullOrEmpty(Model.PictureModel?.ImageUrl))
+        {
+            <div class="nordic-listing-head__media">
+                <img src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" title="@Model.PictureModel.Title">
+            </div>
+        }
+    </header>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_subcategories", additionalData = Model.Id })
+    @*Rendering subcategories - Nordic: as chips*@
+    @if (Model.SubCategories.Any())
+    {
+        <nav class="categoryGrid nordic-chips" aria-label="@Loc["Categories"]">
+            <ul>
+                @foreach (var item in Model.SubCategories)
+                {
+                    <li>
+                        <a class="nordic-chip" href="@Url.RouteUrl("Category", new { item.SeName })" title="@item.PictureModel.Title">@item.Name</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_featured_products", additionalData = Model.Id })
+    @*Rendering featured products section*@
+    @if (Model.FeaturedProducts.Any())
+    {
+        <div class="page-separator"></div>
+        <div class="col-12 product-grid featured-product-grid px-0" vue-island>
+            <h2 class="h5 text-start mb-3">
+                <span>@Loc["Products.FeaturedProducts"]</span>
+            </h2>
+            <div class="row">
+                @foreach (var product in Model.FeaturedProducts)
+                {
+                    <div class="col-xl-4 col-6 product-container mb-2">
+                        <partial name="Partials/CatalogProductView" model="product"/>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
+    <div id="catalog-products" vue-island="catalog">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
+        <template v-if="catalog.Model !== undefined">
+            <partial name="Partials/Selectors"/>
+        </template>
+        @*
+            The requested page is rendered on the server, so product names, prices
+            and links are in the HTML source rather than only in the catalog JSON
+            island. Vue takes over the moment the visitor sorts, filters or pages -
+            catalog.clientRendered flips and the branch below replaces this one.
+
+            This must NOT sit inside a <template>: a <template>'s children are inert
+            and are never rendered without JavaScript.
+        *@
+        <div class="catalog-products-server" v-if="!catalog?.clientRendered">
+            @if (Model.Products.Any())
+            {
+                if (Model.PagingFilteringContext.ViewMode != "list")
+                {
+                    <div class="col-12 product-grid px-0">
+                        <div class="row">
+                            @*
+                                The first row is above the fold and holds the LCP candidate,
+                                so those cards load their image eagerly - see the note in
+                                Partials/CatalogProductView. Three per row at the widest
+                                breakpoint (col-lg-4).
+                            *@
+                            @foreach (var (product, index) in Model.Products.Select((p, i) => (p, i)))
+                            {
+                                <div class="col-xl-4 col-6 product-container mb-2">
+                                    <partial name="Partials/CatalogProductView" model="product"
+                                             view-data="@(new ViewDataDictionary(ViewData) { ["EagerImage"] = index < 3 })"/>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="product-list">
+                        <div class="col-12">
+                            <div class="row">
+                                @foreach (var product in Model.Products)
+                                {
+                                    <partial name="Partials/CatalogProductListView" model="product"/>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                <partial name="Partials/PaginationLinks" model="Model.PagingFilteringContext"/>
+            }
+            else
+            {
+                <div class="alert alert-info my-3">
+                    @Loc["search.noresultstext"]
+                </div>
+            }
+        </div>
+        <template v-else>
+            <template v-if="catalog.Model.Products.length > 0">
+                <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                    <div class="col-12 product-grid px-0">
+                        <div class="row">
+                            <template v-for="product in catalog.Model.Products">
+                                <div class="col-xl-4 col-6 product-container mb-2">
+                                    <partial name="Partials/Client/CatalogProductGridView"/>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="product-list">
+                        <div class="col-12">
+                            <div class="row">
+                                <template v-for="product in catalog.Model.Products">
+                                    <partial name="Partials/Client/CatalogProductListView"/>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <partial name="Partials/Pagination"/>
+            </template>
+            <template v-else>
+                <div class="alert alert-info my-3">
+                    @Loc["search.noresultstext"]
+                </div>
+            </template>
+        </template>
+    </div>
+    @*Rendering bottom description*@
+    @if (!string.IsNullOrWhiteSpace(Model.BottomDescription))
+    {
+        <div class="card">
+            <div class="card-body">
+                @Html.Raw(Model.BottomDescription)
+            </div>
+        </div>
+    }
+    @*Rendering recently viewed products section*@
+
+    @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 235 })
+
+</div>
+
+@section filters
+{
+    @*Rendering filtering section*@
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        <partial name="Partials/Filtering"/>
+    }
+}
+
+<partial name="Partials/ModelScript" model="Model"/>
