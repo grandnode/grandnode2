@@ -76,8 +76,11 @@ public class SampleNamesTests
                 m => attributes[m.Groups[1].Value],
                 m => Regex.Matches(m.Groups[2].Value, @"""([^""]+)""").Select(o => o.Groups[1].Value).ToHashSet());
 
-        var pairs = Regex.Matches(ReadServices("InstallDataProducts.*.cs"), @"Spec\(""([^""]+)"",\s*""([^""]+)""");
-        Assert.IsTrue(pairs.Count > 0, "no Spec(...) calls found - the pattern no longer matches the seed code");
+        var productSeed = ReadServices("InstallDataProducts.*.cs");
+        var pairs = Regex.Matches(productSeed, @"Spec\(""([^""]+)"",\s*""([^""]+)""");
+        // every Spec( call must be the two-literal form, or a call written differently would go unchecked
+        Assert.AreEqual(Regex.Matches(productSeed, @"(?<![A-Za-z0-9_])Spec\(").Count, pairs.Count,
+            "a Spec(...) call does not use two string literals, so this test cannot check it");
         var missing = pairs
             .Select(m => (Attribute: m.Groups[1].Value, Option: m.Groups[2].Value))
             .Where(p => !options.TryGetValue(p.Attribute, out var set) || !set.Contains(p.Option))
@@ -91,10 +94,13 @@ public class SampleNamesTests
     public void EveryCollectionProductIsSeeded()
     {
         var seed = ReadServices("InstallDataCollections.cs");
-        var names = Regex.Matches(seed, @"AddProductsToCollection\(\w+,\s*\[(.*?)\]\)", RegexOptions.Singleline)
+        var lists = Regex.Matches(seed, @"AddProductsToCollection\(\w+,\s*\[(.*?)\]\)", RegexOptions.Singleline);
+        // every call (the helper's own declaration excluded) must be the inline-array form this test reads
+        Assert.AreEqual(Regex.Matches(seed, @"(?<![A-Za-z0-9_])AddProductsToCollection\(").Count - 1, lists.Count,
+            "an AddProductsToCollection(...) call does not use an inline array, so this test cannot check it");
+        var names = lists
             .SelectMany(m => Regex.Matches(m.Groups[1].Value, @"""([^""]+)""").Select(n => n.Groups[1].Value))
             .ToList();
-        Assert.IsTrue(names.Count > 0, "no collection product lists found - the pattern no longer matches the seed code");
         var seeded = SeededProductNames();
         var missing = names.Where(n => !seeded.Contains(n)).Distinct().ToList();
         Assert.AreEqual(0, missing.Count, "Collection products that are not seeded: " + string.Join(", ", missing));
@@ -113,12 +119,12 @@ public class SampleNamesTests
         // every tuple's first item is a product name; string[] items after it (Related, CrossSells) are product
         // names too, while Tags' string[] and the review strings are not
         var names = new List<string>();
-        foreach (var row in (System.Collections.IEnumerable)field.GetValue(null)!)
+        foreach (System.Runtime.CompilerServices.ITuple row in (System.Collections.IEnumerable)field.GetValue(null)!)
         {
-            var items = row.GetType().GetFields().Select(f => f.GetValue(row)).ToList();
-            names.Add((string)items[0]!);
+            names.Add((string)row[0]!);
             if (fieldName == "SampleProductRelations")
-                names.AddRange(items.Skip(1).OfType<string[]>().SelectMany(a => a));
+                for (var i = 1; i < row.Length; i++)
+                    names.AddRange((string[])row[i]!);
         }
 
         Assert.IsTrue(names.Count > 0, $"{fieldName} is empty");
