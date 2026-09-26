@@ -24,6 +24,9 @@
     <ProjectReference Include="..\..\Modules\Grand.Module.ScheduledTasks\Grand.Module.ScheduledTasks.csproj" />
     <ProjectReference Include="..\..\Plugins\Theme.Nordic\Theme.Nordic.csproj" />
     <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj" />
+    <!-- Theme.Nordic compiles against Grand.Web; without it in the output, MigrationManager's
+         assembly scan fails to load Theme.Nordic.dll -->
+    <ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj" />
     <ProjectReference Include="..\Grand.Data.Tests\Grand.Data.Tests.csproj" />
   </ItemGroup>
 
