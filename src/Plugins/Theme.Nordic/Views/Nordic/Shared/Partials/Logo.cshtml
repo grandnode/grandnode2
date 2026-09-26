@@ -1,0 +1,3 @@
+@inject IContextAccessor contextAccessor
+@*Nordic: the store name set as a serif wordmark instead of the logo picture*@
+<a class="navbar-brand store-logo nordic-wordmark mx-lg-0 mx-auto" target="_self" href="@Url.RouteUrl("HomePage")">@contextAccessor.StoreContext.CurrentStore.Name</a>

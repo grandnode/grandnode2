@@ -1,0 +1,45 @@
+@inject CustomerSettings customerSettings
+
+@if (!customerSettings.HideNewsletterBlock)
+{
+    <section class="newsletter nordic-newsletter" vue-island>
+        <div class="newsletter-subscribe container" id="newsletter-subscribe-block">
+            <h2 class="newsletter-title">@Loc["Newsletter.Title"]</h2>
+            <div class="newsletter-desc">@Loc["Newsletter.Desc"]</div>
+            <div class="newsletter-inputs">
+                <div class="nordic-newsletter__field" role="group">
+                    <label for="newsletter-email" class="visually-hidden">newsletter</label>
+                    <input id="newsletter-email" type="email" class="form-control newsletter-email"
+                           placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]"/>
+                    <button class="btn newsletter-email-button" id="newsletter-subscribe-button" @@click="newsletterBox(@customerSettings.NewsletterBlockAllowToUnsubscribe.ToString().ToLower(), '@(Url.RouteUrl("SubscribeNewsletter"))')">
+                        @Loc["Newsletter.Options.Subscribe"] <span aria-hidden="true">&rarr;</span>
+                    </button>
+                </div>
+
+                @if (customerSettings.NewsletterBlockAllowToUnsubscribe)
+                {
+                    <div class="custom-controls-stacked newsletter-subscribe-unsubscribe">
+                        <fieldset class="d-inline-flex justify-content-center w-100">
+                            <div class="form-check mb-2">
+                                <input value="newsletter_unsubscribe" id="newsletter_subscribe" ref="newsletterSubscribe" name="newsletter_block" type="radio" class="form-check-input" checked="checked">
+                                <label class="form-check-label" for="newsletter_subscribe">@Loc["Newsletter.Options.Subscribe"]</label>
+                            </div>
+                            <div class="form-check ms-3 mb-2">
+                                <input value="newsletter_unsubscribe" id="newsletter_unsubscribe" name="newsletter_block" type="radio" class="form-check-input">
+                                <label class="form-check-label" for="newsletter_unsubscribe">@Loc["Newsletter.Options.Unsubscribe"]</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                }
+                <div class="newsletter-validation">
+                    <span id="subscribe-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
+                </div>
+                <div id="newsletter-result-block" style="display: none;" class="newsletter-result">
+                    <div class="alert alert-info">
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" id="newsletterbox" data-href="@(Url.RouteUrl("SubscribeNewsletter"))" data-allowtounsubscribe=@customerSettings.NewsletterBlockAllowToUnsubscribe/>
+        </div>
+    </section>
+}

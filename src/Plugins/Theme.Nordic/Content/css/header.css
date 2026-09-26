@@ -1,0 +1,614 @@
+/*
+    Nordic Editorial - top bar, header, menu row, newsletter and footer.
+    Markup: Views/Nordic/Shared/Partials/Header.cshtml, Logo.cshtml, NewsletterBox.cshtml,
+    Views/Nordic/Shared/Components/Footer/Default.cshtml.
+*/
+
+/* ---------- top bar (PageBlock HeaderPromoText) ---------- */
+
+.nordic-topbar {
+    padding: 7px 16px;
+    border-bottom: 1px solid var(--nordic-line);
+    background: var(--nordic-bg);
+    color: var(--nordic-muted-text);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.nordic-topbar .generalMarginSupporter,
+.nordic-topbar .page-block-body {
+    margin: 0;
+    padding: 0 !important;
+}
+
+.nordic-topbar .generalTitle {
+    display: none;
+}
+
+.nordic-topbar p {
+    margin: 0;
+}
+
+.nordic-topbar a {
+    color: inherit;
+    text-underline-offset: .2em;
+}
+
+/* ---------- header ---------- */
+
+.header-nav.nordic-header,
+[dark-theme="true"] .header-nav.nordic-header {
+    background-color: var(--nordic-bg);
+    border-bottom: 1px solid var(--nordic-line);
+    box-shadow: none;
+}
+
+.nordic-header .navbar {
+    padding-top: 18px;
+    padding-bottom: 10px;
+}
+
+.nordic-header .b-icon.bi,
+.nordic-header .top-header-items .b-icon.bi {
+    font-size: 19px;
+    color: var(--nordic-ink);
+}
+
+.nordic-header .text-dark,
+.nordic-header .text-white {
+    color: var(--nordic-ink) !important;
+}
+
+.nordic-header .navbar-nav .nav-link,
+[dark-theme="true"] .nordic-header.navbar-light .navbar-nav .nav-link {
+    color: var(--nordic-ink);
+}
+
+.nordic-header .qty-indicator,
+[dark-theme="true"] .nordic-header .qty-indicator {
+    background: var(--nordic-ink);
+    color: var(--nordic-bg);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.menu-toggler span,
+[dark-theme="true"] .menu-toggler span {
+    height: 1.5px;
+    background: var(--nordic-ink);
+}
+
+/* the colour-scheme switch, reduced to a quiet toggle */
+.nordic-header .contrast-switch .form-check-input {
+    background-color: transparent;
+    border-color: var(--nordic-muted);
+}
+
+.nordic-header .contrast-switch .form-check-input:checked {
+    background-color: var(--nordic-ink);
+    border-color: var(--nordic-ink);
+}
+
+.nordic-header .contrast-switch .b-icon.bi {
+    font-size: 15px;
+}
+
+/* the wordmark (store name) */
+.nordic-wordmark,
+.nordic-wordmark:hover,
+.nordic-wordmark:focus-visible {
+    color: var(--nordic-ink);
+    font-family: var(--nordic-serif);
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -.01em;
+    line-height: 1.1;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nordic-header-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .25rem 0;
+    background: none;
+    border: 0;
+    color: var(--nordic-ink);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.nordic-header-link .b-icon.bi {
+    font-size: 15px;
+}
+
+.nordic-header-link:hover {
+    color: var(--nordic-muted-text);
+}
+
+/* desktop: search | wordmark | icons, then the centred menu row */
+@media (min-width: 992px) {
+    .nordic-header #header-container {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+    }
+
+    .nordic-header .menu-container {
+        display: none;
+    }
+
+    .nordic-header .nordic-header-left {
+        display: flex;
+        justify-self: start;
+    }
+
+    .nordic-header .store-logo {
+        flex: none;
+        margin: 0;
+        padding: 0;
+        justify-self: center;
+    }
+
+    .nordic-header .top-header-items {
+        justify-self: end;
+        gap: .25rem;
+    }
+
+    .nordic-header .nordic-search-item {
+        display: none;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .nordic-header .nordic-header-left,
+    .nordic-header .nordic-menu-row {
+        display: none;
+    }
+
+    .nordic-header .navbar {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .nordic-wordmark {
+        font-size: 22px;
+    }
+
+    .nordic-header .top-header-items.navbar-nav,
+    [dark-theme="true"] .nordic-header .top-header-items.navbar-nav {
+        background: var(--nordic-bg);
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* the Default phone tab bar, in the palette */
+    .nordic-header .top-header-items.navbar-nav {
+        background: var(--nordic-bg);
+        border-top: 1px solid var(--nordic-line);
+        box-shadow: none;
+    }
+
+    .nordic-header .top-header-items .b-icon.bi {
+        font-size: 21px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .nordic-topbar {
+        font-size: 9.5px;
+        letter-spacing: .08em;
+    }
+}
+
+@media (max-width: 380px) {
+    .nordic-wordmark {
+        font-size: 19px;
+    }
+}
+
+/* ---------- menu row (desktop) ---------- */
+
+.nordic-menu-row {
+    border-top: 0;
+}
+
+.nordic-menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 30px;
+    margin: 0;
+    padding: 6px 16px 14px;
+    list-style: none;
+}
+
+.nordic-menu > li {
+    position: relative;
+}
+
+.nordic-menu > li > a,
+.nordic-menu > li > div {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: 6px 0;
+    color: var(--nordic-ink);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.nordic-menu > li > a:hover,
+.nordic-menu > li:hover > div,
+.nordic-menu > li:focus-within > div {
+    color: var(--nordic-muted-text);
+}
+
+.nordic-menu > li.-hasSubmenu > a::after,
+.nordic-menu > li.-hasSubmenu > div::after {
+    content: "";
+    width: 5px;
+    height: 5px;
+    margin-top: -3px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg);
+}
+
+.nordic-menu .category-icon {
+    display: none;
+}
+
+.nordic-menu .badge {
+    padding: .25em .45em;
+    font-size: 9px;
+}
+
+/* dropdowns: hidden by opacity rather than display, so the links stay reachable
+   with the keyboard and :focus-within can open the panel */
+.nordic-menu > li > ul {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    z-index: 1036;
+    min-width: 220px;
+    margin: 0;
+    padding: 12px 0;
+    list-style: none;
+    background: var(--nordic-bg);
+    border: 1px solid var(--nordic-line);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 6px);
+    transition: opacity .15s ease, transform .15s ease;
+}
+
+.nordic-menu > li:hover > ul,
+.nordic-menu > li:focus-within > ul {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+}
+
+.nordic-menu ul ul {
+    margin: 0;
+    padding: 0 0 4px 12px;
+    list-style: none;
+}
+
+.nordic-menu li.back {
+    display: none;
+}
+
+.nordic-menu ul a,
+.nordic-menu ul li > div {
+    display: block;
+    padding: 5px 20px;
+    color: var(--nordic-ink);
+    font-size: 13px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nordic-menu ul li > div {
+    color: var(--nordic-muted-text);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.nordic-menu ul a:hover,
+.nordic-menu ul a:focus-visible {
+    background: var(--nordic-surface);
+    color: var(--nordic-ink);
+}
+
+.nordic-menu .sub-cat-name-container a,
+.nordic-menu .sub-cat-name-container a.text-info {
+    color: var(--nordic-muted-text) !important;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+/* ---------- the drawer menu (phones, tablets) ---------- */
+
+.b-sidebar .Menu li > a,
+.b-sidebar .Menu li > div,
+[dark-theme="true"] .Menu li > a,
+[dark-theme="true"] .Menu li > div {
+    color: var(--nordic-ink);
+}
+
+.b-sidebar .Menu li,
+[dark-theme="true"] .Menu li:not(.category),
+[dark-theme="true"] .Menu li.category,
+[dark-theme="true"] .Menu li .back,
+[dark-theme="true"] .Menu ul,
+[dark-theme="true"] .Menu.-floating {
+    background-color: var(--nordic-bg);
+}
+
+.b-sidebar .Menu li:hover,
+[dark-theme="true"] .Menu li.category:hover,
+[dark-theme="true"] .Menu li:not(.category):hover,
+[dark-theme="true"] .Menu li.sub-cat-name-container:hover a {
+    background-color: var(--nordic-surface);
+}
+
+/* ---------- search modal ---------- */
+
+#search-box .modal-content,
+[dark-theme="true"] #search-box .modal-content {
+    background-color: var(--nordic-bg);
+    color: var(--nordic-ink);
+}
+
+#search-box .search-box-text,
+#search-box .search-box-select,
+[dark-theme="true"] #search-box .modal-body .search-box-text,
+[dark-theme="true"] #search-box .search-box-select {
+    background-color: var(--nordic-bg);
+    border-color: var(--nordic-line);
+    color: var(--nordic-ink);
+}
+
+[dark-theme="true"] #search-box .modal-body .search-box-text::placeholder {
+    color: var(--nordic-muted-text);
+}
+
+[dark-theme="true"] #search-box .input-group .search-box-button {
+    color: var(--nordic-ink);
+}
+
+/* ---------- newsletter ---------- */
+
+.newsletter.nordic-newsletter {
+    margin: 72px auto 0;
+    padding: 48px 16px;
+    border-top: 1px solid var(--nordic-line);
+    border-bottom: 1px solid var(--nordic-line);
+    text-align: center;
+}
+
+.nordic-newsletter .newsletter-subscribe {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nordic-newsletter .newsletter-title {
+    margin: 0 0 .35rem;
+    color: var(--nordic-ink);
+    font-family: var(--nordic-serif);
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2rem);
+    font-weight: 300;
+}
+
+.nordic-newsletter .newsletter-desc {
+    color: var(--nordic-muted-text);
+    font-size: 14px;
+}
+
+.nordic-newsletter .newsletter-inputs {
+    width: min(420px, 100%);
+    margin-top: 18px;
+}
+
+.nordic-newsletter__field {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--nordic-ink);
+}
+
+.nordic-newsletter .newsletter-email,
+.nordic-newsletter .newsletter-email:focus {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 10px 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: var(--nordic-ink);
+    font-size: 14px;
+}
+
+.nordic-newsletter .newsletter-email::placeholder,
+[dark-theme="true"] .nordic-newsletter .newsletter-email::placeholder {
+    color: var(--nordic-muted-text);
+}
+
+.nordic-newsletter .newsletter-email-button,
+[dark-theme="true"] .nordic-newsletter .newsletter-email-button {
+    flex: none;
+    padding: 10px 0 10px 12px;
+    background: transparent;
+    border: 0;
+    color: var(--nordic-ink);
+    font-size: 11px;
+}
+
+.nordic-newsletter .newsletter-email-button:hover {
+    color: var(--nordic-muted-text);
+}
+
+.nordic-newsletter .newsletter-subscribe-unsubscribe {
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.nordic-newsletter .newsletter-result .alert {
+    position: static;
+    margin-top: 12px;
+}
+
+/* ---------- footer ---------- */
+
+.nordic-footer,
+[dark-theme="true"] footer.nordic-footer {
+    margin-top: 72px;
+    padding: 48px 0 20px;
+    background-color: var(--nordic-surface);
+    color: var(--nordic-muted-text);
+    font-size: 13px;
+}
+
+.nordic-footer__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 32px;
+}
+
+.nordic-footer .nordic-wordmark {
+    font-size: 24px;
+}
+
+.nordic-footer__head {
+    margin: 0 0 12px;
+    color: var(--nordic-ink);
+    font-family: var(--nordic-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.nordic-footer .list-group {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+.nordic-footer .list-group-item-action,
+[dark-theme="true"] .nordic-footer .list-group-item-action {
+    width: auto;
+    padding: 3px 0;
+    background: transparent;
+    border: 0;
+    color: var(--nordic-muted-text);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-align: left;
+    text-transform: none;
+}
+
+.nordic-footer .list-group-item-action:hover,
+.nordic-footer .list-group-item-action:focus-visible,
+[dark-theme="true"] .nordic-footer .list-group-item-action:hover,
+[dark-theme="true"] .nordic-footer .list-group-item-action:focus {
+    background: transparent;
+    color: var(--nordic-ink);
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.nordic-footer .social-icons {
+    flex-direction: row;
+    gap: 14px;
+    margin: 18px 0 0;
+    padding: 0;
+}
+
+.nordic-footer .social-icons .list-group-item {
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
+
+.nordic-footer .social-icons img {
+    width: 20px;
+    height: 20px;
+    opacity: .7;
+    filter: grayscale(1);
+}
+
+.nordic-footer .social-icons a:hover img {
+    opacity: 1;
+}
+
+[dark-theme="true"] .nordic-footer .list-group.social-icons .list-group-item {
+    filter: invert(1);
+}
+
+.nordic-footer__company {
+    margin: 14px 0 0;
+    font-size: 12px;
+}
+
+.nordic-footer__company dt {
+    color: var(--nordic-ink);
+    font-weight: 500;
+}
+
+.nordic-footer__company dd {
+    margin-bottom: 6px;
+}
+
+.nordic-footer__lower {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--nordic-line);
+    font-size: 12px;
+}
+
+.nordic-footer__lower a {
+    color: var(--nordic-ink);
+}
+
+@media (max-width: 991.98px) {
+    .nordic-footer__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .nordic-footer__brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .nordic-footer__grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .nordic-footer__lower {
+        flex-direction: column;
+    }
+}
