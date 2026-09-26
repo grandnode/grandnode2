@@ -34,7 +34,7 @@ public class SliderWidgetPlugin(
                 Title: "Outdoor & Active is here", Text: "Tents, trail shoes and cycling gear, with 15% off the whole department.",
                 Button: "Explore the outdoors", Url: "/outdoor-active"),
             (Name: "Maker marketplace", File: "slide_marketplace.jpg", Kicker: "Our marketplace",
-                Title: "Made by hand, sold with care", Text: "Independent makers now sell alongside our own range.",
+                Title: "Made by hand", Text: "Independent makers now sell alongside our own range.",
                 Button: "Meet the makers", Url: "/nordic-craft-collective")
         };
 
