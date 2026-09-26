@@ -190,7 +190,8 @@ public partial class InstallationService
             (roadBike, makerStories, "blog_old_road_bike_second_life.jpg")
         };
 
-        foreach (var (post, category, image) in posts)
+        //oldest first: the storefront lists posts by CreatedOnUtc, which is the insert time
+        foreach (var (post, category, image) in posts.OrderBy(p => p.Post.StartDateUtc))
         {
             post.PictureId = (await InsertSamplePicture(image, post.Title, Reference.Blog, post.Id, post.Title)).Id;
             await _blogPostRepository.InsertAsync(post);

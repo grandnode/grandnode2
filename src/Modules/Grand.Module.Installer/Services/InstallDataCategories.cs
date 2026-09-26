@@ -180,11 +180,13 @@ public partial class InstallationService
             "Workshops",
             "Online and in-person workshops on coffee, cycling, and craft skills.",
             2, "category_workshops.jpg");
-        await AddSubcategory(studioDigital, "Gift vouchers",
+        //display order 6 so it follows the five departments on the home page (it is still last in Studio & Digital)
+        var giftVouchers = await AddSubcategory(studioDigital, "Gift vouchers",
             "<p>Digital and printed gift vouchers in a few sizes, ready to send for any occasion.</p>",
             "Gift Vouchers",
             "Digital and printed gift vouchers for any occasion.",
-            3, "category_gift_vouchers.jpg");
+            6, "category_gift_vouchers.jpg");
+        giftVouchers.ShowOnHomePage = true;
 
         allCategories.ForEach(x => _categoryRepository.Insert(x));
 

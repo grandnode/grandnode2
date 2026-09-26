@@ -78,7 +78,7 @@ public partial class InstallationService
             PageSize = 12,
             AllowCustomersToSelectPageSize = true,
             PageSizeOptions = "12, 24, 36",
-            ShowOnHomePage = false,
+            ShowOnHomePage = true,
             IncludeInMenu = false,
             Published = true,
             DisplayOrder = 3

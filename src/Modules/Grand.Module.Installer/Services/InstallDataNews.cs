@@ -77,7 +77,8 @@ public partial class InstallationService
             }, "news_vendor_marketplace.jpg")
         };
 
-        foreach (var (item, image) in news)
+        //oldest first: the storefront lists news by CreatedOnUtc, which is the insert time
+        foreach (var (item, image) in news.OrderBy(n => n.Item.StartDateUtc))
         {
             item.PictureId = (await InsertSamplePicture(image, item.Title, Reference.None, item.Id, item.Title)).Id;
             await _newsItemRepository.InsertAsync(item);

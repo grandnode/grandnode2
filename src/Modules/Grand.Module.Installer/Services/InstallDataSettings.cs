@@ -472,7 +472,7 @@ public partial class InstallationService
             NotifyAboutNewBlogComments = false,
             NumberOfTags = 15,
             ShowBlogOnHomePage = installSampleData,
-            HomePageBlogCount = 3,
+            HomePageBlogCount = installSampleData ? 2 : 3,
             MaxTextSizeHomePage = 200
         });
 
