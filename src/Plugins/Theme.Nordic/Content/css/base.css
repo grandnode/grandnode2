@@ -469,6 +469,18 @@ b, strong, .font-weight-bold, .fw-bold {
     --bs-pagination-disabled-border-color: var(--nordic-line);
 }
 
+/* ---------- back-to-top button ---------- */
+
+.up-btn {
+    background: var(--nordic-ink);
+    border-radius: 0;
+}
+
+.up-btn:not(.up-btn__hide) div::before,
+.up-btn:not(.up-btn__hide) div::after {
+    background: var(--nordic-bg);
+}
+
 /* ---------- layout rhythm ---------- */
 
 .nordic-hairline {

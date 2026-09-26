@@ -598,6 +598,7 @@
 /* ---------- left column: filters and navigation ---------- */
 
 #TwoColumns .generalLeftSide h2.h5,
+#TwoColumns .generalLeftSide .generalTitle,
 #TwoColumns .generalLeftSide .block > .title,
 #TwoColumns .generalLeftSide .card-header,
 #TwoColumns .generalLeftSide .block h2 {
