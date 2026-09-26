@@ -1,0 +1,71 @@
+/*
+    Nordic Editorial - design tokens.
+
+    The palette lives in --nordic-*; Bootstrap's own variables are pointed at it for both
+    schemes, so every component the theme does not restyle still follows the palette.
+    The scheme is switched by ColorScheme.cshtml through data-bs-theme on <html>.
+*/
+
+:root,
+[data-bs-theme=light] {
+    --nordic-bg: #f6f3ee;
+    --nordic-surface: #ece6dc;
+    --nordic-ink: #23201c;
+    --nordic-muted: #8a7f70;
+    --nordic-line: #e2dbd0;
+    --nordic-sale: #9b3d2a;
+    /* --nordic-muted is 3.5:1 on bg: large text and decoration only. Small text uses --nordic-muted-text. */
+    --nordic-muted-text: #6b6155;
+    --nordic-on-image: #ffffff;
+}
+
+[data-bs-theme=dark] {
+    --nordic-bg: #1d1b18;
+    --nordic-surface: #27241f;
+    --nordic-ink: #f1ece4;
+    --nordic-muted: #a89c8c;
+    --nordic-line: #3a352e;
+    --nordic-sale: #e08a73;
+    --nordic-muted-text: #a89c8c;
+    --nordic-on-image: #ffffff;
+}
+
+:root,
+[data-bs-theme=light],
+[data-bs-theme=dark] {
+    --nordic-serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --nordic-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --nordic-track: .12em;
+
+    --bs-body-bg: var(--nordic-bg);
+    --bs-body-bg-rgb: 246, 243, 238;
+    --bs-body-color: var(--nordic-ink);
+    --bs-emphasis-color: var(--nordic-ink);
+    --bs-secondary-color: var(--nordic-muted-text);
+    --bs-tertiary-color: var(--nordic-muted-text);
+    --bs-secondary-bg: var(--nordic-surface);
+    --bs-tertiary-bg: var(--nordic-surface);
+    --bs-border-color: var(--nordic-line);
+    --bs-border-radius: 0;
+    --bs-border-radius-sm: 0;
+    --bs-border-radius-lg: 0;
+    --bs-border-radius-xl: 0;
+    --bs-link-color: var(--nordic-ink);
+    --bs-link-color-rgb: 35, 32, 28;
+    --bs-link-hover-color: var(--nordic-muted-text);
+    --bs-link-hover-color-rgb: 107, 97, 85;
+    --bs-body-font-family: var(--nordic-sans);
+    --bs-heading-color: var(--nordic-ink);
+    --bs-primary: var(--nordic-ink);
+    --bs-primary-rgb: 35, 32, 28;
+    --bs-dark: var(--nordic-ink);
+    --bs-light: var(--nordic-surface);
+    --bs-focus-ring-color: color-mix(in srgb, var(--nordic-ink) 25%, transparent);
+}
+
+[data-bs-theme=dark] {
+    --bs-body-bg-rgb: 29, 27, 24;
+    --bs-link-color-rgb: 241, 236, 228;
+    --bs-link-hover-color-rgb: 168, 156, 140;
+    --bs-primary-rgb: 241, 236, 228;
+}

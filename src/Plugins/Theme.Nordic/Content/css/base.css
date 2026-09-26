@@ -1,0 +1,478 @@
+/*
+    Nordic Editorial - base layer: page, type, buttons, forms, cards, tables.
+
+    Loaded after the Default stylesheets (see Views/Nordic/Shared/Partials/Head.cshtml), so equal
+    specificity wins by order. !important only where the Default rule it answers uses it.
+*/
+
+/* ---------- page ---------- */
+
+body,
+body[dark-theme="true"],
+#app,
+#app[dark-theme="true"] {
+    background-color: var(--nordic-bg);
+    color: var(--nordic-ink);
+    font-family: var(--nordic-sans);
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a,
+[dark-theme="true"] a {
+    color: var(--nordic-ink);
+}
+
+a:hover,
+a:focus-visible,
+[dark-theme="true"] a:hover {
+    color: var(--nordic-muted-text);
+}
+
+::selection {
+    background: var(--nordic-ink);
+    color: var(--nordic-bg);
+}
+
+:focus-visible {
+    outline: 2px solid var(--nordic-ink);
+    outline-offset: 2px;
+}
+
+hr {
+    border-color: var(--nordic-line);
+    opacity: 1;
+}
+
+.date-text,
+[dark-theme="true"] .date-text,
+.text-muted,
+[dark-theme="true"] .text-muted,
+[dark-theme="true"] .b-sidebar .text-muted {
+    color: var(--nordic-muted-text) !important;
+}
+
+.text-dark,
+[dark-theme="true"] .text-dark,
+.text-info,
+[dark-theme="true"] .text-info {
+    color: var(--nordic-ink) !important;
+}
+
+.bg-white,
+[dark-theme="true"] .bg-white,
+.bg-light,
+[dark-theme="true"] .bg-light,
+[dark-theme="true"] .jumbotron {
+    background-color: var(--nordic-bg) !important;
+}
+
+/* ---------- type ---------- */
+
+h1, h2, h3, h4,
+.h1, .h2, .h3, .h4,
+.generalTitle,
+.page-title,
+.page-title h1,
+.page-title h2 {
+    font-family: var(--nordic-serif);
+    font-weight: 350;
+    letter-spacing: -.01em;
+    color: var(--nordic-ink);
+}
+
+h5, h6, .h5, .h6 {
+    font-family: var(--nordic-sans);
+    font-weight: 600;
+}
+
+h1, .h1, .page-title h1 {
+    font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.75rem);
+    line-height: 1.12;
+}
+
+h2, .h2, .generalTitle {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    line-height: 1.2;
+}
+
+b, strong, .font-weight-bold, .fw-bold {
+    font-weight: 600;
+}
+
+.nordic-kicker {
+    font-family: var(--nordic-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: var(--nordic-track);
+    text-transform: uppercase;
+    color: var(--nordic-muted-text);
+}
+
+.nordic-serif {
+    font-family: var(--nordic-serif);
+    font-weight: 350;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+    --bs-btn-border-radius: 0;
+    --bs-btn-font-size: 12px;
+    --bs-btn-font-weight: 600;
+    --bs-btn-padding-x: 1.25rem;
+    --bs-btn-padding-y: .7rem;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: var(--nordic-track);
+    text-transform: uppercase;
+    box-shadow: none;
+}
+
+.btn-sm {
+    --bs-btn-font-size: 11px;
+    --bs-btn-padding-x: .8rem;
+    --bs-btn-padding-y: .45rem;
+    font-size: 11px;
+}
+
+.btn-primary,
+.btn-info,
+.btn-success,
+.btn-secondary,
+.btn-dark,
+[dark-theme="true"] .btn-info,
+[dark-theme="true"] .btn-secondary,
+[dark-theme="true"] #ModalAddToCart .btn-dark {
+    --bs-btn-color: var(--nordic-bg);
+    --bs-btn-bg: var(--nordic-ink);
+    --bs-btn-border-color: var(--nordic-ink);
+    --bs-btn-hover-color: var(--nordic-bg);
+    --bs-btn-hover-bg: color-mix(in srgb, var(--nordic-ink) 82%, var(--nordic-bg));
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--nordic-ink) 82%, var(--nordic-bg));
+    --bs-btn-active-color: var(--nordic-bg);
+    --bs-btn-active-bg: var(--nordic-ink);
+    --bs-btn-active-border-color: var(--nordic-ink);
+    --bs-btn-disabled-color: var(--nordic-bg);
+    --bs-btn-disabled-bg: var(--nordic-muted);
+    --bs-btn-disabled-border-color: var(--nordic-muted);
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg);
+    border-color: var(--bs-btn-border-color);
+}
+
+.btn-primary:hover,
+.btn-info:hover,
+.btn-success:hover,
+.btn-secondary:hover,
+.btn-dark:hover,
+[dark-theme="true"] .btn-secondary:hover {
+    color: var(--bs-btn-hover-color);
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
+}
+
+.btn-light,
+[dark-theme="true"] .btn-light {
+    --bs-btn-color: var(--nordic-ink);
+    --bs-btn-bg: var(--nordic-surface);
+    --bs-btn-border-color: var(--nordic-surface);
+    --bs-btn-hover-color: var(--nordic-ink);
+    --bs-btn-hover-bg: var(--nordic-line);
+    --bs-btn-hover-border-color: var(--nordic-line);
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg);
+    border-color: var(--bs-btn-border-color);
+}
+
+[dark-theme="true"] .btn-light:hover {
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
+}
+
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-info,
+.btn-outline-dark,
+.btn-outline-success,
+[dark-theme="true"] .btn-outline-secondary,
+[dark-theme="true"] .btn-outline-info,
+[dark-theme="true"] #ModalAddToCart .btn-outline-secondary {
+    --bs-btn-color: var(--nordic-ink);
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: var(--nordic-ink);
+    --bs-btn-hover-color: var(--nordic-bg);
+    --bs-btn-hover-bg: var(--nordic-ink);
+    --bs-btn-hover-border-color: var(--nordic-ink);
+    --bs-btn-active-color: var(--nordic-bg);
+    --bs-btn-active-bg: var(--nordic-ink);
+    --bs-btn-active-border-color: var(--nordic-ink);
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg);
+    border: 1px solid var(--bs-btn-border-color);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-info:hover,
+.btn-outline-dark:hover,
+.btn-outline-success:hover {
+    color: var(--bs-btn-hover-color);
+    background-color: var(--bs-btn-hover-bg);
+}
+
+.btn-link {
+    --bs-btn-color: var(--nordic-ink);
+    --bs-btn-hover-color: var(--nordic-muted-text);
+    text-underline-offset: .25em;
+}
+
+/* a white rectangular button on imagery (slider, banners) */
+.nordic-btn-light {
+    display: inline-block;
+    padding: .75rem 1.5rem;
+    background: #fff;
+    color: #23201c;
+    border: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: var(--nordic-track);
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.nordic-btn-light:hover,
+.nordic-btn-light:focus-visible {
+    background: #23201c;
+    color: #fff;
+}
+
+/* ---------- forms ---------- */
+
+.form-control,
+.form-select,
+.input-group-text,
+.custom-select {
+    border-radius: 0;
+    border: 1px solid var(--nordic-line);
+    background-color: var(--nordic-bg);
+    color: var(--nordic-ink);
+}
+
+.form-control::placeholder {
+    color: var(--nordic-muted-text);
+    opacity: 1;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--nordic-ink);
+    background-color: var(--nordic-bg);
+    color: var(--nordic-ink);
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--nordic-ink) 25%, transparent);
+}
+
+.form-check-input {
+    border-radius: 0;
+    border-color: var(--nordic-muted);
+    background-color: var(--nordic-bg);
+}
+
+.form-check-input[type=radio] {
+    border-radius: 50%;
+}
+
+.form-switch .form-check-input {
+    border-radius: 2em;
+}
+
+.form-check-input:checked {
+    background-color: var(--nordic-ink);
+    border-color: var(--nordic-ink);
+}
+
+/* the checked marks are white in Bootstrap; on the light ink of dark mode they need the dark bg */
+[data-bs-theme=dark] .form-check-input:checked[type=checkbox] {
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%231d1b18' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme=dark] .form-check-input:checked[type=radio] {
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%231d1b18'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme=dark] .form-switch .form-check-input:checked {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%231d1b18'/%3e%3c/svg%3e");
+}
+
+.col-form-label,
+.form-label {
+    font-weight: 500;
+}
+
+/* ---------- cards, badges, lists, tables ---------- */
+
+.card,
+[dark-theme="true"] .card {
+    --bs-card-border-radius: 0;
+    --bs-card-inner-border-radius: 0;
+    --bs-card-bg: var(--nordic-bg);
+    --bs-card-border-color: var(--nordic-line);
+    --bs-card-cap-bg: var(--nordic-surface);
+    border-radius: 0;
+    background-color: var(--nordic-bg);
+    border-color: var(--nordic-line);
+    color: var(--nordic-ink);
+}
+
+.badge {
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: var(--nordic-track);
+    text-transform: uppercase;
+    padding: .4em .7em;
+}
+
+.list-group-item,
+[dark-theme="true"] .list-group-item {
+    background-color: transparent;
+    color: var(--nordic-ink);
+    border-color: var(--nordic-line);
+}
+
+.table,
+[dark-theme="true"] .table {
+    --bs-table-color: var(--nordic-ink);
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--nordic-line);
+    --bs-table-striped-bg: color-mix(in srgb, var(--nordic-surface) 60%, transparent);
+    --bs-table-striped-color: var(--nordic-ink);
+    --bs-table-hover-bg: var(--nordic-surface);
+    --bs-table-hover-color: var(--nordic-ink);
+    --bs-table-active-bg: var(--nordic-surface);
+    --bs-table-active-color: var(--nordic-ink);
+    color: var(--nordic-ink);
+}
+
+.table > thead th,
+.table > thead td {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: var(--nordic-track);
+    text-transform: uppercase;
+    color: var(--nordic-muted-text);
+    border-bottom: 1px solid var(--nordic-ink);
+}
+
+.table > :not(caption) > * > * {
+    border-bottom-color: var(--nordic-line);
+}
+
+.table-hover tbody tr:hover,
+[dark-theme="true"] .table-hover tbody tr:hover {
+    color: var(--nordic-ink);
+}
+
+.alert {
+    border-radius: 0;
+}
+
+.breadcrumb {
+    font-size: 11px;
+    letter-spacing: var(--nordic-track);
+    text-transform: uppercase;
+}
+
+.breadcrumb a {
+    color: var(--nordic-muted-text);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active,
+[dark-theme="true"] .breadcrumb-item.active {
+    color: var(--nordic-ink);
+}
+
+/* ---------- overlays: modals, sidebars, dropdowns ---------- */
+
+.modal-content,
+[dark-theme="true"] .modal-content,
+[dark-theme="true"] #search-box .modal-content,
+.b-sidebar,
+[dark-theme="true"] .b-sidebar,
+.dropdown-menu,
+.popover,
+.offcanvas {
+    --bs-modal-border-radius: 0;
+    --bs-modal-inner-border-radius: 0;
+    --bs-modal-bg: var(--nordic-bg);
+    --bs-dropdown-bg: var(--nordic-bg);
+    --bs-dropdown-border-radius: 0;
+    --bs-dropdown-border-color: var(--nordic-line);
+    --bs-dropdown-link-color: var(--nordic-ink);
+    --bs-dropdown-link-hover-bg: var(--nordic-surface);
+    border-radius: 0;
+    background-color: var(--nordic-bg);
+    color: var(--nordic-ink);
+}
+
+.b-sidebar-header,
+[dark-theme="true"] .b-sidebar-header {
+    border-bottom: 1px solid var(--nordic-line);
+    font-family: var(--nordic-serif);
+}
+
+.b-sidebar-footer,
+[dark-theme="true"] .b-sidebar-footer {
+    border-top: 1px solid var(--nordic-line);
+}
+
+[data-bs-theme=dark] .b-sidebar .btn-close,
+[data-bs-theme=dark] .modal .btn-close {
+    filter: invert(1) grayscale(1) brightness(2);
+}
+
+[dark-theme="true"] .modal-close.btn-secondary {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.border-bottom,
+.border-top,
+.border,
+[dark-theme="true"] .border-bottom,
+[dark-theme="true"] .border-top {
+    border-color: var(--nordic-line) !important;
+}
+
+/* ---------- pagination ---------- */
+
+.pagination {
+    --bs-pagination-border-radius: 0;
+    --bs-pagination-color: var(--nordic-ink);
+    --bs-pagination-bg: transparent;
+    --bs-pagination-border-color: var(--nordic-line);
+    --bs-pagination-hover-color: var(--nordic-ink);
+    --bs-pagination-hover-bg: var(--nordic-surface);
+    --bs-pagination-hover-border-color: var(--nordic-line);
+    --bs-pagination-focus-color: var(--nordic-ink);
+    --bs-pagination-focus-bg: var(--nordic-surface);
+    --bs-pagination-active-color: var(--nordic-bg);
+    --bs-pagination-active-bg: var(--nordic-ink);
+    --bs-pagination-active-border-color: var(--nordic-ink);
+    --bs-pagination-disabled-color: var(--nordic-muted-text);
+    --bs-pagination-disabled-bg: transparent;
+    --bs-pagination-disabled-border-color: var(--nordic-line);
+}
+
+/* ---------- layout rhythm ---------- */
+
+.nordic-hairline {
+    border: 0;
+    border-top: 1px solid var(--nordic-line);
+    margin: 0;
+}
