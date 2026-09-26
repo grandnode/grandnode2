@@ -1,0 +1,36 @@
+@using System.Net
+@using System.Text.RegularExpressions
+@model IList<CollectionModel>
+@inject DisplayOrderHomePage order
+<section class="categoryGrid nordic-section nordic-colls nordic-colls--@Model.Count order-@order.HomePageCollections">
+    <div class="nordic-section-head">
+        <h2 class="nordic-section-title">@Loc["Collections"]</h2>
+        <a class="nordic-section-link" href="@Url.RouteUrl("CollectionList")">@Loc["Collections.List"] <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="nordic-colls__grid">
+        @foreach (var item in Model)
+        {
+            @* the description is editor HTML; the banner shows it as a line of plain text *@
+            var text = Regex.Replace(WebUtility.HtmlDecode(Regex.Replace(item.Description ?? "", "<[^>]+>", " ")), @"\s+", " ").Trim();
+            if (text.Length > 160)
+            {
+                text = text[..160].TrimEnd() + "…";
+            }
+            <article class="nordic-coll">
+                <a class="nordic-coll__media" href="@Url.RouteUrl("Collection", new { item.SeName })" tabindex="-1" aria-hidden="true">
+                    <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
+                </a>
+                <div class="nordic-coll__text">
+                    <h3 class="nordic-coll__name">
+                        <a href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">@item.Name</a>
+                    </h3>
+                    @if (!string.IsNullOrEmpty(text))
+                    {
+                        <p class="nordic-coll__desc">@text</p>
+                    }
+                    <a class="btn btn-outline-secondary nordic-coll__cta" href="@Url.RouteUrl("Collection", new { item.SeName })">@Loc["Mobile.Category.Show"]<span class="visually-hidden"> @item.Name</span></a>
+                </div>
+            </article>
+        }
+    </div>
+</section>

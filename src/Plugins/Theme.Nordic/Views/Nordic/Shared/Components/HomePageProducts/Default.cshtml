@@ -1,0 +1,15 @@
+@model IList<ProductOverviewModel>
+@inject DisplayOrderHomePage order
+<section class="product-grid nordic-section nordic-products order-@order.HomePageProducts" vue-island>
+    <div class="nordic-section-head">
+        <h2 class="nordic-section-title">@Loc["HomePage.Products"]</h2>
+    </div>
+    <div class="row nordic-products__grid">
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-3 col-md-4 col-6 product-container mb-2">
+                <partial name="Partials/CatalogProductView" model="item"/>
+            </div>
+        }
+    </div>
+</section>

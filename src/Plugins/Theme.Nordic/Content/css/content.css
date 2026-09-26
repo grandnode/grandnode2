@@ -1,0 +1,230 @@
+/*
+    Nordic Editorial - blog, news, knowledgebase, pages and search. CSS only: these views are
+    Default markup (Grand.Web/Views/Blog, News, Knowledgebase, Page, Catalog/Search).
+*/
+
+/* ---------- blog and news lists ---------- */
+
+.blog-page .card,
+.news-list-page .card,
+[dark-theme="true"] .blog-page .card,
+[dark-theme="true"] .news-list-page .card {
+    margin-bottom: 36px;
+    background: transparent;
+    border: 0;
+}
+
+.blog-page .card-img-top,
+.news-list-page .card-img-top {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 0;
+    background: var(--nordic-surface);
+}
+
+.blog-page .card-header,
+.news-list-page .card-header,
+.blogpost-page .card-header,
+.news-item-page .card-header {
+    padding: 14px 0 6px;
+    background: transparent;
+    border: 0;
+}
+
+.blog-page .card-header .h5,
+.blog-page .card-header h2,
+.blog-page .card-header h3,
+.news-list-page .card-header .h5,
+.news-list-page .card-header h2,
+.news-list-page .card-header h3 {
+    font-family: var(--nordic-serif);
+    font-size: clamp(20px, 18px + .5vw, 24px);
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+.blog-page .card-header a,
+.news-list-page .card-header a {
+    color: var(--nordic-ink);
+    text-decoration: none;
+}
+
+.blog-page .card-header a:hover,
+.news-list-page .card-header a:hover {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.blog-page .card-body,
+.news-list-page .card-body {
+    padding: 0 0 10px;
+    color: var(--nordic-muted-text);
+    font-size: 14.5px;
+    line-height: 1.65;
+}
+
+.blog-page .card-footer,
+.news-list-page .card-footer {
+    padding: 10px 0 0;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--nordic-line);
+    color: var(--nordic-muted-text);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.news-list-page .buttons {
+    padding: 0 !important;
+}
+
+.blog-page .tags a,
+.blogpost-page .tags a {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    padding: 3px 9px;
+    border: 1px solid var(--nordic-line);
+    color: var(--nordic-ink);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+/* ---------- a single post or news item: a readable column ---------- */
+
+.blogpost-page,
+.news-item-page {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.blogpost-page .generalTitle,
+.news-item-page .generalTitle {
+    margin-bottom: 10px;
+    font-size: clamp(2rem, 1.5rem + 1.6vw, 2.9rem);
+    font-weight: 300;
+    line-height: 1.1;
+    text-align: left;
+}
+
+.blogpost-page .text-muted,
+.news-item-page .text-muted,
+.news-item-page .date {
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.blogpost-page .img-fluid,
+.news-item-page .img-fluid {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 18px 0 24px !important;
+    object-fit: cover;
+}
+
+.blogpost-page .post-body,
+.blogpost-page .blog-post-body,
+.blogpost-page [v-pre],
+.news-item-page .news-body,
+.news-item-page [v-pre] {
+    color: var(--nordic-ink);
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.blogpost-page [v-pre] h2,
+.blogpost-page [v-pre] h3,
+.news-item-page [v-pre] h2,
+.news-item-page [v-pre] h3 {
+    margin: 1.6em 0 .5em;
+}
+
+.blogpost-page .new-comment,
+.news-item-page .new-comment {
+    margin-top: 40px;
+    padding-top: 24px !important;
+    border-top: 1px solid var(--nordic-line);
+}
+
+.blogpost-page .card,
+.news-item-page .card,
+[dark-theme="true"] .blogpost-page .card,
+[dark-theme="true"] .news-item-page .card {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--nordic-line);
+}
+
+.blogpost-page .card-body,
+.news-item-page .card-body {
+    padding: 0 0 14px;
+}
+
+/* ---------- knowledgebase ---------- */
+
+.page .list-group:has(> .list-group-item > a[href*="knowledgebase"]),
+.page .knowledgebase-categories,
+.page .knowledgebase-articles {
+    border-top: 1px solid var(--nordic-line);
+}
+
+.page .list-group-item a[href*="knowledgebase"],
+.page .list-group-item a[href*="/kb"] {
+    color: var(--nordic-ink);
+    font-family: var(--nordic-serif);
+    font-size: 17px;
+    text-decoration: none;
+}
+
+.page .list-group-item a[href*="knowledgebase"]:hover {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+/* the article body itself */
+.page .article-body,
+.page .knowledgebase-article {
+    max-width: 760px;
+    font-size: 16.5px;
+    line-height: 1.7;
+}
+
+/* ---------- landing pages (Page) and page blocks ---------- */
+
+/* scoped to .page: the header promo bar and the home intro are page blocks too */
+.page .page-block-body,
+.page .page-body {
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.blogpost-page .new-comment .generalTitle,
+.news-item-page .new-comment .generalTitle {
+    font-size: clamp(1.4rem, 1.2rem + .6vw, 1.75rem);
+    font-weight: 400;
+}
+
+/* ---------- search ---------- */
+
+.search-page .search-input .form-control,
+.search-page .basic-search .form-control {
+    border: 0;
+    border-bottom: 1px solid var(--nordic-ink);
+    background: transparent;
+    font-size: 17px;
+}
+
+.search-page .advanced-search,
+[dark-theme="true"] .advanced-search-results {
+    background: var(--nordic-surface);
+    border: 0;
+}
+
+.not-found-page .generalTitle {
+    font-size: clamp(2rem, 1.5rem + 1.6vw, 2.9rem);
+    font-weight: 300;
+}

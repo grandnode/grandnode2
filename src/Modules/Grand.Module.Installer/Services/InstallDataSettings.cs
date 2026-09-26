@@ -319,7 +319,8 @@ public partial class InstallationService
         await _settingRepository.SaveSetting(new StoreInformationSettings {
             LogoPictureId = storePictureId,
             StoreClosed = false,
-            DefaultStoreTheme = "Default",
+            //the sample store is presented in the Nordic Editorial theme; a plain install stays on Default
+            DefaultStoreTheme = installSampleData ? "Nordic" : "Default",
             AllowCustomerToSelectTheme = false,
             DisplayCookieInformation = false,
             FacebookLink = "https://www.facebook.com/grandnodecom",

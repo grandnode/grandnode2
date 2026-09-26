@@ -1,0 +1,22 @@
+@model IList<CategoryModel>
+@inject DisplayOrderHomePage order
+@{
+    @* Nordic: 5 tiles make a mosaic, 3 or 6 even rows of three, anything else an even grid *@
+    var countClass = Model.Count switch { 5 => "5", 3 => "3", 6 => "6", _ => "n" };
+}
+<section class="categoryGrid nordic-section nordic-cats nordic-cats--@countClass order-@order.HomePageCategories">
+    <div class="nordic-section-head">
+        <h2 class="nordic-section-title">@Loc["Categories"]</h2>
+    </div>
+    <div class="nordic-cats__grid">
+        @foreach (var item in Model)
+        {
+            <div class="nordic-tile">
+                <a class="nordic-tile__link" href="@Url.RouteUrl("Category", new { item.SeName })" title="@item.PictureModel.Title">
+                    <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy"/>
+                    <h3 class="nordic-tile__name">@item.Name</h3>
+                </a>
+            </div>
+        }
+    </div>
+</section>
