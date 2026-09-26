@@ -16,10 +16,10 @@
             </template>
         </a>
         <div class="nordic-card__badges">
-            <span v-if="product.ProductType == 40" class="nordic-badge nordic-badge--auction">@Loc["Theme.Nordic.Badge.Auction"]</span>
-            <span v-else-if="product.ProductPrice.OldPrice" class="nordic-badge nordic-badge--sale">@Loc["Theme.Nordic.Badge.Sale"]</span>
-            <span v-else-if="product.ProductType == 30" class="nordic-badge nordic-badge--bundle">@Loc["Theme.Nordic.Badge.Bundle"]</span>
-            <span v-else-if="product.MarkAsNew" class="nordic-badge nordic-badge--new">@Loc["Theme.Nordic.Badge.New"]</span>
+            <span v-if="product.ProductType == 40" class="nordic-badge nordic-badge--auction">@NordicText.Get(Loc, "Theme.Nordic.Badge.Auction")</span>
+            <span v-else-if="product.ProductPrice.OldPrice" class="nordic-badge nordic-badge--sale">@NordicText.Get(Loc, "Theme.Nordic.Badge.Sale")</span>
+            <span v-else-if="product.ProductType == 30" class="nordic-badge nordic-badge--bundle">@NordicText.Get(Loc, "Theme.Nordic.Badge.Bundle")</span>
+            <span v-else-if="product.MarkAsNew" class="nordic-badge nordic-badge--new">@NordicText.Get(Loc, "Theme.Nordic.Badge.New")</span>
             <template v-if="product.Flag">
                 <div class="product-label">
                     <div class="badge text-bg-info">{{product.Flag}}</div>

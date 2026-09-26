@@ -12,10 +12,10 @@
     @* Nordic: one badge, in this priority. Client twin: Catalog/Partials/Client/CatalogProductGridView *@
     var onSale = !string.IsNullOrEmpty(Model.ProductPrice.OldPrice);
     string badge = null, badgeClass = null;
-    if (Model.ProductType == ProductType.Auction) { badge = Loc["Theme.Nordic.Badge.Auction"].Value; badgeClass = "auction"; }
-    else if (onSale) { badge = Loc["Theme.Nordic.Badge.Sale"].Value; badgeClass = "sale"; }
-    else if (Model.ProductType == ProductType.BundledProduct) { badge = Loc["Theme.Nordic.Badge.Bundle"].Value; badgeClass = "bundle"; }
-    else if (Model.MarkAsNew) { badge = Loc["Theme.Nordic.Badge.New"].Value; badgeClass = "new"; }
+    if (Model.ProductType == ProductType.Auction) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Auction"); badgeClass = "auction"; }
+    else if (onSale) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Sale"); badgeClass = "sale"; }
+    else if (Model.ProductType == ProductType.BundledProduct) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Bundle"); badgeClass = "bundle"; }
+    else if (Model.MarkAsNew) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.New"); badgeClass = "new"; }
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })

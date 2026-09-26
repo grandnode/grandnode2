@@ -1,3 +1,17 @@
+@using Grand.Business.Core.Interfaces.Storage
+@inject StoreInformationSettings storeInformation
 @inject IContextAccessor contextAccessor
-@*Nordic: the store name set as a serif wordmark instead of the logo picture*@
-<a class="navbar-brand store-logo nordic-wordmark mx-lg-0 mx-auto" target="_self" href="@Url.RouteUrl("HomePage")">@contextAccessor.StoreContext.CurrentStore.Name</a>
+@inject IPictureService pictureService
+@*Nordic: the merchant's logo when one is set; a store without one gets its name as a serif wordmark*@
+@if (!string.IsNullOrEmpty(storeInformation.LogoPictureId))
+{
+    var urlLogo = await pictureService.GetPictureUrl(storeInformation.LogoPictureId);
+    <a class="navbar-brand store-logo mx-lg-0 mx-auto" target="_self" href="@Url.RouteUrl("HomePage")">
+        <img width="236" height="53" src="@urlLogo" alt="@contextAccessor.StoreContext.CurrentStore.Name" />
+        <span class="visually-hidden">@Loc["Logo"]</span>
+    </a>
+}
+else
+{
+    <a class="navbar-brand store-logo nordic-wordmark mx-lg-0 mx-auto" target="_self" href="@Url.RouteUrl("HomePage")">@contextAccessor.StoreContext.CurrentStore.Name</a>
+}

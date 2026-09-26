@@ -13,7 +13,7 @@ public class NordicThemeResourcesTests
     public void EveryThemeResourceUsedInViewsIsInstalledByThePlugin()
     {
         var used = Directory.GetFiles(NordicViews, "*.cshtml", SearchOption.AllDirectories)
-            .SelectMany(f => Regex.Matches(File.ReadAllText(f), @"Loc\[""(Theme\.Nordic\.[^""]+)""").Select(m => m.Groups[1].Value))
+            .SelectMany(f => Regex.Matches(File.ReadAllText(f), @"""(Theme\.Nordic\.[^""]+)""").Select(m => m.Groups[1].Value))
             .Distinct()
             .ToList();
 
