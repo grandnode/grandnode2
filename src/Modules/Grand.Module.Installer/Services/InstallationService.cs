@@ -272,7 +272,7 @@ public partial class InstallationService : IInstallationService
         await InstallMessageTemplates();
         await InstallSettings(installSampleData);
         await InstallPageLayouts();
-        await InstallPages();
+        await InstallPages(installSampleData);
         await InstallLocaleResources();
         await HashDefaultCustomerPassword(defaultUserEmail, defaultUserPassword);
         await InstallProductLayouts();

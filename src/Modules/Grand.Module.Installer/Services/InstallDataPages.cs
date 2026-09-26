@@ -5,7 +5,7 @@ namespace Grand.Module.Installer.Services;
 
 public partial class InstallationService
 {
-    protected virtual async Task InstallPages()
+    protected virtual async Task InstallPages(bool installSampleData)
     {
         var defaultPageLayout =
             _pageLayoutRepository.Table.FirstOrDefault(tt => tt.Name == "Default layout");
@@ -54,7 +54,8 @@ public partial class InstallationService
                 IsPasswordProtected = false,
                 DisplayOrder = 1,
                 Title = "",
-                Body = "<p>Put your contact information here. You can edit this in the admin site.</p>",
+                Body =
+                    "<p>We're here to help with orders, deliveries, returns, and product questions.</p><ul><li><strong>E-mail:</strong> [support e-mail]</li><li><strong>Phone:</strong> [phone number]</li><li><strong>Hours:</strong> [opening hours]</li><li><strong>Address:</strong> [company address]</li></ul><p>You can also use the form below and we'll reply within [response time, e.g. one business day].</p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
@@ -65,7 +66,9 @@ public partial class InstallationService
                 DisplayOrder = 1,
                 Title = "Welcome to our store",
                 Body =
-                    "<p>Welcome to [Your company name]! We're glad you're here. Browse our catalog to find products chosen with care, and let us know if we can help you find exactly what you're looking for.</p><p>Have a question before you order? Contact us at [support e-mail] &mdash; we're happy to help.</p>",
+                    installSampleData
+                        ? "<p>We curate a small range of well-made things for home, wardrobe, and weekends outside, and we test everything before it goes on the shelf.</p><p>Browse by department, explore our seasonal collections, or read the journal for guides and maker stories.</p>"
+                        : "<p>Welcome to [Your company name]! We're glad you're here. Browse our catalog to find products chosen with care, and let us know if we can help you find exactly what you're looking for.</p><p>Have a question before you order? Contact us at [support e-mail] &mdash; we're happy to help.</p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
@@ -120,7 +123,7 @@ public partial class InstallationService
                 DisplayOrder = 5,
                 Title = "Shipping & returns",
                 Body =
-                    "<h2>Shipping</h2><p>We ship to [countries/regions you ship to]. Orders are typically dispatched within [processing time, e.g. 1-2 business days] and delivered within [delivery window, e.g. 3-5 business days].</p><ul><li>Shipping costs are calculated at checkout based on your order and delivery address.</li><li>You will receive a confirmation e-mail with tracking information once your order ships.</li></ul><h2>Returns</h2><p>If you're not satisfied with your purchase, you may return it within [returns window, e.g. 30 days] of delivery. Items must be [condition requirements, e.g. unused and in original packaging].</p><p>To start a return, contact us at [support e-mail].</p>",
+                    "<h2>Shipping</h2><p>We ship to [countries/regions you ship to]. Orders are typically dispatched within [processing time, e.g. 1-2 business days] and delivered within [delivery window, e.g. 3-5 business days].</p><ul><li>Shipping costs are calculated at checkout based on your order and delivery address.</li><li>You will receive a confirmation e-mail with tracking information once your order ships.</li></ul><h2>Returns</h2><p>If you're not satisfied with your purchase, you may return it within [returns window, e.g. 30 days] of delivery. Items must be [condition requirements, e.g. unused and in original packaging].</p><p>To start a return, contact us at [support e-mail].</p><p><em>This page is a template, not legal advice. Please have your shipping and returns policy reviewed by a qualified professional for the regions you sell to.</em></p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
