@@ -14,11 +14,21 @@ public class SampleNamesTests
     //                                            argument).
     // - AddSubcategory(\s*\w+\s*,\s*"..."        the category seed helper's subcategory name (2nd
     //                                            argument, after the parent category identifier).
+    // - NewDigitalProduct(\s*"...",\s*"..."      the Digital department's product factory (name is
+    //                                            the 2nd argument, after the SKU).
     private static readonly Regex[] SeededNamePatterns = {
         new(@"Name\s*=\s*""([^""]+)"""),
         new(@"AddDepartment\(\s*""([^""]+)"""),
-        new(@"AddSubcategory\(\s*\w+\s*,\s*""([^""]+)""")
+        new(@"AddSubcategory\(\s*\w+\s*,\s*""([^""]+)"""),
+        new(@"NewDigitalProduct\(\s*""[^""]*""\s*,\s*""([^""]+)""")
     };
+
+    private static string ReadServices(string glob) =>
+        string.Join("\n", Directory.GetFiles(RepositoryPaths.InstallerServices, glob).Select(File.ReadAllText));
+
+    private static HashSet<string> SeededProductNames() =>
+        SeededNamePatterns.SelectMany(p => p.Matches(ReadServices("InstallDataProducts.*.cs")).Select(m => m.Groups[1].Value))
+            .ToHashSet();
 
     /// <summary>
     /// Returns the lookup names (from <paramref name="code"/>) that have no matching entity name
@@ -52,6 +62,69 @@ public class SampleNamesTests
         var seeded = string.Join("\n", Directory.GetFiles(RepositoryPaths.InstallerServices, seedGlob).Select(File.ReadAllText));
         var missing = MissingNames(helper, code, seeded);
         Assert.AreEqual(0, missing.Count, $"{helper}: no seeded entity named {string.Join(", ", missing)}");
+    }
+
+    [TestMethod]
+    public void EverySpecPairNamesASeededOption()
+    {
+        // var saN = new SpecificationAttribute { Name = "..." ... } and var saNOptions = new[] { ... }
+        var seed = ReadServices("InstallDataSpecificationAttributes.cs");
+        var attributes = Regex.Matches(seed, @"var (sa\d+) = new SpecificationAttribute \{\s*Name = ""([^""]+)""")
+            .ToDictionary(m => m.Groups[1].Value, m => m.Groups[2].Value);
+        var options = Regex.Matches(seed, @"var (sa\d+)Options = new\[\] \{([^}]*)\}")
+            .ToDictionary(
+                m => attributes[m.Groups[1].Value],
+                m => Regex.Matches(m.Groups[2].Value, @"""([^""]+)""").Select(o => o.Groups[1].Value).ToHashSet());
+
+        var pairs = Regex.Matches(ReadServices("InstallDataProducts.*.cs"), @"Spec\(""([^""]+)"",\s*""([^""]+)""");
+        Assert.IsTrue(pairs.Count > 0, "no Spec(...) calls found - the pattern no longer matches the seed code");
+        var missing = pairs
+            .Select(m => (Attribute: m.Groups[1].Value, Option: m.Groups[2].Value))
+            .Where(p => !options.TryGetValue(p.Attribute, out var set) || !set.Contains(p.Option))
+            .Select(p => $"{p.Attribute}: {p.Option}")
+            .Distinct()
+            .ToList();
+        Assert.AreEqual(0, missing.Count, "Spec pairs with no seeded option: " + string.Join(", ", missing));
+    }
+
+    [TestMethod]
+    public void EveryCollectionProductIsSeeded()
+    {
+        var seed = ReadServices("InstallDataCollections.cs");
+        var names = Regex.Matches(seed, @"AddProductsToCollection\(\w+,\s*\[(.*?)\]\)", RegexOptions.Singleline)
+            .SelectMany(m => Regex.Matches(m.Groups[1].Value, @"""([^""]+)""").Select(n => n.Groups[1].Value))
+            .ToList();
+        Assert.IsTrue(names.Count > 0, "no collection product lists found - the pattern no longer matches the seed code");
+        var seeded = SeededProductNames();
+        var missing = names.Where(n => !seeded.Contains(n)).Distinct().ToList();
+        Assert.AreEqual(0, missing.Count, "Collection products that are not seeded: " + string.Join(", ", missing));
+    }
+
+    [TestMethod]
+    [DataRow("SampleProductTags")]
+    [DataRow("SampleProductRelations")]
+    [DataRow("SampleProductReviews")]
+    public void EveryRelationTableNameIsSeeded(string fieldName)
+    {
+        var field = typeof(Grand.Module.Installer.Services.InstallationService)
+            .GetField(fieldName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        Assert.IsNotNull(field, $"{fieldName} not found on InstallationService");
+
+        // every tuple's first item is a product name; string[] items after it (Related, CrossSells) are product
+        // names too, while Tags' string[] and the review strings are not
+        var names = new List<string>();
+        foreach (var row in (System.Collections.IEnumerable)field.GetValue(null)!)
+        {
+            var items = row.GetType().GetFields().Select(f => f.GetValue(row)).ToList();
+            names.Add((string)items[0]!);
+            if (fieldName == "SampleProductRelations")
+                names.AddRange(items.Skip(1).OfType<string[]>().SelectMany(a => a));
+        }
+
+        Assert.IsTrue(names.Count > 0, $"{fieldName} is empty");
+        var seeded = SeededProductNames();
+        var missing = names.Where(n => !seeded.Contains(n)).Distinct().ToList();
+        Assert.AreEqual(0, missing.Count, $"{fieldName}: products that are not seeded: {string.Join(", ", missing)}");
     }
 
     [TestMethod]

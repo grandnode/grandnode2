@@ -81,9 +81,11 @@ public partial class InstallationService
 
         //category target - Outdoor & Active; category discounts apply only to a product's own
         //categories, and products sit in the subcategories, so the discount goes on all of them
-        foreach (var categoryName in new[] { "Outdoor & Active", "Camping", "Cycling", "Running" })
+        foreach (var categoryId in new[] {
+                     CategoryId("Outdoor & Active"), CategoryId("Camping"), CategoryId("Cycling"), CategoryId("Running")
+                 })
         {
-            var category = _categoryRepository.Table.Single(x => x.Name == categoryName);
+            var category = _categoryRepository.Table.Single(x => x.Id == categoryId);
             category.AppliedDiscounts.Add(outdoorAndActive15.Id);
             await _categoryRepository.UpdateAsync(category);
         }
