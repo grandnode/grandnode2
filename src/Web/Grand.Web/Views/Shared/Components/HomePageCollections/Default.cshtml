@@ -1,6 +1,9 @@
 ﻿@model IList<CollectionModel>
 @inject DisplayOrderHomePage order
-<div class="categoryGrid  @order.HomePageCollections">
+<div class="categoryGrid  order-@order.HomePageCollections">
+    <h2 class="generalTitle text-center mb-3">
+        @Loc["Collections"]
+    </h2>
     <div cols="12" class="col-12 px-0">
         <div class="row">
             @foreach (var item in Model)
@@ -10,6 +13,11 @@
                         <a href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">
                             <img class="card-img" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
                         </a>
+                        <h4 class="title">
+                            <a href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">
+                                @item.Name
+                            </a>
+                        </h4>
                     </div>
                 </div>
             }

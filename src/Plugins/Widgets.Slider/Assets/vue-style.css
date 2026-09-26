@@ -17,6 +17,15 @@
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
+}
+
+/* slides with text get a dark scrim on the text side so white copy reads on any photo, in both schemes */
+#GrandCarousel .carousel-item .carousel-caption:has(.animate-center-title)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(20, 16, 12, .72) 0%, rgba(20, 16, 12, .5) 42%, rgba(20, 16, 12, 0) 75%);
 }
 
 #GrandCarousel .carousel-item .slide-title h2 {
@@ -49,36 +58,45 @@
 }
 
 #GrandCarousel .carousel-item .animate-top {
-    color: #000;
+    color: #fff;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, .35);
     font-size: 30px;
     font-weight: 300;
     line-height: 1;
-    opacity: .9;
     padding: 15px 0 0 0;
 }
 
 #GrandCarousel .carousel-item .animate-center-title {
-    color: #000;
+    color: #fff;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, .35);
     font-size: 56px;
     font-weight: 500;
     line-height: 1;
-    opacity: .9
 }
 
 #GrandCarousel .carousel-item .animate-center-content {
-    color: #000;
+    color: #fff;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, .35);
     font-size: 26px;
     font-weight: 500;
-    opacity: .9;
     padding: 0 0 15px 0;
 }
 
 #GrandCarousel .carousel-item .animate-bottom.btn {
     width: 100%;
     margin: 15px 0 0 0;
+    color: #23201c;
+    background-color: #fff;
+    border-color: #fff;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+#GrandCarousel .carousel-item .animate-bottom.btn:hover,
+#GrandCarousel .carousel-item .animate-bottom.btn:focus-visible {
     color: #fff;
-    background-color: #87C255;
-    border-color: #87C255;
+    background-color: transparent;
+    border-color: #fff;
 }
 
 #GrandCarousel .carousel-item .slide-button {
@@ -125,6 +143,16 @@
 }
 
 [dark-theme="true"] #GrandCarousel .carousel-item .slide-title h2, [dark-theme="true"] #GrandCarousel .carousel-item .slide-price .actual, [dark-theme="true"] #GrandCarousel .carousel-item .animate-top, [dark-theme="true"] #GrandCarousel .carousel-item .animate-center-title, [dark-theme="true"] #GrandCarousel .carousel-item .animate-center-content, [dark-theme="true"] #GrandCarousel .carousel-item .animate-bottom {
+    color: #fff;
+}
+
+/* the slide button stays white with dark text in both schemes (the rule above would make its text white) */
+[dark-theme="true"] #GrandCarousel .carousel-item .animate-bottom.btn {
+    color: #23201c;
+}
+
+[dark-theme="true"] #GrandCarousel .carousel-item .animate-bottom.btn:hover,
+[dark-theme="true"] #GrandCarousel .carousel-item .animate-bottom.btn:focus-visible {
     color: #fff;
 }
 

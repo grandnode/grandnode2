@@ -209,7 +209,7 @@ public partial class InstallationService
             ProductSearchAutoCompleteNumberOfProducts = 10,
             ProductSearchTermMinimumLength = 3,
             ShowProductImagesInSearchAutoComplete = true,
-            ShowBestsellersOnHomepage = false,
+            ShowBestsellersOnHomepage = installSampleData,
             NumberOfBestsellersOnHomepage = 4,
             BestsellersFromReports = false,
             PeriodBestsellers = 6,
@@ -471,13 +471,13 @@ public partial class InstallationService
             AllowNotRegisteredUsersToLeaveComments = false,
             NotifyAboutNewBlogComments = false,
             NumberOfTags = 15,
-            ShowBlogOnHomePage = false,
-            HomePageBlogCount = 3,
+            ShowBlogOnHomePage = installSampleData,
+            HomePageBlogCount = installSampleData ? 2 : 3,
             MaxTextSizeHomePage = 200
         });
 
         await _settingRepository.SaveSetting(new KnowledgebaseSettings {
-            Enabled = false,
+            Enabled = installSampleData,
             AllowNotRegisteredUsersToLeaveComments = false,
             NotifyAboutNewArticleComments = false
         });

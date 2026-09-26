@@ -12,28 +12,48 @@ public partial class InstallationService
                 SeName = "color"
             },
             new() {
-                Name = "Custom Text",
-                SeName = "custom-text"
+                Name = "Size",
+                SeName = "size"
             },
             new() {
-                Name = "HDD",
-                SeName = "hdd"
+                Name = "Material",
+                SeName = "material"
             },
             new() {
-                Name = "OS",
-                SeName = "os"
+                Name = "Capacity",
+                SeName = "capacity"
+            },
+            new() {
+                Name = "Engraving",
+                SeName = "engraving"
+            },
+            new() {
+                Name = "Grind",
+                SeName = "grind"
+            },
+            new() {
+                Name = "Rental add-ons",
+                SeName = "rental-add-ons"
             },
             new() {
                 Name = "Processor",
                 SeName = "processor"
             },
             new() {
-                Name = "RAM",
-                SeName = "ram"
+                Name = "Memory",
+                SeName = "memory"
             },
             new() {
-                Name = "Size",
-                SeName = "size"
+                Name = "Storage",
+                SeName = "storage"
+            },
+            new() {
+                Name = "Graphics",
+                SeName = "graphics"
+            },
+            new() {
+                Name = "Operating system",
+                SeName = "operating-system"
             },
             new() {
                 Name = "Software",

@@ -5,7 +5,7 @@ namespace Grand.Module.Installer.Services;
 
 public partial class InstallationService
 {
-    protected virtual async Task InstallPages()
+    protected virtual async Task InstallPages(bool installSampleData)
     {
         var defaultPageLayout =
             _pageLayoutRepository.Table.FirstOrDefault(tt => tt.Name == "Default layout");
@@ -20,7 +20,8 @@ public partial class InstallationService
                 IncludeInFooterRow1 = true,
                 DisplayOrder = 20,
                 Title = "About us",
-                Body = "<p>Put your &quot;About Us&quot; information here. You can edit this in the admin site.</p>",
+                Body =
+                    "<h2>About [Your company name]</h2><p>[Your company name] was founded to [describe what your business does and who it serves]. We believe in [a sentence or two about what your company stands for].</p><h2>What we offer</h2><ul><li>[Product or service highlight]</li><li>[Product or service highlight]</li><li>[Product or service highlight]</li></ul><h2>Get in touch</h2><p>Have a question? Reach us at [support e-mail] or [phone number]. You can edit this page at any time from the admin site.</p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
@@ -42,7 +43,8 @@ public partial class InstallationService
                 IncludeInFooterRow1 = true,
                 DisplayOrder = 15,
                 Title = "Conditions of Use",
-                Body = "<p>Put your conditions of use information here. You can edit this in the admin site.</p>",
+                Body =
+                    "<h2>Conditions of Use</h2><p>By using this website, operated by [Your company name], you agree to the following terms.</p><h2>Using our store</h2><ul><li>You must provide accurate information when creating an account or placing an order.</li><li>Prices and availability are subject to change without notice.</li><li>Content on this site may not be copied or reused without permission.</li></ul><h2>Orders and payment</h2><p>We accept the payment methods shown at checkout. Orders are confirmed once payment has been processed successfully.</p><h2>Contact</h2><p>Questions about these conditions can be sent to [support e-mail].</p><p><em>This is a general-purpose template, not legal advice. Have these terms reviewed by a qualified professional before publishing them.</em></p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
@@ -52,7 +54,8 @@ public partial class InstallationService
                 IsPasswordProtected = false,
                 DisplayOrder = 1,
                 Title = "",
-                Body = "<p>Put your contact information here. You can edit this in the admin site.</p>",
+                Body =
+                    "<p>We're here to help with orders, deliveries, returns, and product questions.</p><ul><li><strong>E-mail:</strong> [support e-mail]</li><li><strong>Phone:</strong> [phone number]</li><li><strong>Hours:</strong> [opening hours]</li><li><strong>Address:</strong> [company address]</li></ul><p>You can also use the form below and we'll reply within [response time, e.g. one business day].</p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
@@ -63,7 +66,9 @@ public partial class InstallationService
                 DisplayOrder = 1,
                 Title = "Welcome to our store",
                 Body =
-                    "<p>Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.</p><p>If you have questions, see the <a href=\"https://grandnode.com/\">Documentation</a>, or post in the <a href=\"http://www.grandnode.com/boards/\">Forums</a> at <a href=\"http://www.grandnode.com\">grandnode.com</a></p>",
+                    installSampleData
+                        ? "<p>We curate a small range of well-made things for home, wardrobe, and weekends outside, and we test everything before it goes on the shelf.</p><p>Browse by department, explore our seasonal collections, or read the journal for guides and maker stories.</p>"
+                        : "<p>Welcome to [Your company name]! We're glad you're here. Browse our catalog to find products chosen with care, and let us know if we can help you find exactly what you're looking for.</p><p>Have a question before you order? Contact us at [support e-mail] &mdash; we're happy to help.</p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
@@ -84,7 +89,8 @@ public partial class InstallationService
                 IncludeInFooterRow1 = true,
                 DisplayOrder = 10,
                 Title = "Privacy notice",
-                Body = "<p>Put your privacy policy information here. You can edit this in the admin site.</p>",
+                Body =
+                    "<h2>Privacy notice</h2><p>[Your company name] collects the personal information you provide when you create an account, place an order, or contact us, such as your name, address, e-mail, and payment details.</p><h2>How we use your information</h2><ul><li>To process and deliver your orders.</li><li>To respond to your questions and support requests.</li><li>To send you updates, if you have opted in to receive them.</li></ul><h2>Your rights</h2><p>You may request access to, correction of, or deletion of your personal information at any time by contacting [support e-mail].</p><p><em>This is a general-purpose template, not legal advice. Have your privacy policy reviewed by a qualified professional before publishing it, to make sure it meets the requirements that apply to your business and location.</em></p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
@@ -116,7 +122,8 @@ public partial class InstallationService
                 IncludeInFooterRow1 = true,
                 DisplayOrder = 5,
                 Title = "Shipping & returns",
-                Body = "<p>Put your shipping &amp; returns information here. You can edit this in the admin site.</p>",
+                Body =
+                    "<h2>Shipping</h2><p>We ship to [countries/regions you ship to]. Orders are typically dispatched within [processing time, e.g. 1-2 business days] and delivered within [delivery window, e.g. 3-5 business days].</p><ul><li>Shipping costs are calculated at checkout based on your order and delivery address.</li><li>You will receive a confirmation e-mail with tracking information once your order ships.</li></ul><h2>Returns</h2><p>If you're not satisfied with your purchase, you may return it within [returns window, e.g. 30 days] of delivery. Items must be [condition requirements, e.g. unused and in original packaging].</p><p>To start a return, contact us at [support e-mail].</p><p><em>This page is a template, not legal advice. Please have your shipping and returns policy reviewed by a qualified professional for the regions you sell to.</em></p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
             },
