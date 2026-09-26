@@ -1,4 +1,4 @@
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using Grand.Module.Installer.Extensions;
 
 namespace Grand.Module.Installer.Services;
@@ -13,7 +13,7 @@ public partial class InstallationService
         var productLayoutGrouped =
             _productLayoutRepository.Table.FirstOrDefault(pt => pt.Name == "Grouped product (with variants)");
         if (productLayoutGrouped == null)
-            throw new Exception("Simple product layout could not be loaded");
+            throw new Exception("Grouped product layout could not be loaded");
 
         //delivery date
         var deliveryDate = _deliveryDateRepository.Table.FirstOrDefault();

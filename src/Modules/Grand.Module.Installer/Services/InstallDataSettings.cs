@@ -471,7 +471,7 @@ public partial class InstallationService
             AllowNotRegisteredUsersToLeaveComments = false,
             NotifyAboutNewBlogComments = false,
             NumberOfTags = 15,
-            ShowBlogOnHomePage = false,
+            ShowBlogOnHomePage = installSampleData,
             HomePageBlogCount = 3,
             MaxTextSizeHomePage = 200
         });

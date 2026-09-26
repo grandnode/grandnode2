@@ -68,7 +68,7 @@ public partial class InstallationService
         // 54: The Slow Morning Coffee Guide — download + sample
         var downloadCoffeeGuideMain = await InsertDownload(
             "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_cyberpunk_1.zip",
-            ".zip", "application/x-zip-co", "The Slow Morning Coffee Guide");
+            ".zip", "application/zip", "The Slow Morning Coffee Guide");
         var downloadCoffeeGuideSample = await InsertDownload(
             "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_cyberpunk_2.txt",
             ".txt", "text/plain", "The Slow Morning Coffee Guide (sample)");
@@ -103,7 +103,7 @@ public partial class InstallationService
         // 55: Weekend Trails Field Guide — download + sample
         var downloadTrailsGuideMain = await InsertDownload(
             "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_GTA_1.zip",
-            ".zip", "application/x-zip-co", "Weekend Trails Field Guide");
+            ".zip", "application/zip", "Weekend Trails Field Guide");
         var downloadTrailsGuideSample = await InsertDownload(
             "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_GTA_2.txt",
             ".txt", "text/plain", "Weekend Trails Field Guide (sample)");
@@ -138,7 +138,7 @@ public partial class InstallationService
         // 56: Small Space Lighting Handbook — download, no sample
         var downloadLightingHandbook = await InsertDownload(
             "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_cod_1.zip",
-            ".zip", "application/x-zip-co", "Small Space Lighting Handbook");
+            ".zip", "application/zip", "Small Space Lighting Handbook");
 
         var productLightingHandbook = NewDigitalProduct("SD-003", "Small Space Lighting Handbook", 9.99,
             "E-books & Guides", 5000);
@@ -168,7 +168,7 @@ public partial class InstallationService
         // 57: Capsule Wardrobe Planner — download, no sample
         var downloadWardrobePlanner = await InsertDownload(
             "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_cyberpunk_1.zip",
-            ".zip", "application/x-zip-co", "Capsule Wardrobe Planner");
+            ".zip", "application/zip", "Capsule Wardrobe Planner");
 
         var productWardrobePlanner = NewDigitalProduct("SD-004", "Capsule Wardrobe Planner", 7.99,
             "E-books & Guides", 5000);

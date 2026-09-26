@@ -102,7 +102,6 @@ public partial class InstallationService
             AllowComments = false,
             ShowOnHomepage = false,
             DisplayOrder = 3,
-            RelatedArticles = new List<string> { articleDeliveryTime.Id, articleTracking.Id }
         };
 
         // Returns
@@ -140,7 +139,6 @@ public partial class InstallationService
             AllowComments = false,
             ShowOnHomepage = false,
             DisplayOrder = 2,
-            RelatedArticles = new List<string> { articleStartReturn.Id }
         };
         var articleReturningGift = new KnowledgebaseArticle {
             ParentCategoryId = categoryReturns.Id,
@@ -158,7 +156,6 @@ public partial class InstallationService
             AllowComments = false,
             ShowOnHomepage = false,
             DisplayOrder = 3,
-            RelatedArticles = new List<string> { articleStartReturn.Id, articleRefundTiming.Id }
         };
 
         // Rentals & Auctions
@@ -197,8 +194,17 @@ public partial class InstallationService
             AllowComments = false,
             ShowOnHomepage = false,
             DisplayOrder = 2,
-            RelatedArticles = new List<string> { articleDayRentals.Id }
         };
+
+        //related articles: every article links to at least two others in or near its topic
+        articleDeliveryTime.RelatedArticles = [articleTracking.Id, articleChangeCancel.Id];
+        articleTracking.RelatedArticles = [articleDeliveryTime.Id, articleChangeCancel.Id];
+        articleChangeCancel.RelatedArticles = [articleDeliveryTime.Id, articleTracking.Id];
+        articleStartReturn.RelatedArticles = [articleRefundTiming.Id, articleReturningGift.Id];
+        articleRefundTiming.RelatedArticles = [articleStartReturn.Id, articleReturningGift.Id];
+        articleReturningGift.RelatedArticles = [articleStartReturn.Id, articleRefundTiming.Id];
+        articleDayRentals.RelatedArticles = [articleAuctionBidding.Id, articleDeliveryTime.Id];
+        articleAuctionBidding.RelatedArticles = [articleDayRentals.Id, articleTracking.Id];
 
         var articles = new List<KnowledgebaseArticle> {
             articleDeliveryTime, articleTracking, articleChangeCancel,
