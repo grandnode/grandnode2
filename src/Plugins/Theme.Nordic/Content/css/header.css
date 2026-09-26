@@ -366,6 +366,28 @@
     background-color: var(--nordic-surface);
 }
 
+/* the "Show <category>" link at the top of each submenu: Default paints it with .bg-info,
+   Bootstrap's cyan, which carries light text in dark mode and all but disappears.
+   !important only because the .bg-info utility itself is !important. */
+.b-sidebar .Menu a.bg-info,
+.nordic-menu a.bg-info,
+[dark-theme="true"] .b-sidebar .Menu a.bg-info {
+    background-color: var(--nordic-surface) !important;
+    color: var(--nordic-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.b-sidebar .Menu a.bg-info:hover,
+.b-sidebar .Menu a.bg-info:focus-visible,
+.nordic-menu a.bg-info:hover,
+.nordic-menu a.bg-info:focus-visible {
+    background-color: var(--nordic-ink) !important;
+    color: var(--nordic-bg);
+}
+
 /* ---------- search modal ---------- */
 
 #search-box .modal-content,
