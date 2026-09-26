@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
 using Grand.Domain.Common;
@@ -15,6 +16,7 @@ public class SliderWidgetPlugin(
     IPictureService pictureService,
     IRepository<PictureSlider> pictureSliderRepository,
     IPluginTranslateResource pluginTranslateResource,
+    ISlugService slugService,
     IWebHostEnvironment webHostEnvironment)
     : BasePlugin, IPlugin
 {
@@ -24,7 +26,9 @@ public class SliderWidgetPlugin(
     /// </summary>
     public override async Task Install()
     {
-        //sample slides: wide photos that link to the sample store's departments, collection and marketplace
+        //sample slides: wide photos that link to the sample store's departments, collection and marketplace;
+        //a slide is seeded only when its target page exists, so a store installed without sample data gets
+        //no slides rather than dead links and an offer it does not make
         var sampleImagesPath = Path.Combine(webHostEnvironment.ContentRootPath, "Plugins/Widgets.Slider/Assets/slider/sample-images/");
         var slides = new[] {
             (Name: "Slow Morning", File: "slide_slow_morning.jpg", Kicker: "The Slow Morning collection",
@@ -38,11 +42,14 @@ public class SliderWidgetPlugin(
                 Button: "Meet the makers", Url: "/nordic-craft-collective")
         };
 
-        for (var i = 0; i < slides.Length; i++)
+        var displayOrder = 0;
+        foreach (var slide in slides)
         {
-            var slide = slides[i];
+            if (await slugService.GetBySlug(slide.Url.TrimStart('/')) == null)
+                continue;
+
             var pictureSlider = new PictureSlider {
-                DisplayOrder = i,
+                DisplayOrder = displayOrder++,
                 Link = "",
                 Name = slide.Name,
                 FullWidth = true,
