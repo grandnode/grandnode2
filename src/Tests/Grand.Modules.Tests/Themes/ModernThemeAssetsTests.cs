@@ -75,7 +75,16 @@ public class ModernThemeAssetsTests
         Assert.AreEqual(0, used.Count, $"Modern adds no resources, but views use: {string.Join(", ", used)}");
     }
 
-    private static string Head => File.ReadAllText(Path.Combine(ModernViews, "Shared", "Partials", "Head.cshtml"));
+    [TestMethod]
+    public void EveryApprovedFileExists()
+    {
+        foreach (var v in ApprovedViews)
+            Assert.IsTrue(File.Exists(Path.Combine(ModernViews, v)), v);
+        foreach (var c in ApprovedContent)
+            Assert.IsTrue(File.Exists(Path.Combine(Content, c)), c);
+    }
+
+    private static string Head =>File.ReadAllText(Path.Combine(ModernViews, "Shared", "Partials", "Head.cshtml"));
 
     [TestMethod]
     public void Head_LinksEveryThemeStylesheetOnce_AfterTheDefaultStyles()

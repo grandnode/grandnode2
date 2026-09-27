@@ -65,7 +65,7 @@
     font-weight: 600;
     line-height: 1.2;
 }
-.mdn-badge--sale { background: var(--mdn-sale); color: #fff; }
+.mdn-badge--sale { background: var(--mdn-sale); color: var(--mdn-on-sale); }
 
 .mdn-card__actions {
     position: absolute;

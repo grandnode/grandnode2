@@ -302,3 +302,9 @@
     }
     .mdn-header .top-header-items .b-icon.bi { font-size: 22px; }
 }
+
+/* anchor jumps and scrollIntoView land below the sticky header instead of under it */
+html { scroll-padding-top: 150px; }
+@media (max-width: 991.98px) {
+    html { scroll-padding-top: 72px; }
+}
