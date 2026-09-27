@@ -38,7 +38,7 @@ public class PluginController(
     {
         var pluginModel = PluginInfo.ToModel();
         //logo
-        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(contextAccessor.StoreContext.CurrentHost.Url);
+        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(Request.PathBase);
 
         //configuration URLs
         if (PluginInfo.Installed)

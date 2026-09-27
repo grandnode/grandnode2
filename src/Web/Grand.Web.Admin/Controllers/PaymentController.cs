@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Payments;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -16,7 +15,6 @@ using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Web.AdminShared.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -30,8 +28,7 @@ public class PaymentController : BaseAdminController
         ICountryService countryService,
         IShippingMethodService shippingMethodService,
         ITranslationService translationService,
-        IServiceProvider serviceProvider,
-        IContextAccessor contextAccessor)
+        IServiceProvider serviceProvider)
     {
         _paymentService = paymentService;
         _settingService = settingService;
@@ -39,7 +36,6 @@ public class PaymentController : BaseAdminController
         _shippingMethodService = shippingMethodService;
         _translationService = translationService;
         _serviceProvider = serviceProvider;
-        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -52,7 +48,6 @@ public class PaymentController : BaseAdminController
     private readonly IShippingMethodService _shippingMethodService;
     private readonly ITranslationService _translationService;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
@@ -82,10 +77,7 @@ public class PaymentController : BaseAdminController
             {
                 var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
                 if (plugin != null)
-                {
                     tmp.ConfigurationUrl = plugin.ConfigurationUrl();
-                    tmp.LogoUrl = pluginInfo.GetLogoUrl(_contextAccessor.StoreContext.CurrentHost.Url);
-                }
             }
 
             paymentMethodsModel.Add(tmp);
