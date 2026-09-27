@@ -7,7 +7,7 @@ namespace Grand.Modules.Tests.Installer;
 public class SampleAssetsTests
 {
     private static readonly Regex SampleFile =
-        new(@"""((?:product|category|brand|collection|blog|news|vendor)_[A-Za-z0-9_\-]+\.(?:jpg|jpeg|png))""", RegexOptions.Compiled);
+        new(@"""((?:product|category|brand|collection|blog|news|vendor|logo)_[A-Za-z0-9_\-]+\.(?:jpg|jpeg|png))""", RegexOptions.Compiled);
 
     private static IEnumerable<string> ReferencedFiles() =>
         Directory.GetFiles(RepositoryPaths.InstallerServices, "*.cs")

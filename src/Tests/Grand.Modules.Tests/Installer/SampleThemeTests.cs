@@ -20,6 +20,17 @@ public class SampleThemeTests
     }
 
     [TestMethod]
+    public void StoreLogo_SampleInstallsGetTheNordicLogo()
+    {
+        //the stock logo is teal on a white ground; the Nordic one is a warm mid tone that reads
+        //on both the light and the dark scheme
+        Assert.IsTrue(Regex.IsMatch(Read("InstallDataSettings.cs"),
+            @"installSampleData\s*\?\s*Path\.Combine\([^;]*""logo_nordic\.png""[^;]*:\s*Path\.Combine\([^;]*""logo\.png""", RegexOptions.Singleline),
+            "sample installs must seed assets/samples/logo_nordic.png, plain installs logo.png");
+        Assert.IsTrue(File.Exists(Path.Combine(RepositoryPaths.Samples, "logo_nordic.png")), "logo_nordic.png is missing from wwwroot/assets/samples");
+    }
+
+    [TestMethod]
     public void HeaderPromoTextPage_IsAddedOnlyForSampleInstalls()
     {
         var source = Read("InstallDataPages.cs");
