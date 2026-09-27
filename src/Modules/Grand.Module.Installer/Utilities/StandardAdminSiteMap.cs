@@ -1163,15 +1163,6 @@ public static class StandardAdminSiteMap
             DisplayOrder = 11,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
-                    SystemName = "Community forums",
-                    ResourceName = "Admin.Help.Forums",
-                    Url =
-                        "https://grandnode.com/boards?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Community",
-                    IconClass = "bi bi-record-circle",
-                    DisplayOrder = 0,
-                    OpenUrlInNewTab = true
-                },
-                new() {
                     SystemName = "Premium support services",
                     ResourceName = "Admin.Help.SupportServices",
                     Url =
