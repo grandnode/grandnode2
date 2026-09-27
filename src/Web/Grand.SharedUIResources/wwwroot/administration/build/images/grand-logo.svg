@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 204">
+<!-- the GrandNode mark: ring, two bars, the fold under the middle bar -->
+<defs>
+<linearGradient id="gl-bar" x1="100" x2="200" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#18d9e5"/><stop offset="1" stop-color="#1fe8ea"/></linearGradient>
+<linearGradient id="gl-fold" x1="145" y1="147" x2="177" y2="118" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#17d7e5"/><stop offset="1" stop-color="#10929c"/></linearGradient>
+</defs>
+<path fill="#17d7e5" d="M102.27 4.45A98.13 98.13 0 1 0 198.7 120.79L158.7 120.79A59.3 59.3 0 1 1 102.27 43.28Z"/>
+<path fill="url(#gl-fold)" d="M102.27 120.79H198.7A98.13 98.13 0 0 1 102.27 200.71V161.88A59.3 59.3 0 0 0 158.7 120.79H102.27Z"/>
+<path fill="url(#gl-bar)" d="M101.77 4.3L198.96 4.3L172.8 43.2L101.77 43.2ZM75.8 82.35L166.98 82.35A10 10 0 0 1 175.16 86.59L199.25 120.79L101.48 120.79Z"/>
+</svg>
