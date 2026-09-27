@@ -2,32 +2,27 @@
 @{
     Layout = Constants.LayoutVendorLogin;
     //title
-    pagebuilder.AddTitleParts(Loc["Vendor.Login.TwoFactor"]);
+    pagebuilder.AddTitleParts(Loc["Admin.Login.TwoFactorAuth.Title.Login"]);
 }
-<form asp-action="TwoFactorAuthorization" asp-controller="Login" asp-area="@Constants.AreaVendor" method="post">
-    <div class="card col-xl-6 col-lg-8 col-md-10 col-12">
-        <h5 class="card-header">
-            <strong>@Loc["Vendor.Login.TwoFactor.EnterCode"]</strong>
-        </h5>
-        <div class="card-body">
-            <div class="row">
-                <div asp-validation-summary="All" class="col-12 justify-content-around text-danger"></div>
-                <div class="col-12 mb-0 d-flex justify-content-around">
-                    <div class="mb-3 row">
-                        <div class="col-lg-3 col-12 d-flex align-items-start justify-content-sm-start">
-                            <label name="token" class="h5 m-0">@Loc["Vendor.Login.TwoFactor.DigitCode"]</label>
-                        </div>
-                        <div class="col-lg-9 col-12">
-                            <input name="token" type="text" class="form-control" autofocus/>
-                        </div>
-                    </div>
+<form asp-action="TwoFactorAuthorization" asp-controller="Login" asp-area="@Constants.AreaVendor" method="post" class="grand-page grand-login__panel">
+    <div class="grand-login__brand">
+        <img src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/build/images/grandLogo.png" width="40" height="40" alt=""/>
+        <span>GrandNode</span>
+    </div>
+    <div class="grand-card">
+        <div class="grand-card__body">
+            <div class="grand-login__heading">
+                <span class="grand-login__icon"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
+                <h1 class="grand-login__title">@Loc["Admin.Login.TwoFactorAuth.EnterCode"]</h1>
+            </div>
+            <div asp-validation-summary="All"></div>
+            <div class="grand-field">
+                <label for="token" class="grand-field__label">@Loc["Admin.Login.TwoFactorAuth.DigitCode"]</label>
+                <div class="grand-field__control">
+                    <input id="token" name="token" type="text" class="form-control" inputmode="numeric" autocomplete="one-time-code" autofocus/>
                 </div>
             </div>
-        </div>
-        <div class="card-footer">
-            <div class="buttons">
-                <input class="btn btn-info login-button px-5" type="submit" value="@Loc["Vendor.Login.TwoFactor.SendCode"]"/>
-            </div>
+            <input class="btn btn-primary grand-login__submit login-button" type="submit" value="@Loc["Admin.Login.TwoFactorAuth.SendCode"]"/>
         </div>
     </div>
 </form>

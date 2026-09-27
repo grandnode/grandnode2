@@ -24,6 +24,8 @@
     --grand-muted: var(--#{$prefix}secondary-color);
     --grand-rule: #edf1f5;
     --grand-accent: var(--grand-form-accent, #0b7285);
+    //text on the accent: white on the light mode's teal, dark on the dark mode's cyan
+    --grand-on-accent: var(--grand-form-on-accent, #fff);
     --grand-accent-soft: rgba(11, 114, 133, .1);
     --grand-welcome-from: rgba(11, 114, 133, .09);
 

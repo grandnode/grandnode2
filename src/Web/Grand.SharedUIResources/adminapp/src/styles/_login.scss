@@ -1,0 +1,185 @@
+//The sign-in screens of the Admin, Store and Vendor panels: Login/Index and
+//Login/TwoFactorAuthorization under the _AdminLoginLayout, _StoreLoginLayout and
+//_VendorLoginLayout of each panel.
+//
+//One narrow card in the middle of the window, under the product mark, built from the
+//component layer: .grand-page (so the buttons take the accent), .grand-card, .grand-field
+//with the label above the control, and one primary button. Colours come from the tokens only,
+//so the dark mode admin.theme.js applies before the first paint needs nothing here.
+
+.grand-login {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 2rem 1rem;
+    color: var(--#{$prefix}body-color);
+    //the sunken surface is translucent in the dark, so it is laid over the page colour
+    background-color: var(--#{$prefix}body-bg);
+    background-image:
+        radial-gradient(48rem 24rem at 50% -6rem, var(--grand-accent-soft), transparent 70%),
+        linear-gradient(var(--grand-surface-sunken), var(--grand-surface-sunken));
+}
+
+.grand-login__main {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.grand-login__panel {
+    width: 100%;
+    max-width: 25rem;
+    //.grand-page pads a screen under the top bar; here the window centres the panel
+    padding-block: 0;
+}
+
+.grand-login__brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: var(--grand-title);
+}
+
+.grand-login__brand img {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.grand-login .grand-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.75rem 1.75rem 2rem;
+}
+
+.grand-login__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+    text-align: center;
+}
+
+.grand-login__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.25rem;
+    color: var(--grand-accent);
+    background-color: var(--grand-accent-soft);
+    border-radius: 50% !important;
+}
+
+.grand-login__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--grand-title);
+}
+
+.grand-login__lead {
+    margin: 0;
+    font-size: .875rem;
+    color: var(--grand-muted);
+}
+
+//the outcome of a password recovery step: sent, changed, or a link that no longer works
+.grand-login__notice {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    padding: .75rem 1rem;
+    font-size: .875rem;
+    color: var(--grand-title);
+    background-color: var(--grand-accent-soft);
+    border-inline-start: 3px solid var(--grand-accent);
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-login__notice > .bi {
+    font-size: 1.1rem;
+    line-height: 1.2;
+    color: var(--grand-accent);
+}
+
+.grand-login__notice--error {
+    color: var(--grand-form-invalid);
+    background-color: var(--grand-form-invalid-bg);
+    border-inline-start-color: var(--grand-form-invalid);
+}
+
+.grand-login__notice--error > .bi {
+    color: var(--grand-form-invalid);
+}
+
+//the summary renders on every request; only a failed one carries a message
+.grand-login .validation-summary-valid {
+    display: none;
+}
+
+.grand-login .validation-summary-errors {
+    margin: 0;
+    font-size: .875rem;
+    border-radius: var(--grand-radius-sm) !important;
+}
+
+.grand-login .grand-field__control .form-control {
+    padding: .55rem .75rem;
+    font-size: .9375rem;
+}
+
+//remember me at the start of the line, the recovery link at its end
+.grand-login__options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    font-size: .875rem;
+}
+
+.grand-login__options .grand-field--check .grand-field__label {
+    font-size: .875rem;
+    cursor: pointer;
+}
+
+//one class heavier than the legacy [data-theme="dark"] a { color } of _custom.scss
+.grand-login .grand-login__link {
+    font-weight: 500;
+    color: var(--grand-accent);
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+        text-decoration: underline;
+    }
+}
+
+.grand-login .grand-login__back {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    gap: .35rem;
+    font-size: .875rem;
+}
+
+.grand-page .grand-login__submit {
+    justify-content: center;
+    width: 100%;
+    padding-block: .6rem;
+    font-size: .9375rem;
+}
+
+.grand-login .captcha-box {
+    display: flex;
+    justify-content: center;
+}
