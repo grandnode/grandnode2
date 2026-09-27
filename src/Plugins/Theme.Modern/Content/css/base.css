@@ -121,6 +121,23 @@ hr { border-color: var(--mdn-line); opacity: 1; }
 
 .btn-link { --bs-btn-color: var(--mdn-ink); --bs-btn-hover-color: var(--mdn-accent); }
 
+/* Default paints .btn-secondary #333 and .btn-outline-secondary #333 directly in light mode
+   too (common.css "buttons"); in Modern the secondary button is a soft surface */
+.btn-secondary,
+.btn-outline-secondary {
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg);
+    border-color: var(--bs-btn-border-color);
+}
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:not(:disabled):not(.disabled):active,
+.btn-outline-secondary:hover {
+    color: var(--bs-btn-hover-color);
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
+}
+
 /* Default's dark mode sets color / background / border on these buttons directly
    (common.css, "[dark-theme="true"] .btn-info { color: #fff }" and friends), which bypasses
    the variables above - a white add-to-cart button with white text. Point them back. */
