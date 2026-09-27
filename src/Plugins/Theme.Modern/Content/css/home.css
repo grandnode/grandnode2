@@ -1,1 +1,166 @@
 /* Modern - home: hero carousel, section heads, category tiles, product rows, brands, blog and news. */
+
+.home-page { gap: 64px; padding-top: 16px; }
+
+/* ---------- hero (Widgets.Slider: a Bootstrap carousel with its own scrim and white copy) ---------- */
+
+.home-page #GrandCarousel {
+    overflow: hidden;
+    background: #16161a; /* behind the slide photo while it loads */
+    border-radius: var(--mdn-r-block);
+}
+.home-page #GrandCarousel .carousel-item img { width: 100%; height: clamp(360px, 38vw, 540px); object-fit: cover; }
+
+/* the slide copy sits in .slideRow > .col-lg-6, centred by Bootstrap utilities; left-align it */
+.home-page #GrandCarousel .carousel-caption .slideRow > [class*="col-"] {
+    align-items: flex-start !important; /* beats .align-items-center */
+    padding-left: clamp(24px, 6vw, 88px);
+    text-align: left;
+}
+.home-page #GrandCarousel .carousel-item .animate-top {
+    padding: 0 0 12px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .85;
+}
+.home-page #GrandCarousel .carousel-item .animate-center-title {
+    max-width: 12ch;
+    font-size: clamp(34px, 4.6vw, 64px);
+    font-weight: 600;
+    letter-spacing: -.035em;
+    line-height: 1.02;
+}
+.home-page #GrandCarousel .carousel-item .animate-center-content {
+    max-width: 36ch;
+    padding: 14px 0 0;
+    font-size: clamp(15px, 1.3vw, 18px);
+    font-weight: 400;
+    line-height: 1.5;
+    opacity: .9;
+}
+.home-page #GrandCarousel .carousel-item .animate-bottom.btn {
+    width: auto;
+    margin: 24px 0 0;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.home-page #GrandCarousel .carousel-control-prev,
+.home-page #GrandCarousel .carousel-control-next { display: none; }
+
+.home-page #GrandCarousel .carousel-indicators {
+    left: clamp(24px, 6vw, 88px);
+    right: auto;
+    bottom: 24px;
+    margin: 0;
+    gap: 6px;
+    justify-content: flex-start;
+}
+.home-page #GrandCarousel .carousel-indicators [data-bs-slide-to] {
+    width: 24px;
+    height: 3px;
+    margin: 0;
+    border: 0;
+    border-radius: var(--mdn-r-pill);
+    background-color: #fff;
+    opacity: .35;
+    transition: width var(--mdn-dur) var(--mdn-ease), opacity var(--mdn-dur) var(--mdn-ease);
+}
+.home-page #GrandCarousel .carousel-indicators .active { width: 40px; opacity: 1; }
+
+/* ---------- section heads ---------- */
+
+.home-page .generalTitle {
+    margin: 0 0 20px !important; /* beats .mb-3 */
+    font-size: clamp(22px, 2.2vw, 28px);
+    text-align: left !important; /* beats Default's .text-center / .text-sm-center utilities */
+}
+
+/* HomePageText page block */
+.home-page > .generalMarginSupporter .page-block-body { max-width: 720px; padding-top: 0 !important; color: var(--mdn-muted-text); font-size: 17px; } /* beats .pt-3 */
+
+/* ---------- category, brand and collection tiles (Default .categoryGrid .picture-card) ---------- */
+
+.home-page .categoryGrid .row { row-gap: 16px; --bs-gutter-x: 16px; }
+.home-page .categoryGrid .picture-card,
+[dark-theme="true"] .home-page .categoryGrid .picture-card {
+    position: relative;
+    height: 100%;
+    margin: 0 !important; /* beats Default's .mb-2 */
+    overflow: hidden;
+    background: var(--mdn-surface);
+    border: 0;
+    border-radius: var(--mdn-r-card);
+    transition: transform var(--mdn-dur) var(--mdn-ease), box-shadow var(--mdn-dur) var(--mdn-ease);
+}
+.home-page .categoryGrid .picture-card:hover { transform: translateY(-2px); box-shadow: var(--mdn-shadow-lift); }
+.home-page .categoryGrid .picture-card > a::before { padding-top: 75%; }
+.home-page .categoryGrid .picture-card a img { transition: transform .4s var(--mdn-ease); }
+.home-page .categoryGrid .picture-card:hover a img { transform: scale(1.03); }
+.home-page .categoryGrid .picture-card .title {
+    margin: 0;
+    padding: 14px 16px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -.015em;
+}
+.home-page .categoryGrid .picture-card .title a,
+[dark-theme="true"] .home-page .categoryGrid .picture-card .title a { color: var(--mdn-ink); }
+
+/* ---------- product rows: 4-up grid on desktop, a scroll-snap row on phones ---------- */
+
+@media (min-width: 992px) {
+    .home-page .product-grid > .col-12 > .row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 32px 20px;
+        margin: 0;
+    }
+    .home-page .product-grid > .col-12 > .row > [class*="col-"] { width: auto; max-width: none; padding: 0; }
+}
+
+@media (max-width: 767.98px) {
+    .home-page .product-grid > .col-12 > .row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 12px;
+        margin-inline: -12px;
+        padding: 0 12px 8px;
+        gap: 12px;
+        scrollbar-width: none;
+    }
+    .home-page .product-grid > .col-12 > .row::-webkit-scrollbar { display: none; }
+    .home-page .product-grid > .col-12 > .row > [class*="col-"] { flex: 0 0 68%; max-width: 68%; padding: 0; scroll-snap-align: start; }
+}
+
+/* ---------- blog and news cards ---------- */
+
+.home-page .blog-list-homepage .card,
+.home-page .news-list-homepage .card,
+[dark-theme="true"] .home-page .blog-list-homepage .card,
+[dark-theme="true"] .home-page .news-list-homepage .card {
+    height: 100%;
+    overflow: hidden;
+    background: var(--mdn-surface);
+    border: 0;
+    border-radius: var(--mdn-r-card);
+}
+.home-page .blog-list-homepage .card-img-top,
+.home-page .news-list-homepage .card-img-top { aspect-ratio: 16 / 10; object-fit: cover; border-radius: 0; }
+.home-page .blog-list-homepage .card-header,
+.home-page .news-list-homepage .card-header { padding: 16px 16px 0; border: 0; background: transparent; }
+.home-page .blog-list-homepage .card-header .h5,
+.home-page .news-list-homepage .card-header .h5 { font-size: 17px; font-weight: 600; letter-spacing: -.015em; }
+.home-page .blog-list-homepage .card-body,
+.home-page .news-list-homepage .card-body { padding: 8px 16px; color: var(--mdn-muted-text); }
+.home-page .blog-list-homepage .card-footer,
+.home-page .news-list-homepage .card-footer { padding: 0 16px 16px; border: 0; background: transparent; }
+.home-page .date-text,
+[dark-theme="true"] .home-page .date-text { color: var(--mdn-muted-text); font-family: var(--mdn-mono); font-size: 12px; }
+.home-page .view-all { text-align: left !important; } /* beats .text-center */
