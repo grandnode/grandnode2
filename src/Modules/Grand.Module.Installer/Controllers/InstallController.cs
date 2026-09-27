@@ -139,12 +139,16 @@ public class InstallController : Controller
                 if (string.IsNullOrEmpty(model.MongoDBDatabaseName))
                     ModelState.AddModelError("",
                         locService.GetResource(model.SelectedLanguage, "DatabaseNameRequired"));
-                if (string.IsNullOrEmpty(model.MongoDBServerName))
+                if (string.IsNullOrEmpty(model.MongoDBServerName) ||
+                    !MongoServerAddress.TryParse(model.MongoDBServerName.Trim(), out var serverAddress))
+                {
                     ModelState.AddModelError("",
                         locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
+                    return connectionString;
+                }
 
                 var builder = new MongoUrlBuilder {
-                    Server = new MongoServerAddress(model.MongoDBServerName),
+                    Server = serverAddress,
                     Username = model.MongoDBUsername,
                     Password = model.MongoDBPassword,
                     DatabaseName = model.MongoDBDatabaseName
