@@ -1,6 +1,4 @@
 ﻿@using Constants = Grand.SharedUIResources.Constants
-@using Grand.Web.AdminShared.Models.Common
-@model LoginModel
 @{
     //page title
     Layout = "";
@@ -34,12 +32,10 @@
     <script src="@(Constants.WwwRoot)/administration/jquery-ui/jquery-ui.min.js"></script>
     <script src="@(Constants.WwwRoot)/administration/bundles/admin.bootstrap.js"></script>
 </head>
-<body>
+<body class="grand-login">
 @Html.AntiForgeryToken()
-<div class="container body admin-login-layout">
-    <div class="main_container">
-        @RenderBody()
-    </div>
-</div>
+<main class="grand-login__main">
+    @RenderBody()
+</main>
 </body>
 </html>
