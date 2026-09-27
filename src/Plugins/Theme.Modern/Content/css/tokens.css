@@ -1,0 +1,91 @@
+/*
+    Modern - design tokens.
+
+    The palette lives in --mdn-*; Bootstrap's own variables are pointed at it for both
+    schemes, so every Default view the theme does not restyle still follows the palette.
+    The scheme is switched by the Default Partials/ColorScheme through data-bs-theme on <html>.
+*/
+
+:root,
+[data-bs-theme=light] {
+    --mdn-bg: #ffffff;
+    --mdn-surface: #f5f5f7;
+    --mdn-surface-2: #ececf0;
+    --mdn-line: #e8e8ec;
+    --mdn-ink: #0b0b0f;
+    --mdn-on-ink: #ffffff;
+    --mdn-muted-text: #5f6068;
+    --mdn-accent: #2563ff;
+    --mdn-on-accent: #ffffff;
+    --mdn-sale: #d92d33;
+    --mdn-shadow: 0 1px 2px rgba(11, 11, 15, .04), 0 4px 16px rgba(11, 11, 15, .06);
+    --mdn-shadow-lift: 0 2px 4px rgba(11, 11, 15, .05), 0 12px 32px rgba(11, 11, 15, .10);
+}
+
+[data-bs-theme=dark] {
+    --mdn-bg: #0a0a0c;
+    --mdn-surface: #16161a;
+    --mdn-surface-2: #1f1f24;
+    --mdn-line: #26262c;
+    --mdn-ink: #f4f4f6;
+    --mdn-on-ink: #0b0b0f;
+    --mdn-muted-text: #a1a1aa;
+    --mdn-accent: #5b8cff;
+    --mdn-on-accent: #0b0b0f;
+    --mdn-sale: #ff6369;
+    --mdn-shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px rgba(0, 0, 0, .35);
+    --mdn-shadow-lift: 0 2px 4px rgba(0, 0, 0, .45), 0 12px 32px rgba(0, 0, 0, .5);
+}
+
+:root,
+[data-bs-theme=light],
+[data-bs-theme=dark] {
+    --mdn-sans: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mdn-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --mdn-r-input: 10px;
+    --mdn-r-card: 16px;
+    --mdn-r-block: 24px;
+    --mdn-r-pill: 999px;
+    --mdn-ease: cubic-bezier(.2, .7, .2, 1);
+    --mdn-dur: .18s;
+
+    --bs-body-bg: var(--mdn-bg);
+    --bs-body-bg-rgb: 255, 255, 255;
+    --bs-body-color: var(--mdn-ink);
+    --bs-body-color-rgb: 11, 11, 15;
+    --bs-body-font-family: var(--mdn-sans);
+    --bs-emphasis-color: var(--mdn-ink);
+    --bs-heading-color: var(--mdn-ink);
+    --bs-secondary-color: var(--mdn-muted-text);
+    --bs-tertiary-color: var(--mdn-muted-text);
+    --bs-secondary-bg: var(--mdn-surface);
+    --bs-tertiary-bg: var(--mdn-surface);
+    --bs-border-color: var(--mdn-line);
+    --bs-border-color-translucent: var(--mdn-line);
+    --bs-border-radius: var(--mdn-r-input);
+    --bs-border-radius-sm: 8px;
+    --bs-border-radius-lg: var(--mdn-r-card);
+    --bs-border-radius-xl: var(--mdn-r-block);
+    --bs-border-radius-pill: var(--mdn-r-pill);
+    --bs-link-color: var(--mdn-ink);
+    --bs-link-color-rgb: 11, 11, 15;
+    --bs-link-hover-color: var(--mdn-accent);
+    --bs-link-hover-color-rgb: 37, 99, 255;
+    --bs-primary: var(--mdn-accent);
+    --bs-primary-rgb: 37, 99, 255;
+    --bs-info: var(--mdn-accent);
+    --bs-info-rgb: 37, 99, 255;
+    --bs-dark: var(--mdn-ink);
+    --bs-light: var(--mdn-surface);
+    --bs-focus-ring-color: color-mix(in srgb, var(--mdn-accent) 35%, transparent);
+    --bs-box-shadow: var(--mdn-shadow);
+}
+
+[data-bs-theme=dark] {
+    --bs-body-bg-rgb: 10, 10, 12;
+    --bs-body-color-rgb: 244, 244, 246;
+    --bs-link-color-rgb: 244, 244, 246;
+    --bs-link-hover-color-rgb: 91, 140, 255;
+    --bs-primary-rgb: 91, 140, 255;
+    --bs-info-rgb: 91, 140, 255;
+}

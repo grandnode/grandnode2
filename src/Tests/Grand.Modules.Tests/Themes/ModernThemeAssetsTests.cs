@@ -74,4 +74,56 @@ public class ModernThemeAssetsTests
             .Distinct().ToList();
         Assert.AreEqual(0, used.Count, $"Modern adds no resources, but views use: {string.Join(", ", used)}");
     }
+
+    private static string Head => File.ReadAllText(Path.Combine(ModernViews, "Shared", "Partials", "Head.cshtml"));
+
+    [TestMethod]
+    public void Head_LinksEveryThemeStylesheetOnce_AfterTheDefaultStyles()
+    {
+        var head = Head;
+        var defaultAt = head.IndexOf("/bundles/style.min.css", StringComparison.Ordinal);
+        Assert.IsTrue(defaultAt >= 0, "the Default production stylesheet must be loaded");
+        foreach (var css in ApprovedContent.Where(c => c.StartsWith("css")))
+        {
+            var url = "/Plugins/Theme.Modern/Content/" + css.Replace('\\', '/');
+            var hits = Regex.Matches(head, Regex.Escape(url)).Count;
+            Assert.AreEqual(1, hits, $"{url} linked {hits} times");
+            Assert.IsTrue(head.IndexOf(url, StringComparison.Ordinal) > defaultAt, $"{url} must come after the Default styles");
+        }
+    }
+
+    [TestMethod]
+    public void Head_EveryThemeUrlExistsOnDisk()
+    {
+        foreach (Match m in Regex.Matches(Head, @"/Plugins/Theme\.Modern/Content/([^""]+)"""))
+            Assert.IsTrue(File.Exists(Path.Combine(Content, m.Groups[1].Value.Replace('/', Path.DirectorySeparatorChar))), m.Value);
+    }
+
+    [TestMethod]
+    public void Head_UsesTheDefaultRuntimeAndAppScripts()
+    {
+        StringAssert.Contains(Head, "/bundles/app.runtime.bundle.js");
+        StringAssert.Contains(Head, "/theme/script/app.js");
+        StringAssert.Contains(Head, "/assets/custom/script.js");
+    }
+
+    [TestMethod]
+    public void FontsCss_EveryUrlExists()
+    {
+        var css = File.ReadAllText(Path.Combine(Content, "css", "fonts.css"));
+        var urls = Regex.Matches(css, @"url\(""\.\./fonts/([^""]+)""\)").Select(m => m.Groups[1].Value).ToList();
+        Assert.AreEqual(4, urls.Count);
+        foreach (var u in urls)
+            Assert.IsTrue(File.Exists(Path.Combine(Content, "fonts", u)), u);
+    }
+
+    [TestMethod]
+    public void FontsCss_DeclaresLatinExtForBothFamilies()
+    {
+        var css = File.ReadAllText(Path.Combine(Content, "css", "fonts.css"));
+        // U+0100-02BA covers ą ę ł ś ż and the rest of Latin Extended-A/B
+        Assert.AreEqual(2, Regex.Matches(css, @"unicode-range:\s*U\+0100-02BA").Count);
+        StringAssert.Contains(css, "font-family: \"Geist\"");
+        StringAssert.Contains(css, "font-family: \"Geist Mono\"");
+    }
 }
