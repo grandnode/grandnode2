@@ -1,0 +1,179 @@
+@model FooterModel
+
+<partial name="Partials/NewsletterBox"/>
+
+<footer class="nordic-footer" vue-island>
+    <div class="container">
+        <div class="nordic-footer__grid">
+            <div class="nordic-footer__brand">
+                <a class="nordic-wordmark" href="@Url.RouteUrl("HomePage")">@Model.StoreName</a>
+                <ol class="list-group social-icons list-pad">
+                    @if (!string.IsNullOrEmpty(Model.FacebookLink))
+                    {
+                        <li class="list-group-item facebook">
+                            <a title="facebook" href="@Model.FacebookLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/facebook.svg" alt="facebook"/>
+                                <span class="visually-hidden">Facebook</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.TwitterLink))
+                    {
+                        <li class="list-group-item twitter">
+                            <a title="twitter" href="@Model.TwitterLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/twitter.svg" alt="twitter"/>
+                                <span class="visually-hidden">twitter</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.YoutubeLink))
+                    {
+                        <li class="list-group-item youtube">
+                            <a title="youtube" href="@Model.YoutubeLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/youtube.svg" alt="youtube"/>
+                                <span class="visually-hidden">youtube</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.InstagramLink))
+                    {
+                        <li class="list-group-item instagram">
+                            <a href="@Model.InstagramLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/instagram.svg" alt="instagram"/>
+                                <span class="visually-hidden">instagram</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.LinkedInLink))
+                    {
+                        <li class="list-group-item linkedin">
+                            <a href="@Model.LinkedInLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/linkedin.svg" alt="linkedin"/>
+                                <span class="visually-hidden">linkedin</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PinterestLink))
+                    {
+                        <li class="list-group-item pinterest">
+                            <a href="@Model.PinterestLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/pinterest.svg" alt="pinterest"/>
+                                <span class="visually-hidden">pinterest</span>
+                            </a>
+                        </li>
+                    }
+                </ol>
+            </div>
+            <div id="footer-block-information" class="footer-block information block">
+                <h2 class="nordic-footer__head">@Loc["Footer.Information"]</h2>
+                <div class="viewBox">
+                    <div class="list-group">
+                        @if (Model.SitemapEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Sitemap")">@Loc["Sitemap"]</a>
+                        }
+                        @if (Model.PrivacyPreference)
+                        {
+                            <a class="list-group-item list-group-item-action btn btn-link" id="btnPrivacyPreference" @@click="getPrivacyPreference('@Url.RouteUrl("PrivacyPreference")'); return false;">@Loc["PrivacyPreference"]</a>
+                        }
+                        @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow1).ToList())
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { mpage.SeName })">@mpage.Name</a>
+                        }
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ContactUs")">@Loc["ContactUs"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ProductSearch")">@Loc["Search"]</a>
+                        @if (Model.NewsEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewsArchive")">@Loc["News"]</a>
+                        }
+                        @if (Model.BlogEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Blog")">@Loc["Blog"]</a>
+                        }
+                        @if (Model.KnowledgebaseEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Knowledgebase")">@Loc["Knowledgebase"]</a>
+                        }
+                        @if (Model.RecentlyViewedProductsEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("RecentlyViewedProducts")">@Loc["Products.RecentlyViewedProducts"]</a>
+                        }
+                        @if (Model.NewProductsEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewProducts")">@Loc["Products.NewProducts"]</a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="footer-block-my-account" class="footer-block my-account block">
+                <h2 class="nordic-footer__head">@Loc["Footer.MyAccount"]</h2>
+                <div class="viewBox">
+                    <div class="list-group list-pad">
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerInfo")">@Loc["Account.MyAccount"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerOrders")">@Loc["Account.CustomerOrders"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerAddresses")">@Loc["Account.CustomerAddresses"]</a>
+                        @if (Model.ShoppingCartEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ShoppingCart")">@Loc["ShoppingCart"]</a>
+                        }
+                        @if (Model.WishlistEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Wishlist")">@Loc["Wishlist"]</a>
+                        }
+                        @if (Model.AllowCustomersToApplyForVendorAccount)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ApplyVendorAccount")">@Loc["Vendors.ApplyAccount"]</a>
+                        }
+                        @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow2).ToList())
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { mpage.SeName })" target="_blank">@mpage.Name</a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="footer-block-about-us" class="footer-block about-us block">
+                <h2 class="nordic-footer__head">@Loc["Footer.AboutUs"]</h2>
+                <div class="viewBox">
+                    <div class="list-group list-pad">
+                        @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow3).ToList())
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { mpage.SeName })">@mpage.Name</a>
+                        }
+                    </div>
+                </div>
+                <dl class="nordic-footer__company">
+                    @if (!string.IsNullOrEmpty(Model.CompanyName))
+                    {
+                        <dt>@Loc["Footer.CompanyName.Title"]</dt>
+                        <dd>@Model.CompanyName</dd>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.CompanyAddress))
+                    {
+                        <dt>@Loc["Footer.Address.Title"]</dt>
+                        <dd>@Model.CompanyAddress</dd>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.CompanyEmail))
+                    {
+                        <dt>@Loc["footer.Email.Title"]</dt>
+                        <dd>@Model.CompanyEmail</dd>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.CompanyPhone))
+                    {
+                        <dt>@Loc["Footer.Phone.Title"]</dt>
+                        <dd>@Model.CompanyPhone</dd>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.CompanyHours))
+                    {
+                        <dt>@Loc["Footer.Hour.Title"]</dt>
+                        <dd>@Model.CompanyHours</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+        <div class="footer-lower nordic-footer__lower">
+            <span class="footer-disclaimer copyright">@Html.Raw(Loc["Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName])</span>
+            <span><span>Shopping cart software by </span><a class="pe-1" href="https://grandnode.com/">GrandNode</a>™</span>
+        </div>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "footer" })
+</footer>

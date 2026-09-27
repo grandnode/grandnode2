@@ -27,7 +27,11 @@ public partial class InstallationService
 {
     protected virtual async Task InstallSettings(bool installSampleData)
     {
-        var path = Path.Combine(_hostingEnvironment.WebRootPath, "logo.png");
+        //sample installs open in the Nordic theme; its logo is a warm mid tone that stays legible
+        //on both its light and dark scheme, where the stock teal-on-white logo loses half its lettering
+        var path = installSampleData
+            ? Path.Combine(_hostingEnvironment.WebRootPath, "assets", "samples", "logo_nordic.png")
+            : Path.Combine(_hostingEnvironment.WebRootPath, "logo.png");
 
         var storePictureId = (await _pictureRepository.InsertPicture(await File.ReadAllBytesAsync(path), "image/png", "Logo")).Id;
 
@@ -319,7 +323,8 @@ public partial class InstallationService
         await _settingRepository.SaveSetting(new StoreInformationSettings {
             LogoPictureId = storePictureId,
             StoreClosed = false,
-            DefaultStoreTheme = "Default",
+            //the sample store is presented in the Nordic Editorial theme; a plain install stays on Default
+            DefaultStoreTheme = installSampleData ? "Nordic" : "Default",
             AllowCustomerToSelectTheme = false,
             DisplayCookieInformation = false,
             FacebookLink = "https://www.facebook.com/grandnodecom",

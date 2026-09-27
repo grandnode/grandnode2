@@ -1,0 +1,100 @@
+@model BrandModel
+@inject SeoSettings seoSettings
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
+    pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
+
+    var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
+    if (canonicalUrlsEnabled)
+    {
+        var collectionUrl = Url.RouteUrl("Brand", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
+        pagebuilder.AddCanonicalUrlParts(collectionUrl);
+    }
+}
+
+<div class="page brand-page nordic-listing">
+    @*Nordic: heading panel - title and description on the surface colour beside the picture*@
+    <header class="nordic-listing-head@(string.IsNullOrEmpty(Model.PictureModel?.ImageUrl) ? "" : " has-picture")">
+        <div class="nordic-listing-head__text">
+            <h1 class="generalTitle h2">@Model.Name</h1>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_top", additionalData = Model.Id })
+            @*Rendering description*@
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="nordic-listing-head__desc collection-description" v-pre>
+                    @Html.Raw(Model.Description)
+                </div>
+            }
+        </div>
+        @if (!string.IsNullOrEmpty(Model.PictureModel?.ImageUrl))
+        {
+            <div class="nordic-listing-head__media">
+                <img src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" title="@Model.PictureModel.Title">
+            </div>
+        }
+    </header>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_featured_products", additionalData = Model.Id })
+    @*Rendering featured products section*@
+    @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_after_featured_products", additionalData = Model.Id })
+    <div id="catalog-products" vue-island="catalog">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_filters", additionalData = Model.Id })
+        <partial name="Partials/Selectors"/>
+        <template v-if="catalog.Model.Products.length > 0">
+            <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                <div class="col-12 product-grid px-0">
+                    <div class="row">
+                        <template v-for="product in catalog.Model.Products">
+                            <div class="col-xl-4 col-6 product-container mb-2">
+                                <partial name="Partials/Client/CatalogProductGridView"/>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+            <template v-else>
+                <div class="product-list">
+                    <div class="col-12">
+                        <div class="row">
+                            <template v-for="product in catalog.Model.Products">
+                                <partial name="Partials/Client/CatalogProductListView"/>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <partial name="Partials/Pagination"/>
+        </template>
+        <template v-else>
+            <div class="alert alerty-info my-3">
+                @Loc["search.noresultstext"]
+            </div>
+        </template>
+    </div>
+
+    @*Rendering bottom description section*@
+    @if (!string.IsNullOrWhiteSpace(Model.BottomDescription))
+    {
+        <div class="card brand-description">
+            <div class="card-body">
+                @Html.Raw(Model.BottomDescription)
+            </div>
+        </div>
+    }
+
+    @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_bottom", additionalData = Model.Id })
+</div>
+
+@section filters
+{
+    @*Rendering filtering section*@
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        <partial name="Partials/Filtering"/>
+    }
+}
+
+<partial name="Partials/ModelScript" model="Model"/>

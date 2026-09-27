@@ -194,6 +194,19 @@ public partial class InstallationService
             }
 
         };
+        //the promo line in the header bar of the Nordic theme - sample copy, so sample installs only;
+        //the theme leaves the bar out when this page does not exist
+        if (installSampleData)
+            pages.Add(new Page {
+                SystemName = "HeaderPromoText",
+                IncludeInSitemap = false,
+                IsPasswordProtected = false,
+                DisplayOrder = 1,
+                Title = "",
+                Body = "<p>Free shipping on orders over $75 &middot; 30-day returns</p>",
+                PageLayoutId = defaultPageLayout.Id,
+                Published = true
+            });
         pages.ForEach(x => _pageRepository.Insert(x));
 
         var lpages = from p in _pageRepository.Table

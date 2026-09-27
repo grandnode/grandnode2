@@ -1,0 +1,22 @@
+@model IList<BrandModel>
+@inject DisplayOrderHomePage order
+<section class="categoryGrid nordic-section nordic-brands order-@order.HomePageBrands">
+    <div class="nordic-section-head">
+        <h2 class="nordic-section-title">@Loc["Brands"]</h2>
+        <a class="nordic-section-link" href="@Url.RouteUrl("BrandList")">@Loc["Brands.List"] <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <ul class="nordic-brands__strip">
+        @foreach (var item in Model)
+        {
+            <li>
+                <a class="nordic-brands__link" href="@Url.RouteUrl("Brand", new { item.SeName })" title="@item.PictureModel.Title">
+                    @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
+                    {
+                        <img class="nordic-brands__pic" src="@item.PictureModel.ImageUrl" alt="" loading="lazy">
+                    }
+                    <span>@item.Name</span>
+                </a>
+            </li>
+        }
+    </ul>
+</section>

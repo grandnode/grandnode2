@@ -1,0 +1,194 @@
+/*
+    Nordic Editorial - account, cart, checkout, order details, compare and wishlist.
+    CSS only: tokens, buttons, forms and tables; no layout changes to the Default views.
+*/
+
+/* ---------- account pages and login ---------- */
+
+.block-account-navigation .list-group-item,
+[dark-theme="true"] .block-account-navigation .list-group-item {
+    padding: 10px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--nordic-line);
+    color: var(--nordic-ink);
+    font-size: 14px;
+}
+
+.block-account-navigation .list-group-item.active,
+.block-account-navigation .list-group-item:hover,
+.block-account-navigation a.active {
+    background: transparent;
+    color: var(--nordic-ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: .25em;
+}
+
+.login-page .card,
+.registration-page .card,
+.account-page .card,
+.checkout-page .card,
+.order-details-page .card,
+[dark-theme="true"] .login-page .card,
+[dark-theme="true"] .account-page .card,
+[dark-theme="true"] .checkout-page .card {
+    background: transparent;
+    border: 1px solid var(--nordic-line);
+}
+
+.login-page .card-header,
+.registration-page .card-header,
+.account-page .card-header,
+.checkout-page .card-header,
+.order-details-page .card-header {
+    background: var(--nordic-surface);
+    border-bottom: 1px solid var(--nordic-line);
+}
+
+.login-page .card-header .h5,
+.login-page .card-header h2,
+.checkout-page .card-header .h5,
+.checkout-page .card-header h2 {
+    font-family: var(--nordic-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+/* ---------- cart, wishlist, compare tables ---------- */
+
+.shopping-cart,
+.shopping-cart.table,
+[dark-theme="true"] .shopping-cart,
+[dark-theme="true"] .shopping-cart.table td {
+    background: transparent;
+    border-color: var(--nordic-line);
+    color: var(--nordic-ink);
+}
+
+.shopping-cart .product-picture img,
+.shopping-cart-container .product-picture img {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    background: var(--nordic-surface);
+}
+
+.shopping-cart a.product-name,
+.shopping-cart .product-name a,
+.shopping-cart-container .product a {
+    color: var(--nordic-ink);
+    font-family: var(--nordic-serif);
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.shopping-cart .unit-price,
+.shopping-cart .subtotal,
+.shopping-cart .prod-total {
+    color: var(--nordic-ink);
+    font-weight: 500;
+}
+
+.shopping-cart .qty-input {
+    max-width: 70px;
+    margin: 0 auto;
+}
+
+.shopping-cart .attributes,
+.shopping-cart .sku-number,
+.shopping-cart-container .attributes,
+.shopping-cart-container .attributes.small,
+.b-sidebar .item .attributes {
+    color: var(--nordic-muted-text);
+}
+
+/* totals: a quiet panel on the surface colour */
+.totals .totals-inner,
+.cart-footer .totals,
+.order-summary-content .totals {
+    padding: 20px;
+    background: var(--nordic-surface);
+    border: 0;
+}
+
+.totals .table,
+.totals table {
+    --bs-table-bg: transparent;
+    margin: 0;
+}
+
+.totals .order-total,
+.totals .order-total td,
+.totals tr:last-child td {
+    font-family: var(--nordic-serif);
+    font-size: 1.2rem;
+}
+
+.checkout-buttons .btn {
+    min-height: 46px;
+}
+
+.checkout-buttons .checkout-button {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* discount, gift voucher, estimate shipping boxes */
+.cart-footer .card,
+.shopping-cart-container .card,
+[dark-theme="true"] .cart-footer .card {
+    background: transparent;
+    border: 1px solid var(--nordic-line);
+}
+
+/* ---------- checkout ---------- */
+
+.checkout-page .checkout-data {
+    color: var(--nordic-ink);
+}
+
+.checkout-page .nav-pills .nav-link,
+.checkout-page .checkout-steps .step {
+    border-radius: 0;
+    color: var(--nordic-muted-text);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.checkout-page .nav-pills .nav-link.active {
+    background: var(--nordic-ink);
+    color: var(--nordic-bg);
+}
+
+.checkout-page .form-check-label,
+.checkout-page .method-name {
+    color: var(--nordic-ink);
+}
+
+/* ---------- order details and lists ---------- */
+
+.order-details-page .generalTitle,
+.order-list-page .generalTitle,
+.checkout-page .generalTitle {
+    text-align: left;
+}
+
+.order-completed-page .generalTitle {
+    font-size: clamp(2rem, 1.5rem + 1.6vw, 2.6rem);
+    font-weight: 300;
+}
+
+/* ---------- compare ---------- */
+
+.compare-products-table,
+[dark-theme="true"] .compare-products-table {
+    --bs-table-bg: transparent;
+    color: var(--nordic-ink);
+}
+
+.compare-products-table img {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+}
