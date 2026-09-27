@@ -81,19 +81,68 @@
     background: var(--nordic-ink);
 }
 
-/* the colour-scheme switch, reduced to a quiet toggle */
+/* the colour-scheme switch as a quiet square icon button instead of Bootstrap's pill:
+   the checkbox stays (v-model, keyboard, screen readers) but is drawn invisibly over the
+   icon; the icon shows the scheme a click switches to - a moon in light, a sun in dark */
+.nordic-header .contrast-switch {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+}
+
 .nordic-header .contrast-switch .form-check-input {
-    background-color: transparent;
-    border-color: var(--nordic-muted);
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
 }
 
-.nordic-header .contrast-switch .form-check-input:checked {
-    background-color: var(--nordic-ink);
-    border-color: var(--nordic-ink);
+.nordic-header .contrast-switch .form-check-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid transparent;
+    transition: border-color .15s ease, background-color .15s ease;
 }
 
-.nordic-header .contrast-switch .b-icon.bi {
-    font-size: 15px;
+.nordic-header .contrast-switch:hover .form-check-label {
+    border-color: var(--nordic-line);
+    background: var(--nordic-surface);
+}
+
+.nordic-header .contrast-switch .form-check-input:focus-visible ~ .form-check-label {
+    outline: 2px solid var(--nordic-ink);
+    outline-offset: 2px;
+}
+
+.nordic-header .contrast-switch .b-icon.bi,
+.nordic-header .contrast-switch .b-icon.bi.text-info,
+.nordic-header .contrast-switch .b-icon.bi.text-dark {
+    color: var(--nordic-ink) !important;
+    font-size: 17px !important;
+}
+
+.nordic-header .contrast-switch .b-icon.light {
+    display: none;
+}
+
+.nordic-header .contrast-switch .b-icon.dark {
+    display: inline;
+}
+
+.nordic-header .contrast-switch .form-check-input:checked ~ .form-check-label .b-icon.light {
+    display: inline;
+}
+
+.nordic-header .contrast-switch .form-check-input:checked ~ .form-check-label .b-icon.dark {
+    display: none;
 }
 
 /* the wordmark (store name) */
