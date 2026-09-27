@@ -8,7 +8,8 @@
 [dark-theme="true"] .product-details-page .gallery img.image.main-image {
     width: 100%;
     aspect-ratio: 1 / 1;
-    object-fit: cover;
+    /* contain, not cover: this is where the customer must see the whole product */
+    object-fit: contain;
     background: var(--mdn-surface);
     border: 0;
     border-radius: var(--mdn-r-block);
@@ -103,17 +104,20 @@
 /* quantity + add to cart */
 .product-details-page .product-add-to-cart { gap: 8px; }
 .product-details-page .product-add-to-cart .qty-input,
-.product-details-page .product-add-to-cart .qty-dropdown { flex: 0 0 88px; width: 88px; min-height: 52px; text-align: center; border-radius: var(--mdn-r-pill) !important; } /* beats input-group radius resets */
-.product-details-page .add-to-cart-button { min-height: 52px; justify-content: center; align-items: center; border-radius: var(--mdn-r-pill) !important; font-size: 16px; } /* same */
+.product-details-page .product-add-to-cart .qty-dropdown { flex: 0 0 88px; width: 88px; min-height: 52px; text-align: center; }
+/* Bootstrap squares the inner corners at (0,6,0): .input-group:not(.has-validation) > :not(:last-child)... */
+.product-details-page .product-add-to-cart.input-group > .form-control:not(:last-child):not(.dropdown-toggle) { border-radius: var(--mdn-r-pill); }
+.product-details-page .add-to-cart-button { min-height: 52px; justify-content: center; align-items: center; border-radius: var(--mdn-r-pill); font-size: 16px; }
 
 .product-details-page .overview .btn-group { gap: 8px; }
-.product-details-page .overview .btn-group > .btn { flex: 1; min-height: 44px; border-radius: var(--mdn-r-pill) !important; } /* beats .btn-group's joined radii */
+/* above Bootstrap's .btn-group > .btn:not(:last-child):not(.dropdown-toggle) (0,4,0) */
+.product-details-page .overview .btn-group > .btn:not(.btn-check):not(.dropdown-toggle) { flex: 1; min-height: 44px; border-radius: var(--mdn-r-pill); }
 
 /* ---------- tabs as a segmented control ---------- */
 
 .product-details-page .nav-tabs,
 [dark-theme="true"] .product-details-page .nav-tabs {
-    justify-content: flex-start !important; /* gn-tabs align="center" */
+    justify-content: flex-start !important; /* beats the .justify-content-center utility gn-tabs align="center" adds */
     gap: 4px;
     width: max-content;
     max-width: 100%;

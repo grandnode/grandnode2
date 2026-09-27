@@ -15,6 +15,8 @@
 .mdn-promo .generalMarginSupporter,
 .mdn-promo .page-block-body { margin: 0; padding: 0 !important; } /* beats the .pt-3 utility */
 .mdn-promo p { margin: 0; }
+/* PageBlock renders the page title as an <h1 class="generalTitle"> - ink on ink here, and a second h1 */
+.mdn-promo .generalTitle { display: none; }
 .mdn-promo a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- sticky blurred bar ---------- */
@@ -193,7 +195,12 @@
     left: 0;
     z-index: 1036;
     min-width: 240px;
-    margin: 8px 0 0;
+    /* subcategories with children expand in place, and brands list every brand: the panel
+       hangs off a sticky header, so anything below the viewport would be out of reach */
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0;
     padding: 8px;
     list-style: none;
     background: var(--mdn-bg);
@@ -205,8 +212,8 @@
     transform: translateY(4px);
     transition: opacity var(--mdn-dur) var(--mdn-ease), transform var(--mdn-dur) var(--mdn-ease);
 }
-/* bridges the 8px gap so the pointer can travel from the item into its panel */
-.mdn-menu > li > ul::before { content: ""; position: absolute; left: 0; right: 0; top: -10px; height: 10px; }
+/* the right-most panels open leftwards so they stay inside the viewport */
+.mdn-menu > li:nth-last-child(-n+2) > ul { left: auto; right: 0; }
 .mdn-menu > li:hover > ul,
 .mdn-menu > li:focus-within > ul { opacity: 1; pointer-events: auto; transform: translateY(0); }
 

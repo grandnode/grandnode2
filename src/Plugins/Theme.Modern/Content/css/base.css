@@ -168,9 +168,7 @@ hr { border-color: var(--mdn-line); opacity: 1; }
 
 .form-control,
 .form-select,
-.custom-select,
-[dark-theme="true"] .form-control,
-[dark-theme="true"] .form-select {
+.custom-select {
     min-height: 44px;
     background-color: var(--mdn-bg);
     border: 1px solid var(--mdn-line);
@@ -247,7 +245,7 @@ hr { border-color: var(--mdn-line); opacity: 1; }
     background-color: var(--mdn-accent) !important;
     color: var(--mdn-on-accent) !important;
 }
-.text-info, [dark-theme="true"] .text-info { color: var(--mdn-accent) !important; }
+.text-info, [dark-theme="true"] .text-info { color: var(--mdn-accent) !important; } /* the utility and Default's dark override are both !important */
 
 /* ---------- breadcrumbs, pagination ---------- */
 

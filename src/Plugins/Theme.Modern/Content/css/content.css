@@ -27,6 +27,20 @@
 .blogpost-page .img-fluid { border-radius: var(--mdn-r-block); }
 .blogpost-page .tags a { display: inline-block; margin: 0 6px 6px 0; padding: 4px 12px; background: var(--mdn-surface); border-radius: var(--mdn-r-pill); font-size: 13px; }
 
+/* links inside running text: base.css strips decoration from every link, which leaves an
+   inline link indistinguishable from the words around it */
+.page-body a,
+.blogpost-page [v-pre] a,
+.news-item-page [v-pre] a,
+.product-details-page .full-description a,
+.product-details-page .short-description a,
+.checkout-page .terms-of-service a,
+.shopping-cart-page .terms-of-service a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .2em;
+}
+
 /* CMS pages only: .page-body also wraps the whole shopping cart */
 .page-page .page-body { max-width: 760px; font-size: 16px; line-height: 1.7; }
 

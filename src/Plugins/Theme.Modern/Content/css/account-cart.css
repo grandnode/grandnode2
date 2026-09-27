@@ -5,7 +5,8 @@
 .newsletter.bg-info,
 [dark-theme="true"] .newsletter.bg-info {
     width: auto;
-    margin: 64px auto 0 !important; /* beats .mt-3 */
+    margin-top: 64px !important; /* beats the !important .mt-3 utility */
+    margin-inline: auto;
     max-width: 1320px;
     padding: clamp(28px, 4vw, 48px) clamp(20px, 4vw, 56px);
     background: var(--mdn-ink) !important; /* beats the !important .bg-info utility */
@@ -13,7 +14,7 @@
     color: var(--mdn-on-ink);
 }
 @media (max-width: 1399.98px) {
-    .newsletter.bg-info { margin-inline: 12px !important; } /* keep the block off the screen edge */
+    .newsletter.bg-info { margin-inline: 12px; }
 }
 .newsletter .newsletter-title { color: var(--mdn-on-ink); font-size: clamp(24px, 2.6vw, 34px); font-weight: 600; letter-spacing: -.025em; }
 .newsletter .newsletter-desc { color: color-mix(in srgb, var(--mdn-on-ink) 70%, transparent); font-size: 16px; }
@@ -25,10 +26,12 @@
     padding-inline: 20px;
     background: color-mix(in srgb, var(--mdn-on-ink) 10%, transparent);
     border: 1px solid color-mix(in srgb, var(--mdn-on-ink) 22%, transparent);
-    border-radius: var(--mdn-r-pill) !important; /* beats input-group radius resets */
+    border-radius: var(--mdn-r-pill);
     color: var(--mdn-on-ink);
     text-align: left;
 }
+/* Bootstrap squares the inner corners at (0,6,0): .input-group:not(.has-validation) > :not(:last-child)... */
+.newsletter .input-group > .newsletter-email.form-control:not(:last-child):not(.dropdown-toggle) { border-radius: var(--mdn-r-pill); }
 .newsletter .newsletter-email.form-control::placeholder { color: color-mix(in srgb, var(--mdn-on-ink) 55%, transparent); }
 .newsletter .newsletter-email-button.btn,
 [dark-theme="true"] .newsletter .newsletter-email-button.btn {
@@ -36,7 +39,7 @@
     padding-inline: 20px;
     background: var(--mdn-on-ink);
     border: 0;
-    border-radius: var(--mdn-r-pill) !important; /* same */
+    border-radius: var(--mdn-r-pill);
     color: var(--mdn-ink);
 }
 .newsletter .form-check-label.text-white,
@@ -78,13 +81,13 @@
     .mdn-footer .step-title,
     [dark-theme="true"] .mdn-footer .step-title {
         display: block !important; /* beats .d-lg-none */
-        margin: 0 0 8px !important;
-        padding: 0 !important;
+        margin: 0 0 8px !important; /* beats the .mb-1 utility */
+        padding: 0 !important; /* beats the .p-3 utility */
         background: transparent;
         border: 0;
         pointer-events: none;
     }
-    .mdn-footer .step-title .h5 { display: block; color: var(--mdn-ink); font-size: 13px; font-weight: 600; text-align: left !important; }
+    .mdn-footer .step-title .h5 { display: block; color: var(--mdn-ink); font-size: 13px; font-weight: 600; text-align: left !important; } /* beats the .text-center utility */
 }
 @media (max-width: 991.98px) {
     .mdn-footer .step-title,
