@@ -25,6 +25,8 @@ public static class SystemCustomerFieldNames
     public static string GiftVoucherCoupons => "GiftVoucherCoupons";
     public static string PasswordRecoveryToken => "PasswordRecoveryToken";
     public static string PasswordRecoveryTokenDateGenerated => "PasswordRecoveryTokenDateGenerated";
+    //the panel (admin, store, vendor) a recovery was requested from; empty for the storefront
+    public static string PasswordRecoveryArea => "PasswordRecoveryArea";
     public static string AccountActivationToken => "AccountActivationToken";
     public static string ImpersonatedCustomerId => "ImpersonatedCustomerId";
     public static string AdminAreaStoreScopeConfiguration => "AdminAreaStoreScopeConfiguration";

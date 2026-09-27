@@ -70,6 +70,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IPictureViewModelService, PictureViewModelService>();
         services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
         services.AddScoped<IMenuViewModelService, MenuViewModelService>();
+        services.AddScoped<IPanelPasswordRecoveryService, PanelPasswordRecoveryService>();
 
         // IAdminDataScope<Product>: registered once here (not per-host) via a route-driven resolver.
         // Grand.Web (the combined host) references Admin, Store, and Vendor together in one DI

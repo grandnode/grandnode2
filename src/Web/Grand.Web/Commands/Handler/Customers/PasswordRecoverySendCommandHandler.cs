@@ -28,6 +28,9 @@ public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecove
         DateTime? generatedDateTime = DateTime.UtcNow;
         await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryTokenDateGenerated,
             generatedDateTime);
+        //the link in the message leads to the storefront, not to a panel an earlier request came from
+        await _customerService.UpdateUserField<string>(request.Customer, SystemCustomerFieldNames.PasswordRecoveryArea,
+            null);
 
         //send email
         await _messageProviderService.SendCustomerPasswordRecoveryMessage(request.Customer, request.Store,

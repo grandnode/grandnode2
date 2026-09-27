@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Mediator;
@@ -95,6 +96,71 @@ public abstract class BaseLoginController : BaseController
 
         return View(model);
     }
+
+    #region Password recovery
+
+    public IActionResult PasswordRecovery()
+    {
+        var model = new PasswordRecoveryModel {
+            DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage
+        };
+        return View(model);
+    }
+
+    [HttpPost]
+    [AutoValidateAntiforgeryToken]
+    public virtual async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model,
+        [FromServices] IPanelPasswordRecoveryService passwordRecoveryService)
+    {
+        if (ModelState.IsValid)
+        {
+            await passwordRecoveryService.SendRecoveryMessage(model.Email, GetCurrentArea());
+            //the same answer whether or not the email belongs to an account of this panel
+            model.Sent = true;
+            model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
+        }
+
+        model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
+        return View(model);
+    }
+
+    public async Task<IActionResult> PasswordRecoveryConfirm(string token, string email,
+        [FromServices] IPanelPasswordRecoveryService passwordRecoveryService)
+    {
+        var model = new PasswordRecoveryConfirmModel { Email = email, Token = token };
+        var error = await passwordRecoveryService.ValidateToken(email, token, GetCurrentArea());
+        if (error != null)
+        {
+            model.DisablePasswordChanging = true;
+            model.Result = error;
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [AutoValidateAntiforgeryToken]
+    public virtual async Task<IActionResult> PasswordRecoveryConfirm(PasswordRecoveryConfirmModel model,
+        [FromServices] IPanelPasswordRecoveryService passwordRecoveryService)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var error = await passwordRecoveryService.ResetPassword(model.Email, model.Token, GetCurrentArea(),
+            model.NewPassword);
+        if (error != null)
+        {
+            ModelState.AddModelError("", error);
+            return View(model);
+        }
+
+        model.DisablePasswordChanging = true;
+        model.PasswordChanged = true;
+        model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
+        return View(model);
+    }
+
+    #endregion
 
     protected async Task<IActionResult> SignInAction(Customer customer, bool createPersistent)
     {

@@ -53,7 +53,7 @@
                         </div>
                         <label class="grand-field__label" asp-for="RememberMe">@Loc["Admin.Login.RememberMe"]</label>
                     </div>
-                    <a class="grand-login__link forgot-password" asp-route="PasswordRecovery">@Loc["Admin.Login.ForgotPassword"]</a>
+                    <a class="grand-login__link forgot-password" asp-route="StorePasswordRecovery">@Loc["Admin.Login.ForgotPassword"]</a>
                 </div>
                 @if (Model.DisplayCaptcha)
                 {
