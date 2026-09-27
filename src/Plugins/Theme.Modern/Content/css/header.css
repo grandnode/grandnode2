@@ -46,6 +46,8 @@
 }
 
 .mdn-header .navbar { padding: 10px 0 0; }
+/* Default fixes .header-nav > .navbar at 58px on phones; the search row needs it to grow */
+.mdn-header > .navbar { height: auto; }
 
 /* two rows in one sticky bar: logo | search | icons, then the category row. A store's menu
    (categories + menu pages + brands) rarely fits beside the search, and a second row can
@@ -64,9 +66,9 @@
     padding: 0;
     order: 1;
 }
-.mdn-header .store-logo img { width: auto; max-height: 34px; }
+.mdn-header .store-logo img { width: auto; max-width: 220px; max-height: 48px; }
 
-.mdn-header .mdn-search-trigger { order: 2; }
+.mdn-header .mdn-search { order: 2; }
 .mdn-header .top-header-items { order: 3; margin-left: auto; }
 .mdn-header .mdn-menu-row { order: 4; flex: 0 0 100%; margin-inline: -12px; padding-bottom: 6px; }
 
@@ -118,28 +120,102 @@
     border-radius: var(--mdn-r-pill);
 }
 
-/* ---------- search pill ---------- */
+/* ---------- search box, typed into in the bar (Components/SearchBox, no modal) ---------- */
 
-.mdn-search-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+.mdn-search {
+    position: relative;
     flex: 1 1 auto;
     max-width: 560px;
-    height: 40px;
-    min-width: 220px;
     margin-inline: auto;
-    padding: 0 16px;
+}
+.mdn-search .modal-close { display: none; }
+.mdn-search .input-group,
+[dark-theme="true"] .mdn-search .input-group {
+    flex-wrap: nowrap;
+    align-items: center;
+    height: 44px;
+    padding: 0 4px 0 18px;
     background: var(--mdn-surface);
     border: 1px solid transparent;
     border-radius: var(--mdn-r-pill);
-    color: var(--mdn-muted-text);
-    font-size: 14px;
-    text-align: left;
-    transition: border-color var(--mdn-dur) var(--mdn-ease), background-color var(--mdn-dur) var(--mdn-ease);
+    transition: border-color var(--mdn-dur) var(--mdn-ease), background-color var(--mdn-dur) var(--mdn-ease), box-shadow var(--mdn-dur) var(--mdn-ease);
 }
-.mdn-search-trigger:hover { border-color: var(--mdn-line); background: var(--mdn-bg); }
-.mdn-search-trigger .b-icon.bi { font-size: 16px; color: var(--mdn-ink); }
+.mdn-search .input-group:focus-within {
+    background: var(--mdn-bg);
+    border-color: var(--mdn-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mdn-accent) 18%, transparent);
+}
+.mdn-search .search-box-text,
+[dark-theme="true"] .mdn-search .search-box-text,
+.mdn-search .search-box-text:focus {
+    min-height: 0;
+    height: 100%;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: var(--mdn-ink);
+    font-size: 15px;
+}
+.mdn-search .search-box-text::placeholder { color: var(--mdn-muted-text); }
+.mdn-search .search-box-select,
+[dark-theme="true"] .mdn-search .search-box-select {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 150px;
+    min-height: 0;
+    height: 32px;
+    margin: 0 4px;
+    padding-block: 0;
+    background-color: var(--mdn-bg);
+    border: 0;
+    border-radius: var(--mdn-r-pill);
+    font-size: 13px;
+}
+.mdn-search .input-group-append { display: flex; align-items: center; }
+.mdn-search .search-box-button,
+.mdn-search #voiceSearchButton {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    border-radius: var(--mdn-r-pill);
+    color: var(--mdn-ink);
+    font-size: 17px;
+}
+/* Default sizes every header icon at 24px (.header-nav .b-icon.bi) */
+.mdn-search .search-box-button .b-icon.bi,
+.mdn-search #voiceSearchButton .b-icon.bi { font-size: 17px; }
+.mdn-search .search-box-button:hover { background: var(--mdn-surface-2); }
+.mdn-search #small-searchterms + .field-validation-error { top: 50px; left: 18px; }
+
+/* suggestions: a card under the box. search-box.js clears them only when the text is emptied
+   (the modal used to hide them), so they close when the box has neither focus nor the pointer.
+   :hover as well as :focus-within, because Safari does not focus a clicked link. */
+.mdn-search .advanced-search-results,
+[dark-theme="true"] .mdn-search .advanced-search-results {
+    top: calc(100% + 8px);
+    left: 0;
+    right: auto;
+    z-index: 1040;
+    width: min(760px, calc(100vw - 24px));
+    max-height: min(70vh, 640px);
+    padding: 16px;
+    background: var(--mdn-bg);
+    border: 1px solid var(--mdn-line);
+    border-radius: var(--mdn-r-card);
+    box-shadow: var(--mdn-shadow-lift);
+    color: var(--mdn-ink);
+}
+.mdn-search:not(:focus-within):not(:hover) .advanced-search-results { display: none; }
+.mdn-search .advanced-search-results .title { color: var(--mdn-muted-text); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.mdn-search .advanced-search-results .title:not(:first-child),
+.mdn-search .advanced-search-results .products .list .media:not(:last-child) { border-color: var(--mdn-line); }
+.mdn-search .advanced-search-results .media { display: flex; gap: 12px; }
+.mdn-search .advanced-search-results .media-aside { flex: 0 0 56px; }
+.mdn-search .advanced-search-results .media img { width: 56px; height: 56px; object-fit: cover; background: var(--mdn-surface); border-radius: var(--mdn-r-input); }
+.mdn-search .advanced-search-results .price { color: var(--mdn-ink); font-family: var(--mdn-mono); }
+.mdn-search .advanced-search-results p { color: var(--mdn-muted-text); }
 
 /* ---------- inline menu (desktop) ---------- */
 
@@ -266,12 +342,6 @@
 [dark-theme="true"] .Menu li.category:hover,
 [dark-theme="true"] .Menu li:not(.category):hover { background-color: var(--mdn-surface); }
 
-/* ---------- search modal ---------- */
-
-#search-box .modal-content,
-[dark-theme="true"] #search-box .modal-content { background-color: var(--mdn-bg); color: var(--mdn-ink); }
-#search-box .form-control { min-height: 52px; font-size: 17px; border-radius: var(--mdn-r-pill); padding-inline: 20px; }
-
 /* ---------- responsive ---------- */
 
 @media (min-width: 992px) {
@@ -281,12 +351,13 @@
 @media (max-width: 991.98px) {
     .mdn-header .navbar { padding-bottom: 10px; }
     .mdn-header .mdn-menu-row { display: none; }
-    .mdn-header #header-container { flex-wrap: nowrap; column-gap: 8px; }
+    /* phones and tablets: hamburger | logo | icons, then the search box full width */
+    .mdn-header #header-container { flex-wrap: wrap; column-gap: 8px; row-gap: 10px; }
     .mdn-header .menu-container { order: 0; }
     .mdn-header .store-logo { order: 1; margin-inline: auto; }
-    .mdn-header .mdn-search-trigger__label { display: none; }
-    .mdn-header .mdn-search-trigger { order: 2; flex: none; width: 40px; min-width: 0; margin: 0; padding: 0; justify-content: center; background: transparent; }
-    .mdn-header .top-header-items { order: 3; margin-left: 0; }
+    .mdn-header .store-logo img { max-height: 36px; }
+    .mdn-header .top-header-items { order: 2; margin-left: 0; }
+    .mdn-header .mdn-search { order: 3; flex: 0 0 100%; max-width: none; margin: 0; }
 }
 
 @media (max-width: 767.98px) {

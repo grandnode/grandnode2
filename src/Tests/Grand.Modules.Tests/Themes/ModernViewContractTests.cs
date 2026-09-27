@@ -46,6 +46,12 @@ public class ModernViewContractTests
         Assert.AreEqual(0, missing.Count, $"{rel} dropped widget zones: {string.Join(", ", missing)}");
     }
 
+    // Deliberate removals, each with its reason. Anything not listed here must be kept.
+    private static readonly Dictionary<string, string[]> IntentionallyDropped = new() {
+        // the search modal is gone (the box sits in the bar), and with it the searchModal view-model island
+        [Path.Combine("Shared", "Partials", "Header.cshtml")] = new[] { "data-grand-vm" }
+    };
+
     [TestMethod]
     [DynamicData(nameof(CopiedViews), DynamicDataSourceType.Method)]
     public void EveryCopiedViewKeepsDataHooksAndPartials(string rel)
@@ -59,7 +65,8 @@ public class ModernViewContractTests
                      @"RouteUrl\(""([^""]+)"""
                  })
         {
-            var missing = Matches(d, pattern).Except(Matches(m, pattern)).ToList();
+            var allowed = IntentionallyDropped.TryGetValue(rel, out var list) ? list : Array.Empty<string>();
+            var missing = Matches(d, pattern).Except(Matches(m, pattern)).Except(allowed).ToList();
             Assert.AreEqual(0, missing.Count, $"{rel} dropped {pattern}: {string.Join(", ", missing)}");
         }
     }

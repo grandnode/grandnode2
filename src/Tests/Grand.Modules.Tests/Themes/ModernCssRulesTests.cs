@@ -69,4 +69,26 @@ public class ModernCssRulesTests
                 Assert.IsFalse(css.Contains(bad), $"{Path.GetFileName(file)} still uses !important for: {bad}");
         }
     }
+
+    [TestMethod]
+    public void Logo_IsAtLeast44pxTallOnDesktop()
+    {
+        var m = Regex.Match(Css("header.css"), @"\.mdn-header \.store-logo img\s*\{[^}]*max-height:\s*(\d+)px");
+        Assert.IsTrue(m.Success && int.Parse(m.Groups[1].Value) >= 44, "logo max-height must be at least 44px");
+    }
+
+    [TestMethod]
+    public void SearchSuggestions_CloseWhenTheBoxIsLeft()
+    {
+        // search-box.js only clears the suggestions when the text is emptied; the modal used to hide them
+        StringAssert.Matches(Css("header.css"), new Regex(@"\.mdn-search:not\(:focus-within\):not\(:hover\) \.advanced-search-results\s*\{\s*display:\s*none"));
+    }
+
+    [TestMethod]
+    public void MobileHeader_GrowsWithTheSearchRow()
+    {
+        // Default fixes .header-nav > .navbar at 58px on phones; with the search row under the logo
+        // the content overflowed upwards under the promo bar
+        StringAssert.Matches(Css("header.css"), new Regex(@"\.mdn-header > \.navbar\s*\{\s*height:\s*auto"));
+    }
 }

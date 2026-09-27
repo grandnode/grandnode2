@@ -23,17 +23,25 @@ public class ModernHeaderTests
     }
 
     [TestMethod]
-    public void DrawersAndSearchModal_AreRenderedAfterTheHeader()
+    public void Drawers_AreRenderedAfterTheHeader()
     {
         var headerEnd = Header.IndexOf("</header>", StringComparison.Ordinal);
-        foreach (var id in new[] { "id=\"sidebar-menu\"", "id=\"sidebar-right\"", "id=\"search-box\"" })
+        foreach (var id in new[] { "id=\"sidebar-menu\"", "id=\"sidebar-right\"" })
             Assert.IsTrue(Header.IndexOf(id, StringComparison.Ordinal) > headerEnd, $"{id} must sit outside the sticky header");
     }
 
     [TestMethod]
-    public void SearchTrigger_OpensTheSearchModal()
+    public void SearchBox_IsTypedIntoInTheBar_NotAModal()
     {
-        StringAssert.Contains(Header, "mdn-search-trigger");
-        StringAssert.Contains(Header, "data-bs-target=\"#search-box\"");
+        StringAssert.Matches(Header, new System.Text.RegularExpressions.Regex(@"class=""mdn-search""[^>]*>\s*@await Component\.InvokeAsync\(""SearchBox""\)"));
+        Assert.IsFalse(Header.Contains("id=\"search-box\""), "the search modal is gone; the box sits in the bar");
+    }
+
+    [TestMethod]
+    public void HeaderElement_IsNotAnIsland_SoTheSearchBoxIslandIsNotNested()
+    {
+        // SearchBox renders its own vue-island; an island inside an island is compiled twice
+        Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(Header, @"<header[^>]*vue-island"));
+        StringAssert.Matches(Header, new System.Text.RegularExpressions.Regex(@"class=""navbar-nav top-header-items[^""]*""[^>]*vue-island"));
     }
 }
