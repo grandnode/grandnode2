@@ -294,6 +294,31 @@ hr { border-color: var(--mdn-line); opacity: 1; }
 [data-bs-theme=dark] .modal .btn-close,
 [data-bs-theme=dark] .offcanvas .btn-close { filter: invert(1) grayscale(1) brightness(2); }
 
+/* ---------- Default's hard-coded teal (#0E606C) and cyan (#1FB0C7, #17a2b8) ---------- */
+
+.up-btn,
+[dark-theme="true"] .up-btn { background: var(--mdn-ink); color: var(--mdn-on-ink); }
+.modal-close:hover,
+.modal-close:focus { color: var(--mdn-accent); }
+#search-box .input-group .search-box-button { color: var(--mdn-ink); }
+#search-box .modal-body .search-box-text:focus { border-color: var(--mdn-accent); }
+.quick-view-overview .actual-price,
+[dark-theme="true"] .quick-view-overview .actual-price,
+.advanced-search-results .price { color: var(--mdn-ink); }
+
+.pagination .currentpage.page-item .page-link,
+.pagination .current-page.page-item .page-link {
+    background-color: var(--mdn-ink);
+    border-color: var(--mdn-ink);
+    color: var(--mdn-on-ink);
+}
+.pagination .page-item:not(.currentpage):hover .page-link {
+    background-color: var(--mdn-surface);
+    border-color: var(--mdn-surface);
+    color: var(--mdn-ink);
+}
+.nav-tabs .nav-link.active::before { background: var(--mdn-ink); }
+
 /* ---------- page chrome ---------- */
 
 .main-container { padding-bottom: 48px; }
