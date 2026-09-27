@@ -1,0 +1,249 @@
+/* Modern - catalog: product card, list card, listing page, filters. */
+
+/* ---------- product card ---------- */
+
+/* Default draws the card as a white ::before box with a pop-up footer on hover
+   (common.css "product box"); the Modern card is a surface well with the essentials only */
+.product-box.mdn-card,
+[dark-theme="true"] .product-box.mdn-card {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    transition: transform var(--mdn-dur) var(--mdn-ease);
+}
+.product-box.mdn-card::before,
+[dark-theme="true"] .product-box.mdn-card::before { display: none; }
+.product-box.mdn-card:not(.mobile):hover { transform: translateY(-2px); }
+/* Default paints the hovered card #2d3133 in dark mode, at (0,4,0) */
+[dark-theme="true"] .product-box.mdn-card:not(.mobile):hover { background-color: transparent; }
+
+.product-box.mdn-card .picture-container {
+    background: var(--mdn-surface);
+    border-radius: var(--mdn-r-card);
+    transition: box-shadow var(--mdn-dur) var(--mdn-ease);
+}
+.product-box.mdn-card:not(.mobile):hover .picture-container { box-shadow: var(--mdn-shadow-lift); }
+
+/* Default keeps the square with .img-container::before { padding-top: 100% } and absolutely
+   positioned images. They fill the well: lifestyle photos bleed to the rounded edge, and a
+   packshot on white melts into the surface through multiply. */
+.product-box.mdn-card .picture-container .img-container img,
+[dark-theme="true"] .product-box.mdn-card .picture-container .img-container img {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    background: transparent;
+    mix-blend-mode: multiply;
+    transition: transform .4s var(--mdn-ease);
+}
+.product-box.mdn-card:not(.mobile):hover .main-product-img { transform: scale(1.03); }
+[data-bs-theme=dark] .product-box.mdn-card .picture-container .img-container img { mix-blend-mode: normal; }
+
+.mdn-card__badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+.product-box.mdn-card .mdn-card__badges .product-label { position: static; margin: 0; }
+.mdn-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: var(--mdn-r-pill);
+    font-family: var(--mdn-mono);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.mdn-badge--sale { background: var(--mdn-sale); color: var(--mdn-on-sale); }
+
+.mdn-card__actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: 0;
+    transform: translateX(4px);
+    transition: opacity var(--mdn-dur) var(--mdn-ease), transform var(--mdn-dur) var(--mdn-ease);
+}
+.product-box.mdn-card:hover .mdn-card__actions,
+.product-box.mdn-card:focus-within .mdn-card__actions,
+.product-box.mdn-card.mobile .mdn-card__actions { opacity: 1; transform: none; }
+@media (hover: none) {
+    .mdn-card__actions { opacity: 1; transform: none; }
+}
+
+.mdn-card__icon.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: var(--mdn-bg);
+    border: 0;
+    border-radius: var(--mdn-r-pill);
+    box-shadow: var(--mdn-shadow);
+    color: var(--mdn-ink);
+}
+.mdn-card__icon.btn:hover { background: var(--mdn-ink); color: var(--mdn-on-ink); }
+.mdn-card__icon .b-icon.bi { font-size: 15px; }
+
+/* quick view as a pill along the bottom of the image */
+.product-box.mdn-card .quick-view-button,
+[dark-theme="true"] .product-box.mdn-card .quick-view-button {
+    left: 50%;
+    bottom: 12px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    padding: 6px 14px;
+    background: var(--mdn-bg);
+    border: 0;
+    border-radius: var(--mdn-r-pill);
+    box-shadow: var(--mdn-shadow);
+    color: var(--mdn-ink);
+    font-size: 13px;
+    text-transform: none;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, 6px);
+    transition: opacity var(--mdn-dur) var(--mdn-ease), transform var(--mdn-dur) var(--mdn-ease);
+}
+.product-box.mdn-card:hover .quick-view-button,
+.product-box.mdn-card .quick-view-button:focus-visible { opacity: 1; transform: translate(-50%, 0); }
+.product-box.mdn-card.mobile .quick-view-button { display: none; }
+
+.product-box.mdn-card .card-body { display: flex; flex-direction: column; gap: 6px; flex: 1; padding: 14px 4px 0; }
+.product-box.mdn-card .card-title { font-size: 15px; line-height: 1.35; }
+.product-box.mdn-card .card-title a,
+[dark-theme="true"] .product-box.mdn-card .card-title a {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--mdn-ink);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -.01em;
+}
+.product-box.mdn-card .sku { color: var(--mdn-muted-text); font-size: 12px; }
+.product-box.mdn-card .rating { gap: 6px; font-size: 12px; }
+.product-box.mdn-card .rating .b-rating + a,
+[dark-theme="true"] .product-box.mdn-card .rating .b-rating + a { color: var(--mdn-muted-text); font-size: 12px; font-weight: 400; }
+.product-box.mdn-card .prices-rating { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+.product-box.mdn-card .countdown-box { margin: 0; padding: 6px 10px; border-radius: var(--mdn-r-input); font-size: 12px; }
+
+.mdn-card__buy { display: flex; align-items: center; gap: 8px; }
+.product-box.mdn-card .mdn-card__buy .prices { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin: 0; flex: 1; min-width: 0; }
+.product-box.mdn-card .mdn-card__buy .actual-price,
+[dark-theme="true"] .product-box.mdn-card .mdn-card__buy .actual-price { color: var(--mdn-ink); font-size: 16px; font-weight: 600; }
+.product-box.mdn-card .mdn-card__buy .old-price { margin: 0; color: var(--mdn-muted-text); font-size: 13px; }
+.mdn-card__buy .catalog-quantity { width: 64px; min-height: 40px; text-align: center; }
+
+.mdn-card__add.btn {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: var(--mdn-r-pill);
+}
+.mdn-card__add .b-icon.bi { font-size: 18px; }
+
+/* specifications, attributes and the short description stay in the markup for crawlers;
+   the grid card shows only the essentials (Default pops them up in a hover footer) */
+.product-box.mdn-card .card-footer { display: none; }
+
+/* ---------- grids ---------- */
+
+.product-grid .row { row-gap: 32px; --bs-gutter-x: 20px; }
+.product-grid .product-container { margin-bottom: 0 !important; } /* beats Default's .mb-2 utility */
+
+/* ---------- list view (Default CatalogProductListView, restyled) ---------- */
+
+.product-list .product-box.list,
+[dark-theme="true"] .product-list .product-box.list {
+    padding: 16px;
+    background: var(--mdn-surface);
+    border: 0;
+    border-radius: var(--mdn-r-card);
+}
+.product-list .product-box.list::before { display: none; }
+.product-list .product-box.list .picture-container { border-radius: var(--mdn-r-input); background: var(--mdn-bg); }
+.product-list .product-box.list .picture-container .img-container img { background: transparent; object-fit: contain; }
+.product-list .product-box.list .actual-price,
+[dark-theme="true"] .product-list .product-box.list .actual-price { color: var(--mdn-ink); font-size: 18px; font-weight: 600; }
+.product-list .product-box.list .old-price { color: var(--mdn-muted-text); }
+.product-list .product-box.list .btn { text-transform: none; font-weight: 500; }
+
+/* ---------- listing page ---------- */
+
+.category-page > .generalTitle,
+.brand-page > .generalTitle,
+.collection-page > .generalTitle { margin: 8px 0 20px; }
+
+.page .categoryGrid .card,
+[dark-theme="true"] .page .categoryGrid .card {
+    overflow: hidden;
+    background: var(--mdn-surface);
+    border-radius: var(--mdn-r-card);
+}
+
+/* sort / view / page-size bar (Default Partials/Selectors) */
+.catalog-selectors,
+[dark-theme="true"] .catalog-selectors {
+    align-items: center;
+    padding: 6px 8px;
+    background: var(--mdn-surface);
+    border-radius: var(--mdn-r-pill);
+}
+.catalog-selectors .form-select { min-height: 36px; border: 0; border-radius: var(--mdn-r-pill); }
+/* the bar wraps on phones, where a pill radius turns it into a blob */
+@media (max-width: 767.98px) {
+    .catalog-selectors,
+    [dark-theme="true"] .catalog-selectors { border-radius: var(--mdn-r-card); padding: 10px 12px; }
+}
+.catalog-selectors .viewmode-icon a { color: var(--mdn-muted-text); }
+.catalog-selectors .viewmode-icon .selected,
+.catalog-selectors .viewmode-icon .text-info { color: var(--mdn-ink) !important; } /* beats .text-info */
+
+/* filters column and its mobile drawer (Default _TwoColumns + Partials/Filtering) */
+.generalLeftSide .product-filter.card,
+.generalLeftSide .product-filter .card,
+.generalLeftSide .filtered-items.card,
+[dark-theme="true"] .generalLeftSide .card {
+    background: transparent;
+    border-bottom: 1px solid var(--mdn-line);
+    border-radius: 0;
+}
+.generalLeftSide .card-header { padding: 14px 0; border: 0; font-size: 15px; font-weight: 600; }
+.generalLeftSide .card-body { padding: 0 0 14px; }
+.generalLeftSide .btn.btn-light,
+[dark-theme="true"] .generalLeftSide .btn.btn-light { border-radius: var(--mdn-r-pill); }
+#sidebar-mobile-button { border-radius: var(--mdn-r-pill); }
+
+/* the current category in the side navigation (Default: teal / cyan) */
+.generalLeftSide li.active.last > a,
+.generalLeftSide .block-category-navigation li.active .sublist > li.last > a,
+[dark-theme="true"] .generalLeftSide li.active.last > a,
+[dark-theme="true"] .generalLeftSide .block-category-navigation li.active .sublist > li.last > a { color: var(--mdn-ink); font-weight: 600; }
+[dark-theme="true"] .generalLeftSide a:hover,
+[dark-theme="true"] .block-recently-viewed-products .card .card-body h5 a:hover { color: var(--mdn-accent); }

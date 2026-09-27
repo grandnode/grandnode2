@@ -1,9 +1,0 @@
-﻿@{
-    var addtocomparelink = Url.RouteUrl("AddProductToCompare");
-}
-<template v-if="PopupQuickViewVueModal.CompareProductsEnabled">
-    <a class="btn btn-outline-secondary add-to-compare-list-button me-1" data-cart-action="compare" :data-product-id="PopupQuickViewVueModal.Id" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["Products.Compare.AddToCompareList"]">
-        <i class="b-icon bi bi-shuffle" aria-hidden="true"></i>
-        <span class="sr-only">@Loc["Products.Compare.AddToCompareList"]</span>
-    </a>
-</template>

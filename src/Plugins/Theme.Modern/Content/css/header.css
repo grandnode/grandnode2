@@ -1,0 +1,388 @@
+/* Modern - header: promo bar, sticky blurred bar, inline menu, search pill, drawer menu. */
+
+/* ---------- promo bar ---------- */
+
+.mdn-promo {
+    background: var(--mdn-ink);
+    color: var(--mdn-on-ink);
+    font-size: 13px;
+    text-align: center;
+    padding: 8px 16px;
+}
+/* in dark mode an inverted (white) strip glares; a raised surface reads as the same accent */
+[data-bs-theme=dark] .mdn-promo { background: var(--mdn-surface-2); color: var(--mdn-ink); }
+/* PageBlock wraps the text in .generalMarginSupporter > .page-block-body.pt-3 */
+.mdn-promo .generalMarginSupporter,
+.mdn-promo .page-block-body { margin: 0; padding: 0 !important; } /* beats the .pt-3 utility */
+.mdn-promo p { margin: 0; }
+/* PageBlock renders the page title as an <h1 class="generalTitle"> - ink on ink here, and a second h1 */
+.mdn-promo .generalTitle { display: none; }
+.mdn-promo a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- sticky blurred bar ---------- */
+
+.mdn-header,
+[dark-theme="true"] .mdn-header {
+    position: sticky;
+    top: 0;
+    z-index: 1034;
+    background: color-mix(in srgb, var(--mdn-bg) 78%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--mdn-line);
+}
+
+/* the bottom line fades in once the page scrolls; without scroll-driven animations it just stays */
+@keyframes mdn-header-line {
+    from { border-bottom-color: transparent; }
+    to { border-bottom-color: var(--mdn-line); }
+}
+@supports (animation-timeline: scroll()) {
+    .mdn-header {
+        animation: mdn-header-line linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 64px;
+    }
+}
+
+.mdn-header .navbar { padding: 10px 0 0; }
+/* Default fixes .header-nav > .navbar at 58px on phones; the search row needs it to grow */
+.mdn-header > .navbar { height: auto; }
+
+/* two rows in one sticky bar: logo | search | icons, then the category row. A store's menu
+   (categories + menu pages + brands) rarely fits beside the search, and a second row can
+   wrap, so no dropdown ever gets clipped by a scroll container. */
+.mdn-header #header-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 24px;
+    row-gap: 6px;
+}
+
+.mdn-header .store-logo {
+    flex: none;
+    margin: 0;
+    padding: 0;
+    order: 1;
+}
+.mdn-header .store-logo img { width: auto; max-width: 220px; max-height: 48px; }
+
+.mdn-header .mdn-search { order: 2; }
+.mdn-header .top-header-items { order: 3; margin-left: auto; }
+.mdn-header .mdn-menu-row { order: 4; flex: 0 0 100%; margin-inline: -12px; padding-bottom: 6px; }
+
+.mdn-header .b-icon.bi,
+.mdn-header .nav-link { color: var(--mdn-ink); }
+.mdn-header .top-header-items { gap: 2px; align-items: center; }
+.mdn-header .top-header-items .b-icon.bi { font-size: 20px; }
+
+@media (min-width: 768px) {
+    .mdn-header .top-header-items .nav-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: var(--mdn-r-pill);
+        transition: background-color var(--mdn-dur) var(--mdn-ease);
+    }
+    .mdn-header .top-header-items .nav-link:hover { background: var(--mdn-surface); }
+    .mdn-header .top-header-items .qty-indicator { top: 2px; right: 0; }
+}
+
+/* counters on cart / wishlist / compare (Default positions them) */
+.mdn-header .qty-indicator,
+[dark-theme="true"] .mdn-header .qty-indicator {
+    min-width: 17px;
+    width: auto;
+    height: 17px;
+    padding: 0 4px;
+    background: var(--mdn-accent);
+    border-radius: var(--mdn-r-pill);
+    color: var(--mdn-on-accent);
+    font-family: var(--mdn-mono);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* dark-mode switch as a plain icon button */
+.mdn-header .contrast-switch { display: inline-flex; align-items: center; margin: 0; padding: 0; min-height: 0; }
+.mdn-header .contrast-switch .form-check-input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.mdn-header .contrast-switch .form-check-label { cursor: pointer; line-height: 1; }
+.mdn-header .contrast-switch .dark { display: none; }
+[data-bs-theme=dark] .mdn-header .contrast-switch .dark { display: inline; }
+[data-bs-theme=dark] .mdn-header .contrast-switch .light { display: none; }
+.mdn-header .contrast-switch .form-check-input:focus-visible + .form-check-label {
+    outline: 2px solid var(--mdn-accent);
+    outline-offset: 6px;
+    border-radius: var(--mdn-r-pill);
+}
+
+/* ---------- search box, typed into in the bar (Components/SearchBox, no modal) ---------- */
+
+.mdn-search {
+    position: relative;
+    flex: 1 1 auto;
+    max-width: 560px;
+    margin-inline: auto;
+}
+.mdn-search .modal-close { display: none; }
+.mdn-search .input-group,
+[dark-theme="true"] .mdn-search .input-group {
+    flex-wrap: nowrap;
+    align-items: center;
+    height: 44px;
+    padding: 0 4px 0 18px;
+    background: var(--mdn-surface);
+    border: 1px solid transparent;
+    border-radius: var(--mdn-r-pill);
+    transition: border-color var(--mdn-dur) var(--mdn-ease), background-color var(--mdn-dur) var(--mdn-ease), box-shadow var(--mdn-dur) var(--mdn-ease);
+}
+.mdn-search .input-group:focus-within {
+    background: var(--mdn-bg);
+    border-color: var(--mdn-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mdn-accent) 18%, transparent);
+}
+.mdn-search .search-box-text,
+[dark-theme="true"] .mdn-search .search-box-text,
+.mdn-search .search-box-text:focus {
+    min-height: 0;
+    height: 100%;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: var(--mdn-ink);
+    font-size: 15px;
+}
+.mdn-search .search-box-text::placeholder { color: var(--mdn-muted-text); }
+.mdn-search .search-box-select,
+[dark-theme="true"] .mdn-search .search-box-select {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 150px;
+    min-height: 0;
+    height: 32px;
+    margin: 0 4px;
+    padding-block: 0;
+    background-color: var(--mdn-bg);
+    border: 0;
+    border-radius: var(--mdn-r-pill);
+    font-size: 13px;
+}
+.mdn-search .input-group-append { display: flex; align-items: center; }
+.mdn-search .search-box-button,
+.mdn-search #voiceSearchButton {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    border-radius: var(--mdn-r-pill);
+    color: var(--mdn-ink);
+    font-size: 17px;
+}
+/* Default sizes every header icon at 24px (.header-nav .b-icon.bi) */
+.mdn-search .search-box-button .b-icon.bi,
+.mdn-search #voiceSearchButton .b-icon.bi { font-size: 17px; }
+.mdn-search .search-box-button:hover { background: var(--mdn-surface-2); }
+.mdn-search #small-searchterms + .field-validation-error { top: 50px; left: 18px; }
+
+/* suggestions: a card under the box. search-box.js clears them only when the text is emptied
+   (the modal used to hide them), so they close when the box has neither focus nor the pointer.
+   :hover as well as :focus-within, because Safari does not focus a clicked link. */
+.mdn-search .advanced-search-results,
+[dark-theme="true"] .mdn-search .advanced-search-results {
+    top: calc(100% + 8px);
+    left: 0;
+    right: auto;
+    z-index: 1040;
+    width: min(760px, calc(100vw - 24px));
+    max-height: min(70vh, 640px);
+    padding: 16px;
+    background: var(--mdn-bg);
+    border: 1px solid var(--mdn-line);
+    border-radius: var(--mdn-r-card);
+    box-shadow: var(--mdn-shadow-lift);
+    color: var(--mdn-ink);
+}
+.mdn-search:not(:focus-within):not(:hover) .advanced-search-results { display: none; }
+.mdn-search .advanced-search-results .title { color: var(--mdn-muted-text); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.mdn-search .advanced-search-results .title:not(:first-child),
+.mdn-search .advanced-search-results .products .list .media:not(:last-child) { border-color: var(--mdn-line); }
+.mdn-search .advanced-search-results .media { display: flex; gap: 12px; }
+.mdn-search .advanced-search-results .media-aside { flex: 0 0 56px; }
+.mdn-search .advanced-search-results .media img { width: 56px; height: 56px; object-fit: cover; background: var(--mdn-surface); border-radius: var(--mdn-r-input); }
+.mdn-search .advanced-search-results .price { color: var(--mdn-ink); font-family: var(--mdn-mono); }
+.mdn-search .advanced-search-results p { color: var(--mdn-muted-text); }
+
+/* ---------- inline menu (desktop) ---------- */
+
+.mdn-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.mdn-menu > li { position: relative; flex: none; }
+
+.mdn-menu > li > a,
+.mdn-menu > li > div {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: var(--mdn-r-pill);
+    color: var(--mdn-ink);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--mdn-dur) var(--mdn-ease);
+}
+.mdn-menu > li > a:hover,
+.mdn-menu > li:hover > div,
+.mdn-menu > li:focus-within > div { background: var(--mdn-surface); color: var(--mdn-ink); }
+
+.mdn-menu > li.-hasSubmenu > a::after,
+.mdn-menu > li.-hasSubmenu > div::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    opacity: .6;
+}
+
+.mdn-menu .category-icon { display: none; }
+.mdn-menu .badge { font-size: 10px; }
+
+/* dropdowns: hidden by opacity rather than display, so the links stay reachable with the
+   keyboard and :focus-within can open the panel */
+.mdn-menu > li > ul {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1036;
+    min-width: 240px;
+    /* subcategories with children expand in place, and brands list every brand: the panel
+       hangs off a sticky header, so anything below the viewport would be out of reach */
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0;
+    padding: 8px;
+    list-style: none;
+    background: var(--mdn-bg);
+    border: 1px solid var(--mdn-line);
+    border-radius: var(--mdn-r-card);
+    box-shadow: var(--mdn-shadow-lift);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition: opacity var(--mdn-dur) var(--mdn-ease), transform var(--mdn-dur) var(--mdn-ease);
+}
+/* the right-most panels open leftwards so they stay inside the viewport */
+.mdn-menu > li:nth-last-child(-n+2) > ul { left: auto; right: 0; }
+.mdn-menu > li:hover > ul,
+.mdn-menu > li:focus-within > ul { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+.mdn-menu ul ul { margin: 0; padding: 0 0 4px 12px; list-style: none; }
+.mdn-menu li.back { display: none; }
+.mdn-menu ul a,
+.mdn-menu ul li > div {
+    display: block;
+    padding: 8px 12px;
+    border-radius: var(--mdn-r-input);
+    color: var(--mdn-ink);
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.mdn-menu ul li > div { color: var(--mdn-muted-text); font-size: 12px; font-weight: 600; }
+.mdn-menu ul a:hover,
+.mdn-menu ul a:focus-visible { background: var(--mdn-surface); color: var(--mdn-ink); }
+.mdn-menu .sub-cat-name-container a,
+.mdn-menu .sub-cat-name-container a.text-info { color: var(--mdn-muted-text) !important; font-weight: 600; } /* beats the !important .text-info utility */
+
+/* the "Show <category>" link Default paints with the !important .bg-info utility */
+.b-sidebar .Menu a.bg-info,
+.mdn-menu a.bg-info {
+    background-color: var(--mdn-surface) !important;
+    color: var(--mdn-ink);
+    font-weight: 600;
+}
+.b-sidebar .Menu a.bg-info:hover,
+.mdn-menu a.bg-info:hover {
+    background-color: var(--mdn-ink) !important;
+    color: var(--mdn-on-ink);
+}
+
+/* ---------- drawer menu (phones, tablets) ---------- */
+
+.b-sidebar .Menu li > a,
+.b-sidebar .Menu li > div,
+[dark-theme="true"] .Menu li > a,
+[dark-theme="true"] .Menu li > div { color: var(--mdn-ink); }
+
+.b-sidebar .Menu li,
+.b-sidebar .Menu ul,
+[dark-theme="true"] .Menu li:not(.category),
+[dark-theme="true"] .Menu li.category,
+[dark-theme="true"] .Menu li .back,
+[dark-theme="true"] .Menu ul { background-color: var(--mdn-bg); }
+
+.b-sidebar .Menu li:hover,
+[dark-theme="true"] .Menu li.category:hover,
+[dark-theme="true"] .Menu li:not(.category):hover { background-color: var(--mdn-surface); }
+
+/* ---------- responsive ---------- */
+
+@media (min-width: 992px) {
+    .mdn-header .menu-container { display: none; }
+}
+
+@media (max-width: 991.98px) {
+    .mdn-header .navbar { padding-bottom: 10px; }
+    .mdn-header .mdn-menu-row { display: none; }
+    /* phones and tablets: hamburger | logo | icons, then the search box full width */
+    .mdn-header #header-container { flex-wrap: wrap; column-gap: 8px; row-gap: 10px; }
+    .mdn-header .menu-container { order: 0; }
+    .mdn-header .store-logo { order: 1; margin-inline: auto; }
+    .mdn-header .store-logo img { max-height: 36px; }
+    .mdn-header .top-header-items { order: 2; margin-left: 0; }
+    .mdn-header .mdn-search { order: 3; flex: 0 0 100%; max-width: none; margin: 0; }
+}
+
+@media (max-width: 767.98px) {
+    /* backdrop-filter makes the header the containing block of its position:fixed
+       descendants, which would pull the Default bottom tab bar up into the header */
+    .mdn-header,
+    [dark-theme="true"] .mdn-header {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background: var(--mdn-bg);
+    }
+    /* the Default phone tab bar, in the palette */
+    .mdn-header .top-header-items.navbar-nav,
+    [dark-theme="true"] .mdn-header .top-header-items.navbar-nav {
+        background: color-mix(in srgb, var(--mdn-bg) 88%, transparent);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--mdn-line);
+        box-shadow: none;
+    }
+    .mdn-header .top-header-items .b-icon.bi { font-size: 22px; }
+}
+
+/* anchor jumps and scrollIntoView land below the sticky header instead of under it */
+html { scroll-padding-top: 150px; }
+@media (max-width: 991.98px) {
+    html { scroll-padding-top: 72px; }
+}

@@ -7,8 +7,8 @@ public class ModernThemeView : IThemeView
     public string AreaName => "";
     public string ThemeName => "Modern";
 
-    public ThemeInfo ThemeInfo => new("Modern theme (beta)", "~/Plugins/Theme.Modern/Content/theme.jpg",
-        "Minimal theme (beta)", false);
+    public ThemeInfo ThemeInfo => new("Modern", "~/Plugins/Theme.Modern/Content/theme.jpg",
+        "Clean tech storefront theme with a sticky blurred header, card grid and dark mode", false);
 
     public IEnumerable<string> GetViewLocations()
     {
