@@ -51,17 +51,13 @@ public class PaymentControllerTests
         _translationServiceMock = new Mock<ITranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
-        var contextAccessorMock = new Mock<IContextAccessor>();
-        contextAccessorMock.Setup(c => c.WorkContext).Returns(new Mock<IWorkContext>().Object);
-
         _controller = new PaymentController(
             _paymentServiceMock.Object,
             _settingServiceMock.Object,
             _countryServiceMock.Object,
             _shippingMethodServiceMock.Object,
             _translationServiceMock.Object,
-            new Mock<IServiceProvider>().Object,
-            contextAccessorMock.Object);
+            new Mock<IServiceProvider>().Object);
 
         var adminStoreServiceMock = new Mock<IAdminStoreService>();
         adminStoreServiceMock.Setup(s => s.GetActiveStore()).ReturnsAsync(StoreId);

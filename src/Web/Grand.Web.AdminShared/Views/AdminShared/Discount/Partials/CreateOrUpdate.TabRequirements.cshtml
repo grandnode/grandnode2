@@ -53,11 +53,20 @@
             });
 
 
+            //a rule returns its configuration url from the application root ("/DiscountRules.../Configure"),
+            //so under a path base (the store in a virtual directory) it has to be prefixed here
+            var pathBase = "@(Html.Raw(JavaScriptEncoder.Default.Encode(Context.Request.PathBase.Value ?? string.Empty)))";
+            function resolveRuleUrl(url) {
+                if (pathBase && url && url.charAt(0) === '/' && url.charAt(1) !== '/' && url.indexOf(pathBase + '/') !== 0)
+                    return pathBase + url;
+                return url;
+            }
+
             //load requirement HTML
             function loadRequirement(configureRuleUrl, placeholderName) {
                 $.ajax({
                     cache:false,
-                    url: configureRuleUrl,
+                    url: resolveRuleUrl(configureRuleUrl),
                     dataType: "html",
                     success: function (result) {
                         $(placeholderName).html(result);
