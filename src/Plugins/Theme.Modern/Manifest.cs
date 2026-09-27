@@ -1,7 +1,7 @@
 ﻿using Grand.Infrastructure.Plugins;
 
 [assembly: PluginInfo(
-    FriendlyName = "Modern theme (beta)",
+    FriendlyName = "Modern",
     Group = "Themes",
     SystemName = "Theme.Modern",
     Author = "grandnode team",
