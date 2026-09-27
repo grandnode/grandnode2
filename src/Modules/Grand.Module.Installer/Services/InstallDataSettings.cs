@@ -80,7 +80,7 @@ public partial class InstallationService
             AutoCompleteSearchThumbPictureSize = 50,
             ImageSquarePictureSize = 32,
             MaximumImageSize = 1980,
-            ImageQuality = 100,
+            ImageQuality = 80,
             DefaultPictureZoomEnabled = true,
             AllowedFileTypes = ".gif, .jpg, .jpeg, .png, .bmp, .webp"
         });

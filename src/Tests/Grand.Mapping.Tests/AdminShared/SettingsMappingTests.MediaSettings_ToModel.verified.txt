@@ -9,7 +9,7 @@
   VendorThumbPictureSize: 450,
   CartThumbPictureSize: 80,
   MaximumImageSize: 1980,
-  ImageQuality: 100,
+  ImageQuality: 80,
   DefaultPictureZoomEnabled: false,
   AutoCompleteSearchThumbPictureSize: 20,
   FileManagerEnabledCommands: abort,open,file,mkdir,mkfile,parents,tmb,dim,paste,duplicate,get,rm,ls,put,size,rename,tree,resize,search,upload,
