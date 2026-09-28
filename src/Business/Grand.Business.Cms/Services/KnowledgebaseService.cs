@@ -46,9 +46,15 @@ public class KnowledgebaseService : IKnowledgebaseService
 
     private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     {
+        return ApplyStandardFilter(query, _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds(),
+            _contextAccessor.StoreContext.CurrentStore.Id);
+    }
+
+    private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query, string[] allowedCustomerGroupsIds,
+        string storeId) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
+    {
         if (!_accessControlConfig.IgnoreAcl)
         {
-            var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
             query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -57,7 +63,7 @@ public class KnowledgebaseService : IKnowledgebaseService
         if (!_accessControlConfig.IgnoreStoreLimitations)
         {
             query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_contextAccessor.StoreContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(storeId)
                     select p;
         }
 
@@ -283,6 +289,25 @@ public class KnowledgebaseService : IKnowledgebaseService
             query = query.OrderBy(x => x.DisplayOrder);
             return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
+    }
+
+    /// <summary>
+    ///     Gets public(published etc) knowledge base articles for an explicit store and customer groups
+    /// </summary>
+    /// <param name="storeId">Store ident</param>
+    /// <param name="customerGroupIds">Customer groups the articles must be visible to</param>
+    /// <returns>List of public knowledge base articles</returns>
+    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(string storeId,
+        IList<string> customerGroupIds)
+    {
+        var query = from p in _knowledgebaseArticleRepository.Table
+                    select p;
+
+        query = query.Where(x => x.Published);
+        query = ApplyStandardFilter(query, customerGroupIds?.ToArray() ?? [], storeId);
+
+        query = query.OrderBy(x => x.DisplayOrder);
+        return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
     }
 
     /// <summary>

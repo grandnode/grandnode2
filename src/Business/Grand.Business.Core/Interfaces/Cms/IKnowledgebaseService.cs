@@ -77,6 +77,15 @@ public interface IKnowledgebaseService
     Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles();
 
     /// <summary>
+    ///     Gets public(published etc) knowledge base articles for an explicit store and customer groups,
+    ///     without reading the current context - for callers that have none, e.g. scheduled tasks
+    /// </summary>
+    /// <param name="storeId">Store ident</param>
+    /// <param name="customerGroupIds">Customer groups the articles must be visible to</param>
+    /// <returns>List of public knowledge base articles</returns>
+    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(string storeId, IList<string> customerGroupIds);
+
+    /// <summary>
     ///     Gets homepage knowledge base articles
     /// </summary>
     /// <returns>List of homepage knowledge base articles</returns>

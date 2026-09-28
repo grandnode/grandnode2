@@ -2,15 +2,18 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
 using Grand.Domain.News;
+using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
@@ -29,44 +32,53 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     private readonly BlogSettings _blogSettings;
     private readonly IBrandService _brandService;
 
+    private readonly AccessControlConfig _accessControlConfig;
     private readonly ICategoryService _categoryService;
     private readonly CommonSettings _commonSettings;
+    private readonly IGroupService _groupService;
     private readonly IKnowledgebaseService _knowledgebaseService;
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
     private readonly LinkGenerator _linkGenerator;
+    private readonly IMediator _mediator;
     private readonly NewsSettings _newsSettings;
     private readonly IPageService _pageService;
     private readonly IPictureService _pictureService;
-    private readonly IProductService _productService;
 
+    //the sitemap is public content: it lists what a guest can see. The task runs without a request,
+    //so the audience is passed explicitly instead of coming from the (absent) work context
+    private string[] _guestGroupIds;
     private GetSitemapXmlCommand _request;
 
     public GetSitemapXmlCommandHandler(
         ICategoryService categoryService,
-        IProductService productService,
         IBrandService brandService,
         IPageService pageService,
         IBlogService blogService,
         IPictureService pictureService,
         IKnowledgebaseService knowledgebaseService,
+        IGroupService groupService,
+        IMediator mediator,
         CommonSettings commonSettings,
         BlogSettings blogSettings,
         KnowledgebaseSettings knowledgebaseSettings,
         NewsSettings newsSettings,
+        AccessControlConfig accessControlConfig,
         LinkGenerator linkGenerator,
         AppConfig appConfig)
     {
         _categoryService = categoryService;
-        _productService = productService;
         _brandService = brandService;
         _pageService = pageService;
         _blogService = blogService;
         _pictureService = pictureService;
         _commonSettings = commonSettings;
         _knowledgebaseService = knowledgebaseService;
+        _groupService = groupService;
+        _mediator = mediator;
         _knowledgebaseSettings = knowledgebaseSettings;
         _newsSettings = newsSettings;
         _blogSettings = blogSettings;
+        _accessControlConfig = accessControlConfig;
         _linkGenerator = linkGenerator;
         _appConfig = appConfig;
     }
@@ -74,7 +86,15 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     public async Task<string> Handle(GetSitemapXmlCommand request, CancellationToken cancellationToken)
     {
         _request = request;
+        var guests = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
+        _guestGroupIds = guests != null ? [guests.Id] : [];
         return await Generate(request.Language, request.Store);
+    }
+
+    private bool IsVisibleToGuests(IGroupLinkEntity entity)
+    {
+        return _accessControlConfig.IgnoreAcl || !entity.LimitedToGroups ||
+               entity.CustomerGroups.Any(_guestGroupIds.Contains);
     }
 
     private static string RemoveBom(string p)
@@ -175,7 +195,12 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
         //categories
         if (_commonSettings.SitemapIncludeCategories)
-            sitemapUrls.AddRange(await GetCategoryUrls("", language));
+        {
+            var categories = (await _categoryService.GetAllCategories(null, "", store.Id, showHidden: true))
+                .Where(c => c.Published && IsVisibleToGuests(c))
+                .ToLookup(c => c.ParentCategoryId ?? "");
+            sitemapUrls.AddRange(await GetCategoryUrls("", categories, language));
+        }
 
         //brands
         if (_commonSettings.SitemapIncludeBrands)
@@ -192,7 +217,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         sitemapUrls.AddRange(await GetBlogPostsUrls(language, store));
 
         //knowledge base articles
-        sitemapUrls.AddRange(await GetKnowledgebaseUrls(language));
+        sitemapUrls.AddRange(await GetKnowledgebaseUrls(language, store));
 
         //custom URLs
         sitemapUrls.AddRange(GetCustomUrls());
@@ -200,13 +225,13 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         return sitemapUrls;
     }
 
-    private async Task<IEnumerable<SitemapUrl>> GetCategoryUrls(string parentCategoryId, Language language)
+    private async Task<IEnumerable<SitemapUrl>> GetCategoryUrls(string parentCategoryId,
+        ILookup<string, Category> visibleCategories, Language language)
     {
-        var allCategoriesByParentCategoryId =
-            await _categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId);
+        //walks down from the visible roots, so a category under a hidden parent stays out
         var categories = new List<SitemapUrl>();
         var storeLocation = GetStoreLocation();
-        foreach (var category in allCategoriesByParentCategoryId)
+        foreach (var category in visibleCategories[parentCategoryId])
         {
             var url =
                 _appConfig.SeoFriendlyUrlsForLanguagesEnabled
@@ -226,7 +251,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
             categories.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly,
                 category.UpdatedOnUtc ?? category.CreatedOnUtc));
-            categories.AddRange(await GetCategoryUrls(category.Id, language));
+            categories.AddRange(await GetCategoryUrls(category.Id, visibleCategories, language));
         }
 
         return categories;
@@ -234,7 +259,8 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
     private async Task<IEnumerable<SitemapUrl>> GetBrandUrls(Language language, Store store)
     {
-        var brands = await _brandService.GetAllBrands(brandName: "", storeId: store.Id);
+        var brands = (await _brandService.GetAllBrands(brandName: "", storeId: store.Id, showHidden: true))
+            .Where(b => b.Published && IsVisibleToGuests(b));
         var brandUrls = new List<SitemapUrl>();
         var storeLocation = GetStoreLocation();
         foreach (var brand in brands)
@@ -264,8 +290,12 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
     private async Task<IEnumerable<SitemapUrl>> GetProductUrls(Language language, Store store)
     {
-        var search = await _productService.SearchProducts(storeId: store.Id,
-            visibleIndividuallyOnly: true, orderBy: ProductSortingEnum.CreatedOn);
+        var search = await _mediator.Send(new GetSearchProductsQuery {
+            CustomerGroupIds = _guestGroupIds,
+            StoreId = store.Id,
+            VisibleIndividuallyOnly = true,
+            OrderBy = ProductSortingEnum.CreatedOn
+        });
         var storeLocation = GetStoreLocation();
         var products = new List<SitemapUrl>();
         foreach (var product in search.products)
@@ -296,18 +326,19 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     private async Task<IEnumerable<SitemapUrl>> GetPagesUrls(Language language, Store store)
     {
         var now = DateTime.UtcNow;
-        return (await _pageService.GetAllPages(store.Id))
+        return (await _pageService.GetAllPages(store.Id, ignoreAcl: true))
+            .Where(IsVisibleToGuests)
             .PreferStoreOverrides(store.Id)
-            .Where(t => t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
+            .Where(t => t.Published && t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                         (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
             .Select(topic =>
             {
                 var url =
                     _appConfig.SeoFriendlyUrlsForLanguagesEnabled
-                        ? _linkGenerator.GetUriByRouteValues("Topic",
+                        ? _linkGenerator.GetUriByRouteValues("Page",
                             new { SeName = topic.GetSeName(language.Id), language = language.UniqueSeoCode },
                             GetHttpProtocol(), GetHost())
-                        : _linkGenerator.GetUriByRouteValues("Topic", new { SeName = topic.GetSeName(language.Id) },
+                        : _linkGenerator.GetUriByRouteValues("Page", new { SeName = topic.GetSeName(language.Id) },
                             GetHttpProtocol(), GetHost());
 
                 return new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow);
@@ -343,9 +374,10 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         return blog;
     }
 
-    private async Task<IEnumerable<SitemapUrl>> GetKnowledgebaseUrls(Language language)
+    private async Task<IEnumerable<SitemapUrl>> GetKnowledgebaseUrls(Language language, Store store)
     {
-        var knowledgebasearticles = await _knowledgebaseService.GetPublicKnowledgebaseArticles();
+        var knowledgebasearticles =
+            await _knowledgebaseService.GetPublicKnowledgebaseArticles(store.Id, _guestGroupIds);
 
         return knowledgebasearticles.Select(knowledgebasearticle => _appConfig.SeoFriendlyUrlsForLanguagesEnabled
                 ? _linkGenerator.GetUriByRouteValues("KnowledgebaseArticle",
