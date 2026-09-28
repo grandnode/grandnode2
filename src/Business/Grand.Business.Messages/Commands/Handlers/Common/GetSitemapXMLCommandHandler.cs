@@ -304,10 +304,10 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
             {
                 var url =
                     _appConfig.SeoFriendlyUrlsForLanguagesEnabled
-                        ? _linkGenerator.GetUriByRouteValues("Topic",
+                        ? _linkGenerator.GetUriByRouteValues("Page",
                             new { SeName = topic.GetSeName(language.Id), language = language.UniqueSeoCode },
                             GetHttpProtocol(), GetHost())
-                        : _linkGenerator.GetUriByRouteValues("Topic", new { SeName = topic.GetSeName(language.Id) },
+                        : _linkGenerator.GetUriByRouteValues("Page", new { SeName = topic.GetSeName(language.Id) },
                             GetHttpProtocol(), GetHost());
 
                 return new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow);
