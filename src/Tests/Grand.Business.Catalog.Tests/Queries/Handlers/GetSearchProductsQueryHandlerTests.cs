@@ -39,4 +39,26 @@ public class GetSearchProductsQueryHandlerTests
         //Arrange
         Assert.IsNotNull(result.products);
     }
+
+    [TestMethod]
+    public async Task Handle_WhenCustomerGroupIdsGivenWithoutCustomer_FiltersByThoseGroups()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Product { Id = "open", Published = true, VisibleIndividually = true });
+        await _repository.InsertAsync(new Product {
+            Id = "guests", Published = true, VisibleIndividually = true, LimitedToGroups = true,
+            CustomerGroups = ["guests-group"]
+        });
+        await _repository.InsertAsync(new Product {
+            Id = "admins", Published = true, VisibleIndividually = true, LimitedToGroups = true,
+            CustomerGroups = ["admins-group"]
+        });
+        var searchProductsQuery = new GetSearchProductsQuery {
+            CustomerGroupIds = ["guests-group"]
+        };
+        //Act
+        var result = await handler.Handle(searchProductsQuery, CancellationToken.None);
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "open", "guests" }, result.products.Select(p => p.Id).ToList());
+    }
 }
