@@ -1,9 +1,17 @@
+```yaml
 name: GrandNode Docker Release
 
 on:
   push:
     tags:
       - '*.*.*'
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Docker image version, for example 2.3.0'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -25,13 +33,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate release tag
+      - name: Determine release version
         shell: bash
         run: |
-          VERSION="${GITHUB_REF_NAME}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME}"
+          fi
 
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid release tag: $VERSION"
+            echo "Invalid release version: $VERSION"
             echo "Expected format: X.Y.Z, for example 2.3.0"
             exit 1
           fi
@@ -39,98 +51,4 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
           echo "Release version: $VERSION"
-
-      - name: Login to GHCR
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Build and push Docker image
-        id: build
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          push: true
-
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-
-          labels: |
-            org.opencontainers.image.source=https://github.com/grandnode/grandnode2
-            org.opencontainers.image.version=${{ env.VERSION }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.description=GrandNode Docker release ${{ env.VERSION }}
-
-          # BuildKit generates both attestations during the build.
-          sbom: true
-          provenance: mode=max
-
-          # GitHub Actions cache
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v4.1.2
-
-      - name: Show release information
-        run: |
-          echo "Version:"
-          echo "${VERSION}"
-
-          echo "Git tag:"
-          echo "${GITHUB_REF_NAME}"
-
-          echo "Git commit:"
-          echo "${GITHUB_SHA}"
-
-          echo "Docker image:"
-          echo "${REGISTRY}/${IMAGE_NAME}:${VERSION}"
-
-          echo "Docker digest:"
-          echo "${{ steps.build.outputs.digest }}"
-
-      - name: Cosign keyless sign
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          DIGEST: ${{ steps.build.outputs.digest }}
-        run: |
-          cosign sign \
-            --yes \
-            "${IMAGE}@${DIGEST}"
-
-      - name: Cosign keyless verify
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          DIGEST: ${{ steps.build.outputs.digest }}
-        run: |
-          cosign verify \
-            "${IMAGE}@${DIGEST}" \
-            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/tags/${VERSION}" \
-            --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
-
-      - name: Verify SBOM attestation
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          DIGEST: ${{ steps.build.outputs.digest }}
-        run: |
-          cosign verify-attestation \
-            "${IMAGE}@${DIGEST}" \
-            --type spdx \
-            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/tags/${VERSION}" \
-            --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
-
-      - name: Verify provenance attestation
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          DIGEST: ${{ steps.build.outputs.digest }}
-        run: |
-          cosign verify-attestation \
-            "${IMAGE}@${DIGEST}" \
-            --type slsaprovenance \
-            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/tags/${VERSION}" \
-            --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
+```
