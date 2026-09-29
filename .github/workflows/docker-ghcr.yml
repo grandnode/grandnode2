@@ -1,4 +1,3 @@
-```yaml
 name: GrandNode Docker Release
 
 on:
@@ -51,4 +50,3 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
           echo "Release version: $VERSION"
-```
