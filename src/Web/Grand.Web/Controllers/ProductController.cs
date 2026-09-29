@@ -18,6 +18,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
@@ -356,6 +357,7 @@ public class ProductController : BasePublicController
             sku = modelProduct.Sku,
             price = modelProduct.Price,
             stockAvailability = modelProduct.StockAvailability,
+            availability = modelProduct.Availability.ToSchemaOrgUrl(),
             outOfStockSubscription = modelProduct.DisplayOutOfStockSubscription,
             buttonTextOutOfStockSubscription = modelProduct.ButtonTextOutOfStockSubscription,
             enabledattributemappingids = modelProduct.EnabledAttributeMappingIds.ToArray(),
@@ -375,9 +377,10 @@ public class ProductController : BasePublicController
         if (product == null)
             return new JsonResult("");
 
-        var stock = stockQuantityService.FormatStockMessage(product, model.WarehouseId, new List<CustomAttribute>());
+        var stock = stockQuantityService.GetStockStatus(product, model.WarehouseId, new List<CustomAttribute>());
         return Json(new {
-            stockAvailability = string.Format(_translationService.GetResource(stock.resource), stock.arg0)
+            stockAvailability = string.Format(_translationService.GetResource(stock.Resource), stock.Arg0),
+            availability = stock.Availability.ToSchemaOrgUrl()
         });
     }
 

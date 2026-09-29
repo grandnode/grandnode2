@@ -9,6 +9,7 @@
  */
 import { registerView } from '../views/index'
 import { axios } from '../views/shared'
+import { updateAvailability } from '../views/product-attributes'
 import { delegate } from './dom'
 
 registerView('warehouseSelector', ({ productId, route, elements }) => {
@@ -26,6 +27,7 @@ registerView('warehouseSelector', ({ productId, route, elements }) => {
                 if (stock && response.data.stockAvailability) {
                     stock.innerText = response.data.stockAvailability
                 }
+                if ('availability' in response.data) updateAvailability(productId, response.data.availability)
                 // the price and the rest of the availability block depend on the
                 // warehouse too
                 window['standardProductAttributes_' + productId]?.attrchange()

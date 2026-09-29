@@ -8,11 +8,11 @@
     engines cannot assemble a Product out of that. This states the product once, in
     the form Google's rich results actually read.
 
-    `availability` is deliberately absent: the model exposes stock only as a
-    localized string (StockAvailability), and there is no boolean to derive
-    InStock/OutOfStock from without guessing. Partials/Availability hardcodes
-    InStock in its microdata, which is wrong for out-of-stock products - fixing that
-    needs a model change and is left alone here rather than copied.
+    `availability` comes from Model.Availability, which IStockQuantityService works
+    out together with the stock message the customer reads, so the two cannot
+    disagree. It is left out when the state cannot be stated (attributes that match
+    no combination). product-attributes.js rewrites it when a different selection
+    changes the stock - the script carries an id for that.
 *@
 @{
     var request = Url.ActionContext.HttpContext.Request;
@@ -55,12 +55,14 @@
     if (price is { HidePrices: false, CallForPrice: false, EnteredPrice: false, IsAuction: false }
         && !string.IsNullOrWhiteSpace(price.CurrencyCode))
     {
-        product["offers"] = new Dictionary<string, object> {
+        var offer = new Dictionary<string, object> {
             ["@type"] = "Offer",
             ["price"] = price.PriceValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["priceCurrency"] = price.CurrencyCode,
             ["url"] = productUrl
         };
+        if (Model.Availability.HasValue) offer["availability"] = Model.Availability.ToSchemaOrgUrl();
+        product["offers"] = offer;
     }
 
     var reviews = Model.ProductReviewOverview;
@@ -76,4 +78,8 @@
 
     var json = JsonSerializer.Serialize(product, new JsonSerializerOptions { WriteIndented = false });
 }
-<script type="application/ld+json">@Html.Raw(json)</script>
+@*Written out whole: rendered as markup, the type attribute reached the page as
+  "application/ld&#x2B;json" - a browser decodes that, but crawlers and tools that
+  read the raw HTML (AI assistants among them) look for the literal type and
+  found no structured data at all*@
+@Html.Raw($"<script type=\"application/ld+json\" id=\"product-structured-data-{System.Net.WebUtility.HtmlEncode(Model.Id)}\">{json}</script>")

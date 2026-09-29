@@ -4,10 +4,9 @@
     {
         <div class="stock">
             <span class="label">@Loc["Products.Availability"]:</span>
-            <span class="value" id="stock-availability-value-@Model.Id">
-                <link itemprop="availability" href="https://schema.org/InStock"/>
-                @Model.StockAvailability
-            </span>
+            @*no itemprop here: this block sits in the Product scope, and availability is an
+              Offer property - Partials/Prices states it, from the same Model.Availability*@
+            <span class="value" id="stock-availability-value-@Model.Id">@Model.StockAvailability</span>
         </div>
     }
     @if (Model.DisplayOutOfStockSubscription)

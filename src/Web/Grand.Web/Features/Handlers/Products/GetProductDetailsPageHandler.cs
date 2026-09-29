@@ -222,6 +222,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         #region Product price
 
         model.ProductPrice = await PrepareProductPriceModel(product);
+        model.ProductPrice.Availability = model.Availability;
 
         #endregion
 
@@ -364,7 +365,6 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             Mpn = product.Mpn,
             ShowGtin = _catalogSettings.ShowGtin,
             Gtin = product.Gtin,
-            StockAvailability = StockAvailability(product, warehouseId, []),
             UserFields = product.UserFields,
             HasSampleDownload = product.IsDownload && product.HasSampleDownload,
             DisplayDiscontinuedMessage =
@@ -383,6 +383,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                                                          || _captchaSettings.ShowOnProductReviewPage
                                                          || _captchaSettings.ShowOnAskQuestionPage)
         };
+        SetStockAvailability(model, product, warehouseId);
 
         //automatically generate product description?
         if (_seoSettings.GenerateProductMetaDescription && string.IsNullOrEmpty(model.MetaDescription))
@@ -416,7 +417,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             {
                 var preselected = model.ProductWarehouses[0];
                 preselected.Selected = true;
-                model.StockAvailability = StockAvailability(product, preselected.WarehouseId, []);
+                SetStockAvailability(model, product, preselected.WarehouseId);
             }
         }
 
@@ -461,6 +462,13 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         var stock = _stockQuantityService.FormatStockMessage(product, warehouseId, attributes);
         var stockAvailability = string.Format(_translationService.GetResource(stock.resource), stock.arg0);
         return stockAvailability;
+    }
+
+    private void SetStockAvailability(ProductDetailsModel model, Product product, string warehouseId)
+    {
+        var stock = _stockQuantityService.GetStockStatus(product, warehouseId, []);
+        model.StockAvailability = string.Format(_translationService.GetResource(stock.Resource), stock.Arg0);
+        model.Availability = stock.Availability;
     }
 
     private async Task<ProductAskQuestionSimpleModel> PrepareProductAskQuestionSimpleModel(Product product)

@@ -36,6 +36,42 @@ function toggleRows(ids, display) {
     })
 }
 
+/**
+ * Keeps the machine-readable availability (the Offer microdata and the JSON-LD)
+ * in step with the stock message: a different combination can be out of stock.
+ * `url` is the schema.org ItemAvailability URL, or null when the selection
+ * matches no combination - then neither may claim anything.
+ */
+export function updateAvailability(productId, url) {
+    const link = document.getElementById('stock-availability-schema-' + productId)
+    if (!url) {
+        link?.remove()
+    } else if (link) {
+        link.setAttribute('href', url)
+    } else {
+        const offer = document.querySelector(`[data-offer-for="${productId}"]`)
+        if (offer) {
+            const created = document.createElement('link')
+            created.id = 'stock-availability-schema-' + productId
+            created.setAttribute('itemprop', 'availability')
+            created.setAttribute('href', url)
+            offer.prepend(created)
+        }
+    }
+
+    const script = document.getElementById('product-structured-data-' + productId)
+    if (!script) return
+    try {
+        const data = JSON.parse(script.textContent)
+        if (!data.offers) return
+        if (url) data.offers.availability = url
+        else delete data.offers.availability
+        script.textContent = JSON.stringify(data)
+    } catch (e) {
+        console.error('[grand] product structured data could not be updated', e)
+    }
+}
+
 function updatePicture(productId, url, mode) {
     if (!url) return
 
@@ -81,6 +117,7 @@ registerView('productAttributes', ({ productId, attributes, route, picture, res 
                         setText('#mpn-' + productId, data.mpn)
                         setText('#gtin-' + productId, data.gtin)
                         setText('#stock-availability-value-' + productId, data.stockAvailability)
+                        if ('availability' in data) updateAvailability(productId, data.availability)
 
                         const subscribe = document.querySelector('#out-of-stock-subscribe-' + productId)
                         if (subscribe && typeof data.outOfStockSubscription === 'boolean') {

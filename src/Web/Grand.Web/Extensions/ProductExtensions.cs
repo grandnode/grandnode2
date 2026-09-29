@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
@@ -9,6 +10,14 @@ namespace Grand.Web.Extensions;
 
 public static class ProductExtensions
 {
+    /// <summary>
+    ///     The schema.org ItemAvailability URL of an availability, for microdata and JSON-LD
+    /// </summary>
+    public static string ToSchemaOrgUrl(this ProductAvailability? availability)
+    {
+        return availability.HasValue ? "https://schema.org/" + availability.Value : null;
+    }
+
     /// <summary>
     ///     Get product picture (for shopping cart and order details pages)
     /// </summary>

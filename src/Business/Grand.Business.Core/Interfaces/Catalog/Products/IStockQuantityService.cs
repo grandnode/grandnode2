@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 
@@ -15,4 +16,10 @@ public interface IStockQuantityService
 
     (string resource, object? arg0) FormatStockMessage(Product product, string warehouseId,
         IList<CustomAttribute> attributes);
+
+    /// <summary>
+    ///     The stock message together with the availability it describes - one answer, so the
+    ///     text a customer reads and the state given to search engines cannot disagree
+    /// </summary>
+    StockStatus GetStockStatus(Product product, string warehouseId, IList<CustomAttribute> attributes);
 }
