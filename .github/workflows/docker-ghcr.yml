@@ -1,6 +1,10 @@
 name: Test GHCR Private Image
 
 on:
+  push:
+    branches:
+      - test/ghcr-private
+
   workflow_dispatch:
 
 permissions:
