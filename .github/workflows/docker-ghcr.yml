@@ -1,28 +1,11 @@
 name: GrandNode Docker Release
 
 on:
-
   push:
     branches:
       - test/ghcr-private
 
   workflow_dispatch:
-
-  # Production release:
-  # git tag 2.3.0
-  # git push origin 2.3.0
-#  push:
-#    tags:
-#      - '*.*.*'
-
-  # Manual build/test
-#  workflow_dispatch:
-#    inputs:
-#      version:
-#        description: 'Docker image version, e.g. 2.3.0-test'
-#        required: true
-#        type: string
-#        default: '2.3.0-test'
 
 permissions:
   contents: read
@@ -32,6 +15,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: grandnode/grandnode2
+  VERSION: test
 
 jobs:
   release:
@@ -41,50 +25,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Determine release version
-        shell: bash
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            VERSION="${{ inputs.version }}"
-            RELEASE_TYPE="manual"
-          else
-            VERSION="${GITHUB_REF_NAME}"
-            RELEASE_TYPE="tag"
-          fi
-
-          # Docker tag / SemVer-like validation.
-          # Examples:
-          # 2.3.0
-          # 2.3.0-test
-          # 2.3.0-test.1
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
-            echo "Invalid release version: $VERSION"
-            echo "Expected format: X.Y.Z or X.Y.Z-suffix"
-            exit 1
-          fi
-
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          echo "RELEASE_TYPE=$RELEASE_TYPE" >> "$GITHUB_ENV"
-
-          echo "Release type: $RELEASE_TYPE"
-          echo "Release version: $VERSION"
-
-      - name: Determine Cosign certificate identity
-        shell: bash
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            CERTIFICATE_IDENTITY="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/heads/${GITHUB_REF_NAME}"
-          else
-            CERTIFICATE_IDENTITY="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/tags/${VERSION}"
-          fi
-
-          echo "CERTIFICATE_IDENTITY=$CERTIFICATE_IDENTITY" >> "$GITHUB_ENV"
-
-          echo "Cosign certificate identity:"
-          echo "$CERTIFICATE_IDENTITY"
 
       - name: Login to GHCR
         uses: docker/login-action@v4
@@ -110,47 +50,23 @@ jobs:
             org.opencontainers.image.source=https://github.com/grandnode/grandnode2
             org.opencontainers.image.version=${{ env.VERSION }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.description=GrandNode Docker release ${{ env.VERSION }}
 
-          # BuildKit attestations
           sbom: true
           provenance: mode=max
 
-          # GitHub Actions BuildKit cache
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v4.1.2
 
-      - name: Show release information
+      - name: Show image information
         run: |
-          echo "========================================"
-          echo "GrandNode Docker Release"
-          echo "========================================"
-
-          echo "Release type:"
-          echo "${RELEASE_TYPE}"
-
-          echo "Version:"
-          echo "${VERSION}"
-
-          echo "Git ref:"
-          echo "${GITHUB_REF}"
-
-          echo "Git commit:"
-          echo "${GITHUB_SHA}"
-
-          echo "Docker image:"
+          echo "Image:"
           echo "${REGISTRY}/${IMAGE_NAME}:${VERSION}"
 
-          echo "Docker digest:"
+          echo "Digest:"
           echo "${{ steps.build.outputs.digest }}"
-
-          echo "Cosign certificate identity:"
-          echo "${CERTIFICATE_IDENTITY}"
-
-          echo "========================================"
 
       - name: Cosign keyless sign
         env:
@@ -168,27 +84,27 @@ jobs:
         run: |
           cosign verify \
             "${IMAGE}@${DIGEST}" \
-            --certificate-identity="${CERTIFICATE_IDENTITY}" \
-            --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+            --certificate-identity-regexp="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/heads/.*"
 
-      - name: Verify SBOM attestation
+      - name: Verify SBOM
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           cosign verify-attestation \
             "${IMAGE}@${DIGEST}" \
-            --certificate-identity="${CERTIFICATE_IDENTITY}" \
+            --type spdx \
             --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
-            --type spdx
+            --certificate-identity-regexp="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/heads/.*"
 
-      - name: Verify SLSA provenance attestation
+      - name: Verify SLSA provenance
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           cosign verify-attestation \
             "${IMAGE}@${DIGEST}" \
-            --certificate-identity="${CERTIFICATE_IDENTITY}" \
+            --type slsaprovenance \
             --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
-            --type slsaprovenance
+            --certificate-identity-regexp="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/heads/.*"
