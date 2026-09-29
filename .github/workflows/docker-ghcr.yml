@@ -1,21 +1,28 @@
 name: GrandNode Docker Release
 
 on:
+
+  push:
+    branches:
+      - test/ghcr-private
+
+  workflow_dispatch:
+
   # Production release:
   # git tag 2.3.0
   # git push origin 2.3.0
-  push:
-    tags:
-      - '*.*.*'
+#  push:
+#    tags:
+#      - '*.*.*'
 
   # Manual build/test
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Docker image version, e.g. 2.3.0-test'
-        required: true
-        type: string
-        default: '2.3.0-test'
+#  workflow_dispatch:
+#    inputs:
+#      version:
+#        description: 'Docker image version, e.g. 2.3.0-test'
+#        required: true
+#        type: string
+#        default: '2.3.0-test'
 
 permissions:
   contents: read
