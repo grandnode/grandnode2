@@ -105,8 +105,9 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
         }
 
         //stock
-        var stock = _stockQuantityService.FormatStockMessage(request.Product, warehouseId, customAttributes);
-        model.StockAvailability = string.Format(_translationService.GetResource(stock.resource), stock.arg0);
+        var stock = _stockQuantityService.GetStockStatus(request.Product, warehouseId, customAttributes);
+        model.StockAvailability = string.Format(_translationService.GetResource(stock.Resource), stock.Arg0);
+        model.Availability = stock.Availability;
 
         //out of stock subscription
         if (request.Product.ManageInventoryMethodId is ManageInventoryMethod.ManageStockByAttributes

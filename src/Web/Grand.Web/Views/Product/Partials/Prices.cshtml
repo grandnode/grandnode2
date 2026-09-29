@@ -2,7 +2,13 @@
 @model ProductDetailsModel.ProductPriceModel
 @inject IContextAccessor contextAccessor
 
-<div class="prices d-flex justify-content-center align-items-start row px-3 flex-column" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+<div class="prices d-flex justify-content-center align-items-start row px-3 flex-column" itemprop="offers" itemscope itemtype="https://schema.org/Offer" data-offer-for="@Model.ProductId">
+    @*availability belongs to the Offer, not the Product; product-attributes.js keeps it
+      in step when the selected attributes change the stock*@
+    @if (Model.Availability.HasValue)
+    {
+        <link itemprop="availability" href="@Model.Availability.ToSchemaOrgUrl()" id="stock-availability-schema-@Model.ProductId"/>
+    }
     @if (Model.EnteredPrice)
     {
         @*Display empty space*@

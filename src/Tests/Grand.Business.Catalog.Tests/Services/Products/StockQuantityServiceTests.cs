@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -179,5 +180,96 @@ public class StockQuantityServiceTests
         //Assert
         Assert.IsNull(result.arg0);
         Assert.AreEqual("Products.Availability.InStock", result.resource);
+    }
+
+    [TestMethod]
+    [DataRow(5, BackorderMode.NoBackorders, ProductAvailability.InStock, "Products.Availability.InStock")]
+    [DataRow(0, BackorderMode.NoBackorders, ProductAvailability.OutOfStock, "Products.Availability.OutOfStock")]
+    [DataRow(0, BackorderMode.AllowQtyBelowZero, ProductAvailability.BackOrder,
+        "Products.Availability.Backordering")]
+    public void GetStockStatus_ManageStock_AvailabilityMatchesMessage(int stock, BackorderMode backorderMode,
+        ProductAvailability expected, string expectedResource)
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            StockQuantity = stock,
+            BackorderModeId = backorderMode,
+            StockAvailability = true
+        };
+
+        var result = _stockQuantityService.GetStockStatus(product, "", new List<CustomAttribute>());
+
+        Assert.AreEqual(expected, result.Availability);
+        Assert.AreEqual(expectedResource, result.Resource);
+    }
+
+    [TestMethod]
+    public void GetStockStatus_HiddenStockMessage_StillReportsAvailability()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            StockQuantity = 0,
+            StockAvailability = false
+        };
+
+        var result = _stockQuantityService.GetStockStatus(product, "", new List<CustomAttribute>());
+
+        Assert.AreEqual(ProductAvailability.OutOfStock, result.Availability);
+        Assert.AreEqual(string.Empty, result.Resource);
+        Assert.AreEqual(string.Empty, _stockQuantityService.FormatStockMessage(product, "", []).resource);
+    }
+
+    [TestMethod]
+    public void GetStockStatus_DontManageStock_InStock()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.DontManageStock };
+
+        var result = _stockQuantityService.GetStockStatus(product, "", new List<CustomAttribute>());
+
+        Assert.AreEqual(ProductAvailability.InStock, result.Availability);
+        Assert.AreEqual(string.Empty, result.Resource);
+    }
+
+    [TestMethod]
+    public void GetStockStatus_PreOrder_OverridesStock()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            StockQuantity = 0,
+            AvailableForPreOrder = true,
+            PreOrderDateTimeUtc = DateTime.UtcNow.AddDays(10)
+        };
+
+        Assert.AreEqual(ProductAvailability.PreOrder,
+            _stockQuantityService.GetStockStatus(product, "", new List<CustomAttribute>()).Availability);
+
+        product.PreOrderDateTimeUtc = DateTime.UtcNow.AddDays(-1);
+        Assert.AreEqual(ProductAvailability.OutOfStock,
+            _stockQuantityService.GetStockStatus(product, "", new List<CustomAttribute>()).Availability);
+    }
+
+    [TestMethod]
+    public void GetStockStatus_ByAttributes_UsesCombination()
+    {
+        var attributes = new List<CustomAttribute> { new() { Key = "a1", Value = "v1" } };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockAvailability = true
+        };
+        product.ProductAttributeMappings.Add(new ProductAttributeMapping { Id = "a1" });
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination {
+            Attributes = attributes, StockQuantity = 0
+        });
+
+        var outOfStock = _stockQuantityService.GetStockStatus(product, "", attributes);
+        Assert.AreEqual(ProductAvailability.OutOfStock, outOfStock.Availability);
+        Assert.AreEqual("Products.Availability.Attributes.OutOfStock", outOfStock.Resource);
+
+        //a selection that matches no combination cannot be stated either way
+        product.ProductAttributeCombinations.Clear();
+        var unknown = _stockQuantityService.GetStockStatus(product, "", attributes);
+        Assert.IsNull(unknown.Availability);
+        Assert.AreEqual("Products.Availability.AttributeCombinationsNotExists", unknown.Resource);
     }
 }
