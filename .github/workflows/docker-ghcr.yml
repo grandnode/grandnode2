@@ -1,11 +1,9 @@
-name: Test GHCR Private Image
+name: GrandNode Docker Release
 
 on:
   push:
-    branches:
-      - test/ghcr-private
-
-  workflow_dispatch:
+    tags:
+      - '*.*.*'
 
 permissions:
   contents: read
@@ -17,74 +15,94 @@ env:
   IMAGE_NAME: grandnode/grandnode2
 
 jobs:
-  build-sign-sbom:
+  release:
     name: Build, Sign, SBOM and Verify
     runs-on: ubuntu-latest
 
     steps:
-      # ---------------------------------------------------------
-      # 1. Checkout
-      # ---------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
-      # ---------------------------------------------------------
-      # 2. Login to GHCR
-      # ---------------------------------------------------------
+      - name: Validate release tag
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release tag: $VERSION"
+            echo "Expected format: X.Y.Z, for example 2.3.0"
+            exit 1
+          fi
+
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+          echo "Release version: $VERSION"
+
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ---------------------------------------------------------
-      # 3. Build and push Docker image
-      # ---------------------------------------------------------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
 
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-ghcr
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
           labels: |
             org.opencontainers.image.source=https://github.com/grandnode/grandnode2
-            org.opencontainers.image.description=GrandNode GHCR private image test
+            org.opencontainers.image.version=${{ env.VERSION }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.description=GrandNode Docker release ${{ env.VERSION }}
 
-      # ---------------------------------------------------------
-      # 4. Install Cosign
-      # ---------------------------------------------------------
+          # BuildKit generates both attestations during the build.
+          sbom: true
+          provenance: mode=max
+
+          # GitHub Actions cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v4.0.0
+        uses: sigstore/cosign-installer@v4.1.2
 
-      # ---------------------------------------------------------
-      # 5. Show image digest
-      # ---------------------------------------------------------
-      - name: Show image digest
+      - name: Show release information
         run: |
-          echo "Image:"
-          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          echo "Version:"
+          echo "${VERSION}"
 
-          echo "Digest:"
+          echo "Git tag:"
+          echo "${GITHUB_REF_NAME}"
+
+          echo "Git commit:"
+          echo "${GITHUB_SHA}"
+
+          echo "Docker image:"
+          echo "${REGISTRY}/${IMAGE_NAME}:${VERSION}"
+
+          echo "Docker digest:"
           echo "${{ steps.build.outputs.digest }}"
 
-      # ---------------------------------------------------------
-      # 6. Cosign keyless sign
-      # ---------------------------------------------------------
       - name: Cosign keyless sign
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          cosign sign --yes "${IMAGE}@${DIGEST}"
+          cosign sign \
+            --yes \
+            "${IMAGE}@${DIGEST}"
 
-      # ---------------------------------------------------------
-      # 7. Verify Docker image signature
-      # ---------------------------------------------------------
       - name: Cosign keyless verify
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -92,38 +110,9 @@ jobs:
         run: |
           cosign verify \
             "${IMAGE}@${DIGEST}" \
-            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-ghcr.yml@refs/heads/test/ghcr-private" \
+            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/tags/${VERSION}" \
             --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
 
-      # ---------------------------------------------------------
-      # 8. Generate SBOM from the final Docker image
-      # ---------------------------------------------------------
-      - name: Generate SBOM
-        uses: anchore/sbom-action@v0
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
-          format: spdx-json
-          output-file: sbom.spdx.json
-          artifact-name: grandnode-sbom.spdx.json
-          upload-artifact: true
-
-      # ---------------------------------------------------------
-      # 9. Attach SBOM as Cosign attestation
-      # ---------------------------------------------------------
-      - name: Attach SBOM attestation
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          DIGEST: ${{ steps.build.outputs.digest }}
-        run: |
-          cosign attest \
-            --yes \
-            --type spdxjson \
-            --predicate sbom.spdx.json \
-            "${IMAGE}@${DIGEST}"
-
-      # ---------------------------------------------------------
-      # 10. Verify SBOM attestation
-      # ---------------------------------------------------------
       - name: Verify SBOM attestation
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -131,6 +120,17 @@ jobs:
         run: |
           cosign verify-attestation \
             "${IMAGE}@${DIGEST}" \
-            --type spdxjson \
-            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-ghcr.yml@refs/heads/test/ghcr-private" \
+            --type spdx \
+            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/tags/${VERSION}" \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
+
+      - name: Verify provenance attestation
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          cosign verify-attestation \
+            "${IMAGE}@${DIGEST}" \
+            --type slsaprovenance \
+            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-release.yml@refs/tags/${VERSION}" \
             --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
