@@ -17,13 +17,20 @@ env:
   IMAGE_NAME: grandnode/grandnode2
 
 jobs:
-  build-and-push:
+  build-and-sign:
+    name: Build, Sign and Verify
     runs-on: ubuntu-latest
 
     steps:
+      # ---------------------------------------------------------
+      # 1. Checkout
+      # ---------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v5
 
+      # ---------------------------------------------------------
+      # 2. Login to GitHub Container Registry
+      # ---------------------------------------------------------
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -31,24 +38,59 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ---------------------------------------------------------
+      # 3. Build and push Docker image
+      # ---------------------------------------------------------
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
+
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-ghcr
+
           labels: |
             org.opencontainers.image.source=https://github.com/grandnode/grandnode2
             org.opencontainers.image.description=GrandNode GHCR private image test
 
+      # ---------------------------------------------------------
+      # 4. Install Cosign
+      # ---------------------------------------------------------
       - name: Install Cosign
         uses: sigstore/cosign-installer@v4.0.0
 
-      - name: Sign Docker image
+      # ---------------------------------------------------------
+      # 5. Show image digest
+      # ---------------------------------------------------------
+      - name: Show image digest
+        run: |
+          echo "Image:"
+          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+
+          echo "Digest:"
+          echo "${{ steps.build.outputs.digest }}"
+
+      # ---------------------------------------------------------
+      # 6. Keyless sign
+      # ---------------------------------------------------------
+      - name: Cosign keyless sign
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           cosign sign --yes "${IMAGE}@${DIGEST}"
+
+      # ---------------------------------------------------------
+      # 7. Keyless verify
+      # ---------------------------------------------------------
+      - name: Cosign keyless verify
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          cosign verify \
+            "${IMAGE}@${DIGEST}" \
+            --certificate-identity="https://github.com/grandnode/grandnode2/.github/workflows/docker-ghcr-test.yml@refs/heads/test/ghcr-private" \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
