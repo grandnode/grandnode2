@@ -103,6 +103,14 @@ public class SecurityConfig
     public string[] SanitizerAllowedIframeHosts { get; set; }
 
     /// <summary>
+    ///     Hosts on the internal network that picture URLs in Excel imports may point to. Any other host must resolve to
+    ///     a public address, because the URL is written by whoever prepared the import file and would otherwise let it
+    ///     reach services only the server can see. A listed host may also use a port other than 80/443.
+    ///     Matching is case-insensitive on the host only; a leading "*." matches any subdomain. Empty by default.
+    /// </summary>
+    public string[] PictureImportAllowedPrivateHosts { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether [SanitizeHtml] and [NoHtml] reject markup on save. Default true.
     ///     This is an operational escape hatch, not a security setting: turn it off only temporarily, if the
     ///     allowlist is found to reject legitimate content in production, while a fix is prepared - every field
