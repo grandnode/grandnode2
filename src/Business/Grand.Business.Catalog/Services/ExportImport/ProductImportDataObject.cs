@@ -1,5 +1,4 @@
-﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Core.Dto;
+﻿using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
@@ -212,56 +211,44 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         var picture2 = productDto.Picture2;
         var picture3 = productDto.Picture3;
 
-        foreach (var picturePath in new[] { picture1, picture2, picture3 })
+        foreach (var pictureUrl in new[] { picture1, picture2, picture3 })
         {
-            if (string.IsNullOrEmpty(picturePath))
+            if (string.IsNullOrEmpty(pictureUrl))
                 continue;
-            if (!picturePath.ToLower().StartsWith("http".ToLower()))
-            {
-                var mimeType = MimeTypeExtensions.GetMimeTypeFromFilePath(picturePath);
-                var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
-                var pictureAlreadyExists = false;
-                if (!isNew)
-                {
-                    //compare with existing product pictures
-                    var existingPictures = product.ProductPictures;
-                    foreach (var existingPicture in existingPictures)
-                    {
-                        var pp = await _pictureService.GetPictureById(existingPicture.PictureId);
-                        var existingBinary = await _pictureService.LoadPictureBinary(pp);
-                        //picture binary after validation (like in database)
-                        var validatedPictureBinary = _pictureService.ValidatePicture(newPictureBinary, mimeType);
-                        if (!existingBinary.SequenceEqual(validatedPictureBinary) &&
-                            !existingBinary.SequenceEqual(newPictureBinary)) continue;
-                        //the same picture content
-                        pictureAlreadyExists = true;
-                        break;
-                    }
-                }
 
-                if (pictureAlreadyExists) continue;
-                var picture = await _pictureService.InsertPicture(newPictureBinary, mimeType,
-                    _pictureService.GetPictureSeName(product.Name), "", "", false,
-                    Reference.Product, product.Id);
-                var productPicture = new ProductPicture {
-                    PictureId = picture.Id,
-                    DisplayOrder = 1
-                };
-                await _productService.InsertProductPicture(productPicture, product.Id);
-            }
-            else
+            //only public http(s) URLs are downloaded - a local path would let the import read any file on the server
+            var image = await DownloadUrl.DownloadImage(pictureUrl);
+            if (image == null)
+                continue;
+
+            var pictureAlreadyExists = false;
+            if (!isNew)
             {
-                var fileBinary = await DownloadUrl.DownloadFile(picturePath);
-                if (fileBinary == null) continue;
-                var mimeType = MimeTypeExtensions.GetMimeTypeFromFilePath(picturePath);
-                var picture = await _pictureService.InsertPicture(fileBinary, mimeType,
-                    _pictureService.GetPictureSeName(product.Name), "", "", false, Reference.Product, product.Id);
-                var productPicture = new ProductPicture {
-                    PictureId = picture.Id,
-                    DisplayOrder = 1
-                };
-                await _productService.InsertProductPicture(productPicture, product.Id);
+                //compare with existing product pictures
+                var existingPictures = product.ProductPictures;
+                foreach (var existingPicture in existingPictures)
+                {
+                    var pp = await _pictureService.GetPictureById(existingPicture.PictureId);
+                    var existingBinary = await _pictureService.LoadPictureBinary(pp);
+                    //picture binary after validation (like in database)
+                    var validatedPictureBinary = _pictureService.ValidatePicture(image.Binary, image.MimeType);
+                    if (!existingBinary.SequenceEqual(validatedPictureBinary) &&
+                        !existingBinary.SequenceEqual(image.Binary)) continue;
+                    //the same picture content
+                    pictureAlreadyExists = true;
+                    break;
+                }
             }
+
+            if (pictureAlreadyExists) continue;
+            var picture = await _pictureService.InsertPicture(image.Binary, image.MimeType,
+                _pictureService.GetPictureSeName(product.Name), "", "", false,
+                Reference.Product, product.Id);
+            var productPicture = new ProductPicture {
+                PictureId = picture.Id,
+                DisplayOrder = 1
+            };
+            await _productService.InsertProductPicture(productPicture, product.Id);
         }
     }
 
