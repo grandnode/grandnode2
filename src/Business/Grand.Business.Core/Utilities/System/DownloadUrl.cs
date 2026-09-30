@@ -14,29 +14,21 @@ public static class DownloadUrl
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
 
     private static readonly IPNetwork[] BlockedIPv4Networks = [
-        IPNetwork.Parse("0.0.0.0/8"), //"this" network
-        IPNetwork.Parse("10.0.0.0/8"), //private
-        IPNetwork.Parse("100.64.0.0/10"), //carrier-grade NAT
+        IPNetwork.Parse("0.0.0.0/8"), //0.0.0.0 reaches localhost on Linux
         IPNetwork.Parse("127.0.0.0/8"), //loopback
+        IPNetwork.Parse("10.0.0.0/8"), //private network
+        IPNetwork.Parse("172.16.0.0/12"), //private network
+        IPNetwork.Parse("192.168.0.0/16"), //private network
         IPNetwork.Parse("169.254.0.0/16"), //link-local, cloud metadata endpoints
-        IPNetwork.Parse("172.16.0.0/12"), //private
-        IPNetwork.Parse("192.0.0.0/24"), //IETF protocol assignments
-        IPNetwork.Parse("192.0.2.0/24"), //documentation
-        IPNetwork.Parse("192.88.99.0/24"), //6to4 relay anycast
-        IPNetwork.Parse("192.168.0.0/16"), //private
-        IPNetwork.Parse("198.18.0.0/15"), //benchmarking
-        IPNetwork.Parse("198.51.100.0/24"), //documentation
-        IPNetwork.Parse("203.0.113.0/24"), //documentation
-        IPNetwork.Parse("224.0.0.0/4"), //multicast
-        IPNetwork.Parse("240.0.0.0/4") //reserved, broadcast
+        IPNetwork.Parse("100.64.0.0/10") //carrier-grade NAT, used as an internal network by some clouds
     ];
 
+    //only global unicast is public; within it 6to4 and Teredo embed an IPv4 address that could be private
     private static readonly IPNetwork IPv6GlobalUnicast = IPNetwork.Parse("2000::/3");
 
     private static readonly IPNetwork[] BlockedIPv6Networks = [
-        IPNetwork.Parse("2001::/32"), //Teredo - embeds an IPv4 address
-        IPNetwork.Parse("2001:db8::/32"), //documentation
-        IPNetwork.Parse("2002::/16") //6to4 - embeds an IPv4 address
+        IPNetwork.Parse("2001::/32"), //Teredo
+        IPNetwork.Parse("2002::/16") //6to4
     ];
 
     //the address is validated when the socket is opened, not before the request, so a DNS answer
