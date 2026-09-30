@@ -91,6 +91,18 @@ public class OrderSettings : ISettings
     public int NumberOfDaysMerchandiseReturnAvailable { get; set; }
 
     /// <summary>
+    ///     Gets or sets who pays for a merchandise return. Optional - informational only, published in the
+    ///     store's structured data (MerchantReturnPolicy.returnFees); nothing in checkout enforces it
+    /// </summary>
+    public MerchandiseReturnFees MerchandiseReturnFees { get; set; }
+
+    /// <summary>
+    ///     Gets or sets how merchandise returns are sent back. Optional - informational only, published in the
+    ///     store's structured data (MerchantReturnPolicy.returnMethod)
+    /// </summary>
+    public MerchandiseReturnMethod MerchandiseReturnMethod { get; set; }
+
+    /// <summary>
     ///     Gift vouchers are activated when the order status is
     /// </summary>
     public int GiftVouchers_Activated_OrderStatusId { get; set; }

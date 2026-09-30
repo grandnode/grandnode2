@@ -35,6 +35,21 @@ public class ShippingSettingsModel : BaseModel
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.AdditionalShippingChargeByQty")]
     public bool AdditionalShippingChargeByQty { get; set; }
 
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.DefaultShippingRate")]
+    public double? DefaultShippingRate { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.HandlingTimeMinDays")]
+    public int? HandlingTimeMinDays { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.HandlingTimeMaxDays")]
+    public int? HandlingTimeMaxDays { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.TransitTimeMinDays")]
+    public int? TransitTimeMinDays { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.TransitTimeMaxDays")]
+    public int? TransitTimeMaxDays { get; set; }
+
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.ShippingOriginAddress")]
     public AddressModel ShippingOriginAddress { get; set; }
 }

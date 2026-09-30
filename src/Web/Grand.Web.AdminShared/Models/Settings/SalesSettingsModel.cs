@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Domain.Orders;
+using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -54,6 +55,12 @@ public class SalesSettingsModel : BaseModel
 
         [GrandResourceDisplayName("Admin.Settings.Order.NumberOfDaysMerchandiseReturnAvailable")]
         public int NumberOfDaysMerchandiseReturnAvailable { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnFees")]
+        public MerchandiseReturnFees MerchandiseReturnFees { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnMethod")]
+        public MerchandiseReturnMethod MerchandiseReturnMethod { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Order.GiftVouchers_Activated")]
         public int GiftVouchers_Activated_OrderStatusId { get; set; }
