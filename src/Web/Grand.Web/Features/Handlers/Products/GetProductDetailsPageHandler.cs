@@ -263,6 +263,19 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
 
         #endregion
 
+        #region Structured data
+
+        //only the page's own product emits JSON-LD (Partials/ProductStructuredData)
+        if (!isAssociatedProduct)
+            model.StructuredData = await _mediator.Send(new GetProductStructuredData {
+                Product = product,
+                Store = _contextAccessor.StoreContext.CurrentStore,
+                Customer = _contextAccessor.WorkContext.CurrentCustomer,
+                Currency = _contextAccessor.WorkContext.WorkingCurrency
+            });
+
+        #endregion
+
         #region Tier prices
 
         if (product.TierPrices.Any() && await _permissionService.Authorize(StandardPermission.DisplayPrices))

@@ -49,6 +49,10 @@
             ["@type"] = "Brand", ["name"] = Model.BrandModel.Name
         };
 
+    //rating, shipping and return facts come from Model.StructuredData, worked out in
+    //GetProductStructuredDataHandler - this view only shapes them into schema.org
+    var facts = Model.StructuredData;
+
     //no offer at all rather than a misleading one: a hidden or on-request price is
     //not a price, and an auction's current bid is not an offer either
     var price = Model.ProductPrice;
@@ -62,17 +66,61 @@
             ["url"] = productUrl
         };
         if (Model.Availability.HasValue) offer["availability"] = Model.Availability.ToSchemaOrgUrl();
+
+        if (facts.HasShippingDetails)
+        {
+            var shipping = new Dictionary<string, object> {
+                ["@type"] = "OfferShippingDetails"
+            };
+            //a rate only when it is known - see GetProductStructuredDataHandler.ShippingRate
+            if (facts.ShippingRate is { } shippingRate)
+                shipping["shippingRate"] = new Dictionary<string, object> {
+                    ["@type"] = "MonetaryAmount",
+                    ["value"] = shippingRate.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["currency"] = price.CurrencyCode
+                };
+            if (facts.HandlingTime != null || facts.TransitTime != null)
+            {
+                Dictionary<string, object> Days(ProductStructuredDataModel.DayRangeModel range)
+                {
+                    var value = new Dictionary<string, object> { ["@type"] = "QuantitativeValue", ["unitCode"] = "DAY" };
+                    if (range.Min is { } min) value["minValue"] = min;
+                    if (range.Max is { } max) value["maxValue"] = max;
+                    return value;
+                }
+
+                var deliveryTime = new Dictionary<string, object> { ["@type"] = "ShippingDeliveryTime" };
+                if (facts.HandlingTime != null) deliveryTime["handlingTime"] = Days(facts.HandlingTime);
+                if (facts.TransitTime != null) deliveryTime["transitTime"] = Days(facts.TransitTime);
+                shipping["deliveryTime"] = deliveryTime;
+            }
+            if (facts.CountryCodes.Count > 0)
+                shipping["shippingDestination"] = facts.CountryCodes
+                    .Select(x => new Dictionary<string, object> { ["@type"] = "DefinedRegion", ["addressCountry"] = x })
+                    .ToArray();
+            offer["shippingDetails"] = shipping;
+        }
+
+        //overrides the store-wide policy declared on the Organization (Components/SiteStructuredData)
+        if (facts.ReturnsNotPermitted)
+        {
+            var policy = new Dictionary<string, object> {
+                ["@type"] = "MerchantReturnPolicy",
+                ["returnPolicyCategory"] = "https://schema.org/MerchantReturnNotPermitted"
+            };
+            if (facts.CountryCodes.Count > 0) policy["applicableCountry"] = facts.CountryCodes;
+            offer["hasMerchantReturnPolicy"] = policy;
+        }
+
         product["offers"] = offer;
     }
 
-    var reviews = Model.ProductReviewOverview;
-    if (reviews is { AllowCustomerReviews: true, TotalReviews: > 0 })
+    if (facts.RatingValue is { } ratingValue)
     {
         product["aggregateRating"] = new Dictionary<string, object> {
             ["@type"] = "AggregateRating",
-            ["ratingValue"] = Math.Round(reviews.AvgRating, 2)
-                .ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["reviewCount"] = reviews.TotalReviews
+            ["ratingValue"] = ratingValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["reviewCount"] = facts.ReviewCount
         };
     }
 

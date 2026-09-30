@@ -73,6 +73,7 @@ public class ProductDetailsModel : BaseEntityModel
     public IList<ProductSpecificationModel> ProductSpecifications { get; set; } = new List<ProductSpecificationModel>();
     public IList<CollectionModel> ProductCollections { get; set; } = new List<CollectionModel>();
     public ProductReviewOverviewModel ProductReviewOverview { get; set; } = new();
+    public ProductStructuredDataModel StructuredData { get; set; } = new();
 
     public IList<TierPriceModel> TierPrices { get; set; } = new List<TierPriceModel>();
 

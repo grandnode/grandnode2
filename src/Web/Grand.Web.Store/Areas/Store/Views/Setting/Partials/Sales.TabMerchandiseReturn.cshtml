@@ -11,6 +11,8 @@
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="OrderSettings.MerchandiseReturnsEnabled"/>
         <admin-field asp-for="OrderSettings.NumberOfDaysMerchandiseReturnAvailable" size="sm"/>
+        <admin-field asp-for="OrderSettings.MerchandiseReturnFees" asp-items="EnumTranslationService.ToSelectList(Model.OrderSettings.MerchandiseReturnFees)" size="md"/>
+        <admin-field asp-for="OrderSettings.MerchandiseReturnMethod" asp-items="EnumTranslationService.ToSelectList(Model.OrderSettings.MerchandiseReturnMethod)" size="md"/>
         <admin-field asp-for="OrderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress"/>
         <admin-field asp-for="OrderSettings.MerchandiseReturns_AllowToSpecifyPickupDate"/>
         <admin-field asp-for="OrderSettings.MerchandiseReturns_PickupDateRequired"/>

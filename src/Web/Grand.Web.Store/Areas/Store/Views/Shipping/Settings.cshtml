@@ -48,6 +48,19 @@
                 </div>
             </div>
         </admin-card>
+        @* optional; published only in the product structured data (JSON-LD), never used by checkout *@
+        <admin-card title="@Loc["Admin.Configuration.Shipping.Settings.StructuredData"]">
+            <div class="note note-info">@Loc["Admin.Configuration.Shipping.Settings.StructuredData.Description"]</div>
+            <div class="grand-fields">
+                <admin-field asp-for="DefaultShippingRate" size="md"/>
+            </div>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="HandlingTimeMinDays" size="sm"/>
+                <admin-field asp-for="HandlingTimeMaxDays" size="sm"/>
+                <admin-field asp-for="TransitTimeMinDays" size="sm"/>
+                <admin-field asp-for="TransitTimeMaxDays" size="sm"/>
+            </div>
+        </admin-card>
         <admin-card title="@Loc["Admin.Configuration.Shipping.Settings.shippingoriginaddress"]">
             <div id="pnlShippingOriginAddress">
                 <admin-input asp-for="ShippingOriginAddress" asp-template="Address"/>

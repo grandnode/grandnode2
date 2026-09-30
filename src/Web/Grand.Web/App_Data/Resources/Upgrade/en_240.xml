@@ -408,4 +408,70 @@
 	<Resource Name="admin.catalog.products.fields.published.unpublished" Area="Admin">
 		<Value>Unpublished</Value>
 	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnfees" Area="Admin">
+		<Value>Return fees</Value>
+	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnfees.hint" Area="Admin">
+		<Value>Who pays for a return. Optional - published in the store's structured data for search engines and AI assistants; nothing in checkout enforces it.</Value>
+	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnmethod" Area="Admin">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnmethod.hint" Area="Admin">
+		<Value>How customers send a return back. Optional - published in the store's structured data for search engines and AI assistants.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemindays" Area="Admin">
+		<Value>Handling time - minimum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemindays.hint" Area="Admin">
+		<Value>Minimum business days between the order and handing the parcel to the carrier.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemaxdays" Area="Admin">
+		<Value>Handling time - maximum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemaxdays.hint" Area="Admin">
+		<Value>Maximum business days between the order and handing the parcel to the carrier.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemindays" Area="Admin">
+		<Value>Transit time - minimum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemindays.hint" Area="Admin">
+		<Value>Minimum business days the carrier needs to deliver.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemaxdays" Area="Admin">
+		<Value>Transit time - maximum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemaxdays.hint" Area="Admin">
+		<Value>Maximum business days the carrier needs to deliver.</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnfees.notspecified" Area="Common">
+		<Value>Not specified</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnfees.free" Area="Common">
+		<Value>Free return</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnfees.customerpays" Area="Common">
+		<Value>Paid by the customer</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnmethod.notspecified" Area="Common">
+		<Value>Not specified</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnmethod.bymail" Area="Common">
+		<Value>By mail</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnmethod.instore" Area="Common">
+		<Value>In store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.structureddata" Area="Admin">
+		<Value>Shipping details for search engines</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.structureddata.description" Area="Admin">
+		<Value>Optional. Published in the product structured data (JSON-LD) read by search engines, Google Merchant listings and AI assistants - checkout never uses these values. Leave a field empty to publish nothing for it.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.defaultshippingrate" Area="Admin">
+		<Value>Default shipping rate</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.defaultshippingrate.hint" Area="Admin">
+		<Value>Standard cost of shipping one item, in the primary store currency, entered like a shipping method's rate. Published for products without free shipping, plus the product's additional shipping charge; products that qualify for free shipping over X are published as free.</Value>
+	</Resource>
 </Language>

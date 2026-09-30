@@ -57,4 +57,34 @@ public class ShippingSettings : ISettings
     ///     quantity
     /// </summary>
     public bool AdditionalShippingChargeByQty { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the standard cost of shipping one item, in the primary store currency, entered like a
+    ///     shipping method's rate. Optional - informational only, published in structured data
+    ///     (OfferShippingDetails.shippingRate) for products without free shipping; checkout never uses it,
+    ///     the rate there always comes from the shipping provider
+    /// </summary>
+    public double? DefaultShippingRate { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the minimum number of business days between the order and handing it to the carrier.
+    ///     Optional - informational only, published in structured data (OfferShippingDetails.deliveryTime)
+    /// </summary>
+    public int? HandlingTimeMinDays { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the maximum number of business days between the order and handing it to the carrier
+    /// </summary>
+    public int? HandlingTimeMaxDays { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the minimum number of business days the carrier needs to deliver.
+    ///     Optional - informational only, published in structured data (OfferShippingDetails.deliveryTime)
+    /// </summary>
+    public int? TransitTimeMinDays { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the maximum number of business days the carrier needs to deliver
+    /// </summary>
+    public int? TransitTimeMaxDays { get; set; }
 }
