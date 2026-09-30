@@ -12,6 +12,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
@@ -32,6 +33,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
     private readonly ITaxCategoryService _taxService;
     private readonly IWarehouseService _warehouseService;
     private readonly ISeNameService _seNameService;
+    private readonly SecurityConfig _securityConfig;
     public ProductImportDataObject(
         IProductService productService,
         IPictureService pictureService,
@@ -46,7 +48,8 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         IBrandService brandService,
         ICollectionService collectionService,
         IProductCollectionService productCollectionService,
-        ISeNameService seNameService)
+        ISeNameService seNameService,
+        SecurityConfig securityConfig)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -62,6 +65,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         _collectionService = collectionService;
         _productCollectionService = productCollectionService;
         _seNameService = seNameService;
+        _securityConfig = securityConfig;
     }
 
     public async Task Execute(IEnumerable<ProductDto> data)
@@ -216,8 +220,9 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
             if (string.IsNullOrEmpty(pictureUrl))
                 continue;
 
-            //only public http(s) URLs are downloaded - a local path would let the import read any file on the server
-            var image = await DownloadUrl.DownloadImage(pictureUrl);
+            //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
+            //import read any file on the server
+            var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts);
             if (image == null)
                 continue;
 

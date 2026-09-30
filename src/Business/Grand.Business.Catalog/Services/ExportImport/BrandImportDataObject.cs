@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
@@ -17,19 +18,22 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
     private readonly IPictureService _pictureService;
     private readonly ISlugService _slugService;
     private readonly ISeNameService _seNameService;
+    private readonly SecurityConfig _securityConfig;
     
     public BrandImportDataObject(
         IBrandService brandService,
         IPictureService pictureService,
         IBrandLayoutService brandLayoutService,
         ISlugService slugService,
-        ISeNameService seNameService)
+        ISeNameService seNameService,
+        SecurityConfig securityConfig)
     {
         _brandService = brandService;
         _pictureService = pictureService;
         _brandLayoutService = brandLayoutService;
         _slugService = slugService;
         _seNameService = seNameService;
+        _securityConfig = securityConfig;
     }
 
     public async Task Execute(IEnumerable<BrandDto> data)
@@ -98,8 +102,9 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
         if (string.IsNullOrEmpty(pictureUrl))
             return null;
 
-        //only public http(s) URLs are downloaded - a local path would let the import read any file on the server
-        var image = await DownloadUrl.DownloadImage(pictureUrl);
+        //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
+        //import read any file on the server
+        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts);
         if (image == null)
             return null;
 

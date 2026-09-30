@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using Grand.Business.Core.Utilities.System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -89,5 +90,76 @@ public class DownloadUrlTests
     public void DetectImageMimeType_NotAnImage_ReturnsNull(string content)
     {
         Assert.IsNull(DownloadUrl.DetectImageMimeType(Encoding.UTF8.GetBytes(content)));
+    }
+
+    [TestMethod]
+    [DataRow("127.0.0.1", "127.0.0.1")]
+    [DataRow("localhost", "LOCALHOST")]
+    public async Task DownloadImage_AllowedPrivateHost_DownloadsFromInternalServer(string host, string allowedHost)
+    {
+        using var server = new LocalImageServer();
+
+        var result = await DownloadUrl.DownloadImage($"http://{host}:{server.Port}/image.png", [allowedHost]);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("image/png", result.MimeType);
+        CollectionAssert.AreEqual(LocalImageServer.Png, result.Binary);
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(new[] { "images.example.local", "*.example.local", " " })]
+    public async Task DownloadImage_InternalServerNotAllowed_NeverConnects(string[] allowedHosts)
+    {
+        using var server = new LocalImageServer();
+
+        var result = await DownloadUrl.DownloadImage($"http://127.0.0.1:{server.Port}/image.png", allowedHosts);
+
+        Assert.IsNull(result);
+        Assert.AreEqual(0, server.Connections);
+    }
+
+    private sealed class LocalImageServer : IDisposable
+    {
+        public static readonly byte[] Png = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x01, 0x02, 0x03];
+
+        private readonly TcpListener _listener = new(IPAddress.Loopback, 0);
+        private int _connections;
+
+        public LocalImageServer()
+        {
+            _listener.Start();
+            _ = Serve();
+        }
+
+        public int Port => ((IPEndPoint)_listener.LocalEndpoint).Port;
+        public int Connections => _connections;
+
+        private async Task Serve()
+        {
+            try
+            {
+                while (true)
+                {
+                    using var client = await _listener.AcceptTcpClientAsync();
+                    Interlocked.Increment(ref _connections);
+                    var stream = client.GetStream();
+                    await stream.ReadAsync(new byte[4096]);
+                    var header = "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\n" +
+                                 $"Content-Length: {Png.Length}\r\nConnection: close\r\n\r\n";
+                    await stream.WriteAsync(Encoding.ASCII.GetBytes(header));
+                    await stream.WriteAsync(Png);
+                }
+            }
+            catch (Exception ex) when (ex is SocketException or ObjectDisposedException)
+            {
+                //listener stopped
+            }
+        }
+
+        public void Dispose()
+        {
+            _listener.Stop();
+        }
     }
 }

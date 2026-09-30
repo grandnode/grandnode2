@@ -7,11 +7,13 @@ namespace Grand.Business.Core.Utilities.System;
 ///     Downloads images referenced by URL in import files. The URL comes from whoever prepared the file,
 ///     so the server must not become a proxy into its own network (SSRF): only http(s) on ports 80/443 to
 ///     publicly routable addresses is allowed, and only content that is actually an image is returned.
+///     Hosts on the internal network can be allowed explicitly by the server configuration.
 /// </summary>
 public static class DownloadUrl
 {
     private const int MaxResponseBytes = 10 * 1024 * 1024;
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
+    private static readonly HttpRequestOptionsKey<string[]> AllowedPrivateHostsKey = new("AllowedPrivateHosts");
 
     private static readonly IPNetwork[] BlockedIPv4Networks = [
         IPNetwork.Parse("0.0.0.0/8"), //0.0.0.0 reaches localhost on Linux
@@ -40,7 +42,7 @@ public static class DownloadUrl
         MaxAutomaticRedirections = 3,
         ConnectTimeout = TimeSpan.FromSeconds(10),
         PooledConnectionLifetime = TimeSpan.FromMinutes(2),
-        ConnectCallback = ConnectToPublicAddress
+        ConnectCallback = ConnectToAllowedAddress
     }) {
         Timeout = Timeout.InfiniteTimeSpan
     };
@@ -49,9 +51,11 @@ public static class DownloadUrl
     ///     Downloads an image from a public http(s) URL
     /// </summary>
     /// <param name="url">Image URL</param>
+    /// <param name="allowedPrivateHosts">Hosts that may resolve to a non-public address and use any port;
+    /// a leading "*." matches any subdomain</param>
     /// <returns>Image binary with the MIME type detected from its content, or null when the URL is not allowed,
     /// the download fails or the content is not a supported image</returns>
-    public static async Task<DownloadedImage> DownloadImage(string url)
+    public static async Task<DownloadedImage> DownloadImage(string url, string[] allowedPrivateHosts = null)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
             (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
@@ -60,7 +64,10 @@ public static class DownloadUrl
         using var cts = new CancellationTokenSource(RequestTimeout);
         try
         {
-            using var response = await Client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+            //redirects reuse this request message, so every hop is checked against the same list
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            request.Options.Set(AllowedPrivateHostsKey, allowedPrivateHosts ?? []);
+            using var response = await Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
             if (!response.IsSuccessStatusCode)
                 return null;
 
@@ -112,11 +119,15 @@ public static class DownloadUrl
         };
     }
 
-    private static async ValueTask<Stream> ConnectToPublicAddress(SocketsHttpConnectionContext context,
+    private static async ValueTask<Stream> ConnectToAllowedAddress(SocketsHttpConnectionContext context,
         CancellationToken cancellationToken)
     {
         var endpoint = context.DnsEndPoint;
-        if (endpoint.Port is not (80 or 443))
+        context.InitialRequestMessage.Options.TryGetValue(AllowedPrivateHostsKey, out var allowedPrivateHosts);
+        var isAllowedPrivateHost = allowedPrivateHosts != null &&
+                                   allowedPrivateHosts.Any(allowed => IsHostMatch(endpoint.Host, allowed));
+
+        if (!isAllowedPrivateHost && endpoint.Port is not (80 or 443))
             throw new HttpRequestException($"Port {endpoint.Port} is not allowed");
 
         IPAddress[] addresses = IPAddress.TryParse(endpoint.Host, out var literal)
@@ -124,7 +135,7 @@ public static class DownloadUrl
             : await Dns.GetHostAddressesAsync(endpoint.Host, cancellationToken);
 
         //reject when any address is non-public, so a public record cannot smuggle in a private one
-        if (addresses.Length == 0 || !addresses.All(IsPublicAddress))
+        if (addresses.Length == 0 || (!isAllowedPrivateHost && !addresses.All(IsPublicAddress)))
             throw new HttpRequestException($"Host {endpoint.Host} is not allowed");
 
         var socket = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
@@ -138,6 +149,18 @@ public static class DownloadUrl
             socket.Dispose();
             throw;
         }
+    }
+
+    private static bool IsHostMatch(string host, string allowed)
+    {
+        if (string.IsNullOrWhiteSpace(allowed))
+            return false;
+
+        allowed = allowed.Trim();
+        if (allowed.StartsWith("*.", StringComparison.Ordinal))
+            return host.EndsWith(allowed[1..], StringComparison.OrdinalIgnoreCase);
+
+        return string.Equals(host, allowed, StringComparison.OrdinalIgnoreCase);
     }
 
     private static async Task<byte[]> ReadLimited(HttpContent content, CancellationToken cancellationToken)

@@ -1,4 +1,4 @@
-using Grand.Mapping;
+﻿using Grand.Mapping;
 using Grand.Business.Catalog.Services.Collections;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Security;
@@ -65,7 +65,8 @@ public class CollectionImportDataObjectTests
             _mediatorMock.Object, new AclService(new AccessControlConfig()), new AccessControlConfig());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _collectionImportDataObject = new CollectionImportDataObject(_collectionService, _pictureServiceMock.Object,
-            _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService);
+            _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
+            new SecurityConfig());
     }
 
     [TestMethod]

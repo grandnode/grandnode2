@@ -1,4 +1,4 @@
-using Grand.Mapping;
+﻿using Grand.Mapping;
 using Grand.Business.Catalog.Services.Brands;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Seo;
@@ -64,7 +64,8 @@ public class BrandImportDataObjectTests
             new AccessControlConfig());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object,
-            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService);
+            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
+            new SecurityConfig());
     }
 
     [TestMethod]

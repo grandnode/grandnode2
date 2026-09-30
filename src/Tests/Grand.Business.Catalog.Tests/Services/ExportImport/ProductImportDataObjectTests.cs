@@ -99,7 +99,8 @@ public class ProductImportDataObjectTests
             _categoryServiceMock.Object, _productCategoryServiceMock.Object, _brandServiceMock.Object,
             _collectionServiceMock.Object,
             _productCollectionServiceMock.Object,
-            _seNameService);
+            _seNameService,
+            new SecurityConfig());
     }
 
     [TestMethod]
