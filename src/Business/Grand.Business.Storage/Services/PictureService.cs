@@ -213,7 +213,7 @@ public class PictureService : IPictureService
             if (dirThumb != null)
             {
                 var file = _mediaFileStore.Combine(dirThumb.PhysicalPath, thumbFileName);
-                File.WriteAllBytes(file, binary ?? []);
+                AtomicFile.WriteAllBytes(file, binary ?? []);
             }
             else
             {
@@ -709,7 +709,7 @@ public class PictureService : IPictureService
         if (dirPath != null)
         {
             var filepath = _mediaFileStore.Combine(dirPath.PhysicalPath, fileName);
-            File.WriteAllBytes(filepath, pictureBinary);
+            AtomicFile.WriteAllBytes(filepath, pictureBinary);
         }
         else
         {
