@@ -34,6 +34,30 @@ public class AppConfigExtensionsTests
     }
 
     [TestMethod]
+    [DataRow(".")]
+    [DataRow("..")]
+    [DataRow("App_Data")]
+    [DataRow("app_data/")]
+    public void GetMediaRootPath_PathThatWouldPublishApplicationFiles_Throws(string mediaPath)
+    {
+        //Arrange - the media root is served at "/", so it must not expose appsettings.json or Settings.cfg
+        var config = new AppConfig { MediaPath = mediaPath };
+        //Act + Assert
+        Assert.ThrowsExactly<InvalidOperationException>(() => config.GetMediaRootPath(ContentRoot));
+    }
+
+    [TestMethod]
+    public void GetMediaRootPath_SubdirectoryOfAppData_Allowed()
+    {
+        //Arrange - a media folder inside a shared App_Data volume serves only that folder
+        var config = new AppConfig { MediaPath = Path.Combine("App_Data", "media") };
+        //Act
+        var result = config.GetMediaRootPath(ContentRoot);
+        //Assert
+        Assert.AreEqual(Path.Combine(ContentRoot, "App_Data", "media"), result);
+    }
+
+    [TestMethod]
     public void GetMediaRootPath_AbsolutePath_ReturnedAsIs()
     {
         //Arrange
