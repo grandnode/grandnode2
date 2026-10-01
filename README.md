@@ -133,6 +133,22 @@ If you want to download the latest stable version of GrandNode please use the fo
 docker pull grandnode/grandnode2:x.xx 
 ```
 
+#### Running more than one instance
+
+Files GrandNode writes at runtime (sitemap XML files, custom CSS/JS, uploaded images, thumbnails, the push
+service worker) live in `wwwroot` by default, so with several instances each one only sees its own. Point
+`Application:MediaPath` at a volume shared by all instances (ReadWriteMany in Kubernetes: Azure Files, EFS, NFS):
+
+```bash
+docker run -d -p 80:8080 --name grandnode2 --link mongodb:mongo \
+  -e Application__MediaPath=/app/media -v grandnode_media:/app/media \
+  -v grandnode_appdata:/app/App_Data grandnode/grandnode2
+```
+
+Files that ship with the build stay in `wwwroot` and are used until the shop overwrites them. When switching an
+existing installation, copy `wwwroot/assets/custom`, `wwwroot/assets/images/uploaded` and, with pictures stored on
+disk, the `wwwroot/assets/images/*_0.*` originals into the media path once.
+
 * Open locally in an IDE
 
 Extract the source code package downloaded from the Releases tab to a folder (or
