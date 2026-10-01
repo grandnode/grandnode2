@@ -21,7 +21,15 @@
 else
 {
     <div class="note note-info">
-        @Html.Raw(Loc["Admin.Catalog.Categories.Discounts.NoDiscounts"])
+        @* the Admin text links to /Admin/Discount/List, which a store manager cannot open *@
+        @if (ViewContext.RouteData.Values["area"] as string == "Store")
+        {
+            @Loc["Admin.Catalog.Discounts.NoStoreDiscounts"]
+        }
+        else
+        {
+            @Html.Raw(Loc["Admin.Catalog.Categories.Discounts.NoDiscounts"])
+        }
     </div>
 }
 <partial name="Partials/WidgetZone.Discounts.Bottom" model="Model"/>

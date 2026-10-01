@@ -477,4 +477,7 @@
 	<Resource Name="vendor.header.profile" Area="Vendor">
 		<Value>Vendor profile</Value>
 	</Resource>
+	<Resource Name="admin.catalog.discounts.nostorediscounts" Area="Admin">
+		<Value>There are no configured discounts. Create one under Marketing → Discounts.</Value>
+	</Resource>
 </Language>
