@@ -146,8 +146,10 @@ docker run -d -p 80:8080 --name grandnode2 --link mongodb:mongo \
 ```
 
 Files that ship with the build stay in `wwwroot` and are used until the shop overwrites them. When switching an
-existing installation, copy `wwwroot/assets/custom`, `wwwroot/assets/images/uploaded` and, with pictures stored on
-disk, the `wwwroot/assets/images/*_0.*` originals into the media path once.
+existing installation, **move** (not copy) `wwwroot/assets/custom`, `wwwroot/assets/images/uploaded` and, with
+pictures stored on disk, the `wwwroot/assets/images/*_0.*` originals into the same paths under the media path, then
+stop mounting the old `wwwroot/assets/images` volume. A file left behind in `wwwroot` keeps being served after it is
+deleted in the admin, because the shop only deletes on the media path. Thumbnails are regenerated on the media path.
 
 * Open locally in an IDE
 
