@@ -53,6 +53,28 @@ public class PictureServiceMediaPathTests
     }
 
     [TestMethod]
+    [Timeout(30_000)]
+    public async Task GetPictureUrl_ThumbWrittenAsynchronously_SavesThumbOnVolume()
+    {
+        //Arrange - a large original makes the thumb write complete asynchronously, resuming on another thread,
+        //while parallel requests generate the same thumb; a thread-affine lock (Mutex) used to hang them here
+        var service = new PictureService(new Mock<IRepository<Picture>>().Object,
+            new Mock<ILogger<PictureService>>().Object, new Mock<IMediator>().Object, new Mock<ICacheBase>().Object,
+            new DefaultMediaFileStore(MediaFileStoreFactory.Create(_webRoot, _media, null)), new MediaSettings(),
+            new StorageSettings { PictureStoreInDb = false });
+        Directory.CreateDirectory(Path.Combine(_media, "assets", "images"));
+        await File.WriteAllBytesAsync(Path.Combine(_media, "assets", "images", "p1_0.jpeg"), new byte[8 * 1024 * 1024]);
+
+        //Act
+        var urls = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => Task.Run(() =>
+            service.GetPictureUrl(new Picture { Id = "p1", MimeType = "image/jpeg" }, 0, true, "http://localhost/"))));
+
+        //Assert
+        Assert.IsTrue(File.Exists(Path.Combine(_media, "assets", "images", "thumbs", "p1.jpeg")));
+        Assert.AreEqual("http://localhost/assets/images/thumbs/p1.jpeg", urls[0]);
+    }
+
+    [TestMethod]
     public async Task DeletePictureOnFileSystem_OriginalOnVolume_IsDeleted()
     {
         //Arrange

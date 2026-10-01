@@ -273,21 +273,10 @@ public class PictureService : IPictureService
         if (!string.IsNullOrEmpty(thumbFilePath))
             return GetThumbUrl(thumbFileName, storeLocation);
 
-        using (var mutex = new Mutex(false, thumbFileName))
-        {
-            mutex.WaitOne();
-            try
-            {
-                using var image = SKBitmap.Decode(filePath);
-                var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
-                if (pictureBinary != null)
-                    await SaveThumb(thumbFileName, pictureBinary);
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
-        }
+        using var image = SKBitmap.Decode(filePath);
+        var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
+        if (pictureBinary != null)
+            await SaveThumb(thumbFileName, pictureBinary);
         var url = GetThumbUrl(thumbFileName, storeLocation);
         return url;
     }
@@ -355,16 +344,7 @@ public class PictureService : IPictureService
 
             var pictureBinary = await LoadPictureBinary(picture);
 
-            using var mutex = new Mutex(false, thumbFileName);
-            mutex.WaitOne();
-            try
-            {
-                await SaveThumb(thumbFileName, pictureBinary);
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
+            await SaveThumb(thumbFileName, pictureBinary);
         }
         else
         {
@@ -379,30 +359,21 @@ public class PictureService : IPictureService
 
             var pictureBinary = await LoadPictureBinary(picture);
 
-            using var mutex = new Mutex(false, thumbFileName);
-            mutex.WaitOne();
-            try
+            if (pictureBinary != null)
             {
-                if (pictureBinary != null)
+                try
                 {
-                    try
-                    {
-                        using var image = SKBitmap.Decode(pictureBinary);
-                        var resizedBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
-                        if (resizedBinary != null)
-                            pictureBinary = resizedBinary;
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                    using var image = SKBitmap.Decode(pictureBinary);
+                    var resizedBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
+                    if (resizedBinary != null)
+                        pictureBinary = resizedBinary;
                 }
-                await SaveThumb(thumbFileName, pictureBinary);
+                catch
+                {
+                    // ignored
+                }
             }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
+            await SaveThumb(thumbFileName, pictureBinary);
         }
 
         return GetThumbUrl(thumbFileName, storeLocation);
