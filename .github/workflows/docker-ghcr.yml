@@ -9,19 +9,22 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+-*'    # 2.4.0-beta
 
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to build, e.g. 2.3.0 (empty = the ref the workflow runs on)'
+        required: false
+        type: string
 
 # Nothing by default; the job asks for exactly what it needs.
 permissions: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ inputs.tag || github.ref }}
   cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: grandnode/grandnode2
-  # A release tag names the image after itself; the test branch keeps :test.
-  VERSION: ${{ github.ref_type == 'tag' && github.ref_name || 'test' }}
 
 jobs:
   release:
@@ -35,10 +38,43 @@ jobs:
       attestations: write   # GitHub artifact attestation (SLSA provenance)
 
     steps:
+      # A release tag names the image after itself; anything else is :test.
+      # The tag comes from the manual input or from a tag push, and is
+      # validated before it reaches a ref, an image tag or a label.
+      - name: Resolve version
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "${INPUT_TAG}" ]; then
+            version="${INPUT_TAG}"
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="test"
+          fi
+
+          if [ "${version}" = "test" ]; then
+            source_ref="${GITHUB_SHA}"
+          elif [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$ ]]; then
+            source_ref="refs/tags/${version}"
+          else
+            echo "::error::Not a release tag; expected e.g. 2.3.0 or 2.4.0-beta"
+            exit 1
+          fi
+
+          echo "VERSION=${version}" >> "${GITHUB_ENV}"
+          echo "SOURCE_REF=${source_ref}" >> "${GITHUB_ENV}"
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ env.SOURCE_REF }}
           persist-credentials: false
+
+      # The commit actually built; differs from github.sha when a tag is
+      # built manually from a workflow on another branch.
+      - name: Resolve revision
+        run: echo "REVISION=$(git rev-parse HEAD)" >> "${GITHUB_ENV}"
 
       - name: Login to GHCR
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -58,8 +94,8 @@ jobs:
           push: true
 
           build-args: |
-            GIT_COMMIT=${{ github.sha }}
-            GIT_BRANCH=${{ github.ref_name }}
+            GIT_COMMIT=${{ env.REVISION }}
+            GIT_BRANCH=${{ env.VERSION == 'test' && github.ref_name || env.VERSION }}
 
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
@@ -67,7 +103,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/grandnode/grandnode2
             org.opencontainers.image.version=${{ env.VERSION }}
-            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.revision=${{ env.REVISION }}
             org.opencontainers.image.description=GrandNode Docker image
 
           # BuildKit attestations are unsigned and cosign cannot verify them;
@@ -90,7 +126,8 @@ jobs:
           echo "========================================"
           echo "Image:       ${REGISTRY}/${IMAGE_NAME}:${VERSION}"
           echo "Git ref:     ${GITHUB_REF}"
-          echo "Git commit:  ${GITHUB_SHA}"
+          echo "Source:      ${SOURCE_REF}"
+          echo "Git commit:  ${REVISION}"
           echo "Digest:      ${DIGEST}"
           echo "========================================"
 
