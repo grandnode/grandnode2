@@ -39,4 +39,11 @@ public class AppConfig
     ///     Gets or sets the value to enable a middleware for logging additional information about CurrentCustomer and store
     /// </summary>
     public bool EnableContextLoggingMiddleware { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the directory for files the application writes at runtime (custom css/js, uploaded images,
+    ///     thumbnails, sitemap xml files). Empty keeps them in wwwroot. With more than one instance, point every
+    ///     instance at the same shared volume. A relative path is resolved against the content root.
+    /// </summary>
+    public string MediaPath { get; set; }
 }
