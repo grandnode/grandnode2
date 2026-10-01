@@ -198,7 +198,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="thumbFileName">Thumb file name</param>
     /// <param name="binary">Picture binary</param>
-    protected virtual Task SaveThumb(string thumbFileName, byte[] binary)
+    protected virtual async Task SaveThumb(string thumbFileName, byte[] binary)
     {
         try
         {
@@ -213,7 +213,7 @@ public class PictureService : IPictureService
             if (dirThumb != null)
             {
                 var file = _mediaFileStore.Combine(dirThumb.PhysicalPath, thumbFileName);
-                AtomicFile.WriteAllBytes(file, binary ?? []);
+                await AtomicFile.WriteAllBytesAsync(file, binary ?? []);
             }
             else
             {
@@ -224,8 +224,6 @@ public class PictureService : IPictureService
         {
             _logger.LogError(ex, ex.Message);
         }
-
-        return Task.CompletedTask;
     }
 
     #endregion
@@ -701,7 +699,7 @@ public class PictureService : IPictureService
     /// <param name="pictureId">Picture identifier</param>
     /// <param name="pictureBinary">Picture binary</param>
     /// <param name="mimeType">MIME type</param>
-    public virtual Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType)
+    public virtual async Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType)
     {
         var lastPart = GetFileExtensionFromMimeType(mimeType);
         var fileName = $"{pictureId}_0.{lastPart}";
@@ -709,14 +707,12 @@ public class PictureService : IPictureService
         if (dirPath != null)
         {
             var filepath = _mediaFileStore.Combine(dirPath.PhysicalPath, fileName);
-            AtomicFile.WriteAllBytes(filepath, pictureBinary);
+            await AtomicFile.WriteAllBytesAsync(filepath, pictureBinary);
         }
         else
         {
             _logger.LogError("Directory path not exist");
         }
-
-        return Task.CompletedTask;
     }
 
     /// <summary>

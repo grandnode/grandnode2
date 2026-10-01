@@ -149,8 +149,10 @@ Files that ship with the build stay in `wwwroot` and are used until the shop ove
 existing installation, **move** (not copy) `wwwroot/assets/custom`, `wwwroot/assets/images/uploaded`,
 `wwwroot/sitemap*.xml`, `wwwroot/firebase-messaging-sw.js` and, with pictures stored on disk, the
 `wwwroot/assets/images/*_0.*` originals into the same paths under the media path, then stop mounting the old
-`wwwroot/assets/images` volume. Without the move, each instance serves its own copy of the sitemap until the sitemap
-task runs again, and of the push service worker until the push notification settings are saved again. A file left behind in `wwwroot` keeps being served after it is
+`wwwroot/assets/images` volume. With the `Directory` setting configured, both sides carry it as a prefix: move
+`wwwroot/{Directory}/assets/custom` to `{MediaPath}/{Directory}/assets/custom`, and so on. Without the move, each
+instance serves its own copy of the sitemap until the sitemap task runs again, and of the push service worker until
+the push notification settings are saved again. A file left behind in `wwwroot` keeps being served after it is
 deleted in the admin, because the shop only deletes on the media path. Thumbnails are regenerated on the media path.
 
 * Open locally in an IDE

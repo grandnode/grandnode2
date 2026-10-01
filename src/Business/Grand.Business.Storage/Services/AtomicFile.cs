@@ -8,13 +8,13 @@ namespace Grand.Business.Storage.Services;
 /// </summary>
 public static class AtomicFile
 {
-    public static void WriteAllBytes(string path, byte[] bytes)
+    public static async Task WriteAllBytesAsync(string path, byte[] bytes)
     {
         var tempPath = TempPathFor(path);
         try
         {
-            File.WriteAllBytes(tempPath, bytes);
-            Replace(tempPath, path);
+            await File.WriteAllBytesAsync(tempPath, bytes);
+            await Replace(tempPath, path);
         }
         finally
         {
@@ -28,7 +28,7 @@ public static class AtomicFile
         try
         {
             await File.WriteAllTextAsync(tempPath, text, Encoding.UTF8);
-            Replace(tempPath, path);
+            await Replace(tempPath, path);
         }
         finally
         {
@@ -44,7 +44,7 @@ public static class AtomicFile
     private const int ReplaceAttempts = 20;
     private static readonly TimeSpan ReplaceRetryDelay = TimeSpan.FromMilliseconds(50);
 
-    private static void Replace(string tempPath, string path)
+    private static async Task Replace(string tempPath, string path)
     {
         for (var attempt = 1;; attempt++)
             try
@@ -54,7 +54,7 @@ public static class AtomicFile
             }
             catch (Exception ex) when (attempt < ReplaceAttempts && IsSharingViolation(ex))
             {
-                Thread.Sleep(ReplaceRetryDelay);
+                await Task.Delay(ReplaceRetryDelay);
             }
     }
 

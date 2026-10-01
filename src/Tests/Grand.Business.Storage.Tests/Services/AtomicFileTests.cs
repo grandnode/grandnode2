@@ -22,12 +22,12 @@ public class AtomicFileTests
     }
 
     [TestMethod]
-    public void WriteAllBytes_NewFile_WritesContentAndLeavesNoTempFile()
+    public async Task WriteAllBytes_NewFile_WritesContentAndLeavesNoTempFile()
     {
         //Arrange
         var path = Path.Combine(_dir, "thumb.jpg");
         //Act
-        AtomicFile.WriteAllBytes(path, [1, 2, 3]);
+        await AtomicFile.WriteAllBytesAsync(path, [1, 2, 3]);
         //Assert
         CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, File.ReadAllBytes(path));
         Assert.HasCount(1, Directory.GetFiles(_dir));
@@ -56,7 +56,7 @@ public class AtomicFileTests
         var closeReader = Task.Delay(200).ContinueWith(_ => reader.Dispose());
 
         //Act
-        AtomicFile.WriteAllBytes(path, [1, 2]);
+        await AtomicFile.WriteAllBytesAsync(path, [1, 2]);
         await closeReader;
 
         //Assert
