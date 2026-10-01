@@ -493,8 +493,8 @@ public class PictureService : IPictureService
 
         var lastPart = GetFileExtensionFromMimeType(picture.MimeType);
         var fileName = $"{picture.Id}_0.{lastPart}";
-        var filePath = await GetPicturePhysicalPath(fileName);
-        if (!string.IsNullOrEmpty(filePath)) File.Delete(filePath);
+        //through the store: with a media path it deletes on the volume only, never in read-only wwwroot
+        await _mediaFileStore.TryDeleteFile(_mediaFileStore.Combine(ImagePath, fileName));
     }
 
     public virtual async Task ClearThumbs()
