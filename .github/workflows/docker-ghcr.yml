@@ -190,9 +190,15 @@ jobs:
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           DIGEST: ${{ steps.build.outputs.digest }}
+          IDENTITY: ${{ github.server_url }}/${{ github.workflow_ref }}
           GH_TOKEN: ${{ github.token }}
+        # --cert-identity is an exact SAN match. --signer-workflow is not: it
+        # omits the ref, and gh before the GHSA-wjmr-j3rp-mh2g fix matched it
+        # as a prefix, so another workflow or ref could pass.
         run: |
           gh attestation verify "oci://${IMAGE}@${DIGEST}" \
             --repo "${GITHUB_REPOSITORY}" \
-            --signer-workflow "${GITHUB_REPOSITORY}/.github/workflows/docker-ghcr.yml" \
+            --cert-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --cert-identity "${IDENTITY}" \
+            --deny-self-hosted-runners \
             --predicate-type "https://slsa.dev/provenance/v1"
