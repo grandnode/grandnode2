@@ -41,8 +41,10 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IMediaFileStore>(serviceProvider =>
         {
             var webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-            var param = configuration[CommonPath.DirectoryParam];
-            var fileStore = new FileSystemStore(Path.Combine(webHostEnvironment.WebRootPath, param ?? ""));
+            var appConfig = serviceProvider.GetRequiredService<AppConfig>();
+            var fileStore = MediaFileStoreFactory.Create(webHostEnvironment.WebRootPath,
+                appConfig.GetMediaRootPath(webHostEnvironment.ContentRootPath),
+                configuration[CommonPath.DirectoryParam]);
             return new DefaultMediaFileStore(fileStore);
         });
     }

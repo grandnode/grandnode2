@@ -30,7 +30,7 @@ EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
 
-RUN chown -R app:app /app/App_Data /app/wwwroot /app/Plugins
+RUN mkdir -p /app/media && chown -R app:app /app/App_Data /app/wwwroot /app/Plugins /app/media
 
 USER app
 

@@ -133,6 +133,28 @@ If you want to download the latest stable version of GrandNode please use the fo
 docker pull grandnode/grandnode2:x.xx 
 ```
 
+#### Running more than one instance
+
+Files GrandNode writes at runtime (sitemap XML files, custom CSS/JS, uploaded images, thumbnails, the push
+service worker) live in `wwwroot` by default, so with several instances each one only sees its own. Point
+`Application:MediaPath` at a volume shared by all instances (ReadWriteMany in Kubernetes: Azure Files, EFS, NFS):
+
+```bash
+docker run -d -p 80:8080 --name grandnode2 --link mongodb:mongo \
+  -e Application__MediaPath=/app/media -v grandnode_media:/app/media \
+  -v grandnode_appdata:/app/App_Data grandnode/grandnode2
+```
+
+Files that ship with the build stay in `wwwroot` and are used until the shop overwrites them. When switching an
+existing installation, **move** (not copy) `wwwroot/assets/custom`, `wwwroot/assets/images/uploaded`,
+`wwwroot/sitemap*.xml`, `wwwroot/firebase-messaging-sw.js` and, with pictures stored on disk, the
+`wwwroot/assets/images/*_0.*` originals into the same paths under the media path, then stop mounting the old
+`wwwroot/assets/images` volume. With the `Directory` setting configured, both sides carry it as a prefix: move
+`wwwroot/{Directory}/assets/custom` to `{MediaPath}/{Directory}/assets/custom`, and so on. Without the move, each
+instance serves its own copy of the sitemap until the sitemap task runs again, and of the push service worker until
+the push notification settings are saved again. A file left behind in `wwwroot` keeps being served after it is
+deleted in the admin, because the shop only deletes on the media path. Thumbnails are regenerated on the media path.
+
 * Open locally in an IDE
 
 Extract the source code package downloaded from the Releases tab to a folder (or
