@@ -154,6 +154,11 @@ public static class ApplicationBuilderExtensions
     /// <param name="appConfig">AppConfig</param>
     public static void UseGrandStaticFiles(this WebApplication application, AppConfig appConfig)
     {
+        var webHostEnvironment = application.Services.GetRequiredService<IWebHostEnvironment>();
+
+        //files written at runtime (shared media path) take precedence over wwwroot
+        MediaRootFileProvider.Apply(webHostEnvironment, appConfig.GetMediaRootPath(webHostEnvironment.ContentRootPath));
+
         //static files
         application.UseStaticFiles(new StaticFileOptions {
             OnPrepareResponse = ctx =>
@@ -162,7 +167,6 @@ public static class ApplicationBuilderExtensions
                     ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
             }
         });
-        var webHostEnvironment = application.Services.GetRequiredService<IWebHostEnvironment>();
         var pluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
 
         //plugins
