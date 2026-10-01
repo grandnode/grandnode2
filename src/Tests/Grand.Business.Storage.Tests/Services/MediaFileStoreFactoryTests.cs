@@ -37,11 +37,23 @@ public class MediaFileStoreFactoryTests
     {
         //Arrange
         var media = Path.Combine(_root, "media");
+        Directory.CreateDirectory(Path.Combine(media, "tenant"));
         var store = MediaFileStoreFactory.Create(_webRoot, media, "tenant");
         //Act
         await store.WriteAllText("sitemap.xml", "<urlset/>");
         //Assert
         Assert.IsTrue(File.Exists(Path.Combine(media, "tenant", "sitemap.xml")));
         Assert.IsFalse(File.Exists(Path.Combine(_webRoot, "tenant", "sitemap.xml")));
+    }
+
+    [TestMethod]
+    public void Create_WithMediaPath_DoesNotTouchTheFileSystem()
+    {
+        //Arrange - resolved once per request scope; the media directory is created at startup instead
+        var media = Path.Combine(_root, "media");
+        //Act
+        MediaFileStoreFactory.Create(_webRoot, media, "tenant");
+        //Assert
+        Assert.IsFalse(Directory.Exists(media));
     }
 }

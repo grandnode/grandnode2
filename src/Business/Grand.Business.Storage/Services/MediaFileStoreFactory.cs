@@ -16,14 +16,16 @@ public static class MediaFileStoreFactory
     /// <param name="webRootPath">wwwroot physical path</param>
     /// <param name="mediaRootPath">Shared media physical path; null or empty keeps everything in wwwroot</param>
     /// <param name="directory">Optional per-installation subdirectory (the "Directory" config value)</param>
+    /// <remarks>
+    ///     Runs once per request scope, so it does not touch the file system; the media directory is created
+    ///     at startup (MediaRootFileProvider.Apply)
+    /// </remarks>
     public static IFileStore Create(string webRootPath, string mediaRootPath, string directory)
     {
         var webRootStore = new FileSystemStore(Path.Combine(webRootPath, directory ?? ""));
         if (string.IsNullOrEmpty(mediaRootPath)) return webRootStore;
 
-        var mediaDirectory = Path.Combine(mediaRootPath, directory ?? "");
-        Directory.CreateDirectory(mediaDirectory);
-
-        return new LayeredFileStore(new FileSystemStore(mediaDirectory), webRootStore, PrimaryOnlyPaths);
+        var mediaStore = new FileSystemStore(Path.Combine(mediaRootPath, directory ?? ""));
+        return new LayeredFileStore(mediaStore, webRootStore, PrimaryOnlyPaths);
     }
 }

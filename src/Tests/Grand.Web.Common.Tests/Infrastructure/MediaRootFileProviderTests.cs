@@ -46,7 +46,7 @@ public class MediaRootFileProviderTests
         //Arrange
         var original = _env.Object.WebRootFileProvider;
         //Act
-        MediaRootFileProvider.Apply(_env.Object, null);
+        MediaRootFileProvider.Apply(_env.Object, null, null);
         //Assert
         Assert.AreSame(original, _env.Object.WebRootFileProvider);
     }
@@ -55,7 +55,7 @@ public class MediaRootFileProviderTests
     public void Apply_MissingMediaDirectory_IsCreated()
     {
         //Act
-        MediaRootFileProvider.Apply(_env.Object, _media);
+        MediaRootFileProvider.Apply(_env.Object, _media, null);
         //Assert
         Assert.IsTrue(Directory.Exists(_media));
     }
@@ -67,7 +67,7 @@ public class MediaRootFileProviderTests
         Directory.CreateDirectory(Path.Combine(_media, "assets", "custom"));
         File.WriteAllText(Path.Combine(_media, "assets", "custom", "style.css"), "edited");
         //Act
-        MediaRootFileProvider.Apply(_env.Object, _media);
+        MediaRootFileProvider.Apply(_env.Object, _media, null);
         //Assert
         Assert.AreEqual("edited", Read(_env.Object.WebRootFileProvider, "assets/custom/style.css"));
     }
@@ -76,7 +76,7 @@ public class MediaRootFileProviderTests
     public void Apply_FileOnlyInWebRoot_StillServed()
     {
         //Act
-        MediaRootFileProvider.Apply(_env.Object, _media);
+        MediaRootFileProvider.Apply(_env.Object, _media, null);
         //Assert
         Assert.AreEqual("ico", Read(_env.Object.WebRootFileProvider, "favicon.ico"));
     }
@@ -88,8 +88,44 @@ public class MediaRootFileProviderTests
         Directory.CreateDirectory(_media);
         File.WriteAllText(Path.Combine(_media, "sitemap.xml"), "<urlset/>");
         //Act
-        MediaRootFileProvider.Apply(_env.Object, _media);
+        MediaRootFileProvider.Apply(_env.Object, _media, null);
         //Assert
         Assert.AreEqual("<urlset/>", Read(_env.Object.WebRootFileProvider, "sitemap.xml"));
+    }
+
+    [TestMethod]
+    public void Apply_WithDirectory_CreatesMediaDirectory()
+    {
+        //Act
+        MediaRootFileProvider.Apply(_env.Object, _media, "tenant");
+        //Assert
+        Assert.IsTrue(Directory.Exists(Path.Combine(_media, "tenant")));
+    }
+
+    [TestMethod]
+    [DataRow(null, "assets/images/thumbs/p1_100.jpg")]
+    [DataRow("tenant", "tenant/assets/images/thumbs/p1_100.jpg")]
+    public void Apply_ThumbOnlyInWebRoot_NotServed(string directory, string thumbPath)
+    {
+        //Arrange - a thumb left in wwwroot from before the switch; the picture may have been deleted since
+        var physical = Path.Combine(_webRoot, thumbPath.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(Path.GetDirectoryName(physical)!);
+        File.WriteAllText(physical, "stale");
+        //Act
+        MediaRootFileProvider.Apply(_env.Object, _media, directory);
+        //Assert
+        Assert.IsFalse(_env.Object.WebRootFileProvider.GetFileInfo("/" + thumbPath).Exists);
+    }
+
+    [TestMethod]
+    public void Apply_ThumbOnVolume_Served()
+    {
+        //Arrange
+        Directory.CreateDirectory(Path.Combine(_media, "assets", "images", "thumbs"));
+        File.WriteAllText(Path.Combine(_media, "assets", "images", "thumbs", "p1_100.jpg"), "fresh");
+        //Act
+        MediaRootFileProvider.Apply(_env.Object, _media, null);
+        //Assert
+        Assert.AreEqual("fresh", Read(_env.Object.WebRootFileProvider, "/assets/images/thumbs/p1_100.jpg"));
     }
 }

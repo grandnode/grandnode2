@@ -157,7 +157,8 @@ public static class ApplicationBuilderExtensions
         var webHostEnvironment = application.Services.GetRequiredService<IWebHostEnvironment>();
 
         //files written at runtime (shared media path) take precedence over wwwroot
-        MediaRootFileProvider.Apply(webHostEnvironment, appConfig.GetMediaRootPath(webHostEnvironment.ContentRootPath));
+        MediaRootFileProvider.Apply(webHostEnvironment, appConfig.GetMediaRootPath(webHostEnvironment.ContentRootPath),
+            application.Configuration[CommonPath.DirectoryParam]);
 
         //static files
         application.UseStaticFiles(new StaticFileOptions {
