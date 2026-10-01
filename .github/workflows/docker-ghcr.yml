@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - test/ghcr-private
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'      # 2.3.0
+      - '[0-9]+.[0-9]+.[0-9]+-*'    # 2.4.0-beta
 
   workflow_dispatch:
 
@@ -17,7 +20,8 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: grandnode/grandnode2
-  VERSION: test
+  # A release tag names the image after itself; the test branch keeps :test.
+  VERSION: ${{ github.ref_type == 'tag' && github.ref_name || 'test' }}
 
 jobs:
   release:
@@ -53,6 +57,10 @@ jobs:
           context: .
           push: true
 
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_BRANCH=${{ github.ref_name }}
+
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
@@ -60,7 +68,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/grandnode/grandnode2
             org.opencontainers.image.version=${{ env.VERSION }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.description=GrandNode Docker test image
+            org.opencontainers.image.description=GrandNode Docker image
 
           # BuildKit attestations are unsigned and cosign cannot verify them;
           # the SBOM and provenance below are signed attestations instead.
@@ -78,7 +86,7 @@ jobs:
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           echo "========================================"
-          echo "GrandNode Docker Test"
+          echo "GrandNode Docker"
           echo "========================================"
           echo "Image:       ${REGISTRY}/${IMAGE_NAME}:${VERSION}"
           echo "Git ref:     ${GITHUB_REF}"
@@ -118,6 +126,8 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
+          # Org "linked artifacts" storage needs artifact-metadata: write; not used here.
+          create-storage-record: false
 
       # Every verification pins the exact workflow file and ref that signed,
       # not a pattern, so a signature from another workflow or branch fails.
