@@ -2,8 +2,6 @@ name: GrandNode Docker GHCR
 
 on:
   push:
-    branches:
-      - test/ghcr-private
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'      # 2.3.0
       - '[0-9]+.[0-9]+.[0-9]+-*'    # 2.4.0-beta
@@ -11,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing release tag to build, e.g. 2.3.0 (empty = the ref the workflow runs on)'
+        description: 'Existing release tag to build, e.g. 2.3.0 (empty = the tag the workflow runs on)'
         required: false
         type: string
 
@@ -38,9 +36,9 @@ jobs:
       attestations: write   # GitHub artifact attestation (SLSA provenance)
 
     steps:
-      # A release tag names the image after itself; anything else is :test.
-      # The tag comes from the manual input or from a tag push, and is
-      # validated before it reaches a ref, an image tag or a label.
+      # The image is named after a release tag, taken from the manual input
+      # or from the tag the workflow runs on, and validated before it reaches
+      # a ref, an image tag or a label.
       - name: Resolve version
         env:
           INPUT_TAG: ${{ inputs.tag }}
@@ -50,20 +48,17 @@ jobs:
           elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             version="${GITHUB_REF_NAME}"
           else
-            version="test"
+            echo "::error::No release tag; set the tag input or run on a tag"
+            exit 1
           fi
 
-          if [ "${version}" = "test" ]; then
-            source_ref="${GITHUB_SHA}"
-          elif [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$ ]]; then
-            source_ref="refs/tags/${version}"
-          else
+          if ! [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$ ]]; then
             echo "::error::Not a release tag; expected e.g. 2.3.0 or 2.4.0-beta"
             exit 1
           fi
 
           echo "VERSION=${version}" >> "${GITHUB_ENV}"
-          echo "SOURCE_REF=${source_ref}" >> "${GITHUB_ENV}"
+          echo "SOURCE_REF=refs/tags/${version}" >> "${GITHUB_ENV}"
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -95,7 +90,7 @@ jobs:
 
           build-args: |
             GIT_COMMIT=${{ env.REVISION }}
-            GIT_BRANCH=${{ env.VERSION == 'test' && github.ref_name || env.VERSION }}
+            GIT_BRANCH=${{ env.VERSION }}
 
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
