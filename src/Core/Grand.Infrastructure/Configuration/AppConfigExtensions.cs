@@ -39,7 +39,10 @@ public static class AppConfigExtensions
 
     private static bool IsSameOrParentOf(string parent, string child)
     {
-        var parentWithSeparator = Path.TrimEndingDirectorySeparator(parent) + Path.DirectorySeparatorChar;
+        //a filesystem root ("/", "C:\", "\\server\share\") keeps its trailing separator; don't double it
+        var parentWithSeparator = Path.EndsInDirectorySeparator(parent)
+            ? parent
+            : parent + Path.DirectorySeparatorChar;
         return IsSame(parent, child) ||
                child.StartsWith(parentWithSeparator, StringComparison.OrdinalIgnoreCase);
     }

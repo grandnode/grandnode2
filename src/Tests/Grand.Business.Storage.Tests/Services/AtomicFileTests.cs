@@ -47,16 +47,17 @@ public class AtomicFileTests
     }
 
     [TestMethod]
-    public void WriteAllBytes_TargetHeldOpenForReading_StillReplaces()
+    public async Task WriteAllBytes_TargetHeldOpenForReading_ReplacesOnceReaderCloses()
     {
         //Arrange - the static file middleware opens files with FileShare.ReadWrite
         var path = Path.Combine(_dir, "sitemap.xml");
         File.WriteAllBytes(path, [9]);
-        using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-        {
-            //Act
-            AtomicFile.WriteAllBytes(path, [1, 2]);
-        }
+        var reader = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        var closeReader = Task.Delay(200).ContinueWith(_ => reader.Dispose());
+
+        //Act
+        AtomicFile.WriteAllBytes(path, [1, 2]);
+        await closeReader;
 
         //Assert
         CollectionAssert.AreEqual(new byte[] { 1, 2 }, File.ReadAllBytes(path));

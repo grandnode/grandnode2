@@ -39,16 +39,30 @@ public static class AtomicFile
     //same directory, so the rename never crosses a file system
     private static string TempPathFor(string path) => $"{path}.{Guid.NewGuid():N}.tmp";
 
+    //Windows refuses to rename over a file a reader holds open; wait for the reader instead of overwriting in
+    //place, which would expose a half-written file
+    private const int ReplaceAttempts = 20;
+    private static readonly TimeSpan ReplaceRetryDelay = TimeSpan.FromMilliseconds(50);
+
     private static void Replace(string tempPath, string path)
     {
-        try
-        {
-            File.Move(tempPath, path, true);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            //Windows refuses to replace a file another process holds open; overwrite it in place instead
-            File.Copy(tempPath, path, true);
-        }
+        for (var attempt = 1;; attempt++)
+            try
+            {
+                File.Move(tempPath, path, true);
+                return;
+            }
+            catch (Exception ex) when (attempt < ReplaceAttempts && IsSharingViolation(ex))
+            {
+                Thread.Sleep(ReplaceRetryDelay);
+            }
+    }
+
+    private static bool IsSharingViolation(Exception ex)
+    {
+        //ERROR_SHARING_VIOLATION (32) / ERROR_LOCK_VIOLATION (33) come as IOException, ERROR_ACCESS_DENIED as
+        //UnauthorizedAccessException when the target is open
+        return ex is UnauthorizedAccessException ||
+               (ex is IOException && (ex.HResult & 0xFFFF) is 32 or 33);
     }
 }

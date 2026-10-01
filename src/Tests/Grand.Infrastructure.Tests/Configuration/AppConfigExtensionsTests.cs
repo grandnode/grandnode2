@@ -47,6 +47,15 @@ public class AppConfigExtensionsTests
     }
 
     [TestMethod]
+    public void GetMediaRootPath_FileSystemRoot_Throws()
+    {
+        //Arrange - a root keeps its trailing separator, which must not be doubled into a non-matching prefix
+        var config = new AppConfig { MediaPath = Path.GetPathRoot(ContentRoot) };
+        //Act + Assert
+        Assert.ThrowsExactly<InvalidOperationException>(() => config.GetMediaRootPath(ContentRoot));
+    }
+
+    [TestMethod]
     public void GetMediaRootPath_SubdirectoryOfAppData_Allowed()
     {
         //Arrange - a media folder inside a shared App_Data volume serves only that folder

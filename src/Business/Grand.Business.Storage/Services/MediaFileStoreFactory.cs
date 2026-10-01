@@ -8,7 +8,7 @@ public static class MediaFileStoreFactory
     ///     Directories whose files are never read from wwwroot once a media path is set: thumbs are regenerated
     ///     and deleted on the volume only, so a stale copy in wwwroot would outlive a picture change
     /// </summary>
-    public static readonly string[] PrimaryOnlyPaths = ["assets/images/thumbs"];
+    public static readonly IReadOnlyList<string> PrimaryOnlyPaths = Array.AsReadOnly(new[] { "assets/images/thumbs" });
 
     /// <summary>
     ///     Creates the file store behind IMediaFileStore
