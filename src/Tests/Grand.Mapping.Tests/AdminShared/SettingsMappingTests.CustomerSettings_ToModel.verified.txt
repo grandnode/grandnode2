@@ -43,6 +43,6 @@
   HideReviewsTab: false,
   HideCoursesTab: false,
   TwoFactorAuthenticationEnabled: false,
-  HideSubaccountsTab: false,
+  HideSubAccountsTab: false,
   HideDocumentsTab: false
 }

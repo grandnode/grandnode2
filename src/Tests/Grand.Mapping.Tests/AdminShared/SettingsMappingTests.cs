@@ -403,6 +403,18 @@ public class SettingsMappingTests : VerifyBase
     }
 
     [TestMethod]
+    public void CustomerSettings_HideSubAccountsTab_RoundTrips()
+    {
+        //the mapper matches by exact name: a model spelled HideSubaccountsTab silently showed
+        //"off" and never saved the switch, in the Admin and the Store panel alike
+        var model = _mapper.Map<CustomerSettingsModel.CustomersSettingsModel>(new CustomerSettings { HideSubAccountsTab = true });
+        Assert.IsTrue(model.HideSubAccountsTab);
+
+        var entity = _mapper.Map(new CustomerSettingsModel.CustomersSettingsModel { HideSubAccountsTab = true }, new CustomerSettings());
+        Assert.IsTrue(entity.HideSubAccountsTab);
+    }
+
+    [TestMethod]
     public Task CustomerSettingsModel_ToDomain()
     {
         var model = new CustomerSettingsModel.CustomersSettingsModel {
