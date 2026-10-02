@@ -1,0 +1,204 @@
+name: GrandNode Docker GHCR
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'      # 2.3.0
+      - '[0-9]+.[0-9]+.[0-9]+-*'    # 2.4.0-beta
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to build, e.g. 2.3.0 (empty = the tag the workflow runs on)'
+        required: false
+        type: string
+
+# Nothing by default; the job asks for exactly what it needs.
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: grandnode/grandnode2
+
+jobs:
+  release:
+    name: Build, Sign, SBOM and Verify
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write       # push to GHCR
+      id-token: write       # Sigstore keyless (Fulcio) certificate
+      attestations: write   # GitHub artifact attestation (SLSA provenance)
+
+    steps:
+      # The image is named after a release tag, taken from the manual input
+      # or from the tag the workflow runs on, and validated before it reaches
+      # a ref, an image tag or a label.
+      - name: Resolve version
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "${INPUT_TAG}" ]; then
+            version="${INPUT_TAG}"
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            echo "::error::No release tag; set the tag input or run on a tag"
+            exit 1
+          fi
+
+          if ! [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$ ]]; then
+            echo "::error::Not a release tag; expected e.g. 2.3.0 or 2.4.0-beta"
+            exit 1
+          fi
+
+          echo "VERSION=${version}" >> "${GITHUB_ENV}"
+          echo "SOURCE_REF=refs/tags/${version}" >> "${GITHUB_ENV}"
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          persist-credentials: false
+
+      # The commit actually built; differs from github.sha when a tag is
+      # built manually from a workflow on another branch.
+      - name: Resolve revision
+        run: echo "REVISION=$(git rev-parse HEAD)" >> "${GITHUB_ENV}"
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          push: true
+
+          build-args: |
+            GIT_COMMIT=${{ env.REVISION }}
+            GIT_BRANCH=${{ env.VERSION }}
+
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+
+          labels: |
+            org.opencontainers.image.source=https://github.com/grandnode/grandnode2
+            org.opencontainers.image.version=${{ env.VERSION }}
+            org.opencontainers.image.revision=${{ env.REVISION }}
+            org.opencontainers.image.description=GrandNode Docker image
+
+          # BuildKit attestations are unsigned and cosign cannot verify them;
+          # the SBOM and provenance below are signed attestations instead.
+          sbom: false
+          provenance: false
+
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Show release information
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          echo "========================================"
+          echo "GrandNode Docker"
+          echo "========================================"
+          echo "Image:       ${REGISTRY}/${IMAGE_NAME}:${VERSION}"
+          echo "Git ref:     ${GITHUB_REF}"
+          echo "Source:      ${SOURCE_REF}"
+          echo "Git commit:  ${REVISION}"
+          echo "Digest:      ${DIGEST}"
+          echo "========================================"
+
+      - name: Cosign keyless sign
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
+
+      - name: Generate SBOM (SPDX)
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          format: spdx-json
+          output-file: sbom.spdx.json
+          upload-artifact: true
+
+      - name: Cosign attest SBOM
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          cosign attest --yes \
+            --type spdxjson \
+            --predicate sbom.spdx.json \
+            "${IMAGE}@${DIGEST}"
+
+      - name: Attest build provenance (SLSA)
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+          # Org "linked artifacts" storage needs artifact-metadata: write; not used here.
+          create-storage-record: false
+
+      # Every verification pins the exact workflow file and ref that signed,
+      # not a pattern, so a signature from another workflow or branch fails.
+      - name: Cosign verify signature
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IDENTITY: ${{ github.server_url }}/${{ github.workflow_ref }}
+        run: |
+          cosign verify \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+            --certificate-identity="${IDENTITY}" \
+            "${IMAGE}@${DIGEST}" > /dev/null
+
+      - name: Cosign verify SBOM attestation
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IDENTITY: ${{ github.server_url }}/${{ github.workflow_ref }}
+        run: |
+          cosign verify-attestation \
+            --type spdxjson \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+            --certificate-identity="${IDENTITY}" \
+            "${IMAGE}@${DIGEST}" > /dev/null
+
+      - name: Verify SLSA provenance attestation
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IDENTITY: ${{ github.server_url }}/${{ github.workflow_ref }}
+          GH_TOKEN: ${{ github.token }}
+        # --cert-identity is an exact SAN match. --signer-workflow is not: it
+        # omits the ref, and gh before the GHSA-wjmr-j3rp-mh2g fix matched it
+        # as a prefix, so another workflow or ref could pass.
+        run: |
+          gh attestation verify "oci://${IMAGE}@${DIGEST}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --cert-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --cert-identity "${IDENTITY}" \
+            --deny-self-hosted-runners \
+            --predicate-type "https://slsa.dev/provenance/v1"
