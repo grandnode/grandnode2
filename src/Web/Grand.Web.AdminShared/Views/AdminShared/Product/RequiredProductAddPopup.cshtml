@@ -41,3 +41,50 @@
         </admin-grid>
     </admin-card>
 </admin-popup>
+<script>
+    //the ids of the input that collects the required product ids and of the button that refreshes
+    //it come from the query string: serialized, never pasted into the script as raw text
+    var requiredProductIdsInput = @Json.Serialize(Context.Request.Query["productIdsInput"].ToString());
+    var requiredProductsRefreshButton = @Json.Serialize(Context.Request.Query["btnId"].ToString());
+
+    function additionalData() {
+        var data = {
+            SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+            SearchCategoryId: $('#SearchCategoryId').val(),
+            SearchBrandId: $('#SearchBrandId').val(),
+            SearchCollectionId: $('#SearchCollectionId').val(),
+            @if (area == "Admin")
+            {
+                <text>SearchStoreId: $('#SearchStoreId').val(),
+            SearchVendorId: $('#SearchVendorId').val(),</text>
+            }
+            SearchProductTypeId: $('#SearchProductTypeId').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+    function selectRequiredProductRow(product) {
+        var input = document.getElementById(requiredProductIdsInput);
+        if (input) {
+            var ids = input.value ? input.value.split(',').map(function (x) { return x.trim(); }).filter(Boolean) : [];
+            if (ids.indexOf(product.Id) < 0) ids.push(product.Id);
+            input.value = ids.join(', ');
+        }
+        var refresh = document.getElementById(requiredProductsRefreshButton);
+        if (refresh) refresh.click();
+        $.magnificPopup.instance.close();
+    }
+
+    $('#search-products').click(function () {
+        GrandAdmin.grids.get('#products-grid').dataSource.page(1);
+        return false;
+    });
+
+    $('#@Html.IdFor(model => model.SearchProductName)').keydown(function (event) {
+        if (event.keyCode == 13) {
+            $('#search-products').click();
+            return false;
+        }
+    });
+</script>
