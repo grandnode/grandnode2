@@ -1062,6 +1062,22 @@
     display: none !important;
 }
 
+//a popup the panels load with type 'ajax' (an <admin-popup> view), or re-open as 'inline' with
+//the validation errors after a failed save: magnific popup gives its content no background of
+//its own, so without this the form sits straight on the dimmed page and the screen shows through
+.mfp-ajax-holder .mfp-content,
+.mfp-inline-holder .mfp-content {
+    max-width: 800px;
+    padding: 1rem;
+    background-color: var(--#{$prefix}body-bg);
+    border-radius: var(--grand-radius);
+}
+
+[data-theme="dark"] .mfp-ajax-holder .mfp-content,
+[data-theme="dark"] .mfp-inline-holder .mfp-content {
+    background-color: var(--#{$prefix}secondary-bg);
+}
+
 //a magnific popup holding a whole admin screen in an iframe (mainClass: 'grand-mfp-frame'):
 //nearly the whole window, where the default is a 900px 16:9 video frame
 .grand-mfp-frame .mfp-content {
