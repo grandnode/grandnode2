@@ -318,20 +318,24 @@ public class WorkContextSetter : IWorkContextSetter
     }
 
     /// <summary>
-    ///    Get the store (store manager)
+    ///    Get the store the customer manages (store manager)
     /// </summary>
+    /// <remarks>
+    ///    Read from StaffStoreId, the same field AuthorizeStoreAttribute admits the store panel by.
+    ///    StoreId is only the store the customer registered in and is empty for accounts the admin creates.
+    /// </remarks>
     /// <param name="customer"></param>
     /// <returns></returns>
     protected async Task<Store> GetStoreManager(Customer customer)
     {
         if (customer == null)
             return await Task.FromResult<Store>(null);
-        
-        if (string.IsNullOrEmpty(customer.StoreId))
+
+        if (string.IsNullOrEmpty(customer.StaffStoreId))
             return await Task.FromResult<Store>(null);
 
         //try to get store
-        var store = await _storeService.GetStoreById(customer.StoreId);
+        var store = await _storeService.GetStoreById(customer.StaffStoreId);
         //check store availability
         if (store == null)  // || store.Deleted || !store.Published)
             return await Task.FromResult<Store>(null);
