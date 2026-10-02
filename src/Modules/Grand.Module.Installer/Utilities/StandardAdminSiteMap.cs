@@ -1157,24 +1157,6 @@ public static class StandardAdminSiteMap
         },
 
         new AdminSiteMap {
-            SystemName = "Help",
-            ResourceName = "Admin.Help",
-            IconClass = "bi bi-question-circle",
-            DisplayOrder = 11,
-            ChildNodes = new List<AdminSiteMap> {
-                new() {
-                    SystemName = "Premium support services",
-                    ResourceName = "Admin.Help.SupportServices",
-                    Url =
-                        "https://grandnode.com/premium-support-packages?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Support",
-                    IconClass = "bi bi-record-circle",
-                    DisplayOrder = 1,
-                    OpenUrlInNewTab = true
-                }
-            }
-        },
-
-        new AdminSiteMap {
             SystemName = "Third party plugins",
             ResourceName = "Admin.Plugins",
             DisplayOrder = 12
