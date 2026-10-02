@@ -32,13 +32,13 @@ public class ModernViewContractTests
     }
 
     [TestMethod]
-    [DynamicData(nameof(CopiedViews), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(CopiedViews))]
     public void EveryCopiedViewKeepsDefaultModel(string rel) =>
         CollectionAssert.AreEqual(Matches(Read(DefaultViews, rel), @"@model\s+([^\r\n]+)").ToList(),
             Matches(Read(ModernViews, rel), @"@model\s+([^\r\n]+)").ToList(), rel);
 
     [TestMethod]
-    [DynamicData(nameof(CopiedViews), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(CopiedViews))]
     public void EveryCopiedViewKeepsWidgetZones(string rel)
     {
         const string zones = @"(?:widgetZone\s*=\s*""|widget-zone=""|WidgetZone\s*=\s*"")([^""]+)""";
@@ -53,7 +53,7 @@ public class ModernViewContractTests
     };
 
     [TestMethod]
-    [DynamicData(nameof(CopiedViews), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(CopiedViews))]
     public void EveryCopiedViewKeepsDataHooksAndPartials(string rel)
     {
         var d = Read(DefaultViews, rel);
