@@ -127,15 +127,12 @@
                             <input id="@(controlId)" name="@(controlName)" type="hidden"/>
                         }
 
-                        <input class="form-control" type="file" accept="@Html.Raw(allowedFileExtensions)" id="qqfile" name="qqfile" onchange="uploadFile(this)">
+                        <input class="form-control" type="file" accept="@Html.Raw(allowedFileExtensions)" id="qqfile" name="qqfile" data-url="@Url.RouteUrl("UploadFileContactAttribute", new { attributeId = attribute.Id })" onchange="uploadFile(this)">
                         <input class="hidden-upload-input" type="hidden" onchange="contactAttributeChange()" id="@(controlId)" name="@(controlName)"/>
                         <div id="download-message" class="alert my-2" style="display:none;"></div>
-                        <a id="@(controlId)downloadurl'" class="download-file btn btn-outline-info" style="display:none;">
+                        <a id="@(controlId)downloadurl" class="download-file btn btn-outline-info" style="display:none;">
                             Download
                         </a>
-                        <script type="application/json" data-grand-vm="contactAttributes">@Json.Serialize(new {
-            routes = new { change = Url.Action("contactattributechange", "contact") }
-        })</script>
                     }
                         break;
                     case AttributeControlType.ColorSquares:
@@ -165,5 +162,9 @@
             </div>
         }
     </div>
-
+    @* once for the whole form, after it: it wires the change requests that show and hide the
+       conditional attributes, whatever control types the form has *@
+    <script type="application/json" data-grand-vm="contactAttributes">@Json.Serialize(new {
+        routes = new { change = Url.Action("contactattributechange", "contact") }
+    })</script>
 }
