@@ -69,7 +69,7 @@ export class TabStrip {
             }
             //a tablist is one tab stop: the arrows move between the tabs inside it
             const mirror = this.rtl ? -1 : 1
-            let next = -1
+            let next
             if (e.key === 'ArrowRight') next = at + mirror
             else if (e.key === 'ArrowLeft') next = at - mirror
             else if (e.key === 'ArrowDown' && this.vertical) next = at + 1

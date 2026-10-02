@@ -440,7 +440,7 @@ export class DateInput {
         const current = parseLocal(button.dataset.grandDay)
         if (!current) return
         const mirror = this.rtl ? -1 : 1
-        let next = null
+        let next
         switch (e.key) {
             case 'ArrowLeft': next = new Date(current.getFullYear(), current.getMonth(), current.getDate() - mirror); break
             case 'ArrowRight': next = new Date(current.getFullYear(), current.getMonth(), current.getDate() + mirror); break
@@ -477,7 +477,7 @@ export class DateInput {
     onTimeKey(e, option) {
         const options = Array.from(this.panel.querySelectorAll('[data-grand-time]'))
         const index = options.indexOf(option)
-        let next = -1
+        let next
         if (e.key === 'ArrowDown') next = Math.min(index + 1, options.length - 1)
         else if (e.key === 'ArrowUp') next = Math.max(index - 1, 0)
         else if (e.key === 'Home') next = 0

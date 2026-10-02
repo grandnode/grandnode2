@@ -27,7 +27,7 @@ export default defineConfig(() => {
             preprocessorOptions: {
                 //Bootstrap 5.3 and bootstrap-icons still use @import; silencing the two
                 //deprecations keeps the build output readable until Bootstrap 6.
-                scss: { silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'mixed-decls'] }
+                scss: { silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function'] }
             }
         },
         resolve: {
@@ -52,6 +52,10 @@ export default defineConfig(() => {
                 },
                 output: {
                     format: 'iife',
+                    //Rolldown (Vite 8) drops both unless asked: the bundle code assumes strict
+                    //mode, and the /*! */ license headers of bundled libraries must stay
+                    strict: true,
+                    comments: { legal: true },
                     entryFileNames: '[name].js',
                     //one stylesheet per bundle, named after it (admin.grid.css); fonts keep
                     //their own name in a fonts/ folder next to it, so a rebuild overwrites
