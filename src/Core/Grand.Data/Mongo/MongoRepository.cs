@@ -292,8 +292,11 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task RemoveCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, bool>> elemFieldMatch)
     {
+        // Without an id the pull applies to every document holding a matching element (removing a deleted
+        // tag/discount/category from all that reference it). Only those are matched: a document with nothing
+        // to pull must not be written, or the audit stamp below would mark the whole collection as updated.
         var filter = string.IsNullOrEmpty(id)
-            ? Builders<T>.Filter.Where(x => true)
+            ? Builders<T>.Filter.ElemMatch(field, elemFieldMatch)
             : Builders<T>.Filter.Eq(x => x.Id, id);
         var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
 
