@@ -17,7 +17,11 @@ public class GetRobotsTextFileHandler : IRequestHandler<GetRobotsTextFile, strin
 
     public async Task<string> Handle(GetRobotsTextFile request, CancellationToken cancellationToken)
     {
+        //a store without its own robots.txt serves the one saved for "All stores" - the fallback lives
+        //here, not in the service, because the admin looks a scope up exactly to insert or update it
         var robotsTxt = await _robotsTxtService.GetRobotsTxt(request.StoreId);
-        return robotsTxt != null ? robotsTxt.Text : "";
+        if (robotsTxt == null && !string.IsNullOrEmpty(request.StoreId))
+            robotsTxt = await _robotsTxtService.GetRobotsTxt("");
+        return robotsTxt?.Text ?? "";
     }
 }
