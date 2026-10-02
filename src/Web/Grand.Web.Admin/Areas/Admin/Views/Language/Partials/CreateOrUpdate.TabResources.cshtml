@@ -29,7 +29,7 @@ else
             <grid-column field="Name" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Name"]" width="300" editor="Text"/>
             <grid-column field="Value" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Value"]" width="300" editor="Text"/>
             <grid-column field="Area" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Area"]" width="100"
-                         editor="Select" options="EnumTranslationService.ToSelectList(TranslationResourceArea.Common)"/>
+                         editor="Select" options="EnumTranslationService.ToSelectList(TranslationResourceArea.Common)" default-value="0"/>
             <grid-commands edit="true" destroy="true" width="200"/>
         </admin-grid>
     </admin-card>
