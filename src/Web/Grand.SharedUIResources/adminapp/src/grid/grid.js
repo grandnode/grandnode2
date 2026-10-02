@@ -982,7 +982,7 @@ export class GrandGrid {
         let item = itemOrRow
         if (itemOrRow && (itemOrRow.nodeType === 1 || itemOrRow.jquery)) item = this.dataItem(itemOrRow)
         if (!item) return false
-        if (this.config.confirmDestroy && !window.confirm(this.texts.deleteConfirmation || this.texts.areYouSure || 'Are you sure you want to delete this record?')) return false
+        if (this.config.confirmDestroy && !await this._confirmDestroy()) return false
         if (this.editMode === 'Batch') {
             //removed locally; saveChanges sends it (Kendo incell mode)
             if (this._cellEdit?.item === item) this._cellEdit = null
@@ -1007,6 +1007,15 @@ export class GrandGrid {
         if (this.config.reloadAfterDestroy) await this.dataSource.read()
         else await this._render()
         return true
+    }
+
+    //the panel's own confirmation (admin.ui, loaded next to this bundle on every panel), the same
+    //one data-grand-confirm buttons ask; the browser's confirm() only where admin.ui is missing
+    _confirmDestroy() {
+        const message = this.texts.deleteConfirmation || this.texts.areYouSure || 'Are you sure you want to delete this record?'
+        const ask = window.GrandAdmin?.modal?.confirm
+        if (typeof ask !== 'function') return Promise.resolve(window.confirm(message))
+        return ask(message, { confirmText: this.texts.delete || undefined, cancelText: this.texts.cancel || undefined })
     }
 
     /** Measures the table again, e.g. after a hidden tab became visible. */
