@@ -483,4 +483,7 @@
 	<Resource Name="admin.customers.customers.fields.store.none" Area="Admin">
 		<Value>Not set</Value>
 	</Resource>
+	<Resource Name="admin.configuration.tax.categories.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
 </Language>

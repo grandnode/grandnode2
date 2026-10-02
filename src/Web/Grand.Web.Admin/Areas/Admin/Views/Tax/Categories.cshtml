@@ -22,8 +22,8 @@
                     confirm-destroy="true">
             <grid-toolbar-create/>
             <grid-column field="Name" title="@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]" width="250" editor="Text"/>
-            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
-            <grid-column field="StoreId" title="@Loc["Admin.Common.Store"]" width="200"
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+            <grid-column field="StoreId" title="@Loc["Admin.Configuration.Tax.Categories.Fields.Store"]" width="200"
                          editor="Select" options="Model.AvailableStores" text-field="StoreName" default-value=""/>
             <grid-commands edit="true" destroy="true" width="200"/>
         </admin-grid>
