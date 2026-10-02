@@ -480,4 +480,7 @@
 	<Resource Name="admin.catalog.discounts.nostorediscounts" Area="Admin">
 		<Value>There are no configured discounts. Create one under Marketing → Discounts.</Value>
 	</Resource>
+	<Resource Name="admin.customers.customers.fields.store.none" Area="Admin">
+		<Value>Not set</Value>
+	</Resource>
 </Language>
