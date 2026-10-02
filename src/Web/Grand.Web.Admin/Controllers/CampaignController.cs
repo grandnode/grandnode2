@@ -221,12 +221,12 @@ public class CampaignController : BaseAdminController
                 await _campaignService.SendCampaign(campaign, emailAccount, model.TestEmail);
             }
 
-            Success(_translationService.GetResource("admin.marketing.Campaigns.TestEmailSentToCustomers"), false);
+            Success(_translationService.GetResource("admin.marketing.Campaigns.TestEmailSentToCustomers"));
             return RedirectToAction("Edit", new { id = campaign.Id });
         }
         catch (Exception exc)
         {
-            Error(exc, false);
+            Error(exc);
         }
 
         //If we got this far, something failed, redisplay form
@@ -257,12 +257,12 @@ public class CampaignController : BaseAdminController
             var totalEmailsSent = await _campaignService.SendCampaign(campaign, emailAccount, subscriptions);
             Success(
                 string.Format(_translationService.GetResource("admin.marketing.Campaigns.MassEmailSentToCustomers"),
-                    totalEmailsSent), false);
+                    totalEmailsSent));
             return RedirectToAction("Edit", new { id = campaign.Id });
         }
         catch (Exception exc)
         {
-            Error(exc, false);
+            Error(exc);
         }
 
         //If we got this far, something failed, redisplay form
