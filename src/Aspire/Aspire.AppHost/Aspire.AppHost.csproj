@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Sdk Name="Aspire.AppHost.Sdk" Version="13.4.6" />
+	<Sdk Name="Aspire.AppHost.Sdk" Version="13.6.0" />
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -12,6 +12,9 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<SkipAddAspireDefaultReferences>true</SkipAddAspireDefaultReferences>
+		<!-- Dashboard and DCP come from the NuGet packages below, not from an installed Aspire CLI -->
+		<AspireUseCliBundle>false</AspireUseCliBundle>
+		<NoWarn>$(NoWarn);ASPIRE010</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Aspire.Hosting.AppHost" />
