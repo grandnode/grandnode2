@@ -552,4 +552,7 @@
 	<Resource Name="vendor.reports.customers" Area="Vendor">
 		<Value>Customer reports</Value>
 	</Resource>
+	<Resource Name="admin.orders.cannotcancel" Area="Admin">
+		<Value>This order can no longer be cancelled - only a pending order can.</Value>
+	</Resource>
 </Language>
