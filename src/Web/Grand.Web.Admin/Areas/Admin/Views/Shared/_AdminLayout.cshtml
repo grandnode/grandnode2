@@ -146,7 +146,7 @@
                                         </li>
 
                                         <li>
-                                            <a href="@Url.Action("RestartApplication", "System", new { returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
+                                            <a href="#" data-url="@Url.Action("RestartApplication", "System", new { returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
                                                 <i class="bi bi-arrow-clockwise"></i>
                                                 @Loc["Admin.Header.RestartApplication"]
                                             </a>
@@ -273,7 +273,8 @@
                 event.preventDefault();
                 showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Header.RestartApplication.Progress"]))');
                 $("html, body").animate({ scrollTop: 0 }, 400);
-                $.get($(this).attr("href"), function (data) { });
+                //POST with the antiforgery token: the action no longer answers a plain GET
+                $.post($(this).data("url"), addAntiForgeryToken({}));
                 setTimeout(function () {
                     location.reload();
                 }, 10000);

@@ -272,6 +272,9 @@ public class SystemController : BaseAdminController
     }
 
 
+    //POST only: a GET here let any link follower - a crawler, a browser prefetch, a stray click on a
+    //copied URL - stop the application
+    [HttpPost]
     public IActionResult RestartApplication(string returnUrl = "")
     {
         _logger.LogInformation($"The application has been restarted by the user {_contextAccessor.WorkContext.CurrentCustomer.Email}");
