@@ -301,6 +301,18 @@ public class CatalogMappingTests : VerifyBase
     }
 
     [TestMethod]
+    public void DiscountModel_ToDomain_BlankMaximumAmount_StaysUncapped()
+    {
+        //a blank "maximum discount amount" must reach the domain as null: DiscountService caps a
+        //percentage discount at any value it finds, so a 0 here made every such discount worth nothing
+        var entity = _mapper.Map<Discount>(new DiscountModel { UsePercentage = true, DiscountPercentage = 10 });
+        Assert.IsNull(entity.MaximumDiscountAmount);
+
+        entity = _mapper.Map<Discount>(new DiscountModel { UsePercentage = true, DiscountPercentage = 10, MaximumDiscountAmount = 25 });
+        Assert.AreEqual(25, entity.MaximumDiscountAmount);
+    }
+
+    [TestMethod]
     public Task DiscountModel_ToDomain()
     {
         var model = new DiscountModel {

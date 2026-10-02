@@ -4,7 +4,6 @@
   UsePercentage: true,
   DiscountPercentage: 10.0,
   CalculateByPlugin: false,
-  MaximumDiscountAmount: 0.0,
   RequiresCouponCode: true,
   Reused: false,
   IsCumulative: false,
