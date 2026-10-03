@@ -47,6 +47,17 @@ public class AtomicFileTests
     }
 
     [TestMethod]
+    public async Task WriteAllTextAsync_WritesUtf8WithoutBom()
+    {
+        //Arrange
+        var path = Path.Combine(_dir, "firebase-messaging-sw.js");
+        //Act
+        await AtomicFile.WriteAllTextAsync(path, "żółw");
+        //Assert
+        CollectionAssert.AreEqual(new System.Text.UTF8Encoding(false).GetBytes("żółw"), await File.ReadAllBytesAsync(path));
+    }
+
+    [TestMethod]
     public async Task WriteAllBytes_TargetHeldOpenForReading_ReplacesOnceReaderCloses()
     {
         //Arrange - the static file middleware opens files with FileShare.ReadWrite

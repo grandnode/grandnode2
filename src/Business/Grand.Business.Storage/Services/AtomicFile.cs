@@ -27,7 +27,9 @@ public static class AtomicFile
         var tempPath = TempPathFor(path);
         try
         {
-            await File.WriteAllTextAsync(tempPath, text, Encoding.UTF8);
+            //UTF-8 without a BOM, as File.WriteAllText writes by default: these are served as-is (sitemap.xml,
+            //firebase-messaging-sw.js), and a BOM in front of <?xml or a script is a defect there
+            await File.WriteAllTextAsync(tempPath, text, Utf8NoBom);
             await Replace(tempPath, path);
         }
         finally
@@ -35,6 +37,8 @@ public static class AtomicFile
             if (File.Exists(tempPath)) File.Delete(tempPath);
         }
     }
+
+    private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
 
     //same directory, so the rename never crosses a file system
     private static string TempPathFor(string path) => $"{path}.{Guid.NewGuid():N}.tmp";
