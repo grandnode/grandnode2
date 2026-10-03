@@ -4,7 +4,7 @@
             <div class="modal-body">
 <template v-if="PopupQuickViewVueModal !== null">
 <form method="post" id="product-details-form" :action="'/' + PopupQuickViewVueModal.SeName">
-<div itemscope itemtype="https://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
+<div :data-productid="PopupQuickViewVueModal.Id">
 <div class="quick-view">
 <div class="col-12 px-0">
 <div class="row">
