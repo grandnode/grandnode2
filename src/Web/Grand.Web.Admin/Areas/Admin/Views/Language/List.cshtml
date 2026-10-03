@@ -22,7 +22,7 @@
             </grid-column>
             <grid-column field="FlagImageFileName" title="@Loc["Admin.Configuration.Languages.Fields.FlagImage"]" width="22" align="Center">
                 <cell-template>
-                    <img src="@Url.Content("~/assets/images/flags/"){{ FlagImageFileName }}" />
+                    <img data-if="FlagImageFileName" src="@Url.Content("~/assets/images/flags/"){{ FlagImageFileName }}" alt="" />
                 </cell-template>
             </grid-column>
             <grid-column field="LanguageCulture" title="@Loc["Admin.Configuration.Languages.Fields.LanguageCulture"]" width="200"/>
