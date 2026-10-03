@@ -7,16 +7,15 @@ using Microsoft.Extensions.Logging;
 namespace Grand.Module.Migration.Migrations._2._4;
 
 /// <summary>
-///     Removes the "Premium support services" link from the admin menu, and the Help node that held it
-///     once nothing is left under it. The installer no longer seeds either.
-///     Idempotent; a Help node the operator added their own entries to keeps them and stays.
+///     Removes the Help node from the admin menu, with everything under it ("Premium support services").
+///     The installer no longer seeds it. Idempotent.
 /// </summary>
 public class MigrationRemoveAdminSiteMapHelp : IMigration
 {
     public int Priority => 1;
     public DbVersion Version => new(2, 4);
     public Guid Identity => new("509D9237-9959-46CF-990A-7D04BFB41434");
-    public string Name => "Remove Premium support services and the empty Help node from the admin site map 2.4";
+    public string Name => "Remove the Help node from the admin site map 2.4";
 
     /// <summary>
     ///     Upgrade process
@@ -31,20 +30,16 @@ public class MigrationRemoveAdminSiteMapHelp : IMigration
         try
         {
             var help = repository.Table.FirstOrDefault(x => x.SystemName == "Help");
-            if (help == null) return true;
-
-            help.ChildNodes = help.ChildNodes.Where(x => x.SystemName != "Premium support services").ToList();
-
-            if (help.ChildNodes.Any())
-                repository.Update(help);
-            else
+            if (help != null)
                 repository.Delete(help);
+            return true;
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex)
         {
+            //false stops the migration process here and retries it on the next start; true would
+            //record the migration as applied and never run it again
             logService.LogError(ex, "UpgradeProcess - RemoveAdminSiteMapHelp (2.4)");
+            return false;
         }
-
-        return true;
     }
 }

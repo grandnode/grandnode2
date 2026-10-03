@@ -49,7 +49,7 @@ public class MigrationRemoveAdminSiteMapHelpTests
     }
 
     [TestMethod]
-    public void UpgradeProcess_HelpWithOperatorEntries_RemovesOnlySupportServices()
+    public void UpgradeProcess_HelpWithOtherEntries_RemovesTheWholeNode()
     {
         _repository.Insert(new AdminSiteMap {
             SystemName = "Help",
@@ -58,8 +58,7 @@ public class MigrationRemoveAdminSiteMapHelpTests
 
         Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
 
-        var help = _repository.Table.Single(x => x.SystemName == "Help");
-        Assert.AreEqual("Our wiki", help.ChildNodes.Single().SystemName);
+        Assert.AreEqual(0, _repository.Table.Count());
     }
 
     [TestMethod]
