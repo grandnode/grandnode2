@@ -58,7 +58,7 @@
             <input class="form-control text-box single-line valid"
                    id="UserFields_${id}__Value" name="UserFields[${id}].Value" type="text" value="${value}">
             <input type="hidden" id="UserFields_${id}__Key" name="UserFields[${id}].Key" value="${key}">
-            <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-select valid flex-grow-0 w-auto">
+            <select id="UserFields_${id}__StoreId" name="UserFields[${id}].StoreId" class="form-select valid flex-grow-0 w-auto">
                 @foreach (var store in stores)
                 {
                     <option value="@store.Value">@store.Text</option>
