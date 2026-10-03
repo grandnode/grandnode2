@@ -205,6 +205,22 @@ public class MongoRepositoryTests
     }
 
     [TestMethod]
+    public async Task Pull_ById_NothingToPull_LeavesTheDocumentUnwritten()
+    {
+        //Arrange
+        _myRepository.Insert(new SampleCollection { Id = "1", Name = "Test", Phones = ["Phone1", "Phone3"] });
+
+        //Act
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.Phones, y => y == "Phone2");
+
+        //Assert
+        var p = _myRepository.GetById("1");
+        Assert.HasCount(2, p.Phones);
+        Assert.IsNull(p.UpdatedOnUtc);
+        Assert.IsNull(p.UpdatedBy);
+    }
+
+    [TestMethod]
     public async Task Pull_Many_MongoRepository_Success()
     {
         //Arrange
