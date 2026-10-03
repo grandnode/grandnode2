@@ -5,6 +5,7 @@
     @* an inline-edit grid in a titled card; grid.js moves its Add new into the card header *@
     <admin-card title="@Loc["Admin.Courses.Course.Subjects"]" flush>
         <admin-grid id="subjects-grid"
+                    confirm-destroy="true"
                     read-url="@Url.Action("Subjects", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
                     create-url="@Url.Action("SubjectAdd", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"
                     update-url="@Url.Action("SubjectUpdate", "Course", new { courseId = Model.Id, area = Constants.AreaAdmin })"

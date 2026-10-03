@@ -13,6 +13,7 @@
     <div class="grand-card__body grand-card__body--flush">
         @*unit prices are edited in the cells and sent with Save changes, one request per changed item*@
         <admin-grid id="currentshoppingcart-grid"
+                    confirm-destroy="true"
                     read-url="@Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.ShoppingCart, area = area })"
                     update-url="@Url.Action("UpdateCart", "Customer", new { customerId = Model.Id, area = area })"
                     destroy-url="@Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area })"
