@@ -13,7 +13,8 @@ public class SystemControllerHttpMethodTests
     {
         //a GET let any crawler, prefetch or copied link stop the application
         var method = typeof(SystemController).GetMethod(nameof(SystemController.RestartApplication));
-        Assert.IsNotNull(method?.GetCustomAttribute<HttpPostAttribute>());
+        Assert.IsNotNull(method);
+        Assert.IsNotNull(method.GetCustomAttribute<HttpPostAttribute>());
         Assert.IsNull(method.GetCustomAttribute<HttpGetAttribute>());
     }
 }
