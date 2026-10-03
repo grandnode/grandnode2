@@ -7,7 +7,6 @@
   RequiresCouponCode: true,
   Reused: false,
   IsCumulative: false,
-  MaximumDiscountedQuantity: 0,
   IsEnabled: true,
   LimitedToStores: true,
   Stores: [

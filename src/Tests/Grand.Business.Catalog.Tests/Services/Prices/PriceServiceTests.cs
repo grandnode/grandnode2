@@ -332,6 +332,30 @@ public class PriceServiceTests
     }
 
     [TestMethod]
+    [DataRow(0, 5 * (249 - 100))]
+    [DataRow(null, 5 * (249 - 100))]
+    [DataRow(2, 2 * (249 - 100) + 3 * 249)]
+    public async Task GetSubTotal_DiscountedQuantityCap_OnlyAPositiveValueLimits(int? cap, double expected)
+    {
+        //0 is what the admin form stored for "no limit": it must not mean "discount no item at all"
+        var product = new Product { Id = "aurora", Name = "Aurora", Price = 249, Published = true };
+        product.ProductPrices.Add(new ProductPrice { CurrencyCode = "USD", Price = 249 });
+        tempProductService.Setup(x => x.GetProductById("aurora", false)).ReturnsAsync(product);
+        var customer = new Customer { Id = "c1" };
+        tempWorkContext.Setup(x => x.WorkContext.CurrentCustomer).Returns(customer);
+        tempWorkContext.Setup(x => x.WorkContext.WorkingCurrency).Returns(_currency);
+        var item = new ShoppingCartItem { ProductId = product.Id, Quantity = 5 };
+        customer.ShoppingCartItems.Add(item);
+        tempDiscountApplicationService.Setup(x => x.GetDiscountAmount(It.IsAny<Product>(), It.IsAny<Customer>(),
+                It.IsAny<Store>(), It.IsAny<Currency>(), It.IsAny<double>()))
+            .ReturnsAsync((new List<ApplyDiscount> { new() { DiscountId = "d1", MaximumDiscountedQuantity = cap } }, 100));
+
+        var (subTotal, _, _) = await _pricingService.GetSubTotal(item, product);
+
+        Assert.AreEqual(expected, subTotal);
+    }
+
+    [TestMethod]
     public async Task Can_get_product_cost()
     {
         var product001 = new Product {
