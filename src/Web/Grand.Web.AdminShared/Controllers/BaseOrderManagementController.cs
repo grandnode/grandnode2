@@ -11,6 +11,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Queries.Checkout.Orders;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -33,12 +34,20 @@ public abstract class BaseOrderManagementController(
 
     #region Payments and other order workflow
 
+    // POST: the order page submits its form here (the button is an <input type="submit">), and a
+    // state-changing GET would let any link or prefetch cancel an order.
     [PermissionAuthorizeAction(PermissionActionName.Cancel)]
-    [HttpGet]
+    [HttpPost]
     public async Task<IActionResult> CancelOrder(string id)
     {
         var (order, denied) = await LoadAuthorizedOrder(id);
         if (denied != null) return denied;
+
+        if (!await mediator.Send(new CanCancelOrderQuery { Order = order }))
+        {
+            Error(TranslationService.GetResource("Admin.Orders.CannotCancel"));
+            return RedirectToAction("Edit", "Order", new { id });
+        }
 
         try
         {

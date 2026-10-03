@@ -107,6 +107,65 @@ afterEach(() => {
     vi.restoreAllMocks()
 })
 
+describe('delete confirmation', () => {
+    function destroyGrid(post) {
+        return createGrid({
+            transport: { read: '/select', destroy: '/delete' },
+            commands: { destroy: true },
+            confirmDestroy: true,
+            texts: { deleteConfirmation: 'Delete it?', delete: 'Delete', cancel: 'Cancel' },
+            columns: [{ field: 'Name' }]
+        }, post)
+    }
+    const data = () => ({ Data: [{ Id: '1', Name: 'A' }, { Id: '2', Name: 'B' }], Total: 2 })
+    const deletes = post => post.mock.calls.filter(([url]) => url === '/delete')
+
+    afterEach(() => { delete window.GrandAdmin })
+
+    it('asks the panel modal, not the browser, and deletes on yes', async () => {
+        const ask = vi.fn().mockResolvedValue(true)
+        window.GrandAdmin = { modal: { confirm: ask } }
+        const browser = vi.spyOn(window, 'confirm')
+        const post = vi.fn(async url => (url === '/select' ? data() : ''))
+        const grid = destroyGrid(post)
+        await grid.ready
+        await grid.dataSource.read()
+
+        expect(await grid.destroyRow(grid.dataSource.data()[0])).toBe(true)
+
+        expect(ask).toHaveBeenCalledWith('Delete it?', { confirmText: 'Delete', cancelText: 'Cancel' })
+        expect(browser).not.toHaveBeenCalled()
+        expect(deletes(post)).toHaveLength(1)
+        expect(grid.dataSource.data().map(x => x.Id)).toEqual(['2'])
+    })
+
+    it('keeps the row when the panel modal is answered no', async () => {
+        window.GrandAdmin = { modal: { confirm: vi.fn().mockResolvedValue(false) } }
+        const post = vi.fn(async url => (url === '/select' ? data() : ''))
+        const grid = destroyGrid(post)
+        await grid.ready
+        await grid.dataSource.read()
+
+        expect(await grid.destroyRow(grid.dataSource.data()[0])).toBe(false)
+
+        expect(deletes(post)).toHaveLength(0)
+        expect(grid.dataSource.data()).toHaveLength(2)
+    })
+
+    it('falls back to the browser confirm when admin.ui is not loaded', async () => {
+        const browser = vi.spyOn(window, 'confirm').mockReturnValue(true)
+        const post = vi.fn(async url => (url === '/select' ? data() : ''))
+        const grid = destroyGrid(post)
+        await grid.ready
+        await grid.dataSource.read()
+
+        await grid.destroyRow(grid.dataSource.data()[0])
+
+        expect(browser).toHaveBeenCalledWith('Delete it?')
+        expect(deletes(post)).toHaveLength(1)
+    })
+})
+
 describe('local data', () => {
     it('renders rows given in the configuration without a request', async () => {
         const post = vi.fn()

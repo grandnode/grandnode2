@@ -27,8 +27,9 @@ function applyVisibility(data, prefix) {
     set(data.disabledattributeids, 'none')
 }
 
-function showUploadMessage(message, ok) {
-    const container = document.getElementById('download-message')
+//scope: the uploading attribute's own container where a form has several file fields
+function showUploadMessage(message, ok, scope = document) {
+    const container = scope.querySelector('#download-message, .download-message')
     if (!container) return
     container.style.display = 'block'
     container.classList.toggle('alert-info', ok)
@@ -36,8 +37,8 @@ function showUploadMessage(message, ok) {
     container.innerText = message
 }
 
-function revealDownload(url) {
-    const button = document.querySelector('.download-file')
+function revealDownload(url, scope = document) {
+    const button = scope.querySelector('.download-file')
     if (!button) return
     button.style.display = 'inline-block'
     button.setAttribute('href', url)
@@ -104,14 +105,17 @@ registerView('contactAttributes', ({ routes }) => {
         const body = new FormData()
         body.append('file', input.files[0])
 
+        //the hidden value, message and download link of this attribute, not the first on the page
+        const scope = input.closest('.contact-attribute-upload') || document
+
         axios.post(input.getAttribute('data-url'), body)
             .then(({ data }) => {
                 if (data.success) {
-                    const hidden = document.querySelector('.hidden-upload-input')
-                    if (hidden) hidden.setAttribute('value', data.downloadGuid)
-                    revealDownload(data.downloadUrl)
+                    const hidden = scope.querySelector('.hidden-upload-input')
+                    if (hidden) hidden.value = data.downloadGuid
+                    revealDownload(data.downloadUrl, scope)
                 }
-                showUploadMessage(data.message, data.success)
+                showUploadMessage(data.message, data.success, scope)
                 return change()
             })
             .catch(err => console.error('[grand] contact attribute upload failed', err))

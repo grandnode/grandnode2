@@ -74,12 +74,16 @@ public class LocalizedEditorTagHelper : TagHelper
             {
                 var language = await languageService.GetLanguageById(locale);
                 var label = new HtmlContentBuilder();
-                var icon = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
-                icon.AddCssClass("k-image");
-                icon.Attributes["alt"] = "";
-                icon.Attributes["src"] = urlHelper.Content("~/assets/images/flags/" + language.FlagImageFileName);
-                label.AppendHtml(icon);
-                label.Append(" ");
+                //a language without a flag file shows its name only - an img pointing at the flags folder 404s
+                if (!string.IsNullOrEmpty(language.FlagImageFileName))
+                {
+                    var icon = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
+                    icon.AddCssClass("k-image");
+                    icon.Attributes["alt"] = "";
+                    icon.Attributes["src"] = urlHelper.Content("~/assets/images/flags/" + language.FlagImageFileName);
+                    label.AppendHtml(icon);
+                    label.Append(" ");
+                }
                 label.Append(language.Name);
                 items.InnerHtml.AppendHtml(Item(label, false));
             }

@@ -45,4 +45,42 @@ public class WarehouseDeletedEventHandlerTests
         Assert.AreEqual(0, _repository.Table.Where(x => x.WarehouseId == warehouse.Id).Count());
         Assert.AreEqual(1, _repository.Table.Where(x => x.WarehouseId == "1").Count());
     }
+
+    [TestMethod]
+    public async Task Handle_RemovesTheWarehouseFromProductInventory()
+    {
+        var warehouse = new Warehouse();
+        var product = new Product {
+            ProductWarehouseInventory = {
+                new ProductWarehouseInventory { WarehouseId = warehouse.Id, StockQuantity = 5 },
+                new ProductWarehouseInventory { WarehouseId = "other", StockQuantity = 3 }
+            }
+        };
+        await _repository.InsertAsync(product);
+
+        await _handler.Handle(new EntityDeleted<Warehouse>(warehouse), CancellationToken.None);
+
+        var inventory = _repository.Table.Single(x => x.Id == product.Id).ProductWarehouseInventory;
+        Assert.AreEqual(1, inventory.Count);
+        Assert.AreEqual("other", inventory.Single().WarehouseId);
+    }
+
+    [TestMethod]
+    public async Task Handle_LeavesProductsWithoutTheWarehouseUntouched()
+    {
+        //deleting one warehouse must not rewrite (and re-stamp UpdatedOnUtc/UpdatedBy on) the whole catalog
+        var warehouse = new Warehouse();
+        var unrelated = new Product {
+            WarehouseId = "other",
+            ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "other", StockQuantity = 3 } }
+        };
+        await _repository.InsertAsync(unrelated);
+        var stampedBefore = _repository.Table.Single(x => x.Id == unrelated.Id).UpdatedOnUtc;
+
+        await _handler.Handle(new EntityDeleted<Warehouse>(warehouse), CancellationToken.None);
+
+        var after = _repository.Table.Single(x => x.Id == unrelated.Id);
+        Assert.AreEqual(stampedBefore, after.UpdatedOnUtc);
+        Assert.AreEqual(1, after.ProductWarehouseInventory.Count);
+    }
 }

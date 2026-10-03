@@ -49,13 +49,9 @@
         }
     }
 </script>
-@* the admin IP allow-list, then the CAPTCHA switch with every page it guards and the
-   reCAPTCHA keys revealed under it *@
-<admin-card>
-    <div class="grand-fields grand-fields--2col">
-        <admin-field asp-for="SecuritySettings.AdminAreaAllowedIpAddresses"/>
-    </div>
-</admin-card>
+@* the CAPTCHA switch with every page it guards and the reCAPTCHA keys revealed under it.
+   No admin IP allow-list here: it guards the back office of every store, so it is managed
+   in the Admin only, and the Store SettingController never saved it anyway *@
 <admin-card>
     <div class="note note-info">
         A CAPTCHA is a program that can tell whether its user is a human or a computer.

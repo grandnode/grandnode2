@@ -28,6 +28,13 @@
     --grand-zindex-popover: 10400;
     --grand-zindex-tooltip: 10500;
     --grand-zindex-toast: 10600;
+    //the full-page "please wait" curtain (restart, long operations): the page under it is going
+    //away, so it covers everything, the top bar and any open popup included
+    --grand-zindex-throbber: 10700;
+}
+
+.throbber {
+    z-index: var(--grand-zindex-throbber);
 }
 
 .dropdown-menu {

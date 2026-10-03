@@ -199,12 +199,6 @@
         @Html.Raw(Model.CheckoutAttributeInfo)
     </div>
 }
-<div class="form-actions">
-    <a href="@(Url.Action("AddProductToOrder", "Order", new { orderId = Model.Id, area = area }))" id="btnAddNewProduct" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-plus-lg"></i>&nbsp;@Loc["Admin.Orders.Products.AddNew"]
-    </a>
-</div>
-
 <script>
     //every order item change moves the order totals and can move its status, so the page is
     //reloaded after a successful one exactly like the old form post's redirect did

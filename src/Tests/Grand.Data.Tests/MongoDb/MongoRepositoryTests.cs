@@ -205,6 +205,22 @@ public class MongoRepositoryTests
     }
 
     [TestMethod]
+    public async Task Pull_ById_NothingToPull_LeavesTheDocumentUnwritten()
+    {
+        //Arrange
+        _myRepository.Insert(new SampleCollection { Id = "1", Name = "Test", Phones = ["Phone1", "Phone3"] });
+
+        //Act
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.Phones, y => y == "Phone2");
+
+        //Assert
+        var p = _myRepository.GetById("1");
+        Assert.HasCount(2, p.Phones);
+        Assert.IsNull(p.UpdatedOnUtc);
+        Assert.IsNull(p.UpdatedBy);
+    }
+
+    [TestMethod]
     public async Task Pull_Many_MongoRepository_Success()
     {
         //Arrange
@@ -232,6 +248,9 @@ public class MongoRepositoryTests
         Assert.HasCount(2, p1.Phones);
         Assert.HasCount(2, p2.Phones);
         Assert.IsEmpty(p3.Phones);
+        //nothing to pull from p3, so it must not be written (nor re-stamped) at all
+        Assert.IsNull(p3.UpdatedOnUtc);
+        Assert.IsNull(p3.UpdatedBy);
         Assert.AreEqual("user", p1!.CreatedBy);
         Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
         Assert.AreEqual("user", p1!.UpdatedBy);
@@ -330,8 +349,11 @@ public class MongoRepositoryTests
 
         var p1 = _myRepository.GetById("1");
         var p2 = _myRepository.GetById("2");
+        var p3 = _myRepository.GetById("3");
 
         //Assert
+        //p3 has no user field to pull, so it must not be written (nor re-stamped) at all
+        Assert.IsNull(p3.UpdatedOnUtc);
         Assert.HasCount(1, p1.UserFields);
         Assert.HasCount(2, p2.UserFields);
         Assert.AreEqual("user", p1!.CreatedBy);

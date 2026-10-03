@@ -2,6 +2,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Mediator;
@@ -88,6 +89,7 @@ public class BaseOrderManagementControllerTests
         var order = new Order { Id = "o1" };
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanCancelOrderQuery>(), default)).ReturnsAsync(true);
 
         var result = await _controller.CancelOrder("o1");
 
@@ -95,6 +97,21 @@ public class BaseOrderManagementControllerTests
         Assert.AreEqual("Edit", redirect?.ActionName);
         _mediatorMock.Verify(m => m.Send(
             It.Is<CancelOrderCommand>(c => c.Order == order && c.NotifyCustomer), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CancelOrder_NotCancellable_RedirectsToEdit_NoCommandSent()
+    {
+        //only a pending order may be cancelled; the action no longer trusts the button being hidden
+        var order = new Order { Id = "o1", OrderStatusId = (int)OrderStatusSystem.Complete };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanCancelOrderQuery>(), default)).ReturnsAsync(false);
+
+        var result = await _controller.CancelOrder("o1");
+
+        Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<CancelOrderCommand>(), default), Times.Never);
     }
 
     [TestMethod]

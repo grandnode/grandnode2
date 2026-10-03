@@ -292,6 +292,62 @@ public class BaseBlogControllerTests
     }
 
     [TestMethod]
+    public async Task CommentsPost_ScopeDeniesView_ReturnsKendoErrorWithoutReadingComments()
+    {
+        var post = new BlogPost { Id = "p1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.CanView(post)).ReturnsAsync(false);
+
+        var result = await _controller.Comments("p1", new DataSourceRequest { Page = 1, PageSize = 15 });
+
+        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _blogViewModelServiceMock.Verify(v => v.PrepareBlogPostCommentsModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CommentsPost_PostNotFound_ReturnsKendoErrorWithoutReadingComments()
+    {
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+
+        var result = await _controller.Comments("missing", new DataSourceRequest { Page = 1, PageSize = 15 });
+
+        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _blogViewModelServiceMock.Verify(v => v.PrepareBlogPostCommentsModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CommentsPost_ScopeAllowsView_ReturnsThePostsComments()
+    {
+        var post = new BlogPost { Id = "p1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.CanView(post)).ReturnsAsync(true);
+        _blogViewModelServiceMock.Setup(v => v.PrepareBlogPostCommentsModel("p1", 1, 15))
+            .ReturnsAsync((new List<BlogCommentModel> { new() { Id = "cm1" } }, 1));
+
+        var result = await _controller.Comments("p1", new DataSourceRequest { Page = 1, PageSize = 15 });
+
+        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        Assert.IsNull(gridModel.Errors);
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    [TestMethod]
+    public async Task CommentsPost_NoFilter_ListsTheScopedCommentsWithoutAPostCheck()
+    {
+        //the "Blog comments" page: no post id, the view-model service narrows to the staff store
+        _blogViewModelServiceMock.Setup(v => v.PrepareBlogPostCommentsModel(null, 1, 15))
+            .ReturnsAsync((new List<BlogCommentModel>(), 0));
+
+        var result = await _controller.Comments(null, new DataSourceRequest { Page = 1, PageSize = 15 });
+
+        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        Assert.IsNull(gridModel.Errors);
+        _blogServiceMock.Verify(b => b.GetBlogPostById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task CategoryPostList_ScopeDeniesAccess_ReturnsKendoError()
     {
         var category = new BlogCategory { Id = "c1" };

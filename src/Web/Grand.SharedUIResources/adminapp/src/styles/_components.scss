@@ -655,6 +655,41 @@
 }
 
 /*
+ * A quantity with its unit picked next to it - stock quantity and pcs./pair/set. As wide as
+ * every other numeric field, so the column stays aligned: the number takes what the short unit
+ * list leaves, and the two meet square like the field and suffix above.
+ */
+.grand-unit-group {
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 22rem;
+    max-width: 100%;
+}
+
+//the widget's own wrapper is an .input-group too, and _custom.scss gives every .input-group a
+//10px bottom margin: inside this group it made the row 10px taller and stretched the unit list
+.grand-unit-group > .grand-numeric-group {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+}
+
+.grand-unit-group > .grand-numeric-group > .grand-numeric-spin {
+    border-start-end-radius: 0 !important;
+    border-end-end-radius: 0 !important;
+}
+
+.grand-unit-group > .form-select {
+    flex: 0 0 7rem;
+    width: 7rem;
+    margin: 0;
+    margin-inline-start: -1px;
+    border-start-start-radius: 0 !important;
+    border-end-start-radius: 0 !important;
+}
+
+/*
  * A value that reads as a sentence with its fields inside it - "Each [10] USD spent will earn
  * [1] loyalty points." - as the child content of an <admin-field>. The numeric widget is 22rem
  * wide on its own, which pushed every word after it onto a line of its own.
@@ -1060,6 +1095,22 @@
 //but not in the strip. !important: a script may .show() a tab (the product type ones)
 .grand-tabs-quick > .grand-tabstrip > .nav-tabs > li:not(.grand-tab-quick) {
     display: none !important;
+}
+
+//a popup the panels load with type 'ajax' (an <admin-popup> view), or re-open as 'inline' with
+//the validation errors after a failed save: magnific popup gives its content no background of
+//its own, so without this the form sits straight on the dimmed page and the screen shows through
+.mfp-ajax-holder .mfp-content,
+.mfp-inline-holder .mfp-content {
+    max-width: 800px;
+    padding: 1rem;
+    background-color: var(--#{$prefix}body-bg);
+    border-radius: var(--grand-radius);
+}
+
+[data-theme="dark"] .mfp-ajax-holder .mfp-content,
+[data-theme="dark"] .mfp-inline-holder .mfp-content {
+    background-color: var(--#{$prefix}secondary-bg);
 }
 
 //a magnific popup holding a whole admin screen in an iframe (mainClass: 'grand-mfp-frame'):

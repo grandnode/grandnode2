@@ -181,7 +181,7 @@ public class CustomerSettingsModel : BaseModel
         public int TwoFactorAuthenticationType { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Customer.HideSubaccountsTab")]
-        public bool HideSubaccountsTab { get; set; }
+        public bool HideSubAccountsTab { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Customer.HideDocumentsTab")]
         public bool HideDocumentsTab { get; set; }

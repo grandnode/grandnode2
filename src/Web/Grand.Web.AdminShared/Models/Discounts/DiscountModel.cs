@@ -43,7 +43,7 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.MaximumDiscountAmount")]
     [UIHint("DoubleNullable")]
-    public double MaximumDiscountAmount { get; set; }
+    public double? MaximumDiscountAmount { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.StartDate")]
     [UIHint("DateTimeNullable")]
@@ -70,7 +70,7 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.MaximumDiscountedQuantity")]
     [UIHint("Int32Nullable")]
-    public int MaximumDiscountedQuantity { get; set; }
+    public int? MaximumDiscountedQuantity { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Requirements.DiscountRequirementType")]
     public string AddDiscountRequirement { get; set; }

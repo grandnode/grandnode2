@@ -86,11 +86,16 @@
 </admin-card>
 @if (Scope.DefaultStoreId is null)
 {
+    //one store list serves both pickers; its empty option reads "Not a staff", which is right for
+    //the staff store only - the registration store's empty option means "not set"
+    var registrationStores = Model.AvailableStores
+        .Select(s => string.IsNullOrEmpty(s.Value) ? new SelectListItem(Loc["Admin.Customers.Customers.Fields.Store.None"].Value, "") : s)
+        .ToList();
     <admin-card>
         <div class="grand-fields grand-fields--2col">
             <admin-field asp-for="VendorId" hint="@Loc["Admin.Customers.Customers.VendorShouldBeInVendorsGroup"]"/>
             <admin-field asp-for="StaffStoreId" asp-items="Model.AvailableStores"/>
-            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+            <admin-field asp-for="StoreId" asp-items="registrationStores"/>
             <admin-field asp-for="Owner"/>
             <admin-field asp-for="SeId" asp-items="Model.AvailableSalesEmployees"/>
         </div>

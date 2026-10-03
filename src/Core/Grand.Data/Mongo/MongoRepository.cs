@@ -292,9 +292,14 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task RemoveCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, bool>> elemFieldMatch)
     {
+        // Without an id the pull applies to every document holding a matching element (removing a deleted
+        // tag/discount/category from all that reference it); with one, to that document. Either way only a
+        // document holding a match is matched: one with nothing to pull must not be written, or the audit
+        // stamp below would mark it as updated - the LiteDB implementation skips it the same way.
+        var holdsMatch = Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
         var filter = string.IsNullOrEmpty(id)
-            ? Builders<T>.Filter.Where(x => true)
-            : Builders<T>.Filter.Eq(x => x.Id, id);
+            ? holdsMatch
+            : Builders<T>.Filter.And(Builders<T>.Filter.Eq(x => x.Id, id), holdsMatch);
         var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
 
         var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());

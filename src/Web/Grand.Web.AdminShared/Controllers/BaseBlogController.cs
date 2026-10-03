@@ -461,6 +461,18 @@ public abstract class BaseBlogController(
     [HttpPost]
     public async Task<IActionResult> Comments(string filterByBlogPostId, DataSourceRequest command)
     {
+        // A post's Comments tab names the post, so it must be one this panel may read - without this a
+        // Store user read the comments (author e-mails included) of another store's post by its id, and
+        // an unknown id crashed the service. CanView, not HasAccess, as in Edit(GET) and News' Comments:
+        // global posts are readable from the Store panel. With no post id this is the "Blog comments"
+        // page, which PrepareBlogPostCommentsModel already narrows to the staff store.
+        if (!string.IsNullOrEmpty(filterByBlogPostId))
+        {
+            var blogPost = await blogService.GetBlogPostById(filterByBlogPostId);
+            if (blogPost == null || !await postScope.CanView(blogPost))
+                return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
+        }
+
         var model = await blogViewModelService.PrepareBlogPostCommentsModel(filterByBlogPostId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = model.blogComments,

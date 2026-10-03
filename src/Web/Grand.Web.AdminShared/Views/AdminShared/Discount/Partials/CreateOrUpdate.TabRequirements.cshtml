@@ -43,6 +43,10 @@
                                 }
                                 );
                             loadExistingRequirements();
+                            //the rule is in the list now: empty the add box, or a second Save in it
+                            //would add the same rule again
+                            $("#@Html.IdFor(model => model.AddDiscountRequirement)").val('');
+                            loadNewRequirementBox();
                         },
                         error:function (xhr, ajaxOptions, thrownError) {
                             alert('Failed to load new discount requirement info. Please refresh the page');

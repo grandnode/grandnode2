@@ -27,11 +27,15 @@
                 <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.PdfInvoice"]
             </a>
             <admin-action-menu>
-                <admin-action id="order-cancel" icon="bi-x-circle" destructive="true"
-                              url="@Url.Action("CancelOrder", new { id = Model.Id, area = area })"
-                              text="@Loc["Admin.Orders.Fields.OrderStatus.Cancel"]"
-                              data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
-                              data-confirm-title="@Loc["Admin.Orders.Fields.OrderStatus.Cancel"]"/>
+                @if (Model.CanCancelOrder)
+                {
+                    @* posts order-form: CancelOrder is POST only *@
+                    <admin-action id="order-cancel" icon="bi-x-circle" destructive="true" submit="true"
+                                  url="@Url.Action("CancelOrder", new { id = Model.Id, area = area })"
+                                  text="@Loc["Admin.Orders.Fields.OrderStatus.Cancel"]"
+                                  data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"
+                                  data-confirm-title="@Loc["Admin.Orders.Fields.OrderStatus.Cancel"]"/>
+                }
                 <admin-action id="order-delete" destructive="true" icon="bi-trash"
                               text="@Loc["Admin.Common.Delete"]"/>
             </admin-action-menu>

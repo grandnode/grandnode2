@@ -29,6 +29,10 @@ export default defineConfig({
             input: resolve('./src/main.js'),
             output: {
                 format: 'iife',
+                //Rolldown (Vite 8) drops both unless asked: the bundle code assumes strict
+                //mode, and the /*! */ license headers of bundled libraries must stay
+                strict: true,
+                comments: { legal: true },
                 entryFileNames: 'app.runtime.bundle.js',
                 assetFileNames: info => {
                     const name = info.names?.[0] ?? info.name ?? ''

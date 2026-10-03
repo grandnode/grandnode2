@@ -118,24 +118,17 @@
                         //ex. ['jpg', 'jpeg', 'png', 'gif'] or []
                         var allowedFileExtensions = string.Join(", ", attribute.AllowedFileExtensions.Select(x => "" + x.Trim() + "").ToList());
 
-                        if (download != null)
-                        {
-                            <input id="@(controlId)" name="@(controlName)" type="hidden" value="@download.DownloadGuid"/>
-                        }
-                        else
-                        {
-                            <input id="@(controlId)" name="@(controlName)" type="hidden"/>
-                        }
-
-                        <input class="form-control" type="file" accept="@Html.Raw(allowedFileExtensions)" id="qqfile" name="qqfile" onchange="uploadFile(this)">
-                        <input class="hidden-upload-input" type="hidden" onchange="contactAttributeChange()" id="@(controlId)" name="@(controlName)"/>
-                        <div id="download-message" class="alert my-2" style="display:none;"></div>
-                        <a id="@(controlId)downloadurl'" class="download-file btn btn-outline-info" style="display:none;">
-                            Download
-                        </a>
-                        <script type="application/json" data-grand-vm="contactAttributes">@Json.Serialize(new {
-            routes = new { change = Url.Action("contactattributechange", "contact") }
-        })</script>
+                        @* one hidden value per attribute - two inputs of the same name posted ",<guid>",
+                           which is no guid - and everything the upload script touches kept inside this
+                           attribute's container, so a second file attribute does not update the first *@
+                        <div class="contact-attribute-upload">
+                            <input class="form-control" type="file" accept="@Html.Raw(allowedFileExtensions)" id="upload_@(attribute.Id)" name="qqfile" data-url="@Url.RouteUrl("UploadFileContactAttribute", new { attributeId = attribute.Id })" onchange="uploadFile(this)">
+                            <input class="hidden-upload-input" type="hidden" id="@(controlId)" name="@(controlName)" value="@download?.DownloadGuid"/>
+                            <div class="download-message alert my-2" style="display:none;"></div>
+                            <a id="@(controlId)downloadurl" class="download-file btn btn-outline-info" style="display:none;">
+                                Download
+                            </a>
+                        </div>
                     }
                         break;
                     case AttributeControlType.ColorSquares:
@@ -165,5 +158,9 @@
             </div>
         }
     </div>
-
+    @* once for the whole form, after it: it wires the change requests that show and hide the
+       conditional attributes, whatever control types the form has *@
+    <script type="application/json" data-grand-vm="contactAttributes">@Json.Serialize(new {
+        routes = new { change = Url.Action("contactattributechange", "contact") }
+    })</script>
 }

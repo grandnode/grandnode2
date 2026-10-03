@@ -7,6 +7,7 @@
 <admin-page title="@Loc["Admin.Courses.Level"]" icon="bi-wrench">
     <admin-card flush>
         <admin-grid id="level-grid"
+                    confirm-destroy="true"
                     read-url="@Url.Action("Levels", "Course", new { area = Constants.AreaAdmin })"
                     create-url="@Url.Action("LevelAdd", "Course", new { area = Constants.AreaAdmin })"
                     update-url="@Url.Action("LevelUpdate", "Course", new { area = Constants.AreaAdmin })"

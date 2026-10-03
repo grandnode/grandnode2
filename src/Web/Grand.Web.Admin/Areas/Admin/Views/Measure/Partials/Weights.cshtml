@@ -14,8 +14,8 @@
         <grid-text name="markAsPrimary" value="@Loc["Admin.Configuration.Measures.Weights.Fields.MarkAsPrimaryWeight"]"/>
         <grid-column field="Name" title="@Loc["Admin.Configuration.Measures.Weights.Fields.Name"]" width="300" editor="Text"/>
         <grid-column field="SystemKeyword" title="@Loc["Admin.Configuration.Measures.Weights.Fields.SystemKeyword"]" width="200" editor="Text"/>
-        <grid-column field="Ratio" title="@Loc["Admin.Configuration.Measures.Weights.Fields.Ratio"]" width="200" editor="Numeric" decimals="8"/>
-        <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Measures.Weights.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
+        <grid-column field="Ratio" title="@Loc["Admin.Configuration.Measures.Weights.Fields.Ratio"]" width="200" editor="Numeric" decimals="8" default-value="0"/>
+        <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Measures.Weights.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
         <grid-column field="Id" title="@Loc["Admin.Configuration.Measures.Weights.Fields.IsPrimaryWeight"]" width="150" editable="false">
             <cell-template>
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-grid-click="markAsPrimaryWeight">

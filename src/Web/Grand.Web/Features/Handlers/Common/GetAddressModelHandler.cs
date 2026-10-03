@@ -119,21 +119,26 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
         //countries and states
         if (_addressSettings.CountryEnabled && loadCountries != null)
         {
+            var countries = loadCountries();
+
+            //a new address starts in the store's default country; the form binds CountryId, not the Selected flag
+            if (address == null && string.IsNullOrEmpty(model.CountryId)
+                && !string.IsNullOrEmpty(store?.DefaultCountryId)
+                && countries.Any(c => c.Id == store.DefaultCountryId))
+                model.CountryId = store.DefaultCountryId;
+
             model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
-            foreach (var c in loadCountries())
+            foreach (var c in countries)
                 model.AvailableCountries.Add(new SelectListItem {
                     Text = c.GetTranslation(x => x.Name, language?.Id),
                     Value = c.Id,
-                    Selected = !string.IsNullOrEmpty(model.CountryId)
-                        ? c.Id == model.CountryId
-                        : c.Id == store.DefaultCountryId
+                    Selected = c.Id == model.CountryId
                 });
 
             if (_addressSettings.StateProvinceEnabled)
             {
                 var states = await _countryService
-                    .GetStateProvincesByCountryId(
-                        !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : store.DefaultCountryId, language?.Id);
+                    .GetStateProvincesByCountryId(model.CountryId, language?.Id);
 
                 model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 

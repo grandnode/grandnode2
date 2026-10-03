@@ -16,8 +16,7 @@ public class RobotsTxtValidator : BaseGrandValidator<RobotsTxtModel>
             .NotEmpty()
             .WithMessage(translationService.GetResource("Admin.Configuration.RobotsTxt.Fields.Name.Required"));
 
-        RuleFor(x => x.Text)
-            .NotEmpty()
-            .WithMessage(translationService.GetResource("Admin.Configuration.RobotsTxt.Fields.Text.Required"));
+        //no rule on Text: an empty robots.txt is valid (it allows everything) and is what a store
+        //starts with, so it must stay possible to save one
     }
 }

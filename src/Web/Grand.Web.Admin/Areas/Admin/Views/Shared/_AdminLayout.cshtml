@@ -118,15 +118,9 @@
                                 </a>
                                 <ul id="menu1" class="dropdown-menu dropdown-menu-end list-unstyled msg_list overflow-h" role="menu">
                                     <li>
-                                        <a href="http://docs.grandnode.com/" target="_blank">
+                                        <a href="https://grandnode.com/knowledgebase" target="_blank">
                                             <i class="bi bi-book"></i>
                                             @Loc["Admin.Header.Documentation"]
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="https://grandnode.com/boards" target="_blank">
-                                            <i class="bi bi-chat-dots"></i>
-                                            @Loc["Admin.Header.Community"]
                                         </a>
                                     </li>
                                     <li>
@@ -152,7 +146,7 @@
                                         </li>
 
                                         <li>
-                                            <a href="@Url.Action("RestartApplication", "System", new { returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
+                                            <a href="#" data-url="@Url.Action("RestartApplication", "System", new { returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
                                                 <i class="bi bi-arrow-clockwise"></i>
                                                 @Loc["Admin.Header.RestartApplication"]
                                             </a>
@@ -276,13 +270,22 @@
 <script>
         $(document).ready(function () {
             $("#restart-application").click(function (e) {
-                event.preventDefault();
-                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Header.RestartApplication.Progress"]))');
-                $("html, body").animate({ scrollTop: 0 }, 400);
-                $.get($(this).attr("href"), function (data) { });
-                setTimeout(function () {
-                    location.reload();
-                }, 10000);
+                e.preventDefault();
+                var url = $(this).data("url");
+                //a restart drops every request in flight on the whole site: ask first
+                GrandAdmin.modal.confirm('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Common.AreYouSure"]))', {
+                    title: '@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Header.RestartApplication"]))',
+                    confirmText: '@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Common.Yes"]))',
+                    cancelText: '@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Common.No"]))'
+                }).then(function (confirmed) {
+                    if (!confirmed) return;
+                    showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Header.RestartApplication.Progress"]))');
+                    //POST with the antiforgery token: the action no longer answers a plain GET
+                    $.post(url, addAntiForgeryToken({}));
+                    setTimeout(function () {
+                        location.reload();
+                    }, 10000);
+                });
             });
         });
     </script>

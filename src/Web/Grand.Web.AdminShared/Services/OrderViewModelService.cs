@@ -33,6 +33,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
+using Grand.Business.Core.Queries.Checkout.Orders;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -352,6 +353,10 @@ public class OrderViewModelService : IOrderViewModelService
             model.OrderStatuses =
                 status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
         model.OrderStatus = status.FirstOrDefault(x => x.StatusId == order.OrderStatusId)?.Name;
+        //cancelling runs the order's side effects (stock, gift vouchers) for the whole order, so it is
+        //offered to the panels that own the order, not to a vendor who sees only his own items
+        if (_scope.DefaultVendorId is null)
+            model.CanCancelOrder = await _mediator.Send(new CanCancelOrderQuery { Order = order });
 
         var store = await _storeService.GetStoreById(order.StoreId);
         model.StoreName = store != null ? store.Shortcut : "Unknown";

@@ -16,22 +16,22 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
-    "tabulator-tables": "^6.5.2",
+    "tabulator-tables": "^6.6.1",
     "tom-select": "^2.6.2",
-    "vue": "^3.5.13"
+    "vue": "^3.5.43"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
     "acorn": "^8.18.0",
-    "eslint": "^9.18.0",
-    "globals": "^15.14.0",
+    "eslint": "^10.11.0",
+    "globals": "^17.13.0",
     "jquery": "^2.2.4",
-    "jsdom": "^27.0.1",
+    "jsdom": "^30.1.1",
     "rtlcss": "^4.3.0",
-    "sass": "^1.104.1",
-    "vite": "^6.0.7",
-    "vitest": "^3.2.4"
+    "sass": "^1.105.1",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
   },
   "browserslist": [
     "> 1%",

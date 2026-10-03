@@ -113,7 +113,7 @@ To get a local copy up and running follow these simple steps.
 | --- | --- | --- |
 | [.NET SDK](https://dotnet.microsoft.com/download) | **10.0.100** or newer | building and running everything. The version is pinned in `global.json` with `rollForward: latestFeature`, so any 10.0.x SDK works |
 | [MongoDB](https://www.mongodb.com/try/download/community) | **4.0+** | the database. A local server, a Docker container or a MongoDB Atlas cluster all work |
-| [Node.js](https://nodejs.org/) + npm | **20 LTS** or newer (20.19+ for the admin panels) | only when you change the storefront or admin panel frontend sources. The build output is committed, so you can run the shop without Node |
+| [Node.js](https://nodejs.org/) + npm | **22 LTS** (22.22+) or **24 LTS** (24.15+); the admin panel tests need it, the builds alone run on 20.19+ | only when you change the storefront or admin panel frontend sources. The build output is committed, so you can run the shop without Node |
 | IDE | any with .NET 10 support - Visual Studio, JetBrains Rider, VS Code | optional |
 
 Only the SDK and MongoDB are required to get the shop running - see

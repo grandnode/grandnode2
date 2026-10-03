@@ -480,4 +480,79 @@
 	<Resource Name="admin.catalog.discounts.nostorediscounts" Area="Admin">
 		<Value>There are no configured discounts. Create one under Marketing → Discounts.</Value>
 	</Resource>
+	<Resource Name="admin.customers.customers.fields.store.none" Area="Admin">
+		<Value>Not set</Value>
+	</Resource>
+	<Resource Name="admin.configuration.tax.categories.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.recommended.savebeforeedit" Area="Admin">
+		<Value>You need to save the product before you can add recommended products for this product page.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.nopermissions" Area="Admin">
+		<Value>No permissions are defined yet.</Value>
+	</Resource>
+	<Resource Name="admin.content.blog.blogposts.preview" Area="Admin">
+		<Value>Blog post preview</Value>
+	</Resource>
+	<Resource Name="admin.contentmanagement.messagetemplates.fields.allowedtokens" Area="Admin">
+		<Value>Allowed message tokens (some might not be available in this template)</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.customergroups.nogroups" Area="Admin">
+		<Value>There are no stores to subscribe to the newsletter in.</Value>
+	</Resource>
+	<Resource Name="admin.orders.address.vatnumber" Area="Admin">
+		<Value>VAT number</Value>
+	</Resource>
+	<Resource Name="admin.system.warnings.performance.ignoreacl.notification" Area="Admin">
+		<Value>Customer group (ACL) limitations are ignored on this installation, so customer group restrictions set here have no effect.</Value>
+	</Resource>
+	<Resource Name="admin.system.warnings.performance.ignorestorelimitations.notification" Area="Admin">
+		<Value>Store limitations are ignored on this installation, so store restrictions set here have no effect.</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.collections.discounts.nodiscounts" Area="Vendor">
+		<Value>There are no configured discounts.</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.categories.fields.isfeaturedproduct" Area="Vendor">
+		<Value>Is featured product?</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.collections.fields.isfeaturedproduct" Area="Vendor">
+		<Value>Is featured product?</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.documents" Area="Vendor">
+		<Value>Documents</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.pictures.fields.isdefault" Area="Vendor">
+		<Value>The default photo</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.recommended.savebeforeedit" Area="Vendor">
+		<Value>You need to save the product before you can add recommended products for this product page.</Value>
+	</Resource>
+	<Resource Name="vendor.common.userfields.tab" Area="Vendor">
+		<Value>User fields</Value>
+	</Resource>
+	<Resource Name="vendor.documents.document.fields.name" Area="Vendor">
+		<Value>Name</Value>
+	</Resource>
+	<Resource Name="vendor.documents.document.fields.number" Area="Vendor">
+		<Value>Number</Value>
+	</Resource>
+	<Resource Name="vendor.documents.document.fields.published" Area="Vendor">
+		<Value>Published</Value>
+	</Resource>
+	<Resource Name="vendor.info" Area="Vendor">
+		<Value>Info</Value>
+	</Resource>
+	<Resource Name="vendor.marketing.document.add" Area="Vendor">
+		<Value>Add new document</Value>
+	</Resource>
+	<Resource Name="vendor.orders.address.vatnumber" Area="Vendor">
+		<Value>VAT number</Value>
+	</Resource>
+	<Resource Name="vendor.reports.customers" Area="Vendor">
+		<Value>Customer reports</Value>
+	</Resource>
+	<Resource Name="admin.orders.cannotcancel" Area="Admin">
+		<Value>This order can no longer be cancelled - only a pending order can.</Value>
+	</Resource>
 </Language>

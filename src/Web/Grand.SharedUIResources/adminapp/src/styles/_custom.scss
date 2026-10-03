@@ -2314,7 +2314,9 @@ label {
 
 .throbber {
     display: none;
-    z-index: 5;
+    //positioned, or its z-index (see _zindex.scss) is ignored and the fixed top bar paints over it
+    position: fixed;
+    inset: 0;
 }
 
 .throbber .curtain {
