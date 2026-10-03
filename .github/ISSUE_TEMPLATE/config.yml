@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/grandnode/grandnode2/discussions
+    about: Ask how to do something, share an idea or show what you built with GrandNode.
+  - name: Security vulnerability
+    url: https://github.com/grandnode/grandnode2/security/advisories/new
+    about: Report a vulnerability privately. Please do not open a public issue.
+  - name: Premium support
+    url: https://grandnode.com/premium-support-packages/?utm_source=github&utm_medium=link&utm_campaign=issue-template
+    about: Commercial help with installation, upgrades and custom development.

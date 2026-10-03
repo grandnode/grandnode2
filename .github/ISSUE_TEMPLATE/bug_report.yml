@@ -1,0 +1,72 @@
+name: Bug report
+description: Something in GrandNode does not work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please search the [existing issues](https://github.com/grandnode/grandnode2/issues) first.
+        Security vulnerabilities go through the [private reporting form](https://github.com/grandnode/grandnode2/security/advisories/new), not here.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected to see instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps someone else can follow on a fresh installation or on the demo.
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. See the error
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: GrandNode version
+      description: A release number (for example 2.3.0), or the branch and commit you run.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen
+      multiple: true
+      options:
+        - Storefront
+        - Admin panel
+        - Store owner panel
+        - Vendor panel
+        - REST API
+        - Installation or upgrade
+        - Plugin or theme
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: How do you run GrandNode
+      options:
+        - Docker
+        - Linux
+        - Windows / IIS
+        - Kubernetes or cloud service
+        - Locally from an IDE
+        - Other
+  - type: input
+    id: database
+    attributes:
+      label: Database
+      description: For example MongoDB 7.0, MongoDB Atlas, Azure Cosmos DB, LiteDB.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and screenshots
+      description: Error messages, stack traces from the admin system log or the console, screenshots.
+      render: text
