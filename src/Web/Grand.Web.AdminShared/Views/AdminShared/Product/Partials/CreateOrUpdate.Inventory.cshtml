@@ -13,7 +13,7 @@
         <admin-field asp-for="WarehouseId" id="pnlWarehouse" asp-items="Model.AvailableWarehouses"/>
         @* the quantity and the unit it is counted in are one answer *@
         <admin-field asp-for="StockQuantity" id="pnlStockQuantity">
-            <div class="input-group">
+            <div class="input-group grand-unit-group">
                 <admin-input asp-for="StockQuantity"/>
                 <admin-select asp-for="UnitId" asp-items="Model.AvailableUnits"/>
             </div>
