@@ -8,7 +8,5 @@ public class BackendAPIConfig
     public string ValidIssuer { get; set; }
     public bool ValidateAudience { get; set; }
     public string ValidAudience { get; set; }
-    public bool ValidateLifetime { get; set; }
-    public bool ValidateIssuerSigningKey { get; set; }
     public int ExpiryInMinutes { get; set; }
 }
