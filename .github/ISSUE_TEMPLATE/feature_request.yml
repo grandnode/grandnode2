@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest a new feature or an improvement to an existing one.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Open ideas and early-stage proposals are welcome in [Discussions](https://github.com/grandnode/grandnode2/discussions) as well.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do and what stops you today.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How you would like GrandNode to handle it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you use now, plugins you tried, how other platforms solve it.
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to submit a pull request for this.
