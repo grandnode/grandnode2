@@ -9,11 +9,20 @@
                 var spentAmount = $("#@Html.IdFor(model => model.SpentAmount)").val();
                 var discountId = '@Model.DiscountId';
                 var requirementId = '@Model.RequirementId';
+
+                var postData = {
+                    discountId: discountId,
+                    discountRequirementId: requirementId,
+                    spentAmount: spentAmount
+                };
+                //the plugin's controller validates the antiforgery token like every admin POST
+                addAntiForgeryToken(postData);
+
                 $.ajax({
                     cache:false,
                     type: "POST",
                     url: "@Url.Action("Configure", "DiscountRulesShoppingCartAmount")",
-                    data: { "discountId": discountId, "discountRequirementId": requirementId, "spentAmount": spentAmount },
+                    data: postData,
                     success: function (data) {
                          $('#pnl-save-requirement-result@(Model.RequirementId)').fadeIn("slow").delay(1000).fadeOut("slow");
                          //notify parent if it's a new requirement
