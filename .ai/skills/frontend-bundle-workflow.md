@@ -173,7 +173,7 @@ Commands (run from `adminapp/`):
 
 | Command | Does |
 |---------|------|
-| `npm ci` | one-time setup from the lock file, Node 20.19+ (browsers for e2e: `npx playwright install chromium`) |
+| `npm ci` | one-time setup from the lock file, Node 22.22+ or 24.15+ (the build alone runs on 20.19+, the tests do not; browsers for e2e: `npx playwright install chromium`) |
 | `npm run build` | Vite build to `wwwroot/administration/bundles/` |
 | `npm run lint` | eslint over the whole project (`src`, `scripts`, `e2e`, configs) |
 | `npm test` | Vitest, once |

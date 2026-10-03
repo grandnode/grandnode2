@@ -14,9 +14,10 @@ it; `node_modules`, `dist`, `reports` and the e2e output folders are left out of
 
 ## Prerequisites
 
-- **Node.js 20.19 or newer** (with npm). `package.json` has no `engines` field and there is
-  no `.nvmrc`; the floor comes from the dependencies: sass requires Node >= 20.19, jsdom and
-  Playwright >= 20. The project is developed on Node 23.
+- **Node.js 22.22+ or 24.15+** (with npm) to run everything. `package.json` has no `engines`
+  field and there is no `.nvmrc`; the floor comes from the dependencies: the build (Vite,
+  rolldown, sass) runs on Node 20.19+, but the unit tests do not - jsdom 30 requires
+  ^22.22.2, ^24.15 or >= 26, and Vitest 5 >= 22.12. Node 20 is past its end of life.
 - Only needed when you change something under `adminapp/`. The bundles are committed, so
   the panels run without Node, and neither the CI workflows nor the Dockerfile install it.
 
