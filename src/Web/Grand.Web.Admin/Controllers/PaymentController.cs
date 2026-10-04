@@ -6,13 +6,12 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Payments;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Extensions.Mapping.Settings;
-using Grand.Web.Admin.Models.Payments;
-using Grand.Web.Admin.Models.Shipping;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Extensions.Mapping.Settings;
+using Grand.Web.AdminShared.Models.Payments;
+using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +28,7 @@ public class PaymentController : BaseAdminController
         ICountryService countryService,
         IShippingMethodService shippingMethodService,
         ITranslationService translationService,
-        IServiceProvider serviceProvider,
-        IContextAccessor contextAccessor)
+        IServiceProvider serviceProvider)
     {
         _paymentService = paymentService;
         _settingService = settingService;
@@ -38,7 +36,6 @@ public class PaymentController : BaseAdminController
         _shippingMethodService = shippingMethodService;
         _translationService = translationService;
         _serviceProvider = serviceProvider;
-        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -51,7 +48,6 @@ public class PaymentController : BaseAdminController
     private readonly IShippingMethodService _shippingMethodService;
     private readonly ITranslationService _translationService;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
@@ -81,10 +77,7 @@ public class PaymentController : BaseAdminController
             {
                 var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
                 if (plugin != null)
-                {
                     tmp.ConfigurationUrl = plugin.ConfigurationUrl();
-                    tmp.LogoUrl = pluginInfo.GetLogoUrl(_contextAccessor.StoreContext.CurrentHost.Url);
-                }
             }
 
             paymentMethodsModel.Add(tmp);
@@ -146,6 +139,8 @@ public class PaymentController : BaseAdminController
 
     public async Task<IActionResult> MethodRestrictions()
     {
+        var storeScope = await GetActiveStore();
+
         var model = new PaymentMethodRestrictionModel();
         var paymentMethods = await _paymentService.LoadAllPaymentMethods();
         var countries = await _countryService.GetAllCountries(showHidden: true);
@@ -161,7 +156,7 @@ public class PaymentController : BaseAdminController
 
         foreach (var pm in paymentMethods)
         {
-            var restictedCountries = await _paymentService.GetRestrictedCountryIds(pm);
+            var restictedCountries = await _paymentService.GetRestrictedCountryIds(pm, storeScope);
             foreach (var c in countries)
             {
                 var resticted = restictedCountries.Contains(c.Id);
@@ -170,7 +165,7 @@ public class PaymentController : BaseAdminController
                 model.Resticted[pm.SystemName][c.Id] = resticted;
             }
 
-            var restictedShipping = await _paymentService.GetRestrictedShippingIds(pm);
+            var restictedShipping = await _paymentService.GetRestrictedShippingIds(pm, storeScope);
             foreach (var s in shippings)
             {
                 var resticted = restictedShipping.Contains(s.Name);
@@ -188,6 +183,8 @@ public class PaymentController : BaseAdminController
     [RequestFormLimits(ValueCountLimit = 2048)]
     public async Task<IActionResult> MethodRestrictionsSave(IDictionary<string, string[]> model)
     {
+        var storeScope = await GetActiveStore();
+
         var paymentMethods = await _paymentService.LoadAllPaymentMethods();
         var countries = await _countryService.GetAllCountries(showHidden: true);
         var shippings = await _shippingMethodService.GetAllShippingMethods();
@@ -199,22 +196,22 @@ public class PaymentController : BaseAdminController
                 var countryIdsToRestrict = countryIds.ToList();
                 var newCountryIds =
                     (from c in countries where countryIdsToRestrict.Contains(c.Id) select c.Id).ToList();
-                await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
+                await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds, storeScope);
             }
             else
             {
-                await _paymentService.SaveRestrictedCountryIds(pm, new List<string>());
+                await _paymentService.SaveRestrictedCountryIds(pm, new List<string>(), storeScope);
             }
 
             if (model.TryGetValue($"restrictship_{pm.SystemName.Replace(".", "")}", out var shipIds))
             {
                 var shipIdsToRestrict = shipIds.ToList();
                 var newShipIds = (from s in shippings where shipIdsToRestrict.Contains(s.Name) select s.Name).ToList();
-                await _paymentService.SaveRestrictedShippingIds(pm, newShipIds);
+                await _paymentService.SaveRestrictedShippingIds(pm, newShipIds, storeScope);
             }
             else
             {
-                await _paymentService.SaveRestrictedShippingIds(pm, new List<string>());
+                await _paymentService.SaveRestrictedShippingIds(pm, new List<string>(), storeScope);
             }
         }
 

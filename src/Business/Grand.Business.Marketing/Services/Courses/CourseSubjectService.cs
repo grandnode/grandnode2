@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Courses;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Courses;
 
@@ -36,7 +36,7 @@ public class CourseSubjectService : ICourseSubjectService
             orderby c.DisplayOrder
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _courseSubjectRepository.ToListAsync(query);
     }
 
     public virtual Task<CourseSubject> GetById(string id)

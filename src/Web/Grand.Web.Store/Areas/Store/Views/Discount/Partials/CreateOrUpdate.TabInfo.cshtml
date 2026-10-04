@@ -1,0 +1,165 @@
+@using Grand.Domain.Discounts
+@model DiscountModel
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.DiscountTypeId)").change(toggleDiscountType);
+        $("#@Html.IdFor(model => model.UsePercentage)").click(toggleUsePercentage);
+        $("#@Html.IdFor(model => model.RequiresCouponCode)").click(toggleRequiresCouponCode);
+        $("#@Html.IdFor(model => model.DiscountLimitationId)").change(toggleLimitation);
+        $("#@Html.IdFor(model => model.CalculateByPlugin)").click(toggleCalculate);
+
+        toggleDiscountType();
+        toggleLimitation();
+        toggleUsePercentage();
+        toggleRequiresCouponCode();
+        toggleCalculate();
+    });
+
+    function toggleCalculate() {
+        var selectedCalculateByPlugin = $("#@Html.IdFor(model => model.CalculateByPlugin)").is(':checked');
+        if (selectedCalculateByPlugin) {
+            $('#pnlUsePercentage').hide();
+            $('#pnlDiscountAmount').hide();
+            $('#pnlDiscountPercentage').hide();
+            $('#pnlMaximumDiscountAmount').hide();
+            $('#pnlDiscountPluginName').show();
+        }
+        else {
+            $('#pnlUsePercentage').show();
+            $('#pnlDiscountPluginName').hide();
+            toggleUsePercentage();
+        }
+    }
+
+    function toggleDiscountType() {
+        var selectedDiscountTypeId = $("#@Html.IdFor(model => model.DiscountTypeId)").val();
+        if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToCategories).ToString())) {
+            $('#tab-applied-to-categories').show();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-brands').hide();
+        }
+        else if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToCollections).ToString())) {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').show();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-brands').hide();
+        }
+        else if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToSkus).ToString())) {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').show();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-brands').hide();
+        }
+        else if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToBrands).ToString())) {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-brands').show();
+        }
+        else if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToAllProducts).ToString())) {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-brands').hide();
+        }
+        else {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').hide();
+            $('#tab-applied-to-brands').hide();
+        }
+    }
+
+    function toggleLimitation() {
+        var selectedDiscountLimitationId = $("#@Html.IdFor(model => model.DiscountLimitationId)").val();
+        if (selectedDiscountLimitationId == @(((int)DiscountLimitationType.NTimes).ToString()) || selectedDiscountLimitationId == @(((int)DiscountLimitationType.NTimesPerUser).ToString())) {
+            $('#pnlLimitationTimes').show();
+        }
+        else {
+            $('#pnlLimitationTimes').hide();
+        }
+    }
+
+    function toggleUsePercentage() {
+        if ($('#@Html.IdFor(model => model.UsePercentage)').is(':checked')) {
+            $('#pnlDiscountPercentage').show();
+            $('#pnlDiscountAmount').hide();
+            $('#pnlMaximumDiscountAmount').show();
+        } else {
+            $('#pnlDiscountPercentage').hide();
+            $('#pnlDiscountAmount').show();
+            $('#pnlMaximumDiscountAmount').hide();
+        }
+    }
+
+    function toggleRequiresCouponCode() {
+        if ($('#@Html.IdFor(model => model.RequiresCouponCode)').is(':checked')) {
+            $('#tab-couponcode').show();
+            $('#pnlReused').show();
+        } else {
+            $('#tab-couponcode').hide();
+            $('#pnlReused').hide();
+        }
+    }
+</script>
+@* Three cards of two-column fields: what the discount is, how much it takes off, and when and
+   how often it applies. Each field a script shows or hides keeps its pnl* id and sits under the
+   switch or select that reveals it. *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Name"/>
+        <admin-field asp-for="IsEnabled"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="DiscountTypeId" size="md" asp-items="EnumTranslationService.ToSelectList((DiscountType)Model.DiscountTypeId)"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="MaximumDiscountedQuantity" size="sm" id="pnlMaximumDiscountedQuantity"/>
+            </div>
+        </div>
+        <admin-field asp-for="IsCumulative"/>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="UsePercentage" id="pnlUsePercentage"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="DiscountAmount" size="md" id="pnlDiscountAmount"/>
+                <admin-field asp-for="DiscountPercentage" size="md" suffix="%" id="pnlDiscountPercentage"/>
+                <admin-field asp-for="MaximumDiscountAmount" size="md" id="pnlMaximumDiscountAmount"/>
+            </div>
+        </div>
+        <admin-field asp-for="CurrencyCode" size="md" asp-items="Model.AvailableCurrencies"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="CalculateByPlugin" id="pnlCalculateByPlugin"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="DiscountPluginName" asp-items="Model.AvailableDiscountAmountProviders" id="pnlDiscountPluginName"/>
+            </div>
+        </div>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="StartDate"/>
+        <admin-field asp-for="EndDate"/>
+        <div class="grand-reveal">
+            <admin-field asp-for="RequiresCouponCode"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="Reused" id="pnlReused"/>
+            </div>
+        </div>
+        <div class="grand-reveal">
+            <admin-field asp-for="DiscountLimitationId" size="md" asp-items="EnumTranslationService.ToSelectList((DiscountLimitationType)Model.DiscountLimitationId)"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="LimitationTimes" size="md" suffix="@Loc["admin.marketing.Discounts.Fields.LimitationTimes.Times"]" id="pnlLimitationTimes"/>
+            </div>
+        </div>
+    </div>
+</admin-card>

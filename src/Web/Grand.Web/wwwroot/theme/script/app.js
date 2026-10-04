@@ -1,12 +1,23 @@
 ﻿axios.defaults.showLoader = true;
 
-var vm = new Vue({
-    el: '#app',
+/*
+ * The shell: the state and methods the page chrome shares.
+ *
+ * This used to be `new Vue({ el: '#app' })`, one instance compiling the whole
+ * <body> as its template. It is now a plain reactive object; Vue only takes over
+ * the elements marked `vue-island` (the header bar, the drawers, the modals,
+ * <main>), each of which uses this object as its data.
+ */
+var vm = Vue.shell({
     data: function () {
         return {
             show: false,
             hover: false,
-            darkMode: false,
+            // resolved in <head> by Partials/ColorScheme (explicit choice, else the OS
+            // preference). Set here and not in mounted() so the watcher does not fire on
+            // the initial value - that would persist a choice the visitor never made and
+            // stop the page following the system.
+            darkMode: typeof window.grandColorSchemeIsDark === 'function' && window.grandColorSchemeIsDark(),
             active: false,
             NextDropdownVisible: false,
             value: 5,
@@ -33,8 +44,7 @@ var vm = new Vue({
         if (localStorage.fluid == "true") this.fluid = "fluid";
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
-        if (localStorage.darkMode == "true") this.darkMode = true;
-        this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
+        this.wishindicator = this.readWishlistQty();
         this.updateCompareProductsQty();
         this.backToTop();
     },
@@ -43,43 +53,55 @@ var vm = new Vue({
             localStorage.fluid = newName;
         },
         darkMode: function (newValue) {
-            localStorage.darkMode = newValue;
+            // fires only when the visitor uses the switch, which is exactly when the
+            // choice should become explicit and stop following the OS
+            window.grandSetColorScheme(newValue);
         },
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
         }
     },
     created: function () {
+        /*
+         * The request overlay is driven purely by the .axios-request class now.
+         *
+         * It used to also set v-cloak on #app, because the loader CSS was keyed off
+         * that attribute - which meant the very same rules hid the whole page on
+         * first paint. The class was added on every request and never taken off
+         * again; only removing v-cloak happened to make the overlay disappear.
+         *
+         * Concurrent requests are counted, otherwise the first response to come back
+         * clears an overlay the others still need.
+         */
+        let pending = 0;
+        const loader = shown => {
+            pending = Math.max(0, pending + (shown ? 1 : -1));
+            const element = document.querySelector(".page-loader-container");
+            if (element) element.classList.toggle("axios-request", pending > 0);
+        };
+
         axios.interceptors.request.use(
             config => {
-                if (config.showLoader) {
-                    document.getElementById("app").setAttribute("v-cloak", true);
-                    var element = document.querySelector(".page-loader-container");
-                    element.classList.add("axios-request");
-                }
+                if (config.showLoader) loader(true);
                 return config;
             },
             error => {
-                if (error.config.showLoader) {
-                    document.getElementById("app").removeAttribute("v-cloak");
-                }
+                if (error.config && error.config.showLoader) loader(false);
                 return Promise.reject(error);
             }
         );
         axios.interceptors.response.use(
             response => {
-                if (response.config.showLoader) {
-                    document.getElementById("app").removeAttribute("v-cloak");
-                }
+                if (response.config.showLoader) loader(false);
 
                 return response;
             },
             error => {
-                let response = error.response;
+                // a network failure or a cancelled request has no response at all,
+                // and reading .config off it threw, leaving the overlay stuck up
+                const config = (error.response && error.response.config) || error.config;
 
-                if (response.config.showLoader) {
-                    document.getElementById("app").removeAttribute("v-cloak");
-                }
+                if (config && config.showLoader) loader(false);
 
                 return Promise.reject(error);
             }
@@ -192,36 +214,42 @@ var vm = new Vue({
             });
         },
         displayPopup(html, el) {
-            new Vue({
-                el: '#' + el,
-                data: {
-                    template: null,
-                },
-                render: function (createElement) {
-                    if (!this.template) {
-                        return createElement('b-overlay', {
-                            attrs: {
-                                show: 'true'
-                            }
-                        });
-                    } else {
-                        return this.template();
-                    }
-                },
-                methods: {
-                    showModal: function () {
-                        this.$refs[el].show()
+            var container = document.getElementById(el);
+            if (!container) {
+                container = document.createElement('div');
+                container.id = el;
+                document.body.appendChild(container);
+            }
+            if (!vm._popupApps) vm._popupApps = {};
+            if (vm._popupApps[el]) {
+                vm._popupApps[el].unmount();
+                delete vm._popupApps[el];
+            }
+            var popup = Vue.createApp({
+                template: html,
+                data: function () {
+                    return {
+                        darkMode: vm.darkMode
                     }
                 },
                 mounted: function () {
-                    var self = this;
-                    self.template = Vue.compile(html).render;
-                    this.darkMode = vm.darkMode;
-                },
-                updated: function () {
-                    this.showModal();
+                    /*
+                     * This used to be `this.$refs[el].show()` - a BootstrapVue
+                     * `<b-modal ref>` reaching for the component instance. The
+                     * partials it renders carry no `ref` at all and Bootstrap 5
+                     * modals are plain elements, so the lookup was undefined and
+                     * both popups mounted invisibly. Query the modal out of the
+                     * container instead: its own id duplicates the container's,
+                     * so getElementById would hand back the wrapper.
+                     */
+                    this.$nextTick(function () {
+                        var modal = container.querySelector('.modal');
+                        if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
+                    });
                 }
             });
+            popup.mount(container);
+            vm._popupApps[el] = popup;
         },
         displayBarNotification(message, url, messagetype, timeout) {
             var variant;
@@ -253,6 +281,24 @@ var vm = new Vue({
                 alert(error);
             });
             return false;
+        },
+        /*
+         * Seeds the wishlist counter from the server-rendered header.
+         *
+         * The element only exists when the wishlist is enabled for the current
+         * customer, so reading the ref unguarded threw a TypeError and aborted the
+         * rest of mounted() - updateCompareProductsQty() and backToTop() never ran.
+         *
+         * The number comes from data-qty rather than the element text, which is a
+         * localized template - Wishlist.HeaderQuantity is "{0}" by default, but a
+         * store that decorates it ("(0)", "0 items") would feed parseInt something
+         * it cannot read.
+         */
+        readWishlistQty: function () {
+            const el = this.$refs.wishlistQty;
+            if (!el) return undefined;
+            const qty = parseInt(el.dataset.qty, 10);
+            return isNaN(qty) ? undefined : qty;
         },
         updateCompareProductsQty: function () {
             const cookie = AxiosCart.getCookie('Grand.CompareProduct');
@@ -327,9 +373,6 @@ var vm = new Vue({
                 vm.compareproducts.Products.splice(0);
             }
             this.updateCompareProductsQty();
-        },
-        showModalOutOfStock: function () {
-            this.$refs['out-of-stock'].show()
         },
         productImage: function (event) {
             var Imagesrc = event.target.parentElement.getAttribute('data-href');
@@ -416,18 +459,27 @@ var vm = new Vue({
                     if (response.data.stockAvailability) {
                         vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
                     }
-                    if (response.data.enabledattributemappingids) {
-                        for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
-                            document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                    /*
+                     * Conditional attributes: show the rows this choice unlocks, hide the
+                     * ones it rules out.
+                     *
+                     * Scoped to the modal, and null-guarded. Both matter: the product page
+                     * behind the quick view renders the *same* element ids, so a bare
+                     * document.querySelector returned the page's row and left the modal's
+                     * untouched; and when neither exists the unguarded `.style` threw,
+                     * which aborted the rest of this handler.
+                     */
+                    var modal = document.getElementById('ModalQuickView');
+                    var setRows = function (ids, display) {
+                        for (var i = 0; i < (ids || []).length; i++) {
+                            var label = modal && modal.querySelector('#product_attribute_label_' + ids[i]);
+                            var input = modal && modal.querySelector('#product_attribute_input_' + ids[i]);
+                            if (label) label.style.display = display;
+                            if (input) input.style.display = display;
                         }
-                    }
-                    if (response.data.disabledattributemappingids) {
-                        for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                            document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                        }
-                    }
+                    };
+                    setRows(response.data.enabledattributemappingids, "table-cell");
+                    setRows(response.data.disabledattributemappingids, "none");
                     /*if (response.data.notAvailableAttributeMappingids) {
                         document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
                         for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
@@ -503,8 +555,12 @@ var vm = new Vue({
             });
         },
         warehouse_change_handler(id, url) {
+            //scoped to the modal: the product page behind it uses the same
+            //element id, and getElementById would return that one instead
+            var select = document.querySelector('#ModalQuickView #WarehouseId');
+            if (!select) return;
             var data = new FormData();
-            data.append('warehouseId', document.getElementById('WarehouseId').value);
+            data.append('warehouseId', select.value);
             data.append('productId', id);
             axios({
                 url: url,
@@ -513,6 +569,12 @@ var vm = new Vue({
             }).then(function (response) {
                 if (response.data.stockAvailability) {
                     vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                }
+                //an attribute product prices per warehouse too, so let the
+                //attribute handler refresh price and availability together
+                if (vm.PopupQuickViewVueModal.ProductAttributes
+                    && vm.PopupQuickViewVueModal.ProductAttributes.length > 0) {
+                    vm.attrchange(id, true);
                 }
             })
         },

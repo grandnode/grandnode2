@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Grand.Mapping;
 using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Security;
@@ -21,7 +21,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Infrastructure.TypeSearch;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -65,7 +65,8 @@ public class CategoryImportDataObjectTests
             new AclService(new AccessControlConfig()), new AccessControlConfig());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _categoryImportDataObject = new CategoryImportDataObject(_categoryService, _pictureServiceMock.Object,
-            _categoryLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService);
+            _categoryLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
+            new SecurityConfig());
     }
 
     [TestMethod]
@@ -88,8 +89,8 @@ public class CategoryImportDataObjectTests
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
     }
 
     [TestMethod]
@@ -127,11 +128,11 @@ public class CategoryImportDataObjectTests
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
     }
 
     [TestMethod]
@@ -160,11 +161,11 @@ public class CategoryImportDataObjectTests
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
     }
 
     private void InitAutoMapper()
@@ -181,7 +182,7 @@ public class CategoryImportDataObjectTests
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile(instance.GetType());
+            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
         });
 
         //register automapper

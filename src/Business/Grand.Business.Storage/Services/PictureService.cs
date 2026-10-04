@@ -8,7 +8,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 using SkiaSharp;
 using System.Linq.Expressions;
@@ -158,8 +158,11 @@ public class PictureService : IPictureService
     /// <returns>Local picture thumb path</returns>
     protected virtual string GetThumbUrl(string thumbFileName, string storeLocation = null)
     {
-        storeLocation = !string.IsNullOrEmpty(storeLocation) ? storeLocation : "";
-        return _mediaFileStore.Combine(storeLocation, ImageThumbPath, thumbFileName);
+        var thumbPath = _mediaFileStore.Combine(ImageThumbPath, thumbFileName);
+        if (string.IsNullOrEmpty(storeLocation))
+            return thumbPath;
+
+        return new Uri(new Uri(storeLocation), thumbPath).ToString();
     }
 
     /// <summary>
@@ -195,7 +198,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="thumbFileName">Thumb file name</param>
     /// <param name="binary">Picture binary</param>
-    protected virtual Task SaveThumb(string thumbFileName, byte[] binary)
+    protected virtual async Task SaveThumb(string thumbFileName, byte[] binary)
     {
         try
         {
@@ -210,7 +213,7 @@ public class PictureService : IPictureService
             if (dirThumb != null)
             {
                 var file = _mediaFileStore.Combine(dirThumb.PhysicalPath, thumbFileName);
-                File.WriteAllBytes(file, binary ?? []);
+                await AtomicFile.WriteAllBytesAsync(file, binary ?? []);
             }
             else
             {
@@ -221,8 +224,6 @@ public class PictureService : IPictureService
         {
             _logger.LogError(ex, ex.Message);
         }
-
-        return Task.CompletedTask;
     }
 
     #endregion
@@ -272,21 +273,10 @@ public class PictureService : IPictureService
         if (!string.IsNullOrEmpty(thumbFilePath))
             return GetThumbUrl(thumbFileName, storeLocation);
 
-        using (var mutex = new Mutex(false, thumbFileName))
-        {
-            mutex.WaitOne();
-            try
-            {
-                using var image = SKBitmap.Decode(filePath);
-                var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
-                if (pictureBinary != null)
-                    await SaveThumb(thumbFileName, pictureBinary);
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
-        }
+        using var image = SKBitmap.Decode(filePath);
+        var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
+        if (pictureBinary != null)
+            await SaveThumb(thumbFileName, pictureBinary);
         var url = GetThumbUrl(thumbFileName, storeLocation);
         return url;
     }
@@ -354,16 +344,7 @@ public class PictureService : IPictureService
 
             var pictureBinary = await LoadPictureBinary(picture);
 
-            using var mutex = new Mutex(false, thumbFileName);
-            mutex.WaitOne();
-            try
-            {
-                await SaveThumb(thumbFileName, pictureBinary);
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
+            await SaveThumb(thumbFileName, pictureBinary);
         }
         else
         {
@@ -378,30 +359,21 @@ public class PictureService : IPictureService
 
             var pictureBinary = await LoadPictureBinary(picture);
 
-            using var mutex = new Mutex(false, thumbFileName);
-            mutex.WaitOne();
-            try
+            if (pictureBinary != null)
             {
-                if (pictureBinary != null)
+                try
                 {
-                    try
-                    {
-                        using var image = SKBitmap.Decode(pictureBinary);
-                        var resizedBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
-                        if (resizedBinary != null)
-                            pictureBinary = resizedBinary;
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                    using var image = SKBitmap.Decode(pictureBinary);
+                    var resizedBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
+                    if (resizedBinary != null)
+                        pictureBinary = resizedBinary;
                 }
-                await SaveThumb(thumbFileName, pictureBinary);
+                catch
+                {
+                    // ignored
+                }
             }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
+            await SaveThumb(thumbFileName, pictureBinary);
         }
 
         return GetThumbUrl(thumbFileName, storeLocation);
@@ -454,7 +426,7 @@ public class PictureService : IPictureService
                         Style = p.Style,
                         ExtraField = p.ExtraField
                     });
-            return await Task.FromResult(query.FirstOrDefault());
+            return await _pictureRepository.FirstOrDefaultAsync(query);
         });
     }
 
@@ -490,8 +462,8 @@ public class PictureService : IPictureService
 
         var lastPart = GetFileExtensionFromMimeType(picture.MimeType);
         var fileName = $"{picture.Id}_0.{lastPart}";
-        var filePath = await GetPicturePhysicalPath(fileName);
-        if (!string.IsNullOrEmpty(filePath)) File.Delete(filePath);
+        //through the store: with a media path it deletes on the volume only, never in read-only wwwroot
+        await _mediaFileStore.TryDeleteFile(_mediaFileStore.Combine(ImagePath, fileName));
     }
 
     public virtual async Task ClearThumbs()
@@ -525,12 +497,11 @@ public class PictureService : IPictureService
     /// <param name="pageIndex">Current page</param>
     /// <param name="pageSize">Items on each page</param>
     /// <returns>Paged list of pictures</returns>
-    public virtual IPagedList<Picture> GetPictures(int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<Picture>> GetPictures(int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from p in _pictureRepository.Table
             select p;
-        var pictures = new PagedList<Picture>(query, pageIndex, pageSize);
-        return pictures;
+        return await _pictureRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -699,7 +670,7 @@ public class PictureService : IPictureService
     /// <param name="pictureId">Picture identifier</param>
     /// <param name="pictureBinary">Picture binary</param>
     /// <param name="mimeType">MIME type</param>
-    public virtual Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType)
+    public virtual async Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType)
     {
         var lastPart = GetFileExtensionFromMimeType(mimeType);
         var fileName = $"{pictureId}_0.{lastPart}";
@@ -707,14 +678,12 @@ public class PictureService : IPictureService
         if (dirPath != null)
         {
             var filepath = _mediaFileStore.Combine(dirPath.PhysicalPath, fileName);
-            File.WriteAllBytes(filepath, pictureBinary);
+            await AtomicFile.WriteAllBytesAsync(filepath, pictureBinary);
         }
         else
         {
             _logger.LogError("Directory path not exist");
         }
-
-        return Task.CompletedTask;
     }
 
     /// <summary>

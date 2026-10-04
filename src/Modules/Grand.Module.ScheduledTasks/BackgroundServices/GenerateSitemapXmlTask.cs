@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.ScheduledTasks.BackgroundServices;
 

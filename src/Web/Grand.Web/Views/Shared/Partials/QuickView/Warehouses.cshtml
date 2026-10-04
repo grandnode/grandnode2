@@ -4,21 +4,19 @@
 <template v-if="PopupQuickViewVueModal.AllowToSelectWarehouse">
     <template v-if="PopupQuickViewVueModal.ProductWarehouses.length > 0">
         <div class="mb-3">
-            <label for="warehouseId" class="col-form-label">@Loc["Products.Warehouse"]:</label>
-            <template v-if="PopupQuickViewVueModal.ProductAttributes.length > 0">
-                <select class="custom-select form-control" name="WarehouseId" id="WarehouseId" @@change="vm.warehouse_change_handler(PopupQuickViewVueModal.Id)">
-                    <template v-for="warehouse in PopupQuickViewVueModal.ProductWarehouses">
-                        <option :selected="warehouse.Selected" :value="warehouse.WarehouseId">{{warehouse.Name}}</option>
-                    </template>
-                </select>
-            </template>
-            <template v-else>
-                <select class="custom-select form-control" name="WarehouseId" id="WarehouseId" @@change="warehouse_change_handler(PopupQuickViewVueModal.Id, '@warehouseLink')">
-                    <template v-for="warehouse in PopupQuickViewVueModal.ProductWarehouses">
-                        <option :selected="warehouse.Selected" :value="warehouse.WarehouseId">{{warehouse.Name}}</option>
-                    </template>
-                </select>
-            </template>
+            <label for="WarehouseId" class="col-form-label">@Loc["Products.Warehouse"]:</label>
+            @*One select for both cases. It used to branch on whether the product
+                has attributes and neither branch worked: the first called
+                vm.warehouse_change_handler(id) without the url it needs, the second
+                called warehouse_change_handler(...) with no vm. - and that is a
+                method on the root instance, not a global. The handler repricing
+                attribute products is now its own concern.*@
+            <select class="form-select form-control" name="WarehouseId" id="WarehouseId"
+                    @@change="vm.warehouse_change_handler(PopupQuickViewVueModal.Id, '@warehouseLink')">
+                <template v-for="warehouse in PopupQuickViewVueModal.ProductWarehouses">
+                    <option :selected="warehouse.Selected" :value="warehouse.WarehouseId">{{warehouse.Name}}</option>
+                </template>
+            </select>
         </div>
     </template>
 </template>

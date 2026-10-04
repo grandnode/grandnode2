@@ -5,7 +5,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -91,7 +91,7 @@ public class GroupServiceTests
         customerGroup.SystemName = systemName;
         await _groupService.UpdateCustomerGroup(customerGroup);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == customerGroup.Id).SystemName == systemName);
+        Assert.AreEqual(systemName, _repository.Table.FirstOrDefault(x => x.Id == customerGroup.Id).SystemName);
     }
 
     [TestMethod]
@@ -111,12 +111,12 @@ public class GroupServiceTests
     {
         //Arrange
         var customerGroup = new CustomerGroup
-            { IsSystem = true, SystemName = SystemCustomerGroupNames.Staff, Active = true };
+            { IsSystem = true, SystemName = SystemCustomerGroupNames.StoreManager, Active = true };
         await _groupService.InsertCustomerGroup(customerGroup);
         var customer = new Customer();
         customer.Groups.Add(customerGroup.Id);
         //Act
-        var result = await _groupService.IsStaff(customer);
+        var result = await _groupService.IsStoreManager(customer);
         //Assert
         Assert.IsTrue(result);
     }
@@ -216,6 +216,6 @@ public class GroupServiceTests
         //Act
         var result = await _groupService.GetAllByIds([customerGroup.Id]);
         //Assert
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 }

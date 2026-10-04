@@ -1,0 +1,23 @@
+﻿{
+  IsReOrderAllowed: true,
+  MinOrderSubtotalAmountIncludingTax: false,
+  AnonymousCheckoutAllowed: true,
+  TermsOfServiceOnShoppingCartPage: false,
+  TermsOfServiceOnOrderConfirmPage: false,
+  DisableOrderCompletedPage: false,
+  AttachPdfInvoiceToOrderPlacedEmail: false,
+  AttachPdfInvoiceToOrderPaidEmail: false,
+  AttachPdfInvoiceToOrderCompletedEmail: false,
+  AttachPdfInvoiceToBinary: false,
+  MerchandiseReturnsEnabled: false,
+  MerchandiseReturns_AllowToSpecifyPickupAddress: false,
+  MerchandiseReturns_AllowToSpecifyPickupDate: false,
+  MerchandiseReturns_PickupDateRequired: false,
+  DeactivateGiftVouchersAfterCancelOrder: false,
+  DeactivateGiftVouchersAfterDeletingOrder: false,
+  GiftVouchers_Assign_StoreId: false,
+  CompleteOrderWhenDelivered: false,
+  UserCanCancelUnpaidOrder: false,
+  UnpublishAuctionProduct: false,
+  AllowCustomerToAddOrderNote: false
+}

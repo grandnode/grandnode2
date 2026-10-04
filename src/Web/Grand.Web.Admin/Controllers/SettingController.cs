@@ -25,16 +25,16 @@ using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Extensions.Mapping.Settings;
-using Grand.Web.Admin.Models.Settings;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Extensions.Mapping.Settings;
+using Grand.Web.AdminShared.Models.Settings;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OperatingSystem = Grand.Infrastructure.OperatingSystem;
@@ -306,7 +306,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnReasonList(DataSourceRequest command)
     {
-        var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons();
+        var storeId = await GetActiveStore();
+        var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons(storeId);
         var gridModel = new DataSourceResult {
             Data = reasons.Select(x => x.ToModel()),
             Total = reasons.Count
@@ -317,7 +318,10 @@ public class SettingController(
     //create
     public async Task<IActionResult> MerchandiseReturnReasonCreate()
     {
-        var model = new MerchandiseReturnReasonModel();
+        var storeId = await GetActiveStore();
+        var model = new MerchandiseReturnReasonModel {
+            Stores = !string.IsNullOrEmpty(storeId) ? [storeId] : []
+        };
         //locales
         await AddLocales(languageService, model.Locales);
         return View(model);
@@ -417,7 +421,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnActionList(DataSourceRequest command)
     {
-        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions();
+        var storeId = await GetActiveStore();
+        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions(storeId);
         var gridModel = new DataSourceResult {
             Data = actions.Select(x => x.ToModel()),
             Total = actions.Count
@@ -428,7 +433,10 @@ public class SettingController(
     //create
     public async Task<IActionResult> MerchandiseReturnActionCreate()
     {
-        var model = new MerchandiseReturnActionModel();
+        var storeId = await GetActiveStore();
+        var model = new MerchandiseReturnActionModel {
+            Stores = !string.IsNullOrEmpty(storeId) ? [storeId] : []
+        };
         //locales
         await AddLocales(languageService, model.Locales);
         return View(model);
@@ -738,7 +746,8 @@ public class SettingController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model, [FromServices] IConfiguration configuration, [FromServices] IWebHostEnvironment webHostEnvironment)
+    public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model,
+        [FromServices] IMediaFileStore mediaFileStore)
     {
         var storeScope = await GetActiveStore();
         var settings = await settingService.LoadSetting<PushNotificationsSettings>(storeScope);
@@ -750,42 +759,23 @@ public class SettingController(
         await ClearCache();
 
         //save to file
-        SavePushNotificationsToFile(model);
+        await SavePushNotificationsToFile(model);
 
         Success(translationService.GetResource("Admin.Configuration.Updated"));
         return await PushNotifications();
 
-        void SavePushNotificationsToFile(PushNotificationsSettingsModel model)
+        async Task SavePushNotificationsToFile(PushNotificationsSettingsModel model)
         {
-            var fullPath = GetSafeFilePath(configuration, webHostEnvironment, "firebase-messaging-sw.js");
+            const string fileName = "firebase-messaging-sw.js";
 
-            if (System.IO.File.Exists(fullPath))
-            {
-                var lines = System.IO.File.ReadAllLines(fullPath);
-                lines = UpdateFileLines(lines, model);
-                System.IO.File.WriteAllLines(fullPath, lines);
-            }
-            else
-                throw new ArgumentNullException($"{fullPath} not exist");
+            //read from the media path, or the template shipped in wwwroot the first time
+            if (await mediaFileStore.GetFileInfo(fileName) == null)
+                throw new ArgumentNullException($"{fileName} not exist");
+
+            var lines = (await mediaFileStore.ReadAllText(fileName)).Split(["\r\n", "\n"], StringSplitOptions.None);
+            lines = UpdateFileLines(lines, model);
+            await mediaFileStore.WriteAllText(fileName, string.Join(Environment.NewLine, lines));
         }
-    }
-
-    private static string GetSafeFilePath(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, string filename)
-    {
-        var directoryParam = configuration[CommonPath.DirectoryParam] ?? "";
-
-        // Validate directoryParam to ensure it does not contain ".." or path separators
-        if (directoryParam.Contains("..") || directoryParam.Contains("/") || directoryParam.Contains("\\"))
-            throw new ArgumentException("Invalid directory parameter - contains illegal characters.");
-
-        var safeDirectoryName = Path.GetFileName(directoryParam);
-        var combinedPath = Path.Combine(webHostEnvironment.WebRootPath, safeDirectoryName, filename);
-        var fullPath = Path.GetFullPath(combinedPath, webHostEnvironment.WebRootPath);
-
-        if (!fullPath.StartsWith(webHostEnvironment.WebRootPath, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException("Invalid path parameter - attempt to go outside allowed directory.");
-
-        return fullPath;
     }
 
     private static string[] UpdateFileLines(string[] lines, PushNotificationsSettingsModel model)
@@ -928,7 +918,7 @@ public class SettingController(
         const int pageSize = 100;
         while (true)
         {
-            var pictures = pictureService.GetPictures(pageIndex, pageSize);
+            var pictures = await pictureService.GetPictures(pageIndex, pageSize);
             pageIndex++;
             if (!pictures.Any())
                 break;

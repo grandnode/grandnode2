@@ -1,8 +1,6 @@
 @model DateTime
-<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@((Model > DateTime.MinValue ? Model : DateTime.Today).ToString("HH:mm"))"/>
-<script>
-    $(document).ready(function () {
-        $("#@Html.IdForModel()").kendoTimePicker({ format: "HH:mm" });
-    });
-   
-</script>
+@{
+    var time = Model > DateTime.MinValue ? Model : DateTime.Today;
+}
+<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@time.ToString("HH:mm")" data-grand-date="time"
+       data-grand-date-value="@time.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture)"/>

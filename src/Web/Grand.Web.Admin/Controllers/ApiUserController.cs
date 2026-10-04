@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Models.Customers;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +24,8 @@ public class ApiUserController : BaseAdminController
 
     protected (string hashpassword, string privatekey) HashPassword(string password)
     {
-        var pk = CommonHelper.GenerateRandomDigitCode(24);
-        return (_encryptionService.EncryptText(password, pk), pk);
+        //store a one-way PBKDF2 hash instead of reversible encryption; PrivateKey is no longer used for new records
+        return (_encryptionService.HashPassword(password), string.Empty);
     }
 
     public IActionResult Index()

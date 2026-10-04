@@ -1,0 +1,11 @@
+﻿{
+  Name: Red,
+  PriceAdjustment: 5.0,
+  PriceAdjustmentStr: 5.00,
+  WeightAdjustment: 0.1,
+  WeightAdjustmentStr: 0.10,
+  Cost: 1.5,
+  IsPreSelected: true,
+  DisplayOrder: 1,
+  Id: ppav-001
+}

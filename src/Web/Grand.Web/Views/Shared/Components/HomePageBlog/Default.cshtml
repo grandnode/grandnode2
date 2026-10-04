@@ -7,20 +7,20 @@
             @Loc["Blog.Latest"]
         </h2>
         <div class="col-12 px-0">
-            <div class="form-row">
+            <div class="row">
                 @foreach (var item in Model.Items)
                 {
-                    <div class="col-xl-@order.Pb_Xl col-lg-@order.Pb_Lg col-md-@order.Pb_Md col-sm-@order.Pb_Sm col-@order.Np_Col mb-3">
+                    <div class="col-xl-@order.Pb_Xl col-lg-@order.Pb_Lg col-md-@order.Pb_Md col-sm-@order.Pb_Sm col-@order.Pb_Col mb-3">
                         <div class="card">
                             @if (item.PictureModel != null && !string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                             {
-                                <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                                <img class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
                             }
                             <div class="card-header">
                                 <h3 class="h5 mb-0">
-                                    <b-link href="@Url.RouteUrl("BlogPost", new { item.SeName })">
+                                    <a href="@Url.RouteUrl("BlogPost", new { item.SeName })">
                                         @item.Title
-                                    </b-link>
+                                    </a>
                                 </h3>
                             </div>
                             <div class="card-body">

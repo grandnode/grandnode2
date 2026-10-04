@@ -8,7 +8,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -30,8 +30,16 @@ public class CustomerServiceTests
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _customerService = new CustomerService(_repository, _mediatorMock.Object, _cacheBase);
+        _customerService = new CustomerService(_repository, _mediatorMock.Object, _cacheBase,
+            _customerConfig);
     }
+
+    private readonly CustomerConfig _customerConfig = new() { RegisterCustomersPerStore = true };
+
+    //builds a service over the same in-memory repository with the per-store flag explicitly set
+    private CustomerService CreateService(bool registerCustomersPerStore) =>
+        new(_repository, _mediatorMock.Object, _cacheBase,
+            new CustomerConfig { RegisterCustomersPerStore = registerCustomersPerStore });
 
 
     [TestMethod]
@@ -44,7 +52,7 @@ public class CustomerServiceTests
         //Act
         var result = await _customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-1), null);
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -84,7 +92,7 @@ public class CustomerServiceTests
         //Act
         var result = await _customerService.GetCustomersByIds(["1", "2"]);
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -136,6 +144,174 @@ public class CustomerServiceTests
     }
 
     [TestMethod]
+    public async Task GetCustomerByEmail_WithStoreId_ReturnsOnlyMatchingStore()
+    {
+        //Arrange - same e-mail in two stores (per-store customer identity)
+        const string email = "shared@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-1" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-2" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail(email, "store-2");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-2", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_WithStoreId_NoMatch_ReturnsNull()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Customer { Email = "shared@email.com", StoreId = "store-1" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail("shared@email.com", "other-store");
+        //Assert
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByUsername_WithStoreId_ReturnsOnlyMatchingStore()
+    {
+        //Arrange - same username in two stores
+        await _repository.InsertAsync(new Customer { Username = "user", StoreId = "store-1" });
+        await _repository.InsertAsync(new Customer { Username = "user", StoreId = "store-2" });
+        //Act
+        var result = await _customerService.GetCustomerByUsername("user", "store-1");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_FallsBackToStorelessAccount()
+    {
+        //Arrange - only the store-independent admin account exists (no customer for this store)
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" });
+        //Act - storefront login scoped to a store must still find the storeless admin
+        var result = await _customerService.GetCustomerByEmail(email, "store-1");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_PrefersStoreCustomerOverStoreless()
+    {
+        //Arrange - both a store customer and the storeless admin share the email
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-1" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail(email, "store-1");
+        //Assert - the store's own customer wins within that store
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_GlobalLookup_PrefersStorelessAccount()
+    {
+        //Arrange - a store customer reused the same email as the store-independent admin account
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-2" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" }); //admin / back-office
+        //Act - global lookup (e.g. back-office login) must not be shadowed by the store customer
+        var result = await _customerService.GetCustomerByEmail(email);
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("", result.StoreId);
+    }
+
+    #region GetCustomerByEmail - full branch coverage
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_NullEmail_ReturnsNull()
+    {
+        await _repository.InsertAsync(new Customer { Email = "user@email.com" });
+        var result = await _customerService.GetCustomerByEmail(null);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("   ")]
+    public async Task GetCustomerByEmail_EmptyOrWhitespaceEmail_ReturnsNull(string email)
+    {
+        await _repository.InsertAsync(new Customer { Email = "user@email.com" });
+        var result = await _customerService.GetCustomerByEmail(email);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_IsCaseInsensitive()
+    {
+        //stored lowercased; the lookup must lowercase the input
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "" });
+        var result = await _customerService.GetCustomerByEmail("USER@Email.COM");
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_FallsBackToAccountWithNullStoreId()
+    {
+        //admin created without a store leaves StoreId null (not just "") - the fallback must match it too
+        await _repository.InsertAsync(new Customer { Email = "admin@email.com" });
+        var result = await _customerService.GetCustomerByEmail("admin@email.com", "store-1");
+        Assert.IsNotNull(result);
+        Assert.IsTrue(string.IsNullOrEmpty(result.StoreId));
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOn_Global_NoStoreless_FallsBackToAnyMatch()
+    {
+        //only a store customer exists (no store-independent account) - global lookup still returns it
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await _customerService.GetCustomerByEmail("user@email.com");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOn_StoreScoped_NoMatchAndNoStoreless_ReturnsNull()
+    {
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await _customerService.GetCustomerByEmail("user@email.com", "store-2");
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOff_StoreScoped_ReturnsExactStoreMatch()
+    {
+        var service = CreateService(registerCustomersPerStore: false);
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await service.GetCustomerByEmail("user@email.com", "store-1");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOff_StoreScoped_DoesNotFallBackToStoreless()
+    {
+        var service = CreateService(registerCustomersPerStore: false);
+        //a store-independent account exists, but with the flag off there is no fallback
+        await _repository.InsertAsync(new Customer { Email = "admin@email.com", StoreId = "" });
+        var result = await service.GetCustomerByEmail("admin@email.com", "store-1");
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOff_Global_ReturnsMatch()
+    {
+        var service = CreateService(registerCustomersPerStore: false);
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await service.GetCustomerByEmail("user@email.com");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    #endregion
+
+    [TestMethod]
     public async Task InsertGuestCustomerTest()
     {
         //Arrange
@@ -153,7 +329,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.InsertGuestCustomer(customer);
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
         Assert.IsTrue(_repository.Table.Any(x => x.StoreId == "1"));
     }
 
@@ -163,7 +339,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.InsertCustomer(new Customer());
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -290,9 +466,12 @@ public class CustomerServiceTests
         await _repository.InsertAsync(customer);
         //Act
         customer.AdminComment = "test";
+        customer.StoreId = "store-1";
         await _customerService.UpdateCustomerInAdminPanel(customer);
         //Assert
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).AdminComment);
+        var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
+        Assert.AreEqual("test", updated.AdminComment);
+        Assert.AreEqual("store-1", updated.StoreId);
     }
 
     [TestMethod]
@@ -305,7 +484,7 @@ public class CustomerServiceTests
         customer.Active = false;
         await _customerService.UpdateActive(customer);
         //Assert
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Active);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).Active);
     }
 
     [TestMethod]
@@ -318,7 +497,7 @@ public class CustomerServiceTests
         customer.Active = false;
         await _customerService.UpdateContributions(customer);
         //Assert
-        Assert.AreEqual(true, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).HasContributions);
+        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).HasContributions);
     }
 
     [TestMethod]
@@ -352,7 +531,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.DeleteCustomerGroupInCustomer(cg, customer.Id);
         //Assert
-        Assert.AreEqual(0, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Groups.Count);
+        Assert.IsEmpty(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).Groups);
     }
 
     [TestMethod]
@@ -365,7 +544,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.InsertCustomerGroupInCustomer(cg, customer.Id);
         //Assert
-        Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Groups.Count);
+        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Groups);
     }
 
     [TestMethod]
@@ -379,7 +558,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.DeleteAddress(address, customer.Id);
         //Assert
-        Assert.AreEqual(0, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses.Count);
+        Assert.IsEmpty(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses);
     }
 
     [TestMethod]
@@ -392,7 +571,7 @@ public class CustomerServiceTests
         var address = new Address();
         await _customerService.InsertAddress(address, customer.Id);
         //Assert
-        Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses.Count);
+        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses);
     }
 
     [TestMethod]
@@ -407,7 +586,7 @@ public class CustomerServiceTests
         address.Name = "sample";
         await _customerService.UpdateAddress(address, customer.Id);
         //Assert
-        Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses.Count);
+        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses);
         Assert.AreEqual("sample",
             _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses.FirstOrDefault(x => x.Id == address.Id)
                 .Name);
@@ -456,7 +635,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.DeleteShoppingCartItem(customer.Id, cart);
         //Assert
-        Assert.AreEqual(0, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems.Count);
+        Assert.IsEmpty(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems);
     }
 
     [TestMethod]
@@ -472,7 +651,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.ClearShoppingCartItem(customer.Id, new List<ShoppingCartItem> { cart });
         //Assert
-        Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems.Count);
+        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems);
     }
 
     [TestMethod]
@@ -485,7 +664,7 @@ public class CustomerServiceTests
         var cart = new ShoppingCartItem();
         await _customerService.InsertShoppingCartItem(customer.Id, cart);
         //Assert
-        Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems.Count);
+        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems);
     }
 
     [TestMethod]

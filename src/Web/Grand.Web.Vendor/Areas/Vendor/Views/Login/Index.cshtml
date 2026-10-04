@@ -1,75 +1,68 @@
-﻿@model LoginModel
+﻿@using Grand.Web.AdminShared.Models.Common
+@model LoginModel
 @{
     //page title
     Layout = Constants.LayoutVendorLogin;
 }
 
-<form asp-route="VendorLogin" asp-area="@Constants.AreaVendor" method="post">
-    <div class="card col-xl-6 col-lg-8 col-md-10 col-12">
-        <h5 class="card-header">
-            <strong>@Loc["Vendor.Login.Title"]</strong>
-        </h5>
-        <div class="card-body">
-            <div class="row">
-                <div asp-validation-summary="All" class="message-error text-center"></div>
-                <div class="col-12 form-group mb-0">
-                    @if (Model.UsernamesEnabled)
-                    {
-                        <div class="form-group row">
-                            <div class="col-lg-3 col-12 d-flex align-items-start justify-content-sm-start">
-                                <label asp-for="Username" class="h5 m-0">@Loc["Vendor.Login.UserName"]:</label>
-                            </div>
-                            <div class="col-lg-9 col-12">
-                                <input asp-for="Username" class="form-control username" autofocus="autofocus"/>
-                                <span asp-validation-for="Username"></span>
-                            </div>
+<form asp-route="VendorLogin" method="post" class="grand-page grand-login__panel">
+    <div class="grand-login__brand">
+        <img src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/build/images/grand-logo.svg" width="40" height="40" alt=""/>
+        <span>GrandNode</span>
+    </div>
+    <div class="grand-card">
+        <div class="grand-card__body">
+            <div class="grand-login__heading">
+                <span class="grand-login__icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
+                <h1 class="grand-login__title">@Loc["Vendor.Login.Title"]</h1>
+            </div>
+            <div asp-validation-summary="All"></div>
+            <div class="grand-fields">
+                @if (Model.UsernamesEnabled)
+                {
+                    <div class="grand-field">
+                        <label asp-for="Username" class="grand-field__label">@Loc["Vendor.Login.UserName"]</label>
+                        <div class="grand-field__control">
+                            <input asp-for="Username" class="form-control username" autocomplete="username" autofocus="autofocus"/>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="form-group row">
-                            <div class="col-lg-3 col-12 d-flex align-items-start justify-content-start">
-                                <label asp-for="Email" class="h5 m-0">@Loc["Vendor.Login.Email"]:</label>
-                            </div>
-                            <div class="col-lg-9 col-12">
-                                <input asp-for="Email" class="form-control email" autofocus="autofocus"/>
-                                <span asp-validation-for="Email"></span>
-                            </div>
-                        </div>
-                    }
-                    <div class="form-group row">
-                        <div class="col-lg-3 col-12 d-flex align-items-center justify-content-start">
-                            <label asp-for="Password" class="h5 m-0">@Loc["Vendor.Login.Password"]:</label>
-                        </div>
-                        <div class="col-lg-9 col-12">
-                            <input asp-for="Password" class="form-control password" autocomplete="off"/>
-                            <span asp-validation-for="Password"></span>
-                        </div>
+                        <span asp-validation-for="Username"></span>
                     </div>
-                    <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
-                        <label class="custom-control custom-checkbox">
-                            <input class="custom-control-input" asp-for="RememberMe"/>
-                            <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
-                            <span class="custom-control-label"></span>
-                            <span class="custom-control-description">@Loc["Vendor.Login.RememberMe"]</span>
-                        </label>
-                        <span class="ml-3 forgot-password">
-                            <a asp-route="PasswordRecovery">@Loc["Vendor.Login.ForgotPassword"]</a>
-                        </span>
-                    </div>
-                    @if (Model.DisplayCaptcha)
-                    {
-                        <div class="captcha-box">
-                            <captcha/>
+                }
+                else
+                {
+                    <div class="grand-field">
+                        <label asp-for="Email" class="grand-field__label">@Loc["Vendor.Login.Email"]</label>
+                        <div class="grand-field__control">
+                            <input asp-for="Email" class="form-control email" autocomplete="email" autofocus="autofocus"/>
                         </div>
-                    }
+                        <span asp-validation-for="Email"></span>
+                    </div>
+                }
+                <div class="grand-field">
+                    <label asp-for="Password" class="grand-field__label">@Loc["Vendor.Login.Password"]</label>
+                    <div class="grand-field__control">
+                        <input asp-for="Password" class="form-control password" autocomplete="off"/>
+                    </div>
+                    <span asp-validation-for="Password"></span>
                 </div>
+                <div class="grand-login__options">
+                    <div class="grand-field grand-field--check">
+                        <div class="grand-field__control">
+                            <input class="form-check-input" asp-for="RememberMe"/>
+                            <input name="RememberMe" type="hidden" value="false">
+                        </div>
+                        <label class="grand-field__label" asp-for="RememberMe">@Loc["Vendor.Login.RememberMe"]</label>
+                    </div>
+                    <a class="grand-login__link forgot-password" asp-route="VendorPasswordRecovery">@Loc["Vendor.Login.ForgotPassword"]</a>
+                </div>
+                @if (Model.DisplayCaptcha)
+                {
+                    <div class="captcha-box">
+                        <captcha/>
+                    </div>
+                }
             </div>
-        </div>
-        <div class="card-footer px-0">
-            <div class="buttons">
-                <input class="btn btn-info login-button px-5" type="submit" value="@Loc["Vendor.Login.LoginButton"]"/>
-            </div>
+            <input class="btn btn-primary grand-login__submit login-button" type="submit" value="@Loc["Vendor.Login.LoginButton"]"/>
         </div>
     </div>
 </form>

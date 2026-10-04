@@ -1,0 +1,5 @@
+﻿{
+  Email: api@example.com,
+  IsActive: true,
+  Id: ua-001
+}

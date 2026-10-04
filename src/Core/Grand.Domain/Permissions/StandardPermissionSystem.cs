@@ -14,7 +14,7 @@ public static partial class StandardPermission
     };
 
     public static readonly Permission ManageMessageContactForm = new() {
-        Name = "Manage Message Contact form",
+        Name = "Manage Message Contact Form",
         SystemName = PermissionSystemName.MessageContactForm,
         Area = "Admin area",
         Category = CategorySystem,
@@ -51,7 +51,7 @@ public static partial class StandardPermission
     };
 
     public static readonly Permission HtmlEditorManagePictures = new() {
-        Name = "HTML Editor. Manage pictures",
+        Name = "Manage HTML Editor Pictures",
         SystemName = PermissionSystemName.HtmlEditor,
         Area = "Admin area",
         Category = "Configuration"

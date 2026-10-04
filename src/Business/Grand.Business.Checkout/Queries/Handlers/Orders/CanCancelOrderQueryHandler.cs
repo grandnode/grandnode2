@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
 

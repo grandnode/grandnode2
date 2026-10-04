@@ -1,0 +1,107 @@
+@model CustomerListModel
+@{
+    ViewBag.Title = Loc["Admin.Customers.Customers"];
+}
+
+<form asp-area="@Constants.AreaStore" asp-controller="Customer" asp-action="List" method="post">
+
+    @* the admin customer list, minus exports, groups, tags and bulk delete: Add new as the one
+       primary action, the e-mail search always visible with the rest behind Filters *@
+    <admin-page title="@Loc["Admin.Customers.Customers"]" icon="bi-people">
+        <page-actions>
+            <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+            </a>
+        </page-actions>
+
+        <admin-filters id="customer-filters" submit-id="search-customers" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchEmail"/>
+            </filters-search>
+            @if (Model.UsernamesEnabled)
+            {
+                <admin-field asp-for="SearchUsername"/>
+            }
+            <admin-field asp-for="SearchFirstName"/>
+            <admin-field asp-for="SearchLastName"/>
+            @if (Model.CompanyEnabled)
+            {
+                <admin-field asp-for="SearchCompany"/>
+            }
+            @if (Model.PhoneEnabled)
+            {
+                <admin-field asp-for="SearchPhone"/>
+            }
+            @if (Model.ZipPostalCodeEnabled)
+            {
+                <admin-field asp-for="SearchZipPostalCode"/>
+            }
+        </admin-filters>
+
+        <admin-card flush>
+        <admin-grid id="customers-grid"
+                    read-url="@Url.Action("CustomerList", "Customer", new { area = Constants.AreaStore })"
+                    additional-data="additionalData">
+            <grid-column field="Email" title="@Loc["Admin.Customers.Customers.Fields.Email"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                </cell-template>
+            </grid-column>
+            @if (Model.UsernamesEnabled)
+            {
+                <grid-column field="Username" title="@Loc["Admin.Customers.Customers.Fields.Username"]" width="200"/>
+            }
+            <grid-column field="FullName" title="@Loc["Admin.Customers.Customers.Fields.FullName"]" width="200"/>
+            @if (Model.CompanyEnabled)
+            {
+                <grid-column field="Company" title="@Loc["Admin.Customers.Customers.Fields.Company"]" width="200" min-screen-width="770"/>
+            }
+            @if (Model.PhoneEnabled)
+            {
+                <grid-column field="Phone" title="@Loc["Admin.Customers.Customers.Fields.Phone"]" width="200" min-screen-width="770"/>
+            }
+            @if (Model.ZipPostalCodeEnabled)
+            {
+                <grid-column field="ZipPostalCode" title="@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]" width="200" min-screen-width="770"/>
+            }
+            <grid-column field="Active" title="@Loc["Admin.Customers.Customers.Fields.Active"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="Active" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Fields.CreatedOn"]" width="200" format="{0:G}" min-screen-width="770"/>
+            <grid-column field="LastActivityDate" title="@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]" width="200" format="{0:G}"/>
+        </admin-grid>
+        </admin-card>
+    </admin-page>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#search-customers').click(function () {
+                var grid = GrandAdmin.grids.get('#customers-grid');
+                grid.dataSource.page(1);
+                return false;
+            });
+
+            $("#@Html.IdFor(model => model.SearchEmail)").keydown(function (event) {
+                if (event.keyCode == 13) { $("#search-customers").click(); return false; }
+            });
+        });
+
+        function additionalData() {
+            var data = {
+                SearchEmail: $('#@Html.IdFor(model => model.SearchEmail)').val(),
+                SearchUsername: $('#@Html.IdFor(model => model.SearchUsername)').val(),
+                SearchFirstName: $('#@Html.IdFor(model => model.SearchFirstName)').val(),
+                SearchLastName: $('#@Html.IdFor(model => model.SearchLastName)').val(),
+                SearchCompany: $('#@Html.IdFor(model => model.SearchCompany)').val(),
+                SearchPhone: $('#@Html.IdFor(model => model.SearchPhone)').val(),
+                SearchZipPostalCode: $('#@Html.IdFor(model => model.SearchZipPostalCode)').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+    </script>
+</form>

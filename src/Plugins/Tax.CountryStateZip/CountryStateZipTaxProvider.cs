@@ -1,7 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Tax.CountryStateZip.Infrastructure.Cache;
 using Tax.CountryStateZip.Services;
@@ -15,18 +14,15 @@ public class CountryStateZipTaxProvider : ITaxProvider
     private readonly CountryStateZipTaxSettings _countryStateZipTaxSettings;
     private readonly ITaxRateService _taxRateService;
     private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
 
 
     public CountryStateZipTaxProvider(ITranslationService translationService,
         ICacheBase cacheBase,
-        IContextAccessor contextAccessor,
         ITaxRateService taxRateService,
         CountryStateZipTaxSettings countryStateZipTaxSettings)
     {
         _translationService = translationService;
         _cacheBase = cacheBase;
-        _contextAccessor = contextAccessor;
         _taxRateService = taxRateService;
         _countryStateZipTaxSettings = countryStateZipTaxSettings;
     }
@@ -51,65 +47,62 @@ public class CountryStateZipTaxProvider : ITaxProvider
     /// <returns>Tax</returns>
     public async Task<TaxResult> GetTaxRate(TaxRequest calculateTaxRequest)
     {
-        var result = new TaxResult();
-
         if (calculateTaxRequest.Address == null)
         {
-            result.Errors.Add("Address is not set");
-            return result;
+            var errorResult = new TaxResult();
+            errorResult.Errors.Add("Address is not set");
+            return errorResult;
         }
 
-        const string cacheKey = ModelCacheEventConsumer.ALL_TAX_RATES_MODEL_KEY;
-        var allTaxRates = await _cacheBase.GetAsync(cacheKey, async () =>
-        {
-            var taxes = await _taxRateService.GetAllTaxRates();
-            return taxes.Select(x => new TaxRateForCaching {
-                Id = x.Id,
-                StoreId = x.StoreId,
-                TaxCategoryId = x.TaxCategoryId,
-                CountryId = x.CountryId,
-                StateProvinceId = x.StateProvinceId,
-                Zip = x.Zip,
-                Percentage = x.Percentage
-            });
-        });
+        var allTaxRates = await GetAllTaxRatesFromCache();
 
-        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        var taxCategoryId = calculateTaxRequest.TaxCategoryId;
-        var countryId = calculateTaxRequest.Address.CountryId;
-        var stateProvinceId = calculateTaxRequest.Address.StateProvinceId;
-        var zip = calculateTaxRequest.Address.ZipPostalCode?.Trim() ?? string.Empty;
+        var address = calculateTaxRequest.Address;
+        var storeId = calculateTaxRequest.Store?.Id ?? string.Empty;
+        var zip = address.ZipPostalCode?.Trim() ?? string.Empty;
 
-        var existingRates = allTaxRates
-            .Where(taxRate => taxRate.CountryId == countryId && taxRate.TaxCategoryId == taxCategoryId).ToList();
+        var byCountryAndCategory = allTaxRates
+            .Where(r => r.CountryId == address.CountryId && r.TaxCategoryId == calculateTaxRequest.TaxCategoryId)
+            .ToList();
 
-        //filter by store
-        var matchedByStore = existingRates.Where(taxRate => storeId == taxRate.StoreId).ToList();
+        var byStore = MatchOrFallback(byCountryAndCategory,
+            r => r.StoreId == storeId,
+            r => string.IsNullOrEmpty(r.StoreId));
 
-        //not found? use the default ones (ID == 0)
-        if (!matchedByStore.Any())
-            matchedByStore.AddRange(existingRates.Where(taxRate => string.IsNullOrEmpty(taxRate.StoreId)));
+        var byStateProvince = MatchOrFallback(byStore,
+            r => r.StateProvinceId == address.StateProvinceId,
+            r => string.IsNullOrEmpty(r.StateProvinceId));
 
-        //filter by state/province
-        var matchedByStateProvince =
-            matchedByStore.Where(taxRate => stateProvinceId == taxRate.StateProvinceId).ToList();
+        var matched = byStateProvince
+            .OrderByDescending(r => !string.IsNullOrWhiteSpace(r.Zip))
+            .FirstOrDefault(r =>
+                string.IsNullOrWhiteSpace(r.Zip) ||
+                (!string.IsNullOrEmpty(zip) && zip.Equals(r.Zip, StringComparison.OrdinalIgnoreCase)));
 
-        //not found? use the default ones (ID == 0)
-        if (!matchedByStateProvince.Any())
-            matchedByStateProvince.AddRange(matchedByStore.Where(taxRate =>
-                string.IsNullOrEmpty(taxRate.StateProvinceId)));
+        return new TaxResult { TaxRate = matched?.Percentage ?? 0 };
+    }
 
-        //filter by zip
-        if(!string.IsNullOrEmpty(zip))
-        {
-            var matchedByZip = matchedByStateProvince.Where(taxRate => zip.Equals(taxRate.Zip, StringComparison.OrdinalIgnoreCase)).ToList();
-            if (matchedByZip.Any())
-            {
-                result.TaxRate = matchedByZip[0].Percentage;
-                return result;
-            }
-        }
+    private async Task<List<TaxRateForCaching>> GetAllTaxRatesFromCache()
+    {
+        return await _cacheBase.GetAsync(
+            ModelCacheEventConsumer.ALL_TAX_RATES_MODEL_KEY,
+            async () => (await _taxRateService.GetAllTaxRates())
+                .Select(x => new TaxRateForCaching {
+                    Id = x.Id,
+                    StoreId = x.StoreId,
+                    TaxCategoryId = x.TaxCategoryId,
+                    CountryId = x.CountryId,
+                    StateProvinceId = x.StateProvinceId,
+                    Zip = x.Zip,
+                    Percentage = x.Percentage
+                }).ToList());
+    }
 
-        return result;
+    private static List<TaxRateForCaching> MatchOrFallback(
+        List<TaxRateForCaching> source,
+        Func<TaxRateForCaching, bool> exact,
+        Func<TaxRateForCaching, bool> fallback)
+    {
+        List<TaxRateForCaching> matched = [..source.Where(exact)];
+        return matched.Count > 0 ? matched : [..source.Where(fallback)];
     }
 }

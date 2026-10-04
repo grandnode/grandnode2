@@ -1,0 +1,26 @@
+﻿@model CollectionModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Collections.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@* The same shell as Edit, minus what a collection that does not exist yet cannot offer. *@
+<form asp-area="@area" asp-controller="Collection" asp-action="Create" method="post" id="collection-form">
+    <admin-page sticky
+                title="@Loc["Admin.Catalog.Collections.AddNew"]"
+                icon="bi-building"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Catalog.Collections.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.DetailsButtons"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
+</form>

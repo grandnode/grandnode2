@@ -7,10 +7,9 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
-using Grand.Domain.Stores;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Features.Handlers.Common;
@@ -51,7 +50,7 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
 
         //customer attribute services
         await PrepareCustomAddressAttributes(model, request.Address, request.Language,
-            request.OverrideAttributes);
+            request.OverrideAttributes, request.Store?.Id);
 
         if (request.Address != null)
             model.FormattedCustomAddressAttributes =
@@ -65,7 +64,7 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
         bool prePopulateWithCustomerFields = false,
         Customer customer = null,
         Language language = null,
-        Store store = null)
+        Domain.Stores.Store store = null)
     {
         if (!excludeProperties && address != null)
         {
@@ -120,25 +119,28 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
         //countries and states
         if (_addressSettings.CountryEnabled && loadCountries != null)
         {
-            model.AvailableCountries.Add(new SelectListItem
-                { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
-            foreach (var c in loadCountries())
+            var countries = loadCountries();
+
+            //a new address starts in the store's default country; the form binds CountryId, not the Selected flag
+            if (address == null && string.IsNullOrEmpty(model.CountryId)
+                && !string.IsNullOrEmpty(store?.DefaultCountryId)
+                && countries.Any(c => c.Id == store.DefaultCountryId))
+                model.CountryId = store.DefaultCountryId;
+
+            model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
+            foreach (var c in countries)
                 model.AvailableCountries.Add(new SelectListItem {
                     Text = c.GetTranslation(x => x.Name, language?.Id),
                     Value = c.Id,
-                    Selected = !string.IsNullOrEmpty(model.CountryId)
-                        ? c.Id == model.CountryId
-                        : c.Id == store.DefaultCountryId
+                    Selected = c.Id == model.CountryId
                 });
 
             if (_addressSettings.StateProvinceEnabled)
             {
                 var states = await _countryService
-                    .GetStateProvincesByCountryId(
-                        !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : store.DefaultCountryId, language?.Id);
+                    .GetStateProvincesByCountryId(model.CountryId, language?.Id);
 
-                model.AvailableStates.Add(new SelectListItem
-                    { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
+                model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 
                 foreach (var s in states)
                     model.AvailableStates.Add(new SelectListItem {
@@ -176,9 +178,9 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
     }
 
     private async Task PrepareCustomAddressAttributes(AddressModel model, Address address,
-        Language language, IList<CustomAttribute> overrideAttributes)
+        Language language, IList<CustomAttribute> overrideAttributes, string storeId)
     {
-        var attributes = await _addressAttributeService.GetAllAddressAttributes();
+        var attributes = await _addressAttributeService.GetAllAddressAttributes(storeId ?? string.Empty);
         foreach (var attribute in attributes)
         {
             var attributeModel = new AddressAttributeModel {
@@ -211,41 +213,41 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
                 case AttributeControlType.DropdownList:
                 case AttributeControlType.RadioList:
                 case AttributeControlType.Checkboxes:
-                {
-                    if (selectedAddressAttributes != null)
                     {
-                        //clear default selection
-                        foreach (var item in attributeModel.Values)
-                            item.IsPreSelected = false;
+                        if (selectedAddressAttributes != null)
+                        {
+                            //clear default selection
+                            foreach (var item in attributeModel.Values)
+                                item.IsPreSelected = false;
 
-                        //select new values
-                        var selectedValues =
-                            await _addressAttributeParser.ParseAddressAttributeValues(selectedAddressAttributes);
-                        foreach (var attributeValue in selectedValues)
-                            if (attributeModel.Id == attributeValue.AddressAttributeId)
-                                foreach (var item in attributeModel.Values)
-                                    if (attributeValue.Id == item.Id)
-                                        item.IsPreSelected = true;
+                            //select new values
+                            var selectedValues =
+                                await _addressAttributeParser.ParseAddressAttributeValues(selectedAddressAttributes);
+                            foreach (var attributeValue in selectedValues)
+                                if (attributeModel.Id == attributeValue.AddressAttributeId)
+                                    foreach (var item in attributeModel.Values)
+                                        if (attributeValue.Id == item.Id)
+                                            item.IsPreSelected = true;
+                        }
                     }
-                }
                     break;
                 case AttributeControlType.ReadonlyCheckboxes:
-                {
-                    //do nothing
-                    //values are already pre-set
-                }
+                    {
+                        //do nothing
+                        //values are already pre-set
+                    }
                     break;
                 case AttributeControlType.TextBox:
                 case AttributeControlType.MultilineTextbox:
-                {
-                    if (selectedAddressAttributes != null)
                     {
-                        var enteredText = selectedAddressAttributes.Where(x => x.Key == attribute.Id)
-                            .Select(x => x.Value).ToList();
-                        if (enteredText.Any())
-                            attributeModel.DefaultValue = enteredText[0];
+                        if (selectedAddressAttributes != null)
+                        {
+                            var enteredText = selectedAddressAttributes.Where(x => x.Key == attribute.Id)
+                                .Select(x => x.Value).ToList();
+                            if (enteredText.Any())
+                                attributeModel.DefaultValue = enteredText[0];
+                        }
                     }
-                }
                     break;
                 case AttributeControlType.ColorSquares:
                 case AttributeControlType.ImageSquares:

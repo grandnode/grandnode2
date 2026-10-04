@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
 
@@ -16,9 +16,9 @@ public class GetMerchandiseReturnCountQueryHandler : IRequestHandler<GetMerchand
 
     public async Task<int> Handle(GetMerchandiseReturnCountQuery request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(
-            _merchandiseReturnRepository.Table.Count(x => x.MerchandiseReturnStatusId == request.RequestStatusId &&
-                                                          (string.IsNullOrEmpty(request.StoreId) ||
-                                                           x.StoreId == request.StoreId)));
+        return await _merchandiseReturnRepository.CountAsync(
+            _merchandiseReturnRepository.Table.Where(x => x.MerchandiseReturnStatusId == request.RequestStatusId &&
+                                                         (string.IsNullOrEmpty(request.StoreId) ||
+                                                          x.StoreId == request.StoreId)), cancellationToken);
     }
 }

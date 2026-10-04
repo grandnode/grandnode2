@@ -5,90 +5,47 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Language" asp-action="Edit" method="post">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="fa fa-language"></i>
-                        @Loc["Admin.Configuration.Languages.EditLanguageDetails"] - @Model.Name
-                        <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Languages.BackToList"], "List")
-                        </small>
-                    </div>
-                    <div class="actions">
-                        <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
-                            </button>
-                            <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                            </button>
-                            <a href="@Url.Action("ExportXml", new { id = Model.Id, area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Configuration.Languages.Export"]</a>
-                            <input type="button" id="importxml" class="btn yellow" value="@Loc["Admin.Configuration.Languages.Import"]"/>
-                            <span id="language-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
-                            </span>
-                            <vc:admin-widget widget-zone="language_details_buttons" additional-data="Model"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-            </div>
-        </div>
-    </div>
+    @* the record name as the title, Save as the one primary action, export, import and Delete in the overflow menu *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-translate"
+                meta="@Loc["Admin.Configuration.Languages.EditLanguageDetails"]"
+                back-url="@Url.Action("List", "Language", new { area = Constants.AreaAdmin })"
+                back-text="@Loc["Admin.Configuration.Languages.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action url="@Url.Action("ExportXml", new { id = Model.Id, area = Constants.AreaAdmin })"
+                              icon="bi-download" text="@Loc["Admin.Configuration.Languages.Export"]"/>
+                <admin-action id="importxml" icon="bi-upload" text="@Loc["Admin.Configuration.Languages.Import"]"/>
+                <admin-action id="language-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <vc:admin-widget widget-zone="language_details_buttons" additional-data="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
 </form>
 <admin-delete-confirmation button-id="language-delete"/>
-<div class="modal-dialog" id="importxml-window" style="display:none; padding: 0 10px;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Language" asp-action="ImportXml" method="post" enctype="multipart/form-data" asp-route-id="Id">
-        <input type="hidden" asp-for="Id"/>
-
-        <ul class="common-list">
-            <li>
-                <strong>NOTE: It can take up to several minutes.</strong>
-            </li>
-            <li>
-                <strong>NOTE: DO NOT click twice.</strong>
-            </li>
-        </ul>
-        <div class="form-group">
-            <div class="col-md-2" style="margin-top: 7px; height: 34px; padding-left: 25px;">
-                <label class="control-label">
-                    Xml file
-                </label>
-            </div>
-            <div class="col-md-10">
-                <input id="importxmlfile" name="importxmlfile" class="form-control" type="file">
-            </div>
-        </div>
-        <div class="form-group">
-            &nbsp;
-        </div>
-        <div class="form-group">
-            <div class="col-md-2">
-                &nbsp;
-            </div>
-            <div class="col-md-10 text-right mt-10">
-                <input id="importxmlsubmit" class="btn blue" value="@Loc["Admin.Configuration.Languages.Import"]" type="submit">
-            </div>
-        </div>
-    </form>
-</div>
-<script>
-    $(document).ready(function () {
-        $("#importxml").click(function (e) {
-            e.preventDefault();
-            var window = $("#importxml-window");
-            if (!window.data("kendoWindow")) {
-                window.kendoWindow({
-                    modal: true,
-                    title: "@Loc["Admin.Configuration.Languages.Import"]",
-                    actions: ["Close"]
-                });
-            }
-            window.data('kendoWindow').center().open();
-        });
-    });
-    </script>
+<admin-import-window id="importxml-window" button-id="importxml"
+                     title="@Loc["Admin.Configuration.Languages.Import"]"
+                     controller="Language" action="ImportXml" route-id="@Model.Id"
+                     file-name="importxmlfile" file-label="@Loc["Admin.Configuration.Languages.XmlFile"]"
+                     accept=".xml"
+                     submit-id="importxmlsubmit"
+                     submit-text="@Loc["Admin.Configuration.Languages.Import"]">
+    <ul class="common-list">
+        <li>
+            <strong>@Loc["Admin.Configuration.Languages.XmlFile.Note1"]</strong>
+        </li>
+        <li>
+            <strong>@Loc["Admin.Configuration.Languages.XmlFile.Note2"]</strong>
+        </li>
+    </ul>
+</admin-import-window>

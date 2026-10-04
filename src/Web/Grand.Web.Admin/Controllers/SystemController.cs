@@ -11,7 +11,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Roslyn;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.Common;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -272,6 +272,9 @@ public class SystemController : BaseAdminController
     }
 
 
+    //POST only: a GET here let any link follower - a crawler, a browser prefetch, a stray click on a
+    //copied URL - stop the application
+    [HttpPost]
     public IActionResult RestartApplication(string returnUrl = "")
     {
         _logger.LogInformation($"The application has been restarted by the user {_contextAccessor.WorkContext.CurrentCustomer.Email}");

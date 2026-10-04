@@ -1,0 +1,35 @@
+@model ProductModel
+<partial name="Partials/WidgetZone.Discounts.Top" model="Model"/>
+@if (Model.AvailableDiscounts is { Count: > 0 })
+{
+    @* the discount list of the product Prices tab: one check per discount, two to a row *@
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            @foreach (var discount in Model.AvailableDiscounts)
+            {
+                <div class="grand-field grand-field--check form-check">
+                    <div class="grand-field__control">
+                        <input type="checkbox" class="form-check-input" id="discount-@discount.Id" name="SelectedDiscountIds" value="@discount.Id"
+                               checked="@(Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id))"/>
+                    </div>
+                    <label class="grand-field__label" for="discount-@discount.Id">@discount.Name</label>
+                </div>
+            }
+        </div>
+    </admin-card>
+}
+else
+{
+    <div class="note note-info">
+        @* the Admin text links to /Admin/Discount/List, which a store manager cannot open *@
+        @if (ViewContext.RouteData.Values["area"] as string == "Store")
+        {
+            @Loc["Admin.Catalog.Discounts.NoStoreDiscounts"]
+        }
+        else
+        {
+            @Html.Raw(Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Collections.Discounts.NoDiscounts"])
+        }
+    </div>
+}
+<partial name="Partials/WidgetZone.Discounts.Bottom" model="Model"/>

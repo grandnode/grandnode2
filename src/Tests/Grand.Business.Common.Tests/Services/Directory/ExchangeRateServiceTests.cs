@@ -38,6 +38,6 @@ public class ExchangeRateServiceTests
             new ExchangeRateService(new List<IExchangeRateProvider> { provider.Object }, _settings);
         var result = exchangeRateService.LoadExchangeRateProviderBySystemName("sysname");
         Assert.IsNotNull(result);
-        Assert.AreEqual(result.SystemName, "sysname");
+        Assert.AreEqual("sysname", result.SystemName);
     }
 }

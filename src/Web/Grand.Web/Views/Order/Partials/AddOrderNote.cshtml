@@ -1,7 +1,10 @@
 ﻿@model AddOrderNoteModel
-<b-modal id="ModalAddOrderNote" ref="ModalAddOrderNote" :dark-theme="darkMode" size="xl" centered hide-footer hide-header>
-    <a class="modal-close" @@click="$bvModal.hide('ModalAddOrderNote')">
-        <b-icon icon="x"></b-icon>
+<div class="modal fade" id="ModalAddOrderNote" tabindex="-1" aria-hidden="true" vue-island="ordernote">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+    <a class="modal-close" data-bs-dismiss="modal">
+        <i class="b-icon bi bi-x" aria-hidden="true"></i>
     </a>
     <h1 class="generalTitle h2 text-center">@Loc["Order.AddOrdernote"]</h1>
     <validation-observer v-slot="{ handleSubmit }">
@@ -19,20 +22,13 @@
                     </div>
                 </div>
             </fieldset>
-            <div class="buttons text-left my-3">
+            <div class="buttons text-start my-3">
                 <input type="submit" class="btn btn-info write-product-review-button" value="@Loc[" OrderNote.SubmitButton"]"/>
             </div>
         </form>
     </validation-observer>
-</b-modal>
-<script asp-location="Footer" asp-order="300">
-    var ordernote = new Vue({
-        data: () => ({
-            @{
-                <text>
-                    Note: '',
-                </text>
-            }
-        })
-    });
-</script>
+</div>
+        </div>
+    </div>
+</div>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "ordernote", data = new { Note = "" } })</script>

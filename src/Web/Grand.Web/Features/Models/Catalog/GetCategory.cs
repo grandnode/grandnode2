@@ -4,14 +4,14 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Catalog;
 
 public class GetCategory : IRequest<CategoryModel>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
     public Currency Currency { get; set; }
     public Category Category { get; set; }

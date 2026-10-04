@@ -2,10 +2,10 @@
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
   	<PackageReference Include="ExcelMapper" />
-  	<PackageReference Include="NPOI" />
-	<PackageReference Include="SixLabors.ImageSharp" />
+  	<PackageReference Include="Microsoft.Build.Tasks.Git" PrivateAssets="All" />
 	<PackageReference Include="Scryber.Core" />
     <PackageReference Include="Scryber.Core.OpenType" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />   
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />

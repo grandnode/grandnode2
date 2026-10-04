@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Tax;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Events;
 

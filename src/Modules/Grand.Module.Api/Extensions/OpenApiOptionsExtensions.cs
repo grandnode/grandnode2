@@ -1,8 +1,7 @@
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Grand.Module.Api.Infrastructure.Extensions
 {
@@ -17,7 +16,7 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                 {
                     if (operation.Parameters == null)
                     {
-                        operation.Parameters = new List<OpenApiParameter>();
+                        operation.Parameters = new List<IOpenApiParameter>();
                     }
 
                     operation.Parameters.Add(new OpenApiParameter {
@@ -27,8 +26,8 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         Description = "Show only the first n items.",
                         Required = false,
                         Schema = new OpenApiSchema {
-                            Minimum = 0,
-                            Type = "integer"
+                            Minimum = "0",
+                            Type = JsonSchemaType.Integer
                         }
                     });
                     operation.Parameters.Add(new OpenApiParameter {
@@ -38,8 +37,8 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         Description = "Skip the first n items",
                         Required = false,
                         Schema = new OpenApiSchema {
-                            Minimum = 0,
-                            Type = "integer"
+                            Minimum = "0",
+                            Type = JsonSchemaType.Integer
                         }
                     });
                     operation.Parameters.Add(new OpenApiParameter {
@@ -47,10 +46,9 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         AllowReserved = true,
                         In = ParameterLocation.Query,
                         Description = "Order items by property values (LINQ notation)",
-                        Example = new OpenApiString("Name, DisplayOrder"),
                         Required = false,
                         Schema = new OpenApiSchema {
-                            Type = "string"
+                            Type = JsonSchemaType.String
                         }
                     });
                     operation.Parameters.Add(new OpenApiParameter {
@@ -58,10 +56,9 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         AllowReserved = true,
                         In = ParameterLocation.Query,
                         Description = "Filter items by property values (LINQ notation) ",
-                        Example = new OpenApiString("Name == \"John\""),
                         Required = false,
                         Schema = new OpenApiSchema {
-                            Type = "string"
+                            Type = JsonSchemaType.String
                         }
                     });
                     operation.Parameters.Add(new OpenApiParameter {
@@ -69,10 +66,9 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         AllowReserved = true,
                         In = ParameterLocation.Query,
                         Description = "Select specific properties from the model (LINQ notation)",
-                        Example = new OpenApiString("Id, Name"),
                         Required = false,
                         Schema = new OpenApiSchema {
-                            Type = "string"
+                            Type = JsonSchemaType.String
                         }
                     });
                 }
@@ -92,7 +88,7 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         In = ParameterLocation.Header,
                         Required = true,
                         Schema = new OpenApiSchema {
-                            Type = "string",
+                            Type = JsonSchemaType.String,
                             Description = "Antiforgery token"
                         }
                     });

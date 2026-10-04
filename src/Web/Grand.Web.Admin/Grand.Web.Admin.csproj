@@ -9,17 +9,11 @@
 		<!--Set GenerateRuntimeConfigurationFiles as true when Admin panel is supposed to works independent-->
 		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
 		<CompressionEnabled>false</CompressionEnabled>
+		<StaticWebAssetBasePath>_content/$(MSBuildProjectName)</StaticWebAssetBasePath>
 	</PropertyGroup>	
 	<ItemGroup>
 		<Content Include="Areas\**" CopyToPublishDirectory="Never" />
 		<Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="elFinder.Net.AspNetCore" />
-		<PackageReference Include="elFinder.Net.Core" />
-		<PackageReference Include="elFinder.Net.Drivers.FileSystem" />
-		<PackageReference Include="Microsoft.AspNetCore.Http" />
-		<PackageReference Include="SixLabors.ImageSharp" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
@@ -28,6 +22,6 @@
 		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
 		<ProjectReference Include="..\Grand.SharedUIResources\Grand.SharedUIResources.csproj" />
-		<ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
+		<ProjectReference Include="..\Grand.Web.AdminShared\Grand.Web.AdminShared.csproj" />
 	</ItemGroup>
 </Project>

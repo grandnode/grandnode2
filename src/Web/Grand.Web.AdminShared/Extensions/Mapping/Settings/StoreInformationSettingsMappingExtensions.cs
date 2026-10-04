@@ -1,0 +1,19 @@
+﻿using Grand.Domain.Stores;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.AdminShared.Models.Settings;
+
+namespace Grand.Web.AdminShared.Extensions.Mapping.Settings;
+
+public static class StoreInformationSettingsMappingExtensions
+{
+    public static GeneralCommonSettingsModel.StoreInformationSettingsModel ToModel(this StoreInformationSettings entity)
+    {
+        return entity.MapTo<StoreInformationSettings, GeneralCommonSettingsModel.StoreInformationSettingsModel>();
+    }
+
+    public static StoreInformationSettings ToEntity(this GeneralCommonSettingsModel.StoreInformationSettingsModel model,
+        StoreInformationSettings destination)
+    {
+        return model.MapTo(destination);
+    }
+}

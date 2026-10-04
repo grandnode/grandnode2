@@ -8,7 +8,7 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -54,7 +54,7 @@ public class CancelOrderCommandHandlerTests
         var command = new CancelOrderCommand {
             Order = null
         };
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _handler.Handle(command, default));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _handler.Handle(command, default));
     }
 
     [TestMethod]
@@ -63,7 +63,7 @@ public class CancelOrderCommandHandlerTests
         var command = new CancelOrderCommand {
             Order = new Order { OrderStatusId = (int)OrderStatusSystem.Cancelled }
         };
-        Assert.ThrowsExceptionAsync<Exception>(async () => await _handler.Handle(command, default));
+        Assert.ThrowsExactlyAsync<Exception>(async () => await _handler.Handle(command, default));
     }
 
     [TestMethod]

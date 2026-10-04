@@ -1,0 +1,11 @@
+﻿{
+  Name: Grand Store,
+  Url: https://grandstore.com,
+  DefaultLanguageId: lang-001,
+  DisplayOrder: 1,
+  CompanyName: Grand LLC,
+  BankAccount: {
+    Id: ObjectId_1
+  },
+  Id: ObjectId_1
+}

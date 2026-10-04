@@ -3,15 +3,14 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="GoogleAuthenticator" />
+    <PackageReference Include="HtmlSanitizer" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" />
-    <PackageReference Include="AutoMapper" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
-    <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
     <PackageReference Include="Scrutor" />
     <PackageReference Include="StackExchange.Redis" />
@@ -20,5 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Grand.Data\Grand.Data.csproj" />
     <ProjectReference Include="..\Grand.Domain\Grand.Domain.csproj" />
+    <ProjectReference Include="..\Grand.Mapping\Grand.Mapping.csproj" />
+    <ProjectReference Include="..\Grand.Mediator\Grand.Mediator.csproj" />
   </ItemGroup>
 </Project>

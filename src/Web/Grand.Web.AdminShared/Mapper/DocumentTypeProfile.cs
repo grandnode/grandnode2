@@ -1,0 +1,18 @@
+using Grand.Mapping;
+using Grand.Domain.Documents;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.AdminShared.Models.Documents;
+
+namespace Grand.Web.AdminShared.Mapper;
+
+public class DocumentTypeProfile : Profile, IAutoMapperProfile
+{
+    public DocumentTypeProfile()
+    {
+        CreateMap<DocumentType, DocumentTypeModel>();
+        CreateMap<DocumentTypeModel, DocumentType>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore());
+    }
+
+    public int Order => 0;
+}

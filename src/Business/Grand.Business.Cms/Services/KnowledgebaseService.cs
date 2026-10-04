@@ -10,7 +10,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Cms.Services;
 
@@ -46,9 +46,15 @@ public class KnowledgebaseService : IKnowledgebaseService
 
     private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     {
+        return ApplyStandardFilter(query, _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds(),
+            _contextAccessor.StoreContext.CurrentStore.Id);
+    }
+
+    private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query, string[] allowedCustomerGroupsIds,
+        string storeId) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
+    {
         if (!_accessControlConfig.IgnoreAcl)
         {
-            var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
             query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -57,7 +63,7 @@ public class KnowledgebaseService : IKnowledgebaseService
         if (!_accessControlConfig.IgnoreStoreLimitations)
         {
             query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_contextAccessor.StoreContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(storeId)
                     select p;
         }
 
@@ -138,7 +144,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             query = query.Where(x => x.Published);
             query = query.Where(x => x.Id == id);
             query = ApplyStandardFilter(query);
-            var toReturn = await Task.FromResult(query.FirstOrDefault());
+            var toReturn = await _knowledgebaseCategoryRepository.FirstOrDefaultAsync(query);
             return toReturn;
         });
     }
@@ -189,7 +195,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                     select p;
         query = ApplyStandardFilter(query);
         query = query.OrderBy(x => x.DisplayOrder);
-        return await Task.FromResult(query.ToList());
+        return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
     }
 
     /// <summary>
@@ -237,8 +243,9 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByCategoryId(string id,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var articles = await Task.FromResult(_knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id)
-            .OrderBy(x => x.DisplayOrder).ToList());
+        var articles = await _knowledgebaseArticleRepository.ToListAsync(
+            _knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id)
+                .OrderBy(x => x.DisplayOrder));
         return new PagedList<KnowledgebaseArticle>(articles, pageIndex, pageSize);
     }
 
@@ -259,7 +266,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = ApplyStandardFilter(query);
             query = query.OrderBy(x => x.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return (await _knowledgebaseCategoryRepository.ToListAsync(query)).ToList();
         });
     }
 
@@ -280,8 +287,27 @@ public class KnowledgebaseService : IKnowledgebaseService
             query = ApplyStandardFilter(query);
 
             query = query.OrderBy(x => x.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
+    }
+
+    /// <summary>
+    ///     Gets public(published etc) knowledge base articles for an explicit store and customer groups
+    /// </summary>
+    /// <param name="storeId">Store ident</param>
+    /// <param name="customerGroupIds">Customer groups the articles must be visible to</param>
+    /// <returns>List of public knowledge base articles</returns>
+    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(string storeId,
+        IList<string> customerGroupIds)
+    {
+        var query = from p in _knowledgebaseArticleRepository.Table
+                    select p;
+
+        query = query.Where(x => x.Published);
+        query = ApplyStandardFilter(query, customerGroupIds?.ToArray() ?? [], storeId);
+
+        query = query.OrderBy(x => x.DisplayOrder);
+        return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
     }
 
     /// <summary>
@@ -300,7 +326,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             query = query.Where(x => x.Published);
             query = query.Where(x => x.Id == id);
             query = ApplyStandardFilter(query);
-            return await Task.FromResult(query.FirstOrDefault());
+            return await _knowledgebaseArticleRepository.FirstOrDefaultAsync(query);
         });
     }
 
@@ -322,7 +348,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = ApplyStandardFilter(query);
             query = query.OrderBy(x => x.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
     }
 
@@ -347,7 +373,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = ApplyStandardFilter(query);
             query = query.OrderBy(x => x.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
     }
 
@@ -372,7 +398,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = ApplyStandardFilter(query);
             query = query.OrderBy(x => x.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return (await _knowledgebaseCategoryRepository.ToListAsync(query)).ToList();
         });
     }
 
@@ -393,7 +419,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             query = query.Where(x => x.ShowOnHomepage);
             query = ApplyStandardFilter(query);
             query = query.OrderBy(x => x.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
     }
 
@@ -418,7 +444,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                 || p.Name.ToLower().Contains(name.ToLower()));
 
         query = query.OrderBy(x => x.DisplayOrder);
-        var toReturn = await Task.FromResult(query.ToList());
+        var toReturn = await _knowledgebaseArticleRepository.ToListAsync(query);
 
         return new PagedList<KnowledgebaseArticle>(toReturn, pageIndex, pageSize);
     }
@@ -462,7 +488,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                     where c.ArticleId == articleId
                     orderby c.CreatedOnUtc
                     select c;
-        return await Task.FromResult(query.ToList());
+        return await _articleCommentRepository.ToListAsync(query);
     }
 
     public virtual async Task DeleteArticleComment(KnowledgebaseArticleComment articleComment)
@@ -483,7 +509,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                     orderby c.CreatedOnUtc
                     where customerId == "" || c.CustomerId == customerId
                     select c;
-        return await Task.FromResult(query.ToList());
+        return await _articleCommentRepository.ToListAsync(query);
     }
 
     /// <summary>

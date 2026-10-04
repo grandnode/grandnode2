@@ -6,7 +6,7 @@ using Grand.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Storage.Services;
@@ -69,7 +69,7 @@ public class AzurePictureService : PictureService
     protected override async Task DeletePictureThumbs(Picture picture)
     {
         var filter = $"{picture.Id}";
-        var blobs = _container.GetBlobs(BlobTraits.All, BlobStates.All, filter);
+        var blobs = _container.GetBlobs(BlobTraits.All, BlobStates.All, filter, default);
 
         foreach (var blob in blobs) await _container.DeleteBlobAsync(blob.Name);
     }

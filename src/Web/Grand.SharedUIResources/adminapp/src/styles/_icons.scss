@@ -1,0 +1,32 @@
+//What Font Awesome gave the panels beyond the glyphs themselves.
+//
+//bootstrap-icons is only a font and a class per glyph, so the two Font Awesome helpers
+//the views used have to be written out. Both keep their meaning, under a bi- name so a
+//reader can see which font they belong to.
+
+//fa-fw drew every glyph in a box of the same width, which is what keeps the labels of
+//the side menu and the grid command buttons on one vertical line.
+.bi-fw::before {
+    display: inline-block;
+    width: 1.25em;
+    text-align: center;
+}
+
+//fa-spin, on the loading indicators.
+.bi-spin::before {
+    display: inline-block;
+    animation: bi-spin 2s linear infinite;
+}
+
+@keyframes bi-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+//Font Awesome sat on the text baseline; bootstrap-icons lifts the glyph by .125em, which
+//reads as too high next to the 14px text of a button or a table cell.
+.btn > .bi::before,
+.btn > .bi + span,
+td > .bi::before {
+    vertical-align: -0.1em;
+}

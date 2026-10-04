@@ -1,0 +1,34 @@
+@model DiscountModel
+@{
+    //page title
+    ViewBag.Title = Loc["admin.marketing.Discounts.EditDiscountDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="Discount" asp-action="Edit" method="post" id="discount-form">
+
+    @* the product edit screen's shell: the discount's name as the title, Save as the one primary
+       action, and Delete in the overflow menu rather than beside Save *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-tags"
+                meta="@Loc["admin.marketing.Discounts.EditDiscountDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["admin.marketing.Discounts.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="discount-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
+</form>
+<admin-delete-confirmation button-id="discount-delete"/>

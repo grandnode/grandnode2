@@ -11,23 +11,14 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.OutOfStockSubscriptions })
 }
 
-<div class="page account-page out-of-stock-subscription-list-page pl-lg-3 pt-lg-0 pt-3">
+<div class="page account-page out-of-stock-subscription-list-page ps-lg-3 pt-lg-0 pt-3">
     <h1 class="h2 generalTitle">@Loc["Account.OutOfStockSubscriptions"]</h1>
     @if (Model.Subscriptions.Count > 0)
     {
         <div class="description">
             @Loc["Account.OutOfStockSubscriptions.Description"]
         </div>
-        <script asp-location="Footer" asp-order="300">
-            document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById('selectall').addEventListener('click', function () {
-                    var checked = document.getElementById("selectall").checked;
-                    document.querySelectorAll('.subscription-list .rowcheckbox').forEach(function (el) {
-                        el.checked = checked;
-                    });
-                });
-            });
-        </script>
+        <script type="application/json" data-grand-vm="checkAll">{"elements":{"checkboxId":"selectall","rowSelector":".subscription-list .rowcheckbox"}}</script>
         <form asp-route="CustomerOutOfStockSubscriptions" method="post">
             <div class="subscription-list">
                 <div class="table-responsive">
@@ -39,9 +30,9 @@
                         <thead class="table-inverse">
                         <tr>
                             <th class="select-boxes">
-                                <label class="custom-control custom-checkbox">
-                                    <input id="selectall" type="checkbox" class="custom-control-input">
-                                    <span class="custom-control-label"></span>
+                                <label class="form-check">
+                                    <input id="selectall" type="checkbox" class="form-check-input">
+                                    <span class="form-check-label"></span>
                                     <span class="custom-control-description">&nbsp;</span>
                                 </label>
                             </th>
@@ -56,9 +47,9 @@
                             var item = Model.Subscriptions[i];
                             <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
                                 <td class="select-boxes">
-                                    <label class="custom-control custom-checkbox">
-                                        <input id="selectall" type="checkbox" name="subscriptions" value="@(item.Id)" class="rowcheckbox custom-control-input">
-                                        <span class="custom-control-label"></span>
+                                    <label class="form-check">
+                                        <input id="selectall" type="checkbox" name="subscriptions" value="@(item.Id)" class="rowcheckbox form-check-input">
+                                        <span class="form-check-label"></span>
                                         <span class="custom-control-description">&nbsp;</span>
                                     </label>
                                 </td>

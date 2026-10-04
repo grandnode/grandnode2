@@ -1,0 +1,97 @@
+@model DiscountModel.AddCollectionToDiscountModel
+
+@{
+    Layout = "";
+
+    //page title
+    ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<form id="CollectionAddPopup" asp-area="@area" asp-controller="Discount" asp-action="CollectionAddPopup" method="post"
+      asp-route-DiscountId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["DiscountId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
+    <admin-popup title="@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]" icon="bi-boxes">
+        <admin-filters id="search-collections-filters" submit-id="search-collections" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchCollectionName"/>
+            </filters-search>
+        </admin-filters>
+        <admin-card flush>
+            <admin-grid id="collections-grid"
+                        read-url="@Url.Action("CollectionAddPopupList", "Discount", new { area = area })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        selection-name="SelectedCollectionIds">
+                <grid-column field="Name" title="@Loc["Admin.Catalog.Collections.Fields.Name"]"/>
+                <grid-column field="Published" title="@Loc["Admin.Catalog.Collections.Fields.Published"]" width="100" align="Center">
+                    <cell-template>
+                        <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    </cell-template>
+                </grid-column>
+            </admin-grid>
+        </admin-card>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#CollectionAddPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshCollections').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+            $('#search-collections').click(function() {
+                var grid = GrandAdmin.grids.get('#collections-grid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                grid.clearSelection();
+                return false;
+            });
+
+            $("#@Html.IdFor(model => model.SearchCollectionName)").keydown(function(event) {
+                if (event.keyCode == 13) {
+                    $("#search-collections").click();
+                    return false;
+                }
+            });
+
+        function additionalData() {
+            var data = {
+                SearchCollectionName: $('#@Html.IdFor(model => model.SearchCollectionName)').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+    </script>
+
+</form>

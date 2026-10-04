@@ -1,0 +1,39 @@
+@using Grand.Domain.Orders
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title">@Loc["Admin.Customers.Customers.CurrentWishlist"]</h2>
+    </div>
+    <div class="grand-card__body grand-card__body--flush">
+        <partial name="Partials/WidgetZone.WishlistTop" model="Model"/>
+        <admin-grid id="currentwishlist-grid"
+                    read-url="@Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.Wishlist, area = area })"
+                    destroy-url="@Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area })"
+                    pager="Compact"
+                    auto-bind="false"
+                    confirm-destroy="true">
+            @*AttributeInfo is markup built by the product attribute formatter*@
+            <grid-column field="ProductName" title="@Loc["Admin.CurrentCarts.Product"]" width="500">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                    <span data-if="AttributeInfo && AttributeInfo.length > 0"><br />{{{ AttributeInfo }}}</span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Quantity" title="@Loc["Admin.CurrentCarts.Quantity"]" width="200"/>
+            <grid-column field="UnitPrice" title="@Loc["Admin.CurrentCarts.UnitPrice"]" width="200"/>
+            <grid-column field="Total" title="@Loc["Admin.CurrentCarts.Total"]" width="200"/>
+            @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
+            {
+                <grid-column field="Store" title="@Loc["Admin.CurrentCarts.Store"]" width="200"/>
+            }
+            <grid-column field="UpdatedOn" title="@Loc["Admin.CurrentCarts.UpdatedOn"]" width="200" format="{0:G}"/>
+            <grid-commands destroy="true" width="200"/>
+        </admin-grid>
+        <partial name="Partials/WidgetZone.WishlistBottom" model="Model"/>
+    </div>
+</div>

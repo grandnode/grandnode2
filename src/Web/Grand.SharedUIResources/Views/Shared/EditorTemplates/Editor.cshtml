@@ -4,9 +4,13 @@
 
 @model string
 @inject IPermissionService permissionService
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 @{
     var allowFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);
     var random = CommonHelper.GenerateRandomInteger();
+    //the editor is not always rendered inside a form, so the token comes from IAntiforgery
+    //(which also issues the cookie) rather than from a __RequestVerificationToken input
+    var requestToken = antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
 <div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
     @Html.Raw(ViewData.TemplateInfo.FormattedModelValue)
@@ -18,6 +22,9 @@
     function elfinderDialog@(random)(context) { // <------------------ +context
         var fm = $('<div/>').dialogelfinder({
             url: '@Url.Action("Connector", "ElFinder")',
+            customHeaders: {
+                'X-CSRF-TOKEN': '@requestToken'
+            },
             baseUrl: '@(Grand.SharedUIResources.Constants.WwwRoot)/administration/elfinder/',
             lang: 'en',
             width: 840,

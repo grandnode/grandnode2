@@ -1,0 +1,37 @@
+﻿@model BlogPostModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogPosts.Preview"];
+    Layout = Constants.LayoutStore;
+}
+
+@* a read-only screen: the post in one card under a page header, no actions *@
+<admin-page title="@Model.Title"
+            icon="bi-journal-text"
+            meta="@Loc["Admin.Content.Blog.BlogPosts.Preview"]"
+            back-url="@Url.Action("List")"
+            back-text="@Loc["Admin.Content.Blog.BlogPosts.BackToList"]">
+    <admin-card>
+        <div class="blog-preview">
+            <h1>@Model.Title</h1>
+            @if (!string.IsNullOrEmpty(Model.BodyOverview))
+            {
+                <div class="overview">
+                    @Html.Raw(Model.BodyOverview)
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Body))
+            {
+                <div class="body">
+                    @Html.Raw(Model.Body)
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Tags))
+            {
+                <div class="tags mt-3">
+                    <strong>@Loc["Admin.Content.Blog.BlogPosts.Fields.Tags"]:</strong> @Model.Tags
+                </div>
+            }
+        </div>
+    </admin-card>
+</admin-page>

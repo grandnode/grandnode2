@@ -123,7 +123,7 @@ public class HasOneProductDiscountRule : IDiscountRule
     public string GetConfigurationUrl(string discountId, string discountRequirementId)
     {
         //configured 
-        var result = "Admin/HasOneProduct/Configure/?discountId=" + discountId;
+        var result = $"/DiscountRulesHasOneProduct/Configure/?discountId=" + discountId;
         if (!string.IsNullOrEmpty(discountRequirementId))
             result += $"&discountRequirementId={discountRequirementId}";
         return result;

@@ -1,0 +1,45 @@
+@using Grand.Web.AdminShared.Models.Common
+@model AddressAttributeValueModel
+@{
+    Layout = "";
+    ViewBag.Title = Loc["Admin.Address.AddressAttributes.Values.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form id="ValueCreatePopup" asp-area="@area" asp-controller="AddressAttribute" asp-action="ValueCreatePopup"
+      asp-route-addressAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["addressAttributeId"])">
+    <admin-popup title="@Loc["Admin.Address.AddressAttributes.Values.AddNew"]" icon="bi-card-list">
+        <partial name="Partials/WidgetZone.ValueButtons"/>
+        <partial name="Partials/CreateOrUpdateValue" model="Model"/>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ValueCreatePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>

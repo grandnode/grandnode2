@@ -9,7 +9,7 @@ using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Checkout;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Checkout;
 

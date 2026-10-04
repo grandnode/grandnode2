@@ -20,24 +20,24 @@ public class TranslateExtensionsTests
         product.Locales.Add(new TranslationEntity { LanguageId = "PL", LocaleKey = "Name", LocaleValue = "PLName" });
         product.Locales.Add(new TranslationEntity { LanguageId = "UK", LocaleKey = "Name", LocaleValue = "UKName" });
 
-        Assert.AreEqual(product.GetTranslation(c => c.Name, "PL"), "PLName");
-        Assert.AreEqual(product.GetTranslation(c => c.Name, "UK"), "UKName");
+        Assert.AreEqual("PLName", product.GetTranslation(c => c.Name, "PL"));
+        Assert.AreEqual("UKName", product.GetTranslation(c => c.Name, "UK"));
         //if language dont exist return property value
-        Assert.AreEqual(product.GetTranslation(c => c.Name, "US"), "stname");
+        Assert.AreEqual("stname", product.GetTranslation(c => c.Name, "US"));
     }
 
     [TestMethod]
     public void GetTranslation_NullArgument_ThrowException()
     {
         Product product = null;
-        Assert.ThrowsException<ArgumentNullException>(() => product.GetTranslation(c => c.Name, "PL"));
+        Assert.ThrowsExactly<ArgumentNullException>(() => product.GetTranslation(c => c.Name, "PL"));
     }
 
     [TestMethod]
     public void GetTranslation_ExpressionUseMethod_ThrowException()
     {
         var product = new Product();
-        Assert.ThrowsException<ArgumentException>(() =>
+        Assert.ThrowsExactly<ArgumentException>(() =>
             product.GetTranslation(c => c.ParseRequiredProductIds().First(), "PL"));
     }
 
@@ -52,7 +52,7 @@ public class TranslateExtensionsTests
             ManageInventoryMethodId = ManageInventoryMethod.ManageStock
         };
         var result = product.ManageInventoryMethodId.GetTranslationEnum(translationServiceMock.Object, "PL");
-        Assert.AreEqual(result, "PLenum");
+        Assert.AreEqual("PLenum", result);
     }
 
     [TestMethod]
@@ -60,7 +60,7 @@ public class TranslateExtensionsTests
     {
         var translationServiceMock = new Mock<ITranslationService>();
         var fake = new FakeStruct();
-        Assert.ThrowsException<ArgumentException>(() => fake.GetTranslationEnum(translationServiceMock.Object, "PL"));
+        Assert.ThrowsExactly<ArgumentException>(() => fake.GetTranslationEnum(translationServiceMock.Object, "PL"));
     }
     
     private struct FakeStruct;

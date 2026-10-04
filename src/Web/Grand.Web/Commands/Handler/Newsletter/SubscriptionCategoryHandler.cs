@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Web.Commands.Models.Newsletter;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Newsletter;
 

@@ -1,0 +1,66 @@
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Domain.Directory;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Directory;
+
+namespace Grand.Web.AdminShared.Services;
+
+public class CountryViewModelService : ICountryViewModelService
+{
+    private readonly ICountryService _countryService;
+
+    public CountryViewModelService(ICountryService countryService)
+    {
+        _countryService = countryService;
+    }
+
+    public virtual CountryModel PrepareCountryModel()
+    {
+        var model = new CountryModel {
+            //default values
+            Published = true,
+            AllowsBilling = true,
+            AllowsShipping = true
+        };
+        return model;
+    }
+
+    public virtual async Task<Country> InsertCountryModel(CountryModel model)
+    {
+        var country = model.ToEntity();
+        await _countryService.InsertCountry(country);
+        return country;
+    }
+
+    public virtual async Task<Country> UpdateCountryModel(Country country, CountryModel model)
+    {
+        country = model.ToEntity(country);
+        await _countryService.UpdateCountry(country);
+        return country;
+    }
+
+    public virtual StateProvinceModel PrepareStateProvinceModel(string countryId)
+    {
+        var model = new StateProvinceModel {
+            CountryId = countryId,
+            //default value
+            Published = true
+        };
+        return model;
+    }
+
+    public virtual async Task<StateProvince> InsertStateProvinceModel(StateProvinceModel model)
+    {
+        var sp = model.ToEntity();
+        await _countryService.InsertStateProvince(sp, model.CountryId);
+        return sp;
+    }
+
+    public virtual async Task<StateProvince> UpdateStateProvinceModel(StateProvince sp, StateProvinceModel model)
+    {
+        sp = model.ToEntity(sp);
+        await _countryService.UpdateStateProvince(sp, model.CountryId);
+        return sp;
+    }
+}

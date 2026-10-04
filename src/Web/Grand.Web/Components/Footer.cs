@@ -66,6 +66,7 @@ public class FooterViewComponent : BaseViewComponent
     {
         var now = DateTime.UtcNow;
         var pageModel = (await _pageService.GetAllPages(_contextAccessor.StoreContext.CurrentStore.Id))
+            .PreferStoreOverrides(_contextAccessor.StoreContext.CurrentStore.Id)
             .Where(t => (t.IncludeInFooterRow1 || t.IncludeInFooterRow2 || t.IncludeInFooterRow3) && t.Published &&
                         (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                         (!t.EndDateUtc.HasValue || t.EndDateUtc > now))

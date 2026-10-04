@@ -8,7 +8,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -144,7 +144,7 @@ public class CurrencyServiceTests
         _cacheManager.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Currency>>>()))
             .Returns(Task.FromResult(currencyUSD));
         currencyEUR.Rate = 0;
-        Assert.ThrowsExceptionAsync<GrandException>(async () =>
+        Assert.ThrowsExactlyAsync<GrandException>(async () =>
             await _currencyService.ConvertToPrimaryExchangeRateCurrency(100, currencyEUR));
     }
 
@@ -153,7 +153,7 @@ public class CurrencyServiceTests
     {
         _cacheManager.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Currency>>>()))
             .Returns(Task.FromResult<Currency>(null));
-        Assert.ThrowsExceptionAsync<Exception>(async () =>
+        Assert.ThrowsExactlyAsync<Exception>(async () =>
             await _currencyService.ConvertToPrimaryExchangeRateCurrency(100, currencyEUR));
     }
 

@@ -35,7 +35,7 @@ public class LiquidOrder : Drop
         _vendor = vendor;
         _host = host;
 
-        url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+        url = _host?.Url.Trim('/') ?? _store.Url.Trim('/');
 
 
         OrderItems = new List<LiquidOrderItem>();

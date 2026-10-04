@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Utilities.Checkout;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Checkout.Orders;
 

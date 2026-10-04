@@ -1,0 +1,53 @@
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    <div class="grand-card">
+        <partial name="Partials/WidgetZone.OrdersTop" model="Model"/>
+        <div class="grand-card__body grand-card__body--flush">
+            <admin-grid id="order-grid"
+                        read-url="@Url.Action("OrderList", "Customer", new { customerId = Model.Id, area = area })"
+                        auto-bind="false">
+                <grid-column field="OrderNumber" title="@Loc["Admin.Customers.Customers.Orders.ID"]" width="90">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ Id }}">{{ OrderNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="OrderTotal" title="@Loc["Admin.Customers.Customers.Orders.OrderTotal"]" width="120">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ Id }}">{{ OrderTotal }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="OrderStatus" title="@Loc["Admin.Customers.Customers.Orders.OrderStatus"]" width="160">
+                    <cell-template>
+                        @* a status is a chip, as on the order list *@
+                        <span data-if="OrderStatusId == 10" class="grand-chip grand-chip--amber">{{ OrderStatus }}</span>
+                        <span data-if="OrderStatusId == 30" class="grand-chip grand-chip--green">{{ OrderStatus }}</span>
+                        <span data-if="OrderStatusId == 40" class="grand-chip grand-chip--red">{{ OrderStatus }}</span>
+                        <span data-if="OrderStatusId != 10 && OrderStatusId != 30 && OrderStatusId != 40" class="grand-chip">{{ OrderStatus }}</span>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="PaymentStatus" title="@Loc["Admin.Customers.Customers.Orders.PaymentStatus"]" width="180"/>
+                <grid-column field="ShippingStatus" title="@Loc["Admin.Customers.Customers.Orders.ShippingStatus"]" width="180"/>
+                @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
+                {
+                    <grid-column field="StoreName" title="@Loc["Admin.Customers.Customers.Orders.Store"]" width="200"/>
+                }
+                <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Orders.CreatedOn"]" width="220" format="{0:G}"/>
+                <grid-detail read-url="@Url.Action("OrderDetails", "Customer", new { area = area })" param="orderId:Id">
+                    <grid-column field="ProductName" title="@Loc["Admin.Orders.Products.ProductName"]" width="400">
+                        <cell-template>
+                            <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Quantity" title="@Loc["Admin.Orders.Products.Quantity"]" width="100"/>
+                    <grid-column field="UnitPriceInclTax" title="@Loc["Admin.Orders.Products.Price"]" width="200"/>
+                    <grid-column field="SubTotalInclTax" title="@Loc["Admin.Orders.Products.Total"]" width="200"/>
+                </grid-detail>
+            </admin-grid>
+        </div>
+        <partial name="Partials/WidgetZone.OrdersBottom" model="Model"/>
+    </div>
+    <script>
+        //details grid
+</script>}

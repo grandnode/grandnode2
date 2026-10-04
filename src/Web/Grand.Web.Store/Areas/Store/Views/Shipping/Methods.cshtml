@@ -1,0 +1,26 @@
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Shipping.Methods"];
+    Layout = Constants.LayoutStore;
+}
+
+<admin-page title="@Loc["Admin.Configuration.Shipping.Methods"]" icon="bi-card-list">
+    <page-actions>
+        <a href="@Url.Action("CreateMethod", "Shipping", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="shippingmethod-grid"
+                    read-url="@Url.Action("MethodsListData", "Shipping", new { area = Constants.AreaStore })"
+                    pager="Compact">
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("EditMethod", "Shipping", new { area = Constants.AreaStore })/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Description" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.Description"]"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.Methods.Fields.DisplayOrder"]" width="120"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -7,7 +7,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.CheckoutAttributes;
 
@@ -85,7 +85,7 @@ public class CheckoutAttributeService : ICheckoutAttributeService
             }
 
             if (excludeShippableAttributes) query = query.Where(x => !x.ShippableProductRequired);
-            return await Task.FromResult(query.ToList());
+            return await _checkoutAttributeRepository.ToListAsync(query);
         });
     }
 

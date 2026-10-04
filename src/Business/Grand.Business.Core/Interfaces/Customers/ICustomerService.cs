@@ -104,11 +104,14 @@ public interface ICustomerService
     Task<Customer> GetCustomerByGuid(Guid customerGuid);
 
     /// <summary>
-    ///     Get customer by email
+    ///     Get customer by email.
+    ///     When <paramref name="storeId" /> is supplied (per-store customer identity) the lookup is scoped to
+    ///     that store; when it is empty the customer is resolved globally (default behaviour).
     /// </summary>
     /// <param name="email">Email</param>
+    /// <param name="storeId">Store identifier (optional)</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomerByEmail(string email);
+    Task<Customer> GetCustomerByEmail(string email, string storeId = "");
 
     /// <summary>
     ///     Get customer by system group
@@ -118,11 +121,14 @@ public interface ICustomerService
     Task<Customer> GetCustomerBySystemName(string systemName);
 
     /// <summary>
-    ///     Get customer by username
+    ///     Get customer by username.
+    ///     When <paramref name="storeId" /> is supplied (per-store customer identity) the lookup is scoped to
+    ///     that store; when it is empty the customer is resolved globally (default behaviour).
     /// </summary>
     /// <param name="username">Username</param>
+    /// <param name="storeId">Store identifier (optional)</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomerByUsername(string username);
+    Task<Customer> GetCustomerByUsername(string username, string storeId = "");
 
     /// <summary>
     ///     Insert a guest customer

@@ -1,0 +1,58 @@
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+@* shown or hidden as a whole by the product type script in CreateOrUpdate.Info
+   (group-required-other-products); the picker's popup and refresh script travel with it *@
+<admin-card id="group-required-other-products">
+    <div class="grand-reveal">
+        <admin-field asp-for="RequireOtherProducts"/>
+        <div class="grand-reveal__body grand-fields">
+            @* the product picker is a field with a button and a progress line under it, so the
+               control is handed to admin-field rather than built from the metadata *@
+            <div class="grand-fields" id="pnlRequiredProductIds">
+                <admin-field asp-for="RequiredProductIds">
+                    <div class="input-group">
+                        <admin-input asp-for="RequiredProductIds"/>
+                        @if (!readOnly)
+                        {
+                            <a id="btnAddNewRequiredProduct"
+                               href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = area }))"
+                               class="btn btn-outline-secondary">
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.AddNew"]
+                            </a>
+                        }
+                    </div>
+                </admin-field>
+                <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
+                <input type="submit" id="btnRefreshRequiredProducts" style="display: none"/>
+                <span id="required-product-names" class="required-product-names"></span>
+            </div>
+            <admin-field asp-for="AutoAddRequiredProducts" id="pnlAutomaticallyAddRequiredProducts"/>
+        </div>
+    </div>
+</admin-card>
+
+<script>
+    $(document).ready(function () {
+        $('#btnAddNewRequiredProduct').magnificPopup({
+            type: 'ajax',
+            settings: { cache: false, async: false },
+            midClick: true,
+            callbacks: {
+                parseAjax: function (mfpResponse) {
+                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                },
+                ajaxContentAdded: function () {
+                    $('.mfp-wrap').removeAttr('tabindex');
+                }
+            }
+        });
+        $('#btnRefreshRequiredProducts').click(function () {
+            loadRequiredProductFriendlyNames();
+            return false;
+        });
+    });
+</script>

@@ -10,8 +10,9 @@ public interface ITaxCategoryService
     /// <summary>
     ///     Gets all tax categories
     /// </summary>
+    /// <param name="storeId">Store identifier; pass empty to return all</param>
     /// <returns>Tax categories</returns>
-    Task<IList<TaxCategory>> GetAllTaxCategories();
+    Task<IList<TaxCategory>> GetAllTaxCategories(string storeId = "");
 
     /// <summary>
     ///     Gets a tax category

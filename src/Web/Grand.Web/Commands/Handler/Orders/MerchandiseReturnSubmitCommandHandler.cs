@@ -7,7 +7,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Orders;
 

@@ -4,7 +4,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.Orders;
 
@@ -65,7 +65,7 @@ public class OrderTagService : IOrderTagService
     /// <returns>Order tags</returns>
     public virtual async Task<IList<OrderTag>> GetAllOrderTags()
     {
-        return await Task.FromResult(_orderTagRepository.Table.ToList());
+        return await _orderTagRepository.ToListAsync(_orderTagRepository.Table);
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ public class OrderTagService : IOrderTagService
         ArgumentNullException.ThrowIfNull(orderTag);
 
         //update orders
-        await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id);
+        await _orderRepository.RemoveCollectionFieldItem(string.Empty, x => x.OrderTags, y => y == orderTag.Id);
 
         //delete tag
         await _orderTagRepository.DeleteAsync(orderTag);
@@ -152,7 +152,7 @@ public class OrderTagService : IOrderTagService
     public virtual async Task AttachOrderTag(string orderTagId, string orderId)
     {
         //assign to product
-        await _orderRepository.AddToSet(orderId, x => x.OrderTags, orderTagId);
+        await _orderRepository.AddToCollectionField(orderId, x => x.OrderTags, orderTagId);
 
         var orderTag = await GetOrderTagById(orderTagId);
         //update product tag
@@ -173,7 +173,7 @@ public class OrderTagService : IOrderTagService
     /// <param name="orderId">Order ident</param>
     public virtual async Task DetachOrderTag(string orderTagId, string orderId)
     {
-        await _orderRepository.Pull(orderId, x => x.OrderTags, orderTagId);
+        await _orderRepository.RemoveCollectionFieldItem(orderId, x => x.OrderTags, y => y == orderTagId);
 
         var orderTag = await GetOrderTagById(orderTagId);
         //update product tag

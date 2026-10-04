@@ -35,47 +35,21 @@
         Layout = "_LayoutPopup";
     }
 
-    <script asp-location="Footer" asp-order="300">
-        function passwordProtect() {
-            var postData = {
-                id: document.getElementById("@Html.IdFor(model => model.Id)").value,
-                password: document.getElementById('password').value
-            };
-            addAntiForgeryToken(postData);
-
-            var bodyFormData = new FormData();
-            bodyFormData.append('id', document.getElementById("@Html.IdFor(model => model.Id)").value);
-            bodyFormData.append('password', document.getElementById('password').value);
-            bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-            axios({
-                method: 'post',
-                url: '@Url.RouteUrl("PageAuthenticate")',
-                data: bodyFormData,
-                headers: { 'Content-Type': 'multipart/form-data' }
-            }).then(function (response) {
-                if (response.data.Authenticated) {
-                    document.querySelector('#ph-page #ph-title h1').innerHTML = response.data.Title;
-                    if (document.querySelector('#ph-page #ph-title h1').innerText == '') {
-                        document.getElementById('ph-title').style.display = "none";
-                    }
-                    document.querySelector('#ph-page .page-body').innerHTML = response.data.Body;
-                    document.getElementById('ph-password').style.display = "none";
-                    document.getElementById('ph-page').style.display = "block";
-                }
-                else {
-                    document.getElementById('password-error').innerText = response.data.Error;
-                }
-            })
-        }
-
-        document.getElementById('ph-page').style.display = "none";        
-        document.addEventListener("keydown", (e) => {
-            if (e.key == "Enter"){
-                passwordProtect();
-            }
-        });
-    
-</script>
+    var idSuffix = "";
+    <script type="application/json" data-grand-vm="passwordPage">@Json.Serialize(new {
+                        route = Url.RouteUrl("PageAuthenticate"),
+                        submitOnEnter = true,
+                        elements = new {
+                            pageId = $"ph-page{idSuffix}",
+                            promptId = $"ph-password{idSuffix}",
+                            titleId = $"ph-title{idSuffix}",
+                            titleSelector = $"#ph-title{idSuffix} h1",
+                            errorId = $"password-error{idSuffix}",
+                            passwordId = $"password{idSuffix}",
+                            pageIdFieldId = Html.IdFor(m => m.Id)
+                        },
+                        res = new { warning = Loc["common.warning"].ToString() }
+                    })</script>
     <div class="page page-password" id="ph-password">
         <form id="passwordPage" asp-route="PageAuthenticate" method="post" onsubmit="return false">
             <input asp-for="Id" type="hidden"/>
@@ -84,9 +58,9 @@
             </div>
             <div class="enter-password-form">
                 @Html.Password("password", null, new { @class = "form-control mt-1" })
-                <b-button id="button-password" onclick="passwordProtect()" variant="secondary" class="page-password-button mt-1 mb-1">
+                <button class="btn btn-secondary page-password-button mt-1 mb-1" type="button" id="button-password" onclick="passwordProtect()">
                     @Loc["Page.Button"]
-                </b-button>
+                </button>
             </div>
             <div class="password-error text-danger h5 mt-1 mb-1">
                 <span id="password-error"></span>
@@ -98,7 +72,7 @@
     <div class="page-title" id="ph-title">
         <h1>@Model.Title</h1>
     </div>
-    <div class="page-body">
+    <div class="page-body" v-pre>
         @Html.Raw(Model.Body)
     </div>
 </div>

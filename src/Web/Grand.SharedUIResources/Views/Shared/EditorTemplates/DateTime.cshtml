@@ -1,10 +1,3 @@
 @model DateTime
-<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@(Model)"/>
-
-<script>
-    $(document).ready(function () {
-        $("#@Html.IdForModel()").kendoDateTimePicker({
-            culture: "@CultureInfo.CurrentCulture.Name"
-        });
-    });
-</script>
+<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@(Model)" data-grand-date="datetime"
+       data-grand-date-value="@Model.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture)"/>

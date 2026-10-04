@@ -7,12 +7,24 @@
         ratingPercent = Model.RatingSum * 100 / Model.TotalReviews / 5;
     }
 }
+@*
+    The island marker is load-bearing. Nothing on the vendor page's header carries
+    one, so without it this block is markup no island compiles: the <template v-if>
+    below renders nothing and <b-form-rating> stays an unknown element - no error,
+    no stars. It only shows up once a vendor has AllowCustomerReviews set, which is
+    a per-vendor field, so the seed store hides the problem.
+
+    Safe as a mount point: the itemprop attributes are Razor's, and this element
+    carries no Vue directive of its own - Vue reads a mount point's innerHTML and
+    would ignore one.
+*@
 @if (Model.AllowCustomerReviews)
 {
     <div class="vendor-reviews-overview d-inline-flex align-items-center flex-wrap"
+         vue-island="vendorreviewsoverview vendorreviews"
          @if (Model.TotalReviews > 0)
          {
-             <text> itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating" </text>
+             <text> itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating" </text>
          }>
         @{
             double ratingValue = 0;
@@ -25,10 +37,10 @@
             <b-form-rating id="rating-inline" class="p-0" variant="warning" no-border size="sm" show-value precision="2" v-model="vendorreviewsoverview.rating" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
             <template v-if="vendorreviewsoverview.Model.TotalReviews > 0">
                 <div class="product-review-links order-3">
-                    <b-button variant="outline-info" size="sm" class="review-scroll-button" @@click="active = true" href="#review-tab___BV_tab_button__">
+                    <a class="btn btn-outline-info btn-sm review-scroll-button" href="#review-tab" role="button" @@click="document.getElementById('review-tab-tab').click()">
                         {{vendorreviewsoverview.Model.TotalReviews}}
                         @Loc["Reviews.Overview.Reviews"]
-                    </b-button>
+                    </a>
                 </div>
                 @{
                     var ratingValuee = ratingPercent / (double)20;
@@ -45,23 +57,4 @@
         </div>
     </div>
 }
-<script asp-location="Footer" asp-order="300">
-    var vendorreviewsoverview = new Vue({
-        data: function () {
-            return {
-                Model: null,
-                rating: 0
-            }
-        },
-        created() {
-            this.Model = @Json.Serialize(Model);
-        },
-        watch: {
-            Model: function() {
-                const RatingSum = this.Model.RatingSum;
-                const TotalReviews = this.Model.TotalReviews;
-                this.rating = RatingSum / TotalReviews;
-            }
-        }
-    })
-</script>
+<script type="application/json" data-grand-vm="vendorReviewOverview">@Json.Serialize(new { model = Model })</script>

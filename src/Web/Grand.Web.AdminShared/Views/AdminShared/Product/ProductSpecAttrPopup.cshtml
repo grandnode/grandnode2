@@ -1,0 +1,126 @@
+﻿@model ProductModel.AddProductSpecificationAttributeModel
+@{
+    Layout = "";
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form id="ProductSpecificationPopup" asp-area="@area"
+      asp-controller="Product" asp-action="ProductSpecAttrPopup"
+      enctype="multipart/form-data" method="post"
+      asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
+      asp-route-Id="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])">
+
+    <div asp-validation-summary="All"></div>
+    <input asp-for="ProductId" type="hidden"/>
+    <input asp-for="Id" type="hidden"/>
+
+    @* the pnl* and disableOnCustom ids are what the script below shows and hides per type *@
+    <admin-popup title="@(string.IsNullOrEmpty(Model.Id) ? Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddNew"] : Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Edit"])" icon="bi-list-check">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="AttributeTypeId" asp-items="EnumTranslationService.ToSelectList(Model.AttributeTypeId)"/>
+            <admin-field asp-for="SpecificationAttributeId" id="disableOnCustom" asp-items="Model.AvailableAttributes"/>
+            <admin-field asp-for="SpecificationAttributeOptionId" id="pnlSpecificationAttributeOptionId" asp-items="Model.AvailableOptions"/>
+            <admin-field asp-for="CustomName" id="pnlCustomName"/>
+            <admin-field asp-for="CustomValue" id="pnlCustomValue"/>
+            <admin-field asp-for="DisplayOrder" size="sm"/>
+            <admin-field asp-for="AllowFiltering" id="pnlAllowFiltering"/>
+            <admin-field asp-for="ShowOnProductPage"/>
+        </div>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
+
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductSpecificationPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductSpec').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        $("#@Html.IdFor(model => model.SpecificationAttributeId)").change(function() {
+                var selectedAttributeId = $(this).val();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetOptionsByAttributeId", "Product", new { area = area }))",
+                    data: { "attributeId": selectedAttributeId },
+                    success: function (data) {
+                        var ddlSpecOptions = $("#@Html.IdFor(model => model.SpecificationAttributeOptionId)");
+                        ddlSpecOptions.html('');
+                        $.each(data, function (id, option) {
+                            var selected = '';
+                            if ('@Model.SpecificationAttributeOptionId' == option.id) {
+                                selected = ' selected '
+                            }
+                            ddlSpecOptions.append($('<option ' + selected+'></option>').val(option.id).text(option.name));
+                        });
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve specification options.');
+                    }
+                });
+            });
+
+        $(document).ready(function() {
+            $("#@Html.IdFor(model => model.AttributeTypeId)").change(toggleAttributeType);
+            $("#@Html.IdFor(model => model.SpecificationAttributeId)").change();
+            toggleAttributeType();
+        });
+
+
+        function toggleAttributeType() {
+            var selectedTypeId = $("#@Html.IdFor(model => model.AttributeTypeId)").val();
+            if (selectedTypeId == @(((int)SpecificationAttributeType.Option).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').show();
+                $('#pnlCustomValue').hide();
+                $('#pnlCustomName').hide();
+                $('#disableOnCustom').show();
+                $('#pnlAllowFiltering').show();
+            } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomText).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
+                $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#pnlAllowFiltering').hide();
+            } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomHtmlText).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
+                $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#pnlAllowFiltering').hide();
+            } else if (selectedTypeId == @(((int)SpecificationAttributeType.Hyperlink).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
+                $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#pnlAllowFiltering').hide();
+            }
+        }
+    </script>
+</form>

@@ -1,0 +1,106 @@
+@model MerchandiseReturnListModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.MerchandiseReturns"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="MerchandiseReturn" asp-action="List" method="post">
+
+    @* The product list's shape: the customer's email as the quick search with the rest of the
+       criteria behind the Filters toggle, and the grid in a flush card. A return is raised by the
+       customer, so there is no Add new and Search is the one primary action. *@
+    <admin-page title="@Loc["Admin.Orders.MerchandiseReturns"]" icon="bi-truck">
+        <page-actions>
+            <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
+        </page-actions>
+
+        <admin-filters id="merchandisereturn-filters" submit-id="search-returnreqest">
+            <filters-search>
+                <admin-input asp-for="SearchCustomerEmail"/>
+            </filters-search>
+            <admin-field asp-for="GoDirectlyToId">
+                <div class="input-group">
+                    <admin-input asp-for="GoDirectlyToId"/>
+                    <input type="submit" id="go-to-merchandisereturn" asp-action="GoToId" name="go-to-merchandisereturn"
+                           class="btn btn-outline-secondary" value="@Loc["Admin.Common.Go"]"/>
+                </div>
+            </admin-field>
+            <admin-field asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus"/>
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+        </admin-filters>
+
+        <admin-card flush>
+            <admin-grid id="merchandisereturns-grid"
+                        read-url="@Url.Action("List", "MerchandiseReturn", new { area = area })"
+                        additional-data="additionalData">
+                <grid-column field="ReturnNumber" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]" width="50">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ ReturnNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Quantity }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Total" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]" width="100">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Total }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="CustomerId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]" width="200">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="OrderId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]" width="80">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="MerchandiseReturnStatusStr" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]" width="130">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ MerchandiseReturnStatusStr }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="CreatedOn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
+</form>
+
+<script>
+    function additionalData() {
+        var data = {
+            SearchMerchandiseReturnStatusId: $('#@Html.IdFor(model => model.SearchMerchandiseReturnStatusId)').val(),
+            SearchCustomerEmail: $('#@Html.IdFor(model => model.SearchCustomerEmail)').val(),
+            StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#search-returnreqest').click(function () {
+            //search
+            var grid = GrandAdmin.grids.get('#merchandisereturns-grid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.SearchCustomerEmail)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-returnreqest").click();
+                return false;
+            }
+        });
+        $("#@Html.IdFor(model => model.GoDirectlyToId)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#go-to-merchandisereturn").click();
+                return false;
+            }
+        });
+    });
+    </script>

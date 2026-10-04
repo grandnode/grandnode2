@@ -69,7 +69,7 @@ public class PaymentService : IPaymentService
         if (selectedShippingOption == null) return await Task.FromResult(pm);
         for (var i = pm.Count - 1; i >= 0; i--)
         {
-            var restrictedGroupIds =await  GetRestrictedShippingIds(pm[i]);
+            var restrictedGroupIds =await  GetRestrictedShippingIds(pm[i], storeId);
             if (restrictedGroupIds.Contains(selectedShippingOption.Name)) pm.Remove(pm[i]);
         }
 
@@ -109,7 +109,7 @@ public class PaymentService : IPaymentService
         var filteredPaymentMethods = new List<IPaymentProvider>();
         foreach (var pm in paymentMethods)
         {
-            var restrictedCountryIds = await GetRestrictedCountryIds(pm);
+            var restrictedCountryIds = await GetRestrictedCountryIds(pm, storeId);
             if (!restrictedCountryIds.Contains(filterByCountryId))
             {
                 filteredPaymentMethods.Add(pm);
@@ -123,12 +123,12 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <returns>A list of country identifiers</returns>
-    public virtual async Task<IList<string>> GetRestrictedCountryIds(IPaymentProvider paymentMethod)
+    public virtual async Task<IList<string>> GetRestrictedCountryIds(IPaymentProvider paymentMethod, string storeId = "")
     {
         ArgumentNullException.ThrowIfNull(paymentMethod);
 
         var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
-        var restrictedCountryIds = await _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
+        var restrictedCountryIds = await _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey, storeId: storeId);
         return restrictedCountryIds == null ? new List<string>() : restrictedCountryIds.Ids;
     }
 
@@ -137,12 +137,12 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <returns>A list of role identifiers</returns>
-    public virtual async Task<IList<string>> GetRestrictedShippingIds(IPaymentProvider paymentMethod)
+    public virtual async Task<IList<string>> GetRestrictedShippingIds(IPaymentProvider paymentMethod, string storeId = "")
     {
         ArgumentNullException.ThrowIfNull(paymentMethod);
 
         var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
-        var restrictedShippingIds = await _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
+        var restrictedShippingIds = await _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey, storeId: storeId);
         return restrictedShippingIds == null ? new List<string>() : restrictedShippingIds.Ids;
     }
 
@@ -151,12 +151,12 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <param name="countryIds">A list of country identifiers</param>
-    public virtual async Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds)
+    public virtual async Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds, string storeId = "")
     {
         ArgumentNullException.ThrowIfNull(paymentMethod);
 
         var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
-        await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = countryIds });
+        await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = countryIds }, storeId);
     }
 
     /// <summary>
@@ -177,12 +177,12 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <param name="shippingIds">A list of country identifiers</param>
-    public virtual async Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds)
+    public virtual async Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds, string storeId = "")
     {
         ArgumentNullException.ThrowIfNull(paymentMethod);
 
         var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
-        await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = shippingIds });
+        await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = shippingIds }, storeId);
     }
 
     /// <summary>

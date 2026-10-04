@@ -2,23 +2,13 @@
 @{
     Layout = "_SingleColumn";
 }
-<script asp-location="Footer">
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelector('#agreement-agree').addEventListener('change', function () {
-            if (document.getElementById('agreement-agree').checked) {
-                document.getElementById('continue-downloading').classList.remove('disabled');
-            } else {
-                document.getElementById('continue-downloading').classList.add('disabled');
-            }
-        });
-    });
-</script>
+<script type="application/json" data-grand-vm="enableWhenChecked">{"elements":{"checkboxId":"agreement-agree","targetId":"continue-downloading"}}</script>
 <div class="page user-agreement-page">
     <h1 class="generalTitle h2 text-xs-center">@Loc["DownloadableProducts.UserAgreement"]</h1>
     <div class="terms-of-agreement text-xs-center">
-        <label class="custom-control custom-checkbox">
-            <input id="agreement-agree" class="custom-control-input" type="checkbox" value="@Loc["DownloadableProducts.IAgree"]"/>
-            <span class="custom-control-label"></span>
+        <label class="form-check">
+            <input id="agreement-agree" class="form-check-input" type="checkbox" value="@Loc["DownloadableProducts.IAgree"]"/>
+            <span class="form-check-label"></span>
             <span class="custom-control-description">@Html.Raw(Model.UserAgreementText)</span>
         </label>
     </div>

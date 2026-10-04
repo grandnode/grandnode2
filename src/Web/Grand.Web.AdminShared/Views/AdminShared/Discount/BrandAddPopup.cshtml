@@ -1,0 +1,92 @@
+@model DiscountModel.AddBrandToDiscountModel
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<form id="BrandAddPopup" asp-area="@area" asp-controller="Discount" asp-action="BrandAddPopup" method="post"
+      asp-route-DiscountId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["DiscountId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
+    <admin-popup title="@Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"]" icon="bi-boxes">
+        <admin-filters id="search-brands-filters" submit-id="search-brands" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchBrandName"/>
+            </filters-search>
+        </admin-filters>
+        <admin-card flush>
+            <admin-grid id="brands-grid"
+                        read-url="@Url.Action("BrandAddPopupList", "Discount", new { area = area })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        selection-name="SelectedBrandIds">
+                <grid-column field="Name" title="@Loc["Admin.Catalog.Brands.Fields.Name"]"/>
+            </admin-grid>
+        </admin-card>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
+
+    <script>
+            var mfp = $.magnificPopup.instance;
+            $("#BrandAddPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefreshBrands').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+
+            $('#search-brands').click(function() {
+                var grid = GrandAdmin.grids.get('#brands-grid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                grid.clearSelection();
+                return false;
+            });
+
+            $("#@Html.IdFor(model => model.SearchBrandName)").keydown(function(event) {
+                if (event.keyCode == 13) {
+                    $("#search-brands").click();
+                    return false;
+                }
+            });
+
+        function additionalData() {
+            var data = {
+                SearchBrandName: $('#@Html.IdFor(model => model.SearchBrandName)').val(),
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+    </script>
+
+</form>

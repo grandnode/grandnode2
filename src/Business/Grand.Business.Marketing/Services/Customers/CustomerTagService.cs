@@ -1,11 +1,11 @@
-using Grand.Business.Core.Interfaces.Marketing.Customers;
+﻿using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Customers;
 
@@ -45,7 +45,7 @@ public class CustomerTagService : ICustomerTagService
         var query = from c in _customerRepository.Table
             where c.CustomerTags.Contains(customerTagId)
             select c;
-        return await PagedList<Customer>.Create(query, pageIndex, pageSize);
+        return await _customerRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class CustomerTagService : ICustomerTagService
         ArgumentNullException.ThrowIfNull(customerTag);
 
         //update customer
-        await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id);
+        await _customerRepository.RemoveCollectionFieldItem(string.Empty, x => x.CustomerTags, y => y == customerTag.Id);
 
         //delete
         await _customerTagRepository.DeleteAsync(customerTag);
@@ -72,7 +72,7 @@ public class CustomerTagService : ICustomerTagService
     /// <returns>Customer tags</returns>
     public virtual async Task<IList<CustomerTag>> GetAllCustomerTags()
     {
-        return await Task.FromResult(_customerTagRepository.Table.ToList());
+        return await _customerTagRepository.ToListAsync(_customerTagRepository.Table);
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public class CustomerTagService : ICustomerTagService
             where pt.Name == name
             select pt;
 
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _customerTagRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class CustomerTagService : ICustomerTagService
         var query = from pt in _customerTagRepository.Table
             where pt.Name.ToLower().Contains(name.ToLower())
             select pt;
-        return await Task.FromResult(query.ToList());
+        return await _customerTagRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     public virtual async Task InsertTagToCustomer(string customerTagId, string customerId)
     {
-        await _customerRepository.AddToSet(customerId, x => x.CustomerTags, customerTagId);
+        await _customerRepository.AddToCollectionField(customerId, x => x.CustomerTags, customerTagId);
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     public virtual async Task DeleteTagFromCustomer(string customerTagId, string customerId)
     {
-        await _customerRepository.Pull(customerId, x => x.CustomerTags, customerTagId);
+        await _customerRepository.RemoveCollectionFieldItem(customerId, x => x.CustomerTags, y => y == customerTagId);
     }
 
     /// <summary>
@@ -195,7 +195,7 @@ public class CustomerTagService : ICustomerTagService
                 where cr.CustomerTagId == customerTagId
                 orderby cr.DisplayOrder
                 select cr;
-            return await Task.FromResult(query.ToList());
+            return await _customerTagProductRepository.ToListAsync(query);
         });
     }
 
@@ -211,7 +211,7 @@ public class CustomerTagService : ICustomerTagService
             where cr.CustomerTagId == customerTagId && cr.ProductId == productId
             orderby cr.DisplayOrder
             select cr;
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _customerTagProductRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>

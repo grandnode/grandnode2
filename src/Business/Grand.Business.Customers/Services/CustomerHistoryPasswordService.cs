@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Customers.Services;
 
@@ -47,11 +47,11 @@ public class CustomerHistoryPasswordService : ICustomerHistoryPasswordService
     /// <returns>List of customer passwords</returns>
     public virtual async Task<IList<CustomerHistoryPassword>> GetPasswords(string customerId, int passwordsToReturn)
     {
-        return await Task.FromResult(_customerHistoryPasswordProductRepository
-            .Table
-            .Where(x => x.CustomerId == customerId)
-            .OrderByDescending(password => password.CreatedOnUtc)
-            .Take(passwordsToReturn)
-            .ToList());
+        return await _customerHistoryPasswordProductRepository.ToListAsync(
+            _customerHistoryPasswordProductRepository
+                .Table
+                .Where(x => x.CustomerId == customerId)
+                .OrderByDescending(password => password.CreatedOnUtc)
+                .Take(passwordsToReturn));
     }
 }

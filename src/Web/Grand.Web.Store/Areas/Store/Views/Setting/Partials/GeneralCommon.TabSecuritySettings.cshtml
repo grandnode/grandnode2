@@ -1,0 +1,91 @@
+﻿@model GeneralCommonSettingsModel
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.SecuritySettings.CaptchaEnabled)").click(toggleReCaptcha);
+        toggleReCaptcha();
+    });
+
+    function toggleReCaptcha() {
+        if ($('#@Html.IdFor(model => model.SecuritySettings.CaptchaEnabled)').is(':checked')) {
+            $('#ssCaptchaShowOnLoginPagepnl').show();
+            $('#ssCaptchaShowOnRegistrationPagepnl').show();
+            $('#ssCaptchaShowOnPasswordRecoverPagepnl').show();
+            $('#ssCaptchaShowOnContactUsPagepnl').show();
+            $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').show();
+            $('#ssCaptchaShowOnEmailProductToFriendPagepnl').show();
+            $('#ssCaptchaShowOnAskQuestionPagepnl').show();
+            $('#ssCaptchaShowOnBlogCommentPagepnl').show();
+            $('#ssCaptchaShowOnArticleCommentPagepnl').show();
+            $('#ssCaptchaShowOnNewsCommentPagepnl').show();
+            $('#ssCaptchaShowOnProductReviewPagepnl').show();
+            $('#ssReCaptchaPublicKeypnl').show();
+            $('#ssCaptchaShowOnApplyVendorPagepnl').show();
+            $('#ssReCaptchaPrivateKeypnl').show();
+            $('#ssReCaptchaVersionpnl').show();
+            $('#ssCaptchaShowOnVendorReviewPagepnl').show();
+            $('#ssReCaptchaScorepnl').show();
+            $('#ssReCaptchaThemepnl').show();
+        }
+        else {
+            $('#ssCaptchaShowOnLoginPagepnl').hide();
+            $('#ssCaptchaShowOnRegistrationPagepnl').hide();
+            $('#ssCaptchaShowOnPasswordRecoverPagepnl').hide();
+            $('#ssCaptchaShowOnContactUsPagepnl').hide();
+            $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').hide();
+            $('#ssCaptchaShowOnEmailProductToFriendPagepnl').hide();
+            $('#ssCaptchaShowOnAskQuestionPagepnl').hide();
+            $('#ssCaptchaShowOnBlogCommentPagepnl').hide();
+            $('#ssCaptchaShowOnArticleCommentPagepnl').hide();
+            $('#ssCaptchaShowOnNewsCommentPagepnl').hide();
+            $('#ssCaptchaShowOnProductReviewPagepnl').hide();
+            $('#ssReCaptchaPublicKeypnl').hide();
+            $('#ssCaptchaShowOnApplyVendorPagepnl').hide();
+            $('#ssReCaptchaPrivateKeypnl').hide();
+            $('#ssReCaptchaVersionpnl').hide();
+            $('#ssCaptchaShowOnVendorReviewPagepnl').hide();
+            $('#ssReCaptchaScorepnl').hide();
+            $('#ssReCaptchaThemepnl').hide();
+        }
+    }
+</script>
+@* the CAPTCHA switch with every page it guards and the reCAPTCHA keys revealed under it.
+   No admin IP allow-list here: it guards the back office of every store, so it is managed
+   in the Admin only, and the Store SettingController never saved it anyway *@
+<admin-card>
+    <div class="note note-info">
+        A CAPTCHA is a program that can tell whether its user is a human or a computer.
+        You've probably seen them — colorful images with distorted text at the bottom of
+        Web registration forms. CAPTCHAs are used by many websites to prevent abuse from
+        "bots," or automated programs usually written to generate spam. No computer program
+        can read distorted text as well as humans can, so bots cannot navigate sites protected
+        by CAPTCHAs. <a href="http://www.google.com/recaptcha" target="_blank">reCAPTCHA</a>.
+    </div>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="SecuritySettings.CaptchaEnabled"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="SecuritySettings.ReCaptchaVersion" id="ssReCaptchaVersionpnl" asp-items="Model.SecuritySettings.AvailableReCaptchaVersions" size="md"/>
+                <admin-field asp-for="SecuritySettings.ReCaptchaTheme" id="ssReCaptchaThemepnl"/>
+                <admin-field asp-for="SecuritySettings.ReCaptchaPublicKey" id="ssReCaptchaPublicKeypnl"/>
+                <admin-field asp-for="SecuritySettings.ReCaptchaPrivateKey" id="ssReCaptchaPrivateKeypnl"/>
+                <admin-field asp-for="SecuritySettings.ReCaptchaScore" id="ssReCaptchaScorepnl" size="sm"/>
+            </div>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnLoginPage" id="ssCaptchaShowOnLoginPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnRegistrationPage" id="ssCaptchaShowOnRegistrationPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnPasswordRecoveryPage" id="ssCaptchaShowOnPasswordRecoverPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnContactUsPage" id="ssCaptchaShowOnContactUsPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage" id="ssCaptchaShowOnEmailWishlistToFriendPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnEmailProductToFriendPage" id="ssCaptchaShowOnEmailProductToFriendPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnAskQuestionPage" id="ssCaptchaShowOnAskQuestionPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnBlogCommentPage" id="ssCaptchaShowOnBlogCommentPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnArticleCommentPage" id="ssCaptchaShowOnArticleCommentPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnNewsCommentPage" id="ssCaptchaShowOnNewsCommentPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnProductReviewPage" id="ssCaptchaShowOnProductReviewPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnApplyVendorPage" id="ssCaptchaShowOnApplyVendorPagepnl"/>
+                <admin-field asp-for="SecuritySettings.CaptchaShowOnVendorReviewPage" id="ssCaptchaShowOnVendorReviewPagepnl"/>
+            </div>
+        </div>
+    </div>
+</admin-card>

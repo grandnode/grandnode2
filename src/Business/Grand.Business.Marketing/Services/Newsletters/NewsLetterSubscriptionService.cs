@@ -7,7 +7,8 @@ using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
+using System.IO;
 
 namespace Grand.Business.Marketing.Services.Newsletters;
 
@@ -237,7 +238,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
             query = query.Where(c => c.Categories.Any(x => categoryIds.Contains(x)));
 
         query = query.OrderBy(nls => nls.Email);
-        return await PagedList<NewsLetterSubscription>.Create(query, pageIndex, pageSize);
+        return await _subscriptionRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -278,9 +279,9 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     {
         var count = 0;
         using var reader = new StreamReader(stream);
-        while (!reader.EndOfStream)
+        string line;
+        while ((line = await reader.ReadLineAsync()) is not null)
         {
-            var line = await reader.ReadLineAsync();
             if (string.IsNullOrWhiteSpace(line))
                 continue;
             var tmp = line.Split(',');

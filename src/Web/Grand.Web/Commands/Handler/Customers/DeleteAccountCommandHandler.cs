@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Localization;
 using Grand.Web.Commands.Models.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Customers;
 

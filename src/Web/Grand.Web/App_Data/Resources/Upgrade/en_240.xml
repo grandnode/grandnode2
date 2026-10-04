@@ -1,0 +1,558 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+	<Resource Name="shoppingcart.estimateshipping.failed" Area="Front">
+		<Value>We could not work out a shipping estimate. Please try again.</Value>
+	</Resource>
+	<Resource Name="common.darkmode" Area="Front">
+		<Value>Dark mode</Value>
+	</Resource>
+	<Resource Name="catalog.loadfailed" Area="Front">
+		<Value>We could not load the products. Please try again.</Value>
+	</Resource>
+	<Resource Name="common.skiptocontent" Area="Front">
+		<Value>Skip to main content</Value>
+	</Resource>
+	<Resource Name="Countdown.Days" Area="Front">
+		<Value>d</Value>
+	</Resource>
+	<Resource Name="Countdown.Hours" Area="Front">
+		<Value>h</Value>
+	</Resource>
+	<Resource Name="Countdown.Minutes" Area="Front">
+		<Value>m</Value>
+	</Resource>
+	<Resource Name="Countdown.Seconds" Area="Front">
+		<Value>s</Value>
+	</Resource>
+	<Resource Name="validation.required" Area="Front">
+		<Value>This field is required.</Value>
+	</Resource>
+	<Resource Name="validation.email" Area="Front">
+		<Value>This field must be a valid email.</Value>
+	</Resource>
+	<Resource Name="validation.confirmed" Area="Front">
+		<Value>The confirmation does not match.</Value>
+	</Resource>
+	<Resource Name="validation.minlength" Area="Front">
+		<Value>This field should be at least {0} characters.</Value>
+	</Resource>
+	<Resource Name="validation.maxlength" Area="Front">
+		<Value>This field should be at most {0} characters.</Value>
+	</Resource>
+	<Resource Name="validation.exactlength" Area="Front">
+		<Value>Select at least {0} option.</Value>
+	</Resource>
+	<Resource Name="validation.invalid" Area="Front">
+		<Value>Invalid value.</Value>
+	</Resource>
+	<Resource Name="Admin.GiftVouchers.Permissions" Area="Admin">
+		<Value>You can't edit this gift voucher, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Stores.Fields.Url.WrongFormat" Area="Admin">
+		<Value>Wrong format of the URL - provide the full address including the scheme (e.g. https://yourstore.com/)</Value>
+	</Resource>
+	<Resource Name="admin.address.addressattributes.fields.limitedtostores" Area="Admin">
+		<Value>Limited to stores</Value>
+	</Resource>
+	<Resource Name="admin.address.addressattributes.globalreadonly" Area="Admin">
+		<Value>Global attribute - read only</Value>
+	</Resource>
+	<Resource Name="admin.Catalog.attributes.checkoutAttributes.permissions" Area="Admin">
+		<Value>You can't edit this checkout attribute.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.attributes.contactattributes.globalreadonly" Area="Admin">
+		<Value>Global attribute - read only</Value>
+	</Resource>
+	<Resource Name="admin.Catalog.attributes.productattributes.permissions" Area="Admin">
+		<Value>You can't edit this product attribute.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.attributes.specificationattributes.permissions" Area="Admin">
+		<Value>You can't edit this specification attribute.</Value>
+	</Resource>
+	<Resource Name="admin.common.actions" Area="Admin">
+		<Value>Actions</Value>
+	</Resource>
+	<Resource Name="admin.common.copy" Area="Admin">
+		<Value>Copy</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.assignstore" Area="Admin">
+		<Value>Assign to store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cannotmodifyglobal" Area="Admin">
+		<Value>Global currencies cannot be modified by store owners.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantlimitstores" Area="Admin">
+		<Value>The store '{0}' would be left without an available currency.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantunassigndefault" Area="Admin">
+		<Value>The default store currency can't be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantunassignlast" Area="Admin">
+		<Value>At least one currency must remain available for your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notassignedtostore" Area="Admin">
+		<Value>This currency is not assigned to your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notdefaultcurrency" Area="Admin">
+		<Value>This currency is not the default currency for your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notfound" Area="Admin">
+		<Value>Currency not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notpublished" Area="Admin">
+		<Value>This currency is not published.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.setdefaultcurrency" Area="Admin">
+		<Value>Set as default currency</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.unassignstore" Area="Admin">
+		<Value>Unassign from store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.unsetdefaultcurrency" Area="Admin">
+		<Value>Unset as default currency</Value>
+	</Resource>
+	<Resource Name="admin.configuration.emailaccounts.entertestemail" Area="Admin">
+		<Value>Enter a test email address</Value>
+	</Resource>
+	<Resource Name="admin.configuration.emailaccounts.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.assignstore" Area="Admin">
+		<Value>Assign to store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.cannotmodifyglobal" Area="Admin">
+		<Value>Global languages cannot be modified by store owners.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.cantdeleteprimary" Area="Admin">
+		<Value>The primary store language can't be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.cantunassigndefault" Area="Admin">
+		<Value>The default store language can't be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.fields.isprimarystorelanguage" Area="Admin">
+		<Value>Is primary store language</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notassignedtostore" Area="Admin">
+		<Value>This language is not assigned to your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notdefaultlanguage" Area="Admin">
+		<Value>This language is not the default language for your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notfound" Area="Admin">
+		<Value>Language not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notpublished" Area="Admin">
+		<Value>This language is not published.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.setdefaultlanguage" Area="Admin">
+		<Value>Set as default language</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.unassignstore" Area="Admin">
+		<Value>Unassign from store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.unsetdefaultlanguage" Area="Admin">
+		<Value>Unset as default language</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.alreadyassignedtootherstore" Area="Admin">
+		<Value>Delivery date is already assigned to another store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.notassignedtostore" Area="Admin">
+		<Value>Delivery date is not assigned to this store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.notfound" Area="Admin">
+		<Value>Delivery date not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.selectstore" Area="Admin">
+		<Value>Select store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.methods.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.methods.selectstore" Area="Admin">
+		<Value>Select store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.pickuppoints.alreadyassignedtootherstore" Area="Admin">
+		<Value>Pickup point is already assigned to another store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.pickuppoints.notassignedtostore" Area="Admin">
+		<Value>Pickup point is not assigned to this store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.pickuppoints.notfound" Area="Admin">
+		<Value>Pickup point not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.alreadyassignedtootherstore" Area="Admin">
+		<Value>Warehouse is already assigned to another store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.notassignedtostore" Area="Admin">
+		<Value>Warehouse is not assigned to this store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.notfound" Area="Admin">
+		<Value>Warehouse not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.selectstore" Area="Admin">
+		<Value>Select store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.stores.notfound" Area="Admin">
+		<Value>Store not found.</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.copied" Area="Admin">
+		<Value>The message template has been copied.</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.fields.name.alreadyexists" Area="Admin">
+		<Value>A message template with the same name already exists for this store.</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.tab.global" Area="Admin">
+		<Value>Global</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.tab.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.content.news.permissions" Area="Admin">
+		<Value>You can't edit this news, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.copy.duplicatesystemname" Area="Admin">
+		<Value>A page with the same system name already exists for this store.</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.list.globalpages" Area="Admin">
+		<Value>Global Pages</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.list.storepages" Area="Admin">
+		<Value>Store Pages</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.permissions" Area="Admin">
+		<Value>Warning: This page is shared across multiple stores. Changes may affect other stores.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customerattributes.fields.limitedtostores" Area="Admin">
+		<Value>Limited to stores</Value>
+	</Resource>
+	<Resource Name="admin.customers.customerattributes.globalreadonly" Area="Admin">
+		<Value>Global attribute - read only</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.store.mustbecurrentstore" Area="Admin">
+		<Value>As a store manager you can only assign the customer to your own store</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.store.required" Area="Admin">
+		<Value>Store is required</Value>
+	</Resource>
+	<Resource Name="admin.settings.catalog.defaultpagesize" Area="Admin">
+		<Value>Default page size</Value>
+	</Resource>
+	<Resource Name="admin.settings.catalog.DefaultPageSizeOptions" Area="Admin">
+		<Value>Default page size options (3,6,9) comma separated</Value>
+	</Resource>
+	<Resource Name="permission.AccessStorePanel" Area="Admin">
+		<Value>Access Store Manager Panel</Value>
+	</Resource>
+	<Resource Name="store.portal" Area="Front">
+		<Value>Store portal</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.cancelchanges" Area="Admin">
+		<Value>Cancel changes</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.firstpage" Area="Admin">
+		<Value>Go to the first page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.itemsperpage" Area="Admin">
+		<Value>items per page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.lastpage" Area="Admin">
+		<Value>Go to the last page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.nextpage" Area="Admin">
+		<Value>Go to the next page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.norecords" Area="Admin">
+		<Value>No items to display</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.pageinfo" Area="Admin">
+		<Value>{0} - {1} of {2} items</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.previouspage" Area="Admin">
+		<Value>Go to the previous page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.refresh" Area="Admin">
+		<Value>Refresh</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.selectall" Area="Admin">
+		<Value>Select all rows on this page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.selectrow" Area="Admin">
+		<Value>Select row</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.toggledetail" Area="Admin">
+		<Value>Show or hide details</Value>
+	</Resource>
+	<Resource Name="admin.catalog.brands.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.brands.fields.collectionlayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the brand. Brand layouts are managed under Configuration → Layouts → Brand layouts.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.categories.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.categories.fields.categorylayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the category. Category layouts are managed under Configuration → Layouts → Category layouts.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.collections.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.collections.fields.collectionlayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the collection. Collection layouts are managed under Configuration → Layouts → Collection layouts.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.productlayout.hint" Area="Admin">
+		<Value>Select the frontend appearance of the product. Product layouts are managed under Configuration → Layouts → Product layouts.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.taxcategory.hint" Area="Admin">
+		<Value>Select the tax category for this product. Tax categories are managed under Configuration → Tax → Tax categories.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.vendor.hint" Area="Admin">
+		<Value>Select a vendor that manages this product. Vendors are managed under Customers → Vendors.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.specificationattributes.fields.specificationattribute.hint" Area="Admin">
+		<Value>Choose a product specification attribute. Specification attributes are managed under Catalog → Specification attributes.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customergroups.products.info" Area="Admin">
+		<Value>To increase the general performance of the larger stores, recommended products are ignored by default. You can enable them in the Performance tab of &lt;a href="/Admin/Setting/Catalog" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Catalog settings - section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.seid.hint" Area="Admin">
+		<Value>Choose a sales employee associated to this customer account. Sales employees are managed under Customers → Sales employees.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customertags.products.info" Area="Admin">
+		<Value>To increase the general performance of the larger stores, suggested products are ignored by default. You can enable them in the Performance tab of &lt;a href="/Admin/Setting/Catalog" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Catalog settings - section&lt;/a&gt;.</Value>
+	</Resource>
+	<Resource Name="admin.documents.document.fields.seid.hint" Area="Admin">
+		<Value>Choose a sales employee associated to this customer account. Sales employees are managed under Customers → Sales employees.</Value>
+	</Resource>
+	<Resource Name="admin.settings.catalog.savesearchautocomplete.hint" Area="Admin">
+		<Value>If checked, the most popular search keywords are shown under Dashboard → Statistics.</Value>
+	</Resource>
+	<Resource Name="admin.settings.generalcommon.displaycookieinformation.hint" Area="Admin">
+		<Value>Enable the cookie bar notification. You can customize it by editing the cookie.description2 resource string under Configuration → Languages.</Value>
+	</Resource>
+	<Resource Name="admin.vendors.discounts.nodiscounts" Area="Admin">
+		<Value>There are no configured discounts. Create at least one discount in the &lt;a href="/Admin/Discount/List" class="color-text" target="_blank"&gt;&lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Discounts section&lt;/a&gt;</Value>
+	</Resource>
+	<Resource Name="admin.common.calendar.nextmonth" Area="Admin">
+		<Value>Next month</Value>
+	</Resource>
+	<Resource Name="admin.common.calendar.open" Area="Admin">
+		<Value>Open the calendar</Value>
+	</Resource>
+	<Resource Name="admin.common.calendar.previousmonth" Area="Admin">
+		<Value>Previous month</Value>
+	</Resource>
+	<Resource Name="admin.common.today" Area="Admin">
+		<Value>Today</Value>
+	</Resource>
+	<Resource Name="admin.common.zipfile" Area="Admin">
+		<Value>Zip file</Value>
+	</Resource>
+	<Resource Name="admin.content.knowledgebase.node.type" Area="Admin">
+		<Value>Type</Value>
+	</Resource>
+	<Resource Name="admin.content.knowledgebase.node.category" Area="Admin">
+		<Value>Category</Value>
+	</Resource>
+	<Resource Name="admin.content.knowledgebase.node.article" Area="Admin">
+		<Value>Article</Value>
+	</Resource>
+	<Resource Name="admin.orders.products.cancelqty" Area="Admin">
+		<Value>Canceled</Value>
+	</Resource>
+	<Resource Name="admin.orders.products.noactions" Area="Admin">
+		<Value>Shipped or canceled - no changes possible</Value>
+	</Resource>
+	<Resource Name="admin.orders.products.openqty" Area="Admin">
+		<Value>Open</Value>
+	</Resource>
+	<Resource Name="admin.dashboard.loading" Area="Admin">
+		<Value>Loading...</Value>
+	</Resource>
+	<Resource Name="admin.dashboard.news" Area="Admin">
+		<Value>News from GrandNode</Value>
+	</Resource>
+	<Resource Name="admin.dashboard.welcome.edit" Area="Admin">
+		<Value>Edit this message</Value>
+	</Resource>
+	<Resource Name="admin.orders.shipments.updated" Area="Admin">
+		<Value>The shipment has been updated successfully.</Value>
+	</Resource>
+	<Resource Name="admin.orders.shipments.shippeddate.hint" Area="Admin">
+		<Value>Leave empty to stamp the current date and time when marking as shipped.</Value>
+	</Resource>
+	<Resource Name="admin.orders.shipments.deliverydate.hint" Area="Admin">
+		<Value>Leave empty to stamp the current date and time when marking as delivered.</Value>
+	</Resource>
+	<Resource Name="vendor.orders.shipments.shippeddate.hint" Area="Vendor">
+		<Value>Leave empty to stamp the current date and time when marking as shipped.</Value>
+	</Resource>
+	<Resource Name="vendor.orders.shipments.deliverydate.hint" Area="Vendor">
+		<Value>Leave empty to stamp the current date and time when marking as delivered.</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.selectedcount" Area="Admin">
+		<Value>{0} selected</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.fields.published.unpublished" Area="Admin">
+		<Value>Unpublished</Value>
+	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnfees" Area="Admin">
+		<Value>Return fees</Value>
+	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnfees.hint" Area="Admin">
+		<Value>Who pays for a return. Optional - published in the store's structured data for search engines and AI assistants; nothing in checkout enforces it.</Value>
+	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnmethod" Area="Admin">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="admin.settings.order.merchandisereturnmethod.hint" Area="Admin">
+		<Value>How customers send a return back. Optional - published in the store's structured data for search engines and AI assistants.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemindays" Area="Admin">
+		<Value>Handling time - minimum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemindays.hint" Area="Admin">
+		<Value>Minimum business days between the order and handing the parcel to the carrier.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemaxdays" Area="Admin">
+		<Value>Handling time - maximum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.handlingtimemaxdays.hint" Area="Admin">
+		<Value>Maximum business days between the order and handing the parcel to the carrier.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemindays" Area="Admin">
+		<Value>Transit time - minimum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemindays.hint" Area="Admin">
+		<Value>Minimum business days the carrier needs to deliver.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemaxdays" Area="Admin">
+		<Value>Transit time - maximum days</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.transittimemaxdays.hint" Area="Admin">
+		<Value>Maximum business days the carrier needs to deliver.</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnfees.notspecified" Area="Common">
+		<Value>Not specified</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnfees.free" Area="Common">
+		<Value>Free return</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnfees.customerpays" Area="Common">
+		<Value>Paid by the customer</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnmethod.notspecified" Area="Common">
+		<Value>Not specified</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnmethod.bymail" Area="Common">
+		<Value>By mail</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.merchandisereturnmethod.instore" Area="Common">
+		<Value>In store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.structureddata" Area="Admin">
+		<Value>Shipping details for search engines</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.structureddata.description" Area="Admin">
+		<Value>Optional. Published in the product structured data (JSON-LD) read by search engines, Google Merchant listings and AI assistants - checkout never uses these values. Leave a field empty to publish nothing for it.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.defaultshippingrate" Area="Admin">
+		<Value>Default shipping rate</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.settings.defaultshippingrate.hint" Area="Admin">
+		<Value>Standard cost of shipping one item, in the primary store currency, entered like a shipping method's rate. Published for products without free shipping, plus the product's additional shipping charge; products that qualify for free shipping over X are published as free.</Value>
+	</Resource>
+	<Resource Name="vendor.header.profile" Area="Vendor">
+		<Value>Vendor profile</Value>
+	</Resource>
+	<Resource Name="admin.catalog.discounts.nostorediscounts" Area="Admin">
+		<Value>There are no configured discounts. Create one under Marketing → Discounts.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.store.none" Area="Admin">
+		<Value>Not set</Value>
+	</Resource>
+	<Resource Name="admin.configuration.tax.categories.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.catalog.products.recommended.savebeforeedit" Area="Admin">
+		<Value>You need to save the product before you can add recommended products for this product page.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.nopermissions" Area="Admin">
+		<Value>No permissions are defined yet.</Value>
+	</Resource>
+	<Resource Name="admin.content.blog.blogposts.preview" Area="Admin">
+		<Value>Blog post preview</Value>
+	</Resource>
+	<Resource Name="admin.contentmanagement.messagetemplates.fields.allowedtokens" Area="Admin">
+		<Value>Allowed message tokens (some might not be available in this template)</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.customergroups.nogroups" Area="Admin">
+		<Value>There are no stores to subscribe to the newsletter in.</Value>
+	</Resource>
+	<Resource Name="admin.orders.address.vatnumber" Area="Admin">
+		<Value>VAT number</Value>
+	</Resource>
+	<Resource Name="admin.system.warnings.performance.ignoreacl.notification" Area="Admin">
+		<Value>Customer group (ACL) limitations are ignored on this installation, so customer group restrictions set here have no effect.</Value>
+	</Resource>
+	<Resource Name="admin.system.warnings.performance.ignorestorelimitations.notification" Area="Admin">
+		<Value>Store limitations are ignored on this installation, so store restrictions set here have no effect.</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.collections.discounts.nodiscounts" Area="Vendor">
+		<Value>There are no configured discounts.</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.categories.fields.isfeaturedproduct" Area="Vendor">
+		<Value>Is featured product?</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.collections.fields.isfeaturedproduct" Area="Vendor">
+		<Value>Is featured product?</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.documents" Area="Vendor">
+		<Value>Documents</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.pictures.fields.isdefault" Area="Vendor">
+		<Value>The default photo</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.recommended.savebeforeedit" Area="Vendor">
+		<Value>You need to save the product before you can add recommended products for this product page.</Value>
+	</Resource>
+	<Resource Name="vendor.common.userfields.tab" Area="Vendor">
+		<Value>User fields</Value>
+	</Resource>
+	<Resource Name="vendor.documents.document.fields.name" Area="Vendor">
+		<Value>Name</Value>
+	</Resource>
+	<Resource Name="vendor.documents.document.fields.number" Area="Vendor">
+		<Value>Number</Value>
+	</Resource>
+	<Resource Name="vendor.documents.document.fields.published" Area="Vendor">
+		<Value>Published</Value>
+	</Resource>
+	<Resource Name="vendor.info" Area="Vendor">
+		<Value>Info</Value>
+	</Resource>
+	<Resource Name="vendor.marketing.document.add" Area="Vendor">
+		<Value>Add new document</Value>
+	</Resource>
+	<Resource Name="vendor.orders.address.vatnumber" Area="Vendor">
+		<Value>VAT number</Value>
+	</Resource>
+	<Resource Name="vendor.reports.customers" Area="Vendor">
+		<Value>Customer reports</Value>
+	</Resource>
+	<Resource Name="admin.orders.cannotcancel" Area="Admin">
+		<Value>This order can no longer be cancelled - only a pending order can.</Value>
+	</Resource>
+</Language>

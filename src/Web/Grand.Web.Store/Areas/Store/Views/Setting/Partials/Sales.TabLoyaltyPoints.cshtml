@@ -1,0 +1,41 @@
+@model SalesSettingsModel
+
+<vc:admin-widget widget-zone="loyalty_points_settings_top" additional-data="null"/>
+@* the program and what a point is worth, then how points are earned; the rate and the purchase
+   rule read as the sentences they are, with the fields inside them *@
+<admin-card>
+    <div class="note note-info">
+        @Loc["Admin.Settings.LoyaltyPoints.Description"]
+    </div>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="LoyaltyPointsSettings.Enabled"/>
+        <admin-field asp-for="LoyaltyPointsSettings.ExchangeRate">
+            <div class="grand-sentence">
+                @Loc["Admin.Settings.LoyaltyPoints.ExchangeRate.Hint2"]
+                <admin-input asp-for="LoyaltyPointsSettings.ExchangeRate"/>
+                @Model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode
+            </div>
+        </admin-field>
+        <admin-field asp-for="LoyaltyPointsSettings.MinimumLoyaltyPointsToUse" size="sm"/>
+    </div>
+</admin-card>
+<admin-card title="@Loc["Admin.Settings.LoyaltyPoints.Earning"]">
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="LoyaltyPointsSettings.PointsForRegistration" size="sm"/>
+        <admin-field asp-for="LoyaltyPointsSettings.PointsForPurchases_Amount">
+            <div class="grand-sentence">
+                @Loc["Admin.Settings.LoyaltyPoints.Earning.Hint1"]
+                <admin-input asp-for="LoyaltyPointsSettings.PointsForPurchases_Amount"/>
+                @Model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode
+                @Loc["Admin.Settings.LoyaltyPoints.Earning.Hint2"]
+                <admin-input asp-for="LoyaltyPointsSettings.PointsForPurchases_Points"/>
+                @Loc["Admin.Settings.LoyaltyPoints.Earning.Hint3"]
+            </div>
+            <span asp-validation-for="LoyaltyPointsSettings.PointsForPurchases_Points"></span>
+        </admin-field>
+        <admin-field asp-for="LoyaltyPointsSettings.PointsForPurchases_Awarded" asp-items="Model.LoyaltyPointsSettings.PointsForPurchases_Awarded_OrderStatuses" size="md"/>
+        <admin-field asp-for="LoyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder"/>
+        <admin-field asp-for="LoyaltyPointsSettings.DisplayHowMuchWillBeEarned"/>
+    </div>
+</admin-card>
+<vc:admin-widget widget-zone="loyalty_points_settings_bottom" additional-data="null"/>

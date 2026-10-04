@@ -1,0 +1,23 @@
+@model CustomerAddressModel
+@{
+    ViewBag.Title = Loc["Admin.Customers.Customers.Addresses.EditAddress"];
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Customer" asp-action="AddressEdit" method="post">
+
+    @* one address form: Save as the one primary action, back to the customer it belongs to *@
+    <admin-page sticky
+                title="@Loc["Admin.Customers.Customers.Addresses.EditAddress"]"
+                icon="bi-person-plus"
+                back-url="@Url.Action("Edit", new { id = Model.CustomerId })"
+                back-text="@Loc["Admin.Customers.Customers.Addresses.BackToCustomer"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <partial name="Partials/CreateOrUpdateAddress" model="Model"/>
+        </admin-card>
+    </admin-page>
+</form>

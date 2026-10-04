@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Models.Customers;
 

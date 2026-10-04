@@ -16,7 +16,7 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -99,7 +99,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
         {
             var categoriesModel = new List<SearchModel.CategoryModel>();
             //all categories
-            var allCategories = await _categoryService.GetAllCategories(storeId: request.Store.Id, pageSize: 100);
+            var allCategories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id, pageSize: 100);
             foreach (var c in allCategories)
             {
                 //generate full category name (breadcrumb)
@@ -136,7 +136,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
                 });
         }
 
-        var collections = await _collectionService.GetAllCollections(pageSize: 100);
+        var collections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id, pageSize: 100);
         if (collections.Any())
         {
             request.Model.AvailableCollections.Add(new SelectListItem {

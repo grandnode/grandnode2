@@ -1,20 +1,24 @@
 ﻿@model ShoppingCartModel
 
-<div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart">
+@*v-cloak - see the note in Views/Checkout/Partials/ConfirmOrder*@
+<div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart" v-cloak>
 @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_before" })
 <div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
 <ul v-if="typeof vmorder.cart.Warnings !== 'undefined' && vmorder.cart.Warnings.length > 0" class="px-0 mb-3">
-    <li v-for="item in vmorder.cart.Warnings">
+    <li v-for="(item, index) in vmorder.cart.Warnings" :key="index">
         <div class="alert alert-danger mb-1">{{item}}</div>
     </li>
 </ul>
 <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" id="shopping-cart-form">
 <div class="col-12">
-<div class="form-row">
+<div class="row">
 <div class="col-lg-8 col-12 cart-out-container">
     <div class="shopping-cart-container">
         <div class="shopping-cart-container">
-            <table class="shopping-cart table">
+            @* Delete is handled here rather than on the row's own button: when the
+               click handler lives on an element that the same update unmounts, Vue's
+               patch dies on it and everything after that keeps rendering stale data. *@
+            <table class="shopping-cart table" @@click="vmorder.cartClick($event)">
                 <colgroup>
                     <col span="1">
                     <col span="1">
@@ -48,11 +52,11 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="item in vmorder.cart.Items">
+                <tr v-for="item in vmorder.cart.Items" :key="item.Id">
                     <td v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="onhold-cart">
-                        <label class="custom-control custom-switch mb-0 pl-0">
-                            <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)"/>
-                            <span class="custom-control-label ml-5"></span>
+                        <label class="form-check form-switch mb-0 d-flex justify-content-center">
+                            <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="form-check-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)"/>
+                            <span class="form-check-label"></span>
                         </label>
                     </td>
                     <td v-if="vmorder.cart.ShowProductImages" class="product-picture text-center">
@@ -67,7 +71,7 @@
                             </a>
                             <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item">
                                 <a class="btn btn-link" @@click="vmorder.updateOnCart(item.Id)">
-                                    <b-icon icon="pencil"></b-icon>
+                                    <i class="b-icon bi bi-pencil" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </div>
@@ -81,7 +85,7 @@
                         <div v-if="item.RecurringInfo !== null" v-html="item.RecurringInfo" class="recurring-info"></div>
                         <div v-if="item.ReservationInfo !== null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
                         <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error small alert alert-danger mt-2 mb-0">
-                            <ul v-for="warning in item.Warnings" class="mb-0 p-0">
+                            <ul v-for="(warning, index) in item.Warnings" :key="index" class="mb-0 p-0">
                                 <li>{{warning}}</li>
                             </ul>
                         </div>
@@ -95,8 +99,8 @@
                     <td class="quantity">
                         <div v-if="vmorder.cart.IsEditable">
                             <div v-if="item.AllowedQuantities[0]">
-                                <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
-                                    <option v-for="qty in item.AllowedQuantities" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
+                                <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="form-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
+                                    <option v-for="qty in item.AllowedQuantities" :key="qty.Value" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
                                 </select>
                             </div>
                             <div v-else>
@@ -113,8 +117,8 @@
                             <div class="discount text-success text-center">
                                 <span>@Loc["ShoppingCart.ItemYouSave"]: </span>
                                 <span>{{item.Discount}}</span>
-                                <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">@Loc["ShoppingCart.DiscountedQty"]: </span>
-                                <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">{{item.DiscountedQty}}</span>
+                                <span v-if="item.DiscountedQty > 0" class="fw-light fst-italic">@Loc["ShoppingCart.DiscountedQty"]: </span>
+                                <span v-if="item.DiscountedQty > 0" class="fw-light fst-italic">{{item.DiscountedQty}}</span>
                             </div>
                         </div>
                         <div v-else>
@@ -122,9 +126,9 @@
                         </div>
                     </td>
                     <td v-if="vmorder.cart.IsEditable" class="remove-from-cart text-center">
-                        <b-button variant="link" class="deleteshoppingcartitem" @@click="vmorder.deleteitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True')">
-                            <b-icon icon="trash" variant="danger"></b-icon>
-                        </b-button>
+                        <button class="btn btn-link deleteshoppingcartitem" type="button" :data-delete-url="'@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True'">
+                            <i class="b-icon bi bi-trash text-danger" aria-hidden="true"></i>
+                        </button>
                     </td>
                 </tr>
                 </tbody>
@@ -145,7 +149,7 @@
             <div v-if="vmorder.cart.IsEditable" class="col-12 col-md-6 checkoutAttributes">
                 <partial name="Partials/CheckoutAttributes"/>
             </div>
-            <div class="selected-checkout-attributes col-sm-3 col-md-6 col-12 ml-auto justify-content-end text-right mt-3">
+            <div class="selected-checkout-attributes col-sm-3 col-md-6 col-12 ms-auto justify-content-end text-end mt-3">
                 <div v-html="vmorder.cart.CheckoutAttributeInfo"></div>
             </div>
         </div>
@@ -175,62 +179,61 @@
             {{vmorder.cart.MinOrderSubtotalWarning}}
         </div>
         <template v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning == null">
-            <template v-if-else="vmorder.cart.MinOrderSubtotalWarning !== null">
-                <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
-                    <div class="w-100">
-                        <b-form-checkbox id="TermsOfService"
-                                         v-model="vmorder.terms"
-                                         name="TermsOfService">
-                            @Loc["Checkout.TermsOfService.IAccept"]
-                            @if (!Model.TermsOfServicePopup)
-                            {
-                                <a href="@Url.RouteUrl("Page", new { SeName = "conditionsofuse" })" target="_blank">
-                                    @Loc["Checkout.TermsOfService.Read"]
-                                </a>
-                            }
-                            else
-                            {
-                                <span class="read"
-                                      onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "conditionsofuse" })', 450, 500, true)">
-                                    @Loc["Checkout.TermsOfService.Read"]
-                                </span>
-                            }
-                        </b-form-checkbox>
-                        <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
+            <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
+                <div class="w-100">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="TermsOfService" name="TermsOfService" v-model="vmorder.terms">
+                        <label class="form-check-label" for="TermsOfService">
+                        @Loc["Checkout.TermsOfService.IAccept"]
+                        @if (!Model.TermsOfServicePopup)
+                        {
+                            <a href="@Url.RouteUrl("Page", new { SeName = "conditionsofuse" })" target="_blank">
+                                @Loc["Checkout.TermsOfService.Read"]
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="read"
+                                  onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "conditionsofuse" })', 450, 500, true)">
+                                @Loc["Checkout.TermsOfService.Read"]
+                            </span>
+                        }
+                        </label>
                     </div>
-                    <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
-                        <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
-                            @Loc["Account.Login.CheckoutAsGuest"]
-                        </b-button>
-                        <b-button id="checkout" name="checkout" @@click="vmorder.termsCheck(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
-                            <span v-if="vmorder.cart.IsGuest">
-                                @Loc["Checkout.Button.Login"]
-                            </span>
-                            <span v-else>
-                                @Loc["Checkout.Button"]
-                            </span>
-                        </b-button>
-                    </div>
-                </template>
-                <template v-else>
-                    <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
-                        <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
-                            @Loc["Account.Login.CheckoutAsGuest"]
-                        </b-button>
-                        <b-button id="checkout" name="checkout" @@click="vmorder.checkout(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
-                            <span v-if="vmorder.cart.IsGuest">
-                                @Loc["Checkout.Button.Login"]
-                            </span>
-                            <span v-else>
-                                @Loc["Checkout.Button"]
-                            </span>
-                        </b-button>
-                    </div>
-                </template>
+                    <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
+                </div>
+                <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                    <button class="btn btn-secondary checkout-as-guest-button mx-sm-1 mx-0" type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)">
+                        @Loc["Account.Login.CheckoutAsGuest"]
+                    </button>
+                    <button class="btn btn-info checkout-button mt-sm-0 mt-1" type="button" id="checkout" name="checkout" @@click="vmorder.termsCheck(false)">
+                        <span v-if="vmorder.cart.IsGuest">
+                            @Loc["Checkout.Button.Login"]
+                        </span>
+                        <span v-else>
+                            @Loc["Checkout.Button"]
+                        </span>
+                    </button>
+                </div>
+            </template>
+            <template v-else>
+                <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                    <button class="btn btn-secondary checkout-as-guest-button mx-sm-1 mx-0" type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'">
+                        @Loc["Account.Login.CheckoutAsGuest"]
+                    </button>
+                    <button class="btn btn-info checkout-button mt-sm-0 mt-1" type="button" id="checkout" name="checkout" @@click="vmorder.checkout(false)">
+                        <span v-if="vmorder.cart.IsGuest">
+                            @Loc["Checkout.Button.Login"]
+                        </span>
+                        <span v-else>
+                            @Loc["Checkout.Button"]
+                        </span>
+                    </button>
+                </div>
             </template>
         </template>
         <div class="addon-buttons">
-            <div v-for="pm in vmorder.cart.ButtonPaymentMethodViewComponentNames">
+            <div v-for="(pm, index) in vmorder.cart.ButtonPaymentMethodViewComponentNames" :key="index">
                 <div v-html="pm"></div>
             </div>
         </div>

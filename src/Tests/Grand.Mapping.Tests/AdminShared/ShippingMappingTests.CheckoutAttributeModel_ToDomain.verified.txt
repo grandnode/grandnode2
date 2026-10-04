@@ -1,0 +1,18 @@
+﻿{
+  Name: Gift Wrapping,
+  TextPrompt: Add gift wrapping?,
+  IsRequired: false,
+  ShippableProductRequired: false,
+  IsTaxExempt: false,
+  AttributeControlTypeId: TextBox,
+  DisplayOrder: 1,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

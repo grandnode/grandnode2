@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Web.Commands.Models.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Customers;
 

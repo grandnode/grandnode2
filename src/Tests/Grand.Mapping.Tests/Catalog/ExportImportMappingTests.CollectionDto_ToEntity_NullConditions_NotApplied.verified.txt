@@ -1,0 +1,13 @@
+﻿{
+  Name: Partial Collection,
+  AllowCustomersToSelectPageSize: false,
+  ShowOnHomePage: false,
+  FeaturedProductsOnHomePage: false,
+  IncludeInMenu: false,
+  DefaultSort: -1,
+  Published: false,
+  LimitedToGroups: false,
+  LimitedToStores: false,
+  UpdatedOnUtc: DateTime_1,
+  Id: ObjectId_1
+}

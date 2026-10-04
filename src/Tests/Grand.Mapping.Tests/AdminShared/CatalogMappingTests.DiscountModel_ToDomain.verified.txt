@@ -1,0 +1,17 @@
+﻿{
+  Name: 10% Off,
+  DiscountTypeId: AssignedToOrderTotal,
+  UsePercentage: true,
+  DiscountPercentage: 10.0,
+  CalculateByPlugin: false,
+  RequiresCouponCode: true,
+  Reused: false,
+  IsCumulative: false,
+  IsEnabled: true,
+  LimitedToStores: true,
+  Stores: [
+    store-001,
+    store-002
+  ],
+  Id: ObjectId_1
+}

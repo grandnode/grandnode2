@@ -1,0 +1,256 @@
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <input type="hidden" asp-for="CalendarModel.ProductId"/>
+
+    <partial name="Partials/WidgetZone.Calendar.Top" model="Model"/>
+
+    @* The interval unit decides which fields apply - a day calendar takes a resource and whether
+       both end dates count, an hourly one its times, quantity and parameter - so the unit is the
+       reveal's trigger with all of them in its body. Every pnl* id the script below toggles is
+       still on the same field; pnlInterval still wraps only the number beside the unit. *@
+    <admin-card title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Calendarconfiguration"]">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="CalendarModel.StartDate" size="md"/>
+            <admin-field asp-for="CalendarModel.EndDate" size="md"/>
+        </div>
+        <div class="grand-reveal mt-3">
+            <admin-field asp-for="CalendarModel.Interval">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span id="pnlInterval">
+                        <admin-input asp-for="CalendarModel.Interval"/>
+                    </span>
+                    <div class="grand-field--md">
+                        <admin-select asp-for="CalendarModel.IntervalUnit" asp-items="EnumTranslationService.ToSelectList((IntervalUnit)Model.CalendarModel.IntervalUnit)"/>
+                    </div>
+                </div>
+            </admin-field>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="CalendarModel.StartTime" id="pnlStartTime" size="sm"/>
+                <admin-field asp-for="CalendarModel.EndTime" id="pnlEndTime" size="sm"/>
+                <admin-field asp-for="CalendarModel.Quantity" id="pnlQuantity" size="sm"/>
+                <admin-field asp-for="CalendarModel.Parameter" id="pnlParameter" size="md"/>
+                <admin-field asp-for="CalendarModel.Resource" id="pnlResource" size="md"/>
+                <admin-field asp-for="CalendarModel.IncBothDate" id="pnlIncludeBothDates"/>
+            </div>
+        </div>
+    </admin-card>
+
+    <admin-card title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.WeekDay"]">
+        <div class="d-flex flex-wrap gap-4">
+            <admin-field asp-for="CalendarModel.Monday"/>
+            <admin-field asp-for="CalendarModel.Tuesday"/>
+            <admin-field asp-for="CalendarModel.Wednesday"/>
+            <admin-field asp-for="CalendarModel.Thursday"/>
+            <admin-field asp-for="CalendarModel.Friday"/>
+            <admin-field asp-for="CalendarModel.Saturday"/>
+            <admin-field asp-for="CalendarModel.Sunday"/>
+        </div>
+    </admin-card>
+
+    @* the product's Save is the screen's primary, so the calendar's actions are outline buttons
+       in the header of the card whose grid they fill or clear *@
+    <admin-card flush>
+        @if (!readOnly)
+        {
+            <card-actions>
+                <button id="generateCalendar" type="button" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-calendar-plus"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Generatecalendar"]
+                </button>
+                <button id="clearOld" type="button" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-calendar-minus"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearold"]
+                </button>
+                <button id="clearCalendar" type="button" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-calendar-x"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]
+                </button>
+            </card-actions>
+        }
+        <admin-grid id="reservations-grid"
+                    read-only="@readOnly"
+                    read-url="@Url.Action("ListReservations", "Product", new { productId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("ProductReservationDelete", "Product", new { area = area })"
+                    auto-bind="false">
+            <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
+            <grid-column field="Date" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Date"]" width="200" format="{0:G}"/>
+            <grid-column field="Resource" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Resource"]" width="200"/>
+            <grid-column field="Parameter" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Parameter"]" width="200"/>
+            <grid-column field="Duration" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Duration"]" width="200"/>
+            <grid-column field="OrderId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.OrderId"]" width="200">
+                <cell-template>
+                    <a data-if="OrderId" class="btn btn-sm btn-outline-secondary" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="bi bi-search"></i> {{ $texts.view }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" width="100"/>
+        </admin-grid>
+    </admin-card>
+    <partial name="Partials/WidgetZone.Calendar.Bottom" model="Model"/>
+
+    <script>
+        $(document).ready(function () {
+            function toggleInternalType() {
+                var selectedInternalTypeId = $("#@Html.IdFor(model => model.CalendarModel.IntervalUnit)").val();
+                if (selectedInternalTypeId == @(((int)IntervalUnit.Day).ToString())) {
+                    $("#pnlStartTime").hide();
+                    $("#pnlEndTime").hide();
+                    $("#pnlResource").show();
+                    $("#pnlIncludeBothDates").show();
+                    $("#pnlParameter").hide();
+                    $("#pnlQuantity").hide();
+                    $("#pnlInterval").hide();
+                    setInterval_(1);
+                } else {
+                    $("#pnlStartTime").show();
+                    $("#pnlEndTime").show();
+                    $("#pnlResource").hide();
+                    $("#pnlIncludeBothDates").hide();
+                    $("#pnlParameter").show();
+                    $("#pnlQuantity").show();
+                    $("#pnlInterval").show();
+                    setInterval_(0);
+                }
+
+            }
+
+            function setInterval_(value) {
+                var element = document.getElementById("@Html.IdFor(model => model.CalendarModel.Interval)");
+                if (element.grandNumeric) element.grandNumeric.value(value);
+                else element.value = value;
+            }
+            toggleInternalType();
+            $("#@Html.IdFor(model => model.CalendarModel.IntervalUnit)").change(toggleInternalType);
+
+
+            $("#generateCalendar").click(function () {
+
+                @* the date and time editors hold the culture short date and HH:mm in the
+                   input the form posts, which is exactly what this request sends *@
+                var dateFrom = $("#@Html.IdFor(model => model.CalendarModel.StartDate)").val();
+                var dateTo = $("#@Html.IdFor(model => model.CalendarModel.EndDate)").val();
+                var hourFrom = $("#@Html.IdFor(model => model.CalendarModel.StartTime)").val();
+                var hourTo = $("#@Html.IdFor(model => model.CalendarModel.EndTime)").val();
+
+                var interval = $("#@Html.IdFor(model => model.CalendarModel.Interval)").val();
+                var intervalUnit = $("#@Html.IdFor(model => model.CalendarModel.IntervalUnit)").val();
+                var incBothDate = $("#@Html.IdFor(model => model.CalendarModel.IncBothDate)").prop("checked");
+                var quantity = $("#@Html.IdFor(model => model.CalendarModel.Quantity)").val();
+                var monday = $("#@Html.IdFor(model => model.CalendarModel.Monday)").prop("checked");
+                var tuesday = $("#@Html.IdFor(model => model.CalendarModel.Tuesday)").prop("checked");
+                var wednesday = $("#@Html.IdFor(model => model.CalendarModel.Wednesday)").prop("checked");
+                var thursday = $("#@Html.IdFor(model => model.CalendarModel.Thursday)").prop("checked");
+                var friday = $("#@Html.IdFor(model => model.CalendarModel.Friday)").prop("checked");
+                var saturday = $("#@Html.IdFor(model => model.CalendarModel.Saturday)").prop("checked");
+                var sunday = $("#@Html.IdFor(model => model.CalendarModel.Sunday)").prop("checked");
+                var resource = $("#@Html.IdFor(model => model.CalendarModel.Resource)").val()
+                var parameter = $("#@Html.IdFor(model => model.CalendarModel.Parameter)").val()
+
+                var postData = {
+                    productId: '@(Model.Id)',
+                    StartDate: dateFrom,
+                    StartTime: hourFrom,
+                    EndDate: dateTo,
+                    EndTime: hourTo,
+                    Interval: interval,
+                    IntervalUnit: intervalUnit,
+                    IncBothDate: incBothDate,
+                    Quantity: quantity,
+                    Monday: monday,
+                    Tuesday: tuesday,
+                    Wednesday: wednesday,
+                    Thursday: thursday,
+                    Friday: friday,
+                    Saturday: saturday,
+                    Sunday: sunday,
+                    Resource: resource,
+                    Parameter: parameter
+                };
+
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("GenerateCalendar", "Product", new { area = area }))",
+                    dataType: 'json',
+                    data: postData,
+                    success: function (data) {
+                        if (data.success) {
+                            var grid = GrandAdmin.grids.get("#reservations-grid");
+                            grid.dataSource.read();
+                        }
+                        else {
+                            alert(data.errors);
+                        }
+                    },
+                    error: function () {
+                        alert('Error');
+                    }
+                });
+            });
+
+            $("#clearCalendar").click(function () {
+                GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]', {
+                    confirmText: '@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]',
+                    cancelText: '@Loc[$"{Scope.ResourceKeyPrefix}.Common.Cancel"]'
+                }).then(function (confirmed) {
+                    if (!confirmed) return;
+                    var postData = {
+                        productId: '@(Model.Id)'
+                    };
+
+                    addAntiForgeryToken(postData);
+
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "@(Url.Action("ClearCalendar", "Product", new { area = area }))",
+                        dataType: 'json',
+                        data: postData,
+                        success: function (data) {
+                            var grid = GrandAdmin.grids.get("#reservations-grid");
+                            grid.dataSource.read();
+                        },
+                        error: function () {
+                            alert('Error');
+                        }
+                    });
+                });
+            });
+
+            $("#clearOld").click(function () {
+                var postData = {
+                    productId: '@(Model.Id)'
+                };
+
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("ClearOld", "Product", new { area = area }))",
+                    dataType: 'json',
+                    data: postData,
+                    success: function (data) {
+                        var grid = GrandAdmin.grids.get("#reservations-grid");
+                        grid.dataSource.read();
+                    },
+                    error: function () {
+                        alert('Error');
+                    }
+                });
+            });
+        });
+
+
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.SaveBeforeEdit"]
+    </div>
+}

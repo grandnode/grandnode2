@@ -5,7 +5,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
@@ -35,7 +35,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         CleanupRequestParameters(request);
 
         // Access control list. Allowed customer groups
-        var allowedCustomerGroupsIds = request.Customer.GetCustomerGroupIds();
+        var allowedCustomerGroupsIds = request.CustomerGroupIds?.ToArray() ?? request.Customer.GetCustomerGroupIds();
 
         // Build base query
         var query = _productRepository.Table.AsQueryable();
@@ -51,7 +51,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         query = OrderByQueryable(request, query);
 
         // Create paged list
-        var products = await PagedList<Product>.Create(query, request.PageIndex, request.PageSize);
+        var products = await _productRepository.PagedAsync(query, request.PageIndex, request.PageSize);
 
         // Get filterable specification attributes if needed
         if (ShouldLoadFilterableSpecifications(request))

@@ -1,0 +1,35 @@
+@model CustomerModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@* the grid in a card whose header carries its Add new *@
+<div class="grand-card">
+    <div class="grand-card__header">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href='@Url.Action("AddressCreate", new { customerId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.Addresses.AddButton"]</button>
+    </div>
+    <partial name="Partials/WidgetZone.AddressesTop" model="Model"/>
+    <div class="grand-card__body grand-card__body--flush">
+        <admin-grid id="customer-addresses-grid"
+                    read-url="@Url.Action("AddressesSelect", "Customer", new { customerId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, area = area })"
+                    server-paging="false"
+                    auto-bind="false"
+                    confirm-destroy="true">
+            <grid-text name="edit" value="@Loc["Admin.Common.Edit"]"/>
+            <grid-column field="FirstName" title="@Loc["Admin.Address.Fields.FirstName"]"/>
+            <grid-column field="LastName" title="@Loc["Admin.Address.Fields.LastName"]"/>
+            <grid-column field="Email" title="@Loc["Admin.Address.Fields.Email"]"/>
+            <grid-column field="PhoneNumber" title="@Loc["Admin.Address.Fields.PhoneNumber"]" min-screen-width="1020"/>
+            @*AddressHtml is markup the server builds from encoded address fields*@
+            <grid-column field="AddressHtml" title="@Loc["Admin.Address"]" encoded="false"/>
+            <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
+                <cell-template>
+                    <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("AddressEdit", "Customer", new { area = area })?customerId=@Model.Id&addressid={{ Id }}"><span class="bi bi-pencil"></span> {{ $texts.edit }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+        </admin-grid>
+    </div>
+    <partial name="Partials/WidgetZone.AddressesBottom" model="Model"/>
+</div>
+

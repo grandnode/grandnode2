@@ -20,7 +20,7 @@ using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using System.Net;
 
 namespace Grand.Business.Messages.Services;
@@ -96,10 +96,9 @@ public class MessageProviderService : IMessageProviderService
         string languageId)
     {
         var emailAccounId = messageTemplate.GetTranslation(mt => mt.EmailAccountId, languageId);
-        var emailAccount = (await _emailAccountService.GetEmailAccountById(emailAccounId) ??
-                            await _emailAccountService.GetEmailAccountById(_emailAccountSettings
-                                .DefaultEmailAccountId)) ??
-                           (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
+        var emailAccount = await _emailAccountService.GetEmailAccountById(emailAccounId);
+        emailAccount ??= await _emailAccountService.GetEmailAccountById(_emailAccountSettings.DefaultEmailAccountId);
+        emailAccount ??= (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
         return emailAccount;
     }
 

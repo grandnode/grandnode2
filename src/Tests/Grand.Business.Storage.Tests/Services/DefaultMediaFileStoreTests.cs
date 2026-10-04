@@ -25,7 +25,7 @@ public class DefaultMediaFileStoreTests
         var result = await _defaultMediaFileStore.GetFileInfo(myFile);
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(result.Name, myFile);
+        Assert.AreEqual(myFile, result.Name);
     }
 
     [TestMethod]
@@ -35,7 +35,7 @@ public class DefaultMediaFileStoreTests
         var result = _defaultMediaFileStore.GetDirectoryInfo("Upload");
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(result.Name, "Upload");
+        Assert.AreEqual("Upload", result.Name);
     }
 
     [TestMethod]
@@ -45,7 +45,7 @@ public class DefaultMediaFileStoreTests
         var result = await _defaultMediaFileStore.GetPhysicalDirectoryInfo("Upload");
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(result.Name, "Upload");
+        Assert.AreEqual("Upload", result.Name);
         Assert.IsTrue(result.IsDirectory);
     }
 
@@ -55,8 +55,8 @@ public class DefaultMediaFileStoreTests
         //Act
         var result = _defaultMediaFileStore.GetDirectoryContent("Upload");
         //Assert
-        Assert.AreEqual(1, result.Count);
-        Assert.IsTrue(result.Any());
+        Assert.HasCount(1, result);
+        Assert.IsNotEmpty(result);
     }
 
     [TestMethod]

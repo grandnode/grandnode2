@@ -1,0 +1,15 @@
+@*
+    Read-only star rating. Every server-rendered rating goes through this one view, so a
+    theme can restyle stars by dropping its own Partials/Rating.cshtml, and swapping the
+    widget itself (e.g. for plain markup that needs no Vue) is a single-file change.
+
+    Ratings bound to Vue state keep using <b-form-rating> directly - a partial renders once,
+    on the server, and cannot follow a reactive value.
+*@
+@using System.Globalization
+@model double
+@{
+    var rating = Model.ToString("0.00", CultureInfo.InvariantCulture);
+}
+<b-form-rating class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline
+               aria-label="Rating" aria-valuenow="@rating" value="@rating"></b-form-rating>

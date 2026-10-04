@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.WebEncoders;
+using Grand.Web.Common.Infrastructure.HealthChecks;
 using StackExchange.Redis;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -121,8 +122,10 @@ public static class ServiceCollectionExtensions
         {
             var securityConfig = new SecurityConfig();
             configuration.GetSection("Security").Bind(securityConfig);
+            var defaultKeyPath = Path.Combine(AppContext.BaseDirectory, "App_Data", "DataProtectionKeys");
             var keyPersistenceLocation = string.IsNullOrEmpty(securityConfig.KeyPersistenceLocation)
-                ? "/App_Data/DataProtectionKeys" : securityConfig.KeyPersistenceLocation;
+                ? defaultKeyPath
+                : securityConfig.KeyPersistenceLocation;
             var dataProtectionKeysFolder = new DirectoryInfo(keyPersistenceLocation);
             //configure the data protection system to persist keys to the specified directory
             services.AddDataProtection().PersistKeysToFileSystem(dataProtectionKeysFolder);
@@ -203,13 +206,17 @@ public static class ServiceCollectionExtensions
             options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
         });
 
+        mvcBuilder.AddMvcOptions(options =>
+            options.Conventions.Add(new SharedViewFolderControllerNameConvention()));
+
         //add view localization
         mvcBuilder.AddViewLocalization();
 
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            mvcBuilder.AddRazorRuntimeCompilation();
+
         var securityConfig = new SecurityConfig();
         configuration.GetSection("Security").Bind(securityConfig);
-
-        if (securityConfig.EnableRuntimeCompilation) mvcBuilder.AddRazorRuntimeCompilation();
 
         if (securityConfig.UseHsts)
             services.AddHsts(options =>
@@ -264,7 +271,14 @@ public static class ServiceCollectionExtensions
     public static void AddGrandHealthChecks(this IServiceCollection services)
     {
         var hcBuilder = services.AddHealthChecks();
-        hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
+        //every check registered here must carry a "live" or "ready" tag - /health/live and
+        //  /health/ready each filter by tag, so an untagged check would silently run on neither
+        //liveness: process can respond to a request - never touches an external dependency
+        hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"]);
+        //readiness: application finished starting and is configured. Intentionally does not probe
+        //MongoDB or Redis - readiness here covers only the application process itself. Dependency
+        //probing (DB/Redis ping) is a deliberate future extension, not an oversight.
+        hcBuilder.AddCheck<StartupHealthCheck>("startup", tags: ["ready"]);
     }
 
     /// <summary>

@@ -1,9 +1,9 @@
 ﻿@model IList<ProductOverviewModel>
 @if (Model.Any())
 {
-    <div class="related-products-grid  product-grid col-12 px-0">
+    <div class="related-products-grid  product-grid col-12 px-0" vue-island>
         <h2 class="h3 generalTitle text-center">@Loc["Products.RelatedProducts"]</h2>
-        <div class="form-row">
+        <div class="row">
             @foreach (var item in Model)
             {
                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 product-container mb-2">

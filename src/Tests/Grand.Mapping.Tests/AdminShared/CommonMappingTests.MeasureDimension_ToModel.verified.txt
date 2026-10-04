@@ -1,0 +1,8 @@
+﻿{
+  Name: Centimeter,
+  SystemKeyword: cm,
+  Ratio: 1.0,
+  DisplayOrder: 1,
+  IsPrimaryDimension: false,
+  Id: md-001
+}

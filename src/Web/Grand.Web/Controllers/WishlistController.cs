@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -11,10 +12,9 @@ using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
@@ -111,7 +111,6 @@ public class WishlistController : BasePublicController
         return View(model);
     }
 
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     [HttpPost]
     public virtual async Task<IActionResult> UpdateQuantity(UpdateQuantityModel model)
@@ -208,7 +207,6 @@ public class WishlistController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> EmailWishlist(WishlistEmailAFriendModel model,
         [FromServices] IMessageProviderService messageProviderService,

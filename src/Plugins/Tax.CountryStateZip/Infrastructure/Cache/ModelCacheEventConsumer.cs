@@ -1,6 +1,6 @@
 ﻿using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Tax.CountryStateZip.Domain;
 
 namespace Tax.CountryStateZip.Infrastructure.Cache;

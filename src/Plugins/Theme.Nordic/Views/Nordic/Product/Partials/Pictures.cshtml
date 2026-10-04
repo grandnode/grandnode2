@@ -1,0 +1,101 @@
+@model ProductDetailsModel
+@{
+        var galleryImages = Model.PictureModels.Select((picture, i) => new {
+            url = i == 0 ? picture.FullSizeImageUrl : picture.ImageUrl,
+            fullimg = picture.FullSizeImageUrl,
+            alt = picture.AlternateText,
+            title = picture.Title
+        });
+    }
+
+@*Nordic: the column is sized by product.css (1.25fr / 1fr); the thumbnail strip is laid out there too*@
+<div class="col-12 px-0 nordic-pd__gallery">
+    <div class="gallery">
+        @if (Model.PictureModels.Any())
+        {
+            @*
+                <meta> rather than a hidden <img>: the image only had to carry the
+                schema.org property, but display:none does not stop a download, so
+                every product page fetched the full-size picture a second time and
+                let it compete with the one actually being displayed.
+            *@
+            var schemaPicture = Model.PictureModels.FirstOrDefault();
+            <meta itemprop="image" content="@schemaPicture?.FullSizeImageUrl">
+        }
+        @if (Model.PictureModels.Count == 1)
+        {
+            @if (Model.DefaultPictureZoomEnabled)
+            {
+                <gallery-images></gallery-images>
+
+                @* The template is a JS string, not a <script type="text/html"> element:
+                   Vue 3 strips <script> tags out of the in-DOM template and replaces
+                   #app's content on mount, so a '#id' template reference resolves to
+                   nothing and the component renders empty. *@
+                <script type="application/json" data-grand-vm="productGallery">@Json.Serialize(new {
+                    componentName = "gallery-images",
+                    variant = "main",
+                    mainImageId = $"main-product-img-{Model.Id}",
+                    images = galleryImages
+                })</script>
+            }
+            else
+            {
+                <img id="main-product-img-@Model.Id" class="image main-image" fetchpriority="high"
+                     src="@Model.DefaultPictureModel.ImageUrl"
+                     alt="@Model.DefaultPictureModel.AlternateText"
+                     title="@Model.DefaultPictureModel.Title"/>
+            }
+        }
+        @if (Model.PictureModels.Count == 0)
+        {
+            <img id="main-product-img-@Model.Id" class="image main-image" fetchpriority="high"
+                 src="@Model.DefaultPictureModel.ImageUrl"
+                 alt="@Model.DefaultPictureModel.AlternateText"
+                 title="@Model.DefaultPictureModel.Title"/>
+        }
+        @if (Model.DefaultPictureZoomEnabled)
+        {
+            @if (Model.PictureModels.Count > 1)
+            {
+                <img id="main-product-img-@Model.Id" class="image main-image zoom" fetchpriority="high"
+                     src="@Model.DefaultPictureModel.ImageUrl"
+                     alt="@Model.DefaultPictureModel.AlternateText"
+                     title="@Model.DefaultPictureModel.Title"
+                     onclick="document.querySelector('.thumb-image').click()"/>
+
+                <gallery-images></gallery-images>
+                <script type="application/json" data-grand-vm="productGallery">@Json.Serialize(new {
+                    componentName = "gallery-images",
+                    variant = "thumb",
+                    mainImageId = $"main-product-img-{Model.Id}",
+                    images = galleryImages
+                })</script>
+            }
+        }
+        else
+        {
+            @if (Model.PictureModels.Count > 1)
+            {
+                <img id="main-product-img-@Model.Id" class="image main-image" fetchpriority="high"
+                     src="@Model.DefaultPictureModel.ImageUrl"
+                     alt="@Model.DefaultPictureModel.AlternateText"
+                     title="@Model.DefaultPictureModel.Title"/>
+                <div>
+                    @foreach (var picture in Model.PictureModels)
+                    {
+                        <img class="image thumb-image"
+                             src="@picture.ThumbImageUrl"
+                             alt="@picture.AlternateText"
+                             title="@picture.Title"
+                             data-src="@picture.ImageUrl"
+                             data-gallery-thumb/>
+                    }
+                </div>
+                <script type="application/json" data-grand-vm="galleryThumbnails">@Json.Serialize(new {
+                    mainImageId = $"main-product-img-{Model.Id}"
+                })</script>
+            }
+        }
+    </div>
+</div>

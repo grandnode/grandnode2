@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Localization;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Common.Events;
 

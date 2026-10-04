@@ -1,0 +1,34 @@
+@model MerchandiseReturnModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.MerchandiseReturns.EditMerchandiseReturnDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="MerchandiseReturn" asp-action="Edit" method="post">
+
+    @* the product edit screen's shell: Save as the one primary action, Delete in the overflow
+       menu rather than beside Save *@
+    <admin-page sticky
+                title="@Model.ReturnNumber.ToString()"
+                icon="bi-truck"
+                meta="@Loc["Admin.Orders.MerchandiseReturns.EditMerchandiseReturnDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Orders.MerchandiseReturns.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="merchandisereturn-delete" destructive="true" icon="bi-trash"
+                              text="@Loc["Admin.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
+</form>
+<admin-delete-confirmation button-id="merchandisereturn-delete"/>

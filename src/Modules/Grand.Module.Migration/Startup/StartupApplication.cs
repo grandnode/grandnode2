@@ -22,11 +22,15 @@ public class StartupApplication : IStartupApplication
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
         var featureManager = application.Services.GetRequiredService<IFeatureManager>();
-        if (featureManager.IsEnabledAsync("Grand.Module.Migration").Result)
-        {
-            var migrationProcess = application.Services.GetRequiredService<IMigrationProcess>();
-            migrationProcess.RunMigrationProcess();
-        }
+        //Configure is synchronous, so the startup path has to block here
+        if (!featureManager.IsEnabledAsync("Grand.Module.Migration").GetAwaiter().GetResult())
+            return;
+
+        //IMigrationProcess is scoped - resolving it from the root provider fails scope validation
+        //and otherwise roots the repository graph for the lifetime of the process
+        using var scope = application.Services.CreateScope();
+        var migrationProcess = scope.ServiceProvider.GetRequiredService<IMigrationProcess>();
+        migrationProcess.RunMigrationProcess();
     }
 
     public int Priority => 100;

@@ -102,8 +102,8 @@ public class OrderCalculationServiceTests
 
         var shoppingCartItem = new List<ShoppingCartItem> { new() { Quantity = 1 } };
         var result = await _service.GetShoppingCartSubTotal(shoppingCartItem, false);
-
-        Assert.IsNotNull(result);
+        
+        Assert.IsTrue(result.subTotalWithDiscount >= 0);
     }
 
     [TestMethod]

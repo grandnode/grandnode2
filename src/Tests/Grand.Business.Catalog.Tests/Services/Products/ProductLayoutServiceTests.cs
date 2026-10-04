@@ -5,7 +5,7 @@ using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -43,7 +43,7 @@ public class ProductLayoutServiceTests
         var layouts = await _productLayoutService.GetAllProductLayouts();
 
         //Assert
-        Assert.AreEqual(3, layouts.Count);
+        Assert.HasCount(3, layouts);
     }
 
     [TestMethod]

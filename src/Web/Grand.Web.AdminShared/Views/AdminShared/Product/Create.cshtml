@@ -1,0 +1,26 @@
+@model ProductModel
+@{
+    //page title
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@* The same shell as Edit, minus what a product that does not exist yet cannot offer. *@
+<form asp-area="@area" asp-controller="Product" asp-action="Create" method="post" id="product-form">
+    <admin-page sticky
+                title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AddNew"]"
+                icon="bi-box"
+                back-url="@Url.Action("List")"
+                back-text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.DetailsButtons"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
+</form>

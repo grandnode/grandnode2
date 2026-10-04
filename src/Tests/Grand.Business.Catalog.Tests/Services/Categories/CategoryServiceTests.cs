@@ -10,7 +10,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -51,7 +51,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void InsertCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null),
             "category");
     }
 
@@ -68,7 +68,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void UpdateCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null),
             "category");
     }
 
@@ -89,7 +89,7 @@ public class CategoryServiceTests
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-        Assert.IsTrue(result.Count == 0);
+        Assert.IsEmpty(result);
     }
 
     [TestMethod]
@@ -102,7 +102,7 @@ public class CategoryServiceTests
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-        Assert.IsTrue(result.Count == 2);
+        Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
     }
@@ -117,7 +117,7 @@ public class CategoryServiceTests
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-        Assert.IsTrue(result.Count == 3);
+        Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("1")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("5")));
@@ -161,7 +161,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void DeleteProductCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _productCategoryService.DeleteProductCategory(null, "id"), "productCategory");
     }
 
@@ -180,7 +180,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void InsertProductCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _productCategoryService.InsertProductCategory(null, "id"), "productCategory");
     }
 

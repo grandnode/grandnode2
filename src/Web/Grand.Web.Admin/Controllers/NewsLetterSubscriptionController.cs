@@ -5,8 +5,8 @@ using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Models.Messages;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
@@ -20,7 +20,6 @@ namespace Grand.Web.Admin.Controllers;
 public class NewsLetterSubscriptionController : BaseAdminController
 {
     private readonly IDateTimeService _dateTimeService;
-    private readonly IGroupService _groupService;
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly IStoreService _storeService;
@@ -32,7 +31,6 @@ public class NewsLetterSubscriptionController : BaseAdminController
         IDateTimeService dateTimeService,
         ITranslationService translationService,
         IStoreService storeService,
-        IGroupService groupService,
         IContextAccessor contextAccessor)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
@@ -40,7 +38,6 @@ public class NewsLetterSubscriptionController : BaseAdminController
         _dateTimeService = dateTimeService;
         _translationService = translationService;
         _storeService = storeService;
-        _groupService = groupService;
         _contextAccessor = contextAccessor;
     }
 
@@ -122,9 +119,6 @@ public class NewsLetterSubscriptionController : BaseAdminController
                 break;
         }
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
-            model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         var newsletterSubscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptions(
             model.SearchEmail,
             model.StoreId, isActive, searchCategoryIds, command.Page - 1, command.PageSize);
@@ -188,9 +182,6 @@ public class NewsLetterSubscriptionController : BaseAdminController
                 isActive = false;
                 break;
         }
-
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
-            model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var subscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptions(model.SearchEmail,
             model.StoreId, isActive, searchCategoryIds);

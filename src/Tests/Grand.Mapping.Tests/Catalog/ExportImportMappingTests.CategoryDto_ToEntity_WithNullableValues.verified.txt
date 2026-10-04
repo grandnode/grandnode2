@@ -1,0 +1,23 @@
+﻿{
+  Name: Electronics,
+  Description: Electronic products,
+  CategoryLayoutId: layout-1,
+  MetaKeywords: electronics, gadgets,
+  MetaDescription: Best electronics,
+  MetaTitle: Electronics,
+  ParentCategoryId: ,
+  PageSize: 12,
+  AllowCustomersToSelectPageSize: true,
+  PageSizeOptions: 6, 12, 24,
+  ShowOnHomePage: true,
+  FeaturedProductsOnHomePage: false,
+  ShowOnSearchBox: false,
+  IncludeInMenu: true,
+  Published: true,
+  HideOnCatalog: false,
+  LimitedToGroups: false,
+  SeName: electronics,
+  LimitedToStores: false,
+  UpdatedOnUtc: DateTime_1,
+  Id: cat-export-1
+}

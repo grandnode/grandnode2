@@ -1,0 +1,35 @@
+@model Payments.CashOnDelivery.Models.ConfigurationModel
+@{
+    Layout = "~/Areas/Store/Views/Shared/_StoreLayout.cshtml";
+    ViewBag.Title = Loc["Admin.Configuration.Payment.Methods"];
+}
+<input id="active-menu-item" type="hidden" value="/Store/Payment/Index"/>
+
+@* the description customers read at checkout, then the fee and the switches; Save as the one
+   primary action *@
+<form asp-controller="PaymentCashOnDelivery" asp-action="Configure" asp-area="Store" method="post">
+    <admin-page title="@Loc["Payments.CashOnDelivery.FriendlyName"]" icon="bi-cash">
+        <page-actions>
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-fields">
+                <admin-field asp-for="DescriptionText">
+                    <admin-textarea asp-for="DescriptionText"></admin-textarea>
+                </admin-field>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AdditionalFee" size="md"/>
+                <admin-field asp-for="AdditionalFeePercentage"/>
+                <admin-field asp-for="ShippableProductRequired"/>
+                <admin-field asp-for="SkipPaymentInfo"/>
+                <admin-field asp-for="DisplayOrder" size="sm"/>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

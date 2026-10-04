@@ -3,7 +3,7 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Contacts;
 
@@ -79,7 +79,7 @@ public class ContactUsService : IContactUsService
             query = query.Where(l => l.Email.ToLower().Contains(email.ToLower()));
 
         query = query.OrderByDescending(x => x.CreatedOnUtc);
-        var contactus = await PagedList<ContactUs>.Create(query, pageIndex, pageSize);
+        var contactus = await _contactusRepository.PagedAsync(query, pageIndex, pageSize);
         return contactus;
     }
 

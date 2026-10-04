@@ -1,12 +1,20 @@
 ﻿@model VendorPortalModel
-
-<div class="card">
-    <div class="card-title">
-        <div class="h3 text-center">
-            @Model.Title
+@* the welcome card of the dashboard, read from the VendorPortalInfo page; nothing when it is empty *@
+@if (!string.IsNullOrWhiteSpace(Model.Title) || !string.IsNullOrWhiteSpace(Model.Body))
+{
+    <section class="grand-dashboard__welcome" aria-labelledby="dashboard-welcome-title">
+        <div class="grand-dashboard__welcome-icon" aria-hidden="true">
+            <i class="bi bi-stars"></i>
         </div>
-    </div>
-    <div class="card-body">
-        @Html.Raw(Model.Body)
-    </div>
-</div>
+        <div class="grand-dashboard__welcome-text">
+            @if (!string.IsNullOrWhiteSpace(Model.Title))
+            {
+                <h2 id="dashboard-welcome-title" class="grand-dashboard__welcome-title">@Model.Title</h2>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Body))
+            {
+                <div class="grand-dashboard__welcome-body">@Html.Raw(Model.Body)</div>
+            }
+        </div>
+    </section>
+}

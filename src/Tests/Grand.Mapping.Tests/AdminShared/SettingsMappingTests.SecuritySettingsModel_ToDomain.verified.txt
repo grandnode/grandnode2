@@ -1,0 +1,18 @@
+﻿{
+  Enabled: true,
+  ShowOnLoginPage: true,
+  ShowOnRegistrationPage: false,
+  ShowOnPasswordRecoveryPage: false,
+  ShowOnContactUsPage: false,
+  ShowOnEmailWishlistToFriendPage: false,
+  ShowOnEmailProductToFriendPage: false,
+  ShowOnAskQuestionPage: false,
+  ShowOnBlogCommentPage: false,
+  ShowOnArticleCommentPage: false,
+  ShowOnNewsCommentPage: false,
+  ShowOnProductReviewPage: false,
+  ShowOnApplyVendorPage: false,
+  ShowOnVendorReviewPage: false,
+  ReCaptchaPublicKey: public-key-123,
+  ReCaptchaPrivateKey: private-key-456
+}

@@ -1,11 +1,12 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Products;
 
@@ -71,24 +72,33 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         var key = string.Format(CacheKey.SPECIFICATION_BY_SENAME, sename);
         return await _cacheBase.GetAsync(key, async () =>
-            await Task.FromResult(_specificationAttributeRepository.Table
-                .FirstOrDefault(x => x.SeName == sename)));
+            await _specificationAttributeRepository.FirstOrDefaultAsync(_specificationAttributeRepository.Table
+                .Where(x => x.SeName == sename)));
     }
 
 
     /// <summary>
     ///     Gets specification attributes
     /// </summary>
+    /// <param name="storeId">Store ident</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Specification attributes</returns>
-    public virtual async Task<IPagedList<SpecificationAttribute>> GetSpecificationAttributes(int pageIndex = 0,
+    public virtual async Task<IPagedList<SpecificationAttribute>> GetSpecificationAttributes(string storeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var query = from sa in _specificationAttributeRepository.Table
-            orderby sa.DisplayOrder
-            select sa;
-        return await PagedList<SpecificationAttribute>.Create(query, pageIndex, pageSize);
+                    select sa;
+
+        if (!string.IsNullOrEmpty(storeId))
+            //Limited to stores rules
+            query = from p in query
+                    where !p.LimitedToStores || p.Stores.Contains(storeId)
+                    select p;
+
+        query = query.OrderBy(sa => sa.DisplayOrder).ThenBy(sa => sa.Name);
+
+        return await _specificationAttributeRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 
@@ -135,8 +145,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         ArgumentNullException.ThrowIfNull(specificationAttribute);
 
         //delete from all product collections
-        await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes,
-            z => z.SpecificationAttributeId, specificationAttribute.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeId == specificationAttribute.Id);
 
         await _specificationAttributeRepository.DeleteAsync(specificationAttribute);
 
@@ -169,7 +178,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
             var query = from p in _specificationAttributeRepository.Table
                 where p.SpecificationAttributeOptions.Any(x => x.Id == specificationAttributeOptionId)
                 select p;
-            return await Task.FromResult(query.FirstOrDefault());
+            return await _specificationAttributeRepository.FirstOrDefaultAsync(query);
         });
     }
 
@@ -183,8 +192,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         ArgumentNullException.ThrowIfNull(specificationAttributeOption);
 
         //delete from all product collections
-        await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes,
-            z => z.SpecificationAttributeOptionId, specificationAttributeOption.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId == specificationAttributeOption.Id);
 
         var specificationAttribute = await GetSpecificationAttributeByOptionId(specificationAttributeOption.Id);
         var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x =>
@@ -217,7 +225,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     {
         ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
-        await _productRepository.AddToSet(productId, x => x.ProductSpecificationAttributes,
+        await _productRepository.AddToCollectionField(productId, x => x.ProductSpecificationAttributes,
             productSpecificationAttribute);
 
         //cache
@@ -237,8 +245,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     {
         ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductSpecificationAttributes, z => z.Id,
-            productSpecificationAttribute.Id, productSpecificationAttribute);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductSpecificationAttributes, z => z.Id == productSpecificationAttribute.Id, productSpecificationAttribute);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -257,8 +264,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     {
         ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
-        await _productRepository.PullFilter(productId, x => x.ProductSpecificationAttributes, x => x.Id,
-            productSpecificationAttribute.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductSpecificationAttributes, x => x.Id == productSpecificationAttribute.Id);
 
         //clear cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));

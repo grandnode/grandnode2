@@ -1,6 +1,6 @@
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Concurrent;
@@ -10,7 +10,7 @@ namespace Grand.Infrastructure.Caching;
 /// <summary>
 ///     Represents a manager for memory caching
 /// </summary>
-public class MemoryCacheBase : ICacheBase
+public class MemoryCacheBase : ICacheBase, IDisposable
 {
     #region Ctor
 
@@ -29,7 +29,7 @@ public class MemoryCacheBase : ICacheBase
     private readonly IMediator _mediator;
     private readonly CacheConfig _cacheConfig;
 
-    private static CancellationTokenSource _resetCacheToken = new();
+    private CancellationTokenSource _resetCacheToken = new();
 
     protected readonly ConcurrentDictionary<string, SemaphoreSlim> CacheEntries = new();
 
@@ -110,25 +110,21 @@ public class MemoryCacheBase : ICacheBase
         }
     }
 
-    public virtual Task RemoveAsync(string key, bool publisher = true)
+    public virtual async Task RemoveAsync(string key, bool publisher = true)
     {
         _cache.Remove(key);
 
         if (publisher)
-            _mediator.Publish(new EntityCacheEvent(key, CacheEvent.RemoveKey));
-
-        return Task.CompletedTask;
+            await _mediator.Publish(new EntityCacheEvent(key, CacheEvent.RemoveKey));
     }
 
-    public virtual Task RemoveByPrefix(string prefix, bool publisher = true)
+    public virtual async Task RemoveByPrefix(string prefix, bool publisher = true)
     {
         var entriesToRemove = CacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
         foreach (var cacheEntries in entriesToRemove) _cache.Remove(cacheEntries.Key);
 
         if (publisher)
-            _mediator.Publish(new EntityCacheEvent(prefix, CacheEvent.RemovePrefix));
-
-        return Task.CompletedTask;
+            await _mediator.Publish(new EntityCacheEvent(prefix, CacheEvent.RemovePrefix));
     }
 
     public virtual Task Clear(bool publisher = true)
@@ -137,14 +133,29 @@ public class MemoryCacheBase : ICacheBase
         foreach (var cacheEntry in CacheEntries.Keys.ToList())
             _cache.Remove(cacheEntry);
 
-        //cancel
+        //cancel, but do not dispose: a writer that already read this source is still handing it to
+        //MemoryCache, which registers an eviction callback on it while storing the entry, and that
+        //registration throws ObjectDisposedException on a disposed source. Cancelling releases the
+        //registrations, and the source has no timer and no WaitHandle, so it is simply collected
         _resetCacheToken.Cancel();
-        //dispose
-        _resetCacheToken.Dispose();
 
         _resetCacheToken = new CancellationTokenSource();
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    ///     Disposes the current reset token once the cache manager itself is no longer needed
+    ///     (e.g. on application shutdown). Unlike <see cref="Clear" />, there is no concurrent writer
+    ///     activity at this point, so disposing here does not risk an ObjectDisposedException.
+    ///     Safe to call more than once.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_resetCacheToken.IsCancellationRequested) return;
+
+        _resetCacheToken.Cancel();
+        _resetCacheToken.Dispose();
     }
 
     #endregion

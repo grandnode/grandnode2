@@ -1,7 +1,7 @@
 ﻿using Grand.Domain.News;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Events.Cache;
 

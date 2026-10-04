@@ -16,12 +16,15 @@
         text = Loc["Tax.Exclusive"];
     }
 
-    <b-dropdown class="mr-2" text="@text">
-        <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.IncludingTax, returnUrl })">
+    <div class="dropdown btn-group me-2">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">@text</button>
+        <ul class="dropdown-menu">
+        <li><a class="dropdown-item @className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.IncludingTax, returnUrl })">
             @Loc["Tax.Inclusive"]
-        </b-dropdown-item>
-        <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.ExcludingTax, returnUrl })">
+        </a></li>
+        <li><a class="dropdown-item @className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.ExcludingTax, returnUrl })">
             @Loc["Tax.Exclusive"]
-        </b-dropdown-item>
-    </b-dropdown>
+        </a></li>
+    </ul>
+    </div>
 }

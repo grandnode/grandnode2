@@ -73,12 +73,15 @@ public class InstallUrlMiddleware
     }
     private Task<GrandNodeVersion?> GetDatabaseVersion(HttpContext context, bool databaseIsInstalled)
     {
-        return _cacheBase.GetAsync(CacheKey.GRAND_NODE_VERSION, () =>
+        return _cacheBase.GetAsync<GrandNodeVersion?>(CacheKey.GRAND_NODE_VERSION, async () =>
         {
-            if (databaseIsInstalled) 
-                return Task.FromResult(context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>().Table.FirstOrDefault());
+            if (databaseIsInstalled)
+            {
+                var repository = context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>();
+                return await repository.FirstOrDefaultAsync(repository.Table);
+            }
 
-            return Task.FromResult<GrandNodeVersion?>(null);
+            return null;
 
         }, int.MaxValue);
     }

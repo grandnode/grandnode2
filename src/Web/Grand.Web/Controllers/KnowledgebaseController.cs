@@ -5,20 +5,20 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Domain.Permissions;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
-using Grand.SharedKernel.Attributes;
 
 namespace Grand.Web.Controllers;
 
@@ -85,7 +85,19 @@ public class KnowledgebaseController : BasePublicController
 
         var category = await _knowledgebaseService.GetPublicKnowledgebaseCategory(categoryId);
         if (category == null)
-            return RedirectToAction("List");
+        {
+            //Check whether the current user has a "Manage knowledgebase" permission
+            //It allows him to preview a category before publishing
+            var hidden = await _knowledgebaseService.GetKnowledgebaseCategory(categoryId);
+            if (hidden is { Published: false } &&
+                _aclService.Authorize(hidden, _contextAccessor.WorkContext.CurrentCustomer) &&
+                _aclService.Authorize(hidden, _contextAccessor.StoreContext.CurrentStore.Id) &&
+                await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+                await _permissionService.Authorize(StandardPermission.ManageKnowledgebase))
+                category = hidden;
+            else
+                return RedirectToAction("List");
+        }
 
         var model = new KnowledgebaseHomePageModel();
         var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(categoryId);
@@ -184,6 +196,13 @@ public class KnowledgebaseController : BasePublicController
         if (article == null)
             return RedirectToAction("List");
 
+        //an unpublished article is answered like a missing one, unless the current user has
+        //a "Manage knowledgebase" permission: it allows him to preview an article before publishing
+        if (!article.Published &&
+            !(await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+              await _permissionService.Authorize(StandardPermission.ManageKnowledgebase)))
+            return RedirectToAction("List");
+
         //ACL (access control list)
         if (!_aclService.Authorize(article, customer))
             return NotFound();
@@ -264,7 +283,6 @@ public class KnowledgebaseController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ArticleCommentAdd(KnowledgebaseArticleModel model,
         [FromServices] ICustomerService customerService)
@@ -306,7 +324,7 @@ public class KnowledgebaseController : BasePublicController
         await PrepareKnowledgebaseArticleModel(model, article, customerService);
         return View("Article", model);
     }
-    
+
     private async Task<IList<KnowledgebaseCategory>> GetCategoryBreadCrumb(KnowledgebaseCategory category, bool showHidden = false)
     {
         ArgumentNullException.ThrowIfNull(category);

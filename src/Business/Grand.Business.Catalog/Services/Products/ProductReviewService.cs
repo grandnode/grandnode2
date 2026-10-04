@@ -3,7 +3,7 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Products;
 
@@ -60,7 +60,7 @@ public class ProductReviewService : IProductReviewService
 
         query = query.OrderByDescending(c => c.CreatedOnUtc);
 
-        return await PagedList<ProductReview>.Create(query, pageIndex, pageSize);
+        return await _productReviewRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

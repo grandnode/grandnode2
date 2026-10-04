@@ -1,0 +1,283 @@
+@using System.Globalization
+@model ProductOverviewModel
+@{
+    @*
+        Cards above the fold opt out of lazy loading: the browser only discovers a
+        lazy image after layout, which on a category page delays the very image that
+        decides LCP. The caller sets this for the first row; everything else stays
+        lazy, which is the right default further down the page.
+    *@
+    var eagerImage = ViewData["EagerImage"] as bool? ?? false;
+
+    @* Nordic: one badge, in this priority. Client twin: Catalog/Partials/Client/CatalogProductGridView *@
+    var onSale = !string.IsNullOrEmpty(Model.ProductPrice.OldPrice);
+    string badge = null, badgeClass = null;
+    if (Model.ProductType == ProductType.Auction) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Auction"); badgeClass = "auction"; }
+    else if (onSale) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Sale"); badgeClass = "sale"; }
+    else if (Model.ProductType == ProductType.BundledProduct) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Bundle"); badgeClass = "bundle"; }
+    else if (Model.MarkAsNew) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.New"); badgeClass = "new"; }
+}
+
+@await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
+<article v-bind:class="{ mobile: isMobile()}" class="card product-box nordic-card mb-2">
+    <div class="picture-container nordic-card__media">
+        <a class="img-container" href="@Url.RouteUrl("Product", new { Model.SeName })" title="@Model.DefaultPictureModel.Title">
+            <img class="card-img main-product-img" src="@Model.DefaultPictureModel.ImageUrl" alt="@Model.DefaultPictureModel.AlternateText" loading="@(eagerImage ? "eager" : "lazy")" fetchpriority="@(eagerImage ? "high" : "auto")" title="@Model.DefaultPictureModel.Title">
+            @if (!string.IsNullOrEmpty(Model.SecondPictureModel.ImageUrl))
+            {
+                <img class="card-img hover-img" src="@Model.SecondPictureModel.ImageUrl" alt="@Model.SecondPictureModel.AlternateText" loading="lazy">
+            }
+        </a>
+        <div class="nordic-card__badges">
+            @if (badge != null)
+            {
+                <span class="nordic-badge nordic-badge--@badgeClass">@badge</span>
+            }
+            @if (!string.IsNullOrEmpty(Model.Flag))
+            {
+                <div class="product-label">
+                    <div class="badge text-bg-info">@Model.Flag</div>
+                </div>
+            }
+        </div>
+        <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-bs-target="ModalQuickView" data-cart-action="quickview" data-url="@Model.QuickViewUrl">
+            <i class="b-icon bi bi-search" aria-hidden="true"></i>
+            <span>@Loc["Products.QuickView"]</span>
+        </a>
+    </div>
+    <div class="card-body nordic-card__body">
+        @if (!string.IsNullOrEmpty(Model.BrandName))
+        {
+            <div class="nordic-card__brand">@Model.BrandName</div>
+        }
+        <h3 class="card-title nordic-card__name mb-0">
+            <a href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.Name</a>
+        </h3>
+        @if (Model.ShowSku && !string.IsNullOrEmpty(Model.Sku))
+        {
+            <span class="sku">@Model.Sku</span>
+        }
+        <div class="prices-rating">
+            <div class="prices nordic-card__price @(onSale ? "is-sale" : "") @if (Model.ProductType == ProductType.Reservation) { <text>reservation-price</text> }">
+                @if (Model.ProductType != ProductType.Auction)
+                {
+                    <div class="actual-price price">
+                        @Model.ProductPrice.Price
+                        @if (Model.ProductPrice.CallForPrice)
+                        {
+                            @Loc["Products.CallForPrice"]
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="actual-price price">
+                        @(Model.ProductPrice.HighestBidValue > 0 ? Model.ProductPrice.HighestBid : Model.ProductPrice.StartPrice)
+                    </div>
+                }
+                @if (onSale)
+                {
+                    <div class="old-price price">
+                        @Model.ProductPrice.OldPrice
+                    </div>
+                }
+            </div>
+            @if (Model.ProductType == ProductType.Auction)
+            {
+                @if (Model.EndTime.HasValue)
+                {
+                    <div class="countdown-box nordic-card__countdown">
+                        @if (Model.EndTime > DateTime.UtcNow)
+                        {
+                            <countdown :end-time="@Model.EndTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">
+                                <template v-slot:process="{ timeObj }">
+                                    <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
+                                    <span>{{ `${timeObj.d}` }}@Loc["Countdown.Days"]</span>
+                                    <span>{{ `${timeObj.h}` }}@Loc["Countdown.Hours"]</span>
+                                    <span>{{ `${timeObj.m}` }}@Loc["Countdown.Minutes"]</span>
+                                    <span>{{ `${timeObj.s}` }}@Loc["Countdown.Seconds"]</span>
+                                </template>
+                                <template v-slot:finish>
+                                    <span>@Loc["ShoppingCart.Auctionends"]</span>
+                                </template>
+                            </countdown>
+                        }
+                        else
+                        {
+                            <div class="d-inline-flex flex-wrap">
+                                <label class="ended-label">@Loc["ShoppingCart.Auctionends"]:</label>
+                                <div class="count-date">@Model.EndTimeLocalTime.Value.ToString(CultureInfo.InvariantCulture)</div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            @if (Model.ReviewOverviewModel.AllowCustomerReviews)
+            {
+                <div class="rating">
+                    <partial name="Partials/Rating" model="Model.ReviewOverviewModel.AvgRating" />
+                    <a href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</a>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card-footer nordic-card__footer">
+        @if (Model.SpecificationAttributeModels.Any())
+        {
+            <div class="spec-container">
+                @{
+                    var group = Model.SpecificationAttributeModels.GroupBy(x => x.SpecificationAttributeName);
+                }
+                <table>
+                    <tbody>
+                    @foreach (var item in group)
+                    {
+                        <tr class="attr">
+                            <td>
+                                <div class="spec-name">
+                                    @{
+                                        var groupList = item.ToList();
+                                    }
+                                    @groupList[0].SpecificationAttributeName:
+                                </div>
+                            </td>
+                            <td>
+                                <div class="spec-value">
+                                    @foreach (var spec in groupList)
+                                    {
+                                        <span>
+                                            @Html.Raw(spec.ValueRaw)
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+        @if (Model.ProductAttributeModels.Any())
+        {
+            <div class="attr-container">
+                <table>
+                    <tbody>
+                    @foreach (var item in Model.ProductAttributeModels)
+                    {
+                        <tr class="attr @(item.AttributeControlType == AttributeControlType.ColorSquares ? "attr--color" : "")">
+                            <td>
+                                <div class="attr-name">
+                                    @item.Name
+                                </div>
+                            </td>
+                            <td>
+                                <div class="attr-value">
+                                    @foreach (var spec in item.Values)
+                                    {
+                                        switch (item.AttributeControlType)
+                                        {
+                                            case AttributeControlType.DropdownList:
+                                            case AttributeControlType.RadioList:
+                                            case AttributeControlType.Checkboxes:
+                                            case AttributeControlType.ReadonlyCheckboxes:
+                                                <a class="btn btn-sm btn-light name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                    @Html.Raw(spec.Name)
+                                                </a>
+                                                break;
+                                            case AttributeControlType.ColorSquares:
+                                                if (spec.PictureModel.FullSizeImageUrl != null)
+                                                {
+                                                    <a class="btn btn-sm btn-light name color-container" title="@spec.Name" @@click="productImage($event)" data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-sm btn-light name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
+                                                    </a>
+                                                }
+
+                                                break;
+                                            case AttributeControlType.ImageSquares:
+                                                if (spec.PictureModel.FullSizeImageUrl != null)
+                                                {
+                                                    <a class="btn btn-sm btn-light p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name"/>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-sm btn-light p-1 name image-container" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name"/>
+                                                    </a>
+                                                }
+
+                                                break;
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <div class="desc" v-pre>
+            @Html.Raw(Model.ShortDescription)
+        </div>
+        @if (Model.ShowQty)
+        {
+            var qtyId = "addtocart_" + Model.Id + "_EnteredQuantity";
+            <input class="form-control input-group-addon catalog-quantity" type="number" min="1" id="@qtyId" name="@qtyId" value="1">
+        }
+        <div class="btn-group nordic-card__actions">
+            @if (!Model.ProductPrice.DisableBuyButton)
+            {
+                var addToCartText = Loc["ShoppingCart.AddToCart"];
+                if (Model.ProductType == ProductType.Reservation)
+                {
+                    addToCartText = Loc["ShoppingCart.Reservation"];
+                }
+
+                if (Model.ProductPrice.AvailableForPreOrder)
+                {
+                    addToCartText = Loc["ShoppingCart.PreOrder"];
+                }
+
+                <button class="btn btn-info nordic-card__cart" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
+                    <i class="b-icon bi bi-bag" aria-hidden="true"></i>
+                    <span class="add-cart-text">@(addToCartText)</span>
+                    <span class="visually-hidden">AddToCart</span>
+                </button>
+            }
+            else
+            {
+                if (Model.ProductType == ProductType.Auction)
+                {
+                    var addToCartText = Loc["ShoppingCart.Bids"];
+                    <button class="btn btn-info nordic-card__cart" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="false" data-product-id="@Model.Id">
+                        <i class="b-icon bi bi-hammer" aria-hidden="true"></i>
+                        <span class="add-cart-text">@(addToCartText)</span>
+                        <span class="visually-hidden">AddToCart</span>
+                    </button>
+                }
+            }
+            @if (!Model.ProductPrice.DisableWishlistButton && Model.ProductType == ProductType.SimpleProduct)
+            {
+                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary nordic-card__icon" data-cart-action="add" data-url="@Model.AddToWishlistUrl" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
+                    <i class="b-icon bi bi-heart" aria-hidden="true"></i>
+                    <span class="visually-hidden">AddToWishlist</span>
+                </button>
+            }
+            @if (!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == ProductType.SimpleProduct)
+            {
+                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary nordic-card__icon" data-cart-action="compare" data-product-id="@Model.Id">
+                    <span class="visually-hidden">AddToCompareList</span>
+                    <i class="b-icon bi bi-shuffle" aria-hidden="true"></i>
+                </button>
+            }
+        </div>
+    </div>
+</article>

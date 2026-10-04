@@ -1,9 +1,12 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Common;
+using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Common.Security.Captcha;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Customer;
 
@@ -15,16 +18,21 @@ public class PasswordRecoveryValidator : BaseGrandValidator<PasswordRecoveryMode
         IEnumerable<IValidatorConsumer<PasswordRecoveryModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService)
+        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
+        ITranslationService translationService,
+        IContextAccessor workContextAccessor, CustomerConfig customerConfig)
         : base(validators)
     {
+        var storeId = customerConfig.RegisterCustomersPerStore
+            ? workContextAccessor.StoreContext.CurrentStore.Id
+            : "";
+
         RuleFor(x => x.Email).NotEmpty()
             .WithMessage(translationService.GetResource("Account.PasswordRecovery.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            var customer = await customerService.GetCustomerByEmail(x.Email);
+            var customer = await customerService.GetCustomerByEmail(x.Email, storeId);
 
             switch (customer)
             {

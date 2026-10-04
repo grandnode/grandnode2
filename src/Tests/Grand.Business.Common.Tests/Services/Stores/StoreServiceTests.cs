@@ -3,7 +3,7 @@ using Grand.Data;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -47,8 +47,8 @@ public class StoreServiceTests
     [TestMethod]
     public async Task DeleteStore_ValidArgument_InvokeExpectedMethods()
     {
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(new List<Store> { new(), new() }));
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<Store>>>>()))
+            .Returns(Task.FromResult<IList<Store>>(new List<Store> { new(), new() }));
         await _service.DeleteStore(new Store());
         _repository.Verify(c => c.DeleteAsync(It.IsAny<Store>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Store>>(), default), Times.Once);
@@ -59,9 +59,9 @@ public class StoreServiceTests
     public void DeleteStore_OnlyOneStore_ThrowException()
     {
         //can not remove store if it is only one 
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(new List<Store> { new() }));
-        Assert.ThrowsExceptionAsync<Exception>(async () => await _service.DeleteStore(new Store()));
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<Store>>>>()))
+            .Returns(Task.FromResult<IList<Store>>(new List<Store> { new() }));
+        Assert.ThrowsExactlyAsync<Exception>(async () => await _service.DeleteStore(new Store()));
     }
 
     [TestMethod]
@@ -82,8 +82,8 @@ public class StoreServiceTests
 
         var stores = new List<Store> { store1, store2 };
 
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(stores));
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<Store>>>>()))
+            .Returns(Task.FromResult<IList<Store>>(stores));
 
         // Act
         var result = await _service.GetStoreByHost("store1.com");
@@ -110,8 +110,8 @@ public class StoreServiceTests
 
         var stores = new List<Store> { store1, store2 };
 
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(stores));
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<Store>>>>()))
+            .Returns(Task.FromResult<IList<Store>>(stores));
 
         // Act - host not found in any DomainHost
         var result = await _service.GetStoreByHost("nonexisting.com");

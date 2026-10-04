@@ -1,0 +1,28 @@
+@using Grand.Web.AdminShared.Models.Pages
+@model PageModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Pages.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="Page" asp-action="Create" method="post">
+
+    @* the same shell as Edit, minus what a page that does not exist yet cannot offer *@
+    <admin-page sticky
+                title="@Loc["Admin.Content.Pages.AddNew"]"
+                icon="bi-file-earmark"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Content.Pages.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.DetailsButtonsCreate"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
+</form>

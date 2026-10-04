@@ -43,7 +43,7 @@ public class BasePluginTests
         await sampleBasePlugin.Install();
         await sampleBasePlugin.Uninstall();
         var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.AreEqual(0, plugins.Count);
+        Assert.IsEmpty(plugins);
     }
 
     [TestMethod]
@@ -51,6 +51,6 @@ public class BasePluginTests
     {
         await sampleBasePlugin.Uninstall();
         var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.AreEqual(0, plugins.Count);
+        Assert.IsEmpty(plugins);
     }
 }

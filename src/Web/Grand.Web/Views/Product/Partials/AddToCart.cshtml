@@ -31,21 +31,21 @@
         {
             @if (Model.AllowedQuantities.Any())
             {
-                <select name="EnteredQuantity" id=@($"EnteredQuantity_{Model.ProductId}") asp-items="Model.AllowedQuantities" class="custom-select form-control qty-dropdown mr-2"></select>
+                <select name="EnteredQuantity" id=@($"EnteredQuantity_{Model.ProductId}") asp-items="Model.AllowedQuantities" class="form-select form-control qty-dropdown me-2"></select>
                 if (!string.IsNullOrEmpty(Model.MeasureUnit))
                 {
-                    <span class="qty-unit d-flex align-items-center mr-2">
+                    <span class="qty-unit d-flex align-items-center me-2">
                         @Model.MeasureUnit
                     </span>
                 }
             }
             else
             {
-                <label for=@($"EnteredQuantity_{Model.ProductId}") class="sr-only">@Loc["ShoppingCart.AddToCart"]</label>
+                <label for=@($"EnteredQuantity_{Model.ProductId}") class="visually-hidden">@Loc["ShoppingCart.AddToCart"]</label>
                 <input type="number" inputmode="numeric" id=@($"EnteredQuantity_{Model.ProductId}") name="EnteredQuantity" value="1" class="qty-input form-control text-center">
                 if (!string.IsNullOrEmpty(Model.MeasureUnit))
                 {
-                    <span class="qty-unit d-flex align-items-center mr-2">
+                    <span class="qty-unit d-flex align-items-center me-2">
                         @Model.MeasureUnit
                     </span>
                 }
@@ -77,7 +77,7 @@
             }
 
             <div class="input-group-append">
-                <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })', @($"'#product-details-form-{Model.ProductId}'"));return false;">
+                <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" data-cart-action="add-details" data-url="@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })" data-form="#product-details-form-@(Model.ProductId)">
                     <span>@addToCartText</span>
                 </button>
             </div>

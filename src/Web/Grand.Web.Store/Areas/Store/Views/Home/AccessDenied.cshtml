@@ -1,0 +1,12 @@
+﻿<input id="active-menu-item" type="hidden" value="/Store"/>
+<admin-page title="@Loc["Admin.AccessDenied.Title"]" icon="bi-shield-lock">
+    <vc:vendor-widget widget-zone="store_security_access_denied_top" additional-data="null"/>
+    @* the panel's empty state: nothing here the account may see *@
+    <admin-card>
+        <div class="grand-empty">
+            <i class="bi bi-shield-lock grand-empty__icon"></i>
+            <p class="mb-0">@Loc["Admin.AccessDenied.Description"]</p>
+        </div>
+    </admin-card>
+    <vc:vendor-widget widget-zone="store_security_access_denied_bottom" additional-data="null"/>
+</admin-page>

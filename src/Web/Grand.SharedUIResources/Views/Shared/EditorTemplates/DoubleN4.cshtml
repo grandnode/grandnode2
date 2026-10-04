@@ -1,11 +1,2 @@
 @model double
-<input asp-for="@Model"/>
-<script>
-    $(document).ready(function() {
-       $("#@Html.IdForModel()").kendoNumericTextBox({
-           culture: "@CultureInfo.CurrentCulture.Name",
-           format: 'n4',
-           decimals: 4
-        });
-    });
-</script>
+<input asp-for="@Model" data-grand-numeric='{"format":"n4","decimals":4}'/>

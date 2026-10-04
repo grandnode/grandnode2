@@ -1,11 +1,13 @@
-﻿using AutoMapper;
-using Grand.Data;
+﻿using Grand.Data;
+using Grand.Mapping;
+using Grand.Mediator;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Modules;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
+using Grand.Infrastructure.Security;
 using Grand.Infrastructure.TypeConverters;
 using Grand.Infrastructure.TypeSearch;
 using Grand.Infrastructure.Validators;
@@ -67,7 +69,7 @@ public static class StartupBase
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile(instance.GetType());
+            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
         });
 
         //register automapper
@@ -123,8 +125,7 @@ public static class StartupBase
     /// <param name="services">Collection of service descriptors</param>
     private static void AddHttpContextAccessor(this IServiceCollection services)
     {
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();        
     }
 
     /// <summary>
@@ -145,21 +146,13 @@ public static class StartupBase
     }
 
     /// <summary>
-    ///     Adds services for mediatR
+    ///     Adds the mediator and every request/notification handler found in the loaded assemblies
     /// </summary>
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="typeSearcher"></param>
     private static void AddMediator(this IServiceCollection services, ITypeSearcher typeSearcher)
     {
-        var assemblies = typeSearcher.GetAssemblies().ToArray();
-
-        foreach (var assembly in assemblies)
-        {
-            services.AddMediatR(options =>
-            {
-                options.RegisterServicesFromAssembly(assembly);
-            });
-        }
+        services.AddGrandMediator(typeSearcher.GetAssemblies());
     }
    
     /// <summary>
@@ -183,6 +176,9 @@ public static class StartupBase
 
         InitDatabase(services, configuration);
 
+        //resolved by SanitizeHtmlAttribute/NoHtmlAttribute via ValidationContext.GetService - no filter needed,
+        //ASP.NET Core's built-in model validation already invokes DataAnnotations attributes on every bind
+        services.AddSingleton<IHtmlSanitizationService, HtmlSanitizationService>();
         services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
@@ -215,6 +211,7 @@ public static class StartupBase
             });
 
         services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
+        services.StartupConfig<CustomerConfig>(configuration.GetSection("Customer"));
         services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
         services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
         services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
@@ -238,7 +235,8 @@ public static class StartupBase
     /// </summary>
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="configuration">Configuration root of the application</param>
-    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment hostingEnvironment)
     {
         services.AddFeatureManagement();
 
@@ -246,26 +244,21 @@ public static class StartupBase
         var typeSearcher = new TypeSearcher();
         services.AddSingleton<ITypeSearcher>(typeSearcher);
 
-        var provider = services.BuildServiceProvider();
-        var hostingEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
-
         //register application
         var mvcBuilder = RegisterApplication(services, configuration, hostingEnvironment, typeSearcher);
 
-        //register extensions 
+        //register extensions
         RegisterExtensions(mvcBuilder, configuration, hostingEnvironment);
 
-        var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();
-
-        //Register startup
-        var instancesBefore = startupConfigurations
+        //instantiate once - the same instances serve both configuration passes
+        var startupInstances = typeSearcher.ClassesOfType<IStartupApplication>()
             .Where(PluginExtensions.OnlyInstalledPlugins)
             .Select(startup => (IStartupApplication)Activator.CreateInstance(startup))
-            .Where(startup => startup!.BeforeConfigure)
-            .OrderBy(startup => startup.Priority);
+            .OrderBy(startup => startup!.Priority)
+            .ToList();
 
         //configure services
-        foreach (var instance in instancesBefore)
+        foreach (var instance in startupInstances.Where(startup => startup.BeforeConfigure))
             instance.ConfigureServices(services, configuration);
 
         //register mapper configurations
@@ -280,15 +273,8 @@ public static class StartupBase
         //add mediator
         AddMediator(services, typeSearcher);
 
-        //Register startup
-        var instancesAfter = startupConfigurations
-            .Where(PluginExtensions.OnlyInstalledPlugins)
-            .Select(startup => (IStartupApplication)Activator.CreateInstance(startup))
-            .Where(startup => !startup!.BeforeConfigure)
-            .OrderBy(startup => startup.Priority);
-
         //configure services
-        foreach (var instance in instancesAfter)
+        foreach (var instance in startupInstances.Where(startup => !startup.BeforeConfigure))
             instance.ConfigureServices(services, configuration);
 
         //Execute startup interface

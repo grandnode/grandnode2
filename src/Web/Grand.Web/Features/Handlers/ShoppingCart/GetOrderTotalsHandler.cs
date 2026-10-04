@@ -12,7 +12,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 
@@ -120,7 +120,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         var paymentMethodAdditionalFee =
             await _paymentService.GetAdditionalHandlingFee(request.Cart, paymentMethodSystemName);
         var paymentMethodAdditionalFeeWithTaxBase =
-            (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer))
+            (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer, request.Store))
             .paymentPrice;
         if (paymentMethodAdditionalFeeWithTaxBase > 0)
         {

@@ -1,0 +1,116 @@
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Business.Core.Interfaces.Cms
+@model BlogPostModel
+@inject IBlogService blogService
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<script>
+        @{
+            var blogTags = await blogService.GetAllBlogPostTags("", true);
+            var blogTagsSb = new StringBuilder();
+            blogTagsSb.Append("var initialBlogTags = [");
+            for (var i = 0; i < blogTags.Count; i++)
+            {
+                var tag = blogTags[i];
+                blogTagsSb.Append("'");
+                blogTagsSb.Append(JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(tag.Name) ? "" : tag.Name));
+                blogTagsSb.Append("'");
+                if (i != blogTags.Count - 1)
+                {
+                    blogTagsSb.Append(",");
+                }
+            }
+
+            blogTagsSb.Append("]");
+        }
+
+    //tags
+    $(document).ready(function () {
+        @Html.Raw(blogTagsSb.ToString())
+        $("#@Html.IdFor(model => model.Tags)").tagEditor({
+            autocomplete: {
+                delay: 0,
+                position: { collision: 'flip' },
+                source: initialBlogTags
+            },
+            delimiter: ',',
+            placeholder: '@Loc["Admin.Content.Blog.BlogPosts.Fields.Tags.Placeholder"]'
+        });
+    });
+</script>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Title"/>
+            <admin-field asp-for="@Model.Locales[item].BodyOverview">
+                <admin-textarea asp-for="@Model.Locales[item].BodyOverview"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="@Model.Locales[item].Body" asp-template="Editor"/>
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
+        </div>;
+}
+
+@* Two cards instead of one column of 3/9 rows: what the post says, then when and where it is
+   published. The picture comes last in the second card because its upload box is the tallest
+   control. *@
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
+<admin-card>
+    <localized-editor localized-template="@template" name="blogpost-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Title"/>
+            <admin-field asp-for="BodyOverview">
+                <admin-textarea asp-for="BodyOverview"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="Body" asp-template="Editor"/>
+        </div>
+    </localized-editor>
+</admin-card>
+@{
+    ViewData["Reference"] = "Blog";
+    ViewData["ObjectId"] = Model.Id;
+}
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Tags"/>
+        <admin-field asp-for="AllowComments"/>
+        <admin-field asp-for="StartDate"/>
+        <admin-field asp-for="EndDate"/>
+        <admin-field asp-for="CreateDate"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="Stores"/>
+        }
+        <admin-field asp-for="PictureId">
+            <admin-input asp-for="PictureId"/>
+            @if (!string.IsNullOrEmpty(Model.PictureId))
+            {
+                <div class="mt-2">
+                    <a class='text-decoration-none picturelink' href='@Url.Action("PicturePopup", "Blog", new { area })/?blogpostId=@(Model.Id)'>@Loc["Admin.Common.Picture.Attributes"]</a>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $('.picturelink').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            midClick: true,
+                            callbacks:
+                            {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    });
+                </script>
+            }
+        </admin-field>
+    </div>
+</admin-card>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

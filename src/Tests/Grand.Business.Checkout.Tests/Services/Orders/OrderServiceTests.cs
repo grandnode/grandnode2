@@ -2,7 +2,8 @@
 using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -26,6 +27,76 @@ public class OrderServiceTests
     }
 
     [TestMethod]
+    public async Task InsertOrder_AssignsNextOrderNumber()
+    {
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order>().AsQueryable());
+        _orderRepositoryMock.Setup(c => c.FirstOrDefaultAsync(It.IsAny<IQueryable<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(41);
+
+        var order = new Order();
+        await _service.InsertOrder(order);
+
+        Assert.AreEqual(42, order.OrderNumber);
+        _orderRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<Order>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Order>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InsertOrder_NoOrdersYet_AssignsFirstOrderNumber()
+    {
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order>().AsQueryable());
+        _orderRepositoryMock.Setup(c => c.FirstOrDefaultAsync(It.IsAny<IQueryable<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+
+        var order = new Order();
+        await _service.InsertOrder(order);
+
+        Assert.AreEqual(1, order.OrderNumber);
+    }
+
+    [TestMethod]
+    public async Task InsertOrder_OrderNumberTakenByAnotherCheckout_ReadsItAgainAndRetries()
+    {
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order>().AsQueryable());
+        _orderRepositoryMock.SetupSequence(c => c.FirstOrDefaultAsync(It.IsAny<IQueryable<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(41)
+            .ReturnsAsync(42);
+
+        var order = new Order();
+        _orderRepositoryMock.SetupSequence(c => c.InsertAsync(It.IsAny<Order>()))
+            .Throws(new DuplicateKeyGrandException())
+            .ReturnsAsync(order);
+
+        await _service.InsertOrder(order);
+
+        Assert.AreEqual(43, order.OrderNumber);
+        _orderRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<Order>()), Times.Exactly(2));
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Order>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InsertOrder_OrderNumberTakenOnEveryAttempt_ThrowsAndDoesNotNotify()
+    {
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order>().AsQueryable());
+        _orderRepositoryMock.Setup(c => c.FirstOrDefaultAsync(It.IsAny<IQueryable<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(41);
+        _orderRepositoryMock.Setup(c => c.InsertAsync(It.IsAny<Order>()))
+            .Throws(new DuplicateKeyGrandException());
+
+        await Assert.ThrowsExactlyAsync<DuplicateKeyGrandException>(async () =>
+            await _service.InsertOrder(new Order()));
+
+        _orderRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<Order>()), Times.Exactly(5));
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Order>>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task InsertOrder_NullArguments_ThrowException()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertOrder(null));
+    }
+
+    [TestMethod]
     public async Task UpdateOrder_InvokeExpectedMethods()
     {
         await _service.UpdateOrder(new Order());
@@ -36,7 +107,7 @@ public class OrderServiceTests
     [TestMethod]
     public void UpdateOrder_NullArguments_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdateOrder(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateOrder(null));
     }
 
     [TestMethod]
@@ -50,7 +121,7 @@ public class OrderServiceTests
     [TestMethod]
     public void InsertOrderNote_NullArguments_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertOrderNote(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertOrderNote(null));
     }
 
     [TestMethod]
@@ -64,6 +135,6 @@ public class OrderServiceTests
     [TestMethod]
     public void DeleteOrderNote_NullArguments_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeleteOrderNote(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteOrderNote(null));
     }
 }

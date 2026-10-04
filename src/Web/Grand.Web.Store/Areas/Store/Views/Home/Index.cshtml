@@ -1,0 +1,144 @@
+@using Grand.Business.Core.Interfaces.Catalog.Prices
+@using Grand.Business.Core.Interfaces.Common.Directory
+@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Interfaces.Customers
+@using Grand.Business.Core.Interfaces.System.Reports
+@using Grand.Domain.Permissions
+@using Grand.Domain.Customers
+@inject CustomerSettings customerSettings
+@inject IPermissionService permissionService
+@inject ICustomerService customerService
+@inject IOrderReportService orderReportService
+@inject IPriceFormatter priceFormatter
+@inject IContextAccessor contextAccessor
+@inject ICurrencyService currencyService
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Dashboard"];
+    //every figure below is limited to the store the manager works for
+    var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    var canAccessReports = await permissionService.Authorize(StandardPermission.ManageReports);
+    var canManageOrders = await permissionService.Authorize(StandardPermission.ManageOrders);
+    var customersOnline = 0;
+    var customersShoppingCart = 0;
+    var ordersAmount = string.Empty;
+    var ordersCount = 0;
+    if (canManageOrders)
+    {
+        customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, staffStoreId, "", 1, 1)).TotalCount;
+        customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), staffStoreId);
+        var ordersToday = await orderReportService.GetOrderPeriodReport(0, staffStoreId);
+        ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, await currencyService.GetPrimaryStoreCurrency());
+        ordersCount = ordersToday.Count;
+    }
+}
+
+<div class="grand-dashboard">
+    <vc:store-widget widget-zone="store_dashboard_top" additional-data="null"/>
+
+    <header class="grand-dashboard__header">
+        <div>
+            <h1 class="grand-dashboard__title">@Loc["Admin.Dashboard"]</h1>
+            <p class="grand-dashboard__subtitle">
+                <i class="bi bi-shop" aria-hidden="true"></i>
+                <span>@contextAccessor.StoreContext.CurrentStore.Name</span>
+            </p>
+        </div>
+        <button type="button" id="dashboard-report-range" class="btn grand-dashboard__range" title="@Loc["Admin.Dashboard.Summary"]">
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            <span class="grand-dashboard__range-text"></span>
+            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <vc:store-page system-name="StorePortalInfo"/>
+
+    @if (canManageOrders)
+    {
+        <div class="row g-3 top_tiles grand-dashboard__stats">
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="grand-stat grand-stat--visitors">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                    <div class="grand-stat__body">
+                        <a class="grand-stat__label stretched-link" href="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaStore })">
+                            @Loc["Admin.Dashboard.OnlineCustomers"]
+                        </a>
+                        <div class="grand-stat__value">@customersOnline</div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.OnlineCustomerMinutes", customerSettings.OnlineCustomerMinutes]</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+                @* the store panel has no current-carts page, so this tile is not a link *@
+                <div class="grand-stat grand-stat--carts">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-cart3"></i></span>
+                    <div class="grand-stat__body">
+                        <span class="grand-stat__label">@Loc["Admin.Dashboard.ActiveShoppingCarts"]</span>
+                        <div class="grand-stat__value">@customersShoppingCart</div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.OnlineShoppingCart", customerSettings.OnlineShoppingCartMinutes]</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-xl-4">
+                <div class="grand-stat grand-stat--orders">
+                    <span class="grand-stat__icon" aria-hidden="true"><i class="bi bi-bag-check"></i></span>
+                    <div class="grand-stat__body">
+                        <a class="grand-stat__label stretched-link" href="@Url.Action("List", "Order", new { area = Constants.AreaStore })">
+                            @Loc["Admin.Dashboard.TodayOrders"]
+                        </a>
+                        <div class="grand-stat__value">
+                            <span>@ordersAmount</span>
+                            <span class="grand-stat__value-secondary">/ @ordersCount</span>
+                        </div>
+                        <div class="grand-stat__hint">@Loc["Admin.Dashboard.TodayOrders.AmountCount"]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            @if (canAccessReports)
+            {
+                <div class="col-12 col-xl-5">
+                    <section class="grand-card h-100" aria-labelledby="dashboard-customers-chart">
+                        <header class="grand-card__header">
+                            <i class="bi bi-person-plus grand-card__icon" aria-hidden="true"></i>
+                            <h2 id="dashboard-customers-chart" class="grand-card__title">@Loc["Admin.Dashboard.ReportCustomerTime.TitleChart"]</h2>
+                        </header>
+                        <div class="grand-card__body">
+                            @await Component.InvokeAsync("StoreCustomerReportTimeChart")
+                        </div>
+                    </section>
+                </div>
+            }
+            <div class="col-12 @(canAccessReports ? "col-xl-7" : "")">
+                <section class="grand-card h-100" aria-labelledby="dashboard-orders-chart">
+                    <header class="grand-card__header">
+                        <i class="bi bi-graph-up-arrow grand-card__icon" aria-hidden="true"></i>
+                        <h2 id="dashboard-orders-chart" class="grand-card__title">@Loc["Admin.Dashboard.ReportOrderTime.TitleChart"]</h2>
+                    </header>
+                    <div class="grand-card__body">
+                        @await Component.InvokeAsync("StoreOrderTimeChart")
+                    </div>
+                </section>
+            </div>
+        </div>
+    }
+
+    <section class="grand-card" aria-labelledby="dashboard-latest-orders">
+        <header class="grand-card__header">
+            <i class="bi bi-receipt grand-card__icon" aria-hidden="true"></i>
+            <h2 id="dashboard-latest-orders" class="grand-card__title">@Loc["Admin.Dashboard.ReportLatestOrder"]</h2>
+            <a class="grand-card__action" href="@Url.Action("List", "Order", new { area = Constants.AreaStore })">
+                @Loc["Admin.Dashboard.ViewMore"]
+                <i class="bi bi-arrow-right grand-card__action-arrow" aria-hidden="true"></i>
+            </a>
+        </header>
+        <div class="grand-card__body">
+            @await Component.InvokeAsync("StoreLatestOrder")
+        </div>
+    </section>
+
+    <vc:store-widget widget-zone="store_dashboard_bottom" additional-data="null"/>
+</div>
+<partial name="Partials/DashboardRange"/>

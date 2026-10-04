@@ -1,0 +1,122 @@
+@model PageListModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Pages"];
+    Layout = Constants.LayoutStore;
+}
+
+@* The admin list's shape for a store owner: the name as the only filter (the store is theirs),
+   and the store's own pages and the global ones each a flush grid card under a tab. The ids the
+   script below looks up are unchanged. *@
+<admin-page title="@Loc["Admin.Content.Pages"]" icon="bi-file-earmark">
+    <page-actions>
+        <partial name="Partials/WidgetZone.ListButtons"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-filters id="page-filters" submit-id="search-pages" secondary-submit="true">
+        <filters-search>
+            <admin-input asp-for="Name"/>
+        </filters-search>
+    </admin-filters>
+
+    <admin-tabstrip name="pages-list-tabs" BindGrid="true">
+        <items>
+            <tabstrip-item text="@Loc["Admin.Content.Pages.List.StorePages"]" tab-index="0">
+                <content>
+                    <admin-card flush>
+                        <admin-grid id="store-pages-grid"
+                                    read-url="@Url.Action("StorePagesList", "Page", new { area = Constants.AreaStore })"
+                                    additional-data="additionalData">
+                            <grid-column field="SystemName" title="@Loc["Admin.Content.Pages.Fields.SystemName"]">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ SystemName }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Title" title="@Loc["Admin.Content.Pages.Fields.Title"]">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="IncludeInMenu" title="@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="IncludeInMenu" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Published" title="@Loc["Admin.Content.Pages.Fields.Published"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Pages.Fields.DisplayOrder"]" width="100"/>
+                        </admin-grid>
+                    </admin-card>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Content.Pages.List.GlobalPages"]" tab-index="1">
+                <content>
+                    <admin-card flush>
+                        <admin-grid id="global-pages-grid"
+                                    read-url="@Url.Action("GlobalPagesList", "Page", new { area = Constants.AreaStore })"
+                                    additional-data="additionalData">
+                            <grid-column field="SystemName" title="@Loc["Admin.Content.Pages.Fields.SystemName"]">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ SystemName }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Title" title="@Loc["Admin.Content.Pages.Fields.Title"]">
+                                <cell-template>
+                                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="IncludeInMenu" title="@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="IncludeInMenu" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Published" title="@Loc["Admin.Content.Pages.Fields.Published"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="Published" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Pages.Fields.DisplayOrder"]" width="100"/>
+                        </admin-grid>
+                    </admin-card>
+                </content>
+            </tabstrip-item>
+        </items>
+    </admin-tabstrip>
+</admin-page>
+
+<script>
+    $(document).ready(function () {
+        $('#search-pages').click(function () {
+            var sg = GrandAdmin.grids.get('#store-pages-grid');
+            if (sg) sg.dataSource.read();
+            var gg = GrandAdmin.grids.get('#global-pages-grid');
+            if (gg) gg.dataSource.read();
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.Name)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-pages").click();
+                return false;
+            }
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            Name: $('#@Html.IdFor(model => model.Name)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

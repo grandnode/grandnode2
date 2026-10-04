@@ -1,4 +1,4 @@
-﻿using Grand.Domain.Common;
+using Grand.Domain.Common;
 using Grand.Domain.Shipping;
 
 namespace Grand.Module.Installer.Services;
@@ -7,34 +7,34 @@ public partial class InstallationService
 {
     protected virtual Task InstallWarehouses()
     {
-        var country = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == "USA");
-        var warehouse1address = new Address {
-            Address1 = "21 West 52nd Street",
-            City = "New York",
-            StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
-            CountryId = country?.Id,
-            ZipPostalCode = "10021"
+        var germany = _countryRepository.Table.FirstOrDefault(c => c.TwoLetterIsoCode == "DE");
+        var euWarehouseAddress = new Address {
+            Address1 = "Speicherstadt Kai 12",
+            City = "Hamburg",
+            CountryId = germany?.Id,
+            ZipPostalCode = "20457"
         };
 
-        var warehouse2address = new Address {
-            Address1 = "300 South Spring Stree",
-            City = "Los Angeles",
-            StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "California")?.Id,
-            CountryId = country?.Id,
-            ZipPostalCode = "90013"
+        var usa = _countryRepository.Table.FirstOrDefault(c => c.TwoLetterIsoCode == "US");
+        var usWarehouseAddress = new Address {
+            Address1 = "4500 Aircenter Circle",
+            City = "Reno",
+            StateProvinceId = usa?.StateProvinces.FirstOrDefault(sp => sp.Name == "Nevada")?.Id,
+            CountryId = usa?.Id,
+            ZipPostalCode = "89502"
         };
 
         var warehouses = new List<Warehouse> {
             new() {
-                Code = "WHS01",
-                Name = "Warehouse 1",
-                Address = warehouse1address,
+                Code = "WHS-EU",
+                Name = "EU Fulfilment Centre",
+                Address = euWarehouseAddress,
                 DisplayOrder = 0
             },
             new() {
-                Code = "WHS02",
-                Name = "Warehouse 2",
-                Address = warehouse2address,
+                Code = "WHS-US",
+                Name = "US Fulfilment Centre",
+                Address = usWarehouseAddress,
                 DisplayOrder = 1
             }
         };

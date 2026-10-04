@@ -1,0 +1,18 @@
+﻿@model OrderModel.AddOrderProductModel.GiftVoucherModel
+@if (Model.IsGiftVoucher)
+{
+    @* direct children of the caller's field grid, so they pair up with the other fields *@
+    <admin-field asp-for="RecipientName"/>
+    @if (Model.GiftVoucherType == GiftVoucherType.Virtual)
+    {
+        <admin-field asp-for="RecipientEmail"/>
+    }
+    <admin-field asp-for="SenderName"/>
+    @if (Model.GiftVoucherType == GiftVoucherType.Virtual)
+    {
+        <admin-field asp-for="SenderEmail"/>
+    }
+    <admin-field asp-for="Message">
+        <admin-textarea asp-for="Message"></admin-textarea>
+    </admin-field>
+}

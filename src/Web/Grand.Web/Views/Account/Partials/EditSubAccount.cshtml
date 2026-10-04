@@ -21,7 +21,9 @@
         </validation-provider>
     </div>
     <div class="form-group col-sm-12">
-        <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
+        @* Same rule as Account/Info: do not validate the format of a field the
+           visitor cannot edit - it could only block the form, never help. *@
+        <validation-provider tag="div" rules="@(customerSettings.AllowUsersToChangeEmail ? "required|email" : "required")" name="Email" v-slot="{ errors, classes }">
             <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
             <span class="required">*</span>
             <input asp-for="Email" v-model="createorupdatesubaccount.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" asp-readonly="@(!customerSettings.AllowUsersToChangeEmail)" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Fields.Email.Required"]/>
@@ -39,19 +41,10 @@
     </div>
     <div class="form-group col-sm-12">
         <label asp-for="Active" class="col-form-label">@Loc["Account.Fields.Active"]:</label>
-        <label class="custom-control custom-checkbox">
-            <input asp-for="Active" class="form-control custom-control-input"/>
-            <span class="custom-control-label"></span>
+        <label class="form-check">
+            <input asp-for="Active" class="form-check-input"/>
+            <span class="form-check-label"></span>
         </label>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var createorupdatesubaccount  = new Vue({
-        data: () => ({
-            FirstName: '@Html.Raw(Model.FirstName)',
-            LastName: '@Html.Raw(Model.LastName)',
-            Email: '@Html.Raw(Model.Email)',
-            Password: '',
-        })
-    });
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "createorupdatesubaccount", data = new { Model.FirstName, Model.LastName, Model.Email, Password = "" } })</script>

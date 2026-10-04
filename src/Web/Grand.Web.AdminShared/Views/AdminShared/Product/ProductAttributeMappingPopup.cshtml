@@ -1,0 +1,69 @@
+﻿@model ProductModel.ProductAttributeMappingModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Details"];
+}
+<form id="ProductAttributeMappingPopup" asp-area="@area" asp-controller="Product" asp-action="ProductAttributeMappingPopup" enctype="multipart/form-data" method="post"
+      asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
+      asp-route-productAttributeMappingId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductAttributeMappingId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
+
+    <div asp-validation-summary="All"></div>
+    <input asp-for="ProductId" type="hidden"/>
+    <input asp-for="Id" type="hidden"/>
+
+    <admin-popup title="@(string.IsNullOrEmpty(Model.Id) ? Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"] : Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Edit"])" icon="bi-boxes">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="ProductAttributeId" asp-label-for="ProductAttribute" asp-items="Model.AvailableProductAttribute"/>
+            <admin-field asp-for="TextPrompt"/>
+            <admin-field asp-for="AttributeControlTypeId" asp-label-for="AttributeControlType"
+                         asp-items="EnumTranslationService.ToSelectList(Model.AttributeControlTypeId, valuesToExclude: [(int)AttributeControlType.Hidden])"/>
+            <admin-field asp-for="DisplayOrder" size="sm"/>
+            <admin-field asp-for="IsRequired"/>
+            <admin-field asp-for="ShowOnCatalogPage"/>
+            <admin-field asp-for="Combination"/>
+        </div>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductAttributeMappingPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductAttributes').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>

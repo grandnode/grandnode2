@@ -1,0 +1,49 @@
+@{
+    Layout = "";
+}
+@model Shipping.ShippingPoint.Models.ShippingPointModel
+
+<form id="EditPopup" asp-controller="ShippingPoint" asp-action="Edit" asp-route-area="Store" method="post"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
+    <admin-popup title="@Loc["Admin.Common.Edit"]" icon="bi-geo-alt">
+        <partial name="_CreateOrUpdate" model="Model"/>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#EditPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>

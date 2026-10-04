@@ -1,0 +1,106 @@
+@using Grand.Web.AdminShared.Models.Messages
+@model ContactAttributeModel
+<partial name="Partials/WidgetZone.Condition.Top" model="Model"/>
+@{
+    if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <script>
+            $(document).ready(function () {
+                $("#@Html.IdFor(model => model.ConditionModel.EnableCondition)").click(toggleEnableCondition);
+                toggleEnableCondition();
+            });
+
+            function toggleEnableCondition() {
+                if ($('#@Html.IdFor(model => model.ConditionModel.EnableCondition)').is(':checked')) {
+                    $('#pnlAttributes').show();
+                } else {
+                    $('#pnlAttributes').hide();
+                }
+            }
+        </script>
+
+        @* the checkout attribute condition tab's layout: the switch, then the attribute and its
+           values; pnlAttributes and each pnl_attribute_values_{id} keep the ids the scripts
+           toggle *@
+        <admin-card>
+            <div class="grand-fields">
+                <admin-field asp-for="ConditionModel.EnableCondition"/>
+            </div>
+            <div id="pnlAttributes" class="mt-3">
+                @if (Model.ConditionModel.ConditionAttributes.Count > 0)
+                {
+                    <div class="grand-fields grand-fields--2col">
+                        <admin-field asp-for="ConditionModel.SelectedAttributeId" asp-items="Model.ConditionModel.ConditionAttributes.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })"/>
+                        <script>
+                            $(document).ready(function() {
+                                $("#@Html.IdFor(model => model.ConditionModel.SelectedAttributeId)").change(toggleConditionAttributes);
+                                toggleConditionAttributes();
+                            });
+                            function toggleConditionAttributes() {
+                                var selectedContactAttributeId = $("#@Html.IdFor(model => model.ConditionModel.SelectedAttributeId)").val();
+                                $('[id^="pnl_attribute_values_"]').hide();
+                                $('#pnl_attribute_values_' + selectedContactAttributeId).show();
+                            }
+                        </script>
+                        <div class="grand-field">
+                            @for (var i = 0; i < Model.ConditionModel.ConditionAttributes.Count; i++)
+                            {
+                                <input type="hidden" asp-for="@Model.ConditionModel.ConditionAttributes[i].Id"/>
+                                <div id="@($"pnl_attribute_values_{Model.ConditionModel.ConditionAttributes[i].Id}")">
+                                    @switch (Model.ConditionModel.ConditionAttributes[i].AttributeControlType)
+                                    {
+                                        case AttributeControlType.DropdownList:
+                                            <admin-select asp-for="@Model.ConditionModel.ConditionAttributes[i].SelectedValueId" asp-items="Model.ConditionModel.ConditionAttributes[i].Values"/>
+                                            break;
+                                        case AttributeControlType.RadioList:
+                                        case AttributeControlType.ColorSquares:
+                                        case AttributeControlType.ImageSquares:
+                                            foreach (var value in Model.ConditionModel.ConditionAttributes[i].Values)
+                                            {
+                                                <label class="form-check">
+                                                    <input type="radio" class="form-check-input" asp-for="@Model.ConditionModel.ConditionAttributes[i].SelectedValueId" value="@value.Value" checked="@value.Selected"/>
+                                                    <span class="form-check-label">@value.Text</span>
+                                                </label>
+                                            }
+                                            break;
+                                        case AttributeControlType.Checkboxes:
+                                            for (var j = 0; j < Model.ConditionModel.ConditionAttributes[i].Values.Count; j++)
+                                            {
+                                                <label class="form-check">
+                                                    <input type="hidden" asp-for="@Model.ConditionModel.ConditionAttributes[i].Values[j].Value"/>
+                                                    <admin-input asp-for="@Model.ConditionModel.ConditionAttributes[i].Values[j].Selected"/>
+                                                    <span class="form-check-label">@Model.ConditionModel.ConditionAttributes[i].Values[j].Text</span>
+                                                </label>
+                                            }
+                                            break;
+                                        case AttributeControlType.ReadonlyCheckboxes:
+                                        case AttributeControlType.TextBox:
+                                        case AttributeControlType.MultilineTextbox:
+                                        case AttributeControlType.Datepicker:
+                                        case AttributeControlType.FileUpload:
+                                        default:
+                                            //not supported as conditions
+                                            break;
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="note note-info">
+                        @Loc["Admin.Catalog.Attributes.ContactAttributes.Condition.NoAttributeExists"]
+                    </div>
+                }
+            </div>
+        </admin-card>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["Admin.Catalog.Attributes.ContactAttributes.Condition.SaveBeforeEdit"]
+        </div>
+    }
+}
+<partial name="Partials/WidgetZone.Condition.Bottom" model="Model"/>

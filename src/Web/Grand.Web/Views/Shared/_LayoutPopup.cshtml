@@ -15,6 +15,7 @@
     <resources asp-type="HeadScript"/>
 </head>
 <body class="popup-window text-center px-3">
+@Html.AntiForgeryToken()
 <resources asp-type="ScriptHeader"/>
 <vc:widget widget-zone="body_start_html_tag_after" additional-data="null"></vc:widget>
 @RenderBody()

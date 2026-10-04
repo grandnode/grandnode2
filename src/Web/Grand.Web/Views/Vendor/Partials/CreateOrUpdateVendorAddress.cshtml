@@ -2,46 +2,8 @@
 @{
     var prefix = ViewData.TemplateInfo.HtmlFieldPrefix;
 }
-@if (Model.CountryEnabled && Model.StateProvinceEnabled)
-{
-    <script asp-location="Footer" asp-order="300">
-            function @Html.IdFor(model => model.CountryId)_select_element(e) {
-                    var selectedItem = e.value;
-                    var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                    axios({
-                        method: 'get',
-                        url: "@(Url.RouteUrl("GetStatesByCountryId"))",
-                        params: { "countryId": selectedItem, "addSelectStateItem": "true" },
-                    }).then(function (response) {
-                        ddlStates.innerHTML = '';
-                        response.data.forEach(function (id, option) {
-                            elChild = document.createElement('option');
-                            elChild.setAttribute('value', id.id);
-                            elChild.innerHTML = id.name;
-                            ddlStates.appendChild(elChild);
-                        });
-                        createorupdatevendoraddress.StateProvinceId = response.data[0].id;
-                    }).then(function () {
-                        ddlStates.classList.remove('is-valid');
-                        ddlStates.classList.add('is-invalid');
-                    }).catch(function (error) {
-                        alert(error);
-                    });
-            }
-            function @Html.IdFor(model => model.StateProvinceId)_select_element(e) {
-                var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                if (e.selectedIndex > 0) {
-                    ddlStates.classList.remove('is-invalid');
-                    ddlStates.classList.add('is-valid');
-                } else {
-                    ddlStates.classList.remove('is-valid');
-                    ddlStates.classList.add('is-invalid');
-                }
-            }
-    </script>
-}
 <input asp-for="Id" type="hidden"/>
-<b-row class="edit-address">
+<div class="row edit-address">
     @if (Model.CompanyEnabled)
     {
         <div class="form-group col-sm-12">
@@ -69,8 +31,7 @@
             <validation-provider tag="div" rules="required" :name="'@prefix' + '.CountryId'" v-slot="{ errors, classes }">
                 <label asp-for="CountryId" class="col-form-label">@Loc["Address.Fields.Country"]:</label>
                 <span class="required">*</span>
-                <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Account.VendorInfo.Country.Required"]
-                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="createorupdatevendoraddress.CountryId">
+                <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Account.VendorInfo.Country.Required"] v-bind:class="[classes , 'form-control form-select']" v-model="createorupdatevendoraddress.CountryId">
                 </select>
                 <span class="field-validation-error">{{ errors[0] }}</span>
                 <span asp-validation-for="CountryId"></span>
@@ -84,8 +45,8 @@
             <validation-provider tag="div" rules="required" :name="'@prefix' + '.StateProvinceId'" v-slot="{ errors, classes }">
                 <label asp-for="StateProvinceId" class="col-form-label">@Loc["Address.Fields.StateProvince"]:</label>
                 <span class="required">*</span>
-                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control custom-select']"
-                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="createorupdatevendoraddress.StateProvinceId">
+                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control form-select']" v-model="createorupdatevendoraddress.StateProvinceId">
+                    <option v-for="s in createorupdatevendoraddress.AvailableStates" :key="s.id" :value="s.id">{{s.name}}</option>
                 </select>
                 <span class="field-validation-error">{{ errors[0] }}</span>
                 <span asp-validation-for="StateProvinceId"></span>
@@ -219,24 +180,36 @@
             <span asp-validation-for="FaxNumber"></span>
         </div>
     }
-</b-row>
-<script asp-location="Footer" asp-order="301">
-    var createorupdatevendoraddress = new Vue({
-            data: () => ({
-                @{
-                    <text>
-                        Company: '@Html.Raw(Model.Company)',
-                        Address1: '@Html.Raw(Model.Address1)',
-                        Address2: '@Html.Raw(Model.Address2)',
-                        ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
-                        City: '@Html.Raw(Model.City)',
-                        CountryId: '@Model.CountryId',
-                        StateProvinceId: '@Model.StateProvinceId',
-                        PhoneNumber: '@Html.Raw(Model.PhoneNumber)',
-                        FaxNumber: '@Html.Raw(Model.FaxNumber)',
-                        prefix: '@prefix'
-                    </text>
-                }
-            })
-        });
-</script>
+</div>
+@{
+    var addressVmData = new Dictionary<string, object> {
+        ["Company"] = Model.Company,
+        ["Address1"] = Model.Address1,
+        ["Address2"] = Model.Address2,
+        ["ZipPostalCode"] = Model.ZipPostalCode,
+        ["City"] = Model.City,
+        //empty string, never null: these drive v-model on a <select>, and Vue
+        //matches the option by value - null matches nothing and clears the
+        //selection, where "" selects the "Select country" placeholder. The old
+        //inline script always produced a string because it interpolated into a
+        //JS literal.
+        ["CountryId"] = Model.CountryId ?? "",
+        ["StateProvinceId"] = Model.StateProvinceId ?? "",
+        ["AvailableStates"] = Model.AvailableStates.Select(s => new { id = s.Value, name = s.Text }),
+        ["PhoneNumber"] = Model.PhoneNumber,
+        ["FaxNumber"] = Model.FaxNumber,
+        ["prefix"] = prefix
+    };
+}
+@*Data island for the vendor address form; shares vueapp/src/views/country-state-form.js
+    with the customer address form.*@
+<script type="application/json" data-grand-vm="countryStateForm">@Json.Serialize(new {
+                                                               name = "createorupdatevendoraddress",
+                                                               data = addressVmData,
+                                                               routes = new { getStates = Url.RouteUrl("GetStatesByCountryId") },
+                                                               elements = new {
+                                                                   countrySelectId = Html.IdFor(m => m.CountryId),
+                                                                   stateSelectId = Html.IdFor(m => m.StateProvinceId)
+                                                               },
+                                                               res = new { warning = Loc["common.warning"].ToString() }
+                                                           })</script>

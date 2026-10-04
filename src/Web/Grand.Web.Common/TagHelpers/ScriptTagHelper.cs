@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Grand.Web.Common.TagHelpers;
@@ -12,14 +13,18 @@ public class ScriptTagHelper : TagHelper
     private const string LocationAttributeName = "asp-location";
     private const string SrcAttributeName = "asp-src";
     private const string OrderAttributeName = "asp-order";
+    private const string AppendVersionAttributeName = "asp-append-version";
+    private readonly IFileVersionProvider _fileVersionProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     private readonly IResourceManager _resourceManager;
 
-    public ScriptTagHelper(IResourceManager resourceManager, IHttpContextAccessor httpContextAccessor)
+    public ScriptTagHelper(IResourceManager resourceManager, IHttpContextAccessor httpContextAccessor,
+        IFileVersionProvider fileVersionProvider)
     {
         _resourceManager = resourceManager;
         _httpContextAccessor = httpContextAccessor;
+        _fileVersionProvider = fileVersionProvider;
     }
 
     [HtmlAttributeName(LocationAttributeName)]
@@ -29,6 +34,18 @@ public class ScriptTagHelper : TagHelper
 
     [HtmlAttributeName(OrderAttributeName)]
     public int DisplayOrder { get; set; }
+
+    /// <summary>
+    ///     Appends a content hash to the src so a changed script actually reaches
+    ///     returning visitors. Without it a cached copy can go on running against
+    ///     markup that has already moved on.
+    /// </summary>
+    /// <remarks>
+    ///     Nullable to match the built-in ScriptTagHelper, which also binds this
+    ///     attribute on &lt;script&gt; - a plain bool makes Razor fail to compile.
+    /// </remarks>
+    [HtmlAttributeName(AppendVersionAttributeName)]
+    public bool? AppendVersion { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -43,7 +60,14 @@ public class ScriptTagHelper : TagHelper
             var builder = new TagBuilder("script");
             builder.InnerHtml.AppendHtml(childContent);
             builder.TagRenderMode = TagRenderMode.Normal;
-            if (!string.IsNullOrEmpty(Src)) builder.Attributes.Add("src", Src);
+            if (!string.IsNullOrEmpty(Src))
+            {
+                var src = Src;
+                if (AppendVersion == true && _httpContextAccessor.HttpContext != null)
+                    src = _fileVersionProvider.AddFileVersionToPath(
+                        _httpContextAccessor.HttpContext.Request.PathBase, src);
+                builder.Attributes.Add("src", src);
+            }
             foreach (var attribute in output.Attributes)
                 builder.Attributes.Add(attribute.Name, attribute.Value.ToString());
 

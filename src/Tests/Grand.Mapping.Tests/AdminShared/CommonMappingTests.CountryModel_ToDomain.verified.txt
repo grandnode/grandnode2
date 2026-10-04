@@ -1,0 +1,16 @@
+﻿{
+  Name: United States,
+  AllowsBilling: true,
+  AllowsShipping: true,
+  TwoLetterIsoCode: US,
+  ThreeLetterIsoCode: USA,
+  NumericIsoCode: 840,
+  SubjectToVat: false,
+  Published: true,
+  DisplayOrder: 1,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

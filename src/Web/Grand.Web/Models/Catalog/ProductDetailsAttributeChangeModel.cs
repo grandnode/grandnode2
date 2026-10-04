@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.Models;
+﻿using Grand.Business.Core.Utilities.Catalog;
+using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Catalog;
 
@@ -9,6 +10,7 @@ public class ProductDetailsAttributeChangeModel : BaseEntityModel
     public string Sku { get; set; }
     public string Price { get; set; }
     public string StockAvailability { get; set; }
+    public ProductAvailability? Availability { get; set; }
     public bool DisplayOutOfStockSubscription { get; set; }
     public string ButtonTextOutOfStockSubscription { get; set; }
     public IList<string> EnabledAttributeMappingIds { get; set; } = new List<string>();

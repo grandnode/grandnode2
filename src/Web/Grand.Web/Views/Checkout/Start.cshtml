@@ -3,17 +3,29 @@
 @{
     Layout = "_SingleColumn";
 
-    <script asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300"></script>
+    @*
+        `defer` is mandatory, not an optimisation: this file reads the global `Vue` that
+        the bundle publishes, and the bundle is deferred in Partials/Head.cshtml. A plain
+        script executes during parsing, i.e. *before* any deferred one, so without defer
+        here it runs first, throws "Vue is not defined", never registers the checkout
+        controllers and the page renders empty. Any script that depends on the bundle
+        must carry defer, wherever in the views it lives.
+    *@
+    <script defer asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300" asp-append-version="true"></script>
 
-    <script asp-location="Footer" asp-order="301">
-        vmorder.vCartUrl.init('@Url.RouteUrl("ShoppingCartSummary")', '@Url.RouteUrl("ShoppingCartTotal")');
-        vmorder.vShipping.init('#co-shipping-form', '/checkout/SaveShipping/');
-        vmorder.vBilling.init('#co-billing-form', '/checkout/SaveBilling/');
-        vmorder.vShippingMethod.init('#co-shipping-method-form', '/checkout/SaveShippingMethod/');
-        vmorder.vPaymentMethod.init('#co-payment-method-form', '/checkout/SavePaymentMethod/');
-        vmorder.vPaymentInfo.init('#co-payment-info-form', '/checkout/SavePaymentInfo/');
-        vmorder.vConfirmOrder.init('/checkout/ConfirmOrder/', '@Url.RouteUrl("CheckoutCompleted")')
-    </script>
+    <script type="application/json" data-grand-vm="checkoutSteps">@Json.Serialize(new {
+                                                                     routes = new {
+                                                                         cartSummary = Url.RouteUrl("ShoppingCartSummary"),
+                                                                         cartTotal = Url.RouteUrl("ShoppingCartTotal"),
+                                                                         saveShipping = Url.Action("SaveShipping", "Checkout"),
+                                                                         saveBilling = Url.Action("SaveBilling", "Checkout"),
+                                                                         saveShippingMethod = Url.Action("SaveShippingMethod", "Checkout"),
+                                                                         savePaymentMethod = Url.Action("SavePaymentMethod", "Checkout"),
+                                                                         savePaymentInfo = Url.Action("SavePaymentInfo", "Checkout"),
+                                                                         confirmOrder = Url.Action("ConfirmOrder", "Checkout"),
+                                                                         completed = Url.RouteUrl("CheckoutCompleted")
+                                                                     }
+                                                                 })</script>
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Checkout"]);
@@ -34,7 +46,7 @@
         confirmOrderStepNumber -= 2;
     }
 }
-<div class="page checkout-page">
+<div class="page checkout-page" vue-island="vmorder">
     <h1 class="generalTitle h2 my-3">@Loc["Checkout"]</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_content_before" })
     <div class="col-12 px-0">
@@ -42,174 +54,168 @@
             @if (Model.ShippingRequired)
             {
                 <div class="card-header" role="tab">
-                    <button block v-b-toggle.opc-shipping id="button-shipping" ref="buttonShipping" class="btn btn-info">@shippingAddressStepNumber. @Loc["Checkout.ShippingAddress"]</button>
+                    <button block data-bs-toggle="collapse" data-bs-target="#opc-shipping" aria-expanded="true" aria-controls="opc-shipping" id="button-shipping" ref="buttonShipping" class="btn btn-info">@shippingAddressStepNumber. @Loc["Checkout.ShippingAddress"]</button>
                 </div>
             }
             <div class="card-header" role="tab">
-                <button block v-b-toggle.opc-billing id="button-billing" ref="buttonBilling" class="allow btn btn-info">@billingAddressStepNumber. @Loc["Checkout.BillingAddress"]</button>
+                <button block data-bs-toggle="collapse" data-bs-target="#opc-billing" aria-expanded="@((!Model.ShippingRequired).ToString().ToLower())" aria-controls="opc-billing" id="button-billing" ref="buttonBilling" class="allow btn btn-info@(Model.ShippingRequired ? " collapsed" : "")">@billingAddressStepNumber. @Loc["Checkout.BillingAddress"]</button>
             </div>
             @if (Model.ShippingRequired)
             {
                 <div class="card-header" role="tab">
-                    <button block v-b-toggle.opc-shipping-method id="button-shipping-method" ref="buttonShippingMethod" class="btn btn-info">@shippingMethodStepNumber. @Loc["Checkout.ShippingMethod"]</button>
+                    <button block data-bs-toggle="collapse" data-bs-target="#opc-shipping-method" aria-expanded="false" aria-controls="opc-shipping-method" id="button-shipping-method" ref="buttonShippingMethod" class="btn btn-info collapsed">@shippingMethodStepNumber. @Loc["Checkout.ShippingMethod"]</button>
                 </div>
             }
             <div class="card-header" role="tab">
-                <button block v-b-toggle.opc-payment-method id="button-payment-method" ref="buttonPaymentMethod" class="btn btn-info">@paymentMethodStepNumber. @Loc["Checkout.PaymentMethod"]</button>
+                <button block data-bs-toggle="collapse" data-bs-target="#opc-payment-method" aria-expanded="false" aria-controls="opc-payment-method" id="button-payment-method" ref="buttonPaymentMethod" class="btn btn-info collapsed">@paymentMethodStepNumber. @Loc["Checkout.PaymentMethod"]</button>
             </div>
             <div class="card-header" role="tab">
-                <button block v-b-toggle.opc-payment-info id="button-payment-info" ref="buttonPaymentInfo" class="btn btn-info">@paymentInfoStepNumber. @Loc["Checkout.PaymentInfo"]</button>
+                <button block data-bs-toggle="collapse" data-bs-target="#opc-payment-info" aria-expanded="false" aria-controls="opc-payment-info" id="button-payment-info" ref="buttonPaymentInfo" class="btn btn-info collapsed">@paymentInfoStepNumber. @Loc["Checkout.PaymentInfo"]</button>
             </div>
             <div class="card-header" role="tab">
-                <button block v-b-toggle.opc-confirm-order id="button-confirm-order" class="btn btn-info">@confirmOrderStepNumber. @Loc["Checkout.ConfirmOrder"]</button>
+                <button block data-bs-toggle="collapse" data-bs-target="#opc-confirm-order" aria-expanded="false" aria-controls="opc-confirm-order" id="button-confirm-order" class="btn btn-info collapsed">@confirmOrderStepNumber. @Loc["Checkout.ConfirmOrder"]</button>
             </div>
         </div>
-        <div class="form-row">
+        <div class="row">
             <div class="col-xl-7 col-12">
-                <template>
-                    <div class="accordion opc" id="checkout-steps" role="tablist">
-                        @if (Model.ShippingRequired)
-                        {
-                            <div class="card">
-                                <b-collapse id="opc-shipping" visible accordion="my-accordion" role="tabpanel" appear>
-                                    <div class="card-body">
-                                        <validation-observer v-slot="{ handleSubmit }">
-                                            <form action="" id="co-shipping-form" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit)">
-                                                <div id="checkout-shipping-load">
-                                                    <partial name="Partials/ShippingAddress" model="Model.ShippingAddress"/>
-                                                </div>
-                                                <input type="submit" ref="shippingSubmit" id="opc-shipping-submit" class="d-none"/>
-                                            </form>
-                                        </validation-observer>
-                                        <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-buttons-container">
-                                            <input type="button" class="btn btn-info new-address-next-step-button" title="@Loc["Common.Continue"]"
-                                                   @if (Model.ShippingAddress.ExistingAddresses.Any())
-                                                   {
-                                                       <text>@@click="vmorder.saveStep('vShipping', 'shippingSubmit', vm.$refs.shippingSelect.value === '')"</text>
-                                                   }
-                                                   else
-                                                   {
-                                                       <text>@@click="vmorder.saveStep('vShipping', 'shippingSubmit', true)"</text>
-                                                   }
-                                                   value="@Loc["Common.Continue"]"/>
-                                            <span id="shipping-please-wait" class="please-wait" style="display: none;"> @Loc["Common.LoadingNextStep"]</span>
-                                        </div>
-                                    </div>
-                                </b-collapse>
-                            </div>
-                        }
+                <div class="accordion opc" id="checkout-steps" role="tablist">
+                    @if (Model.ShippingRequired)
+                    {
                         <div class="card">
-                            <b-collapse id="opc-billing"
-                                        @if (!Model.ShippingRequired)
-                                        {
-                                            <text> visible </text>
-                                        }
-                                        accordion="my-accordion" role="tabpanel" appear>
+                            <div class="collapse show" id="opc-shipping" role="tabpanel" data-bs-parent="#checkout-steps">
                                 <div class="card-body">
                                     <validation-observer v-slot="{ handleSubmit }">
-                                        <form id="co-billing-form" action="" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit)">
-                                            <div id="checkout-billing-load">
-                                                @if (Model.ShippingRequired)
-                                                {
-                                                    <partial name="Partials/BillingAddress" model="Model"/>
-                                                }
-                                                else
-                                                {
-                                                    <partial name="Partials/BillingWithoutShipping" model="Model.BillingAddress"/>
-                                                }
+                                        <form action="" id="co-shipping-form" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit)">
+                                            <div id="checkout-shipping-load">
+                                                <partial name="Partials/ShippingAddress" model="Model.ShippingAddress"/>
                                             </div>
-                                            <input type="submit" ref="billingSubmit" id="opc-billing-submit" class="d-none"/>
+                                            <input type="submit" ref="shippingSubmit" id="opc-shipping-submit" class="d-none"/>
                                         </form>
                                     </validation-observer>
-                                    <div class="col-12 buttons py-1 mt-3 px-0" id="billing-buttons-container">
-                                        @if (Model.ShippingRequired)
-                                        {
-                                            <a class="btn btn-secondary" id="back-billing" href="#" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                        }
-                                        <input type="button" title="@Loc["Common.Continue"]" class="btn btn-info new-address-next-step-button"
-                                               @if (Model.BillingAddress.ExistingAddresses.Any())
+                                    <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-buttons-container">
+                                        <input type="button" class="btn btn-info new-address-next-step-button" title="@Loc["Common.Continue"]"
+                                               @if (Model.ShippingAddress.ExistingAddresses.Any())
                                                {
-                                                   <text>@@click="vmorder.saveStep('vBilling', 'billingSubmit', vm.$refs.billingSelect.value === '')"</text>
+                                                   <text>@@click="vmorder.saveStep('vShipping', 'shippingSubmit', vm.$refs.shippingSelect.value === '')"</text>
                                                }
                                                else
                                                {
-                                                   <text>@@click="vmorder.saveStep('vBilling', 'billingSubmit', true)"</text>
+                                                   <text>@@click="vmorder.saveStep('vShipping', 'shippingSubmit', true)"</text>
                                                }
                                                value="@Loc["Common.Continue"]"/>
-                                        <span class="please-wait" id="billing-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                        <span id="shipping-please-wait" class="please-wait" style="display: none;"> @Loc["Common.LoadingNextStep"]</span>
                                     </div>
                                 </div>
-                            </b-collapse>
-                        </div>
-                        @if (Model.ShippingRequired)
-                        {
-                            <div class="card">
-                                <b-collapse id="opc-shipping-method" accordion="my-accordion" role="tabpanel" appear>
-                                    <div class="card-body">
-                                        <form id="co-shipping-method-form" action="">
-                                            <div id="checkout-shipping-method-load">
-                                                @*In that field all available shipping methods will be loaded*@
-                                                <partial name="Partials/ShippingMethods" model="Model"/>
-                                            </div>
-                                            <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-method-buttons-container">
-                                                <a class="btn btn-secondary" href="#" id="back-shipping_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                                <input type="button" class="btn btn-info shipping-method-next-step-button" @@click="vmorder.saveStep('vShippingMethod', null, false)" value="@Loc["Common.Continue"]"/>
-                                                <span id="shipping-method-please-wait" class="please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </b-collapse>
                             </div>
-                        }
-                        <div class="card">
-                            <b-collapse id="opc-payment-method" accordion="my-accordion" role="tabpanel" appear>
-                                <div class="card-body">
-                                    <form action="" id="co-payment-method-form">
-                                        <div id="checkout-payment-method-load">
-                                            @*In that field all available payment methods will be loaded*@
-                                            <partial name="Partials/PaymentMethods" model="Model"/>
-                                        </div>
-                                    </form>
-                                    <div class="col-12 buttons py-1 mt-3 px-0" id="payment-method-buttons-container">
-                                        <a class="btn btn-secondary" href="#" id="back-payment_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                        <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.saveStep('vPaymentMethod', null, false);vmorder.setDisabled(event)" value="@Loc["Common.Continue"]"/>
-                                        <span class="please-wait" id="payment-method-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
-                                    </div>
-                                </div>
-                            </b-collapse>
                         </div>
-                        <div class="card">
-                            <b-collapse id="opc-payment-info" accordion="my-accordion" role="tabpanel" appear>
-                                <div class="card-body">
-                                    <form action="" id="co-payment-info-form">
-                                        <div id="checkout-payment-info-load">
-                                            @*In that field payment info section will be loaded*@
-                                            <partial name="Partials/PaymentInfo"/>
+                    }
+                    <div class="card">
+                        <div class="collapse@(!Model.ShippingRequired ? " show" : "")" id="opc-billing"
+                             role="tabpanel" data-bs-parent="#checkout-steps">
+                            <div class="card-body">
+                                <validation-observer v-slot="{ handleSubmit }">
+                                    <form id="co-billing-form" action="" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit)">
+                                        <div id="checkout-billing-load">
+                                            @if (Model.ShippingRequired)
+                                            {
+                                                <partial name="Partials/BillingAddress" model="Model"/>
+                                            }
+                                            else
+                                            {
+                                                <partial name="Partials/BillingWithoutShipping" model="Model.BillingAddress"/>
+                                            }
                                         </div>
+                                        <input type="submit" ref="billingSubmit" id="opc-billing-submit" class="d-none"/>
                                     </form>
-                                    <div class="col-12 buttons py-1 mt-3 px-0" id="payment-info-buttons-container">
-                                        <a class="btn btn-secondary" href="#" id="back-payment_info" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                        <input type="button" class="btn btn-info payment-info-next-step-button" @@click="vmorder.saveStep('vPaymentInfo', null, false)" value="@Loc["Common.Continue"]"/>
-                                        <span class="please-wait" id="payment-info-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
-                                    </div>
+                                </validation-observer>
+                                <div class="col-12 buttons py-1 mt-3 px-0" id="billing-buttons-container">
+                                    @if (Model.ShippingRequired)
+                                    {
+                                        <a class="btn btn-secondary" id="back-billing" href="#" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
+                                    }
+                                    <input type="button" title="@Loc["Common.Continue"]" class="btn btn-info new-address-next-step-button"
+                                           @if (Model.BillingAddress.ExistingAddresses.Any())
+                                           {
+                                               <text>@@click="vmorder.saveStep('vBilling', 'billingSubmit', vm.$refs.billingSelect.value === '')"</text>
+                                           }
+                                           else
+                                           {
+                                               <text>@@click="vmorder.saveStep('vBilling', 'billingSubmit', true)"</text>
+                                           }
+                                           value="@Loc["Common.Continue"]"/>
+                                    <span class="please-wait" id="billing-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                 </div>
-                            </b-collapse>
-                        </div>
-                        <div class="card">
-                            <b-collapse id="opc-confirm-order" accordion="my-accordion" role="tabpanel" appear>
-                                <div class="card-body">
-                                    <div id="checkout-confirm-order-load">
-                                        <partial name="Partials/ConfirmOrder"/>
-                                    </div>
-                                    <div id="confirm-order-buttons-container">
-                                        <a class="btn btn-secondary sr-only" href="#" id="back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                        <span class="please-wait" id="confirm-order-please-wait" style="display: none;">@Loc["Checkout.SubmittingOrder"]</span>
-                                    </div>
-                                </div>
-                            </b-collapse>
+                            </div>
                         </div>
                     </div>
-                </template>
+                    @if (Model.ShippingRequired)
+                    {
+                        <div class="card">
+                            <div class="collapse" id="opc-shipping-method" role="tabpanel" data-bs-parent="#checkout-steps">
+                                <div class="card-body">
+                                    <form id="co-shipping-method-form" action="">
+                                        <div id="checkout-shipping-method-load">
+                                            @*In that field all available shipping methods will be loaded*@
+                                            <partial name="Partials/ShippingMethods" model="Model"/>
+                                        </div>
+                                        <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-method-buttons-container">
+                                            <a class="btn btn-secondary" href="#" id="back-shipping_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
+                                            <input type="button" class="btn btn-info shipping-method-next-step-button" @@click="vmorder.saveStep('vShippingMethod', null, false)" value="@Loc["Common.Continue"]"/>
+                                            <span id="shipping-method-please-wait" class="please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="card">
+                        <div class="collapse" id="opc-payment-method" role="tabpanel" data-bs-parent="#checkout-steps">
+                            <div class="card-body">
+                                <form action="" id="co-payment-method-form">
+                                    <div id="checkout-payment-method-load">
+                                        @*In that field all available payment methods will be loaded*@
+                                        <partial name="Partials/PaymentMethods" model="Model"/>
+                                    </div>
+                                </form>
+                                <div class="col-12 buttons py-1 mt-3 px-0" id="payment-method-buttons-container">
+                                    <a class="btn btn-secondary" href="#" id="back-payment_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
+                                    <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.saveStep('vPaymentMethod', null, false);vmorder.setDisabled($event)" value="@Loc["Common.Continue"]"/>
+                                    <span class="please-wait" id="payment-method-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="collapse" id="opc-payment-info" role="tabpanel" data-bs-parent="#checkout-steps">
+                            <div class="card-body">
+                                <form action="" id="co-payment-info-form">
+                                    <div id="checkout-payment-info-load">
+                                        @*In that field payment info section will be loaded*@
+                                        <partial name="Partials/PaymentInfo"/>
+                                    </div>
+                                </form>
+                                <div class="col-12 buttons py-1 mt-3 px-0" id="payment-info-buttons-container">
+                                    <a class="btn btn-secondary" href="#" id="back-payment_info" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
+                                    <input type="button" class="btn btn-info payment-info-next-step-button" @@click="vmorder.saveStep('vPaymentInfo', null, false)" value="@Loc["Common.Continue"]"/>
+                                    <span class="please-wait" id="payment-info-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="collapse" id="opc-confirm-order" role="tabpanel" data-bs-parent="#checkout-steps">
+                            <div class="card-body">
+                                <div id="checkout-confirm-order-load">
+                                    <partial name="Partials/ConfirmOrder"/>
+                                </div>
+                                <div id="confirm-order-buttons-container">
+                                    <a class="btn btn-secondary visually-hidden" href="#" id="back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
+                                    <span class="please-wait" id="confirm-order-please-wait" style="display: none;">@Loc["Checkout.SubmittingOrder"]</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-xl-5 col-12">
                 <div class="opc-totals">

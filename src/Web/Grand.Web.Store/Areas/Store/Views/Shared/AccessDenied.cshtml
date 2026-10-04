@@ -1,0 +1,12 @@
+@model string
+@{
+    Layout = "";
+}
+
+<div class="modal-access-denied">
+    <admin-popup title="@Loc["Admin.AccessDenied.Title"]" icon="bi-exclamation-triangle">
+        <div class="note note-danger">
+            @(string.IsNullOrEmpty(Model) ? Loc["Admin.AccessDenied.Description"] : Model)
+        </div>
+    </admin-popup>
+</div>

@@ -1,0 +1,13 @@
+﻿{
+  Name: US Dollar,
+  CurrencyCode: USD,
+  Rate: 1.0,
+  DisplayLocale: en-US,
+  Published: true,
+  DisplayOrder: 1,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

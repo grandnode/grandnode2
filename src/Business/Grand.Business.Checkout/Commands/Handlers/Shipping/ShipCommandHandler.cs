@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Shipping;
 
@@ -40,7 +40,7 @@ public class ShipCommandHandler : IRequestHandler<ShipCommand, bool>
         if (request.Shipment.ShippedDateUtc.HasValue)
             throw new Exception("This shipment is already shipped");
 
-        request.Shipment.ShippedDateUtc = DateTime.UtcNow;
+        request.Shipment.ShippedDateUtc = request.ShippedDateUtc ?? DateTime.UtcNow;
         await _shipmentService.UpdateShipment(request.Shipment);
 
         //check whether we have more items to ship

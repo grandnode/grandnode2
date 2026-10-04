@@ -1,0 +1,23 @@
+@model OrderModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<div class="grand-card">
+    <partial name="Partials/WidgetZone.Notifications.Top" model="Model"/>
+    <div class="grand-card__body grand-card__body--flush">
+        <admin-grid id="order-notifications-grid"
+                    read-url="@Url.Action("QueuedEmailByReference", "QueuedEmail", new { reference = (int)Reference.Order, ObjectId = Model.Id, area = area })"
+                    auto-bind="false">
+            <grid-column field="Subject" title="@Loc["Admin.System.QueuedEmails.Fields.Subject"]" width="300">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "QueuedEmail")/{{ Id }}">{{ Subject }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="To" title="@Loc["Admin.System.QueuedEmails.Fields.To"]" width="100"/>
+            <grid-column field="CreatedOn" title="@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+            <grid-column field="SentOn" title="@Loc["Admin.System.QueuedEmails.Fields.SentOn"]" width="100" format="{0:G}"/>
+        </admin-grid>
+    </div>
+    <partial name="Partials/WidgetZone.Notifications.Bottom" model="Model"/>
+</div>
+

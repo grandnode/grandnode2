@@ -16,4 +16,6 @@ To start with us, you should do this few steps:
 
 And that's all, you are GrandNode official contributor!
 
-[Coding standards and guides](http://docs.grandnode.com/developers-guide)
+How to build and run the code locally: [docs/development.md](docs/development.md)
+
+[Coding standards and guides](https://docs.grandnode.com/developers-guide)

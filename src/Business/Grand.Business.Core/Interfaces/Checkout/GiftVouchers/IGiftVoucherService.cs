@@ -19,6 +19,7 @@ public interface IGiftVoucherService
     ///     Gets all gift vouchers
     /// </summary>
     /// <param name="purchasedWithOrderItemId">Associated order ID; null to load all records</param>
+    /// <param name="storeId">Store identifier; null to load all records</param>
     /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
     /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
     /// <param name="isGiftVoucherActivated">Value indicating whether gift voucher is activated; null to load all records</param>
@@ -31,7 +32,7 @@ public interface IGiftVoucherService
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         bool? isGiftVoucherActivated = null, string giftVoucherCouponCode = null,
         string recipientName = null,
-        int pageIndex = 0, int pageSize = int.MaxValue);
+        int pageIndex = 0, int pageSize = int.MaxValue, string storeId = "");
 
 
     /// <summary>

@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model SpecificationAttributeModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<partial name="Partials/WidgetZone.Info.Top"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+                       <admin-field asp-for="@Model.Locales[item].Name"/>
+                       <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+                   </div>;
+}
+@* What the attribute is called, then its URL, order and - in the main panel only - stores. *@
+<admin-card>
+    <localized-editor localized-template="@template" name="specificationattribute-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+        </div>
+    </localized-editor>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="SeName"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="Stores"/>
+        }
+    </div>
+</admin-card>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

@@ -4,7 +4,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Common.Events;
 
@@ -27,11 +27,11 @@ public class GroupDeletedEventHandler : INotificationHandler<EntityDeleted<Custo
     public async Task Handle(EntityDeleted<CustomerGroup> notification, CancellationToken cancellationToken)
     {
         //delete from customers
-        await _customerRepository.Pull(string.Empty, x => x.Groups, notification.Entity.Id);
+        await _customerRepository.RemoveCollectionFieldItem(string.Empty, x => x.Groups, y => y == notification.Entity.Id);
 
         //delete tier prices on the product
-        await _productRepository.PullFilter(string.Empty, x => x.TierPrices, z => z.CustomerGroupId,
-            notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.TierPrices,
+            z => z.CustomerGroupId == notification.Entity.Id);
 
         //clear cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);

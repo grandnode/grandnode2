@@ -16,12 +16,12 @@ public class ContactAttributeExtensionsTests
         var ca4 = new ContactAttribute { AttributeControlType = AttributeControlType.FileUpload };
         var ca5 = new ContactAttribute { AttributeControlType = AttributeControlType.DropdownList };
         ContactAttribute ca6 = null;
-        Assert.AreEqual(false, ca.ShouldHaveValues());
-        Assert.AreEqual(false, ca6.ShouldHaveValues());
-        Assert.AreEqual(false, ca2.ShouldHaveValues());
-        Assert.AreEqual(false, ca4.ShouldHaveValues());
-        Assert.AreEqual(false, ca3.ShouldHaveValues());
-        Assert.AreEqual(true, ca5.ShouldHaveValues());
+        Assert.IsFalse(ca.ShouldHaveValues());
+        Assert.IsFalse(ca6.ShouldHaveValues());
+        Assert.IsFalse(ca2.ShouldHaveValues());
+        Assert.IsFalse(ca4.ShouldHaveValues());
+        Assert.IsFalse(ca3.ShouldHaveValues());
+        Assert.IsTrue(ca5.ShouldHaveValues());
     }
 
     [TestMethod]
@@ -33,11 +33,11 @@ public class ContactAttributeExtensionsTests
         var ca4 = new ContactAttribute { AttributeControlType = AttributeControlType.FileUpload };
         var ca5 = new ContactAttribute { AttributeControlType = AttributeControlType.DropdownList };
         ContactAttribute ca6 = null;
-        Assert.AreEqual(false, ca.CanBeUsedAsCondition());
-        Assert.AreEqual(false, ca6.CanBeUsedAsCondition());
-        Assert.AreEqual(false, ca2.CanBeUsedAsCondition());
-        Assert.AreEqual(false, ca4.CanBeUsedAsCondition());
-        Assert.AreEqual(false, ca3.CanBeUsedAsCondition());
-        Assert.AreEqual(true, ca5.CanBeUsedAsCondition());
+        Assert.IsFalse(ca.CanBeUsedAsCondition());
+        Assert.IsFalse(ca6.CanBeUsedAsCondition());
+        Assert.IsFalse(ca2.CanBeUsedAsCondition());
+        Assert.IsFalse(ca4.CanBeUsedAsCondition());
+        Assert.IsFalse(ca3.CanBeUsedAsCondition());
+        Assert.IsTrue(ca5.CanBeUsedAsCondition());
     }
 }

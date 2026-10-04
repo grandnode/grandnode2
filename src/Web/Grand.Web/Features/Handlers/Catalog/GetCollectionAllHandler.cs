@@ -8,7 +8,7 @@ using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -48,7 +48,7 @@ public class GetCollectionAllHandler : IRequestHandler<GetCollectionAll, Collect
             request.Command.PageSize = _catalogSettings.MaxCatalogPageSize;
 
         var model = new List<CollectionModel>();
-        var collections = await _collectionService.GetAllCollections(storeId: request.Store.Id,
+        var collections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id,
             pageIndex: request.Command.PageNumber - 1,
             pageSize: request.Command.PageSize);
 

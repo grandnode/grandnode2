@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -6,7 +6,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Customers.Services;
 
@@ -76,7 +76,7 @@ public class VendorService : IVendorService
             query = query.Where(v => v.Active);
         query = query.Where(v => !v.Deleted);
         query = query.OrderBy(v => v.DisplayOrder).ThenBy(v => v.Name);
-        return await PagedList<Vendor>.Create(query, pageIndex, pageSize);
+        return await _vendorRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ public class VendorService : IVendorService
     {
         ArgumentNullException.ThrowIfNull(vendorNote);
 
-        await _vendorRepository.AddToSet(vendorId, x => x.VendorNotes, vendorNote);
+        await _vendorRepository.AddToCollectionField(vendorId, x => x.VendorNotes, vendorNote);
 
         //event notification
         await _mediator.EntityInserted(vendorNote);
@@ -165,7 +165,7 @@ public class VendorService : IVendorService
     {
         ArgumentNullException.ThrowIfNull(vendorNote);
 
-        await _vendorRepository.PullFilter(vendorId, x => x.VendorNotes, x => x.Id, vendorNote.Id);
+        await _vendorRepository.RemoveCollectionFieldItem(vendorId, x => x.VendorNotes, x => x.Id == vendorNote.Id);
 
         //event notification
         await _mediator.EntityDeleted(vendorNote);
@@ -181,7 +181,7 @@ public class VendorService : IVendorService
         var query = from c in _vendorRepository.Table
             where c.AppliedDiscounts.Any(x => x == discountId)
             select c;
-        return await Task.FromResult(query.ToList());
+        return await _vendorRepository.ToListAsync(query);
     }
 
     #region Vendor reviews
@@ -218,7 +218,7 @@ public class VendorService : IVendorService
         if (!string.IsNullOrEmpty(vendorId))
             query = query.Where(c => c.VendorId == vendorId);
         query = query.OrderByDescending(c => c.CreatedOnUtc);
-        return await PagedList<VendorReview>.Create(query, pageIndex, pageSize);
+        return await _vendorReviewRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 
@@ -342,7 +342,7 @@ public class VendorService : IVendorService
             query = query.Where(p => p.Name.ToLower().Contains(keywords.ToLower()));
         //vendor filtering
         if (!string.IsNullOrEmpty(vendorId)) query = query.Where(x => x.Id == vendorId);
-        return await Task.FromResult(query.ToList());
+        return await _vendorRepository.ToListAsync(query);
     }
 
     #endregion

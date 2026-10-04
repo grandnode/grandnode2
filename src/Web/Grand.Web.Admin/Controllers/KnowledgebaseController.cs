@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Knowledgebase;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Knowledgebase;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
@@ -43,10 +43,17 @@ public class KnowledgebaseController : BaseAdminController
         return View();
     }
 
-    public async Task<IActionResult> NodeList()
+    public async Task<IActionResult> NodeList(DataSourceRequest command, string parentCategoryId)
     {
-        var model = await _knowledgebaseViewModelService.PrepareTreeNode();
-        return Json(model);
+        var (knowledgebaseNodeGridModels, totalCount) =
+            await _knowledgebaseViewModelService.PrepareKnowledgebaseNodeGridModel(parentCategoryId, command.Page,
+                command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = knowledgebaseNodeGridModels.ToList(),
+            Total = totalCount
+        };
+
+        return Json(gridModel);
     }
 
     public async Task<IActionResult> ArticleList(DataSourceRequest command, string parentCategoryId)

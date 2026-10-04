@@ -2,7 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Events.Handlers;
 
@@ -17,8 +17,8 @@ public class WarehouseDeletedEventHandler : INotificationHandler<EntityDeleted<W
 
     public async Task Handle(EntityDeleted<Warehouse> notification, CancellationToken cancellationToken)
     {
-        await _productRepository.PullFilter(string.Empty, x => x.ProductWarehouseInventory, z => z.WarehouseId,
-            notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductWarehouseInventory,
+            z => z.WarehouseId == notification.Entity.Id);
 
         await _productRepository.UpdateManyAsync(x => x.WarehouseId == notification.Entity.Id,
             UpdateBuilder<Product>.Create().Set(x => x.WarehouseId, ""));

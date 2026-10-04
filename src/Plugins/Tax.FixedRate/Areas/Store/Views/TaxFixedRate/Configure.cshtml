@@ -1,0 +1,22 @@
+@{
+    Layout = "~/Areas/Store/Views/Shared/_StoreLayout.cshtml";
+    ViewBag.Title = Loc["Admin.Configuration.Tax.Providers"];
+}
+<input id="active-menu-item" type="hidden" value="/Store/Tax/Providers"/>
+
+@* the grid edits inline, so there is no primary action on this screen *@
+<admin-page title="@Loc["Tax.FixedRate.FriendlyName"]" icon="bi-percent">
+    <admin-card flush>
+        <admin-grid id="tax-categories-grid"
+                    key="TaxCategoryId"
+                    read-url="@Url.Action("Configure", "TaxFixedRate", new { area = "Store" })"
+                    update-url="@Url.Action("TaxRateUpdate", "TaxFixedRate", new { area = "Store" })"
+                    pager="Compact"
+                    edit-mode="Inline">
+            <grid-column field="TaxCategoryName" title="@Loc["Plugins.Tax.FixedRate.Fields.TaxCategoryName"]" width="400"/>
+            <grid-column field="Rate" title="@Loc["Plugins.Tax.FixedRate.Fields.Rate"]" width="200" format="{0:n4}" editor="Numeric" decimals="8"/>
+            @*a shared/global rate (empty StoreId) is managed by the administrator; only a store specific rate can be edited - the controller checks it too*@
+            <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150" visible-if="StoreId"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

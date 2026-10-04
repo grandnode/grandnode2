@@ -1,5 +1,5 @@
 ﻿using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Catalog;
 

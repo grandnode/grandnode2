@@ -1,12 +1,12 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Common;
 
 public class GetPrivacyPreference : IRequest<IList<PrivacyPreferenceModel>>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 }

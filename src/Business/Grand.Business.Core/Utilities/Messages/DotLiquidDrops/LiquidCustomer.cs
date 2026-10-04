@@ -22,7 +22,7 @@ public class LiquidCustomer : Drop
         _customerNote = customerNote;
         _store = store;
         _host = host;
-        url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+        url = _host?.Url.Trim('/') ?? _store.Url.Trim('/');
         AdditionalTokens = new Dictionary<string, string>();
     }
 
@@ -59,8 +59,17 @@ public class LiquidCustomer : Drop
     public string VatNumberStatus =>
         ((VatNumberStatus)_customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.VatNumberStatusId)).ToString();
 
+    //a recovery requested from a panel's sign-in screen is confirmed in that panel
     public string PasswordRecoveryURL =>
-        $"{url}/passwordrecovery/confirm?token={_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordRecoveryToken)}&email={WebUtility.UrlEncode(_customer.Email)}";
+        $"{url}{PasswordRecoveryAreaPath}/passwordrecovery/confirm?token={_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordRecoveryToken)}&email={WebUtility.UrlEncode(_customer.Email)}";
+
+    private string PasswordRecoveryAreaPath
+    {
+        get {
+            var area = _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordRecoveryArea);
+            return string.IsNullOrEmpty(area) ? "" : $"/{area}";
+        }
+    }
 
     public string AccountActivationURL =>
         $"{url}/account/activation?token={_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AccountActivationToken)}&email={WebUtility.UrlEncode(_customer.Email)}";

@@ -1,0 +1,47 @@
+@using Grand.Business.Core.Enums.Messages
+@model EmailAccountModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+@if (area != "Admin")
+{
+    <input asp-for="StoreId" type="hidden"/>
+}
+<partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
+
+@* the sender, then the SMTP server it sends through *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Email"/>
+        <admin-field asp-for="DisplayName"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores" size="md"/>
+        }
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Host"/>
+        <admin-field asp-for="Port" size="sm"/>
+        <admin-field asp-for="Username"/>
+        <admin-field asp-for="Password">
+            <admin-input asp-for="Password" autocomplete="off"/>
+        </admin-field>
+        <admin-field asp-for="SecureSocketOptionsId" asp-items="EnumTranslationService.ToSelectList((SecureSocketOptions)Model.SecureSocketOptionsId)" size="md"/>
+        <admin-field asp-for="UseServerCertificateValidation"/>
+    </div>
+</admin-card>
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <admin-card title="@Loc["Admin.Configuration.EmailAccounts.SendTestEmail"]" icon="bi-send">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="SendTestEmailTo"/>
+        </div>
+        <input type="submit" name="sendtestemail" asp-action="SendTestEmail" class="btn btn-outline-secondary btn-sm mt-2" value="@Loc["Admin.Configuration.EmailAccounts.SendTestEmail.Button"]"/>
+    </admin-card>
+}
+<partial name="Partials/WidgetZone.DetailsBottom" model="Model"/>

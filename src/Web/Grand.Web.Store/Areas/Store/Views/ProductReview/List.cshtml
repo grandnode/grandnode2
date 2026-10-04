@@ -1,0 +1,183 @@
+﻿@model ProductReviewListModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.ProductReviews"];
+}
+
+@* The product list's shape: the filter bar searches the review text, with the product, dates
+   behind the Filters toggle, the grid a flush card, and approve/disapprove in the bulk bar that
+   appears once reviews are ticked. The ids the scripts look up are unchanged. *@
+<admin-page title="@Loc["Admin.Catalog.ProductReviews"]" icon="bi-boxes">
+    <page-actions>
+        <vc:store-widget widget-zone="store_product_review_list_buttons" additional-data="null"/>
+    </page-actions>
+
+    <admin-filters id="productreview-filters" submit-id="search-productreviews">
+        <filters-search>
+            <admin-input asp-for="SearchText"/>
+        </filters-search>
+        <admin-field asp-for="SearchProductId">
+            <input type="text" class="form-control text-box single-line" id="search-product-name" autocomplete="off"/>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                <span id="search-product-friendly-name"></span>
+                <input type="button" id="search-product-clear" class="btn btn-outline-secondary btn-sm" style="display: none;" value="@Loc["Admin.Common.Clear"]"/>
+            </div>
+            <admin-textarea asp-for="SearchProductId" autocomplete="off" style="display: none;"></admin-textarea>
+            <script>
+                $(document).ready(function() {
+                    $('#search-product-name').autocomplete({
+                        delay: 500,
+                        minLength: 3,
+                        source: '@(Url.Action("ProductSearchAutoComplete", new { area = Constants.AreaStore }))',
+                        select: function(event, ui) {
+                            $('#@Html.IdFor(model => model.SearchProductId)').val(ui.item.productid);
+                            $('#search-product-friendly-name').text(ui.item.label);
+                            $('#search-product-clear').show();
+                            return false;
+                        }
+                    });
+
+                    //remove button
+                    $('#search-product-clear').click(function() {
+                        $('#@Html.IdFor(model => model.SearchProductId)').val('');
+                        $('#search-product-friendly-name').text('');
+                        $('#search-product-clear').hide();
+                        return false;
+                    });
+                });
+            </script>
+        </admin-field>
+        <admin-field asp-for="CreatedOnFrom"/>
+        <admin-field asp-for="CreatedOnTo"/>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-bulkbar grid-id="productreviews-grid">
+            <input type="button" id="approve-selected" class="btn btn-outline-secondary btn-sm" value="@Loc["Admin.Catalog.ProductReviews.ApproveSelected"]"/>
+            <input type="button" id="disapprove-selected" class="btn btn-outline-secondary btn-sm" value="@Loc["Admin.Catalog.ProductReviews.DisapproveSelected"]"/>
+        </admin-bulkbar>
+        <admin-grid id="productreviews-grid"
+                    key="Ids"
+                    read-url="@Url.Action("List", "ProductReview", new { area = Constants.AreaStore })"
+                    additional-data="additionalData"
+                    selectable="Checkbox"
+                    on-change="onProductReviewsSelectionChange">
+            <grid-column field="ProductName" title="@Loc["Admin.Catalog.ProductReviews.Fields.Product"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/{{ ProductId }}">{{ ProductName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CustomerId" title="@Loc["Admin.Catalog.ProductReviews.Fields.Customer"]" width="200" min-screen-width="750">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Title" title="@Loc["Admin.Catalog.ProductReviews.Fields.Title"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}?ProductId={{ ProductId }}">{{ Title }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Rating" title="@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="750"/>
+            <grid-column field="IsApproved" title="@Loc["Admin.Catalog.ProductReviews.Fields.IsApproved"]" width="80" align="Center">
+                <cell-template>
+                    <i data-if="IsApproved" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Catalog.ProductReviews.Fields.CreatedOn"]" width="120" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+
+    var selectedIds = [];
+
+    function onProductReviewsSelectionChange(e) {
+        selectedIds = e.selectedIds;
+    }
+
+    $(document).ready(function () {
+
+        //search button
+        $('#search-productreviews').click(function () {
+            //search
+            var grid = GrandAdmin.grids.get('#productreviews-grid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            GrandAdmin.grids.get('#productreviews-grid').clearSelection();
+            return false;
+        });
+
+        //"approve selected" button
+        $('#approve-selected').click(function (e) {
+            e.preventDefault();
+
+            var postData = {
+                selectedIds: selectedIds,
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache:false,
+                type: "POST",
+                url: "@(Url.Action("ApproveSelected", "ProductReview", new { area = Constants.AreaStore }))",
+                data: postData,
+                complete: function (data) {
+                    //reload grid
+                    var grid = GrandAdmin.grids.get('#productreviews-grid');
+                    grid.dataSource.read();
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+            return false;
+        });
+
+        //"disapprove selected" button
+        $('#disapprove-selected').click(function (e) {
+            e.preventDefault();
+
+            var postData = {
+                selectedIds: selectedIds,
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache:false,
+                type: "POST",
+                url: "@(Url.Action("DisapproveSelected", "ProductReview", new { area = Constants.AreaStore }))",
+                data: postData,
+                complete: function (data) {
+                    //reload grid
+                    var grid = GrandAdmin.grids.get('#productreviews-grid');
+                    grid.dataSource.read();
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+            return false;
+        });
+
+
+
+    });
+
+    function additionalData() {
+        var data = {
+            CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+            CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+            SearchText: $('#@Html.IdFor(model => model.SearchText)').val(),
+            SearchProductId: $('#@Html.IdFor(model => model.SearchProductId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+
+
+</script>

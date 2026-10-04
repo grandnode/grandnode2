@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 

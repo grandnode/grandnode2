@@ -1,0 +1,12 @@
+@model ProductModel
+@* shown or hidden as a whole by the product type script in CreateOrUpdate.Info (group-recurring) *@
+<admin-card id="group-recurring">
+    <div class="grand-reveal">
+        <admin-field asp-for="IsRecurring"/>
+        <div class="grand-reveal__body grand-fields grand-fields--2col">
+            <admin-field asp-for="RecurringCycleLength" id="pnlCycleLength" size="sm"/>
+            <admin-field asp-for="RecurringCyclePeriodId" id="pnlCyclePeriod" asp-items="EnumTranslationService.ToSelectList((RecurringCyclePeriod)Model.RecurringCyclePeriodId)"/>
+            <admin-field asp-for="RecurringTotalCycles" id="pnlTotalCycles" size="sm"/>
+        </div>
+    </div>
+</admin-card>

@@ -13,6 +13,16 @@ public class ProductOverviewModel : BaseEntityModel
     public string FullDescription { get; set; }
     public string SeName { get; set; }
     public string Url { get; set; }
+
+    /// <summary>
+    ///     Endpoints for the catalog buttons. They are built server-side because the
+    ///     views used to repeat the same branching twice: once in Razor and again as
+    ///     string concatenation inside the Vue templates that render product boxes.
+    /// </summary>
+    public string AddToCartUrl { get; set; }
+
+    public string AddToWishlistUrl { get; set; }
+    public string QuickViewUrl { get; set; }
     public ProductType ProductType { get; set; }
     public bool MarkAsNew { get; set; }
     public string Sku { get; set; }

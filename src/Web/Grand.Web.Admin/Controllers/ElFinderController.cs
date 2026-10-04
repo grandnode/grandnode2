@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Interfaces;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +31,6 @@ public class ElFinderController : BaseAdminController
 
     #region Methods
 
-    [IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> Connector()
     {
         if (!await _permissionService.Authorize(StandardPermission.HtmlEditorManagePictures))

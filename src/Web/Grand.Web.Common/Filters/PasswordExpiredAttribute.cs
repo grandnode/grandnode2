@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Queries.Customers;
 using Grand.Data;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;

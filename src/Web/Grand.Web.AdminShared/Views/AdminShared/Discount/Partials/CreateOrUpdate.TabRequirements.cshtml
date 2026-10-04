@@ -1,0 +1,216 @@
+@using System.Text.Encodings.Web
+@model DiscountModel
+
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    <partial name="Partials/WidgetZone.Requirements.Top" model="Model"/>
+    if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <script>
+
+            $(document).ready(function () {
+
+                $("#@Html.IdFor(model => model.AddDiscountRequirement)").change(loadNewRequirementBox);
+
+                //load add requirement box
+                loadNewRequirementBox();
+
+                //load existing requirements
+                loadExistingRequirements();
+
+                //adding requirement event
+                $("#discountRequirementContainer").bind('grandnewdiscountruleadded', function(event, newRequirementId) {
+
+                    var discountId = '@Model.Id';
+
+                    var postData = {
+                        discountRequirementId: newRequirementId,
+                        discountId: discountId
+                    };
+                    addAntiForgeryToken(postData);
+
+                    $.ajax({
+                        cache:false,
+                        type: "POST",
+                        url: "@(Url.Action("GetDiscountRequirementMetaInfo", "Discount", new { area = area }))",
+                        data: postData,
+                        success: function (result) {
+                            discountRequirements.push(
+                                {
+                                    discountRequirementId: newRequirementId,
+                                    ruleName : result.ruleName,
+                                    url : result.url
+                                }
+                                );
+                            loadExistingRequirements();
+                            //the rule is in the list now: empty the add box, or a second Save in it
+                            //would add the same rule again
+                            $("#@Html.IdFor(model => model.AddDiscountRequirement)").val('');
+                            loadNewRequirementBox();
+                        },
+                        error:function (xhr, ajaxOptions, thrownError) {
+                            alert('Failed to load new discount requirement info. Please refresh the page');
+                        }
+                    });
+
+                });
+            });
+
+
+            //a rule returns its configuration url from the application root ("/DiscountRules.../Configure"),
+            //so under a path base (the store in a virtual directory) it has to be prefixed here
+            var pathBase = "@(Html.Raw(JavaScriptEncoder.Default.Encode(Context.Request.PathBase.Value ?? string.Empty)))";
+            function resolveRuleUrl(url) {
+                if (pathBase && url && url.charAt(0) === '/' && url.charAt(1) !== '/' && url.indexOf(pathBase + '/') !== 0)
+                    return pathBase + url;
+                return url;
+            }
+
+            //load requirement HTML
+            function loadRequirement(configureRuleUrl, placeholderName) {
+                $.ajax({
+                    cache:false,
+                    url: resolveRuleUrl(configureRuleUrl),
+                    dataType: "html",
+                    success: function (result) {
+                        $(placeholderName).html(result);
+                        StopPageLoading();
+                    },
+                    error:function (xhr, ajaxOptions, thrownError) {
+                        $(placeholderName).html('Failed to load requirement content.');
+                        StopPageLoading();
+                    }
+                });
+            }
+
+            //load HTML for adding requirement
+            function loadNewRequirementBox() {
+                StartPageLoading();
+                //load URL
+                var ruleSystemName = $("#@Html.IdFor(model => model.AddDiscountRequirement)").val();
+                var discountId = '@Model.Id';
+                if (ruleSystemName != '') {
+                    $.ajax({
+                        cache:false,
+                        url: "@(Url.Action("GetDiscountRequirementConfigurationUrl", "Discount", new { area = area }))",
+                        data: { "rulesystemName": ruleSystemName, "discountId": discountId },
+                        success: function (result) {
+                            var configureRuleUrl = result.url;
+                            //now load the content
+                            loadRequirement(configureRuleUrl, '#addrequirementplaceholder');
+                        },
+                        error:function (xhr, ajaxOptions, thrownError){
+                            $('#addrequirementplaceholder').html('Failed to load requirement URL');
+                        }
+                    });
+                }
+                else {
+                    $('#addrequirementplaceholder').html('');
+                    StopPageLoading();
+                }
+            }
+
+            //array of existing discount requirements
+            var discountRequirements = [
+                     @for (var i = 0; i < Model.DiscountRequirementMetaInfos.Count; i++)
+                     {
+                         var drmi = Model.DiscountRequirementMetaInfos[i];
+                         <text>{ discountRequirementId: "@(drmi.DiscountRequirementId)", ruleName: "@(drmi.RuleName)", url:  "@(Html.Raw(JavaScriptEncoder.Default.Encode(drmi.ConfigurationUrl)))" } </text>
+                         if (i != Model.DiscountRequirementMetaInfos.Count - 1)
+                         {
+                             <text>, </text>
+                         }
+                     }
+            ];
+
+            //load HTML for existing requirements
+            function loadExistingRequirements() {
+                StartPageLoading();
+                $("#discountRequirementContainer").html('');
+                $("#discountRequirementTemplate").tmpl(discountRequirements).appendTo("#discountRequirementContainer");
+
+                var discountRequirementsLen = discountRequirements.length;
+                for (var i=0; i<discountRequirementsLen; i++) {
+                    var url = discountRequirements[i].url;
+                    var discountRequirementId = discountRequirements[i].discountRequirementId;
+                    var placeholderName = '#editrequirementplaceholder' + discountRequirementId;
+                    $(placeholderName).html('loading...');
+                    loadRequirement(url, placeholderName);
+                }
+                StopPageLoading();
+            }
+
+            //delete requirement rule
+            function deleteRequirement(discountRequirementId) {
+                var discountId = '@Model.Id';
+
+                var postData = {
+                    discountRequirementId: discountRequirementId,
+                    discountId: discountId
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("DeleteDiscountRequirement", "Discount", new { area = area }))",
+                    data: postData,
+                    success: function (data) {
+                        removeRequirementByElement(discountRequirements, discountRequirementId);
+                        loadExistingRequirements();
+                    },
+                    error:function (xhr, ajaxOptions, thrownError){
+                        alert('Failed to delete requirement.');
+                    }
+                });
+
+
+                function removeRequirementByElement(arrayName,discountRequirementId) {
+                    for(var i=0; i<arrayName.length; i++) {
+                        if(arrayName[i].discountRequirementId==discountRequirementId) {
+                            arrayName.splice(i,1);
+                        }
+                    }
+                }
+
+            }
+
+        </script>
+
+        @* Each saved requirement is a card: its rule type as the title, Remove in the header and
+           the rule's own configuration form (loaded from the plugin) as the body. The ids the
+           script above and the rule plugins use are unchanged. *@
+        <div class="grand-fields" id="discountRequirementContainer">
+        </div>
+        <!-- Discount requirement template -->
+        <script id="discountRequirementTemplate" type="text/html">
+            <div class="grand-card" id="editrequirement{{= discountRequirementId }}">
+                <div class="grand-card__header">
+                    <h2 class="grand-card__title">@Loc["admin.marketing.Discounts.Requirements.DiscountRequirementType"] <strong>{{= ruleName }}</strong></h2>
+                    <div class="grand-card__actions">
+                        <input type="button" id="deleterequirement{{= discountRequirementId }}" onclick="deleteRequirement('{{= discountRequirementId }}')" class="btn btn-outline-danger btn-sm" value="@Loc["admin.marketing.Discounts.Requirements.Remove"]"/>
+                    </div>
+                </div>
+                <div class="grand-card__body">
+                    <div id="editrequirementplaceholder{{= discountRequirementId }}"></div>
+                </div>
+            </div>
+        </script>
+
+        <admin-card title="@Loc["admin.marketing.Discounts.Requirements.AddNew"]">
+            <div class="grand-fields">
+                <admin-field asp-for="AddDiscountRequirement" size="md" asp-items="Model.AvailableDiscountRequirementRules"/>
+            </div>
+            <div id="addrequirementplaceholder" class="mt-3">
+            </div>
+        </admin-card>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Discounts.Requirements.SaveBeforeEdit"]
+        </div>
+    }
+
+    <partial name="Partials/WidgetZone.Requirements.Bottom" model="Model"/>
+}

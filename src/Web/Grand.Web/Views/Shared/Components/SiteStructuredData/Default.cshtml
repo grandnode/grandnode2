@@ -1,0 +1,70 @@
+@using System.Text.Json
+@model SiteStructuredDataModel
+@*
+    Site-wide structured data: Organization and WebSite.
+
+    The storefront described itself only through scattered microdata attributes on
+    breadcrumbs and prices - there was no JSON-LD at all, so nothing told a search
+    engine the store's name, logo or social profiles, and nothing declared a search
+    endpoint for the sitelinks searchbox.
+
+    Kept to facts the store already publishes; they are gathered in
+    GetSiteStructuredDataHandler, this view only shapes them. Emitted once per page
+    from _Layout; search engines de-duplicate Organization across a site.
+*@
+@{
+    var request = Url.ActionContext.HttpContext.Request;
+    var homeUrl = Url.RouteUrl("HomePage", null, request.Scheme);
+    var searchUrl = Url.RouteUrl("ProductSearch", null, request.Scheme);
+
+    var organization = new Dictionary<string, object> {
+        ["@type"] = "Organization",
+        ["name"] = Model.StoreName,
+        ["url"] = homeUrl
+    };
+    if (!string.IsNullOrEmpty(Model.LogoUrl))
+        organization["logo"] = new Uri(new Uri($"{request.Scheme}://{request.Host}"), Model.LogoUrl).ToString();
+    if (Model.SameAs.Count > 0) organization["sameAs"] = Model.SameAs;
+
+    //store-wide; a product excluded from returns overrides it on its Offer (Partials/ProductStructuredData)
+    if (Model.ReturnPolicy is { } returns)
+    {
+        var policy = new Dictionary<string, object> {
+            ["@type"] = "MerchantReturnPolicy",
+            ["returnPolicyCategory"] = returns.UnlimitedWindow
+                ? "https://schema.org/MerchantReturnUnlimitedWindow"
+                : "https://schema.org/MerchantReturnFiniteReturnWindow"
+        };
+        if (returns.CountryCodes.Count > 0) policy["applicableCountry"] = returns.CountryCodes;
+        if (returns.ReturnFees != null) policy["returnFees"] = returns.ReturnFees;
+        if (returns.ReturnMethod != null) policy["returnMethod"] = returns.ReturnMethod;
+        organization["hasMerchantReturnPolicy"] = policy;
+    }
+
+    var website = new Dictionary<string, object> {
+        ["@type"] = "WebSite",
+        ["name"] = Model.StoreName,
+        ["url"] = homeUrl,
+        ["potentialAction"] = new Dictionary<string, object> {
+            ["@type"] = "SearchAction",
+            //the search box posts its term as `q` - see Components/SearchBox
+            ["target"] = new Dictionary<string, object> {
+                ["@type"] = "EntryPoint",
+                ["urlTemplate"] = $"{searchUrl}?q={{search_term_string}}"
+            },
+            ["query-input"] = "required name=search_term_string"
+        }
+    };
+
+    var graph = new Dictionary<string, object> {
+        ["@context"] = "https://schema.org",
+        ["@graph"] = new object[] { organization, website }
+    };
+
+    //UnsafeRelaxedJsonEscaping would let a store name containing "</script>" break
+    //out of the block; the default encoder escapes it
+    var json = JsonSerializer.Serialize(graph, new JsonSerializerOptions { WriteIndented = false });
+}
+@*written out whole, as in Partials/ProductStructuredData: rendered as markup the type
+  attribute reached the page as "application/ld&#x2B;json", which crawlers reading raw HTML miss*@
+@Html.Raw($"<script type=\"application/ld+json\">{json}</script>")

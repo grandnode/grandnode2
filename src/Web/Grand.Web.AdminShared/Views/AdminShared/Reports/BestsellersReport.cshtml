@@ -1,0 +1,75 @@
+@model BestsellersReportModel
+@inject IReportDataScope Scope
+@{
+    //page title
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.Bestsellers"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+@* The report's criteria in a filter bar opened on load, the grid in a flush card below it. There
+   is nothing to save, so running the report (Search) is the one primary action. The ids the
+   script below looks up are unchanged. *@
+<admin-page title="@Loc[$"{Scope.ResourceKeyPrefix}.Reports.Bestsellers"]" icon="bi-card-list">
+    <partial name="Partials/WidgetZone.Bestsellers" model="Model"/>
+
+    <admin-filters id="salesreport-filters" submit-id="search-salesreport" expanded="true">
+        <div class="grand-range">
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+        </div>
+        @if (Scope.ShowStoreSelector)
+        {
+            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+        }
+        <admin-field asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
+        <admin-field asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
+        <admin-field asp-for="BillingCountryId" asp-items="Model.AvailableCountries"/>
+        @if (Scope.ShowVendorSelector)
+        {
+            <admin-field asp-for="VendorId" asp-items="Model.AvailableVendors"/>
+        }
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="salesreport-grid"
+                    read-url="@Url.Action("BestsellersReportList", "Reports", new { area })"
+                    additional-data="additionalData">
+            <grid-column field="ProductName" title="@Loc["Admin.Reports.Bestsellers.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}">{{ ProductName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="TotalQuantity" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"/>
+            <grid-column field="TotalAmount" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#search-salesreport').click(function () {
+            var grid = GrandAdmin.grids.get('#salesreport-grid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+
+    });
+
+    function additionalData() {
+        var data = {
+            StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+            StoreId: $('#StoreId').val(),
+            OrderStatusId: $('#OrderStatusId').val(),
+            PaymentStatusId: $('#PaymentStatusId').val(),
+            BillingCountryId: $('#BillingCountryId').val(),
+            VendorId: $('#VendorId').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+</script>

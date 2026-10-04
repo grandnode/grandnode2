@@ -54,7 +54,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(), "Not found customer");
+        Assert.AreEqual("Not found customer", await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]
@@ -73,8 +73,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(),
-            "Invalid token or cancel by refresh token");
+        Assert.AreEqual("Invalid token or cancel by refresh token",
+            await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
 
 
@@ -97,8 +97,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
             .Returns(() => Task.FromResult(new Customer { Active = false }));
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(),
-            "Customer not exists/or not active in the customer table");
+        Assert.AreEqual("Customer not exists/or not active in the customer table",
+            await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]
@@ -123,8 +123,38 @@ public class JwtBearerCustomerAuthenticationServiceTests
 
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(),
-            "You do not have permission to use API operation (Customer group)");
+        Assert.AreEqual("You do not have permission to use API operation (Customer group)",
+            await _jwtBearerCustomerAuthenticationService.ErrorMessage());
+    }
+
+    [TestMethod]
+    public async Task Valid_WithCustomerIdClaim_ResolvesById_ReturnTrue()
+    {
+        var customer = new Customer { Id = "cust-1", Username = "John", Active = true };
+        customer.UserFields.Add(new UserField
+            { Key = SystemCustomerFieldNames.PasswordToken, Value = "123", StoreId = "" });
+        _customerServiceMock.Setup(c => c.GetCustomerById("cust-1")).ReturnsAsync(customer);
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
+            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+        _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, customer))
+            .ReturnsAsync(true);
+        var httpContext = new Mock<HttpContext>();
+        var context = new TokenValidatedContext(httpContext.Object,
+            new AuthenticationScheme("", "", typeof(AuthSchemaMock)), new JwtBearerOptions());
+        IList<Claim> claims = new List<Claim> {
+            new("CustomerId", "cust-1"),
+            new("Email", "johny@gmail.com"),
+            new("Token", "123"),
+            new("RefreshId", "567")
+        };
+        context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
+
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+
+        Assert.IsTrue(result);
+        //resolved by the stable id, not by e-mail
+        _customerServiceMock.Verify(c => c.GetCustomerById("cust-1"), Times.Once);
+        _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]

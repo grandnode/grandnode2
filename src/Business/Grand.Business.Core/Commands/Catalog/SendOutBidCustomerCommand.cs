@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Catalog;
 

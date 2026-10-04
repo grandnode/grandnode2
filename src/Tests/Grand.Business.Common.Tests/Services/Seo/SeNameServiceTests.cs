@@ -36,6 +36,28 @@ namespace Grand.Business.Common.Tests.Services.Seo
         }
 
         [Test]
+        public async Task ValidateSeName_NullReservedSlugs_DoesNotThrow()
+        {
+            // Arrange - simulate a MongoDB installation where ReservedEntityUrlSlugs was stored as null
+            var settingsWithNullSlugs = new SeoSettings {
+                ReservedEntityUrlSlugs = null,
+                ConvertNonWesternChars = false,
+                AllowUnicodeCharsInUrls = false,
+                AllowSlashChar = false,
+                SeoCharConversion = null
+            };
+            var serviceWithNullSettings = new SeNameService(
+                _mockSlugService.Object, _mockLanguageService.Object, settingsWithNullSlugs);
+
+            var entity = new TestEntity { Id = "123" };
+            _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync((EntityUrl)null);
+
+            // Act & Assert – should not throw ArgumentNullException
+            var result = await serviceWithNullSettings.ValidateSeName(entity, "my-page", "My Page", false);
+            ClassicAssert.AreEqual("my-page", result);
+        }
+
+        [Test]
         public async Task ValidateSeName_ShouldReturnName_WhenSeNameIsEmpty()
         {
             // Arrange

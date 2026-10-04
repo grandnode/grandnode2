@@ -1,0 +1,36 @@
+﻿{
+  Name: Electronics,
+  Description: Electronic products,
+  BottomDescription: More electronics,
+  CategoryLayoutId: layout-001,
+  MetaKeywords: electronics, gadgets,
+  MetaDescription: Shop electronics online,
+  MetaTitle: Electronics,
+  ParentCategoryId: parent-001,
+  PictureId: pic-001,
+  PageSize: 15,
+  AllowCustomersToSelectPageSize: true,
+  PageSizeOptions: 15, 30, 60,
+  ShowOnHomePage: true,
+  FeaturedProductsOnHomePage: false,
+  ShowOnSearchBox: true,
+  SearchBoxDisplayOrder: 2,
+  IncludeInMenu: true,
+  Published: true,
+  DisplayOrder: 5,
+  ExternalId: ext-001,
+  Flag: New,
+  FlagStyle: bg-success,
+  Icon: fa fa-laptop,
+  HideOnCatalog: false,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001,
+    grp-002
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

@@ -1,0 +1,22 @@
+@model SalesSettingsModel
+
+@* whether customers may ask for a return and on what terms, then the reasons they choose from
+   and the actions they ask for, each a grid with its own edit screen *@
+<admin-card>
+    <div class="note note-info">
+        @Loc["Admin.Settings.Order.MerchandiseReturnsDescription1"]
+        <br/>
+        @Loc["Admin.Settings.Order.MerchandiseReturnsDescription2"]
+    </div>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="OrderSettings.MerchandiseReturnsEnabled"/>
+        <admin-field asp-for="OrderSettings.NumberOfDaysMerchandiseReturnAvailable" size="sm"/>
+        <admin-field asp-for="OrderSettings.MerchandiseReturnFees" asp-items="EnumTranslationService.ToSelectList(Model.OrderSettings.MerchandiseReturnFees)" size="md"/>
+        <admin-field asp-for="OrderSettings.MerchandiseReturnMethod" asp-items="EnumTranslationService.ToSelectList(Model.OrderSettings.MerchandiseReturnMethod)" size="md"/>
+        <admin-field asp-for="OrderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress"/>
+        <admin-field asp-for="OrderSettings.MerchandiseReturns_AllowToSpecifyPickupDate"/>
+        <admin-field asp-for="OrderSettings.MerchandiseReturns_PickupDateRequired"/>
+    </div>
+</admin-card>
+<partial name="Partials/MerchandiseReturnReasons"/>
+<partial name="Partials/MerchandiseReturnActions"/>

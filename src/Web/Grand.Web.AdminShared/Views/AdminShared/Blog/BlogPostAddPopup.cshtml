@@ -1,0 +1,99 @@
+@model AddBlogPostCategoryModel
+
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogCategory.AddNewPost"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form id="BlogPostAddPopup" asp-area="@area" asp-controller="Blog" asp-action="BlogPostAddPopup" method="post"
+      asp-route-CategoryId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["CategoryId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
+    <admin-popup title="@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]" icon="bi-diagram-3">
+        <admin-filters id="post-picker-filters" submit-id="search-posts" secondary-submit="true">
+            <filters-search>
+                <admin-input asp-for="SearchBlogTitle"/>
+            </filters-search>
+            @if (area == "Admin")
+            {
+                <admin-field asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+            }
+        </admin-filters>
+        <admin-card flush>
+            <admin-grid id="blogposts-grid"
+                        read-url="@Url.Action("BlogPostAddPopupList", "Blog", new { area })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        selection-name="SelectedBlogPostIds">
+                <grid-column field="Name" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.Post"]"/>
+            </admin-grid>
+        </admin-card>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#BlogPostAddPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshPosts').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+
+            $('#search-posts').click(function() {
+                var grid = GrandAdmin.grids.get('#blogposts-grid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                grid.clearSelection();
+                return false;
+            });
+
+            $("#@Html.IdFor(model => model.SearchBlogTitle)").keydown(function(event) {
+                if (event.keyCode == 13) {
+                    $("#search-posts").click();
+                    return false;
+                }
+            });
+
+        function additionalData() {
+            var data = {
+                SearchBlogTitle: $('#@Html.IdFor(model => model.SearchBlogTitle)').val()
+                @if (area == "Admin")
+                {
+                    <text>,SearchStoreId: $('#SearchStoreId').val()</text>
+                }
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+    </script>
+</form>

@@ -41,7 +41,8 @@ public class ActivatedValueForPurchasedGiftVouchersCommandHandlerTests
         _langService.Setup(c => c.GetLanguageById(It.IsAny<string>())).ReturnsAsync(new Language());
         _giftVoucherMock.Setup(c => c.GetAllGiftVouchers(It.IsAny<string>(), It.IsAny<DateTime?>(),
                 It.IsAny<DateTime?>(),
-                It.IsAny<bool?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<bool?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<string>()))
             .ReturnsAsync(new PagedList<GiftVoucher> { gift });
 
         await _handler.Handle(command, default);
@@ -62,7 +63,8 @@ public class ActivatedValueForPurchasedGiftVouchersCommandHandlerTests
         _langService.Setup(c => c.GetLanguageById(It.IsAny<string>())).ReturnsAsync(new Language());
         _giftVoucherMock.Setup(c => c.GetAllGiftVouchers(It.IsAny<string>(), It.IsAny<DateTime?>(),
                 It.IsAny<DateTime?>(),
-                It.IsAny<bool?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<bool?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<string>()))
             .ReturnsAsync(new PagedList<GiftVoucher> { gift });
 
         await _handler.Handle(command, default);

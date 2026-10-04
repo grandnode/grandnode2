@@ -8,7 +8,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -69,9 +69,9 @@ public class KnowledgebaseServiceTests
         knowledgebaseCategory.Name = "test";
         await _knowledgebaseService.UpdateKnowledgebaseCategory(knowledgebaseCategory);
         //Assert
-        Assert.IsTrue(
-            _repositoryKnowledgebaseCategory.Table.FirstOrDefault(x => x.Id == knowledgebaseCategory.Id).Name ==
-            "test");
+        Assert.AreEqual(
+            "test",
+            _repositoryKnowledgebaseCategory.Table.FirstOrDefault(x => x.Id == knowledgebaseCategory.Id).Name);
     }
 
     [TestMethod]
@@ -167,8 +167,7 @@ public class KnowledgebaseServiceTests
         knowledgebaseArticle.Name = "test";
         await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgebaseArticle);
         //Assert
-        Assert.IsTrue(_repositoryKnowledgebaseArticle.Table.FirstOrDefault(x => x.Id == knowledgebaseArticle.Id).Name ==
-                      "test");
+        Assert.AreEqual("test", _repositoryKnowledgebaseArticle.Table.FirstOrDefault(x => x.Id == knowledgebaseArticle.Id).Name);
     }
 
     [TestMethod]
@@ -377,5 +376,29 @@ public class KnowledgebaseServiceTests
         //Assert
         Assert.IsNull(
             _repositoryKnowledgebaseArticleComment.Table.FirstOrDefault(x => x.Id == knowledgebaseArticleComment.Id));
+    }
+
+    [TestMethod]
+    public async Task GetPublicKnowledgebaseArticles_WhenScopeGivenWithoutContext_FiltersByStoreAndGroups()
+    {
+        //Arrange - no ambient work or store context, as in a scheduled task
+        var service = new KnowledgebaseService(_repositoryKnowledgebaseCategory,
+            _repositoryKnowledgebaseArticle, _repositoryKnowledgebaseArticleComment, _mediatorMock.Object,
+            new Mock<IContextAccessor>().Object, _cacheBase, new AccessControlConfig());
+        await _repositoryKnowledgebaseArticle.InsertAsync(new KnowledgebaseArticle { Id = "open", Published = true });
+        await _repositoryKnowledgebaseArticle.InsertAsync(new KnowledgebaseArticle {
+            Id = "guests", Published = true, LimitedToGroups = true, CustomerGroups = ["guests-group"]
+        });
+        await _repositoryKnowledgebaseArticle.InsertAsync(new KnowledgebaseArticle {
+            Id = "admins", Published = true, LimitedToGroups = true, CustomerGroups = ["admins-group"]
+        });
+        await _repositoryKnowledgebaseArticle.InsertAsync(new KnowledgebaseArticle {
+            Id = "other-store", Published = true, LimitedToStores = true, Stores = ["store2"]
+        });
+        await _repositoryKnowledgebaseArticle.InsertAsync(new KnowledgebaseArticle { Id = "unpublished" });
+        //Act
+        var result = await service.GetPublicKnowledgebaseArticles("store1", ["guests-group"]);
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "open", "guests" }, result.Select(x => x.Id).ToList());
     }
 }

@@ -1,0 +1,17 @@
+﻿{
+  Name: C# Fundamentals,
+  Description: Full course,
+  ShortDescription: Learn C#,
+  Published: true,
+  DisplayOrder: 1,
+  LevelId: cl-001,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

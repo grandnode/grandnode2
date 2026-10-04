@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Queries.Customers;
 using Grand.Data;
 using Grand.Domain.Customers;
-using MediatR;
+using Grand.Mediator;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Customers.Queries.Handlers;

@@ -230,8 +230,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
 
         var weight = await GetTotalWeight(getShippingOptionRequest);
 
-        var shippingMethods =
-            await _shippingMethodService.GetAllShippingMethods(countryId, _contextAccessor.WorkContext.CurrentCustomer);
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(countryId, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
         foreach (var shippingMethod in shippingMethods)
         {
             double? rate = null;

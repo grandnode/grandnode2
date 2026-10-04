@@ -1,70 +1,28 @@
 ﻿@model DashboardActivityModel
-<table class="table table-hover">
-    <tbody>
-    <tr>
-        <th scope="row">
-            <div class="badge badge-pill badge-info">
-                <i class="fa fa-briefcase"></i>
-            </div>
-        </th>
-        <td>
-            @Loc["Admin.Dashboard.ActivityOverview.OrderPending"]
-        </td>
-        <td>
-            @Model.OrdersPending
-        </td>
-    </tr>
-    <tr>
-        <th scope="row">
-            <div class="badge badge-pill badge-success">
-                <i class="fa fa-shopping-cart"></i>
-            </div>
-        </th>
-        <td>
-            @Loc["Admin.Dashboard.ActivityOverview.AbandonedCarts"]
-        </td>
-        <td>
-            @Model.AbandonedCarts
-        </td>
-    </tr>
-    <tr>
-        <th scope="row">
-            <div class="badge badge-pill badge-danger">
-                <i class="fa fa-bell-o"></i>
-            </div>
-        </th>
-        <td>
-            @Loc["Admin.Dashboard.ActivityOverview.LowStockProducts"]
-        </td>
-        <td>
-            @Model.LowStockProducts
-        </td>
-    </tr>
-    <tr>
-        <th scope="row">
-            <div class="badge badge-pill badge-warning">
-                <i class="fa fa-user"></i>
-            </div>
-        </th>
-        <td>
-            @Loc["Admin.Dashboard.ActivityOverview.TodayRegisteredCustomers"]
-        </td>
-        <td>
-            @Model.TodayRegisteredCustomers
-        </td>
-    </tr>
-    <tr>
-        <th scope="row">
-            <div class="badge badge-pill badge-secondary">
-                <i class="fa fa-truck"></i>
-            </div>
-        </th>
-        <td>
-            @Loc["Admin.Dashboard.ActivityOverview.MerchandiseReturns"]
-        </td>
-        <td>
-            @Model.MerchandiseReturns
-        </td>
-    </tr>
-    </tbody>
-</table>
+<ul class="grand-activity">
+    <li class="grand-activity__item grand-activity__item--orders">
+        <span class="grand-activity__icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
+        <span class="grand-activity__label">@Loc["Admin.Dashboard.ActivityOverview.OrderPending"]</span>
+        <span class="grand-activity__count">@Model.OrdersPending</span>
+    </li>
+    <li class="grand-activity__item grand-activity__item--carts">
+        <span class="grand-activity__icon" aria-hidden="true"><i class="bi bi-cart-x"></i></span>
+        <span class="grand-activity__label">@Loc["Admin.Dashboard.ActivityOverview.AbandonedCarts"]</span>
+        <span class="grand-activity__count">@Model.AbandonedCarts</span>
+    </li>
+    <li class="grand-activity__item grand-activity__item--stock">
+        <span class="grand-activity__icon" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
+        <span class="grand-activity__label">@Loc["Admin.Dashboard.ActivityOverview.LowStockProducts"]</span>
+        <span class="grand-activity__count">@Model.LowStockProducts</span>
+    </li>
+    <li class="grand-activity__item grand-activity__item--customers">
+        <span class="grand-activity__icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+        <span class="grand-activity__label">@Loc["Admin.Dashboard.ActivityOverview.TodayRegisteredCustomers"]</span>
+        <span class="grand-activity__count">@Model.TodayRegisteredCustomers</span>
+    </li>
+    <li class="grand-activity__item grand-activity__item--returns">
+        <span class="grand-activity__icon" aria-hidden="true"><i class="bi bi-arrow-return-left"></i></span>
+        <span class="grand-activity__label">@Loc["Admin.Dashboard.ActivityOverview.MerchandiseReturns"]</span>
+        <span class="grand-activity__count">@Model.MerchandiseReturns</span>
+    </li>
+</ul>

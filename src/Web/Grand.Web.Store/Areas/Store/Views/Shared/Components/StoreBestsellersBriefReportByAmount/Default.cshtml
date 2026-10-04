@@ -1,0 +1,15 @@
+﻿@{
+    var gridPageSize = 5;
+}
+<admin-grid id="bestsellers-byamount-grid"
+            read-url="@Url.Action("BestsellersBriefReportByAmountList", "Reports", new { area = Constants.AreaStore })"
+            page-size="@(gridPageSize)"
+            page-sizes="">
+    <grid-column field="ProductName" title="@Loc["Admin.Reports.Bestsellers.Fields.Name"]">
+        <cell-template>
+            <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/{{ ProductId }}">{{ ProductName }}</a>
+        </cell-template>
+    </grid-column>
+    <grid-column field="TotalQuantity" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"/>
+    <grid-column field="TotalAmount" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"/>
+</admin-grid>

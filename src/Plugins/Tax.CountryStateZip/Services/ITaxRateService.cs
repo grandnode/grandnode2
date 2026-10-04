@@ -17,8 +17,11 @@ public interface ITaxRateService
     /// <summary>
     ///     Gets all tax rates
     /// </summary>
+    /// <param name="storeId">Store identifier; pass an empty string to return rates of all stores</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
     /// <returns>Tax rates</returns>
-    Task<IPagedList<TaxRate>> GetAllTaxRates(int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<TaxRate>> GetAllTaxRates(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets a tax rate

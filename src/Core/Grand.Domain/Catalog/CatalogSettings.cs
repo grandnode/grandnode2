@@ -387,22 +387,12 @@ public class CatalogSettings : ISettings
     /// <summary>
     ///     Gets or sets the default value to use for Category page size options (for new categories)
     /// </summary>
-    public string DefaultCategoryPageSizeOptions { get; set; }
+    public string DefaultPageSizeOptions { get; set; }
 
     /// <summary>
     ///     Gets or sets the default value to use for Category page size (for new categories)
     /// </summary>
-    public int DefaultCategoryPageSize { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the default value to use for Collection page size options (for new collections)
-    /// </summary>
-    public string DefaultCollectionPageSizeOptions { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the default value to use for Collection page size (for new collections)
-    /// </summary>
-    public int DefaultCollectionPageSize { get; set; }
+    public int DefaultPageSize { get; set; }
 
     /// <summary>
     ///     Gets or sets the default value to use show extra field quantity on catalog pages

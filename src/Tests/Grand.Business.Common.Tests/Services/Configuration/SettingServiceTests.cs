@@ -33,7 +33,7 @@ public class SettingServiceTests
     [TestMethod]
     public void InsertSetting_NullArgument_TrhowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertSetting(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertSetting(null));
     }
 
     [TestMethod]
@@ -47,7 +47,7 @@ public class SettingServiceTests
     [TestMethod]
     public void UpdateSetting_NullArgument_TrhowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdateSetting(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateSetting(null));
     }
 
     [TestMethod]
@@ -61,6 +61,6 @@ public class SettingServiceTests
     [TestMethod]
     public void DeleteSetting_NullArgument_TrhowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeleteSetting(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteSetting(null));
     }
 }

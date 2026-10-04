@@ -1,0 +1,77 @@
+@model OrderModel.AddOrderProductModel.ProductDetailsModel
+@{
+    ViewBag.Title = string.Format(Loc["Admin.Orders.Products.AddNew.Title2"], Model.Name, Model.OrderNumber);
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="Order" asp-action="AddProductToOrderDetails" asp-route-orderId="@Model.OrderId"
+      asp-route-productId="@Model.ProductId" enctype="multipart/form-data" method="post" id="product-details-form">
+    <div asp-validation-summary="All"></div>
+    <partial name="Partials/WidgetZone.AddProductsDetails.Top" model="Model"/>
+    @* the price, quantity and whatever the product asks for, in one card; adding the item is
+       the one primary action *@
+    <admin-page title="@string.Format(Loc["Admin.Orders.Products.AddNew.Title2"], Model.Name, Model.OrderNumber)"
+                icon="bi-boxes"
+                back-url="@Url.Action("AddProductToOrder", new { orderId = Model.OrderId })"
+                back-text="@Loc["Admin.Orders.Products.AddNew.BackToList"]">
+        @if (Model.ProductType == ProductType.SimpleProduct)
+        {
+            <page-actions>
+                <input type="submit" class="btn btn-primary" value="@Loc["Admin.Orders.Products.AddNew"]"/>
+            </page-actions>
+        }
+        @if (Model.Warnings.Count > 0)
+        {
+            <div class="note note-danger">
+                @foreach (var warning in Model.Warnings)
+                {
+                    @warning
+                    <br/>
+                }
+            </div>
+        }
+        @if (Model.ProductType == ProductType.SimpleProduct)
+        {
+            <admin-card>
+                <div class="grand-fields grand-fields--2col">
+                    <admin-field asp-for="UnitPriceInclTax" size="md"/>
+                    <admin-field asp-for="UnitPriceExclTax" size="md"/>
+                    <admin-field asp-for="Quantity" size="sm"/>
+                    <admin-field asp-for="TaxRate" size="sm"/>
+                    @{
+                        var dataDict = new ViewDataDictionary(ViewData) { new("productId", Model.ProductId) };
+                        <partial name="Partials/ProductAddAttributes" model="Model.ProductAttributes" view-data="dataDict"/>
+                    }
+                    @{
+                        var dataDictGiftVoucher = new ViewDataDictionary(ViewData)
+                        {
+                            TemplateInfo =
+                            {
+                                HtmlFieldPrefix = "giftvoucher"
+                            }
+                        };
+                        <partial name="Partials/ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher"/>
+                    }
+                </div>
+            </admin-card>
+        }
+        else if (Model.ProductType == ProductType.GroupedProduct)
+        {
+            <div class="note note-info">
+                Grouped products are not currently supported for adding to an existing order
+            </div>
+        }
+        else if (Model.ProductType == ProductType.Reservation)
+        {
+            <div class="note note-info">
+                Reservation products are not currently supported for adding to an existing order
+            </div>
+        }
+        else
+        {
+            <div class="note note-info">
+                This product type (unknown) is not currently supported for adding to an existing order
+            </div>
+        }
+    </admin-page>
+    <partial name="Partials/WidgetZone.AddProductsDetails.Bottom" model="Model"/>
+</form>

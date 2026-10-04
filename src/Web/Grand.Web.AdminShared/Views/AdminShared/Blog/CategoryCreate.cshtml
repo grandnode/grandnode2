@@ -1,0 +1,26 @@
+@model BlogCategoryModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogCategory.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="Blog" asp-action="CategoryCreate" method="post">
+
+    <admin-page sticky
+                title="@Loc["Admin.Content.Blog.BlogCategory.AddNew"]"
+                icon="bi-chat"
+                back-url="@Url.Action("CategoryList")"
+                back-text="@Loc["Admin.Content.Blog.BlogCategory.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.CategoryButtonsCreate"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdateCategory" model="Model"/>
+    </admin-page>
+</form>

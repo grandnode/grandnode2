@@ -5,7 +5,7 @@ using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
 using Grand.Web.Models.Vendors;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Vendors;
 

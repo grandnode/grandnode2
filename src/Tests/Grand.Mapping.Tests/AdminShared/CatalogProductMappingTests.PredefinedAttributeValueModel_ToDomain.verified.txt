@@ -1,0 +1,9 @@
+﻿{
+  Name: Red,
+  PriceAdjustment: 5.0,
+  WeightAdjustment: 0.1,
+  Cost: 1.5,
+  IsPreSelected: true,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

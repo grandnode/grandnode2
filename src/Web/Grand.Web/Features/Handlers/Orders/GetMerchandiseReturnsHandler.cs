@@ -6,7 +6,7 @@ using Grand.Domain.Tax;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Orders;
 

@@ -9,7 +9,7 @@
             <a href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
                 @if (!string.IsNullOrEmpty(Model.Category.Icon))
                 {
-                    <b-icon class="category-icon" icon="@Model.Category.Icon"></b-icon>
+                    <i class="b-icon category-icon bi bi-@Model.Category.Icon" aria-hidden="true"></i>
                 }
                 <span>@Model.Category.Name</span>
                 @if (!string.IsNullOrEmpty(Model.Category.FlagStyle))
@@ -23,7 +23,7 @@
             <div>
                 @if (!string.IsNullOrEmpty(Model.Category.Icon))
                 {
-                    <b-icon class="category-icon" icon="@Model.Category.Icon"></b-icon>
+                    <i class="b-icon category-icon bi bi-@Model.Category.Icon" aria-hidden="true"></i>
                 }
                 <span>@Model.Category.Name</span>
                 @if (!string.IsNullOrEmpty(Model.Category.FlagStyle))
@@ -46,7 +46,7 @@
                 {
                     <ul>
                         <li class="back">
-                            <b-icon icon="chevron-left"></b-icon>
+                            <i class="b-icon bi bi-chevron-left" aria-hidden="true"></i>
                             <span>@Loc["Mobile.Categories.Back"]</span>
                         </li>
                         <li class="sub-cat-name-container">
@@ -73,7 +73,7 @@
                 levelClass = "next-level";
                 <ul class="sublist @levelClass">
                     <li class="back">
-                        <b-icon icon="chevron-left"></b-icon>
+                        <i class="b-icon bi bi-chevron-left" aria-hidden="true"></i>
                         <span>@Loc["Mobile.Categories.Back"]</span>
                     </li>
                     <li class="sub-cat-name-container">

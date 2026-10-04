@@ -6,10 +6,11 @@ public static partial class CacheKey
     ///     Key for caching
     /// </summary>
     /// <remarks>
-    ///     {0} : page index
-    ///     {1} : page size
+    ///     {0} : store ID
+    ///     {1} : page index
+    ///     {2} : page size
     /// </remarks>
-    public static string PRODUCTATTRIBUTES_ALL_KEY => "Grand.productattribute.all-{0}-{1}";
+    public static string PRODUCTATTRIBUTES_ALL_KEY => "Grand.productattribute.all-{0}-{1}-{2}";
 
     /// <summary>
     ///     Key for caching

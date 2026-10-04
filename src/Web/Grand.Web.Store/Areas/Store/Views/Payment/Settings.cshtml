@@ -1,0 +1,28 @@
+@model PaymentSettingsModel
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Payment.Settings"];
+    Layout = Constants.LayoutStore;
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Payment" asp-action="Settings" method="post">
+
+    <div asp-validation-summary="All"></div>
+
+    @* the payment switches in two columns, Save as the one primary action *@
+    <admin-page sticky title="@Loc["Admin.Configuration.Payment.Settings"]" icon="bi-sliders">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AllowRePostingPayments"/>
+                <admin-field asp-for="SkipPaymentIfOnlyOne"/>
+                <admin-field asp-for="ShowPaymentIfCartIsZero"/>
+                <admin-field asp-for="ShowPaymentDescriptions"/>
+                <admin-field asp-for="SkipPaymentInfo"/>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

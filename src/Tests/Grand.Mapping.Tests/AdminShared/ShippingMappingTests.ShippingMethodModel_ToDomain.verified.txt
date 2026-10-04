@@ -1,0 +1,6 @@
+﻿{
+  Name: Standard Shipping,
+  Description: 5-7 business days,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

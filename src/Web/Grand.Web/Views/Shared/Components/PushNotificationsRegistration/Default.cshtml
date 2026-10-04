@@ -2,10 +2,16 @@
 @inject IPageHeadBuilder pagebuilder
 
 <script asp-location="Footer" asp-src="https://www.gstatic.com/firebasejs/8.6.5/firebase.js"></script>
-<script asp-location="Head" asp-src="/theme/script/public.push.notifications.js"></script>
 
-<script asp-location="Footer" asp-order="300">
-        PushNotifications.init("@Model.PublicApiKey", "@Model.SenderId", "@Model.ProjectId", "@Model.AuthDomain", "@Model.StorageBucket",
-            "@Model.DatabaseUrl", "@Url.Action("ProcessRegistration", "PushNotifications")", "@Model.AppId");
-        PushNotifications.process();
-</script>
+<script type="application/json" data-grand-vm="pushNotifications">@Json.Serialize(new {
+                                                                      firebase = new {
+                                                                          publicApiKey = Model.PublicApiKey,
+                                                                          senderId = Model.SenderId,
+                                                                          projectId = Model.ProjectId,
+                                                                          authDomain = Model.AuthDomain,
+                                                                          storageBucket = Model.StorageBucket,
+                                                                          databaseUrl = Model.DatabaseUrl,
+                                                                          appId = Model.AppId
+                                                                      },
+                                                                      route = Url.Action("ProcessRegistration", "PushNotifications")
+                                                                  })</script>

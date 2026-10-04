@@ -1,0 +1,49 @@
+@using Grand.Web.AdminShared.Models.Common
+@model AddressAttributeModel
+
+@{
+    //page title
+    var isReadOnly = Model.IsGlobalAttribute;
+    ViewBag.Title = Loc["Admin.Address.AddressAttributes.EditAttributeDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="AddressAttribute" asp-action="Edit" method="post" id="addressattribute-form">
+
+    @* the attribute's name as the title, Save as the one primary action and Delete in the
+       overflow menu; a global attribute a store owner opens has no actions, only the notice *@
+    <admin-page sticky
+                title="@Model.Name"
+                icon="bi-list-ol"
+                meta="@Loc["Admin.Address.AddressAttributes.EditAttributeDetails"]"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Address.AddressAttributes.BackToList"]">
+        <page-actions>
+            @if (!isReadOnly)
+            {
+                <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                </button>
+                <button class="btn btn-primary" type="submit" name="save">
+                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+                </button>
+                <admin-action-menu>
+                    <admin-action id="addressattribute-delete" destructive="true" icon="bi-trash"
+                                  text="@Loc["Admin.Common.Delete"]"/>
+                </admin-action-menu>
+            }
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        @if (isReadOnly)
+        {
+            <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle"></i> @Loc["Admin.Address.AddressAttributes.GlobalReadOnly"]
+            </div>
+        }
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
+</form>
+@if (!isReadOnly)
+{
+    <admin-delete-confirmation button-id="addressattribute-delete"/>
+}

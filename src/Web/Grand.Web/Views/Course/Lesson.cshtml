@@ -18,35 +18,26 @@
                         <div class="d-inline-flex justify-content-end align-items-center w-100">
                             @if (Model.Approved)
                             {
-                                <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                                    <input type="checkbox" class="custom-control-input" id="customControlInline" checked disabled>
-                                    <label class="custom-control-label" for="customControlInline"></label>
+                                <div class="form-check my-1 me-sm-2">
+                                    <input type="checkbox" class="form-check-input" id="customControlInline" checked disabled>
+                                    <label class="form-check-label" for="customControlInline"></label>
                                 </div>
                             }
                             else
                             {
-                                <div class="custom-control disabled custom-checkbox my-1 mr-sm-2">
-                                    <input type="checkbox" class="custom-control-input" id="customControlInline" disabled>
-                                    <label class="custom-control-label" for="customControlInline"></label>
+                                <div class="form-check disabled form-check my-1 me-sm-2">
+                                    <input type="checkbox" class="form-check-input" id="customControlInline" disabled>
+                                    <label class="form-check-label" for="customControlInline"></label>
                                 </div>
                                 <button class="btn btn-info" id="btnApprove">@Loc["Course.ApproveLesson"]</button>
-                                <script asp-location="Footer">
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    document.getElementById("btnApprove").addEventListener('click', function (event) {
-                                        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
-                                            axios({
-                                                url: '@Url.Action("Approved", "Course", new { Model.Id })',
-                                                method: 'post',
-                                            }).then(function (response) {
-                                                if (response) {
-                                                    document.getElementById('btnApprove').style.display = 'none';
-                                                    document.getElementById('customControlInline').checked = true;
-                                                }
-                                            })
-                                        }
-                                    });
-                                });
-                                </script>
+                                <script type="application/json" data-grand-vm="confirmPost">@Json.Serialize(new {
+                                    route = Url.Action("Approved", "Course", new { Model.Id }),
+                                    elements = new { buttonId = "btnApprove", checkId = "customControlInline" },
+                                    res = new {
+                                        areYouSure = Loc["Admin.Common.AreYouSure"].ToString(),
+                                        warning = Loc["common.warning"].ToString()
+                                    }
+                                })</script>
                             }
                         </div>
                     </div>
@@ -61,7 +52,7 @@
                         }
                         @if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
                         {
-                            <p>
+                            <p v-pre>
                                 @Html.Raw(Model.ShortDescription)
                             </p>
                         }
@@ -80,7 +71,7 @@
         </div>
     }
     <div class="card description mt-3">
-        <div class="card-body">
+        <div class="card-body" v-pre>
             @Html.Raw(Model.Description)
         </div>
     </div>

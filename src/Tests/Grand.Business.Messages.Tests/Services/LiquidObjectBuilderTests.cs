@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -38,7 +38,7 @@ public class LiquidObjectBuilderTests
             .BuildAsync();
 
 
-        Assert.IsTrue(liquidObject.Vendor != null);
+        Assert.IsNotNull(liquidObject.Vendor);
         Assert.IsTrue((liquidObject.Vendor as LiquidVendor).Name.Equals(vendor.Name));
         Assert.IsNotNull(liquidObject.VendorReview as LiquidVendorReview);
         Assert.IsTrue((liquidObject.VendorReview as LiquidVendorReview).VendorName.Equals(vendor.Name));

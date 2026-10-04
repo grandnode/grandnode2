@@ -1,0 +1,89 @@
+@model OrderModel.AddOrderProductModel
+@{
+    //page title
+    ViewBag.Title = string.Format(Loc["Admin.Orders.Products.AddNew.Title1"], Model.OrderNumber);
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+@* The product list's filter bar and grid on a page of its own: picking a row opens the
+   product's details, so Search is the one primary action. The page had a Save button outside
+   any form, which posted nothing; it is gone. *@
+<admin-page title="@string.Format(Loc["Admin.Orders.Products.AddNew.Title1"], Model.OrderNumber)"
+            icon="bi-box"
+            back-url="@Url.Action("Edit", new { id = Model.OrderId })"
+            back-text="@Loc["Admin.Orders.Products.AddNew.BackToOrder"]">
+    <partial name="Partials/WidgetZone.AddProducts.Top" model="Model"/>
+    <admin-filters id="addproduct-filters" submit-id="search-products">
+        <filters-search>
+            <admin-input asp-for="SearchProductName"/>
+        </filters-search>
+        <admin-field asp-for="SearchCategoryId"/>
+        <admin-field asp-for="SearchBrandId"/>
+        <admin-field asp-for="SearchCollectionId"/>
+        <admin-field asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
+    </admin-filters>
+    <partial name="Partials/WidgetZone.AddProducts.Bottom" model="Model"/>
+
+    <admin-card title="@Loc["Admin.Orders.Products.AddNew.Note1"]" flush>
+        <admin-grid id="products-grid"
+                    read-url="@Url.Action("AddProductToOrder", "Order", new { area = area })"
+                    additional-data="additionalData"
+                    selectable="Row"
+                    on-change="onChange">
+            <grid-column field="Name" title="@Loc["Admin.Orders.Products.AddNew.Name"]" width="400"/>
+            <grid-column field="Sku" title="@Loc["Admin.Orders.Products.AddNew.SKU"]" width="100"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+<script>
+    $(document).ready(function () {
+
+        $('.extend-collapse').hide();
+        $('.filter-extend-button').click(function () {
+            $('.extend-collapse').toggle("slow");
+            $('.filter-text-close').toggle();
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#search-products').click(function () {
+            var grid = GrandAdmin.grids.get('#products-grid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+    });
+
+    $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("#search-products").click();
+            return false;
+        }
+    });
+
+    function additionalData() {
+        var data = {
+            SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+            SearchCategoryId: $('#SearchCategoryId').val(),
+            SearchBrandId: $('#SearchBrandId').val(),
+            SearchCollectionId: $('#SearchCollectionId').val(),
+            SearchProductTypeId: $('#SearchProductTypeId').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+    function onChange(e) {
+        var grid = GrandAdmin.grids.get('#products-grid');
+        var selectedItem = grid.dataItem(grid.select());
+        var productId = selectedItem.Id;
+        //load "product details page" block
+        var productDetailsActionUrl = '@Html.Raw(Url.Action("AddProductToOrderDetails", "Order", new { orderId = Model.OrderId, productId = "productidplaceholder", area = area }))';
+        productDetailsActionUrl = productDetailsActionUrl.replace("productidplaceholder", productId);
+        setLocation(productDetailsActionUrl);
+    }
+</script>
+<div id="productdetails">
+</div>
+<input asp-for="OrderId" type="hidden"/>

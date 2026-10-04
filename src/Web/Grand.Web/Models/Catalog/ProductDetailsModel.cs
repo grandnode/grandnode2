@@ -53,6 +53,12 @@ public class ProductDetailsModel : BaseEntityModel
     public DateTime? RentalEndDateUtc { get; set; }
     public string RentalReservationId { get; set; }
     public string StockAvailability { get; set; }
+
+    /// <summary>
+    ///     The state StockAvailability describes; null when it cannot be stated
+    /// </summary>
+    public ProductAvailability? Availability { get; set; }
+
     public bool DisplayOutOfStockSubscription { get; set; }
     public bool EmailAFriendEnabled { get; set; }
     public bool AskQuestionOnProduct { get; set; }
@@ -67,6 +73,7 @@ public class ProductDetailsModel : BaseEntityModel
     public IList<ProductSpecificationModel> ProductSpecifications { get; set; } = new List<ProductSpecificationModel>();
     public IList<CollectionModel> ProductCollections { get; set; } = new List<CollectionModel>();
     public ProductReviewOverviewModel ProductReviewOverview { get; set; } = new();
+    public ProductStructuredDataModel StructuredData { get; set; } = new();
 
     public IList<TierPriceModel> TierPrices { get; set; } = new List<TierPriceModel>();
 
@@ -143,6 +150,12 @@ public class ProductDetailsModel : BaseEntityModel
         ///     The currency (in 3-letter ISO 4217 format) of the offer price
         /// </summary>
         public string CurrencyCode { get; set; }
+
+        /// <summary>
+        ///     The offer's availability - the same value as ProductDetailsModel.Availability,
+        ///     carried here because the Offer microdata is rendered from this model
+        /// </summary>
+        public ProductAvailability? Availability { get; set; }
 
         public string OldPrice { get; set; }
         public string CatalogPrice { get; set; }

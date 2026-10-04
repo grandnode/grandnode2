@@ -8,7 +8,7 @@
 <div class="page text-xs-center not-found-page">
     <div class="alert alert-info my-3">
         <h1 class="h2 generalTitle text-center mb-0">
-            <b-icon icon="exclamation-circle"></b-icon> @Loc["Title.AccessDenied"]
+            <i class="b-icon bi bi-exclamation-circle" aria-hidden="true"></i> @Loc["Title.AccessDenied"]
         </h1>
     </div>
     @await Component.InvokeAsync("PageBlock", new { systemName = "AccessDenied" })

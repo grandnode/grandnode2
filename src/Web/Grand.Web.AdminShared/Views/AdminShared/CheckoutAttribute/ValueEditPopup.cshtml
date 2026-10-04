@@ -1,0 +1,43 @@
+﻿@model CheckoutAttributeValueModel
+@{
+    Layout = "";
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form id="ValueEditPopup" asp-area="@area" asp-controller="CheckoutAttribute" asp-action="ValueEditPopup"
+      asp-route-checkoutAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["checkoutAttributeId"])">
+
+    <admin-popup title="@Loc["Admin.Orders.CheckoutAttributes.Values.EditValueDetails"]" icon="bi-card-list">
+        <partial name="Partials/CreateOrUpdateValue" model="Model"/>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+            $("#ValueEditPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefresh').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+    </script>
+</form>

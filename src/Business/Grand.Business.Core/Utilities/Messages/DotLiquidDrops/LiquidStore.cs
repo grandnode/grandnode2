@@ -24,7 +24,7 @@ public class LiquidStore : Drop
 
     public string Shortcut => _store.Shortcut;
 
-    public string URL => _store.SslEnabled ? _store.SecureUrl : _store.Url;
+    public string URL => _store.Url;
 
     public string Email => _emailAccount.Email;
 

@@ -1,10 +1,12 @@
-﻿using Grand.Module.Api.Models;
+﻿using Grand.Infrastructure.Validators;
+using Grand.Module.Api.Models;
 
 namespace Grand.Module.Api.DTOs.Catalog;
 
 public class ProductAttributeDto : BaseApiEntityModel
 {
     public string Name { get; set; }
+    [SanitizeHtml]
     public string Description { get; set; }
 
     public IList<PredefinedProductAttributeValueDto> PredefinedProductAttributeValues { get; set; } =

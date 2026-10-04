@@ -68,14 +68,9 @@ public class ChangePasswordValidator : BaseGrandValidator<ChangePasswordModel>
 
             if (customer is not null)
             {
-                var oldPwd = customer.PasswordFormatId switch {
-                    PasswordFormat.Encrypted => encryptionService.EncryptText(x.OldPassword,
-                        customer.PasswordSalt),
-                    PasswordFormat.Hashed => encryptionService.CreatePasswordHash(x.OldPassword,
-                        customer.PasswordSalt, customerSettings.HashedPasswordFormat),
-                    _ => x.OldPassword
-                };
-                if (oldPwd != customer.Password)
+                var oldPasswordValid = encryptionService.VerifyPassword(x.OldPassword, customer.PasswordFormatId,
+                    customer.Password, customer.PasswordSalt, customerSettings.HashedPasswordFormat);
+                if (!oldPasswordValid)
                     context.AddFailure(
                         translationService.GetResource("Account.ChangePassword.Errors.OldPasswordDoesntMatch"));
             }

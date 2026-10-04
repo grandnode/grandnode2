@@ -10,7 +10,7 @@ using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Courses;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Features.Models.Courses;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 

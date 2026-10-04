@@ -1,0 +1,428 @@
+//The top bar of the Admin, Store and Vendor panels (.top_nav in the three layouts).
+//
+//One flex row of a fixed height: the search field (Admin) or the store / vendor pill (Store,
+//Vendor) at the start, the icon buttons at the end. The buttons keep the order of the markup,
+//which the old floats laid out from the end, so the list runs row-reverse; the direction of
+//the page mirrors it for right-to-left without a rule of its own. Colours are tokens, set once
+//for light and once for dark, in the palette of the dashboard and the side menu.
+//
+//It is loaded after _custom.scss and outranks the gentelella rules there (.top_nav .nav > li > a,
+//.navbar-right floats, .msg_list, the #searchInput widths); the few !important below answer an
+//!important in those rules - the white link colour of .navbar-nav and the reset that squares
+//every span, li and ul.
+
+.top_nav {
+    --grand-topbar-height: 60px;
+    --grand-topbar-bg: #fff;
+    --grand-topbar-border: #e3e8ee;
+    --grand-topbar-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    --grand-topbar-icon: #5c6773;
+    --grand-topbar-icon-hover: #0b7285;
+    --grand-topbar-hover-bg: rgba(15, 23, 42, .06);
+    --grand-topbar-ring: rgba(11, 114, 133, .25);
+    --grand-topbar-accent: #0b7285;
+    --grand-topbar-accent-soft: rgba(11, 114, 133, .12);
+    --grand-topbar-field-bg: #f4f6f8;
+    --grand-topbar-field-border: #e3e8ee;
+    --grand-topbar-text: var(--#{$prefix}body-color);
+    --grand-topbar-muted: var(--#{$prefix}secondary-color);
+    --grand-topbar-menu-bg: var(--#{$prefix}body-bg);
+    --grand-topbar-menu-shadow: 0 10px 30px rgba(15, 23, 42, .12);
+}
+
+[data-bs-theme="dark"] .top_nav {
+    --grand-topbar-bg: var(--#{$prefix}secondary-bg);
+    --grand-topbar-border: rgba(255, 255, 255, .08);
+    --grand-topbar-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+    --grand-topbar-icon: #c9ced4;
+    --grand-topbar-icon-hover: #66d9e8;
+    --grand-topbar-hover-bg: rgba(255, 255, 255, .08);
+    --grand-topbar-ring: rgba(102, 217, 232, .3);
+    --grand-topbar-accent: #66d9e8;
+    --grand-topbar-accent-soft: rgba(102, 217, 232, .16);
+    --grand-topbar-field-bg: var(--#{$prefix}tertiary-bg);
+    --grand-topbar-field-border: rgba(255, 255, 255, .1);
+    --grand-topbar-menu-bg: var(--#{$prefix}tertiary-bg);
+    --grand-topbar-menu-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+}
+
+/* the bar */
+
+.top_nav .nav_menu,
+[data-theme="dark"] .top_nav .nav_menu {
+    float: none;
+    display: block;
+    height: var(--grand-topbar-height);
+    background: var(--grand-topbar-bg);
+    border-bottom: 1px solid var(--grand-topbar-border);
+    box-shadow: var(--grand-topbar-shadow);
+}
+
+.top_nav .nav_menu > nav {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    height: 100%;
+    padding-inline: 1rem;
+}
+
+/* search (Admin) */
+
+.top_nav .admin-search-input-container {
+    position: relative;
+    flex: 0 1 26rem;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    float: none;
+}
+
+.top_nav .admin-search-input-container .twitter-typeahead {
+    display: block !important;
+    width: 100%;
+    height: auto;
+}
+
+.grand-topbar-search__icon {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: .9rem;
+    z-index: 2;
+    transform: translateY(-50%);
+    color: var(--grand-topbar-muted);
+    pointer-events: none;
+}
+
+.top_nav #searchInput {
+    width: 100%;
+    max-width: none;
+    height: 38px;
+    margin: 0;
+    padding-block: 0;
+    padding-inline: 2.4rem 1rem;
+    font-size: .875rem;
+    color: var(--grand-topbar-text);
+    background-color: var(--grand-topbar-field-bg);
+    border: 1px solid var(--grand-topbar-field-border);
+    border-radius: 999px;
+    box-shadow: none;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+
+    &::placeholder {
+        color: var(--grand-topbar-muted);
+    }
+
+    &:focus {
+        background-color: var(--grand-topbar-menu-bg);
+        border-color: var(--grand-topbar-accent);
+        box-shadow: 0 0 0 .2rem var(--grand-topbar-ring);
+        outline: 0;
+    }
+}
+
+/* the store / vendor the Store and Vendor panels work for */
+
+.grand-topbar-context {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 40%;
+}
+
+.grand-topbar-context__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    min-width: 0;
+    max-width: 100%;
+    height: 38px;
+    padding-inline: .9rem;
+    font-weight: 600;
+    color: var(--#{$prefix}emphasis-color);
+    background: var(--grand-topbar-field-bg);
+    border: 1px solid var(--grand-topbar-field-border);
+    border-radius: 999px !important;
+
+    .bi {
+        flex: none;
+        color: var(--grand-topbar-accent);
+    }
+}
+
+.grand-topbar-context__label {
+    font-weight: 400;
+    color: var(--grand-topbar-muted);
+}
+
+.grand-topbar-context__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* the icon buttons */
+
+.top_nav .nav.navbar-right {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: .25rem;
+    width: auto;
+    margin: 0;
+    margin-inline-start: auto;
+    padding: 0;
+    float: none;
+    list-style: none;
+}
+
+.top_nav .nav.navbar-right > li {
+    position: relative;
+    display: flex;
+    float: none;
+}
+
+.top_nav .nav.navbar-right > li > a,
+.top_nav .nav.navbar-right > li > .searchIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 .6rem;
+    font-size: .875rem;
+    line-height: 1;
+    color: var(--grand-topbar-icon) !important;
+    background: transparent;
+    border-radius: .6rem;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+
+    i {
+        font-size: 1.1rem;
+    }
+}
+
+/* the magnifier only opens the search on a phone (below) */
+.top_nav .nav.navbar-right > li > .searchIcon {
+    display: none;
+}
+
+.top_nav .nav.navbar-right > li > a:hover,
+.top_nav .nav.navbar-right > li > a[aria-expanded="true"],
+.top_nav .nav.navbar-right > li > .searchIcon:hover {
+    color: var(--grand-topbar-icon-hover) !important;
+    background: var(--grand-topbar-hover-bg);
+}
+
+.top_nav .nav.navbar-right > li > a:focus {
+    background: transparent;
+}
+
+.top_nav .nav.navbar-right > li > a:focus-visible,
+.top_nav .nav.navbar-right > li > .searchIcon:focus-visible {
+    background: var(--grand-topbar-hover-bg);
+    outline: 0;
+    box-shadow: 0 0 0 .2rem var(--grand-topbar-ring);
+}
+
+/* the dot on the version bell */
+.top_nav .version-check .info-indicator {
+    top: 7px;
+    inset-inline-end: 7px;
+    width: 9px;
+    height: 9px;
+    border: 2px solid var(--grand-topbar-bg);
+}
+
+/* the user menu: initials, name, caret */
+
+.grand-topbar-avatar {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--grand-topbar-accent);
+    background: var(--grand-topbar-accent-soft);
+    border-radius: 50% !important;
+}
+
+.top_nav .nav.navbar-right > li > a.user-profile {
+    padding-inline: .35rem .6rem;
+    color: var(--grand-topbar-text) !important;
+}
+
+.grand-topbar-user__name {
+    max-width: 16rem;
+    overflow: hidden;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.top_nav .nav.navbar-right .grand-topbar-user__caret {
+    font-size: .7rem;
+    color: var(--grand-topbar-muted);
+}
+
+/* the colour scheme switch */
+
+.top_nav .nav.navbar-right .light-dark-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+
+    .form-check-input {
+        float: none;
+        width: 2.2em;
+        height: 1.2em;
+        margin: 0;
+    }
+
+    .form-check-input:checked {
+        border-color: var(--grand-topbar-accent);
+        background-color: var(--grand-topbar-accent);
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 .2rem var(--grand-topbar-ring);
+    }
+
+    .form-check-label {
+        position: absolute;
+    }
+}
+
+/* the drop-down menus */
+
+.top_nav .nav.navbar-right .dropdown-menu {
+    min-width: 14rem;
+    margin-top: .4rem !important;
+    padding: .35rem;
+    font-size: .875rem;
+    color: var(--grand-topbar-text);
+    background: var(--grand-topbar-menu-bg);
+    border: 1px solid var(--grand-topbar-border);
+    border-radius: .75rem !important;
+    box-shadow: var(--grand-topbar-menu-shadow);
+}
+
+.top_nav .nav.navbar-right .dropdown-menu li,
+.top_nav .nav.navbar-right ul.msg_list li {
+    display: block;
+    width: 100% !important;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.top_nav .nav.navbar-right .dropdown-menu li a,
+.top_nav .nav.navbar-right ul.msg_list li a {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .5rem .75rem !important;
+    color: var(--grand-topbar-text);
+    white-space: nowrap;
+    background: transparent;
+    border-radius: .5rem;
+
+    i {
+        font-size: 1rem;
+        color: var(--grand-topbar-muted);
+    }
+
+    img {
+        width: 18px;
+        height: auto;
+    }
+
+    &:hover,
+    &:focus-visible {
+        color: var(--grand-topbar-icon-hover);
+        background: var(--grand-topbar-hover-bg);
+        outline: 0;
+
+        i {
+            color: var(--grand-topbar-icon-hover);
+        }
+    }
+}
+
+/* narrow windows */
+
+@media (max-width: 767px) {
+    .grand-topbar-context__label {
+        display: none;
+    }
+}
+
+/* the menu button of the side rail is fixed over the start of the bar (_sidebar.scss) */
+@media screen and (max-width: 768px) {
+    .top_nav .nav_menu > nav {
+        padding-inline-start: calc(58px + .5rem);
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .top_nav .nav_menu > nav {
+        gap: .25rem;
+        padding-inline: .5rem;
+    }
+
+    .top_nav .nav.navbar-right {
+        gap: 0;
+    }
+
+    .top_nav .nav.navbar-right > li > a,
+    .top_nav .nav.navbar-right > li > .searchIcon {
+        min-width: 30px;
+        height: 34px;
+        padding: 0 .25rem;
+    }
+
+    .top_nav .nav.navbar-right > li > .searchIcon {
+        display: inline-flex;
+    }
+
+    .top_nav .nav.navbar-right > li > a.user-profile {
+        padding-inline: .15rem;
+    }
+
+    .grand-topbar-avatar {
+        width: 28px;
+        height: 28px;
+    }
+
+    .top_nav .nav.navbar-right .grand-topbar-user__caret {
+        display: none;
+    }
+
+    .top_nav .nav.navbar-right .light-dark-switch .bi {
+        display: none;
+    }
+
+    /* the magnifier opens the field below the bar (custom.js toggles it) */
+    .top_nav .admin-search-input-container {
+        position: absolute;
+        top: calc(100% + .35rem);
+        inset-inline: .5rem;
+        z-index: 3;
+    }
+
+    /* on a phone the start of the bar sits under the menu button, as the Admin search does */
+    .grand-topbar-context {
+        display: none;
+    }
+}

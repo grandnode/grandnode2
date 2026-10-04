@@ -1,0 +1,11 @@
+﻿{
+  FirstName: John,
+  LastName: Doe,
+  Email: john@example.com,
+  CountryId: US,
+  City: Springfield,
+  Address1: 123 Main St,
+  ZipPostalCode: 12345,
+  PhoneNumber: 123-456-7890,
+  Id: ObjectId_1
+}

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Module.Api.DTOs.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Mapper;

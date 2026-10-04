@@ -1,7 +1,7 @@
 ﻿using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Authentication.Events;
 

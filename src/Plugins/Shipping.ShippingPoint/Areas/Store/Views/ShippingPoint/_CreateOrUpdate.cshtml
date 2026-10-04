@@ -1,0 +1,31 @@
+@model Shipping.ShippingPoint.Models.ShippingPointModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+
+@*the point always belongs to the owner's own store, so no store selector is offered*@
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="ShippingPointName"/>
+    <admin-field asp-for="OpeningHours"/>
+</div>
+<div class="grand-fields">
+    <admin-field asp-for="Description">
+        <admin-textarea asp-for="Description"></admin-textarea>
+    </admin-field>
+</div>
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="CountryId" asp-items="Model.AvailableCountries"/>
+    <admin-field asp-for="City"/>
+    <admin-field asp-for="Address1"/>
+    <admin-field asp-for="ZipPostalCode" size="md"/>
+    <admin-field asp-for="PickupFee" size="md"/>
+</div>

@@ -3,7 +3,7 @@ using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -38,7 +38,7 @@ public class CategoryLayoutServiceTest
     public async Task GetAllCategoryLayouts_InvokeMethods()
     {
         await _categoryLayoutService.GetAllCategoryLayouts();
-        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<CategoryLayout>>>>()),
+        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CategoryLayout>>>>()),
             Times.Once);
     }
 

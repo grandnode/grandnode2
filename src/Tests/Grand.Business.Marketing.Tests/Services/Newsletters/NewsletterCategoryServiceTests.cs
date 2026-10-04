@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -26,7 +26,7 @@ public class NewsletterCategoryServiceTests
     [TestMethod]
     public async Task DeleteNewsletterCategory_NullArgument_ThrowException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _newsletterCategoryService.DeleteNewsletterCategory(null), "newslettercategory");
     }
 
@@ -48,7 +48,7 @@ public class NewsletterCategoryServiceTests
     [TestMethod]
     public async Task InsertNewsletterCategory_NullArgument_ThrowException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _newsletterCategoryService.InsertNewsletterCategory(null), "newslettercategory");
     }
 
@@ -71,7 +71,7 @@ public class NewsletterCategoryServiceTests
     [TestMethod]
     public void UpdateNewsletterCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _newsletterCategoryService.UpdateNewsletterCategory(null), "newslettercategory");
     }
 }

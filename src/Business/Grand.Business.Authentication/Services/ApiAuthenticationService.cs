@@ -3,6 +3,8 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Grand.SharedKernel.Attributes;
+using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -45,10 +47,16 @@ public class ApiAuthenticationService : IApiAuthenticationService
         if (!authenticateResult.Succeeded)
             return null;
 
-        //try to get customer by email
-        var emailClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "Email");
-        if (emailClaim != null)
-            customer = await _customerService.GetCustomerByEmail(emailClaim.Value);
+        //prefer the stable customer id (unambiguous with per-store identity), fall back to e-mail for old tokens
+        var customerIdClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "CustomerId");
+        if (customerIdClaim != null)
+            customer = await _customerService.GetCustomerById(customerIdClaim.Value);
+        else
+        {
+            var emailClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "Email");
+            if (emailClaim != null)
+                customer = await _customerService.GetCustomerByEmail(emailClaim.Value);
+        }
 
         //whether the found customer is available
         if (customer is not { Active: true } || customer.Deleted || !await _groupService.IsRegistered(customer))
@@ -61,8 +69,8 @@ public class ApiAuthenticationService : IApiAuthenticationService
         var endpoint = _httpContextAccessor.HttpContext.GetEndpoint();
         if (endpoint == null) return false;
 
-        var authorizeAttributes = endpoint.Metadata.GetOrderedMetadata<AuthorizeAttribute>();
-        return authorizeAttributes.Any(attr => attr.AuthenticationSchemes?.Contains(FrontendAPIConfig.AuthenticationScheme) == true);
+        var apiGroupAttr = endpoint.Metadata.GetOrderedMetadata<ApiGroupAttribute>();
+        return apiGroupAttr.Any(attr => attr.GroupName == ApiConstants.ApiGroupNameV2);
     }
     
 
@@ -73,8 +81,14 @@ public class ApiAuthenticationService : IApiAuthenticationService
         if (!authResult.Succeeded)
             return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
 
+        var customerId = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         var email = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
-        if (email is null)
+        if (!string.IsNullOrEmpty(customerId))
+        {
+            //prefer the stable customer id - unambiguous with per-store identity
+            customer = await _customerService.GetCustomerById(customerId);
+        }
+        else if (email is null)
         {
             //guest
             var id = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "Guid")?.Value;

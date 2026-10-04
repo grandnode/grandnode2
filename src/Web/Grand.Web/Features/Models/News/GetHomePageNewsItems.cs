@@ -1,5 +1,5 @@
 ﻿using Grand.Web.Models.News;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.News;
 

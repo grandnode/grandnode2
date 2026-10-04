@@ -1,11 +1,14 @@
-﻿using Grand.Module.Api.Models;
+﻿using Grand.Infrastructure.Validators;
+using Grand.Module.Api.Models;
 
 namespace Grand.Module.Api.DTOs.Shipping;
 
 public class PickupPointDto : BaseApiEntityModel
 {
     public string Name { get; set; }
+    [SanitizeHtml]
     public string Description { get; set; }
+    [NoHtml]
     public string AdminComment { get; set; }
     public string WarehouseId { get; set; }
     public string StoreId { get; set; }

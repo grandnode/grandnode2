@@ -1,0 +1,5 @@
+﻿{
+  FriendlyName: Fixed Rate,
+  SystemName: Tax.FixedRate,
+  IsPrimaryTaxProvider: false
+}

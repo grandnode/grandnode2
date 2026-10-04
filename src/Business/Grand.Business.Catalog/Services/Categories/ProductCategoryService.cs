@@ -9,7 +9,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Categories;
 
@@ -49,8 +49,9 @@ public class ProductCategoryService : IProductCategoryService
             return new PagedList<ProductsCategory>(new List<ProductsCategory>(), pageIndex, pageSize);
 
         var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex,
-            pageSize, _contextAccessor.WorkContext.CurrentCustomer.Id, _contextAccessor.StoreContext.CurrentStore.Id);
-        return await _cacheBase.GetAsync(key, () =>
+            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _contextAccessor.StoreContext.CurrentStore.Id);
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));
 
@@ -90,7 +91,7 @@ public class ProductCategoryService : IProductCategoryService
                 orderby pm.DisplayOrder
                 select pm;
 
-            return Task.FromResult(new PagedList<ProductsCategory>(queryProductCategories, pageIndex, pageSize));
+            return await _productRepository.PagedAsync(queryProductCategories, pageIndex, pageSize);
         });
     }
 
@@ -104,7 +105,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         ArgumentNullException.ThrowIfNull(productCategory);
 
-        await _productRepository.AddToSet(productId, x => x.ProductCategories, productCategory);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductCategories, productCategory);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
@@ -123,7 +124,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         ArgumentNullException.ThrowIfNull(productCategory);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductCategories, z => z.Id, productCategory.Id,
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductCategories, z => z.Id == productCategory.Id,
             productCategory);
 
         //cache
@@ -143,7 +144,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         ArgumentNullException.ThrowIfNull(productCategory);
 
-        await _productRepository.PullFilter(productId, x => x.ProductCategories, z => z.Id, productCategory.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductCategories, z => z.Id == productCategory.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);

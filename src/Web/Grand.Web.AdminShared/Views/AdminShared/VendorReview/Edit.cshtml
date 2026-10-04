@@ -1,0 +1,35 @@
+@using Grand.Domain.Vendors
+@using Grand.Web.AdminShared.Models.Vendors
+@model VendorReviewModel
+@inject IAdminDataScope<VendorReview> Scope
+@{
+    //page title
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.EditVendorReviewDetails"];
+}
+<form asp-area="@area" asp-controller="VendorReview" asp-action="Edit" method="post">
+
+    @* the review's details screen: Save as the one primary action, Delete in the overflow menu *@
+    <admin-page sticky
+                title="@Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.EditVendorReviewDetails"]"
+                icon="bi-box"
+                back-url="@Url.Action("List")"
+                back-text="@Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+            </button>
+            <admin-action-menu>
+                <admin-action id="vendorreview-delete" destructive="true" icon="bi-trash"
+                              text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"/>
+            </admin-action-menu>
+            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdate" model="Model"/>
+    </admin-page>
+</form>
+<admin-delete-confirmation button-id="vendorreview-delete"/>

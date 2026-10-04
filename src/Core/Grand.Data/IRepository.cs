@@ -101,21 +101,7 @@ public interface IRepository<T> where T : BaseEntity
     /// <param name="field"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value);
-
-    /// <summary>
-    ///     Update subdocument
-    /// </summary>
-    /// <typeparam name="U">Document</typeparam>
-    /// <typeparam name="Z">Subdocuments</typeparam>
-    /// <param name="id">Ident of entitie</param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="elemMatch">Subdocument ident value</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    /// <returns></returns>
-    Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch,
-        Z elemMatch, U value);
+    Task AddToCollectionField<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value);
 
     /// <summary>
     ///     Update subdocument
@@ -123,38 +109,13 @@ public interface IRepository<T> where T : BaseEntity
     /// <typeparam name="U">Document</typeparam>
     /// <param name="id">Ident of entitie</param>
     /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
+    /// <param name="elemFieldMatch">Subdocument predicate to match</param>
     /// <param name="value">Subdocument - to update (all values)</param>
     /// <returns></returns>
-    Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch,
+    Task UpdateCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch,
         U value);
 
     /// <summary>
-    ///     Update subdocuments
-    /// </summary>
-    /// <typeparam name="T">Document</typeparam>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    /// <returns></returns>
-    Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value);
-
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <typeparam name="U"></typeparam>
-    /// <typeparam name="Z"></typeparam>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch"></param>
-    /// <param name="elemMatch"></param>
-    /// <returns></returns>
-    Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch,
-        Z elemMatch);
-
-    /// <summary>
     ///     Delete subdocument
     /// </summary>
     /// <typeparam name="U"></typeparam>
@@ -162,16 +123,7 @@ public interface IRepository<T> where T : BaseEntity
     /// <param name="field"></param>
     /// <param name="elemFieldMatch"></param>
     /// <returns></returns>
-    Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch);
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element);
+    Task RemoveCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch);
 
     /// <summary>
     ///     Delete entity
@@ -206,5 +158,50 @@ public interface IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table collection
     /// </summary>
-    IQueryable<C> TableCollection<C>() where C : class;    
+    IQueryable<C> TableCollection<C>() where C : class;
+
+    /// <summary>
+    ///     Executes the query and returns its results
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes the query and returns the number of matching documents
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<int> CountAsync<TResult>(IQueryable<TResult> query, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes the query and returns its first result, or the default value when nothing matches
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes the query and returns whether any document matches it
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<bool> AnyAsync<TResult>(IQueryable<TResult> query, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes the query and returns a single page of its results
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="pageIndex">Zero based page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex, int pageSize,
+        CancellationToken cancellationToken = default);
 }

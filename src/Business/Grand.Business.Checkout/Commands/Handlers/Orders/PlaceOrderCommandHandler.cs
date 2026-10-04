@@ -27,7 +27,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
@@ -376,8 +376,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     protected virtual async Task<PlaceOrderContainer> PreparePlaceOrderDetails()
     {
         var details = new PlaceOrderContainer {
-            //customer
-            Customer = _contextAccessor.WorkContext.CurrentCustomer
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Store = _contextAccessor.StoreContext.CurrentStore,
         };
         if (details.Customer == null)
             throw new ArgumentException("Customer is not set");
@@ -432,7 +432,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             details.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 _contextAccessor.StoreContext.CurrentStore.Id);
         details.CheckoutAttributeDescription =
-            await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, details.Customer);
+            await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, details.Customer, details.Store);
 
         //load and validate customer shopping cart
         details.Cart = details.Customer.ShoppingCartItems
@@ -572,10 +572,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var paymentAdditionalFee =
             await _paymentService.GetAdditionalHandlingFee(details.Cart, paymentMethodSystemName);
         details.PaymentAdditionalFeeInclTax =
-            (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, true, details.Customer))
+            (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, true, details.Customer, details.Store))
             .paymentPrice;
         details.PaymentAdditionalFeeExclTax =
-            (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, false, details.Customer))
+            (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, false, details.Customer, details.Store))
             .paymentPrice;
 
         //tax total
@@ -618,7 +618,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product);
 
-        var prices = await _taxService.GetTaxProductPrice(product, details.Customer, scUnitPrice,
+        var prices = await _taxService.GetTaxProductPrice(product, details.Customer,
+            details.Store, scUnitPrice,
             scUnitPriceWithoutDisc, sc.Quantity, scSubTotal, discountAmount, _taxSettings.PricesIncludeTax);
         var scUnitPriceWithoutDiscInclTax = prices.UnitPriceWithoutDiscInclTax;
         var scUnitPriceWithoutDiscExclTax = prices.UnitPriceWithoutDiscExclTax;
@@ -757,43 +758,13 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             if (!sc.RentalStartDateUtc.HasValue || !sc.RentalEndDateUtc.HasValue) continue;
             var reservations =
                 await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
-            var grouped = reservations.GroupBy(x => x.Resource);
-
-            IGrouping<string, ProductReservation> groupToBook = null;
-            foreach (var group in grouped)
-            {
-                var groupCanBeBooked = true;
-                if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
-                    for (var iterator = sc.RentalStartDateUtc.Value;
-                         iterator <= sc.RentalEndDateUtc.Value;
-                         iterator += new TimeSpan(24, 0, 0))
-                    {
-                        if (group.Select(x => x.Date).Contains(iterator)) continue;
-                        groupCanBeBooked = false;
-                        break;
-                    }
-                else
-                    for (var iterator = sc.RentalStartDateUtc.Value;
-                         iterator < sc.RentalEndDateUtc.Value;
-                         iterator += new TimeSpan(24, 0, 0))
-                    {
-                        if (group.Select(x => x.Date).Contains(iterator)) continue;
-                        groupCanBeBooked = false;
-                        break;
-                    }
-
-                if (!groupCanBeBooked) continue;
-                groupToBook = group;
-                break;
-            }
+            var groupToBook = reservations.FindGroupToBook(product, sc.RentalStartDateUtc.Value,
+                sc.RentalEndDateUtc.Value);
 
             if (groupToBook == null) throw new Exception("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod");
 
-            var temp = groupToBook.AsQueryable();
-            if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
-                temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date <= sc.RentalEndDateUtc);
-            else
-                temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date < sc.RentalEndDateUtc);
+            var temp = groupToBook.InRentalPeriod(product, sc.RentalStartDateUtc.Value, sc.RentalEndDateUtc.Value)
+                .ToList();
 
             foreach (var item in temp)
             {

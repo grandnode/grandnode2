@@ -9,7 +9,7 @@
     //register URL with return URL (if specified)
     var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
 }
-<div class="page login-page">
+<div class="page login-page" vue-island="login">
     <h2 class="generalTitle text-center mt-3">@Loc["Account.Login.Welcome"]</h2>
     <div cols="12">
         <div class="my-3">
@@ -70,13 +70,13 @@
                                         </div>
                                     </div>
                                     <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
-                                        <label class="custom-control custom-checkbox">
-                                            <input class="custom-control-input" asp-for="RememberMe"/>
-                                            <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
-                                            <span class="custom-control-label"></span>
+                                        <label class="form-check">
+                                            <input class="form-check-input" asp-for="RememberMe"/>
+                                            <input class="form-check-label" name="RememberMe" type="hidden" value="false">
+                                            <span class="form-check-label"></span>
                                             <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
                                         </label>
-                                        <span class="ml-3 forgot-password">
+                                        <span class="ms-3 forgot-password">
                                             <a asp-route="PasswordRecovery">@Loc["Account.Login.ForgotPassword"]</a>
                                         </span>
                                     </div>
@@ -136,7 +136,7 @@
                                 @Loc["Account.Login.NewCustomer"]
                             </div>
                             <div class="d-inline-flex align-items-center justify-content-center w-100">
-                                <a class="btn btn-info ml-3 register-button px-5" href="@registerUrl">
+                                <a class="btn btn-info ms-3 register-button px-5" href="@registerUrl">
                                     @Loc["Account.Register"]
                                 </a>
                             </div>
@@ -147,12 +147,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var login = new Vue({
-        data: () => ({
-            Username: '',
-            Email: '',
-            Password: '',
-        })
-    });
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "login", data = new { Username = "", Email = "", Password = "" } })</script>

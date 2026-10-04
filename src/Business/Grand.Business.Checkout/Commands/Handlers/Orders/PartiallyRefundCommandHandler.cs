@@ -8,7 +8,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Localization;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;

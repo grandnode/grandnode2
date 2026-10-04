@@ -5,9 +5,9 @@
     {
         <div class="bill-to-same-address">
             <p class="selector">
-                <label class="custom-control custom-checkbox">
-                    <input asp-for="BillToTheSameAddress" class="custom-control-input" :disabled="vmorder.PickUpInStore"/>
-                    <span class="custom-control-label"></span>
+                <label class="form-check">
+                    <input asp-for="BillToTheSameAddress" class="form-check-input" :disabled="vmorder.PickUpInStore"/>
+                    <span class="form-check-label"></span>
                     <span class="custom-control-description">@Loc["Checkout.BillToTheSameAddress"]</span>
                 </label>
             </p>
@@ -23,7 +23,7 @@
                     <label class="genera" for="shipping-address-select">@Loc["Checkout.SelectShippingAddressOrEnterNewOne"]</label>
                 </div>
                 <div class="col-12 px-0">
-                    <select name="ShippingAddressId" ref="shippingSelect" id="shipping-address-select" class="custom-select address-select"
+                    <select name="ShippingAddressId" ref="shippingSelect" id="shipping-address-select" class="form-select address-select"
                             onchange="vmorder.vShipping.newAddress(!this.value)">
                         @foreach (var address in Model.ExistingAddresses)
                         {

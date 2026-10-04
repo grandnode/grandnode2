@@ -1,5 +1,7 @@
 ﻿using Grand.Domain.Common;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MongoDB.Driver;
 
 namespace Grand.Data.Tests.MongoDb;
 
@@ -23,12 +25,29 @@ public class MongoRepositoryTests
         _myRepository.Insert(product);
         //Assert
         Assert.AreEqual(1, _myRepository.Table.Count());
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedBy == "user");
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Month == DateTime.UtcNow.Month);
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Day == DateTime.UtcNow.Day);
+        Assert.AreEqual("user", _myRepository.Table.FirstOrDefault()!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, _myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Year);
+        Assert.AreEqual(DateTime.UtcNow.Month, _myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Month);
+        Assert.AreEqual(DateTime.UtcNow.Day, _myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Day);
     }
 
+
+    [TestMethod]
+    public async Task InsertAsync_UniqueIndexViolated_ThrowsDuplicateKeyGrandException()
+    {
+        //Arrange
+        var collection = ((MongoDBRepositoryTest<SampleCollection>)_myRepository).Collection;
+        await collection.Indexes.CreateOneAsync(new CreateIndexModel<SampleCollection>(
+            Builders<SampleCollection>.IndexKeys.Descending(x => x.Count),
+            new CreateIndexOptions { Name = "Count", Unique = true }));
+        await _myRepository.InsertAsync(new SampleCollection { Id = "1", Count = 7 });
+
+        //Act / Assert
+        await Assert.ThrowsExactlyAsync<DuplicateKeyGrandException>(async () =>
+            await _myRepository.InsertAsync(new SampleCollection { Id = "2", Count = 7 }));
+
+        Assert.AreEqual(1, _myRepository.Table.Count());
+    }
 
     [TestMethod]
     public async Task GetById_MongoRepository_Success()
@@ -54,8 +73,8 @@ public class MongoRepositoryTests
         var p = await _myRepository.GetByIdAsync("1");
         //Assert
         Assert.IsNotNull(p);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
     }
 
     [TestMethod]
@@ -68,8 +87,8 @@ public class MongoRepositoryTests
         var p = await _myRepository.GetOneAsync(x => x.Id == "1");
         //Assert
         Assert.IsNotNull(p);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
     }
 
     [TestMethod]
@@ -80,7 +99,7 @@ public class MongoRepositoryTests
 
         await _myRepository.ClearAsync();
 
-        Assert.IsTrue(_myRepository.Table.Count() == 0);
+        Assert.IsEmpty(_myRepository.Table);
     }
 
     [TestMethod]
@@ -90,20 +109,20 @@ public class MongoRepositoryTests
         var product = new SampleCollection { Id = "1" };
         await _myRepository.InsertAsync(product);
 
-        await _myRepository.AddToSet("1", x => x.UserFields,
+        await _myRepository.AddToCollectionField("1", x => x.UserFields,
             new UserField { Key = "key", Value = "value", StoreId = "" });
 
         //Act
-        await _myRepository.AddToSet("1", x => x.UserFields,
+        await _myRepository.AddToCollectionField("1", x => x.UserFields,
             new UserField { Key = "key2", Value = "value2", StoreId = "" });
 
         var p = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p.UserFields.Count == 2);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p!.UpdatedBy == "user");
+        Assert.HasCount(2, p.UserFields);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p!.UpdatedBy);
         Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
     }
 
@@ -152,7 +171,7 @@ public class MongoRepositoryTests
         await _myRepository.DeleteManyAsync(x => x.Name == "Test");
 
         //Assert
-        Assert.IsTrue(_myRepository.Table.Count() == 1);
+        Assert.AreEqual(1, _myRepository.Table.Count());
     }
 
     [TestMethod]
@@ -173,16 +192,32 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.Pull("1", x => x.Phones, "Phone2");
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.Phones, y => y == "Phone2");
 
         var p = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p.Phones.Count == 2);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p!.UpdatedBy == "user");
+        Assert.HasCount(2, p.Phones);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p!.UpdatedBy);
         Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
+    }
+
+    [TestMethod]
+    public async Task Pull_ById_NothingToPull_LeavesTheDocumentUnwritten()
+    {
+        //Arrange
+        _myRepository.Insert(new SampleCollection { Id = "1", Name = "Test", Phones = ["Phone1", "Phone3"] });
+
+        //Act
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.Phones, y => y == "Phone2");
+
+        //Assert
+        var p = _myRepository.GetById("1");
+        Assert.HasCount(2, p.Phones);
+        Assert.IsNull(p.UpdatedOnUtc);
+        Assert.IsNull(p.UpdatedBy);
     }
 
     [TestMethod]
@@ -203,17 +238,22 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.Pull(string.Empty, x => x.Phones, "Phone2");
+        await _myRepository.RemoveCollectionFieldItem(string.Empty, x => x.Phones, y => y == "Phone2");
 
         var p1 = _myRepository.GetById("1");
         var p2 = _myRepository.GetById("2");
         var p3 = _myRepository.GetById("3");
 
         //Assert
-        Assert.IsTrue(p1.Phones.Count == 2 && p2.Phones.Count == 2 && p3.Phones.Count == 0);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.HasCount(2, p1.Phones);
+        Assert.HasCount(2, p2.Phones);
+        Assert.IsEmpty(p3.Phones);
+        //nothing to pull from p3, so it must not be written (nor re-stamped) at all
+        Assert.IsNull(p3.UpdatedOnUtc);
+        Assert.IsNull(p3.UpdatedBy);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -236,15 +276,15 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value == "value");
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.UserFields, x => x.Value == "value");
 
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.UserFields.Count == 1);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.HasCount(1, p1.UserFields);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -267,15 +307,15 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value, "value");
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.UserFields, x => x.Value == "value");
 
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.UserFields.Count == 1);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.HasCount(1, p1.UserFields);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -305,16 +345,20 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.PullFilter(string.Empty, x => x.UserFields, x => x.Value, "value");
+        await _myRepository.RemoveCollectionFieldItem(string.Empty, x => x.UserFields, x => x.Value == "value");
 
         var p1 = _myRepository.GetById("1");
         var p2 = _myRepository.GetById("2");
+        var p3 = _myRepository.GetById("3");
 
         //Assert
-        Assert.IsTrue(p1.UserFields.Count == 1 && p2.UserFields.Count == 2);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        //p3 has no user field to pull, so it must not be written (nor re-stamped) at all
+        Assert.IsNull(p3.UpdatedOnUtc);
+        Assert.HasCount(1, p1.UserFields);
+        Assert.HasCount(2, p2.UserFields);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -345,8 +389,8 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.Name == "update");
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual("update", p1.Name);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -375,8 +419,8 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.Name == "update");
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual("update", p1.Name);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -403,8 +447,8 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.Name == "update");
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual("update", p1.Name);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -420,7 +464,7 @@ public class MongoRepositoryTests
 
         var p1 = _myRepository.GetById("1");
 
-        Assert.IsTrue(p1.Count == 3);
+        Assert.AreEqual(3, p1.Count);
     }
 
     [TestMethod]
@@ -446,8 +490,8 @@ public class MongoRepositoryTests
         var pUpdated = _myRepository.Table.Where(x => x.Name == "UpdateTest");
         var p1 = pUpdated.FirstOrDefault();
         //Assert
-        Assert.IsTrue(pUpdated.Count() == 2);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual(2, pUpdated.Count());
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -476,8 +520,8 @@ public class MongoRepositoryTests
         var pUpdated = _myRepository.Table.Where(x => x.Name == "UpdateTest");
         var p1 = pUpdated.FirstOrDefault();
         //Assert
-        Assert.IsTrue(pUpdated.Count() == 1);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual(1, pUpdated.Count());
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -499,13 +543,12 @@ public class MongoRepositoryTests
         };
         products.ForEach(x => _myRepository.Insert(x));
         //Act
-        await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key",
-            new UserField { Key = "key", Value = "update", StoreId = "1" });
+        await _myRepository.UpdateCollectionFieldItem("1", x => x.UserFields, z => z.Key == "key", new UserField { Key = "key", Value = "update", StoreId = "1" });
         var p = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p.UserFields.FirstOrDefault(x => x.Key == "key")!.Value == "update");
-        Assert.IsTrue(p!.UpdatedBy == "user");
+        Assert.AreEqual("update", p.UserFields.FirstOrDefault(x => x.Key == "key")!.Value);
+        Assert.AreEqual("user", p!.UpdatedBy);
         Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
     }
 }

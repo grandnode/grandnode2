@@ -1,0 +1,10 @@
+﻿{
+  Code: WH-MAIN,
+  Name: Main Warehouse,
+  AdminComment: Primary,
+  Address: {
+    Id: ObjectId_1
+  },
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

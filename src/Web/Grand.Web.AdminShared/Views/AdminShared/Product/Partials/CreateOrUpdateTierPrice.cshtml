@@ -1,0 +1,24 @@
+@model ProductModel.TierPriceModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+<input asp-for="ProductId" type="hidden"/>
+
+<partial name="Partials/WidgetZone.TierPrice.Top" model="Model"/>
+@* the store and customer group rows come from TierPrice.StoreScope, which the vendor panel
+   overrides with an empty partial - so they are grid items here, not rows of their own *@
+<div class="grand-fields grand-fields--2col">
+    <admin-field asp-for="Quantity" size="md"/>
+    <admin-field asp-for="Price" size="md"/>
+    <admin-field asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies" size="md"/>
+    <partial name="Partials/TierPrice.StoreScope" model="Model"/>
+    <admin-field asp-for="StartDateTime"/>
+    <admin-field asp-for="EndDateTime"/>
+</div>
+<partial name="Partials/WidgetZone.TierPrice.Bottom" model="Model"/>
+<div class="grand-popup__actions">
+    <partial name="Partials/WidgetZone.TierPrice.Buttons"/>
+    <button class="btn btn-primary" type="submit" name="save">
+        <i class="bi bi-check-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+    </button>
+</div>

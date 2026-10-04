@@ -3,7 +3,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Products;
 
@@ -11,7 +11,7 @@ public class GetProductDetailsAttributeChange : IRequest<ProductDetailsAttribute
 {
     public Customer Customer { get; set; }
     public Currency Currency { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Product Product { get; set; }
     public ProductModel Model { get; set; }
 }

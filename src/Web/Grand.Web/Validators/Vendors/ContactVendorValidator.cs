@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Vendors;
@@ -15,7 +16,7 @@ public class ContactVendorValidator : BaseGrandValidator<ContactVendorModel>
         IEnumerable<IValidatorConsumer<ContactVendorModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService, CommonSettings commonSettings)
         : base(validators)
     {

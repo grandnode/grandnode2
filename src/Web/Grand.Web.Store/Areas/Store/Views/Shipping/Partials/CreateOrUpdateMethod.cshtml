@@ -1,0 +1,30 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model ShippingMethodModel
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].Description">
+                <admin-textarea asp-for="@Model.Locales[item].Description"></admin-textarea>
+            </admin-field>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<admin-card>
+    <localized-editor localized-template="@template" name="shipping-method-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="Description">
+                <admin-textarea asp-for="Description"></admin-textarea>
+            </admin-field>
+        </div>
+    </localized-editor>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+    </div>
+</admin-card>

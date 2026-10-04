@@ -1,0 +1,10 @@
+﻿{
+  Id: pac-001,
+  StockQuantity: 10,
+  AllowOutOfStockOrders: false,
+  Sku: SKU-RED-M,
+  Gtin: 1234567890,
+  OverriddenPrice: 95.0,
+  NotifyAdminForQuantityBelow: 2,
+  UseMultipleWarehouses: false
+}

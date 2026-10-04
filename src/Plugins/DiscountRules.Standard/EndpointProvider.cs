@@ -10,50 +10,56 @@ public class EndpointProvider : IEndpointProvider
     {
         //CustomerGroups
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.CustomerGroups.Configure",
-            "Admin/CustomerGroups/Configure",
-            new { controller = "CustomerGroups", action = "Configure" }
+            "DiscountRulesCustomerGroups/Configure",
+            new { controller = "DiscountRulesCustomerGroups", action = "Configure" }
         );
 
         //HadSpentAmount
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HadSpentAmount.Configure",
-            "Admin/HadSpentAmount/Configure",
-            new { controller = "HadSpentAmount", action = "Configure" }
+            "DiscountRulesHadSpentAmount/Configure",
+            new { controller = "DiscountRulesHadSpentAmount", action = "Configure" }
+        );
+
+        //ShoppingCartAmount
+        endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.ShoppingCartAmount.Configure",
+            "DiscountRulesShoppingCartAmount/Configure",
+            new { controller = "DiscountRulesShoppingCartAmount", action = "Configure" }
         );
 
         //HasAllProducts
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasAllProducts.Configure",
-            "Admin/HasAllProducts/Configure",
-            new { controller = "HasAllProducts", action = "Configure" }
+            "DiscountRulesHasAllProducts/Configure",
+            new { controller = "DiscountRulesHasAllProducts", action = "Configure" }
         );
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasAllProducts.ProductAddPopup",
-            "Admin/HasAllProducts/ProductAddPopup",
-            new { controller = "HasAllProducts", action = "ProductAddPopup" }
+            "DiscountRulesHasAllProducts/ProductAddPopup",
+            new { controller = "DiscountRulesHasAllProducts", action = "ProductAddPopup" }
         );
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasAllProducts.ProductAddPopupList",
-            "Admin/HasAllProducts/ProductAddPopupList",
-            new { controller = "HasAllProducts", action = "ProductAddPopupList" }
+            "DiscountRulesHasAllProducts/ProductAddPopupList",
+            new { controller = "DiscountRulesHasAllProducts", action = "ProductAddPopupList" }
         );
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasAllProducts.LoadProductFriendlyNames",
-            "Admin/HasAllProducts/LoadProductFriendlyNames",
-            new { controller = "HasAllProducts", action = "LoadProductFriendlyNames" }
+            "DiscountRulesHasAllProducts/LoadProductFriendlyNames",
+            new { controller = "DiscountRulesHasAllProducts", action = "LoadProductFriendlyNames" }
         );
 
         //HasOneProduct
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasOneProduct.Configure",
-            "Admin/HasOneProduct/Configure",
-            new { controller = "HasOneProduct", action = "Configure" }
+            "DiscountRulesHasOneProduct/Configure",
+            new { controller = "DiscountRulesHasOneProduct", action = "Configure" }
         );
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasOneProduct.ProductAddPopup",
-            "Admin/HasOneProduct/ProductAddPopup",
-            new { controller = "HasOneProduct", action = "ProductAddPopup" }
+            "DiscountRulesHasOneProduct/ProductAddPopup",
+            new { controller = "DiscountRulesHasOneProduct", action = "ProductAddPopup" }
         );
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasOneProduct.ProductAddPopupList",
-            "Admin/HasOneProduct/ProductAddPopupList",
-            new { controller = "HasOneProduct", action = "ProductAddPopupList" }
+            "DiscountRulesHasOneProduct/ProductAddPopupList",
+            new { controller = "DiscountRulesHasOneProduct", action = "ProductAddPopupList" }
         );
         endpointRouteBuilder.MapControllerRoute("Plugin.DiscountRules.HasOneProduct.LoadProductFriendlyNames",
-            "Admin/HasOneProduct/LoadProductFriendlyNames",
-            new { controller = "HasOneProduct", action = "LoadProductFriendlyNames" }
+            "DiscountRulesHasOneProduct/LoadProductFriendlyNames",
+            new { controller = "DiscountRulesHasOneProduct", action = "LoadProductFriendlyNames" }
         );
     }
 

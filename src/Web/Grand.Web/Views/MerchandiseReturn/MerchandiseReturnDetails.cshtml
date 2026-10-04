@@ -102,7 +102,7 @@
                 @if (Model.PickupDate != default)
                 {
                     <div class="d-inline-flex align-items-center w-100 my-3">
-                        <b-icon class="mx-2" icon="calendar2-check" variant="info"></b-icon>
+                        <i class="b-icon mx-2 bi bi-calendar2-check text-info" aria-hidden="true"></i>
                         <small class="text-muted">
                             <label class="mb-0">@Loc["Account.CustomerMerchandiseReturns.PickupDate"]: </label>
                             <span>@Model.PickupDate.ToShortDateString()</span>

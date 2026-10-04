@@ -1,0 +1,78 @@
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title"></h2>
+            @if (!readOnly)
+            {
+                <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.AddNew"]</a>
+                <input type="submit" id="btnRefreshBundleProducts" style="display: none"/>
+            }
+        </div>
+        <partial name="Partials/WidgetZone.BundleProducts.Top" model="Model"/>
+        <div class="grand-card__body grand-card__body--flush">
+            <admin-grid id="bundleproducts-grid"
+                        read-only="@readOnly"
+                        read-url="@Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = area })"
+                        update-url="@Url.Action("BundleProductUpdate", "Product", new { area = area })"
+                        destroy-url="@Url.Action("BundleProductDelete", "Product", new { area = area })"
+                        pager="Compact"
+                        auto-bind="false"
+                        edit-mode="Inline">
+                <grid-column field="ProductName" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.Fields.Product"]">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { id = "", area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Quantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.Fields.Quantity"]" format="{0:0}" editor="Integer"/>
+                <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.Fields.DisplayOrder"]" width="120" align="Center" format="{0:0}" min-screen-width="750" editor="Integer"/>
+                <grid-commands edit="true" destroy="true"/>
+            </admin-grid>
+        </div>
+        <partial name="Partials/WidgetZone.BundleProducts.Bottom" model="Model"/>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnAddNewBundleProduct').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshBundleProducts').click(function () {
+                //refresh grid
+                var grid = GrandAdmin.grids.get("#bundleproducts-grid");
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.SaveBeforeEdit"]
+    </div>
+}

@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Customers;
 

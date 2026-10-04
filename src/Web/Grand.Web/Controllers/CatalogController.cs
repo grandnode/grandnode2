@@ -18,7 +18,7 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Vendors;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Vendors;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 
@@ -318,7 +318,6 @@ public class CatalogController : BasePublicController
     #region Vendor reviews
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> VendorReviews(VendorReviewsModel model)
     {

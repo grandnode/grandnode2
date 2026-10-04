@@ -6,8 +6,6 @@ public class StoreDto : BaseApiEntityModel
 {
     public string Name { get; set; }
     public string Url { get; set; }
-    public bool SslEnabled { get; set; }
-    public string SecureUrl { get; set; }
     public string Hosts { get; set; }
     public string DefaultLanguageId { get; set; }
     public string DefaultWarehouseId { get; set; }

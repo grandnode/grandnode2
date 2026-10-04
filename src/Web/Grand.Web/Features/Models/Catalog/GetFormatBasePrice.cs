@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Catalog;
 

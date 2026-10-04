@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Customers.Services;
 
@@ -77,7 +77,7 @@ public class CustomerNoteService : ICustomerNoteService
 
         query = query.OrderByDescending(x => x.CreatedOnUtc);
 
-        return await Task.FromResult(query.ToList());
+        return await _customerNoteRepository.ToListAsync(query);
     }
 
     #endregion

@@ -1,0 +1,28 @@
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = Constants.LayoutStoreLogin;
+    //title
+    pagebuilder.AddTitleParts(Loc["Admin.Login.TwoFactorAuth.Title.Login"]);
+}
+<form asp-action="TwoFactorAuthorization" asp-controller="Login" asp-area="@Constants.AreaStore" method="post" class="grand-page grand-login__panel">
+    <div class="grand-login__brand">
+        <img src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/build/images/grand-logo.svg" width="40" height="40" alt=""/>
+        <span>GrandNode</span>
+    </div>
+    <div class="grand-card">
+        <div class="grand-card__body">
+            <div class="grand-login__heading">
+                <span class="grand-login__icon"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
+                <h1 class="grand-login__title">@Loc["Admin.Login.TwoFactorAuth.EnterCode"]</h1>
+            </div>
+            <div asp-validation-summary="All"></div>
+            <div class="grand-field">
+                <label for="token" class="grand-field__label">@Loc["Admin.Login.TwoFactorAuth.DigitCode"]</label>
+                <div class="grand-field__control">
+                    <input id="token" name="token" type="text" class="form-control" inputmode="numeric" autocomplete="one-time-code" autofocus/>
+                </div>
+            </div>
+            <input class="btn btn-primary grand-login__submit login-button" type="submit" value="@Loc["Admin.Login.TwoFactorAuth.SendCode"]"/>
+        </div>
+    </div>
+</form>

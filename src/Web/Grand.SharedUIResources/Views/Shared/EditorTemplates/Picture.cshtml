@@ -21,11 +21,11 @@
 </div>
 @if (picture != null)
 {
-    <span id="@(clientId + "remove")" class="btn red btn-outline margin-top-10">@Loc["Admin.Picture.RemovePicture"]</span>
+    <span id="@(clientId + "remove")" class="btn btn-outline-danger btn-sm mt-2">@Loc["Admin.Picture.RemovePicture"]</span>
 }
 else
 {
-    <span id="@(clientId + "remove")" class="btn red btn-outline" style="display:none;">@Loc["Admin.Picture.RemovePicture"]</span>
+    <span id="@(clientId + "remove")" class="btn btn-outline-danger btn-sm mt-2" style="display:none;">@Loc["Admin.Picture.RemovePicture"]</span>
 }
 <br/>
 <div id="@clientId"></div>
@@ -44,7 +44,10 @@ else
                     Reference: '@ViewData["Reference"]',
                     ObjectId: '@ViewData["ObjectId"]'
                 },
-                inputName: "file"
+                inputName: "file",
+                customHeaders: {
+                    'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val()
+                }
             },            
             template: "@(clientId)-qq-template",
             multiple: false,

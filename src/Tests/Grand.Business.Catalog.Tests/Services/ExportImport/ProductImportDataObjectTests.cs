@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Common.Services.Security;
@@ -16,6 +16,7 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
@@ -30,7 +31,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Infrastructure.TypeSearch;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -98,7 +99,8 @@ public class ProductImportDataObjectTests
             _categoryServiceMock.Object, _productCategoryServiceMock.Object, _brandServiceMock.Object,
             _collectionServiceMock.Object,
             _productCollectionServiceMock.Object,
-            _seNameService);
+            _seNameService,
+            new SecurityConfig());
     }
 
     [TestMethod]
@@ -117,8 +119,8 @@ public class ProductImportDataObjectTests
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
             .Returns(Task.FromResult(new DeliveryDate()));
-        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates())
-            .Returns(Task.FromResult<IList<DeliveryDate>>(new List<DeliveryDate> { new() }));
+        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<DeliveryDate>>(new PagedList<DeliveryDate>(new List<DeliveryDate> { new() }, 0, int.MaxValue)));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
             .Returns(Task.FromResult(new TaxCategory()));
@@ -127,8 +129,8 @@ public class ProductImportDataObjectTests
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
             .Returns(Task.FromResult(new Warehouse()));
-        _warehouseServiceMock.Setup(c => c.GetAllWarehouses())
-            .Returns(Task.FromResult<IList<Warehouse>>(new List<Warehouse> { new() }));
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<Warehouse>>(new PagedList<Warehouse>(new List<Warehouse> { new() }, 0, int.MaxValue)));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
             .Returns(Task.FromResult(new MeasureUnit()));
@@ -180,8 +182,8 @@ public class ProductImportDataObjectTests
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
             .Returns(Task.FromResult(new DeliveryDate()));
-        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates())
-            .Returns(Task.FromResult<IList<DeliveryDate>>(new List<DeliveryDate> { new() }));
+        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<DeliveryDate>>(new PagedList<DeliveryDate>(new List<DeliveryDate> { new() }, 0, int.MaxValue)));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
             .Returns(Task.FromResult(new TaxCategory()));
@@ -190,8 +192,8 @@ public class ProductImportDataObjectTests
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
             .Returns(Task.FromResult(new Warehouse()));
-        _warehouseServiceMock.Setup(c => c.GetAllWarehouses())
-            .Returns(Task.FromResult<IList<Warehouse>>(new List<Warehouse> { new() }));
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<Warehouse>>(new PagedList<Warehouse>(new List<Warehouse> { new() }, 0, int.MaxValue)));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
             .Returns(Task.FromResult(new MeasureUnit()));
@@ -208,7 +210,7 @@ public class ProductImportDataObjectTests
         Assert.AreEqual(3, _repository.Table.Count());
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == product3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == product3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == product3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == product3.Id).Published);
     }
 
     [TestMethod]
@@ -234,8 +236,8 @@ public class ProductImportDataObjectTests
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
             .Returns(Task.FromResult(new DeliveryDate()));
-        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates())
-            .Returns(Task.FromResult<IList<DeliveryDate>>(new List<DeliveryDate> { new() }));
+        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<DeliveryDate>>(new PagedList<DeliveryDate>(new List<DeliveryDate> { new() }, 0, int.MaxValue)));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
             .Returns(Task.FromResult(new TaxCategory()));
@@ -244,8 +246,8 @@ public class ProductImportDataObjectTests
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
             .Returns(Task.FromResult(new Warehouse()));
-        _warehouseServiceMock.Setup(c => c.GetAllWarehouses())
-            .Returns(Task.FromResult<IList<Warehouse>>(new List<Warehouse> { new() }));
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<Warehouse>>(new PagedList<Warehouse>(new List<Warehouse> { new() }, 0, int.MaxValue)));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
             .Returns(Task.FromResult(new MeasureUnit()));
@@ -262,7 +264,7 @@ public class ProductImportDataObjectTests
         Assert.AreEqual(3, _repository.Table.Count());
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == product3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == product3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == product3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == product3.Id).Published);
     }
 
     private void InitAutoMapper()
@@ -279,7 +281,7 @@ public class ProductImportDataObjectTests
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile(instance.GetType());
+            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
         });
 
         //register automapper

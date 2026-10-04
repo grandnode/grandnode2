@@ -41,4 +41,9 @@ public class Warehouse : BaseEntity
     ///     Gets or sets the display order
     /// </summary>
     public int DisplayOrder { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the store identifier. Empty means available to all stores.
+    /// </summary>
+    public string StoreId { get; set; }
 }

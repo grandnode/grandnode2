@@ -1,12 +1,12 @@
 ﻿using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Catalog;
 
 public class GetProductTagsAll : IRequest<PopularProductTagsModel>
 {
     public Language Language { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 }

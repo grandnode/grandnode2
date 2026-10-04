@@ -1,0 +1,22 @@
+﻿using FluentValidation;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure.Validators;
+using Grand.Web.AdminShared.Models.Courses;
+
+namespace Grand.Web.AdminShared.Validators.Course;
+
+public class CourseLessonValidator : BaseGrandValidator<CourseLessonModel>
+{
+    public CourseLessonValidator(
+        IEnumerable<IValidatorConsumer<CourseLessonModel>> validators,
+        ITranslationService translationService)
+        : base(validators)
+    {
+        RuleFor(x => x.Name).NotEmpty()
+            .WithMessage(translationService.GetResource("Admin.Courses.Course.Lesson.Fields.Name.Required"));
+        RuleFor(x => x.CourseId).NotEmpty()
+            .WithMessage(translationService.GetResource("Admin.Courses.Course.Lesson.Fields.CourseId.Required"));
+        RuleFor(x => x.SubjectId).NotEmpty()
+            .WithMessage(translationService.GetResource("Admin.Courses.Course.Lesson.Fields.SubjectId.Required"));
+    }
+}

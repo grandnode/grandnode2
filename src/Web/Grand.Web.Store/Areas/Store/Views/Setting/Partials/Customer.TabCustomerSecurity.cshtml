@@ -1,0 +1,81 @@
+﻿@using Grand.Domain.Customers
+@model CustomerSettingsModel
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.CustomerSettings.TwoFactorAuthenticationEnabled)").click(toggleTwoFactor);
+        toggleTwoFactor();
+    });
+
+    function toggleTwoFactor() {
+        if ($('#@Html.IdFor(model => model.CustomerSettings.TwoFactorAuthenticationEnabled)').is(':checked')) {
+            $('#twofactortype').show();
+        }
+        else {
+            $('#twofactortype').hide();
+        }
+    }
+</script>
+
+@* two-factor sign-in and the method it reveals, the password rules with the pattern a password
+   must match last because it carries its example, then the lockout after failed attempts *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="CustomerSettings.TwoFactorAuthenticationEnabled"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="CustomerSettings.TwoFactorAuthenticationType" id="twofactortype" asp-items="EnumTranslationService.ToSelectList((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType)" size="md"/>
+            </div>
+        </div>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="CustomerSettings.PasswordLifetime" size="sm"/>
+        <admin-field asp-for="CustomerSettings.UnduplicatedPasswordsNumber" size="sm"/>
+        <admin-field asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" size="sm"/>
+    </div>
+    <div class="grand-fields mt-3">
+        <admin-field asp-for="CustomerSettings.PasswordRegularExpression">
+            <admin-input asp-for="CustomerSettings.PasswordRegularExpression"/>
+            <div class="note note-info">
+                You can use this regex: <br>
+                ^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@@$%^&*-]).{8,}$<br>
+                This regex will enforce these rules:<br>
+                • At least one upper case english letter<br>
+                • At least one lower case english letter<br>
+                • At least one digit<br>
+                • At least one special character<br>
+                • Minimum 8 in length
+            </div>
+        </admin-field>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-reveal">
+            <admin-field asp-for="CustomerSettings.FailedPasswordAllowedAttempts" size="sm"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="CustomerSettings.FailedPasswordLockoutMinutes" id="pnlFailedPasswordLockoutMinutes" size="sm"/>
+            </div>
+            <script>
+	                $(document).ready(function () {
+	                    var attempts = document.getElementById("@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)");
+	                    // the numeric widget edits in its own input, so the blur happens there
+	                    var editable = attempts.grandNumeric ? attempts.grandNumeric.text : attempts;
+	                    editable.addEventListener('blur', toggleFailedPasswordAllowedAttempts);
+			                toggleFailedPasswordAllowedAttempts();
+
+		                    function toggleFailedPasswordAllowedAttempts() {
+			                    var value = attempts.grandNumeric ? attempts.grandNumeric.value() : parseInt(attempts.value, 10);
+			                    if (value > 0) {
+				                $('#pnlFailedPasswordLockoutMinutes').show();
+			                    } else {
+				                $('#pnlFailedPasswordLockoutMinutes').hide();
+			                    }
+		                    }
+		                });
+            </script>
+        </div>
+    </div>
+</admin-card>

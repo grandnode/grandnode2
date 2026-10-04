@@ -1,0 +1,46 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Web.AdminShared.Models.News
+@model NewsItemModel
+
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Title"/>
+            <admin-field asp-for="@Model.Locales[item].Short">
+                <admin-textarea asp-for="@Model.Locales[item].Short"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="@Model.Locales[item].Full" asp-template="Editor"/>
+            <input asp-for="Locales[item].LanguageId" type="hidden"/>
+        </div>;
+}
+
+@* Two cards instead of one column of 3/9 rows: what the item says, then when and where it is
+   published. *@
+<partial name="Partials/WidgetZone.DetailsInfoTop" model="Model"/>
+<admin-card>
+    <localized-editor localized-template="@template" name="newsitem-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Title"/>
+            <admin-field asp-for="Short">
+                <admin-textarea asp-for="Short"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="Full" asp-template="Editor"/>
+        </div>
+    </localized-editor>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Published"/>
+        <admin-field asp-for="AllowComments"/>
+        <admin-field asp-for="StartDate"/>
+        <admin-field asp-for="EndDate"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="CustomerGroups"/>
+            <admin-field asp-for="Stores"/>
+        }
+        <admin-field asp-for="PictureId"/>
+    </div>
+</admin-card>
+<partial name="Partials/WidgetZone.DetailsInfoBottom" model="Model"/>

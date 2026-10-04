@@ -1,0 +1,8 @@
+﻿{
+  Name: 15 inch,
+  SeName: 15-inch,
+  ColorSquaresRgb: #FFFFFF,
+  EnableColorSquaresRgb: false,
+  DisplayOrder: 1,
+  Id: sao-001
+}

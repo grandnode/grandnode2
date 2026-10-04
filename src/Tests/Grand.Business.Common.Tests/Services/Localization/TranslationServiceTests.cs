@@ -5,7 +5,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -79,7 +79,7 @@ public class TranslationServiceTests
         var result = _translationService.GetAllResources("1");
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]

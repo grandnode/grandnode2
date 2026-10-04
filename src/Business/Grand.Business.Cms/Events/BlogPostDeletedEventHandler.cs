@@ -1,7 +1,7 @@
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Blogs;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Cms.Events;
 

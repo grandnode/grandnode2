@@ -8,12 +8,16 @@ public partial class InstallationService
     protected virtual async Task InstallDataRobotsTxt(
         Store store)
     {
-        var url = store.SslEnabled ? store.SecureUrl : store.Url;
+        var url = store.Url;
 
         var robotsTxt = new RobotsTxt {
             Name = "RobotsTXT",
             StoreId = store.Id,
+            //AI crawlers are named on purpose, in the same group as "*": a store wants its
+            //products found by assistants too, and naming them states that decision
+            //instead of leaving it implied - the rules below apply to them unchanged
             Text = @$"User-agent: *
+{RobotsTxtAiCrawlers.UserAgentLines}
 Sitemap: {url}sitemap.xml
 Host: {url}
 Disallow: /admin

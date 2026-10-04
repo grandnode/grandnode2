@@ -37,7 +37,8 @@ public class FixedRateTaxProvider : ITaxProvider
     public async Task<TaxResult> GetTaxRate(TaxRequest calculateTaxRequest)
     {
         var result = new TaxResult {
-            TaxRate = await GetTaxRate(calculateTaxRequest.TaxCategoryId)
+            TaxRate = await GetTaxRate(calculateTaxRequest.TaxCategoryId,
+                calculateTaxRequest.Store?.Id ?? string.Empty)
         };
         return result;
     }
@@ -46,10 +47,14 @@ public class FixedRateTaxProvider : ITaxProvider
     ///     Gets a tax rate
     /// </summary>
     /// <param name="taxCategoryId">The tax category identifier</param>
+    /// <param name="storeId">The store identifier the tax is being calculated for</param>
     /// <returns>Tax rate</returns>
-    private async Task<double> GetTaxRate(string taxCategoryId)
+    private async Task<double> GetTaxRate(string taxCategoryId, string storeId)
     {
-        var rate = (await _settingService.GetSettingByKey<FixedTaxRate>($"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}"))?.Rate;
+        //use the store specific rate when defined, otherwise fall back to the global rate
+        //(SettingService.GetSettingByKey resolves the store override first and the global value second)
+        var rate = (await _settingService.GetSettingByKey<FixedTaxRate>(
+            $"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}", storeId: storeId))?.Rate;
         return rate ?? 0;
     }
 }

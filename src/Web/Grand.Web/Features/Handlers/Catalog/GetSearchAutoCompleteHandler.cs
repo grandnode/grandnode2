@@ -18,7 +18,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 

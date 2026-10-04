@@ -1,7 +1,5 @@
 using Grand.Data;
 using Grand.Infrastructure;
-using Grand.Web.Vendor.Interfaces;
-using Grand.Web.Vendor.Services;
 
 namespace Grand.Web.Vendor.Startup;
 
@@ -12,11 +10,6 @@ public class StartupApplication : IStartupApplication
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
 
-        services.AddScoped<IProductViewModelService, ProductViewModelService>();
-        services.AddScoped<IOrderViewModelService, OrderViewModelService>();
-        services.AddScoped<IShipmentViewModelService, ShipmentViewModelService>();
-        services.AddScoped<IMerchandiseReturnViewModelService, MerchandiseReturnViewModelService>();
-        services.AddScoped<IVendorReviewViewModelService, VendorReviewViewModelService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

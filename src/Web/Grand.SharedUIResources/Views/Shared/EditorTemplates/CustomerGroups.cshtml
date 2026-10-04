@@ -1,4 +1,5 @@
-﻿@using Grand.Infrastructure.Configuration
+﻿@using System.Text.Json
+@using Grand.Infrastructure.Configuration
 @model string[]
 @inject AccessControlConfig AccessControlConfig;
 @{
@@ -8,42 +9,17 @@
     {
         warnings = !(bool)ViewData["DisableIgnoreAclWarnings"];
     }
+    var options = JsonSerializer.Serialize(new {
+        mode = "multiple",
+        url = Url.Action("CustomerGroup", "Search", new { area, customerGroups = Model }),
+        textField = "Name",
+        valueField = "Id",
+        filter = "startswith",
+        values = Model ?? []
+    });
 }
-@Html.ListBoxFor(model => model, new List<SelectListItem>())
+@Html.ListBoxFor(model => model, new List<SelectListItem>(), new { data_grand_select = options })
 @if (AccessControlConfig.IgnoreAcl && warnings)
 {
     <div class="note note-info">@Loc["Admin.System.Warnings.IgnoreAcl"]</div>
 }
-
-<script>
-    $(document).ready(function() {
-        var multiselect = $("#@Html.IdForModel()").kendoMultiSelect({
-            autobind: false,
-            filter: "startswith",
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("CustomerGroup", "Search", new { area, customerGroups = Model }))"
-                    }
-                },
-                schema: {
-                    data: "Data"
-                },
-                serverFiltering: true
-            },
-            valuePrimitive: true,
-            dataTextField: "Name",
-            dataValueField: "Id",
-        });
-
-
-        @if (Model != null)
-        {
-            <text>
-                 var multiselect = $("#@Html.IdForModel()").data("kendoMultiSelect");
-                 var data = @Html.Raw(Json.Serialize(Model));
-                 multiselect.value(data);
-            </text>
-        }
-    });
-</script>

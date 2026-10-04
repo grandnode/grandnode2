@@ -13,9 +13,7 @@ public partial class InstallationService
             new Store {
                 Name = "Your store name",
                 Shortcut = "Store",
-                Url = $"http://{host}/",
-                SecureUrl = $"https://{host}/",
-                SslEnabled = httpscheme.ToLowerInvariant() == "https",
+                Url = $"{httpscheme}://{host}/",
                 DisplayOrder = 1,
                 CompanyName = companyName,
                 CompanyAddress = companyAddress,

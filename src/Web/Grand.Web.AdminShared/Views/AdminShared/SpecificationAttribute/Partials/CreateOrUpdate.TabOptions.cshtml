@@ -1,0 +1,86 @@
+@model SpecificationAttributeModel
+
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <div class="grand-card">
+            <div class="grand-card__header">
+                <h2 class="grand-card__title">@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options"]</h2>
+                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
+                <input type="submit" id="btnRefresh" style="display: none"/>
+            </div>
+            <partial name="Partials/WidgetZone.Options.Top"/>
+            <div class="grand-card__body grand-card__body--flush">
+                <admin-grid id="specificationattributeoptions-grid"
+                            read-url="@Url.Action("OptionList", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area })"
+                            destroy-url="@Url.Action("OptionDelete", "SpecificationAttribute", new { area })"
+                            pager="Compact"
+                            auto-bind="false"
+                            confirm-destroy="true"
+                            on-data-bound="bindSpecificationAttributeOptionPopups">
+                    <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name"]">
+                        <cell-template>
+                            <a class='text-decoration-none editoption' href="@Url.Action("OptionEditPopup", "SpecificationAttribute", new { area })/{{ Id }}">{{ Name }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.DisplayOrder"]" width="100"/>
+                    <grid-column field="NumberOfAssociatedProducts" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.NumberOfAssociatedProducts"]" width="150"/>
+                    <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+                </admin-grid>
+            </div>
+            <partial name="Partials/WidgetZone.Options.Bottom" model="Model"/>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $('#btnAddNewOption').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
+            });
+            function bindSpecificationAttributeOptionPopups() {
+                $('.editoption').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
+            }
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('#btnRefresh').click(function () {
+                    //refresh grid
+                    var grid = GrandAdmin.grids.get("#specificationattributeoptions-grid");
+                    grid.dataSource.read();
+
+                    //return false to don't reload a page
+                    return false;
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.SaveBeforeEdit"]
+        </div>
+    }
+}

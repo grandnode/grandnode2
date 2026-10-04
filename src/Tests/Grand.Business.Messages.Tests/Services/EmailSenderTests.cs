@@ -27,7 +27,7 @@ public class EmailSenderTests
     [TestMethod]
     public void SendEmailTest()
     {
-        Assert.ThrowsExceptionAsync<SocketException>(async () =>
+        Assert.ThrowsExactlyAsync<SocketException>(async () =>
             await _sender.SendEmail(new EmailAccount { Host = "admin@admin.com" }, "subject", "body", "admin@store.com",
                 "admin store", "customer@email.com", "Customer name"));
     }

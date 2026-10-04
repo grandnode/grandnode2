@@ -15,7 +15,7 @@ public interface ICategoryService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Categories</returns>
-    Task<IPagedList<Category>> GetAllCategories(string parentId = null, string categoryName = "", string storeId = "",
+    Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName, string storeId,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
 
     /// <summary>

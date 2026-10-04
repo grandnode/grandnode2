@@ -1,0 +1,83 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Web.AdminShared.Models.Pages
+@model PageModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<script>
+$(document).ready(function() {
+    $("#@Html.IdFor(model => model.IsPasswordProtected)").click(togglePassword);
+    togglePassword();
+});
+
+function togglePassword() {
+    if ($('#@Html.IdFor(model => model.IsPasswordProtected)').is(':checked')) {
+        $('#pnlPasswordEnabled').show();
+    } else {
+        $('#pnlPasswordEnabled').hide();
+    }
+}
+</script>
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Title"/>
+            <admin-field asp-for="@Model.Locales[item].Body" asp-template="Editor"/>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
+}
+
+@* Three cards instead of one column of 3/9 rows: what the page says, where it is linked from,
+   and who can see it when. The password sits in a reveal under its switch; pnlPasswordEnabled,
+   which the script above shows and hides, is on the same field as before. *@
+<admin-card>
+    <localized-editor localized-template="@template" name="page-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Title"/>
+            <admin-field asp-for="Body" asp-template="Editor"/>
+        </div>
+    </localized-editor>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="SystemName"/>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <admin-field asp-for="Url">
+                <a class="text-decoration-none" href="@Model.Url">@Model.Url</a>
+            </admin-field>
+        }
+        <admin-field asp-for="PageLayoutId" asp-items="Model.AvailablePageLayouts"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="IncludeInSitemap"/>
+        <admin-field asp-for="IncludeInMenu"/>
+        <admin-field asp-for="IncludeInFooterRow1"/>
+        <admin-field asp-for="IncludeInFooterRow2"/>
+        <admin-field asp-for="IncludeInFooterRow3"/>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Published"/>
+        <admin-field asp-for="AccessibleWhenStoreClosed"/>
+        <admin-field asp-for="StartDateUtc"/>
+        <admin-field asp-for="EndDateUtc"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="CustomerGroups"/>
+            <admin-field asp-for="Stores"/>
+        }
+        <div class="grand-reveal">
+            <admin-field asp-for="IsPasswordProtected"/>
+            <div class="grand-reveal__body grand-fields grand-fields--2col">
+                <admin-field asp-for="Password" id="pnlPasswordEnabled">
+                    <admin-input asp-for="Password" autocomplete="off"/>
+                </admin-field>
+            </div>
+        </div>
+    </div>
+</admin-card>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

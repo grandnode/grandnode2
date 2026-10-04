@@ -4,7 +4,7 @@ using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Messages.Services;
 
@@ -173,7 +173,7 @@ public class QueuedEmailService : IQueuedEmailService
             :
             //load by priority
             query.OrderByDescending(qe => qe.PriorityId).ThenBy(qe => qe.CreatedOnUtc);
-        return await PagedList<QueuedEmail>.Create(query, pageIndex, pageSize);
+        return await _queuedEmailRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

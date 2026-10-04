@@ -5,8 +5,9 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Models.Plugins;
+using Grand.Web.AdminShared.Extensions;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Models.Plugins;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
@@ -37,7 +38,7 @@ public class PluginController(
     {
         var pluginModel = PluginInfo.ToModel();
         //logo
-        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(contextAccessor.StoreContext.CurrentHost.Url);
+        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(Request.PathBase);
 
         //configuration URLs
         if (PluginInfo.Installed)

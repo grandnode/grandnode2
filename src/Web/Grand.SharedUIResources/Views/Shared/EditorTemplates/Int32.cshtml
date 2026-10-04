@@ -1,11 +1,3 @@
 ﻿@model int
 
-@Html.TextBoxFor(model => model)
-<script>
-    $(document).ready(function() {
-        $("#@Html.IdForModel()").kendoNumericTextBox({
-            format: "#",
-            decimals: 0
-        });
-    });
-</script>
+@Html.TextBoxFor(model => model, new { data_grand_numeric = "{\"format\":\"#\",\"decimals\":0}" })

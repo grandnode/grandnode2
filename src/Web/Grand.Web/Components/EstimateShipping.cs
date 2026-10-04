@@ -3,7 +3,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Components;

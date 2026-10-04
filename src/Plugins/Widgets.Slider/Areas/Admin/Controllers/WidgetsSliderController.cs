@@ -54,6 +54,7 @@ public class WidgetsSliderController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public IActionResult Configure(ConfigurationModel model)
     {
         _sliderWidgetSettings.DisplayOrder = model.DisplayOrder;
@@ -65,6 +66,7 @@ public class WidgetsSliderController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
         var sliders = await _sliderService.GetPictureSliders();
@@ -95,6 +97,7 @@ public class WidgetsSliderController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(SlideModel model, bool continueEditing)
     {
@@ -133,6 +136,7 @@ public class WidgetsSliderController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Edit(SlideModel model, bool continueEditing)
     {
@@ -154,6 +158,8 @@ public class WidgetsSliderController : BaseAdminPluginController
         return View(model);
     }
 
+    [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Delete(string id)
     {
         var pictureSlider = await _sliderService.GetById(id);

@@ -1,0 +1,56 @@
+@model OrderModel.UploadLicenseModel
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.Products.License.UploadFile"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form id="UploadLicenseFilePopup" asp-area="@area" asp-controller="Order" asp-action="UploadLicenseFilePopup" method="post">
+
+    @* the popup shell: the file, then Delete and Save in the popup's own row of actions *@
+    <admin-popup title="@Loc["Admin.Orders.Products.License.UploadFile"]" icon="bi-chat">
+        <div asp-validation-summary="All"></div>
+        @if (Model.RefreshPage)
+        {
+            <script>
+                try {
+                    window.location.href = window.location.href;
+                }
+                catch (e){}
+            </script>
+        }
+
+        <input asp-for="OrderId" type="hidden"/>
+        <input asp-for="OrderItemId" type="hidden"/>
+        <admin-input asp-for="LicenseDownloadId"/>
+        <div class="grand-popup__actions">
+            <partial name="Partials/WidgetZone.UploadLicenseButtons" model="Model"/>
+            @if (!string.IsNullOrEmpty(Model.LicenseDownloadId))
+            {
+                <input type="submit" name="deletelicense" asp-action="DeleteLicenseFilePopup" value="@Loc["Admin.Common.Delete"]" id="deletelicense" class="btn btn-outline-danger"/>
+            }
+            <input type="submit" name="uploadlicense" value="@Loc["Admin.Common.Save"]" id="uploadlicense" class="btn btn-primary"/>
+        </div>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#UploadLicenseFilePopup").submit(function (e) {
+            e.preventDefault();
+            var url;
+            var form = $(this);
+            if (e.originalEvent.submitter.id == "deletelicense") {
+                url = e.originalEvent.submitter.getAttribute('formaction');
+            } else {
+                url = form.attr('action');
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    window.location.href = window.location.href;
+                }
+            });
+        });
+    </script>
+</form>

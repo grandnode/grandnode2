@@ -4,7 +4,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.Orders;
 
@@ -32,7 +32,7 @@ public class OrderStatusService : IOrderStatusService
                 select p;
 
             query = query.OrderBy(l => l.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return await _orderStatusRepository.ToListAsync(query);
         });
 
         return orderStatuses;

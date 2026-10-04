@@ -1,0 +1,8 @@
+﻿{
+  StoreId: store-001,
+  CustomerGroupId: grp-001,
+  CurrencyCode: USD,
+  Quantity: 10,
+  Price: 89.99,
+  Id: ObjectId_1
+}

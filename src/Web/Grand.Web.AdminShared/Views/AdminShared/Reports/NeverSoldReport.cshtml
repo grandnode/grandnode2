@@ -1,0 +1,56 @@
+@model NeverSoldReportModel
+@inject IReportDataScope Scope
+@{
+    //page title
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.NeverSold"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+@* the dates in a filter bar opened on load, the grid in a flush card, Search as the one primary
+   action; the ids the script below looks up are unchanged *@
+<admin-page title="@Loc[$"{Scope.ResourceKeyPrefix}.Reports.NeverSold"]" icon="bi-card-list">
+    <partial name="Partials/WidgetZone.NeverSold" model="Model"/>
+
+    <admin-filters id="neversoldreport-filters" submit-id="search-neversoldreport" expanded="true">
+        <div class="grand-range">
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+        </div>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="neversoldreport-grid"
+                    read-url="@Url.Action("NeverSoldReportList", "Reports", new { area })"
+                    additional-data="additionalData">
+            <grid-column field="ProductName" title="@Loc["Admin.Reports.NeverSold.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}">{{ ProductName }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#search-neversoldreport').click(function () {
+            var grid = GrandAdmin.grids.get('#neversoldreport-grid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+
+    });
+
+    function additionalData() {
+        var data = {
+            StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+</script>

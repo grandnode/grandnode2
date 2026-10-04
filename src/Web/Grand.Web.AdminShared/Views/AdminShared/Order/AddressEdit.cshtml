@@ -1,0 +1,28 @@
+@model OrderAddressModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.Address.EditAddress"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="Order" asp-action="AddressEdit"
+      asp-route-addressId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["addressId"])"
+      asp-route-billingAddress="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["BillingAddress"])"
+      asp-route-orderId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["orderId"])">
+
+    @* the order screen's shell: Save as the one primary action, the address in a card *@
+    <admin-page sticky
+                title="@Loc["Admin.Orders.Address.EditAddress"]"
+                icon="bi-box"
+                back-url="@Url.Action("Edit", new { id = Model.OrderId })"
+                back-text="@Loc["Admin.Orders.Address.BackToOrder"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+            <partial name="Partials/WidgetZone.AddressEditButtons" model="Model"/>
+        </page-actions>
+        <admin-card>
+            <partial name="Partials/OrderCreateOrUpdateAddress" model="Model"/>
+        </admin-card>
+    </admin-page>
+</form>

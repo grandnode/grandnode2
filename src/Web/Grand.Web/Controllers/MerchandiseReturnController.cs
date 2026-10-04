@@ -14,7 +14,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
@@ -138,7 +138,6 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var order = await _orderService.GetOrderById(model.OrderId);

@@ -7,7 +7,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Courses;
 
@@ -45,7 +45,7 @@ public class CourseService : ICourseService
             orderby q.DisplayOrder
             select q;
 
-        return await PagedList<Course>.Create(query, pageIndex, pageSize);
+        return await _courseRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task<IList<Course>> GetByCustomer(Customer customer, string storeId)

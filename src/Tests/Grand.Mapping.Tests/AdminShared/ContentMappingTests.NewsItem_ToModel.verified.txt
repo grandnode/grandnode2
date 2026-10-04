@@ -1,0 +1,12 @@
+﻿{
+  Title: Breaking News,
+  Short: Short text,
+  Full: Full news content,
+  AllowComments: true,
+  MetaKeywords: news,
+  MetaDescription: News,
+  MetaTitle: Breaking News,
+  SeName: breaking-news,
+  Published: true,
+  Id: ni-001
+}

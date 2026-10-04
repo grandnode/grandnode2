@@ -1,0 +1,133 @@
+﻿@using System.Text.Json
+@model ProductDetailsModel
+@*
+    Product JSON-LD.
+
+    The page already carried schema.org microdata, but only in fragments - an Offer
+    wrapper around the price block, an AggregateRating on the reviews - and search
+    engines cannot assemble a Product out of that. This states the product once, in
+    the form Google's rich results actually read.
+
+    `availability` comes from Model.Availability, which IStockQuantityService works
+    out together with the stock message the customer reads, so the two cannot
+    disagree. It is left out when the state cannot be stated (attributes that match
+    no combination). product-attributes.js rewrites it when a different selection
+    changes the stock - the script carries an id for that.
+*@
+@{
+    var request = Url.ActionContext.HttpContext.Request;
+    var productUrl = Url.RouteUrl("Product", new { Model.SeName }, request.Scheme);
+    var origin = new Uri($"{request.Scheme}://{request.Host}");
+
+    string Absolute(string url) =>
+        string.IsNullOrEmpty(url) ? null : new Uri(origin, url).ToString();
+
+    var images = Model.PictureModels
+        .Select(x => Absolute(x.FullSizeImageUrl ?? x.ImageUrl))
+        .Where(x => x != null)
+        .ToArray();
+    if (images.Length == 0)
+    {
+        var fallback = Absolute(Model.DefaultPictureModel?.ImageUrl);
+        if (fallback != null) images = new[] { fallback };
+    }
+
+    var product = new Dictionary<string, object> {
+        ["@context"] = "https://schema.org",
+        ["@type"] = "Product",
+        ["name"] = Model.Name,
+        ["url"] = productUrl
+    };
+
+    if (!string.IsNullOrWhiteSpace(Model.MetaDescription)) product["description"] = Model.MetaDescription;
+    if (images.Length > 0) product["image"] = images;
+    if (!string.IsNullOrWhiteSpace(Model.Sku)) product["sku"] = Model.Sku;
+    if (!string.IsNullOrWhiteSpace(Model.Mpn)) product["mpn"] = Model.Mpn;
+    if (!string.IsNullOrWhiteSpace(Model.Gtin)) product["gtin"] = Model.Gtin;
+    if (!string.IsNullOrWhiteSpace(Model.BrandModel?.Name))
+        product["brand"] = new Dictionary<string, object> {
+            ["@type"] = "Brand", ["name"] = Model.BrandModel.Name
+        };
+
+    //rating, shipping and return facts come from Model.StructuredData, worked out in
+    //GetProductStructuredDataHandler - this view only shapes them into schema.org
+    var facts = Model.StructuredData;
+
+    //no offer at all rather than a misleading one: a hidden or on-request price is
+    //not a price, and an auction's current bid is not an offer either
+    var price = Model.ProductPrice;
+    if (price is { HidePrices: false, CallForPrice: false, EnteredPrice: false, IsAuction: false }
+        && !string.IsNullOrWhiteSpace(price.CurrencyCode))
+    {
+        var offer = new Dictionary<string, object> {
+            ["@type"] = "Offer",
+            ["price"] = price.PriceValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["priceCurrency"] = price.CurrencyCode,
+            ["url"] = productUrl
+        };
+        if (Model.Availability.HasValue) offer["availability"] = Model.Availability.ToSchemaOrgUrl();
+
+        if (facts.HasShippingDetails)
+        {
+            var shipping = new Dictionary<string, object> {
+                ["@type"] = "OfferShippingDetails"
+            };
+            //a rate only when it is known - see GetProductStructuredDataHandler.ShippingRate
+            if (facts.ShippingRate is { } shippingRate)
+                shipping["shippingRate"] = new Dictionary<string, object> {
+                    ["@type"] = "MonetaryAmount",
+                    ["value"] = shippingRate.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["currency"] = price.CurrencyCode
+                };
+            if (facts.HandlingTime != null || facts.TransitTime != null)
+            {
+                Dictionary<string, object> Days(ProductStructuredDataModel.DayRangeModel range)
+                {
+                    var value = new Dictionary<string, object> { ["@type"] = "QuantitativeValue", ["unitCode"] = "DAY" };
+                    if (range.Min is { } min) value["minValue"] = min;
+                    if (range.Max is { } max) value["maxValue"] = max;
+                    return value;
+                }
+
+                var deliveryTime = new Dictionary<string, object> { ["@type"] = "ShippingDeliveryTime" };
+                if (facts.HandlingTime != null) deliveryTime["handlingTime"] = Days(facts.HandlingTime);
+                if (facts.TransitTime != null) deliveryTime["transitTime"] = Days(facts.TransitTime);
+                shipping["deliveryTime"] = deliveryTime;
+            }
+            if (facts.CountryCodes.Count > 0)
+                shipping["shippingDestination"] = facts.CountryCodes
+                    .Select(x => new Dictionary<string, object> { ["@type"] = "DefinedRegion", ["addressCountry"] = x })
+                    .ToArray();
+            offer["shippingDetails"] = shipping;
+        }
+
+        //overrides the store-wide policy declared on the Organization (Components/SiteStructuredData)
+        if (facts.ReturnsNotPermitted)
+        {
+            var policy = new Dictionary<string, object> {
+                ["@type"] = "MerchantReturnPolicy",
+                ["returnPolicyCategory"] = "https://schema.org/MerchantReturnNotPermitted"
+            };
+            if (facts.CountryCodes.Count > 0) policy["applicableCountry"] = facts.CountryCodes;
+            offer["hasMerchantReturnPolicy"] = policy;
+        }
+
+        product["offers"] = offer;
+    }
+
+    if (facts.RatingValue is { } ratingValue)
+    {
+        product["aggregateRating"] = new Dictionary<string, object> {
+            ["@type"] = "AggregateRating",
+            ["ratingValue"] = ratingValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["reviewCount"] = facts.ReviewCount
+        };
+    }
+
+    var json = JsonSerializer.Serialize(product, new JsonSerializerOptions { WriteIndented = false });
+}
+@*Written out whole: rendered as markup, the type attribute reached the page as
+  "application/ld&#x2B;json" - a browser decodes that, but crawlers and tools that
+  read the raw HTML (AI assistants among them) look for the literal type and
+  found no structured data at all*@
+@Html.Raw($"<script type=\"application/ld+json\" id=\"product-structured-data-{System.Net.WebUtility.HtmlEncode(Model.Id)}\">{json}</script>")

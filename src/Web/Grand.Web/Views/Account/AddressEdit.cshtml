@@ -13,9 +13,11 @@
 }
 
 <vc:widget widget-zone="customer-address-edit-before" additional-data="@Model"></vc:widget>
+@*a plain element to mount on: the view's outermost node is a Vue component*@
+<div class="form-page-island" vue-island>
 <validation-observer v-slot="{ handleSubmit }">
     <form asp-route="CustomerAddressEdit" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-        <div class="page account-page address-edit-page pl-lg-3 mb-3 pt-lg-0 pt-3">
+        <div class="page account-page address-edit-page ps-lg-3 mb-3 pt-lg-0 pt-3">
             <h1 class="h2 generalTitle">@Loc["Account.CustomerAddresses.Edit"]</h1>
             <div asp-validation-summary="All" class="message-error"></div>
             @{
@@ -35,4 +37,5 @@
         </div>
     </form>
 </validation-observer>
+</div>
 <vc:widget widget-zone="customer-address-edit-after" additional-data="@Model"></vc:widget>

@@ -17,7 +17,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Knowledgebase;
 using Grand.Web.Models.Pages;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Common;
 
@@ -78,14 +78,14 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             //categories
             if (_commonSettings.SitemapIncludeCategories)
             {
-                var categories = await _categoryService.GetAllCategories(storeId: request.Store.Id);
+                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id);
                 model.Categories = categories.Select(x => x.ToModel(request.Language)).ToList();
             }
 
             //collections
             if (_commonSettings.SitemapIncludeBrands)
             {
-                var brands = await _brandService.GetAllBrands(storeId: request.Store.Id);
+                var brands = await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id);
                 model.Brands = brands.Select(x => x.ToModel(request.Language)).ToList();
             }
 
@@ -109,6 +109,7 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             //pages
             var now = DateTime.UtcNow;
             var pages = (await _pageService.GetAllPages(request.Store.Id))
+                .PreferStoreOverrides(request.Store.Id)
                 .Where(t => t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                             (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
                 .ToList();

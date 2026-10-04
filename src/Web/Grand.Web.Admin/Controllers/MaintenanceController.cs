@@ -10,11 +10,11 @@ using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.Common;
-using Grand.Web.Admin.Models.Directory;
+using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.AdminShared.Models.Directory;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -123,7 +123,7 @@ public class MaintenanceController : BaseAdminController
         var numberOfConvertItems = 0;
         if (storageSettings.PictureStoreInDb)
         {
-            var pictures = pictureService.GetPictures();
+            var pictures = await pictureService.GetPictures();
             foreach (var picture in pictures)
                 try
                 {

@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Shipping;
 
@@ -43,7 +43,7 @@ public class DeliveryCommandHandler : IRequestHandler<DeliveryCommand, bool>
         if (request.Shipment.DeliveryDateUtc.HasValue)
             throw new Exception("This shipment is already delivered");
 
-        request.Shipment.DeliveryDateUtc = DateTime.UtcNow;
+        request.Shipment.DeliveryDateUtc = request.DeliveryDateUtc ?? DateTime.UtcNow;
         await _shipmentService.UpdateShipment(request.Shipment);
 
         var shipments = await _shipmentService.GetShipmentsByOrder(request.Shipment.OrderId);

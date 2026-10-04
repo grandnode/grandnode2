@@ -1,0 +1,37 @@
+@model CustomerReportsModel
+@inject IReportDataScope Scope
+
+@{
+    //page title
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.Customers"];
+}
+
+@* the page shell around the report tabs; each tab brings its own filter bar and grid card *@
+<admin-page title="@Loc[$"{Scope.ResourceKeyPrefix}.Reports.Customers"]" icon="bi-bar-chart">
+    <admin-tabstrip name="customer-reports">
+        <items>
+            <tabstrip-item text="@Loc["Admin.Reports.Customers.BestBy.BestByOrderTotal"]" tab-index="0">
+                <content>
+                    <div>
+                        <partial name="Partials/Customer.TabBestByOrderTotal" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Reports.Customers.BestBy.BestByNumberOfOrders"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="Partials/Customer.TabBestByNumberOfOrders" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Reports.Customers.RegisteredCustomers"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="Partials/Customer.TabRegisteredCustomers" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
+        </items>
+    </admin-tabstrip>
+</admin-page>

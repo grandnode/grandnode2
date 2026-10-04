@@ -1,0 +1,17 @@
+﻿{
+  Name: Updated Vendor,
+  Email: updated@example.com,
+  Description: Updated description,
+  Active: false,
+  Deleted: false,
+  MetaKeywords: vendor, updated,
+  MetaTitle: Updated Vendor,
+  PageSize: 12,
+  AllowCustomersToSelectPageSize: true,
+  PageSizeOptions: 6, 12, 24,
+  AllowCustomerReviews: false,
+  Address: {
+    Id: ObjectId_1
+  },
+  Id: ObjectId_1
+}

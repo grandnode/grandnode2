@@ -1,0 +1,25 @@
+@model ShippingMethodModel
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Shipping.Methods.AddNew"];
+    Layout = Constants.LayoutStore;
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Shipping" asp-action="CreateMethod" method="post">
+
+    @* the same shell as Edit, minus what a record that does not exist yet cannot offer *@
+    <admin-page sticky
+                title="@Loc["Admin.Configuration.Shipping.Methods.AddNew"]"
+                icon="bi-card-list"
+                back-url="@Url.Action("Methods", "Shipping", new { area = Constants.AreaStore })"
+                back-text="@Loc["Admin.Configuration.Shipping.Methods.BackToList"]">
+        <page-actions>
+            <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+            </button>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <partial name="Partials/CreateOrUpdateMethod" model="Model"/>
+    </admin-page>
+</form>

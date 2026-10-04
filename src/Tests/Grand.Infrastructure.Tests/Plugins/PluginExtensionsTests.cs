@@ -32,7 +32,7 @@ public class PluginExtensionsTests
         await PluginExtensions.MarkPluginAsInstalled("plugin1");
         //Assert
         var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.AreEqual(1, plugins.Count);
+        Assert.HasCount(1, plugins);
     }
 
     [TestMethod]
@@ -45,6 +45,6 @@ public class PluginExtensionsTests
         await PluginExtensions.MarkPluginAsUninstalled("plugin1");
         //Assert
         var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.AreEqual(1, plugins.Count);
+        Assert.HasCount(1, plugins);
     }
 }

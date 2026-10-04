@@ -1,0 +1,38 @@
+@model CustomerModel.SendEmailModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<div id="sendemail-window" style="display:none;">
+    <form asp-area="@area" asp-controller="Customer" asp-action="SendEmail" method="post" asp-route-id="Id">
+        <input type="hidden" asp-for="Id" id="sendemail_customerId"/>
+        <div class="grand-fields">
+            <admin-field asp-for="Subject"/>
+            <admin-field asp-for="Body">
+                <admin-textarea asp-for="Body"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="SendImmediately"/>
+            <admin-field asp-for="DontSendBeforeDate" id="pnl-send-date"/>
+        </div>
+        <div class="form-actions mt-3">
+            <button type="submit" class="btn btn-success"><span class="bi bi-envelope"></span> @Loc["Admin.Customers.Customers.SendEmail"]</button>
+        </div>
+    </form>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#sendemail").click(function (e) {
+            e.preventDefault();
+            GrandAdmin.modal.open("#sendemail-window", { width: "650px", title: "@Loc["Admin.Customers.Customers.SendEmail"]", actions: ["Close"] });
+        });
+
+
+        //timing of send email section
+        $("#pnl-send-date").hide();
+
+        $("#@Html.IdFor(model => model.SendImmediately)").click(function () {
+            $("#pnl-send-date").toggle();
+        });
+
+    });
+</script>

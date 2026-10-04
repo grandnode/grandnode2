@@ -4,7 +4,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Customers.Services;
 
@@ -42,7 +42,7 @@ public class SalesEmployeeService : ISalesEmployeeService
             var query = from se in _salesEmployeeRepository.Table
                 orderby se.DisplayOrder
                 select se;
-            return await Task.FromResult(query.ToList());
+            return await _salesEmployeeRepository.ToListAsync(query);
         });
     }
 

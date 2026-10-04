@@ -1,12 +1,13 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Messages.Services;
 
@@ -106,7 +107,9 @@ public class MessageTemplateService : IMessageTemplateService
     /// </summary>
     /// <param name="messageTemplateName">Message template name</param>
     /// <param name="storeId">Store identifier</param>
-    /// <returns>Message template</returns>
+    /// <returns>
+    ///     The template a store overrode this name with, if it has one; otherwise the template shared by every store
+    /// </returns>
     public virtual async Task<MessageTemplate> GetMessageTemplateByName(string messageTemplateName, string storeId)
     {
         if (string.IsNullOrWhiteSpace(messageTemplateName))
@@ -120,13 +123,14 @@ public class MessageTemplateService : IMessageTemplateService
 
             query = query.Where(t => t.Name == messageTemplateName);
             query = query.OrderBy(t => t.Id);
-            var templates = await Task.FromResult(query.ToList());
+            IEnumerable<MessageTemplate> templates = await _messageTemplateRepository.ToListAsync(query);
 
             //store acl
             if (!string.IsNullOrEmpty(storeId))
+                //a template this store was given for itself is the one it means, even though the shared template is older
                 templates = templates
                     .Where(t => _aclService.Authorize(t, storeId))
-                    .ToList();
+                    .OrderByDescending(t => t.LimitedToStores && t.Stores.Contains(storeId));
 
             return templates.FirstOrDefault();
         });
@@ -136,28 +140,31 @@ public class MessageTemplateService : IMessageTemplateService
     ///     Gets all message templates
     /// </summary>
     /// <param name="storeId">Store identifier; pass "" to load all records</param>
-    /// <returns>Message template list</returns>
-    public virtual async Task<IList<MessageTemplate>> GetAllMessageTemplates(string storeId)
+    /// <param name="keywords">Keywords to filter by name or subject; pass "" to skip</param>
+    /// <param name="pageIndex">Page index (0-based)</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Paged list of message templates</returns>
+    public virtual async Task<IPagedList<MessageTemplate>> GetAllMessageTemplates(string storeId, string keywords = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var key = string.Format(CacheKey.MESSAGETEMPLATES_ALL_KEY, storeId);
-        return await _cacheBase.GetAsync(key, async () =>
-        {
-            var query = from p in _messageTemplateRepository.Table
-                select p;
+        var query = from p in _messageTemplateRepository.Table
+            select p;
 
-            query = query.OrderBy(t => t.Name);
-
-            //Store acl
-            if (string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations)
-                return await Task.FromResult(query.ToList());
-
+        //Store acl
+        if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
             query = from p in query
                 where !p.LimitedToStores || p.Stores.Contains(storeId)
                 select p;
-            query = query.OrderBy(t => t.Name);
 
-            return await Task.FromResult(query.ToList());
-        });
+        if (!string.IsNullOrEmpty(keywords))
+        {
+            var lowerKeywords = keywords.ToLower();
+            query = query.Where(t => t.Name.ToLower().Contains(lowerKeywords) ||
+                                     (t.Subject != null && t.Subject.Contains(lowerKeywords, StringComparison.CurrentCultureIgnoreCase)));
+        }
+
+        query = query.OrderBy(t => t.Name);
+
+        return await _messageTemplateRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

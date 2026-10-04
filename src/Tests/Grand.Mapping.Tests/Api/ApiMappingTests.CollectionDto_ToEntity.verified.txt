@@ -1,0 +1,16 @@
+﻿{
+  Name: Summer 2025,
+  Description: Summer collection,
+  PageSize: 12,
+  AllowCustomersToSelectPageSize: false,
+  ShowOnHomePage: false,
+  FeaturedProductsOnHomePage: false,
+  IncludeInMenu: false,
+  DefaultSort: -1,
+  Published: true,
+  DisplayOrder: 1,
+  LimitedToGroups: false,
+  SeName: summer-2025,
+  LimitedToStores: false,
+  Id: col-1
+}

@@ -12,7 +12,7 @@ public class DbVersionTests
         var dbVersion1 = new DbVersion(1, 0);
         var dbVersion2 = new DbVersion(2, 0);
         var result = dbVersion2.CompareTo(dbVersion1);
-        Assert.AreEqual(result, 1);
+        Assert.AreEqual(1, result);
     }
 
     [TestMethod]
@@ -21,7 +21,7 @@ public class DbVersionTests
         var dbVersion1 = new DbVersion(1, 0);
         var dbVersion2 = new DbVersion(2, 0);
         var result = dbVersion1.CompareTo(dbVersion2);
-        Assert.AreEqual(result, -1);
+        Assert.AreEqual(-1, result);
     }
 
     [TestMethod]
@@ -30,7 +30,7 @@ public class DbVersionTests
         var dbVersion1 = new DbVersion(2, 0);
         var dbVersion2 = new DbVersion(2, 1);
         var result = dbVersion2.CompareTo(dbVersion1);
-        Assert.AreEqual(result, 1);
+        Assert.AreEqual(1, result);
     }
 
     [TestMethod]
@@ -39,7 +39,7 @@ public class DbVersionTests
         var dbVersion1 = new DbVersion(2, 0);
         var dbVersion2 = new DbVersion(2, 1);
         var result = dbVersion1.CompareTo(dbVersion2);
-        Assert.AreEqual(result, -1);
+        Assert.AreEqual(-1, result);
     }
 
     [TestMethod]
@@ -48,6 +48,6 @@ public class DbVersionTests
         var dbVersion1 = new DbVersion(2, 0);
         var dbVersion2 = new DbVersion(2, 0);
         var result = dbVersion1.CompareTo(dbVersion2);
-        Assert.AreEqual(result, 0);
+        Assert.AreEqual(0, result);
     }
 }

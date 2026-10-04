@@ -1,0 +1,8 @@
+﻿{
+  MimeType: image/jpeg,
+  SeoFilename: product-image,
+  AltAttribute: Product image,
+  TitleAttribute: Product,
+  IsNew: false,
+  Id: pic-1
+}

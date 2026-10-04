@@ -1,0 +1,10 @@
+﻿{
+  FriendlyName: Cash on Delivery,
+  SystemName: Payments.CashOnDelivery,
+  DisplayOrder: 1,
+  IsActive: false,
+  SupportCapture: false,
+  SupportPartiallyRefund: false,
+  SupportRefund: false,
+  SupportVoid: false
+}

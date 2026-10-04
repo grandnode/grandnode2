@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
+	<Sdk Name="Aspire.AppHost.Sdk" Version="13.6.0" />
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<IsAspireHost>true</IsAspireHost>
@@ -12,17 +12,23 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<SkipAddAspireDefaultReferences>true</SkipAddAspireDefaultReferences>
+		<!-- Dashboard and DCP come from the NuGet packages below, not from an installed Aspire CLI -->
+		<AspireUseCliBundle>false</AspireUseCliBundle>
+		<NoWarn>$(NoWarn);ASPIRE010</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Aspire.Hosting.AppHost" />
 		<PackageReference Include="Aspire.Hosting.MongoDB" />
+		<PackageReference Include="Aspire.Hosting.Redis" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" />
 		<PackageReference Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" />
+		<PackageReference Include="MessagePack" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Web\Grand.Web.Admin\Grand.Web.Admin.csproj" />
+		<ProjectReference Include="..\..\Web\Grand.Web.Store\Grand.Web.Store.csproj" />
 		<ProjectReference Include="..\..\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj" />
 		<ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj" />
 	</ItemGroup>

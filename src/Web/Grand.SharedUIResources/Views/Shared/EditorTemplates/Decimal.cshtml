@@ -1,15 +1,12 @@
 @model decimal
-<input asp-for="@Model"/>
+@*GrandAdmin.numeric (adminapp/src/ui/numeric.js) in place of the Kendo NumericTextBox:
+    this input is hidden and keeps posting the value in the request culture.*@
+<input asp-for="@Model" data-grand-numeric='{"format":"n2","decimals":2}'/>
 <script>
     $(document).ready(function() {
        try {
         $("#@Html.IdForModel()").rules("remove", 'number');
        }
        catch {}
-       $("#@Html.IdForModel()").kendoNumericTextBox({
-            culture: "@CultureInfo.CurrentCulture.Name",
-            format: 'n2',
-            decimals: 2  
-        });
     });
 </script>

@@ -30,5 +30,13 @@ public partial class InstallationService
             CheckoutAttributeId = ca1.Id
         });
         await _checkoutAttributeRepository.UpdateAsync(ca1);
+
+        var ca2 = new CheckoutAttribute {
+            Name = "Gift message",
+            IsRequired = false,
+            AttributeControlTypeId = AttributeControlType.MultilineTextbox,
+            DisplayOrder = 2
+        };
+        await _checkoutAttributeRepository.InsertAsync(ca2);
     }
 }

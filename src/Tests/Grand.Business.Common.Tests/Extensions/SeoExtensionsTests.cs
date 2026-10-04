@@ -50,8 +50,8 @@ public class SeoExtensionsTests
     [TestMethod]
     public void GenerateSlug_ReturnExpectedResult()
     {
-        Assert.AreEqual(SeoExtensions.GenerateSlug("iphone10plus", false, false, false), "iphone10plus");
-        Assert.AreEqual(SeoExtensions.GenerateSlug("iphone 10 plus", false, false, false), "iphone-10-plus");
-        Assert.AreEqual(SeoExtensions.GenerateSlug("iphOnE 10 Plus", false, false, false), "iphone-10-plus");
+        Assert.AreEqual("iphone10plus", SeoExtensions.GenerateSlug("iphone10plus", false, false, false));
+        Assert.AreEqual("iphone-10-plus", SeoExtensions.GenerateSlug("iphone 10 plus", false, false, false));
+        Assert.AreEqual("iphone-10-plus", SeoExtensions.GenerateSlug("iphOnE 10 Plus", false, false, false));
     }
 }

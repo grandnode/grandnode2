@@ -1,10 +1,11 @@
 ﻿@await Component.InvokeAsync("Widget", new { widgetZone = "checkout_payment_method_top" })
-<div v-if="vmorder.PaymentMethod" class="payment-method">
+@*v-cloak - see the note in Partials/ConfirmOrder*@
+<div v-if="vmorder.PaymentMethod" v-cloak class="payment-method">
     <div v-if="vmorder.DisplayLoyaltyPoints" class="use-loyalty-points">
-        <label class="custom-control custom-checkbox">
-            <input v-if="vmorder.LoyaltyPointsEnoughToPayForOrder" id="UseLoyaltyPoints" name="UseLoyaltyPoints" type="checkbox" value="true" class="custom-control-input" onchange="vmorder.vPaymentMethod.toggleUseLoyaltyPoints(this);"/>
-            <input v-else id="UseLoyaltyPoints" name="UseLoyaltyPoints" type="checkbox" class="custom-control-input" value="true"/>
-            <span class="custom-control-label"></span>
+        <label class="form-check">
+            <input v-if="vmorder.LoyaltyPointsEnoughToPayForOrder" id="UseLoyaltyPoints" name="UseLoyaltyPoints" type="checkbox" value="true" class="form-check-input" onchange="vmorder.vPaymentMethod.toggleUseLoyaltyPoints(this);"/>
+            <input v-else id="UseLoyaltyPoints" name="UseLoyaltyPoints" type="checkbox" class="form-check-input" value="true"/>
+            <span class="form-check-label"></span>
             <span class="custom-control-description">
                 @Loc["Checkout.UseLoyaltyPoints"].ToString().Replace("{0}", "{{vmorder.LoyaltyPointsBalance}}").Replace("{1}", "{{vmorder.LoyaltyPointsAmount}}")
             </span>
@@ -12,11 +13,11 @@
     </div>
     <div v-if="vmorder.PaymentMethods !== []" class="list-inline col-12 mt-2 mb-2 px-0" id="payment-method-block">
         <div v-for="(paymentMethod, index) in vmorder.PaymentMethods" class="col-12 method-name px-0">
-            <label class="custom-control custom-radio flex-row">
-                <input :id="'paymentmethod_' + index" type="radio" name="paymentmethod" :value="paymentMethod.PaymentMethodSystemName" :checked="paymentMethod.Selected" class="custom-control-input">
-                <span class="custom-control-label"></span>
+            <label class="form-check flex-row">
+                <input :id="'paymentmethod_' + index" type="radio" name="paymentmethod" :value="paymentMethod.PaymentMethodSystemName" :checked="paymentMethod.Selected" class="form-check-input">
+                <span class="form-check-label"></span>
                 <img v-if="paymentMethod.LogoUrl !== null" :src="paymentMethod.LogoUrl" :alt="paymentMethod.Name"/>
-                <span v-if="paymentMethod.Description !== null" class="custom-control-description pl-1">
+                <span v-if="paymentMethod.Description !== null" class="custom-control-description ps-1">
                     {{paymentMethod.Description}}
                     <template v-if="paymentMethod.Fee !== null">
                         {{paymentMethod.Fee}}

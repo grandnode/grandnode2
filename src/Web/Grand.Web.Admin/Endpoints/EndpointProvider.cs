@@ -20,6 +20,14 @@ public class EndpointProvider : IEndpointProvider
         //admin login
         endpointRouteBuilder.MapControllerRoute("AdminLogin", "admin/login/",
             new { controller = "Login", action = "Index", area = Constants.AreaAdmin });
+
+        //admin password recovery
+        endpointRouteBuilder.MapControllerRoute("AdminPasswordRecovery", "admin/passwordrecovery/",
+            new { controller = "Login", action = "PasswordRecovery", area = Constants.AreaAdmin });
+
+        //admin password recovery confirmation, the link of the Customer.PasswordRecovery message
+        endpointRouteBuilder.MapControllerRoute("AdminPasswordRecoveryConfirm", "admin/passwordrecovery/confirm/",
+            new { controller = "Login", action = "PasswordRecoveryConfirm", area = Constants.AreaAdmin });
     }
 
     public int Priority => 10;

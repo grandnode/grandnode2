@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Grand.Mapping;
 using Grand.Business.Catalog.Services.Brands;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Seo;
@@ -20,7 +20,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Infrastructure.TypeSearch;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -64,7 +64,8 @@ public class BrandImportDataObjectTests
             new AccessControlConfig());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object,
-            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService);
+            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
+            new SecurityConfig());
     }
 
     [TestMethod]
@@ -87,8 +88,8 @@ public class BrandImportDataObjectTests
         await _brandImportDataObject.Execute(brands);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
     }
 
     [TestMethod]
@@ -126,11 +127,11 @@ public class BrandImportDataObjectTests
         await _brandImportDataObject.Execute(brands);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Published);
     }
 
     [TestMethod]
@@ -159,11 +160,11 @@ public class BrandImportDataObjectTests
         await _brandImportDataObject.Execute(brands);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Published);
     }
 
     private void InitAutoMapper()
@@ -180,7 +181,7 @@ public class BrandImportDataObjectTests
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile(instance.GetType());
+            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
         });
 
         //register automapper

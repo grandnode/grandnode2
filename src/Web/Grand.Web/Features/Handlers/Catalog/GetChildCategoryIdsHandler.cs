@@ -3,7 +3,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 

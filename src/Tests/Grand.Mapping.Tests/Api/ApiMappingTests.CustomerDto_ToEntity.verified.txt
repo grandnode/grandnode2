@@ -1,0 +1,12 @@
+﻿{
+  CustomerGuid: Guid_1,
+  Username: customer1,
+  Email: customer@example.com,
+  IsTaxExempt: false,
+  FreeShipping: false,
+  Active: true,
+  Deleted: false,
+  IsSystemAccount: false,
+  HasContributions: false,
+  Id: cust-1
+}

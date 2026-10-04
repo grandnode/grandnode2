@@ -44,9 +44,6 @@ public class DownloadController : BaseAdminController
     }
 
     [HttpPost]
-
-    //do not validate request token (XSRF)
-    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> SaveDownloadUrl(string downloadUrl, DownloadType downloadType = DownloadType.None,
         string referenceId = "")
     {
@@ -65,8 +62,6 @@ public class DownloadController : BaseAdminController
     }
 
     [HttpPost]
-    //do not validate request token (XSRF)
-    [IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> AsyncUpload(IFormFile file, DownloadType downloadType = DownloadType.None,
         string referenceId = "")
     {

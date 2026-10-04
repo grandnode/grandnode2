@@ -1,0 +1,32 @@
+@*
+    The body of every import window in the panels, rendered by the <admin-import-window>
+    tag helper. One copy, so the label, the field, the button and the spacing are the same
+    on every screen that imports a file.
+*@
+@model Grand.Web.Common.Models.ImportWindowModel
+<form asp-area="@Model.AreaName" asp-controller="@Model.ControllerName" asp-action="@Model.ActionName"
+      asp-route-id="@Model.RouteId" method="post" enctype="multipart/form-data">
+    @if (!string.IsNullOrEmpty(Model.RouteId))
+    {
+        @*the action reads the id from the posted form, as it did before this partial existed*@
+        <input type="hidden" name="Id" value="@Model.RouteId"/>
+    }
+    @if (Model.Notes != null)
+    {
+        <div class="mb-3">
+            @Model.Notes
+        </div>
+    }
+    <div class="row mb-3">
+        <label class="col-md-3 col-form-label" for="@Model.FileId">@Model.FileLabel</label>
+        <div class="col-md-9">
+            <input type="file" class="form-control" id="@Model.FileId" name="@Model.FileName"
+                   accept="@Model.Accept"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9 offset-md-3 text-end">
+            <input type="submit" id="@Model.SubmitId" class="btn btn-primary" value="@Model.SubmitText"/>
+        </div>
+    </div>
+</form>

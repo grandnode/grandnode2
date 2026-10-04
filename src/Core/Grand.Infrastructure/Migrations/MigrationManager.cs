@@ -33,7 +33,10 @@ public class MigrationManager
     {
         return GetAllMigrations()
             .Where(x => x.Version.CompareTo(installedVersion) > 0)
-            .OrderBy(mg => mg.Version.ToString())
+            //DbVersion, not its string form - "2.10" sorts before "2.2" as text
+            .OrderBy(mg => mg.Version)
+            //the version stamp closes its version, whatever priority it declares
+            .ThenBy(mg => mg is IMigrationVersionStamp ? 1 : 0)
             .ThenBy(mg => mg.Priority)
             .ToList();
     }

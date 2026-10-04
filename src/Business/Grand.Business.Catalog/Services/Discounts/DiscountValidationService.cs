@@ -8,7 +8,7 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Discounts;
 
@@ -237,7 +237,7 @@ public class DiscountValidationService : IDiscountValidationService
         if (used.HasValue)
             query = query.Where(x => x.Used == used.Value);
 
-        var result = await Task.FromResult(query.ToList());
+        var result = await _discountCouponRepository.ToListAsync(query);
         return result.Count != 0;
     }
 }

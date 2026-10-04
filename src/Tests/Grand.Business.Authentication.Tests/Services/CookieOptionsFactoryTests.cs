@@ -36,7 +36,7 @@ public class CookieOptionsFactoryTests
 
         // Verify expiration is close to expected (allowing for slight processing time differences)
         var difference = (options.Expires.Value - expectedExpiryDate).TotalMinutes;
-        Assert.IsTrue(Math.Abs(difference) < 1, "Expiry time should be within 1 minute of expected value");
+        Assert.IsLessThan(1, Math.Abs(difference), "Expiry time should be within 1 minute of expected value");
     }
 
     [TestMethod]

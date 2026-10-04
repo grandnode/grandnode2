@@ -1,0 +1,7 @@
+﻿{
+  Name: New York,
+  Abbreviation: NY,
+  Published: true,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

@@ -1,0 +1,10 @@
+﻿<admin-grid id="average-order-report-grid"
+            read-url="@Url.Action("OrderAverageReportList", "Reports", new { area = Constants.AreaStore })"
+            pager="Compact">
+    <grid-column field="OrderStatus" title="@Loc["Admin.Reports.Average.OrderStatus"]"/>
+    <grid-column field="SumTodayOrders" title="@Loc["Admin.Reports.Average.SumTodayOrders"]"/>
+    <grid-column field="SumThisWeekOrders" title="@Loc["Admin.Reports.Average.SumThisWeekOrders"]"/>
+    <grid-column field="SumThisMonthOrders" title="@Loc["Admin.Reports.Average.SumThisMonthOrders"]"/>
+    <grid-column field="SumThisYearOrders" title="@Loc["Admin.Reports.Average.SumThisYearOrders"]"/>
+    <grid-column field="SumAllTimeOrders" title="@Loc["Admin.Reports.Average.SumAllTimeOrders"]"/>
+</admin-grid>

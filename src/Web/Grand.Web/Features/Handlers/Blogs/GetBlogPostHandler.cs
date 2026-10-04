@@ -5,14 +5,14 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Blogs;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using Grand.Web.Models.Media;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Blogs;
 

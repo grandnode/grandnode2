@@ -1,28 +1,13 @@
-﻿@model string
+﻿@using System.Text.Json
+@model string
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-}
-@Html.TextBoxFor(model => model, new { @class = "col-md-8", style = "width: 100%;" })
-
-<script>
-    $(document).ready(function () {
-        $("#@Html.IdForModel()").kendoDropDownList({
-            autobind: false,
-            optionLabel: "Select category...",
-            filter: "startswith",
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("Category", "Search", new { area, categoryId = Model }))"
-                    }
-                },
-                schema: {
-                    data: "Data"
-                },
-                serverFiltering: true
-            },
-            dataTextField: "Name",
-            dataValueField: "Id",
-        });
+    var options = JsonSerializer.Serialize(new {
+        url = Url.Action("Category", "Search", new { area, categoryId = Model }),
+        placeholder = "Select category...",
+        textField = "Name",
+        valueField = "Id",
+        filter = "startswith"
     });
-</script>
+}
+@Html.TextBoxFor(model => model, new { @class = "col-md-8", style = "width: 100%;", data_grand_select = options })

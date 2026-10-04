@@ -83,4 +83,33 @@ public class AdminStoreServiceTests
         // Assert
         Assert.AreEqual(string.Empty, result);
     }
+
+    [TestMethod]
+    public async Task GetActiveStore_ShouldReturnNull_WhenNoStoresExist()
+    {
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
+
+        // Act
+        var result = await _adminStoreService.GetActiveStore();
+
+        // Assert
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetActiveStore_ShouldReturnEmptyString_WithoutLookup_WhenContextStoreIdIsEmpty()
+    {
+        var stores = new List<Store> { new Store { Id = "store1" }, new Store { Id = "store2" } };
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(stores);
+
+        var customer = new Customer { CustomerGuid = Guid.NewGuid() };
+        _contextAccessorMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(customer);
+
+        // Act
+        var result = await _adminStoreService.GetActiveStore();
+
+        // Assert
+        Assert.AreEqual(string.Empty, result);
+        _storeServiceMock.Verify(s => s.GetStoreById(It.IsAny<string>()), Times.Never);
+    }
 }

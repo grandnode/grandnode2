@@ -1,11 +1,15 @@
-﻿<b-modal id="ModalAddToCart" ref="ModalAddToCart" :dark-theme="darkMode" body-class="p-0" size="lg" centered hide-footer hide-header>
+﻿<div class="modal fade" id="ModalAddToCart" tabindex="-1" aria-hidden="true" vue-island>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-0">
     <template v-if="PopupAddToCartVueModal !== null">
-        <button class="modal-close btn text-white" @@click="$bvModal.hide('ModalAddToCart')">
-            <b-icon icon="x"></b-icon>
+        <button class="modal-close btn" data-bs-dismiss="modal">
+            <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </button>
-        <div class="card" header-tag="header" footer-tag="footer" header-bg-variant="info" footer-bg-variant="white" footer-class="border-0">
-            <div class="card-header bg-info">
-                <h5 class="mb-0 text-white">
+        <div class="card" header-tag="header" footer-tag="footer" footer-bg-variant="white" footer-class="border-0">
+            <div class="card-header atc-header">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="b-icon bi bi-check-circle-fill text-success me-2" aria-hidden="true"></i>
                     <template v-if="PopupAddToCartVueModal.CartType == 1 || PopupAddToCartVueModal.CartType == 0">
                         @Loc["AddToCart.ShoppingCart"]
                     </template>
@@ -19,11 +23,11 @@
             </div>
             <div class="card-body">
                 <div class="col-12 px-0">
-                    <div class="form-row">
-                        <div class="d-sm-block d-none p-2">
+                    <div class="row">
+                        <div class="col-sm-auto d-sm-block d-none p-2">
                             <img :src="PopupAddToCartVueModal.Picture.ImageUrl" :alt="PopupAddToCartVueModal.Picture.AlternateText" :title="PopupAddToCartVueModal.Picture.Title"/>
                         </div>
-                        <div>
+                        <div class="col">
                             <a :href="'/' + PopupAddToCartVueModal.ProductSeName">
                                 <h4>{{PopupAddToCartVueModal.ProductName}}</h4>
                             </a>
@@ -46,25 +50,25 @@
                                 </div>
                             </template>
                             <template v-if="!PopupAddToCartVueModal.IsAuction">
-                                <div class="form-group col-12 pl-0 mb-0 d-flex">
+                                <div class="form-group col-12 ps-0 mb-0 d-flex">
                                     <label class="mb-0">
                                         <strong>@Loc["AddToCart.Qty"]</strong>
                                     </label>
-                                    <label class="pl-3 mb-0">{{PopupAddToCartVueModal.Quantity}}</label>
+                                    <label class="ps-3 mb-0">{{PopupAddToCartVueModal.Quantity}}</label>
                                 </div>
                             </template>
                             <template v-else>
-                                <div class="form-group col-12 pl-0 mb-0 d-flex">
+                                <div class="form-group col-12 ps-0 mb-0 d-flex">
                                     <template v-if="PopupAddToCartVueModal.EndTime !== null">
                                         <div>
                                             <template v-if="new Date(PopupAddToCartVueModal.EndTime).getTime() > new Date().getTime()">
                                                 <countdown :end-time="new Date(PopupAddToCartVueModal.EndTime).getTime()">
                                                     <template v-slot:process="{ timeObj }">
-                                                        <span class="col-form-label">@Loc["AddToCart.Timeleft"]:</span>
-                                                        <span>{{ `${timeObj.d}` }} </span>
-                                                        <span>: {{ `${timeObj.h}` }} </span>
-                                                        <span>: {{ `${timeObj.m}` }} </span>
-                                                        <span>: {{ `${timeObj.s}` }}</span>
+                                                        <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
+                                                        <span>{{ `${timeObj.d}` }}@Loc["Countdown.Days"]</span>
+                                                        <span>{{ `${timeObj.h}` }}@Loc["Countdown.Hours"]</span>
+                                                        <span>{{ `${timeObj.m}` }}@Loc["Countdown.Minutes"]</span>
+                                                        <span>{{ `${timeObj.s}` }}@Loc["Countdown.Seconds"]</span>
                                                     </template>
                                                     <template v-slot:finish>
                                                         <span>@Loc["ShoppingCart.Auctionends"]</span>
@@ -80,18 +84,18 @@
                             </template>
 
 
-                            <div class="form-group col-12 pl-0 mb-1 d-flex">
+                            <div class="form-group col-12 ps-0 mb-1 d-flex">
                                 <template v-if="PopupAddToCartVueModal.IsAuction">
                                     <label class="">
                                         <strong>@Loc["AddToCart.Yourbid"]:</strong>
                                     </label>
-                                    <label class="pl-3 mb-0">{{PopupAddToCartVueModal.HighestBid}}</label>
+                                    <label class="ps-3 mb-0">{{PopupAddToCartVueModal.HighestBid}}</label>
                                 </template>
                                 <template v-else>
                                     <label class="">
                                         <strong>@Loc["AddToCart.Price"]</strong>
                                     </label>
-                                    <label class="pl-3 mb-0">{{PopupAddToCartVueModal.Price}}</label>
+                                    <label class="ps-3 mb-0">{{PopupAddToCartVueModal.Price}}</label>
                                 </template>
                             </div>
                         </div>
@@ -112,13 +116,13 @@
                                     <template v-if="PopupAddToCartVueModal.SubTotalDiscount !== null">
                                         <div class="form-group mb-1 d-flex justify-content-center">
                                             <label class="text-muted mb-0">@Loc["AddToCart.SubTotalDiscount"]</label>
-                                            <label class="pl-3 mb-0 text-muted">{{PopupAddToCartVueModal.SubTotalDiscount}}</label>
+                                            <label class="ps-3 mb-0 text-muted">{{PopupAddToCartVueModal.SubTotalDiscount}}</label>
                                         </div>
                                     </template>
                                     <template v-if="PopupAddToCartVueModal.SubTotal !== null">
                                         <div class="form-group mb-0 d-flex justify-content-center">
                                             <label class="text-dark mb-0">@Loc["AddToCart.SubTotal"]</label>
-                                            <label class="pl-3 mb-0 text-dark mb-0">{{PopupAddToCartVueModal.SubTotal}}</label>
+                                            <label class="ps-3 mb-0 text-dark mb-0">{{PopupAddToCartVueModal.SubTotal}}</label>
                                         </div>
                                     </template>
                                 </div>
@@ -130,22 +134,25 @@
             <div class="card-footer">
                 <div class="btn-group w-100" role="group">
                     <template v-if="PopupAddToCartVueModal.CartType == 3">
-                        <button class="btn btn-outline-info text-uppercase" @@click='$bvModal.hide("ModalAddToCart")'>@Loc["AddToCart.Continue"]</button>
+                        <button class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">@Loc["AddToCart.Continue"]</button>
                     </template>
                     <template v-else>
-                        <button class="btn btn-outline-info text-uppercase" @@click='$bvModal.hide("ModalAddToCart")'>@Loc["AddToCart.Continue"]</button>
+                        <button class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">@Loc["AddToCart.Continue"]</button>
                     </template>
                     <template v-if="PopupAddToCartVueModal.CartType == 1 || PopupAddToCartVueModal.CartType == 0">
-                        <button class="btn btn-info text-uppercase" @@click="location='@(Url.RouteUrl("ShoppingCart"))'">@Loc["AddToCart.ViewCart"]</button>
+                        <button class="btn btn-dark text-uppercase" @@click="window.location='@(Url.RouteUrl("ShoppingCart"))'">@Loc["AddToCart.ViewCart"]</button>
                     </template>
                     <template v-else-if="PopupAddToCartVueModal.CartType == 2">
-                        <button class="btn btn-info text-uppercase" @@click="location='@(Url.RouteUrl("Wishlist"))'">@Loc["AddToCart.ViewWishlist"]</button>
+                        <button class="btn btn-dark text-uppercase" @@click="window.location='@(Url.RouteUrl("Wishlist"))'">@Loc["AddToCart.ViewWishlist"]</button>
                     </template>
                     <template v-else-if="PopupAddToCartVueModal.CartType == 3">
-                        <button class="btn btn-info text-uppercase" @@click="location='@(Url.RouteUrl("CustomerAuctions"))'">@Loc["AddToCart.ViewAuctions"]</button>
+                        <button class="btn btn-dark text-uppercase" @@click="window.location='@(Url.RouteUrl("CustomerAuctions"))'">@Loc["AddToCart.ViewAuctions"]</button>
                     </template>
                 </div>
             </div>
         </div>
     </template>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>

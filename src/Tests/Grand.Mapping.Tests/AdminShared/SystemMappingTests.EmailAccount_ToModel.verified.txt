@@ -1,0 +1,10 @@
+﻿{
+  Email: noreply@store.com,
+  DisplayName: Grand Store,
+  Host: smtp.example.com,
+  Port: 587,
+  Username: noreply@store.com,
+  UseServerCertificateValidation: false,
+  IsDefaultEmailAccount: false,
+  Id: ea-001
+}

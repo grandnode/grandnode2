@@ -1,5 +1,12 @@
 ﻿@model IList<PrivacyPreferenceModel>
-<b-modal ref="ModalPrivacyPreference" :dark-theme="darkMode" title="@Loc["PrivacyPreference.Center"]" id="ModalPrivacyPreference" centered hide-footer>
+<div class="modal fade" id="ModalPrivacyPreference" tabindex="-1" aria-labelledby="ModalPrivacyPreference-label" aria-hidden="true" :dark-theme="darkMode">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalPrivacyPreference-label">@Loc["PrivacyPreference.Center"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
     <div class="alert">
         @Loc["PrivacyPreference.Description"]
     </div>
@@ -14,7 +21,7 @@
                             <div class="h5">@item.Name</div>
                             <div>@item.Description</div>
                         </div>
-                        <div class="custom-control custom-switch">
+                        <div class="form-check form-switch">
                             <input
                                 @if (!item.AllowToDisable)
                                 {
@@ -25,13 +32,16 @@
                                     <text> checked</text>
                                 }
                                 type="checkbox"
-                                value="@item.SystemName" class="custom-control-input" id="ConsentCookies_@item.SystemName" name="ConsentCookies_@item.SystemName">
-                            <label class="custom-control-label" for="ConsentCookies_@item.SystemName"></label>
+                                value="@item.SystemName" class="form-check-input" id="ConsentCookies_@item.SystemName" name="ConsentCookies_@item.SystemName">
+                            <label class="form-check-label" for="ConsentCookies_@item.SystemName"></label>
                         </div>
                     </div>
                 }
-                <input type="button" class="btn btn-info w-100" @@click="$bvModal.hide('ModalPrivacyPreference');vm.savePrivacyPreference('@Url.RouteUrl("PrivacyPreference")')" value="Save"/>
+                <input type="button" class="btn btn-info w-100" data-bs-dismiss="modal" @@click="vm.savePrivacyPreference('@Url.RouteUrl("PrivacyPreference")')" value="Save"/>
             </div>
         </form>
     }
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>

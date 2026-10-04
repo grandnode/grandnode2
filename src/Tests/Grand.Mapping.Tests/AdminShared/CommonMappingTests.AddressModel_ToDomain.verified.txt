@@ -1,0 +1,14 @@
+﻿{
+  FirstName: John,
+  LastName: Doe,
+  Email: john@example.com,
+  Company: ACME Corp,
+  CountryId: country-001,
+  StateProvinceId: state-001,
+  City: New York,
+  Address1: 123 Main St,
+  Address2: Apt 4B,
+  ZipPostalCode: 10001,
+  PhoneNumber: +1-555-1234,
+  Id: ObjectId_1
+}

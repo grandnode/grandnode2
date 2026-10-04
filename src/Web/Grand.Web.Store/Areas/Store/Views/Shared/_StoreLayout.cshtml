@@ -1,0 +1,186 @@
+﻿@using Grand.Domain.Localization
+@using Grand.Web.Common.TagHelpers
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Constants = Grand.SharedUIResources.Constants
+@inject IContextAccessor contextAccessor
+@inject LanguageSettings languageSettings
+@{
+    var currentCustomer = contextAccessor.WorkContext.CurrentCustomer;
+    var profileName = currentCustomer.Email ?? "";
+    var profileInitial = string.IsNullOrEmpty(profileName) ? "?" : profileName.Substring(0, 1).ToUpperInvariant();
+    var currentVersion = GrandVersion.FullVersion;
+    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl &&
+                     !languageSettings.IgnoreRtlPropertyForAdminArea;
+
+    //page title
+    var pageTitle = "";
+    if (!string.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        pageTitle = ViewBag.Title + " / ";
+    }
+
+    pageTitle += Loc["Admin.PageTitle"];
+}
+<!DOCTYPE html>
+<html @if (supportRtl)
+{
+    <text> dir="rtl" </text>
+}
+>
+<head>
+    <title>@pageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <head-custom/>
+    <partial name="Partials/HeadStore"/>
+    <resources asp-type="HeadLink"/>
+    <resources asp-type="HeadScript"/>
+</head>
+<body class="nav-sm @if (IsSectionDefined("popupwindow")) {
+ @await RenderSectionAsync("popupwindow") <text>no-sidebar</text>
+ }">
+    @Html.AntiForgeryToken()
+<script>
+        if (document.readyState == "loading") {
+            $(".site_title").css("padding-left", "26px");
+            if ($('body').hasClass('nav-sm')) {
+                $('#sidebar-menu').find('li.active').addClass('active-sm').removeClass('active');
+                $('#sidebar-menu').find('li.active-sm ul').hide();
+            }
+        }
+
+    </script>
+<div class="container body">
+    <div class="main_container">
+        <vc:store-widget widget-zone="store_store_header_before" additional-data="null"/>
+            @if (IsSectionDefined("headermenu"))
+            {
+                @await RenderSectionAsync("headermenu")
+            }
+            else
+            {
+                <partial name="Partials/Menu"/>
+            }
+        <vc:store-widget widget-zone="store_store_header_after" additional-data="null"/>
+            @if (IsSectionDefined("statusbar"))
+            {
+                @await RenderSectionAsync("statusbar")
+            }
+            @if (IsSectionDefined("header"))
+            {
+                @await RenderSectionAsync("header")
+            }
+            else
+            {
+                        <vc:store-widget widget-zone="store_header_before" additional-data="null"/>
+                <div class="top_nav">
+                    <div class="nav_menu">
+                        <nav>
+                            @* the store this panel works for, where the Admin top bar has its search field *@
+                            <div class="grand-topbar-context">
+                                <span class="grand-topbar-context__pill" title="@contextAccessor.StoreContext.CurrentStore.Name">
+                                    <i class="bi bi-shop" aria-hidden="true"></i>
+                                    <span class="grand-topbar-context__label">@Loc["Admin.Orders.Fields.Store"]</span>
+                                    <span class="grand-topbar-context__name">@contextAccessor.StoreContext.CurrentStore.Name</span>
+                                </span>
+                            </div>
+                            <vc:store-widget widget-zone="store_header_toggle_after" additional-data="null"/>
+                            <ul class="nav navbar-nav navbar-right">
+
+                                <li class="dropdown" role="presentation">
+                                    <a href="@Url.Action("Index", "Home", new { area = "" })" class="dropdown-toggle">
+                                        <i class="bi bi-house"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation" class="dropdown">
+                                    <a href="javascript:;" class="dropdown-toggle info-number" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-info-circle"></i>
+                                    </a>
+                                    <ul id="menu1" class="dropdown-menu dropdown-menu-end list-unstyled msg_list overflow-h" role="menu">
+                                        <li>
+                                            <a href="https://grandnode.com/knowledgebase" target="_blank">
+                                                <i class="bi bi-book"></i>
+                                                @Loc["Admin.Header.Documentation"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://grandnode.com/release-notes" target="_blank">
+                                                <i class="bi bi-record-circle"></i>
+                                                grandnode @currentVersion
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li>
+                                    <a href="javascript:;" class="user-profile dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="grand-topbar-avatar" aria-hidden="true">@profileInitial</span>
+                                        <span class="grand-topbar-user__name username-hide-on-mobile">@profileName</span>
+                                        <i class="bi bi-chevron-down grand-topbar-user__caret" aria-hidden="true"></i>
+                                    </a>
+
+                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-default">
+                                        <li>
+                                            <a href="@Url.Action("Logout", "Home", new { area = Grand.Web.Store.Extensions.Constants.AreaStore }, null)">
+                                                    <i class="bi bi-box-arrow-right"></i> @Loc["Admin.Header.Logout"]
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li role="presentation">
+                                    <a>
+                                        <div class="form-check form-switch light-dark-switch">
+                                            <input type="checkbox" class="form-check-input" id="DarkLight">
+                                            <label class="form-check-label" for="DarkLight">Enable Dark Mode</label>
+                                            <i class="bi bi-moon-stars" aria-hidden="true"></i>
+                                        </div>
+                                    </a>
+                                    <script>
+                                            //admin.theme.js in <head> has already applied the stored choice; the switch only
+                                            //shows it and changes it
+                                            const toggleSwitch = document.getElementById('DarkLight');
+
+                                            function showTheme(dark) {
+                                                toggleSwitch.checked = dark;
+                                                $('#DarkLight ~ label').text(dark ? 'Disable Dark Mode' : 'Enable Dark Mode');
+                                            }
+
+                                            showTheme(window.grandAdminTheme.isDark());
+
+                                            toggleSwitch.addEventListener('change', function (e) {
+                                                window.grandAdminTheme.set(e.target.checked);
+                                                showTheme(e.target.checked);
+                                            }, false);
+                                        </script>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                    <vc:store-widget widget-zone="store_header_navbar_after" additional-data="null"/>
+            }
+
+        <div class="right_col" role="main">
+            <partial name="Partials/Notifications"/>
+                @RenderBody()
+        </div>
+        <div class="throbber">
+            <div class="curtain">
+            </div>
+            <div class="curtain-content">
+                <div>
+                    <h1 class="throbber-header">Wait...</h1>
+                    <div class="spinner active">
+                        <svg style="width:100px; height:100px" viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="29" fill="none" stroke-width="3" stroke-miterlimit="10"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<resources asp-type="ScriptFooter"/>
+</body>
+</html>

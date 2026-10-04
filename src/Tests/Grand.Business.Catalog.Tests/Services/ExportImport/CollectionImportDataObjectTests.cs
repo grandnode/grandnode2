@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Grand.Mapping;
 using Grand.Business.Catalog.Services.Collections;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Security;
@@ -21,7 +21,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Infrastructure.TypeSearch;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -65,7 +65,8 @@ public class CollectionImportDataObjectTests
             _mediatorMock.Object, new AclService(new AccessControlConfig()), new AccessControlConfig());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _collectionImportDataObject = new CollectionImportDataObject(_collectionService, _pictureServiceMock.Object,
-            _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService);
+            _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
+            new SecurityConfig());
     }
 
     [TestMethod]
@@ -88,8 +89,8 @@ public class CollectionImportDataObjectTests
         await _collectionImportDataObject.Execute(collections);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
     }
 
     [TestMethod]
@@ -130,11 +131,11 @@ public class CollectionImportDataObjectTests
         await _collectionImportDataObject.Execute(collections);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Published);
     }
 
     [TestMethod]
@@ -164,11 +165,11 @@ public class CollectionImportDataObjectTests
         await _collectionImportDataObject.Execute(collections);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Published);
     }
 
     private void InitAutoMapper()
@@ -185,7 +186,7 @@ public class CollectionImportDataObjectTests
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile(instance.GetType());
+            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
         });
 
         //register automapper

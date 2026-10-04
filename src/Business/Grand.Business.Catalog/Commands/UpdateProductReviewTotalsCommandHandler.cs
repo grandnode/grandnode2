@@ -4,7 +4,7 @@ using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Commands;
 

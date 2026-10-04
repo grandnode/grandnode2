@@ -1,0 +1,7 @@
+﻿{
+  Name: Yes,
+  PriceAdjustment: 3.99,
+  IsPreSelected: false,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

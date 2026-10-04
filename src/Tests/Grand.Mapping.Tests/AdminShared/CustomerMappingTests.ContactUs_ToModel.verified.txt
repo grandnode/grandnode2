@@ -1,0 +1,8 @@
+﻿{
+  Id: cu-001,
+  Email: customer@example.com,
+  FullName: Jane Doe,
+  IpAddress: 192.168.1.1,
+  Subject: Order inquiry,
+  Enquiry: When will my order arrive?
+}

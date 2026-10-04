@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Customers;
 

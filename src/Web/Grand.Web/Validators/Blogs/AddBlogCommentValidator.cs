@@ -4,10 +4,11 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Blogs;
+using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Common.Security.Captcha;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Blogs;
 
@@ -19,7 +20,7 @@ public class AddBlogCommentValidator : BaseGrandValidator<AddBlogCommentModel>
         IEnumerable<IValidatorConsumer<AddBlogCommentModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         CaptchaSettings captchaSettings, IHttpContextAccessor httpcontextAccessor,
-        GoogleReCaptchaValidator googleReCaptchaValidator,
+        IGoogleReCaptchaValidator googleReCaptchaValidator,
         BlogSettings blogSettings,
         IGroupService groupService, IContextAccessor contextAccessor, IBlogService blogService, IAclService aclService,
         ITranslationService translationService)

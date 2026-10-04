@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Orders;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Models.Orders;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;

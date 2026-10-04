@@ -1,0 +1,22 @@
+﻿{
+  Name: Apple,
+  Description: Apple brand,
+  BottomDescription: Bottom,
+  BrandLayoutId: layout-001,
+  MetaKeywords: apple,
+  MetaDescription: Apple products,
+  MetaTitle: Apple,
+  SeName: apple,
+  PictureId: pic-001,
+  PageSize: 20,
+  AllowCustomersToSelectPageSize: false,
+  PageSizeOptions: 20, 40,
+  ShowOnHomePage: true,
+  IncludeInMenu: true,
+  Icon: fa fa-apple,
+  DefaultSort: -1,
+  Published: true,
+  DisplayOrder: 1,
+  ExternalId: ext-brand-001,
+  Id: brand-001
+}

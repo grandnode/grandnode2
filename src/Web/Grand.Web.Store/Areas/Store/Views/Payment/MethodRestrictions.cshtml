@@ -1,0 +1,36 @@
+@model PaymentMethodRestrictionModel
+
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Payment.MethodRestrictions"];
+    Layout = Constants.LayoutStore;
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Payment" asp-action="MethodRestrictions" method="post">
+
+    @* one tab per restriction matrix; Save commits both tabs *@
+    <admin-page sticky title="@Loc["Admin.Configuration.Payment.MethodRestrictions"]" icon="bi-cash">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-tabstrip name="paymentrestriction-edit">
+            <items>
+                <tabstrip-item text="@Loc["Admin.Configuration.Payment.MethodRestrictions.Country"]" tab-index="0">
+                    <content>
+                        <div>
+                            <partial name="Partials/MethodRestrictions.TabCountry" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Configuration.Payment.MethodRestrictions.Shipping"]" tab-index="1">
+                    <content>
+                        <div>
+                            <partial name="Partials/MethodRestrictions.TabShipping" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            </items>
+        </admin-tabstrip>
+    </admin-page>
+</form>

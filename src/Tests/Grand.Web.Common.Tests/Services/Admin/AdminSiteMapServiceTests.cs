@@ -2,7 +2,7 @@
 using Grand.Domain.Admin;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Menu;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -28,8 +28,8 @@ public class AdminSiteMapServiceTests
     [TestMethod]
     public async Task GetSiteMap_InvokeExpectedMethods()
     {
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<AdminSiteMap>>>>()));
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<AdminSiteMap>>>>()));
         var result = await _service.GetSiteMap();
-        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<AdminSiteMap>>>>()), Times.Once);
+        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<AdminSiteMap>>>>()), Times.Once);
     }
 }

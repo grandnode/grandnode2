@@ -20,7 +20,7 @@ using Grand.Web.Events;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
@@ -135,7 +135,6 @@ public class OrderController : BasePublicController
 
     //My account / Order details page / Add order note        
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     public virtual async Task<ActionResult<AddOrderNoteModel>> AddOrderNote(AddOrderNoteModel model)
     {
         if (!_orderSettings.AllowCustomerToAddOrderNote)
@@ -174,7 +173,6 @@ public class OrderController : BasePublicController
 
     //My account / Order details page / Complete payment
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     public virtual async Task<IActionResult> RePostPayment(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);

@@ -55,6 +55,7 @@ public class StripeCheckoutController : BasePaymentController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         if (!await _permissionService.Authorize(StandardPermission.ManagePaymentMethods))

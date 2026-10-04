@@ -1,0 +1,34 @@
+@model Grand.Web.Admin.Models.Cms.AdminPortalModel
+@functions {
+    //the resource arrives with the 2.4 upgrade; an installation that has not imported it yet
+    //gets the English text instead of the raw key
+    string Text(string key, string fallback)
+    {
+        var value = Loc[key].Value;
+        return string.IsNullOrEmpty(value) || string.Equals(value, key, StringComparison.OrdinalIgnoreCase) ? fallback : value;
+    }
+}
+<section class="grand-dashboard__welcome" aria-labelledby="dashboard-welcome-title">
+    <div class="grand-dashboard__welcome-icon" aria-hidden="true">
+        <i class="bi bi-stars"></i>
+    </div>
+    <div class="grand-dashboard__welcome-text">
+        @if (!string.IsNullOrWhiteSpace(Model.Title))
+        {
+            <h2 id="dashboard-welcome-title" class="grand-dashboard__welcome-title">@Model.Title</h2>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Body))
+        {
+            @* checked against the rich-text allowlist in AdminPageViewComponent *@
+            <div class="grand-dashboard__welcome-body">@Html.Raw(Model.Body)</div>
+        }
+    </div>
+    @if (Model.CanEdit)
+    {
+        <a class="btn btn-sm btn-outline-secondary grand-dashboard__welcome-edit"
+           href="@Url.Action("Edit", "Page", new { id = Model.PageId, area = Constants.AreaAdmin })">
+            <i class="bi bi-pencil" aria-hidden="true"></i>
+            <span>@Text("Admin.Dashboard.Welcome.Edit", "Edit this message")</span>
+        </a>
+    }
+</section>

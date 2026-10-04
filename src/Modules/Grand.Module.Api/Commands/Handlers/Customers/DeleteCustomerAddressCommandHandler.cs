@@ -1,6 +1,6 @@
 ﻿using Grand.Module.Api.Commands.Models.Customers;
 using Grand.Business.Core.Interfaces.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Customers;
 

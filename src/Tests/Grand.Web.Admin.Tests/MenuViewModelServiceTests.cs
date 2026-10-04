@@ -1,10 +1,10 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Domain.Admin;
 using Grand.Infrastructure.Mapper;
-using Grand.Web.Admin.Mapper;
-using Grand.Web.Admin.Models.Menu;
-using Grand.Web.Admin.Services;
+using Grand.Web.AdminShared.Mapper;
+using Grand.Web.AdminShared.Models.Menu;
+using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
@@ -46,7 +46,7 @@ public class MenuViewModelServiceTests
         var result = await _menuViewModelService.MenuItems();
 
         // Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
         Assert.AreEqual("1", result[0].Id);
         Assert.AreEqual("Item 1", result[0].SystemName);
         Assert.AreEqual(1, result[0].DisplayOrder);
@@ -92,7 +92,7 @@ public class MenuViewModelServiceTests
         // Assert
         Assert.AreEqual("3", result.Id);
         Assert.AreEqual("Item 3", result.SystemName);
-        Assert.AreEqual(1, parentEntity.ChildNodes.Count);
+        Assert.HasCount(1, parentEntity.ChildNodes);
     }
 
     [TestMethod]

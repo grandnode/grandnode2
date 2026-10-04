@@ -1,0 +1,41 @@
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+<div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title"></h2>
+        @if (!readOnly)
+        {
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Marketing.Document.Add"]</button>
+        }
+    </div>
+    <partial name="Partials/WidgetZone.Documents.Top" model="Model"/>
+    <div class="grand-card__body grand-card__body--flush">
+        <admin-grid id="product-documents-grid"
+                    read-only="@readOnly"
+                    read-url="@Url.Action("ListDocuments", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, StatusId = -1, area = area })"
+                    auto-bind="false">
+            <grid-column field="Number" title="@Loc[$"{Scope.ResourceKeyPrefix}.Documents.Document.Fields.Number"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("EditDocument", "Document", new { area = area })/{{ Id }}">{{ Number }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Documents.Document.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("EditDocument", "Document", new { area = area })/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Published" title="@Loc[$"{Scope.ResourceKeyPrefix}.Documents.Document.Fields.Published"]" width="100" align="Center" min-screen-width="500">
+                <cell-template>
+                    <i data-if="Published" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
+    </div>
+    <partial name="Partials/WidgetZone.Documents.Bottom" model="Model"/>
+</div>
+

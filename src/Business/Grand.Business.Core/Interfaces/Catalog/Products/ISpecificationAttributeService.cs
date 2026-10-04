@@ -27,10 +27,11 @@ public interface ISpecificationAttributeService
     /// <summary>
     ///     Gets specification attributes
     /// </summary>
+    /// <param name="storeId">Store ident</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Specification attributes</returns>
-    Task<IPagedList<SpecificationAttribute>> GetSpecificationAttributes(int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<SpecificationAttribute>> GetSpecificationAttributes(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Inserts a specification attribute

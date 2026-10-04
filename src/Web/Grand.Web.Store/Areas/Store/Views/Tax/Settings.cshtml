@@ -1,0 +1,135 @@
+@model TaxSettingsModel
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Tax.Settings"];
+    Layout = Constants.LayoutStore;
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Tax" asp-action="Settings" method="post">
+
+    <div asp-validation-summary="All"></div>
+    <script>
+        $(document).ready(function () {
+            $("#@Html.IdFor(model => model.AllowCustomersToSelectTaxDisplayType)").click(toggleTaxDisplayType);
+            $("#@Html.IdFor(model => model.ShippingIsTaxable)").click(toggleShipping);
+            $("#@Html.IdFor(model => model.PaymentMethodAdditionalFeeIsTaxable)").click(togglePayment);
+            $("#@Html.IdFor(model => model.EuVatEnabled)").click(toggleEUVAT);
+
+            toggleTaxDisplayType();
+            toggleShipping();
+            togglePayment();
+            toggleEUVAT();
+        });
+
+        function toggleTaxDisplayType() {
+            if ($('#@Html.IdFor(model => model.AllowCustomersToSelectTaxDisplayType)').is(':checked')) {
+                $('#pnlTaxDisplayType').hide();
+            } else {
+                $('#pnlTaxDisplayType').show();
+            }
+        }
+
+        function toggleShipping() {
+            if ($('#@Html.IdFor(model => model.ShippingIsTaxable)').is(':checked')) {
+                $('#pnlShippingPriceIncludesTax').show();
+                $('#pnlShippingTaxClass').show();
+            } else {
+                $('#pnlShippingPriceIncludesTax').hide();
+                $('#pnlShippingTaxClass').hide();
+            }
+        }
+
+        function togglePayment() {
+            if ($('#@Html.IdFor(model => model.PaymentMethodAdditionalFeeIsTaxable)').is(':checked')) {
+                $('#pnlPaymentMethodAdditionalFeeIncludesTax').show();
+                $('#pnlPaymentMethodAdditionalFeeTaxCategory').show();
+            } else {
+                $('#pnlPaymentMethodAdditionalFeeIncludesTax').hide();
+                $('#pnlPaymentMethodAdditionalFeeTaxCategory').hide();
+            }
+        }
+
+        function toggleEUVAT() {
+            if ($('#@Html.IdFor(model => model.EuVatEnabled)').is(':checked')) {
+                $('#pnlEuVatShopCountry').show();
+                $('#pnlEuVatAllowVATExemption').show();
+                $('#pnlEuVatAssumeValid').show();
+                $('#pnlEuVatUseWebService').show();
+                $('#pnlEuVatNote').show();
+            } else {
+                $('#pnlEuVatShopCountry').hide();
+                $('#pnlEuVatAllowVATExemption').hide();
+                $('#pnlEuVatAssumeValid').hide();
+                $('#pnlEuVatUseWebService').hide();
+                $('#pnlEuVatNote').hide();
+            }
+        }
+    </script>
+    @* one card per concern - display, the default tax address, shipping and payment fees, EU VAT,
+       rounding; each switch sits in a .grand-reveal with the fields it opens right under it. Tax
+       display type is shown while "customers may select" is off, so it stays beside that switch *@
+    <admin-page sticky title="@Loc["Admin.Configuration.Tax.Settings"]" icon="bi-sliders">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="PricesIncludeTax"/>
+                <admin-field asp-for="TaxBasedOn" asp-items="Model.TaxBasedOnValues" size="md"/>
+                <admin-field asp-for="AllowCustomersToSelectTaxDisplayType"/>
+                <admin-field asp-for="TaxDisplayType" id="pnlTaxDisplayType" asp-items="Model.TaxDisplayTypeValues" size="md"/>
+                <admin-field asp-for="DisplayTaxRates"/>
+                <admin-field asp-for="HideZeroTax"/>
+                <admin-field asp-for="HideTaxInOrderSummary"/>
+                <admin-field asp-for="ForceTaxExclusionFromOrderSubtotal"/>
+                <admin-field asp-for="DefaultTaxCategoryId" asp-items="Model.TaxCategories" size="md"/>
+            </div>
+        </admin-card>
+        <admin-card title="@Loc["Admin.Configuration.Tax.DefaultTaxAddress"]">
+            <div id="pnlDefaultTaxAddress">
+                <admin-input asp-for="DefaultTaxAddress" asp-template="Address"/>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <div class="grand-reveal">
+                    <admin-field asp-for="ShippingIsTaxable"/>
+                    <div class="grand-reveal__body grand-fields grand-fields--2col">
+                        <admin-field asp-for="ShippingPriceIncludesTax" id="pnlShippingPriceIncludesTax"/>
+                        <admin-field asp-for="ShippingTaxCategoryId" id="pnlShippingTaxClass" asp-items="Model.TaxCategories" size="md"/>
+                    </div>
+                </div>
+                <div class="grand-reveal">
+                    <admin-field asp-for="PaymentMethodAdditionalFeeIsTaxable"/>
+                    <div class="grand-reveal__body grand-fields grand-fields--2col">
+                        <admin-field asp-for="PaymentMethodAdditionalFeeIncludesTax" id="pnlPaymentMethodAdditionalFeeIncludesTax"/>
+                        <admin-field asp-for="PaymentMethodAdditionalFeeTaxCategoryId" id="pnlPaymentMethodAdditionalFeeTaxCategory" asp-items="Model.TaxCategories" size="md"/>
+                    </div>
+                </div>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <div class="grand-reveal">
+                    <admin-field asp-for="EuVatEnabled"/>
+                    <div class="grand-reveal__body grand-fields grand-fields--2col">
+                        <admin-field asp-for="EuVatShopCountryId" id="pnlEuVatShopCountry" asp-items="Model.EuVatShopCountries" size="md"/>
+                        <admin-field asp-for="EuVatAllowVatExemption" id="pnlEuVatAllowVATExemption"/>
+                        <admin-field asp-for="EuVatAssumeValid" id="pnlEuVatAssumeValid"/>
+                        <admin-field asp-for="EuVatUseWebService" id="pnlEuVatUseWebService"/>
+                    </div>
+                    <div class="note note-info mb-0" id="pnlEuVatNote">
+                        If you want to use EU VAT Web Service to validate the EU VAT numbers, please add EuropaCheckVat plugin to your store. It can be found <a href="https://github.com/grandnode/Grand.Plugin.Misc.EuropaCheckVat" target="_blank">here</a>.
+                    </div>
+                </div>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="CalculateRoundPrice" size="sm"/>
+                <admin-field asp-for="MidpointRounding" asp-items="EnumTranslationService.ToSelectList(MidpointRounding.ToEven)" size="md"/>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

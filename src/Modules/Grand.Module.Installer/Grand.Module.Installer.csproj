@@ -6,6 +6,9 @@
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	</PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+		  <Private>False</Private>
+		</ProjectReference>
 		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
 		  <Private>False</Private>
 		</ProjectReference>
@@ -17,6 +20,12 @@
 		</ProjectReference>
 		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
 		  <Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Mediator\Grand.Mediator.csproj">
+			<Private>False</Private>
 		</ProjectReference>
 	</ItemGroup>
 

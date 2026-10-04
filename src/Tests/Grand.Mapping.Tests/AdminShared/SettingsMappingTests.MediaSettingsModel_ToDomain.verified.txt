@@ -1,0 +1,6 @@
+﻿{
+  DefaultImageName: no-image.png,
+  ProductThumbPictureSize: 415,
+  DefaultPictureZoomEnabled: false,
+  MaximumImageSize: 1980
+}

@@ -17,12 +17,12 @@
                                         <div class="btn-group-sm d-inline-flex flex-wrap">
                                             <template v-for="spec in group">
                                                 <template v-if="spec.SpecificationAttributeOptionColorRgb !== null">
-                                                    <button class="btn btn-sm btn-light color-container mb-1 mr-1" @@click="catalog.loadProducts(spec.FilterUrl)">
+                                                    <button class="btn btn-sm btn-light color-container mb-1 me-1" @@click="catalog.loadProducts(spec.FilterUrl)">
                                                         <span class="color" :title="spec.SpecificationAttributeOptionName" :style="'background-color:' + spec.SpecificationAttributeOptionColorRgb">&nbsp;</span>
                                                     </button>
                                                 </template>
                                                 <template v-else>
-                                                    <button class="btn btn-sm btn-light mb-1 mr-1" @@click="catalog.loadProducts(spec.FilterUrl)">
+                                                    <button class="btn btn-sm btn-light mb-1 me-1" @@click="catalog.loadProducts(spec.FilterUrl)">
                                                         {{spec.SpecificationAttributeOptionName}}
                                                     </button>
                                                 </template>
@@ -49,7 +49,7 @@
                                     </div>
                                     <div class="d-inline-flex flex-wrap w-100">
                                         <template v-for="spec in group">
-                                            <a class="d-flex align-items-center mr-2 mb-2 pb-0" @@click="catalog.loadProducts(spec.FilterUrl)">{{spec.SpecificationAttributeOptionName}}<b-icon class="ml-2 text-danger" icon="x-circle-fill"></b-icon></a>
+                                            <a class="d-flex align-items-center me-2 mb-2 pb-0" @@click="catalog.loadProducts(spec.FilterUrl)">{{spec.SpecificationAttributeOptionName}}<i class="b-icon ms-2 text-danger bi bi-x-circle-fill" aria-hidden="true"></i></a>
                                         </template>
                                     </div>
                                 </li>
@@ -73,7 +73,7 @@
                     @Loc["Catalog.Rating"]:
                 </h6>
                 <div class="card-body">
-                    <select class="custom-select form-control" id="rating" name="rating" v-on:change="catalog.setRating($event.target.value)" aria-label="@Loc["Catalog.Rating"]">
+                    <select class="form-select form-control" id="rating" name="rating" v-on:change="catalog.setRating($event.target.value)" aria-label="@Loc["Catalog.Rating"]">
                         <template v-for="item in catalog.Model.PagingFilteringContext.RatingOptions">
                             <option :selected="item.Selected" :value="item.Value" :disabled="false">
                                 {{item.Text}}

@@ -1,0 +1,6 @@
+﻿{
+  Name: Material,
+  DisplayOrder: 1,
+  LimitedToStores: false,
+  Id: sa-1
+}

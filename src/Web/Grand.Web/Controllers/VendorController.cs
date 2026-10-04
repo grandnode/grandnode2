@@ -19,7 +19,7 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Vendors;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
@@ -128,7 +128,6 @@ public class VendorController : BasePublicController
 
     [HttpPost]
     [ActionName("ApplyVendor")]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, [FromServices] ISeNameService seNameService)
@@ -195,7 +194,6 @@ public class VendorController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model)
     {

@@ -1,0 +1,18 @@
+﻿{
+  Content: Step-by-step guide,
+  DisplayOrder: 1,
+  Published: true,
+  ShowOnHomepage: false,
+  AllowComments: false,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Name: How to order?,
+  ParentCategoryId: kb-001,
+  Id: ObjectId_1
+}

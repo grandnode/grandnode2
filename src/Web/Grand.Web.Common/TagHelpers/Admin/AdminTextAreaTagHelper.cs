@@ -48,7 +48,7 @@ public class AdminTextAreaTagHelper : TextAreaTagHelper
         //merge classes
         var classValue = output.Attributes.ContainsName("class")
             ? $"{output.Attributes["class"].Value}"
-            : "form-control k-input";
+            : "form-control";
         output.Attributes.SetAttribute("class", classValue);
 
         //add disabled attribute

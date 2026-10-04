@@ -9,7 +9,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Collections;
 
@@ -45,8 +45,8 @@ public class ProductCollectionService : IProductCollectionService
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex,
-            pageSize, _contextAccessor.WorkContext.CurrentCustomer.Id, storeId);
-        return await _cacheBase.GetAsync(key, () =>
+            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), storeId);
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x =>
                 x.ProductCollections.Any(y => y.CollectionId == collectionId));
@@ -84,7 +84,7 @@ public class ProductCollectionService : IProductCollectionService
                 orderby pm.DisplayOrder
                 select pm;
 
-            return Task.FromResult(new PagedList<ProductsCollection>(queryProductCollection, pageIndex, pageSize));
+            return await _productRepository.PagedAsync(queryProductCollection, pageIndex, pageSize);
         });
     }
 
@@ -97,7 +97,7 @@ public class ProductCollectionService : IProductCollectionService
     {
         ArgumentNullException.ThrowIfNull(productCollection);
 
-        await _productRepository.AddToSet(productId, x => x.ProductCollections, productCollection);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductCollections, productCollection);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
@@ -116,7 +116,7 @@ public class ProductCollectionService : IProductCollectionService
     {
         ArgumentNullException.ThrowIfNull(productCollection);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductCollections, z => z.Id, productCollection.Id,
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductCollections, z => z.Id == productCollection.Id,
             productCollection);
 
         //cache
@@ -136,7 +136,7 @@ public class ProductCollectionService : IProductCollectionService
     {
         ArgumentNullException.ThrowIfNull(productCollection);
 
-        await _productRepository.PullFilter(productId, x => x.ProductCollections, z => z.Id, productCollection.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductCollections, z => z.Id == productCollection.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);

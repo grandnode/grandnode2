@@ -25,7 +25,7 @@ public interface INewsService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="newsTitle">News title</param>
     /// <returns>News items</returns>
-    Task<IPagedList<NewsItem>> GetAllNews(string storeId = "",
+    Task<IPagedList<NewsItem>> GetAllNews(string storeId,
         int pageIndex = 0, int pageSize = int.MaxValue, bool ignoreAcl = false, bool showHidden = false,
         string newsTitle = "");
 

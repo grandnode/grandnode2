@@ -4,7 +4,7 @@ using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Events.Handlers;
 
@@ -31,8 +31,8 @@ public class CollectionDeletedEventHandler : INotificationHandler<EntityDeleted<
             x.EntityId == notification.Entity.Id && x.EntityName == EntityTypes.Collection);
 
         //delete on the product
-        await _productRepository.PullFilter(string.Empty, x => x.ProductCollections, z => z.CollectionId,
-            notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductCollections,
+            z => z.CollectionId == notification.Entity.Id);
 
         //clear cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);

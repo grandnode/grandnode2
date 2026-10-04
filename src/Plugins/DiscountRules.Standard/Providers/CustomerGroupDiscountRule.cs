@@ -41,7 +41,7 @@ public class CustomerGroupDiscountRule : IDiscountRule
     public string GetConfigurationUrl(string discountId, string discountRequirementId)
     {
         //configured 
-        var result = "Admin/CustomerGroups/Configure/?discountId=" + discountId;
+        var result = $"/DiscountRulesCustomerGroups/Configure/?discountId=" + discountId;
         if (!string.IsNullOrEmpty(discountRequirementId))
             result += $"&discountRequirementId={discountRequirementId}";
         return result;

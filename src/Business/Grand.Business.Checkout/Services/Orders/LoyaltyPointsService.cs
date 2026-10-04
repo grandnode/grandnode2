@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.Orders;
 
@@ -55,9 +55,10 @@ public class LoyaltyPointsService : ILoyaltyPointsService
             query = query.Where(rph => rph.CustomerId == customerId);
         if (!_loyaltyPointsSettings.PointsAccumulatedForAllStores)
             query = query.Where(rph => rph.StoreId == storeId);
-        query = query.OrderByDescending(rph => rph.CreatedOnUtc);
+        //Id as tie-breaker - entries created within the same millisecond share CreatedOnUtc
+        query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
 
-        var lastRph = await Task.FromResult(query.FirstOrDefault());
+        var lastRph = await _rphRepository.FirstOrDefaultAsync(query);
         return lastRph?.PointsBalance ?? 0;
     }
 
@@ -104,9 +105,9 @@ public class LoyaltyPointsService : ILoyaltyPointsService
             //filter by store
             if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(rph => rph.StoreId == storeId);
-        query = query.OrderByDescending(rph => rph.CreatedOnUtc);
+        query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
 
-        return await Task.FromResult(query.ToList());
+        return await _rphRepository.ToListAsync(query);
     }
 
     #endregion

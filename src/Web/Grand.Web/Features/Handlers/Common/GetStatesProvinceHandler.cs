@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Common;
 

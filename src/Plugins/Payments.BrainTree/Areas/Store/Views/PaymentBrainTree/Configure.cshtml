@@ -1,0 +1,38 @@
+@model Payments.BrainTree.Models.ConfigurationModel
+@{
+    Layout = "~/Areas/Store/Views/Shared/_StoreLayout.cshtml";
+    ViewBag.Title = Loc["Admin.Configuration.Payment.Methods"];
+}
+<input id="active-menu-item" type="hidden" value="/Store/Payment/Index"/>
+
+@* the mode switches, the credentials and the fee; Save as the one primary action *@
+<form asp-controller="PaymentBrainTree" asp-action="Configure" asp-area="Store" method="post">
+    <admin-page title="@Loc["Payments.BrainTree.FriendlyName"]" icon="bi-credit-card">
+        <page-actions>
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="Use3DS"/>
+                <admin-field asp-for="UseSandBox"/>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="MerchantId"/>
+                <admin-field asp-for="PublicKey"/>
+                <admin-field asp-for="PrivateKey"/>
+            </div>
+        </admin-card>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AdditionalFee" size="md"/>
+                <admin-field asp-for="AdditionalFeePercentage"/>
+                <admin-field asp-for="DisplayOrder" size="sm"/>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

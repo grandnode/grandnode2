@@ -10,7 +10,7 @@ public static class SystemCustomerGroupNames
 
     public const string Vendors = "Vendors";
 
-    public const string Staff = "Staff";
+    public const string StoreManager = "StoreManager";
 
     public const string SalesManager = "SalesManager";
 }

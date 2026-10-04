@@ -8,7 +8,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -87,7 +87,7 @@ public class PageLayoutServiceTests
         pageLayout.Name = "test";
         await _pageLayoutService.UpdatePageLayout(pageLayout);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == pageLayout.Id).Name == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == pageLayout.Id).Name);
     }
 
     [TestMethod]

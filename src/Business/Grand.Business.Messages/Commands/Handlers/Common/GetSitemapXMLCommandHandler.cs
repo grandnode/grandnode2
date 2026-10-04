@@ -1,0 +1,539 @@
+﻿using Grand.Business.Core.Commands.System.Common;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
+using Grand.Domain.Blogs;
+using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Domain.Customers;
+using Grand.Domain.Knowledgebase;
+using Grand.Domain.Localization;
+using Grand.Domain.News;
+using Grand.Domain.Permissions;
+using Grand.Domain.Stores;
+using Grand.Infrastructure.Configuration;
+using Grand.Mediator;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using System.Text.RegularExpressions;
+using System.Xml;
+
+namespace Grand.Business.Messages.Commands.Handlers.Common;
+
+public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand, string>
+{
+    private const string DateFormat = "yyyy-MM-dd";
+    private readonly AppConfig _appConfig;
+    private readonly IBlogService _blogService;
+    private readonly BlogSettings _blogSettings;
+    private readonly IBrandService _brandService;
+
+    private readonly AccessControlConfig _accessControlConfig;
+    private readonly ICategoryService _categoryService;
+    private readonly CommonSettings _commonSettings;
+    private readonly IGroupService _groupService;
+    private readonly IKnowledgebaseService _knowledgebaseService;
+    private readonly KnowledgebaseSettings _knowledgebaseSettings;
+    private readonly LinkGenerator _linkGenerator;
+    private readonly IMediator _mediator;
+    private readonly NewsSettings _newsSettings;
+    private readonly IPageService _pageService;
+    private readonly IPictureService _pictureService;
+
+    //the sitemap is public content: it lists what a guest can see. The task runs without a request,
+    //so the audience is passed explicitly instead of coming from the (absent) work context
+    private string[] _guestGroupIds;
+    private GetSitemapXmlCommand _request;
+
+    public GetSitemapXmlCommandHandler(
+        ICategoryService categoryService,
+        IBrandService brandService,
+        IPageService pageService,
+        IBlogService blogService,
+        IPictureService pictureService,
+        IKnowledgebaseService knowledgebaseService,
+        IGroupService groupService,
+        IMediator mediator,
+        CommonSettings commonSettings,
+        BlogSettings blogSettings,
+        KnowledgebaseSettings knowledgebaseSettings,
+        NewsSettings newsSettings,
+        AccessControlConfig accessControlConfig,
+        LinkGenerator linkGenerator,
+        AppConfig appConfig)
+    {
+        _categoryService = categoryService;
+        _brandService = brandService;
+        _pageService = pageService;
+        _blogService = blogService;
+        _pictureService = pictureService;
+        _commonSettings = commonSettings;
+        _knowledgebaseService = knowledgebaseService;
+        _groupService = groupService;
+        _mediator = mediator;
+        _knowledgebaseSettings = knowledgebaseSettings;
+        _newsSettings = newsSettings;
+        _blogSettings = blogSettings;
+        _accessControlConfig = accessControlConfig;
+        _linkGenerator = linkGenerator;
+        _appConfig = appConfig;
+    }
+
+    public async Task<string> Handle(GetSitemapXmlCommand request, CancellationToken cancellationToken)
+    {
+        _request = request;
+        var guests = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
+        _guestGroupIds = guests != null ? [guests.Id] : [];
+        return await Generate(request.Language, request.Store);
+    }
+
+    private bool IsVisibleToGuests(IGroupLinkEntity entity)
+    {
+        return _accessControlConfig.IgnoreAcl || !entity.LimitedToGroups ||
+               entity.CustomerGroups.Any(_guestGroupIds.Contains);
+    }
+
+    private static string RemoveBom(string p)
+    {
+        var bomMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+        if (p.StartsWith(bomMarkUtf8))
+            p = p.Remove(0, bomMarkUtf8.Length);
+        return p.Replace("\0", "");
+    }
+
+    private async Task<string> Generate(Language language, Store store)
+    {
+        using var stream = new MemoryStream();
+        await Generate(stream, language, store);
+        return RemoveBom(Encoding.UTF8.GetString(stream.ToArray()));
+    }
+
+    private async Task Generate(Stream stream, Language language, Store store)
+    {
+        //generate all URLs for the sitemap
+        var sitemapUrls = await GenerateUrls(language, store);
+
+        await WriteSitemap(stream, sitemapUrls);
+    }
+
+    /// <summary>
+    ///     Get HTTP protocol
+    /// </summary>
+    /// <returns>Protocol name as string</returns>
+    private string GetHttpProtocol()
+    {
+        return GetStoreUri().Scheme;
+    }
+
+    /// <summary>
+    ///     Get HTTP protocol
+    /// </summary>
+    /// <returns>Protocol name as string</returns>
+    private HostString GetHost()
+    {
+        return new HostString(GetStoreUri().Authority);
+    }
+
+    /// <summary>
+    ///     Get store location
+    /// </summary>
+    /// <returns>Store url</returns>
+    private string GetStoreLocation()
+    {
+        return _request.Store.Url;
+    }
+
+    private Uri GetStoreUri()
+    {
+        return new Uri(_request.Store.Url);
+    }
+
+    private async Task<IList<SitemapUrl>> GenerateUrls(Language language, Store store)
+    {
+        var sitemapUrls = new List<SitemapUrl>();
+        var routeValues = !_appConfig.SeoFriendlyUrlsForLanguagesEnabled
+            ? null
+            : new { language = language.UniqueSeoCode };
+
+        //home page
+        var homePageUrl = _linkGenerator.GetUriByRouteValues("HomePage", routeValues, GetHttpProtocol(), GetHost());
+        sitemapUrls.Add(new SitemapUrl(homePageUrl, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
+
+        //search products
+        var productSearchUrl =
+            _linkGenerator.GetUriByRouteValues("ProductSearch", routeValues, GetHttpProtocol(), GetHost());
+        sitemapUrls.Add(new SitemapUrl(productSearchUrl, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
+
+        //contact us
+        var contactUsUrl = _linkGenerator.GetUriByRouteValues("ContactUs", routeValues, GetHttpProtocol(), GetHost());
+        sitemapUrls.Add(new SitemapUrl(contactUsUrl, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
+
+        //news
+        if (_newsSettings.Enabled)
+        {
+            var url = _linkGenerator.GetUriByRouteValues("NewsArchive", routeValues, GetHttpProtocol(), GetHost());
+            sitemapUrls.Add(new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
+        }
+
+        //blog
+        if (_blogSettings.Enabled)
+        {
+            var url = _linkGenerator.GetUriByRouteValues("Blog", routeValues, GetHttpProtocol(), GetHost());
+            sitemapUrls.Add(new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
+        }
+
+        //knowledge base
+        if (_knowledgebaseSettings.Enabled)
+        {
+            var url = _linkGenerator.GetUriByRouteValues("Knowledgebase", routeValues, GetHttpProtocol(), GetHost());
+            sitemapUrls.Add(new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
+        }
+
+        //categories
+        if (_commonSettings.SitemapIncludeCategories)
+        {
+            var categories = (await _categoryService.GetAllCategories(null, "", store.Id, showHidden: true))
+                .Where(c => c.Published && IsVisibleToGuests(c))
+                .ToLookup(c => c.ParentCategoryId ?? "");
+            sitemapUrls.AddRange(await GetCategoryUrls("", categories, language));
+        }
+
+        //brands
+        if (_commonSettings.SitemapIncludeBrands)
+            sitemapUrls.AddRange(await GetBrandUrls(language, store));
+
+        //products
+        if (_commonSettings.SitemapIncludeProducts)
+            sitemapUrls.AddRange(await GetProductUrls(language, store));
+
+        //topics
+        sitemapUrls.AddRange(await GetPagesUrls(language, store));
+
+        //blog posts
+        sitemapUrls.AddRange(await GetBlogPostsUrls(language, store));
+
+        //knowledge base articles
+        sitemapUrls.AddRange(await GetKnowledgebaseUrls(language, store));
+
+        //custom URLs
+        sitemapUrls.AddRange(GetCustomUrls());
+
+        return sitemapUrls;
+    }
+
+    private async Task<IEnumerable<SitemapUrl>> GetCategoryUrls(string parentCategoryId,
+        ILookup<string, Category> visibleCategories, Language language)
+    {
+        //walks down from the visible roots, so a category under a hidden parent stays out
+        var categories = new List<SitemapUrl>();
+        var storeLocation = GetStoreLocation();
+        foreach (var category in visibleCategories[parentCategoryId])
+        {
+            var url =
+                _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                    ? _linkGenerator.GetUriByRouteValues("Category",
+                        new { SeName = category.GetSeName(language.Id), language = language.UniqueSeoCode },
+                        GetHttpProtocol(), GetHost())
+                    : _linkGenerator.GetUriByRouteValues("Category", new { SeName = category.GetSeName(language.Id) },
+                        GetHttpProtocol(), GetHost());
+
+            var imageurl = string.Empty;
+            if (_commonSettings.SitemapIncludeImage)
+                if (!string.IsNullOrEmpty(category.PictureId))
+                {
+                    imageurl = await _pictureService.GetPictureUrl(category.PictureId, showDefaultPicture: false,
+                        storeLocation: storeLocation);
+                }
+
+            categories.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly,
+                category.UpdatedOnUtc ?? category.CreatedOnUtc));
+            categories.AddRange(await GetCategoryUrls(category.Id, visibleCategories, language));
+        }
+
+        return categories;
+    }
+
+    private async Task<IEnumerable<SitemapUrl>> GetBrandUrls(Language language, Store store)
+    {
+        var brands = (await _brandService.GetAllBrands(brandName: "", storeId: store.Id, showHidden: true))
+            .Where(b => b.Published && IsVisibleToGuests(b));
+        var brandUrls = new List<SitemapUrl>();
+        var storeLocation = GetStoreLocation();
+        foreach (var brand in brands)
+        {
+            var url =
+                _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                    ? _linkGenerator.GetUriByRouteValues("Brand",
+                        new { SeName = brand.GetSeName(language.Id), language = language.UniqueSeoCode },
+                        GetHttpProtocol(), GetHost())
+                    : _linkGenerator.GetUriByRouteValues("Brand", new { SeName = brand.GetSeName(language.Id) },
+                        GetHttpProtocol(), GetHost());
+
+            var imageUrl = string.Empty;
+            if (_commonSettings.SitemapIncludeImage)
+                if (!string.IsNullOrEmpty(brand.PictureId))
+                {
+                    imageUrl = await _pictureService.GetPictureUrl(brand.PictureId, showDefaultPicture: false,
+                        storeLocation: storeLocation);
+                }
+
+            brandUrls.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly,
+                brand.UpdatedOnUtc ?? brand.CreatedOnUtc));
+        }
+
+        return brandUrls;
+    }
+
+    private async Task<IEnumerable<SitemapUrl>> GetProductUrls(Language language, Store store)
+    {
+        var search = await _mediator.Send(new GetSearchProductsQuery {
+            CustomerGroupIds = _guestGroupIds,
+            StoreId = store.Id,
+            VisibleIndividuallyOnly = true,
+            OrderBy = ProductSortingEnum.CreatedOn
+        });
+        var storeLocation = GetStoreLocation();
+        var products = new List<SitemapUrl>();
+        foreach (var product in search.products)
+        {
+            var url =
+                _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                    ? _linkGenerator.GetUriByRouteValues("Product",
+                        new { SeName = product.GetSeName(language.Id), language = language.UniqueSeoCode },
+                        GetHttpProtocol(), GetHost())
+                    : _linkGenerator.GetUriByRouteValues("Product", new { SeName = product.GetSeName(language.Id) },
+                        GetHttpProtocol(), GetHost());
+
+            var imageUrl = string.Empty;
+            if (_commonSettings.SitemapIncludeImage)
+                if (!string.IsNullOrEmpty(product.ProductPictures.FirstOrDefault()?.PictureId))
+                {
+                    imageUrl = await _pictureService.GetPictureUrl(product.ProductPictures.FirstOrDefault()?.PictureId,
+                        showDefaultPicture: false, storeLocation: storeLocation);
+                }
+
+            products.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly,
+                product.UpdatedOnUtc ?? product.CreatedOnUtc));
+        }
+
+        return products;
+    }
+
+    private async Task<IEnumerable<SitemapUrl>> GetPagesUrls(Language language, Store store)
+    {
+        var now = DateTime.UtcNow;
+        return (await _pageService.GetAllPages(store.Id, ignoreAcl: true))
+            .Where(IsVisibleToGuests)
+            .PreferStoreOverrides(store.Id)
+            .Where(t => t.Published && t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
+                        (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
+            .Select(topic =>
+            {
+                var url =
+                    _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                        ? _linkGenerator.GetUriByRouteValues("Page",
+                            new { SeName = topic.GetSeName(language.Id), language = language.UniqueSeoCode },
+                            GetHttpProtocol(), GetHost())
+                        : _linkGenerator.GetUriByRouteValues("Page", new { SeName = topic.GetSeName(language.Id) },
+                            GetHttpProtocol(), GetHost());
+
+                return new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow);
+            });
+    }
+
+    private async Task<IEnumerable<SitemapUrl>> GetBlogPostsUrls(Language language, Store store)
+    {
+        var blogposts = await _blogService.GetAllBlogPosts(store.Id);
+        var blog = new List<SitemapUrl>();
+        var storeLocation = GetStoreLocation();
+        foreach (var blogpost in blogposts)
+        {
+            var url =
+                _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                    ? _linkGenerator.GetUriByRouteValues("BlogPost",
+                        new { SeName = blogpost.GetSeName(language.Id), language = language.UniqueSeoCode },
+                        GetHttpProtocol(), GetHost())
+                    : _linkGenerator.GetUriByRouteValues("BlogPost", new { SeName = blogpost.GetSeName(language.Id) },
+                        GetHttpProtocol(), GetHost());
+
+            var imageurl = string.Empty;
+            if (_commonSettings.SitemapIncludeImage)
+                if (!string.IsNullOrEmpty(blogpost.PictureId))
+                {
+                    imageurl = await _pictureService.GetPictureUrl(blogpost.PictureId, showDefaultPicture: false,
+                        storeLocation: storeLocation);
+                }
+
+            blog.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly, DateTime.UtcNow));
+        }
+
+        return blog;
+    }
+
+    private async Task<IEnumerable<SitemapUrl>> GetKnowledgebaseUrls(Language language, Store store)
+    {
+        var knowledgebasearticles =
+            await _knowledgebaseService.GetPublicKnowledgebaseArticles(store.Id, _guestGroupIds);
+
+        return knowledgebasearticles.Select(knowledgebasearticle => _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                ? _linkGenerator.GetUriByRouteValues("KnowledgebaseArticle",
+                    new { SeName = knowledgebasearticle.GetSeName(language.Id), language = language.UniqueSeoCode },
+                    GetHttpProtocol(), GetHost())
+                : _linkGenerator.GetUriByRouteValues("KnowledgebaseArticle",
+                    new { SeName = knowledgebasearticle.GetSeName(language.Id) }, GetHttpProtocol(), GetHost()))
+            .Select(url => new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow))
+            .ToList();
+    }
+
+    private IEnumerable<SitemapUrl> GetCustomUrls()
+    {
+        var storeLocation = GetStoreLocation();
+
+        return _commonSettings.SitemapCustomUrls.Select(customUrl =>
+            new SitemapUrl(string.Concat(storeLocation, customUrl), string.Empty, UpdateFrequency.Weekly,
+                DateTime.UtcNow));
+    }
+
+    private string XmlEncode(string str)
+    {
+        if (str == null)
+            return null;
+        str = Regex.Replace(str, @"[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]", "", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+        if (string.IsNullOrEmpty(str))
+            return null;
+
+        var xwSettings = new XmlWriterSettings {
+            ConformanceLevel = ConformanceLevel.Auto
+        };
+        using var sw = new StringWriter();
+        using var xwr = XmlWriter.Create(sw, xwSettings);
+        xwr.WriteString(str);
+        xwr.Flush();
+        return sw.ToString();
+    }
+
+
+    private async Task WriteSitemap(Stream stream, IList<SitemapUrl> sitemapUrls)
+    {
+        var xwSettings = new XmlWriterSettings {
+            ConformanceLevel = ConformanceLevel.Auto,
+            Indent = true,
+            IndentChars = "\t",
+            NewLineChars = "\r\n",
+            Encoding = Encoding.UTF8,
+            Async = true
+        };
+
+        await using var writer = XmlWriter.Create(stream, xwSettings);
+        await writer.WriteStartDocumentAsync();
+        writer.WriteStartElement("urlset");
+        await writer.WriteAttributeStringAsync("urlset", "xmlns", null, "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+        if (_commonSettings.SitemapIncludeImage)
+            await writer.WriteAttributeStringAsync("xmlns", "image", null,
+                "http://www.google.com/schemas/sitemap-image/1.1");
+
+        await writer.WriteAttributeStringAsync("xsi", "schemaLocation", null,
+            "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd");
+
+        foreach (var url in sitemapUrls)
+        {
+            writer.WriteStartElement("url");
+            var location = XmlEncode(url.Location);
+            writer.WriteElementString("loc", location);
+
+            if (_commonSettings.SitemapIncludeImage && !string.IsNullOrEmpty(url.Image))
+            {
+                writer.WriteStartElement("image", "image", null);
+                writer.WriteElementString("image", "loc", null, url.Image);
+                writer.WriteEndElement();
+            }
+
+            writer.WriteElementString("changefreq", url.UpdateFrequency.ToString().ToLowerInvariant());
+            writer.WriteElementString("lastmod", url.UpdatedOn.ToString(DateFormat));
+            writer.WriteEndElement();
+        }
+
+        await writer.WriteEndElementAsync();
+        await writer.FlushAsync();
+    }
+
+    /// <summary>
+    ///     Represents sitemap URL
+    /// </summary>
+    private class SitemapUrl
+    {
+        public SitemapUrl(string location, string image, UpdateFrequency frequency, DateTime updatedOn)
+        {
+            Location = location;
+            Image = image;
+            UpdateFrequency = frequency;
+            UpdatedOn = updatedOn;
+        }
+
+        /// <summary>
+        ///     Gets or sets URL of the page
+        /// </summary>
+        public string Location { get; }
+
+        /// <summary>
+        ///     Gets or sets URL of the image
+        /// </summary>
+        public string Image { get; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating how frequently the page is likely to change
+        /// </summary>
+        public UpdateFrequency UpdateFrequency { get; }
+
+        /// <summary>
+        ///     Gets or sets the date of last modification of the file
+        /// </summary>
+        public DateTime UpdatedOn { get; }
+    }
+}
+
+/// <summary>
+///     Represents a sitemap update frequency
+/// </summary>
+public enum UpdateFrequency
+{
+    /// <summary>
+    ///     Always
+    /// </summary>
+    Always,
+
+    /// <summary>
+    ///     Hourly
+    /// </summary>
+    Hourly,
+
+    /// <summary>
+    ///     Daily
+    /// </summary>
+    Daily,
+
+    /// <summary>
+    ///     Weekly
+    /// </summary>
+    Weekly,
+
+    /// <summary>
+    ///     Monthly
+    /// </summary>
+    Monthly,
+
+    /// <summary>
+    ///     Yearly
+    /// </summary>
+    Yearly,
+
+    /// <summary>
+    ///     Never
+    /// </summary>
+    Never
+}

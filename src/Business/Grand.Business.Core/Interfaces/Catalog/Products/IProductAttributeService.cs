@@ -19,10 +19,11 @@ public interface IProductAttributeService
     /// <summary>
     ///     Gets all product attributes
     /// </summary>
+    /// <param name="storeId">Store ident</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Product attributes</returns>
-    Task<IPagedList<ProductAttribute>> GetAllProductAttributes(int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<ProductAttribute>> GetAllProductAttributes(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets a product attribute

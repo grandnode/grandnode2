@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
 using Grand.Business.Messages.Services;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -12,7 +13,7 @@ using Grand.Domain.Messages;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -51,9 +52,9 @@ public class MessageProviderServiceTest
                 new List<Language> { new() { Name = "English" }, new() { Name = "Polish" } } as IList<Language>));
 
         _emailAccountServiceMock = new Mock<IEmailAccountService>();
-        _emailAccountServiceMock.Setup(x => x.GetAllEmailAccounts())
-            .Returns(Task.FromResult(
-                new List<EmailAccount> { new() { Email = "sdfsdf@mail.com" } } as IList<EmailAccount>));
+        _emailAccountServiceMock.Setup(x => x.GetAllEmailAccounts(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<EmailAccount>>(
+                new PagedList<EmailAccount>(new List<EmailAccount> { new() { Email = "sdfsdf@mail.com" } }, 0, int.MaxValue)));
 
         _messageTokenProviderMock = new Mock<IMessageTokenProvider>();
 
@@ -96,7 +97,7 @@ public class MessageProviderServiceTest
     public async Task SendOutBidCustomerNotificationMethodReturnCorrectResult()
     {
         var result = await _messageService.SendOutBidCustomerMessage(new Product(), "123", new Bid());
-        Assert.AreEqual(result, 1);
+        Assert.AreEqual(1, result);
     }
 
     [TestMethod]
@@ -104,7 +105,7 @@ public class MessageProviderServiceTest
     {
         var result = await _messageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(),
             new Store { Url = "https://localhost:44350/" }, "123");
-        Assert.AreEqual(result, 1);
+        Assert.AreEqual(1, result);
     }
 
     [TestMethod]
@@ -117,6 +118,6 @@ public class MessageProviderServiceTest
             toName: "The God",
             toEmailAddress: null);
 
-        Assert.AreEqual(result, 0);
+        Assert.AreEqual(0, result);
     }
 }

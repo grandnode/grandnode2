@@ -1,9 +1,17 @@
-﻿<div class="qq-uploader-selector qq-uploader">
+@* The Fine Uploader template behind the Picture, MultiPicture and Download editor templates.
+   Fine Uploader finds its parts by the *-selector classes and the qq-hide-dropzone attribute;
+   those stay. The layout around them - a dashed zone with one outline button - is styled as
+   .grand-uploader in _components.scss. *@
+<div class="qq-uploader-selector qq-uploader grand-uploader">
     <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
         <span>@Loc["Common.FileUploader.DropFiles"]</span>
     </div>
-    <div class="qq-upload-button-selector qq-upload-button btn yellow" style="margin: 10px 0px 10px 0px;">
-        <div>@Loc["Common.FileUploader.Upload"]</div>
+    <div class="grand-uploader__zone">
+        <i class="bi bi-cloud-arrow-up grand-uploader__icon" aria-hidden="true"></i>
+        <div class="qq-upload-button-selector qq-upload-button">
+            <div><i class="bi bi-upload" aria-hidden="true"></i> @Loc["Common.FileUploader.Upload"]</div>
+        </div>
+        <span class="grand-uploader__hint">@Loc["Common.FileUploader.DropFiles"]</span>
     </div>
     <span class="qq-drop-processing-selector qq-drop-processing">
         <span>@Loc["Common.FileUploader.Processing"]</span>

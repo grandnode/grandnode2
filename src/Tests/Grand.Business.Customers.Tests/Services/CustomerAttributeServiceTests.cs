@@ -2,8 +2,9 @@
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -23,7 +24,8 @@ public class CustomerAttributeServiceTests
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<CustomerAttribute>>();
         _mediatorMock = new Mock<IMediator>();
-        _atrService = new CustomerAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object);
+        _atrService = new CustomerAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object,
+            new AccessControlConfig());
     }
 
     [TestMethod]
@@ -90,7 +92,7 @@ public class CustomerAttributeServiceTests
     public async Task GetAllCustomerAttributes_InvokeRepositoryAndCache()
     {
         await _atrService.GetAllCustomerAttributes();
-        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<CustomerAttribute>>>>()),
+        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CustomerAttribute>>>>()),
             Times.Once);
     }
 }

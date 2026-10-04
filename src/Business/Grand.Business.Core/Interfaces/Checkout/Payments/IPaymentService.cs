@@ -42,29 +42,33 @@ public interface IPaymentService
     ///     Gets a list of country identifiers in which a certain payment method is now allowed
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
+    /// <param name="storeId">Store ident; pass "" for the global restriction</param>
     /// <returns>A list of country identifiers</returns>
-    Task<IList<string>> GetRestrictedCountryIds(IPaymentProvider paymentMethod);
+    Task<IList<string>> GetRestrictedCountryIds(IPaymentProvider paymentMethod, string storeId = "");
 
     /// <summary>
     ///     Gets a list of shipping identifiers in which a certain payment method is now allowed
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
+    /// <param name="storeId">Store ident; pass "" for the global restriction</param>
     /// <returns>A list of role identifiers</returns>
-    Task<IList<string>> GetRestrictedShippingIds(IPaymentProvider paymentMethod);
+    Task<IList<string>> GetRestrictedShippingIds(IPaymentProvider paymentMethod, string storeId = "");
 
     /// <summary>
     ///     Saves a list of country identifiers in which a certain payment method is now allowed
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <param name="countryIds">A list of country identifiers</param>
-    Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds);
+    /// <param name="storeId">Store ident; pass "" for the global restriction</param>
+    Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds, string storeId = "");
 
     /// <summary>
     ///     Saves a list of shipping identifiers in which a certain payment method is now allowed
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <param name="shippingIds">A list of shipping identifiers</param>
-    Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds);
+    /// <param name="storeId">Store ident; pass "" for the global restriction</param>
+    Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds, string storeId = "");
 
     /// <summary>
     ///     Process a payment

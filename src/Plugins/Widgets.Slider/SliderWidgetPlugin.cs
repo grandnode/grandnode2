@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
 using Grand.Domain.Common;
@@ -15,6 +16,7 @@ public class SliderWidgetPlugin(
     IPictureService pictureService,
     IRepository<PictureSlider> pictureSliderRepository,
     IPluginTranslateResource pluginTranslateResource,
+    ISlugService slugService,
     IWebHostEnvironment webHostEnvironment)
     : BasePlugin, IPlugin
 {
@@ -24,41 +26,49 @@ public class SliderWidgetPlugin(
     /// </summary>
     public override async Task Install()
     {
-        //pictures
+        //sample slides: wide photos that link to the sample store's departments, collection and marketplace;
+        //a slide is seeded only when its target page exists, so a store installed without sample data gets
+        //no slides rather than dead links and an offer it does not make
         var sampleImagesPath = Path.Combine(webHostEnvironment.ContentRootPath, "Plugins/Widgets.Slider/Assets/slider/sample-images/");
-        var byte1 = await File.ReadAllBytesAsync(sampleImagesPath + "banner1.png");
-        var byte2 = await File.ReadAllBytesAsync(sampleImagesPath + "banner2.png");
-
-        var pictureSlider1 = new PictureSlider {
-            DisplayOrder = 0,
-            Link = "",
-            Name = "Sample slider 1",
-            FullWidth = true,
-            Published = true,
-            Description =
-                "<div class=\"row slideRow justify-content-start\"><div class=\"col-lg-6 d-flex flex-column justify-content-center align-items-center\"><div><div class=\"animate-top animate__animated animate__backInDown\" >exclusive - modern - elegant</div><div class=\"animate-center-title animate__animated animate__backInLeft animate__delay-05s\">Smart watches</div><div class=\"animate-center-content animate__animated animate__backInLeft animate__delay-1s\">Go to collection and see more...</div><a href=\"/smartwatches\" class=\"animate-bottom btn btn-info animate__animated animate__backInUp animate__delay-15s\"> SHOP NOW </a></div></div></div>"
+        var slides = new[] {
+            (Name: "Slow Morning", File: "slide_slow_morning.jpg", Kicker: "The Slow Morning collection",
+                Title: "Kettle on, phone off.", Text: "Everything for an unhurried first hour of the day.",
+                Button: "Shop the collection", Url: "/slow-morning"),
+            (Name: "Outdoor and Active", File: "slide_outdoor_active.jpg", Kicker: "New department",
+                Title: "Outdoor & Active is here", Text: "Tents, trail shoes and cycling gear, with 15% off the whole department.",
+                Button: "Explore the outdoors", Url: "/outdoor-active"),
+            (Name: "Maker marketplace", File: "slide_marketplace.jpg", Kicker: "Our marketplace",
+                Title: "Made by hand", Text: "Independent makers now sell alongside our own range.",
+                Button: "Meet the makers", Url: "/nordic-craft-collective")
         };
 
-        var pic1 = await pictureService.InsertPicture(byte1, "image/png", "banner_1", reference: Reference.Widget,
-            objectId: pictureSlider1.Id, validateBinary: false);
-        pictureSlider1.PictureId = pic1.Id;
-        await pictureSliderRepository.InsertAsync(pictureSlider1);
+        var displayOrder = 0;
+        foreach (var slide in slides)
+        {
+            if (await slugService.GetBySlug(slide.Url.TrimStart('/')) == null)
+                continue;
 
+            var pictureSlider = new PictureSlider {
+                DisplayOrder = displayOrder++,
+                Link = "",
+                Name = slide.Name,
+                FullWidth = true,
+                Published = true,
+                Description =
+                    "<div class=\"row slideRow justify-content-start\"><div class=\"col-lg-6 d-flex flex-column justify-content-center align-items-center\"><div>" +
+                    $"<div class=\"animate-top animate__animated animate__backInDown\">{slide.Kicker}</div>" +
+                    $"<div class=\"animate-center-title animate__animated animate__backInLeft animate__delay-05s\">{slide.Title}</div>" +
+                    $"<div class=\"animate-center-content animate__animated animate__backInLeft animate__delay-1s\">{slide.Text}</div>" +
+                    $"<a href=\"{slide.Url}\" class=\"animate-bottom btn btn-info animate__animated animate__backInUp animate__delay-15s\">{slide.Button}</a>" +
+                    "</div></div></div>"
+            };
 
-        var pictureSlider2 = new PictureSlider {
-            DisplayOrder = 1,
-            Link = "https://grandnode.com",
-            Name = "Sample slider 2",
-            FullWidth = true,
-            Published = true,
-            Description =
-                "<div class=\"row slideRow\"><div class=\"col-md-6 offset-md-6 col-12 offset-0 d-flex flex-column justify-content-center align-items-start px-0 pr-md-3\"><div class=\"slide-title text-dark animate__animated animate__fadeInRight animate__delay-05s\"><h2 class=\"mt-0\">Redmi Note 9</h2></div><div class=\"slide-content animate__animated animate__fadeInRight animate__delay-1s\"><p class=\"mb-0\"><span>Equipped with a high-performance octa-core processor <br/> with a maximum clock frequency of 2.0 GHz.</span></p></div><div class=\"slide-price animate__animated animate__fadeInRight animate__delay-15s d-inline-flex align-items-center justify-content-start w-100 mt-2\"><p class=\"actual\">$249.00</p><p class=\"old-price\">$399.00</p></div><div class=\"slide-button animate__animated animate__fadeInRight animate__delay-2s mt-3\"><a class=\"btn btn-outline-info\" href=\"/redmi-note-9\">BUY REDMI NOTE 9</a></div></div></div>"
-        };
-        var pic2 = await pictureService.InsertPicture(byte2, "image/png", "banner_2", reference: Reference.Widget,
-            objectId: pictureSlider2.Id, validateBinary: false);
-        pictureSlider2.PictureId = pic2.Id;
-
-        await pictureSliderRepository.InsertAsync(pictureSlider2);
+            var bytes = await File.ReadAllBytesAsync(sampleImagesPath + slide.File);
+            var picture = await pictureService.InsertPicture(bytes, "image/jpeg", Path.GetFileNameWithoutExtension(slide.File),
+                reference: Reference.Widget, objectId: pictureSlider.Id, validateBinary: false);
+            pictureSlider.PictureId = picture.Id;
+            await pictureSliderRepository.InsertAsync(pictureSlider);
+        }
 
         await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.DisplayOrder", "Display order");
         await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.LimitedToGroups", "Limited to groups");

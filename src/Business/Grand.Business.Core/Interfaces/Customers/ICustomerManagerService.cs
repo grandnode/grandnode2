@@ -13,8 +13,9 @@ public interface ICustomerManagerService
     /// </summary>
     /// <param name="usernameOrEmail">Username or email</param>
     /// <param name="password">Password</param>
+    /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
     /// <returns>Result</returns>
-    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password);
+    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "");
 
     /// <summary>
     ///     Register customer
@@ -36,5 +37,6 @@ public interface ICustomerManagerService
     ///     Change password
     /// </summary>
     /// <param name="request">Request</param>
-    Task ChangePassword(ChangePasswordRequest request);
+    /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
+    Task ChangePassword(ChangePasswordRequest request, string storeId = "");
 }

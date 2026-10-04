@@ -61,6 +61,7 @@ public class FacebookAuthenticationSettingsController : BasePluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))

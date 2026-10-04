@@ -12,7 +12,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using System.Globalization;
 
 namespace Grand.Business.Catalog.Services.Prices;
@@ -374,14 +374,17 @@ public class PricingService : IPricingService
         if (appliedDiscounts.Any())
         {
 
-            var discountedQuantity = appliedDiscounts.Max(x => x.MaximumDiscountedQuantity);
-            if (appliedDiscounts.Any(x => x.MaximumDiscountedQuantity.HasValue)
-                && shoppingCartItem.Quantity > discountedQuantity.Value)
+            //only a positive cap limits the discounted quantity: 0 (what the admin form stored for an
+            //empty field) means no limit, as it does in DiscountHandlerService - not "discount no item"
+            var caps = appliedDiscounts.Where(x => x.MaximumDiscountedQuantity > 0)
+                .Select(x => x.MaximumDiscountedQuantity!.Value).ToList();
+            if (caps.Count > 0 && shoppingCartItem.Quantity > caps.Max())
             {
-                var discountedSubTotal = unitPrice * discountedQuantity.Value;
-                discountAmount *= discountedQuantity.Value;
+                var discountedQuantity = caps.Max();
+                var discountedSubTotal = unitPrice * discountedQuantity;
+                discountAmount *= discountedQuantity;
 
-                var notDiscountedQuantity = shoppingCartItem.Quantity - discountedQuantity.Value;
+                var notDiscountedQuantity = shoppingCartItem.Quantity - discountedQuantity;
                 var notDiscountedUnitPrice = await GetUnitPrice(shoppingCartItem, product, false);
                 var notDiscountedSubTotal = notDiscountedUnitPrice.unitprice * notDiscountedQuantity;
 

@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Courses;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -37,7 +37,7 @@ public class CourseLessonServiceTests
 
         //Assert
         Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test"));
-        Assert.AreEqual(0, _repository.Table.Count());
+        Assert.IsEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -55,7 +55,7 @@ public class CourseLessonServiceTests
 
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -85,7 +85,7 @@ public class CourseLessonServiceTests
         await _courseLessonService.Insert(courseLesson);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]

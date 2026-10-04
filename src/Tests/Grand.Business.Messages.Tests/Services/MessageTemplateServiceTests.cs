@@ -6,7 +6,7 @@ using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -38,7 +38,7 @@ public class MessageTemplateServiceTests
     [TestMethod]
     public void CopyMessageTemplate_NullArrguemnt_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.CopyMessageTemplate(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.CopyMessageTemplate(null));
     }
 
     [TestMethod]
@@ -54,6 +54,51 @@ public class MessageTemplateServiceTests
         Assert.AreNotEqual(template.Id, result.Id);
         //should be insert into db
         _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<MessageTemplate>()), Times.Once);
+    }
+
+    /// <summary>
+    ///     The store panel overrides a shared template by copying it for one store, which leaves two
+    ///     templates carrying one name visible to that store. The store's own copy is inserted second,
+    ///     so ordering by identifier alone sent the store's mail from the shared template.
+    /// </summary>
+    [TestMethod]
+    public async Task GetMessageTemplateByName_StoreHasItsOwnCopy_ReturnsTheCopyNotTheSharedTemplate()
+    {
+        var sharedTemplate = new MessageTemplate { Id = "id1", Name = "Name", LimitedToStores = false };
+        var storeCopy = new MessageTemplate { Id = "id2", Name = "Name", LimitedToStores = true, Stores = { "store-1" } };
+        ArrangeLookup(sharedTemplate, storeCopy);
+
+        var result = await _service.GetMessageTemplateByName("Name", "store-1");
+
+        Assert.AreEqual(storeCopy.Id, result.Id);
+    }
+
+    /// <summary>
+    ///     A store without a copy of its own keeps resolving to the shared template.
+    /// </summary>
+    [TestMethod]
+    public async Task GetMessageTemplateByName_AnotherStoreHasTheCopy_ReturnsTheSharedTemplate()
+    {
+        var sharedTemplate = new MessageTemplate { Id = "id1", Name = "Name", LimitedToStores = false };
+        var storeCopy = new MessageTemplate { Id = "id2", Name = "Name", LimitedToStores = true, Stores = { "store-1" } };
+        ArrangeLookup(sharedTemplate, storeCopy);
+
+        var result = await _service.GetMessageTemplateByName("Name", "store-2");
+
+        Assert.AreEqual(sharedTemplate.Id, result.Id);
+    }
+
+    private void ArrangeLookup(params MessageTemplate[] templates)
+    {
+        _repositoryMock.Setup(c => c.Table).Returns(templates.AsQueryable());
+        _repositoryMock
+            .Setup(c => c.ToListAsync(It.IsAny<IQueryable<MessageTemplate>>(), It.IsAny<CancellationToken>()))
+            .Returns((IQueryable<MessageTemplate> query, CancellationToken _) =>
+                Task.FromResult<IList<MessageTemplate>>(query.ToList()));
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<MessageTemplate>>>()))
+            .Returns((string _, Func<Task<MessageTemplate>> acquire) => acquire());
+        _aclService.Setup(c => c.Authorize(It.IsAny<MessageTemplate>(), It.IsAny<string>()))
+            .Returns((MessageTemplate t, string storeId) => !t.LimitedToStores || t.Stores.Contains(storeId));
     }
 
     [TestMethod]

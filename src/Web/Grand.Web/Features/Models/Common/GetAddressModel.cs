@@ -4,7 +4,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Common;
 
@@ -17,6 +17,6 @@ public class GetAddressModel : IRequest<AddressModel>
     public bool PrePopulateWithCustomerFields { get; set; }
     public Customer Customer { get; set; }
     public Language Language { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public IList<CustomAttribute> OverrideAttributes { get; set; }
 }

@@ -28,7 +28,7 @@ public interface IBlogService
     /// <param name="blogPostName">Blog post name</param>
     /// <param name="categoryId">Category id</param>
     /// <returns>Blog posts</returns>
-    Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId = "",
+    Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId,
         DateTime? dateFrom = null, DateTime? dateTo = null,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string tag = null,
         string blogPostName = "", string categoryId = "");
@@ -42,7 +42,7 @@ public interface IBlogService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Blog posts</returns>
-    Task<IPagedList<BlogPost>> GetAllBlogPostsByTag(string storeId = "",
+    Task<IPagedList<BlogPost>> GetAllBlogPostsByTag(string storeId,
         string tag = "",
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
 
@@ -122,7 +122,7 @@ public interface IBlogService
     ///     Get all blog categories
     /// </summary>
     /// <returns></returns>
-    Task<IList<BlogCategory>> GetAllBlogCategories(string storeId = "");
+    Task<IList<BlogCategory>> GetAllBlogCategories(string storeId);
 
     /// <summary>
     ///     Inserts an blog category

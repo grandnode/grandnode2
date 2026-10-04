@@ -1,0 +1,4 @@
+﻿{
+  Enabled: false,
+  AllowGuestNotifications: true
+}

@@ -1,7 +1,7 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Catalog;
 
@@ -9,6 +9,12 @@ public class GetSearchProductsQuery : IRequest<(IPagedList<Product> products, IL
     filterableSpecificationAttributeOptionIds)>
 {
     public Customer Customer { get; set; }
+
+    /// <summary>
+    ///     Customer groups the ACL filter uses instead of the groups of <see cref="Customer" />;
+    ///     lets callers without a customer (e.g. scheduled tasks) search as a given audience
+    /// </summary>
+    public IList<string> CustomerGroupIds { get; set; }
 
     public bool LoadFilterableSpecificationAttributeOptionIds { get; set; } = false;
     public int PageIndex { get; set; } = 0;

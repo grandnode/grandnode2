@@ -3,7 +3,7 @@
     @if (Model.FreeShippingNotificationEnabled && Model.IsFreeShipping)
     {
         <div class="free-shipping d-inline-flex align-items-center w-100">
-            <b-icon icon="truck" class="mr-2"></b-icon> <strong>@Loc["Products.FreeShipping"]</strong>
+            <i class="b-icon bi bi-truck me-2" aria-hidden="true"></i> <strong>@Loc["Products.FreeShipping"]</strong>
         </div>
     }
     @if (!string.IsNullOrWhiteSpace(Model.DeliveryDate))
@@ -16,13 +16,13 @@
     @if (Model.NotReturnable)
     {
         <div class="d-inline-flex align-items-center w-100">
-            <b-icon icon="truck" class="mr-2"></b-icon> @Loc["Products.NotReturnable"]
+            <i class="b-icon bi bi-truck me-2" aria-hidden="true"></i> @Loc["Products.NotReturnable"]
         </div>
     }
     @if (Model.AdditionalShippingCharge > 0 && !Model.IsFreeShipping)
     {
         <div class="additional-shipping-charge btn btn-sm btn-secondary">
-            <b-icon icon="truck" class="mr-2"></b-icon>
+            <i class="b-icon bi bi-truck me-2" aria-hidden="true"></i>
             <span class="label">@Loc["Products.AdditionalShippingCharge"]</span>
             <span class="value">@Model.AdditionalShippingChargeStr</span>
         </div>

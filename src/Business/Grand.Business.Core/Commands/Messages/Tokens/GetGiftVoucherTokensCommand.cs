@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Messages.Tokens;
 

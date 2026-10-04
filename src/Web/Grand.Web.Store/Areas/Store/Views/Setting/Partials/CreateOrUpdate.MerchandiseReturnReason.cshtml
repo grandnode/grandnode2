@@ -1,0 +1,25 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model MerchandiseReturnReasonModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
+}
+
+@* the name in every language, then where it sits in the list the customer picks from *@
+<admin-card>
+    <localized-editor localized-template="@template" name="merchandisereturnreason-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+        </div>
+    </localized-editor>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+    </div>
+</admin-card>

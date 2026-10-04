@@ -1,6 +1,7 @@
 using Grand.Domain;
-using MongoDB.Bson;
+using Grand.SharedKernel;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System.Linq.Expressions;
 
 namespace Grand.Data.Mongo;
@@ -48,7 +49,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             Collection = Database.GetCollection<T>(typeof(T).Name);
         }
     }
-    
+
     public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider)
     {
         Database = database;
@@ -98,7 +99,15 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        Collection.InsertOne(entity);
+        try
+        {
+            Collection.InsertOne(entity);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            throw DuplicateKey(ex);
+        }
+
         return entity;
     }
 
@@ -110,8 +119,26 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        await Collection.InsertOneAsync(entity);
+        try
+        {
+            await Collection.InsertOneAsync(entity);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            throw DuplicateKey(ex);
+        }
+
         return entity;
+    }
+
+    /// <summary>
+    ///     Translates a driver duplicate key error into a store independent exception
+    /// </summary>
+    /// <param name="exception">Driver exception</param>
+    private static DuplicateKeyGrandException DuplicateKey(MongoWriteException exception)
+    {
+        return new DuplicateKeyGrandException(
+            $"Insert into {typeof(T).Name} rejected - it violates a unique index", exception);
     }
 
     /// <summary>
@@ -178,16 +205,16 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Updates a single entity.
     /// </summary>
-    /// <param name="filterExpression"></param>
+    /// <param name="filterexpression"></param>
     /// <param name="updateBuilder"></param>
     /// <returns></returns>
-    public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterExpression,
+    public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression,
         UpdateBuilder<T> updateBuilder)
     {
         updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        await Collection.UpdateOneAsync(filterExpression, update);
+        await Collection.UpdateOneAsync(filterexpression, update);
     }
 
     /// <summary>
@@ -196,13 +223,13 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="filterExpression"></param>
     /// <param name="updateBuilder"></param>
     /// <returns></returns>
-    public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterExpression,
+    public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression,
         UpdateBuilder<T> updateBuilder)
     {
         updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        await Collection.UpdateManyAsync(filterExpression, update);
+        await Collection.UpdateManyAsync(filterexpression, update);
     }
 
     /// <summary>
@@ -213,7 +240,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="field"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public virtual async Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
+    public virtual async Task AddToCollectionField<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
     {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
@@ -229,37 +256,11 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     ///     Update subdocument
     /// </summary>
     /// <typeparam name="U">Document</typeparam>
-    /// <typeparam name="Z">Subdocuments</typeparam>
     /// <param name="id">Ident of entitie</param>
     /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="elemMatch">Subdocument ident value</param>
+    /// <param name="elemFieldMatch">Subdocument predicate to match</param>
     /// <param name="value">Subdocument - to update (all values)</param>
-    public virtual async Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
-    {
-        var filter = Builders<T>.Filter.Eq(x => x.Id, id)
-                     & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
-
-        var me = (MemberExpression)field.Body;
-        var minfo = me.Member;
-        var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        await Collection.UpdateOneAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
-    ///     Update subdocument
-    /// </summary>
-    /// <typeparam name="U">Document</typeparam>
-    /// <param name="id">Ident of entitie</param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+    public virtual async Task UpdateCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, bool>> elemFieldMatch, U value)
     {
         var filter = string.IsNullOrEmpty(id)
@@ -281,49 +282,25 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <summary>
-    ///     Update subdocuments
-    /// </summary>
-    /// <typeparam name="T">Document</typeparam>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    /// <returns></returns>
-    public virtual async Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
-    {
-        var me = (MemberExpression)field.Body;
-        var minfo = me.Member;
-
-        var filter = new BsonDocument {
-            new BsonElement(minfo.Name, elemFieldMatch.ToString())
-        };
-
-        var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        await Collection.UpdateManyAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
     ///     Delete subdocument
     /// </summary>
     /// <typeparam name="U"></typeparam>
-    /// <typeparam name="Z"></typeparam>
     /// <param name="id"></param>
     /// <param name="field"></param>
     /// <param name="elemFieldMatch"></param>
-    /// <param name="elemMatch"></param>
     /// <returns></returns>
-    public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
+    public virtual async Task RemoveCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+        Expression<Func<U, bool>> elemFieldMatch)
     {
+        // Without an id the pull applies to every document holding a matching element (removing a deleted
+        // tag/discount/category from all that reference it); with one, to that document. Either way only a
+        // document holding a match is matched: one with nothing to pull must not be written, or the audit
+        // stamp below would mark it as updated - the LiteDB implementation skips it the same way.
+        var holdsMatch = Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
         var filter = string.IsNullOrEmpty(id)
-            ? Builders<T>.Filter.Where(x => true)
-            : Builders<T>.Filter.Eq(x => x.Id, id);
-        var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+            ? holdsMatch
+            : Builders<T>.Filter.And(Builders<T>.Filter.Eq(x => x.Id, id), holdsMatch);
+        var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
 
         var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
@@ -333,48 +310,6 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             await Collection.UpdateManyAsync(filter, combinedUpdate);
         else
             await Collection.UpdateOneAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch"></param>
-    /// <returns></returns>
-    public virtual async Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, bool>> elemFieldMatch)
-    {
-        var filter = Builders<T>.Filter.Eq(x => x.Id, id);
-        var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
-
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        await Collection.UpdateOneAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
-    {
-        var update = Builders<T>.Update.Pull(field, element);
-
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        if (string.IsNullOrEmpty(id))
-            await Collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate);
-        else
-            await Collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
     }
 
     /// <summary>
@@ -438,6 +373,72 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual IQueryable<C> TableCollection<C>() where C : class
     {
         return Database.GetCollection<C>(typeof(T).Name).AsQueryable();
+    }
+
+    #endregion
+
+    #region Query execution
+
+    /// <summary>
+    ///     Executes the query and returns its results
+    /// </summary>
+    public virtual async Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns the number of matching documents
+    /// </summary>
+    public virtual async Task<int> CountAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns its first result, or the default value when nothing matches
+    /// </summary>
+    public virtual async Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns whether any document matches it
+    /// </summary>
+    public virtual async Task<bool> AnyAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns a single page of its results
+    /// </summary>
+    public virtual async Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,
+        int pageSize, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        //keep the same normalization the paged list applies, so the skip matches the reported page size
+        if (pageSize <= 0)
+            pageSize = 1;
+
+        var totalCount = await CountAsync(query, cancellationToken);
+        var items = await ToListAsync(query.Skip(pageIndex * pageSize).Take(pageSize), cancellationToken);
+
+        return new PagedList<TResult>(items, pageIndex, pageSize, totalCount);
     }
 
     #endregion

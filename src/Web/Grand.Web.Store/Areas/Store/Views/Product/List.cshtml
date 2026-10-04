@@ -1,0 +1,135 @@
+﻿@model ProductListModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Products.Manage"];
+}
+@* The store owner's copy of the product list, on the same component layer as the Admin one
+   (Admin/Views/Product/List.cshtml). A store owner has no export, import or bulk delete and no
+   store or vendor filter, so the header holds only Add new and the grid has no bulk bar.
+   The ids the scripts below look up are unchanged. *@
+<form asp-area="@Constants.AreaStore" asp-controller="Product" asp-action="List" method="post">
+    <admin-page title="@Loc["Admin.Catalog.Products.Manage"]" icon="bi-boxes">
+        <page-actions>
+            <vc:admin-widget widget-zone="product_list_buttons" additional-data="null"/>
+            <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+            </a>
+        </page-actions>
+
+        <admin-filters id="product-filters" submit-id="search-products">
+            <filters-search>
+                <admin-input asp-for="SearchProductName"/>
+            </filters-search>
+            <admin-field asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
+            <admin-field asp-for="SearchPublishedId" asp-items="Model.AvailablePublishedOptions"/>
+            <admin-field asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
+            <admin-field asp-for="SearchCategoryId"/>
+            <admin-field asp-for="SearchIncludeSubCategories"/>
+            <admin-field asp-for="SearchBrandId"/>
+            <admin-field asp-for="SearchCollectionId"/>
+            <admin-field asp-for="GoDirectlyToSku">
+                <div class="input-group">
+                    <admin-input asp-for="GoDirectlyToSku"/>
+                    <input type="submit" id="go-to-product-by-sku" asp-action="GoToSku" name="go-to-product-by-sku"
+                           class="btn btn-outline-secondary" value="@Loc["Admin.Common.Go"]"/>
+                </div>
+            </admin-field>
+        </admin-filters>
+
+        <admin-card flush>
+            <admin-grid id="products-grid"
+                        read-url="@Url.Action("ProductList", "Product", new { area = Constants.AreaStore })"
+                        additional-data="additionalData"
+                        selectable="Checkbox"
+                        on-change="onProductsSelectionChange">
+                <grid-text name="published" value="@Loc["Admin.Catalog.Products.Fields.Published"]"/>
+                <grid-text name="unpublished" value="@Loc["Admin.Catalog.Products.Fields.Published.Unpublished"]"/>
+                <grid-column field="PictureThumbnailUrl" title="@Loc["Admin.Catalog.Products.Fields.PictureThumbnailUrl"]" width="92">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}"><img src="{{ PictureThumbnailUrl }}" alt=""/></a>
+                    </cell-template>
+                </grid-column>
+                @* the name carries what identifies the row underneath it, so the SKU needs no
+                   column of its own *@
+                <grid-column field="Name" title="@Loc["Admin.Catalog.Products.Fields.Name"]" width="320">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">
+                            <div class="grand-cell-title">{{ Name }}</div>
+                        </a>
+                        <div class="grand-cell-sub" data-if="Sku">{{ Sku }}</div>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Price" title="@Loc["Admin.Catalog.Products.Fields.Price"]" width="100" align="Right">
+                    <cell-template>
+                        @*grouped products have no price of their own*@
+                        <span data-if="ProductTypeId != @((int)ProductType.GroupedProduct)">{{ Price }}</span>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="StockQuantityStr" title="@Loc["Admin.Catalog.Products.Fields.StockQuantity"]" width="80" align="Right" min-screen-width="750"/>
+                <grid-column field="ProductTypeName" title="@Loc["Admin.Catalog.Products.Fields.ProductType"]" width="100" align="Center" min-screen-width="1050"/>
+                <grid-column field="BrandName" title="@Loc["Admin.Catalog.Products.Fields.Brand"]" width="140" min-screen-width="1250"/>
+                @* the first category the product is mapped to; a product in none shows nothing *@
+                <grid-column field="CategoryName" title="@Loc["Admin.Catalog.Products.Categories.Fields.Category"]" width="150" min-screen-width="1400"/>
+                @* a state is a word, not a tick *@
+                <grid-column field="Published" title="@Loc["Admin.Catalog.Products.Fields.Published"]" width="110" align="Center">
+                    <cell-template>
+                        <span data-if="Published" class="grand-chip grand-chip--green">{{ $texts.published }}</span>
+                        <span data-else class="grand-chip grand-chip--red">{{ $texts.unpublished }}</span>
+                    </cell-template>
+                </grid-column>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
+
+    <script>
+
+        var selectedIds = [];
+
+        function onProductsSelectionChange(e) {
+            selectedIds = e.selectedIds;
+        }
+
+        $(document).ready(function () {
+
+            //search button
+            $('#search-products').click(function () {
+                //search
+                var grid = GrandAdmin.grids.get('#products-grid');
+                grid.dataSource.page(1);
+                GrandAdmin.grids.get('#products-grid').clearSelection();
+                return false;
+            });
+
+            $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#search-products").click();
+                    return false;
+                }
+            });
+            $("#@Html.IdFor(model => model.GoDirectlyToSku)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#go-to-product-by-sku").click();
+                    return false;
+                }
+            });
+
+        });
+
+        function additionalData() {
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchIncludeSubCategories: $('#@Html.IdFor(model => model.SearchIncludeSubCategories)').is(':checked'),
+                SearchBrandId: $('#SearchBrandId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),                
+                SearchWarehouseId: $('#SearchWarehouseId').val(),
+                SearchProductTypeId: $('#SearchProductTypeId').val(),
+                SearchPublishedId: $('#SearchPublishedId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+
+    </script>
+</form>

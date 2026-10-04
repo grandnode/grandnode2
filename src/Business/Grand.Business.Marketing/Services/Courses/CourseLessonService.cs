@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Courses;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Courses;
 
@@ -35,7 +35,7 @@ public class CourseLessonService : ICourseLessonService
             where c.CourseId == courseId
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _courseLessonRepository.ToListAsync(query);
     }
 
     public virtual Task<CourseLesson> GetById(string id)

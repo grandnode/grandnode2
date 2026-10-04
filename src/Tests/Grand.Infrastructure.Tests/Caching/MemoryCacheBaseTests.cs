@@ -1,6 +1,7 @@
 ﻿using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Infrastructure.Events;
+using Grand.Mediator;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,28 +34,28 @@ public class MemoryCacheBaseTests
     public void GetTest()
     {
         var result = _service.Get("key", () => { return "test"; });
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]
     public void GetTest_CacheTimeMinutes()
     {
         var result = _service.Get("key", () => { return "test"; }, 1);
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]
     public async Task GetAsyncTest()
     {
         var result = await _service.GetAsync("key", () => { return Task.FromResult("test"); });
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]
     public async Task GetAsyncTest_CacheTimeMinutes()
     {
         var result = await _service.GetAsync("key", () => { return Task.FromResult("test"); }, 1);
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]
@@ -138,5 +139,98 @@ public class MemoryCacheBaseTests
         var cacheResult = _memoryCache.Get(key);
         Assert.IsNotNull(cacheResult);
         Assert.AreEqual(cacheEntry, cacheResult);
+    }
+
+    [TestMethod]
+    public async Task RemoveAsync_AwaitsTheNotification()
+    {
+        _mediatorMock
+            .Setup(x => x.Publish(It.IsAny<EntityCacheEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("handler failed"));
+
+        //a fire-and-forget Publish would swallow this
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.RemoveAsync("key"));
+    }
+
+    [TestMethod]
+    public async Task RemoveByPrefix_AwaitsTheNotification()
+    {
+        _mediatorMock
+            .Setup(x => x.Publish(It.IsAny<EntityCacheEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("handler failed"));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.RemoveByPrefix("key"));
+    }
+
+    /// <summary>
+    ///     Guards against disposing the reset token in <see cref="MemoryCacheBase.Clear" />.
+    /// </summary>
+    /// <remarks>
+    ///     A writer reads the token source, then MemoryCache registers an eviction callback on it while
+    ///     storing the entry. Disposing the previous source in Clear makes that registration throw
+    ///     ObjectDisposedException, and swapping the field first only narrows the window rather than
+    ///     closing it. The assertion only fires on an exception actually raised by the race, so this
+    ///     cannot fail spuriously - it can only miss.
+    /// </remarks>
+    [TestMethod]
+    [Timeout(60000)]
+    [DoNotParallelize]
+    public void Clear_WhileEntriesAreBeingWritten_DoesNotThrow()
+    {
+        Exception captured = null;
+        var stopWriting = false;
+
+        var writer = Task.Run(async () =>
+        {
+            var i = 0;
+            while (!stopWriting)
+                try
+                {
+                    await _service.SetAsync($"race-{i++}", () => Task.FromResult("value"));
+                }
+                catch (Exception ex)
+                {
+                    captured ??= ex;
+                    return;
+                }
+        });
+
+        for (var i = 0; i < 5000 && captured == null; i++) _service.Clear(false).GetAwaiter().GetResult();
+
+        stopWriting = true;
+        writer.Wait(TimeSpan.FromSeconds(5));
+
+        Assert.IsNull(captured, $"Clear raced a concurrent write: {captured}");
+    }
+
+    [TestMethod]
+    public async Task Dispose_OneInstance_DoesNotBreakAnotherInstance()
+    {
+        using var serviceProvider = new ServiceCollection()
+            .AddMemoryCache()
+            .BuildServiceProvider();
+        var firstCache = serviceProvider.GetRequiredService<IMemoryCache>();
+        var secondCache = serviceProvider.GetRequiredService<IMemoryCache>();
+        var first = new MemoryCacheBase(firstCache, new Mock<IMediator>().Object, _config);
+        var second = new MemoryCacheBase(secondCache, new Mock<IMediator>().Object, _config);
+
+        first.Dispose();
+
+        var result = await second.GetAsync("key", () => Task.FromResult("value"));
+
+        Assert.AreEqual("value", result);
+    }
+
+    [TestMethod]
+    public void Dispose_CalledTwice_DoesNotThrow()
+    {
+        using var serviceProvider = new ServiceCollection()
+            .AddMemoryCache()
+            .BuildServiceProvider();
+        var cacheManager = new MemoryCacheBase(serviceProvider.GetRequiredService<IMemoryCache>(),
+            new Mock<IMediator>().Object, _config);
+
+        cacheManager.Dispose();
+        cacheManager.Dispose();
     }
 }

@@ -3,7 +3,7 @@ using Grand.Domain.Documents;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
-using MediatR;
+using Grand.Mediator;
 using Document = Grand.Web.Models.Customer.Document;
 
 namespace Grand.Web.Features.Handlers.Customers;

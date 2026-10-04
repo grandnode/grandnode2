@@ -21,7 +21,7 @@ using Grand.Web.Common.Themes;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -261,17 +261,18 @@ public class CommonController : BasePublicController
                     await _mediator.Publish(new ChangeStoreEvent(_contextAccessor.WorkContext.CurrentCustomer, selectedstore));
 
                     if (selectedstore.Url != _contextAccessor.StoreContext.CurrentStore.Url)
-                        return Redirect(selectedstore.SslEnabled ? selectedstore.SecureUrl : selectedstore.Url);
+                        return Redirect(selectedstore.Url);
                 }
             }
 
         //prevent open redirection attack
-        if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
+        var redirectUrl = Url.RouteUrl("HomePage");
+        if (Url.IsLocalUrl(returnUrl))
+            redirectUrl = returnUrl;
 
-        return Redirect(returnUrl);
+        return Redirect(redirectUrl);
 
-        void SetStoreCookie(Store store)
+        void SetStoreCookie(Domain.Stores.Store store)
         {
             if (store == null)
                 return;

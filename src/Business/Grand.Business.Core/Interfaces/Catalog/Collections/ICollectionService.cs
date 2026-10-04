@@ -17,8 +17,8 @@ public interface ICollectionService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Collections</returns>
-    Task<IPagedList<Collection>> GetAllCollections(string collectionName = "",
-        string storeId = "",
+    Task<IPagedList<Collection>> GetAllCollections(string collectionName,
+        string storeId,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
         bool showHidden = false);

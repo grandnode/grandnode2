@@ -1,0 +1,115 @@
+@using Grand.Domain.Media
+@model MerchandiseReturnModel
+@{
+    ViewData["DownloadType"] = DownloadType.MerchandiseReturn;
+    ViewData["ReferenceId"] = Model.Id;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<div class="grand-card">
+    <partial name="Partials/WidgetZone.Notes.Top" model="Model"/>
+    <div class="grand-card__body grand-card__body--flush">
+        <admin-grid id="merchandisereturnnotes-grid"
+                    read-url="@Url.Action("MerchandiseReturnNotesSelect", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("MerchandiseReturnNoteDelete", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = area })"
+                    pager="Compact">
+            <grid-text name="link" value="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link"]"/>
+            <grid-text name="no" value="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link.No"]"/>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedOn"]" width="180" format="{0:G}"/>
+            <grid-column field="Note" title="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Note"]" width="350"/>
+            <grid-column field="DownloadId" title="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download"]" width="100">
+                <cell-template>
+                    <a data-if="DownloadId != ''" href="@Url.Action("DownloadFile", "Download", new { area = area })/?downloadGuid={{ DownloadGuid }}">{{ $texts.link }}</a>
+                    <span data-else>{{ $texts.no }}</span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedByCustomer" title="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedByCustomer"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="CreatedByCustomer" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayToCustomer" title="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.DisplayToCustomer"]" width="100" align="Center">
+                <cell-template>
+                    <i data-if="DisplayToCustomer" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+        </admin-grid>
+    </div>
+    <partial name="Partials/WidgetZone.Notes.Bottom" model="Model"/>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteHasDownload)").change(toggleAddMerchandiseReturnNoteHasDownload);
+        toggleAddMerchandiseReturnNoteHasDownload();
+    });
+    function toggleAddMerchandiseReturnNoteHasDownload() {
+        if ($('#@Html.IdFor(model => model.AddMerchandiseReturnNoteHasDownload)').is(':checked')) {
+            $('#pnlAddMerchandiseReturnNoteDownloadId').show();
+        }
+        else {
+            $('#pnlAddMerchandiseReturnNoteDownloadId').hide();
+        }
+    }
+
+</script>
+
+<admin-card title="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddTitle"]">
+    <div class="grand-fields">
+        <admin-field asp-for="AddMerchandiseReturnNoteMessage">
+            <admin-textarea asp-for="AddMerchandiseReturnNoteMessage"></admin-textarea>
+        </admin-field>
+        <admin-field asp-for="AddMerchandiseReturnNoteHasDownload" asp-label-for="AddMerchandiseReturnNoteDownloadId"/>
+        <div id="pnlAddMerchandiseReturnNoteDownloadId">
+            <admin-input asp-for="AddMerchandiseReturnNoteDownloadId"/>
+            <span asp-validation-for="AddMerchandiseReturnNoteDownloadId"></span>
+        </div>
+        <admin-field asp-for="AddMerchandiseReturnNoteDisplayToCustomer"/>
+    </div>
+    <div class="mt-3">
+        <button type="button" id="addMerchandiseReturnNote" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddButton"]</button>
+    </div>
+</admin-card>
+
+<script>
+    $(document).ready(function () {
+        $('#addMerchandiseReturnNote').click(function () {
+            var merchandisereturnNoteMessage = $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteMessage)").val();
+            if (merchandisereturnNoteMessage.length == 0) {
+                alert('Message text is required');
+                return;
+            }
+            var merchandisereturnNoteDownloadId = '';
+            if ($('#@Html.IdFor(model => model.AddMerchandiseReturnNoteHasDownload)').is(':checked')) {
+                merchandisereturnNoteDownloadId = $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteDownloadId)").val();
+            }
+            var merchandisereturnNoteDisplayToCustomer = $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteDisplayToCustomer)").is(':checked');
+            $('#addMerchandiseReturnNote').attr('disabled', true);
+            var postData = {
+                DisplayToCustomer: merchandisereturnNoteDisplayToCustomer,
+                message: merchandisereturnNoteMessage,
+                downloadId: merchandisereturnNoteDownloadId,
+                merchandisereturnId: '@Model.Id'
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache:false,
+                type: "POST",
+                url: "@(Url.Action("MerchandiseReturnNoteAdd", "MerchandiseReturn", new { area = area }))",
+                data: postData,
+                success: function (data) {
+                    var grid = GrandAdmin.grids.get("#merchandisereturnnotes-grid");
+                    grid.dataSource.read();
+                    $('#addMerchandiseReturnNote').attr('disabled', false);
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                    alert('Failed to add merchandise return note.');
+                    $('#addMerchandiseReturnNote').attr('disabled', false);
+                }
+            });
+        });
+    });
+</script>

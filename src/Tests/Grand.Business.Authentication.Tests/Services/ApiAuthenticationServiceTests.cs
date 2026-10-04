@@ -47,7 +47,7 @@ public class ApiAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         var result = await _jwtBearerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerAuthenticationService.ErrorMessage(), "Email not exists in the context");
+        Assert.AreEqual("Email not exists in the context", await _jwtBearerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]
@@ -62,8 +62,8 @@ public class ApiAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         var result = await _jwtBearerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerAuthenticationService.ErrorMessage(),
-            "Wrong token, change password on the customer and create token again");
+        Assert.AreEqual("Wrong token, change password on the customer and create token again",
+            await _jwtBearerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]
@@ -81,8 +81,8 @@ public class ApiAuthenticationServiceTests
             .Returns(() => Task.FromResult<Customer>(null));
         var result = await _jwtBearerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerAuthenticationService.ErrorMessage(),
-            "Email not exists/or not active in the customer table");
+        Assert.AreEqual("Email not exists/or not active in the customer table",
+            await _jwtBearerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]
@@ -100,8 +100,8 @@ public class ApiAuthenticationServiceTests
             .Returns(() => Task.FromResult(new Customer { Active = false }));
         var result = await _jwtBearerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerAuthenticationService.ErrorMessage(),
-            "Email not exists/or not active in the customer table");
+        Assert.AreEqual("Email not exists/or not active in the customer table",
+            await _jwtBearerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]

@@ -1,10 +1,10 @@
-using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Brands;
 
@@ -53,7 +53,7 @@ public class BrandLayoutService : IBrandLayoutService
             var query = from pt in _brandLayoutRepository.Table
                 orderby pt.DisplayOrder
                 select pt;
-            return await Task.FromResult(query.ToList());
+            return await _brandLayoutRepository.ToListAsync(query);
         });
     }
 

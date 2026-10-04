@@ -1,11 +1,11 @@
-using Grand.Business.Core.Commands.Catalog;
+﻿using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Products;
 
@@ -58,7 +58,7 @@ public class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
 
         query = query.OrderByDescending(x => x.CreatedOnUtc);
 
-        return await PagedList<OutOfStockSubscription>.Create(query, pageIndex, pageSize);
+        return await _outOfStockSubscriptionRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 
@@ -82,7 +82,7 @@ public class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
                   biss.WarehouseId == warehouseId
             select biss;
 
-        var outOfStockSubscriptionlist = await Task.FromResult(query.ToList());
+        var outOfStockSubscriptionlist = await _outOfStockSubscriptionRepository.ToListAsync(query);
         if (attributes != null && attributes.Any())
             outOfStockSubscriptionlist = outOfStockSubscriptionlist.Where(x =>
                 x.Attributes.All(y => attributes.Any(z => z.Key == y.Key && z.Value == y.Value))).ToList();

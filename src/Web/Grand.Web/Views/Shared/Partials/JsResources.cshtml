@@ -1,0 +1,30 @@
+@*
+    Localized strings and route URLs the storefront scripts need at runtime.
+
+    They live here instead of being interpolated into an inline JS string at
+    every call site - that pattern meant the same resource was re-emitted dozens
+    of times per page and made the markup unreadable. Consumed by the
+    [data-cart-action] handler in vueapp/src/theme/axios-cart.js and by the
+    validation compat layer in vueapp/src/compat/validate.js.
+
+    `validation` holds the fallbacks the validator falls back to when a field
+    carries no message of its own. They belong here rather than in the bundle so
+    a store running in another language gets them in that language.
+*@
+<script type="application/json" data-grand-vm="jsResources">@Json.Serialize(new {
+                                                                res = new {
+                                                                    compareAddedLink = Loc["Products.ProductHasBeenAddedToCompareList.Link"].ToString()
+                                                                },
+                                                                routes = new {
+                                                                    compareProducts = Url.RouteUrl("CompareProducts")
+                                                                },
+                                                                validation = new {
+                                                                    required = Loc["validation.required"].ToString(),
+                                                                    email = Loc["validation.email"].ToString(),
+                                                                    confirmed = Loc["validation.confirmed"].ToString(),
+                                                                    minlength = Loc["validation.minlength"].ToString(),
+                                                                    maxlength = Loc["validation.maxlength"].ToString(),
+                                                                    exactlength = Loc["validation.exactlength"].ToString(),
+                                                                    invalid = Loc["validation.invalid"].ToString()
+                                                                }
+                                                            })</script>

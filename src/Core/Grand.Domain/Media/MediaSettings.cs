@@ -28,7 +28,12 @@ public class MediaSettings : ISettings
 
     public int MaximumImageSize { get; set; }
 
-    public int ImageQuality { get; set; } = 100;
+    /// <summary>
+    ///     Encoder quality for resized pictures and WebP conversion; lossy formats only (JPEG, WebP),
+    ///     PNG ignores it. 80 is visually indistinguishable from 100 at thumbnail sizes and makes
+    ///     the files three to four times smaller.
+    /// </summary>
+    public int ImageQuality { get; set; } = 80;
 
     public string AllowedFileTypes { get; set; }
 

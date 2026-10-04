@@ -1,0 +1,16 @@
+@model ProductModel
+<partial name="Partials/WidgetZone.Additional.Top" model="Model"/>
+
+@* A card per group, which is what the four form-horizontal blocks already were - each one is
+   shown or hidden as a whole by the script in CreateOrUpdate.Info.cshtml, so group-order,
+   group-giftvoucher, group-recurring and group-required-other-products keep their ids, as do
+   the panels inside them. Inside a card the switch comes first and what it reveals sits in a
+   .grand-reveal body right under it. Each card is a partial of its own: the bulk-edit popup
+   (EditPopup) gives each one a tab instead of stacking them here. *@
+<partial name="Partials/Additional.Order" model="Model"/>
+<partial name="Partials/Additional.GiftVoucher" model="Model"/>
+<partial name="Partials/Additional.Downloads" model="Model"/>
+<partial name="Partials/Additional.Recurring" model="Model"/>
+<partial name="Partials/Additional.RequiredProducts" model="Model"/>
+
+<partial name="Partials/WidgetZone.Additional.Bottom" model="Model"/>

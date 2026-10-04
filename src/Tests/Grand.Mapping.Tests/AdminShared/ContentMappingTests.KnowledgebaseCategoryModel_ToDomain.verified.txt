@@ -1,0 +1,15 @@
+﻿{
+  DisplayOrder: 1,
+  Description: Frequently asked questions,
+  Published: true,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Name: FAQ,
+  Id: ObjectId_1
+}

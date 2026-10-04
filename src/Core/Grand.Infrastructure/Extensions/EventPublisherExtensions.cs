@@ -1,6 +1,6 @@
 ﻿using Grand.Domain;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Infrastructure.Extensions;
 

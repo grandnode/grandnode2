@@ -18,10 +18,11 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
@@ -136,7 +137,6 @@ public class ProductController : BasePublicController
     #region Email a friend
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductEmailAFriend(ProductEmailAFriendModel model)
     {
@@ -180,7 +180,6 @@ public class ProductController : BasePublicController
     #region Ask question
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model)
     {
@@ -293,7 +292,10 @@ public class ProductController : BasePublicController
             return NotFound();
 
         //availability dates
-        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
+        //Check whether the current user has a "Manage catalog" permission
+        //It allows him to preview a product outside its availability window
+        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction &&
+            !await _permissionService.Authorize(StandardPermission.ManageProducts, customer))
             return NotFound();
 
         //visible individually?
@@ -355,6 +357,7 @@ public class ProductController : BasePublicController
             sku = modelProduct.Sku,
             price = modelProduct.Price,
             stockAvailability = modelProduct.StockAvailability,
+            availability = modelProduct.Availability.ToSchemaOrgUrl(),
             outOfStockSubscription = modelProduct.DisplayOutOfStockSubscription,
             buttonTextOutOfStockSubscription = modelProduct.ButtonTextOutOfStockSubscription,
             enabledattributemappingids = modelProduct.EnabledAttributeMappingIds.ToArray(),
@@ -374,9 +377,10 @@ public class ProductController : BasePublicController
         if (product == null)
             return new JsonResult("");
 
-        var stock = stockQuantityService.FormatStockMessage(product, model.WarehouseId, new List<CustomAttribute>());
+        var stock = stockQuantityService.GetStockStatus(product, model.WarehouseId, new List<CustomAttribute>());
         return Json(new {
-            stockAvailability = string.Format(_translationService.GetResource(stock.resource), stock.arg0)
+            stockAvailability = string.Format(_translationService.GetResource(stock.Resource), stock.Arg0),
+            availability = stock.Availability.ToSchemaOrgUrl()
         });
     }
 
@@ -407,23 +411,20 @@ public class ProductController : BasePublicController
         var contentType = file.ContentType;
         var fileExtension = Path.GetExtension(fileName);
 
-        if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
-        {
-            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.Split([','], StringSplitOptions.RemoveEmptyEntries);
-            if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
-                return Json(new {
-                    success = false,
-                    message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                    downloadGuid = Guid.Empty
-                });
-        }
-        var fileBinary = file.GetDownloadBits();
+        //empty configuration must not mean "any extension allowed" - fall back to the safe default allow-list
+        var allowedFileExtensions = FileExtensions.GetAllowedMediaFileTypes(attribute.ValidationFileAllowedExtensions);
+        if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
+            return Json(new {
+                success = false,
+                message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
+                downloadGuid = Guid.Empty
+            });
 
         if (attribute.ValidationFileMaximumSize.HasValue)
         {
-            //compare in bytes
-            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024;
-            if (fileBinary.Length > maxFileSizeBytes)
+            //compare in bytes - check the size reported by the multipart headers before buffering the file into memory
+            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024L;
+            if (file.Length > maxFileSizeBytes)
                 //when returning JSON the mime-type must be set to text/plain
                 //otherwise some browsers will pop-up a "Save As" dialog.
                 return Json(new {
@@ -433,6 +434,8 @@ public class ProductController : BasePublicController
                     downloadGuid = Guid.Empty
                 });
         }
+
+        var fileBinary = file.GetDownloadBits();
 
         var download = new Download {
             DownloadGuid = Guid.NewGuid(),
@@ -497,7 +500,10 @@ public class ProductController : BasePublicController
             });
 
         //availability dates
-        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
+        //Check whether the current user has a "Manage catalog" permission
+        //It allows him to preview a product outside its availability window
+        if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction &&
+            !await _permissionService.Authorize(StandardPermission.ManageProducts, customer))
             return Json(new {
                 success = false,
                 message = "No product found with the specified ID"
@@ -549,7 +555,6 @@ public class ProductController : BasePublicController
     #region Product reviews
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductReviews(
         ProductReviewsModel model)

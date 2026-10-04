@@ -45,4 +45,10 @@ public class EmailAccount : BaseEntity
     ///     Provides a way of specifying the SSL and/or TLS encryption that should be used for a connection
     /// </summary>
     public int SecureSocketOptionsId { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the store identifier this email account belongs to.
+    ///     An empty string means this is a global/shared email account.
+    /// </summary>
+    public string StoreId { get; set; }
 }

@@ -1,0 +1,46 @@
+@{
+    Layout = "";
+}
+
+@model CheckoutAttributeValueModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form id="ValueCreatePopup" asp-area="@area" asp-controller="CheckoutAttribute" asp-action="ValueCreatePopup"
+      asp-route-checkoutAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["checkoutAttributeId"])">
+    <admin-popup title="@Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]" icon="bi-card-list">
+        <partial name="Partials/WidgetZone.ValueButtons"/>
+        <partial name="Partials/CreateOrUpdateValue" model="Model"/>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+            $("#ValueCreatePopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefresh').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+    </script>
+</form>

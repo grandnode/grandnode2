@@ -19,6 +19,11 @@ public class ErrorHandlerStartup : IStartupApplication
     /// <param name="configuration">Configuration root of the application</param>
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        // Register RFC 7807 ProblemDetails support (used by GrandExceptionHandler for API errors)
+        services.AddProblemDetails();
+
+        // Register the IExceptionHandler implementation used by UseExceptionHandler()
+        services.AddExceptionHandler<GrandExceptionHandler>();
     }
 
     /// <summary>

@@ -7,7 +7,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Web.Commands.Models.Products;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Products;
 

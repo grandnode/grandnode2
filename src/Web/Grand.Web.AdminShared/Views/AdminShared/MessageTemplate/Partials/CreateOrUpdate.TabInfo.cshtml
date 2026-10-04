@@ -1,0 +1,168 @@
+@using Grand.Domain.Media
+@using Grand.Domain.Messages
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Constants = Grand.SharedUIResources.Constants
+@model MessageTemplateModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    ViewData["DownloadType"] = DownloadType.MessageTemplate;
+    ViewData["ReferenceId"] = Model.Id;
+}
+<link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/codemirror/codemirror.css"/>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/codemirror.js"></script>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/mode/xml/xml.js"></script>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+                       <admin-field asp-for="@Model.Locales[item].BccEmailAddresses"/>
+                       <admin-field asp-for="@Model.Locales[item].Subject"/>
+                       <admin-field asp-for="@Model.Locales[item].Body">
+                           @* SearchTokens finds its token list through closest(".mb-3") *@
+                           <div class="mb-3">
+                               <label class="form-label">@Loc["Admin.ContentManagement.MessageTemplates.Fields.AllowedTokens"]</label>
+                               <input type="search" name="SearchTokens" class="form-control SearchTokens" placeholder="@Loc["Search"]"/>
+                               <div class="AllowedTokens d-flex flex-wrap gap-1 mt-2">
+                                   @foreach (var token in Model.AllowedTokens)
+                                   {
+                                       <button type="button" onclick="AddTokenToEditor(this)" class="btn btn-outline-secondary btn-sm">@token</button>
+                                   }
+                               </div>
+                           </div>
+                           <admin-input asp-for="@Model.Locales[item].Body" asp-template="Codemirror"/>
+                       </admin-field>
+                       <admin-field asp-for="@Model.Locales[item].EmailAccountId">
+                           <admin-select asp-for="@Model.Locales[item].EmailAccountId" asp-items="@(new SelectList(Model.AvailableEmailAccounts, "Id", "DisplayName", Model.Locales[item].EmailAccountId))"/>
+                       </admin-field>
+                       <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+                   </div>;
+}
+
+@* Three cards instead of one column of 3/9 rows: the template and whether it is active, what it
+   sends (per language), and when and with what attachment. The delay sits beside its switch, the
+   attachment picker in a reveal under its own switch; pnl-send-after and pnlAttachedDownload,
+   which the script below shows and hides, are unchanged. *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Name">
+            @if (!string.IsNullOrEmpty(Model.Id))
+            {
+                <div class="form-control-plaintext">@Model.Name</div>
+                <input asp-for="Name" type="hidden"/>
+            }
+            else
+            {
+                <admin-input asp-for="Name"/>
+            }
+        </admin-field>
+        <admin-field asp-for="IsActive"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="Stores"/>
+        }
+    </div>
+</admin-card>
+
+<admin-card>
+    <localized-editor localized-template="@template" name="messagetemplate-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="BccEmailAddresses"/>
+            <admin-field asp-for="Subject"/>
+            <admin-field asp-for="Body">
+                @* SearchTokens finds its token list through closest(".mb-3") *@
+                <div class="mb-3">
+                    <label class="form-label">@Loc["Admin.Content.MessageTemplates.Fields.AllowedTokens"]</label>
+                    <input type="search" name="SearchTokens" class="form-control SearchTokens" placeholder="@Loc["Search"]"/>
+                    <div class="AllowedTokens d-flex flex-wrap gap-1 mt-2">
+                        @foreach (var token in Model.AllowedTokens)
+                        {
+                            <button type="button" onclick="AddTokenToEditor(this)" class="btn btn-outline-secondary btn-sm">@token</button>
+                        }
+                    </div>
+                </div>
+                <admin-input asp-for="Body" asp-template="Codemirror"/>
+            </admin-field>
+            <admin-field asp-for="EmailAccountId">
+                <admin-select asp-for="EmailAccountId" asp-items="@(new SelectList(Model.AvailableEmailAccounts, "Id", "DisplayName"))"/>
+            </admin-field>
+        </div>
+    </localized-editor>
+</admin-card>
+
+@{
+    //Static file attachments do not support URLs yet
+    //A store owner have to upload a file
+    //we store a value into "ViewData" and then use it in the Download.cshtml file
+    ViewData["Grand.DownloadEditor.DisableUrl"] = true;
+}
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="SendImmediately"/>
+        <admin-field asp-for="DelayBeforeSend" id="pnl-send-after">
+            <div class="d-flex gap-2">
+                <admin-input asp-for="DelayBeforeSend"/>
+                <admin-select asp-for="DelayPeriodId" asp-items="EnumTranslationService.ToSelectList((MessageDelayPeriod)Model.DelayPeriodId)"/>
+            </div>
+        </admin-field>
+        <div class="grand-reveal">
+            <admin-field asp-for="HasAttachedDownload" asp-label-for="AttachedDownloadId"
+                         hint="@Loc["Admin.Content.MessageTemplates.Fields.AttachedDownload.Exists"]"/>
+            <div class="grand-reveal__body grand-fields">
+                <div class="grand-field" id="pnlAttachedDownload">
+                    <div class="grand-field__control">
+                        <admin-input asp-for="AttachedDownloadId"/>
+                    </div>
+                    <span asp-validation-for="AttachedDownloadId"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</admin-card>
+<script>
+        $(document).ready(function () {
+            $("#@Html.IdFor(model => model.HasAttachedDownload)").change(toggleHasAttachedDownload);
+            $("#@Html.IdFor(model => model.SendImmediately)").click(sendImmediately);
+            toggleHasAttachedDownload();
+            sendImmediately();
+            $(".SearchTokens").on("input", function (e) { SearchTokens(e); })
+            $("input").click(function (e) {
+                onInputFocus = $(e.target);
+            });
+        });
+
+        function toggleHasAttachedDownload() {
+            if ($('#@Html.IdFor(model => model.HasAttachedDownload)').is(':checked')) {
+                $('#pnlAttachedDownload').show();
+            }
+            else {
+                $('#pnlAttachedDownload').hide();
+            }
+        }
+
+        function sendImmediately() {
+            if ($('#@Html.IdFor(model => model.SendImmediately)').is(':checked'))
+                $('#pnl-send-after').hide();
+            else
+                $('#pnl-send-after').show();
+    }
+
+    function AddTokenToEditor(e) {
+        var cm = $('.CodeMirror')[0].CodeMirror;
+        var doc = cm.getDoc();
+        var cursor = doc.getCursor(); // gets the line number in the cursor position
+        doc.replaceRange($(e).text(), cursor);
+    }
+
+    function SearchTokens(e) {
+        var searchVal = $(e.target).val();
+        var TokensPnl = $(e.target).closest(".mb-3").find(".AllowedTokens");
+        $(TokensPnl).find(".btn").show()
+            .each(function (i, c) {
+                var Token = $(c).text();
+                if (Token.search(new RegExp(searchVal, "i")) == -1)
+                {
+                    $(c).hide();
+                }
+             });
+    }
+</script>

@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Checkout;
 

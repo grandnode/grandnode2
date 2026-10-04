@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model DeliveryDateModel
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<admin-card>
+    <localized-editor localized-template="@template" name="deliverydate-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+        </div>
+    </localized-editor>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="ColorSquaresRgb">
+            <admin-input asp-for="ColorSquaresRgb"/>
+            <div id="color-picker"></div>
+            <script>
+                    $(document).ready(function () {
+                        $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
+                    });
+            </script>
+        </admin-field>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+    </div>
+</admin-card>

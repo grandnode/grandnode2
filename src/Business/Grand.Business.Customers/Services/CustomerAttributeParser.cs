@@ -94,6 +94,18 @@ public class CustomerAttributeParser : ICustomerAttributeParser
     /// <returns>Warnings</returns>
     public virtual async Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes)
     {
+        return await GetAttributeWarnings(customAttributes, string.Empty);
+    }
+
+    /// <summary>
+    ///     Validates customer attributes limited to the specified store
+    /// </summary>
+    /// <param name="customAttributes">Attributes</param>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Warnings</returns>
+    public virtual async Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes,
+        string storeId)
+    {
         var warnings = new List<string>();
 
         if (customAttributes == null || !customAttributes.Any())
@@ -103,7 +115,7 @@ public class CustomerAttributeParser : ICustomerAttributeParser
         var attributes1 = await ParseCustomerAttributes(customAttributes);
 
         //validate required customer attributes (whether they're chosen/selected/entered)
-        var attributes2 = await _customerAttributeService.GetAllCustomerAttributes();
+        var attributes2 = await _customerAttributeService.GetAllCustomerAttributes(storeId ?? string.Empty);
         foreach (var a2 in attributes2)
         {
             if (!a2.IsRequired) continue;

@@ -560,7 +560,7 @@ public class OrderReportService : IOrderReportService
                   (showHidden || p.Published)
             select p;
 
-        return await PagedList<Product>.Create(qproducts, pageIndex, pageSize);
+        return await _productRepository.PagedAsync(qproducts, pageIndex, pageSize);
     }
 
     public class OrderStats

@@ -6,7 +6,7 @@ using Grand.Domain.News;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -55,7 +55,7 @@ public class NewsServiceTests
         var newsItem = new NewsItem { Published = true };
         await _repository.InsertAsync(newsItem);
         //Act
-        var result = await _newsService.GetAllNews();
+        var result = await _newsService.GetAllNews(storeId: "");
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -81,7 +81,7 @@ public class NewsServiceTests
         newsItem.Title = "test";
         await _newsService.UpdateNews(newsItem);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == newsItem.Id).Title == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == newsItem.Id).Title);
     }
 
     [TestMethod]

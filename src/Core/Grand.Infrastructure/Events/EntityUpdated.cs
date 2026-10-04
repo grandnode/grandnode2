@@ -1,5 +1,5 @@
 ﻿using Grand.Domain;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Infrastructure.Events;
 

@@ -1,0 +1,11 @@
+﻿{
+  Name: How to order?,
+  Content: Step-by-step guide,
+  ParentCategoryId: kb-001,
+  DisplayOrder: 1,
+  Published: true,
+  SeName: how-to-order,
+  ShowOnHomepage: false,
+  AllowComments: false,
+  Id: kba-001
+}

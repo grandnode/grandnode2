@@ -6,7 +6,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -44,7 +44,7 @@ public class CheckoutAttributeServiceTests
     [TestMethod]
     public void InsertCheckoutAttribute_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertCheckoutAttribute(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertCheckoutAttribute(null));
     }
 
     [TestMethod]
@@ -59,7 +59,7 @@ public class CheckoutAttributeServiceTests
     [TestMethod]
     public void UpdateCheckoutAttribute_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdateCheckoutAttribute(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateCheckoutAttribute(null));
     }
 
     [TestMethod]
@@ -74,6 +74,6 @@ public class CheckoutAttributeServiceTests
     [TestMethod]
     public void DeleteCheckoutAttribute_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeleteCheckoutAttribute(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteCheckoutAttribute(null));
     }
 }

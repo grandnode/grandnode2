@@ -6,6 +6,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
+using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 
 namespace Grand.Business.Core.Utilities.Checkout;
@@ -13,6 +14,7 @@ namespace Grand.Business.Core.Utilities.Checkout;
 public class PlaceOrderContainer
 {
     public Customer Customer { get; set; }
+    public Store Store { get; set; }
     public Language Language { get; set; }
     public Currency Currency { get; set; }
     public string AffiliateId { get; set; }

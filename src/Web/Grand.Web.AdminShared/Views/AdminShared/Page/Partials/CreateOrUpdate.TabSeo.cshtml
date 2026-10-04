@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Web.AdminShared.Models.Pages
+@model PageModel
+
+<partial name="Partials/WidgetZone.Seo.Top" model="Model"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+                       <admin-field asp-for="@Model.Locales[item].MetaKeywords"/>
+                       <admin-field asp-for="@Model.Locales[item].MetaDescription">
+                           <admin-textarea asp-for="@Model.Locales[item].MetaDescription"></admin-textarea>
+                       </admin-field>
+                       <admin-field asp-for="@Model.Locales[item].MetaTitle"/>
+                       <admin-field asp-for="@Model.Locales[item].SeName"/>
+                       <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+                   </div>;
+}
+
+@* one column, not two: a meta description is a paragraph and a slug is long *@
+<admin-card>
+    <localized-editor localized-template="@template" name="page-seo-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="MetaKeywords"/>
+            <admin-field asp-for="MetaDescription">
+                <admin-textarea asp-for="MetaDescription"></admin-textarea>
+            </admin-field>
+            <admin-field asp-for="MetaTitle"/>
+            <admin-field asp-for="SeName"/>
+        </div>
+    </localized-editor>
+</admin-card>
+<partial name="Partials/WidgetZone.Seo.Bottom" model="Model"/>

@@ -14,6 +14,13 @@ public interface IAddressAttributeService
     Task<IList<AddressAttribute>> GetAllAddressAttributes();
 
     /// <summary>
+    ///     Gets all address attributes for the specified store
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Address attributes</returns>
+    Task<IList<AddressAttribute>> GetAllAddressAttributes(string storeId);
+
+    /// <summary>
     ///     Gets an address attribute
     /// </summary>
     /// <param name="addressAttributeId">Address attribute identifier</param>

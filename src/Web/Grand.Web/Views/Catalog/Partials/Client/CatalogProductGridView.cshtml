@@ -1,0 +1,222 @@
+@*
+    Client-side *template* for a product card - not a partial with a model. It is
+    inlined into a `<template v-for="product in ...">` and reads the loop variable,
+    so the caller must name it `product`. Nothing checks that at compile time,
+    which is why these sit under Partials/Client: `Partials/X` renders on the
+    server from a real model, `Partials/Client/X` renders in the browser from
+    catalog.Model.
+
+    Server-side counterpart: Views/Shared/Partials/CatalogProductView.cshtml.
+    Keep the two in step - they must produce the same markup.
+*@
+<article v-bind:class="{ mobile: isMobile()}" class="card product-box mb-2">
+<div class="picture-container">
+    <a class="img-container" :href="product.Url" :title="product.DefaultPictureModel.Title">
+        <img class="card-img main-product-img" :src="product.DefaultPictureModel.ImageUrl" :alt="product.DefaultPictureModel.AlternateText" loading="lazy" :title="product.DefaultPictureModel.Title">
+        <template v-if="product.SecondPictureModel.ImageUrl !== null">
+            <img class="card-img hover-img" :src="product.SecondPictureModel.ImageUrl" :alt="product.SecondPictureModel.AlternateText" loading="lazy">
+        </template>
+    </a>
+    <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-bs-target="ModalQuickView" data-cart-action="quickview" :data-url="product.QuickViewUrl">
+        <i class="b-icon bi bi-search" aria-hidden="true"></i>
+        <span>@Loc["Products.QuickView"]</span>
+    </a>
+    <template v-if="product.Flag !== null">
+        <div class="product-label">
+            <div class="badge text-bg-info">{{product.Flag}}</div>
+        </div>
+    </template>
+</div>
+<div class="card-body">
+    <div class="card-title h3 mb-0">
+        <a :href="product.Url">
+            {{product.Name}}
+        </a>
+    </div>
+    <template v-if="product.ShowSku && product.Sku !== null">
+        <span class="sku">{{product.Sku}}</span>
+    </template>
+    <div class="prices-rating">
+        <template v-if="product.ReviewOverviewModel.AllowCustomerReviews">
+            <div class="rating">
+                <template v-if="product.ReviewOverviewModel.TotalReviews > 0">
+                    <b-form-rating :id="'rating-inline-grid-' + product.Id" class="p-0" variant="warning" aria-label="Rating" no-border size="sm" show-value precision="2" readonly inline :value="product.ReviewOverviewModel.RatingSum / product.ReviewOverviewModel.TotalReviews"></b-form-rating>
+                </template>
+                <template v-else>
+                    <b-form-rating :id="'rating-inline-grid-' + product.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="0"></b-form-rating>
+                </template>
+                <a :href="product.Url">{{product.ReviewOverviewModel.TotalReviews}} @Loc["Reviews.Overview.Reviews"]</a>
+            </div>
+        </template>
+        <template v-if="product.ProductType == 40">
+            <template v-if="product.EndTime !== null">
+                <div class="countdown-box alert alert-info w-100 mb-1">
+                    <template v-if="new Date(product.EndTime).getTime() > new Date().getTime()">
+                        <countdown :end-time="new Date(product.EndTime).getTime()">
+                            <template v-slot:process="{ timeObj }">
+                                <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
+                                <span>{{ `${timeObj.d}` }}@Loc["Countdown.Days"]</span>
+                                <span>{{ `${timeObj.h}` }}@Loc["Countdown.Hours"]</span>
+                                <span>{{ `${timeObj.m}` }}@Loc["Countdown.Minutes"]</span>
+                                <span>{{ `${timeObj.s}` }}@Loc["Countdown.Seconds"]</span>
+                            </template>
+                            <template v-slot:finish>
+                                <span>@Loc["ShoppingCart.Auctionends"]</span>
+                            </template>
+                        </countdown>
+                    </template>
+                    <template v-else>
+                        <div class="d-inline-flex flex-wrap justify-content-center">
+                            <label class="ended-label mb-0">@Loc["ShoppingCart.Auctionends"]:</label>
+                            <div class="count-date" v-html="new Date(product.EndTimeLocalTime).toLocaleString()"></div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </template>
+        <div class="prices" v-bind:class="{ 'reservation-price': product.ProductType == 15 }">
+            <template v-if="product.ProductType != 25">
+                <div class="actual-price price">
+                    {{product.ProductPrice.Price}}
+                    <template v-if="product.ProductPrice.CallForPrice">
+                        @Loc["Products.CallForPrice"]
+                    </template>
+                </div>
+            </template>
+            <template v-else>
+                <div class="actual-price price">
+                    <template v-if="product.ProductPrice.HighestBidValue > 0 ">
+                        {{product.ProductPrice.HighestBid}}
+                    </template>
+                    <template v-else>
+                        {{product.ProductPrice.StartPrice}}
+                    </template>
+                </div>
+            </template>
+            <template v-if="product.ProductPrice.OldPrice !== null">
+                <div class="old-price price">
+                    {{product.ProductPrice.OldPrice}}
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+<div class="card-footer">
+    <template v-if="product.SpecificationAttributeModels.length > 0">
+        <div class="spec-container">
+            <table>
+                <tbody>
+                <tr class="attr" v-for="item in product.SpecificationAttributeModels" v-bind:id="item.SpecificationAttributeId">
+                    <td>
+                        <div class="spec-name">
+                            {{item.SpecificationAttributeName}}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="spec-value">
+                            <span v-html="item.ValueRaw"></span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <template v-if="product.ProductAttributeModels.length > 0">
+        <div class="attr-container">
+            <table>
+                <tbody>
+                <tr v-for="item in product.ProductAttributeModels" v-bind:id="item.ProductAttributeId">
+                    <td>
+                        <div class="attr-name">
+                            {{item.Name}}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="attr-value">
+                            <template v-for="spec in item.Values">
+                                <template v-if="item.AttributeControlType == 1 || item.AttributeControlType == 2 || item.AttributeControlType == 3 || item.AttributeControlType == 50">
+                                    <a class="btn btn-sm btn-light name" :href="'/'+ product.SeName + '?' + item.Name + '=' + spec.Name">
+                                        {{spec.Name}}
+                                    </a>
+                                </template>
+                                <template v-if="item.AttributeControlType == 40">
+                                    <template v-if="spec.PictureModel.FullSizeImageUrl !== null">
+                                        <a class="btn btn-sm btn-light name color-container" :title="spec.Name" @@click="productImage($event)" :data-href="spec.PictureModel.FullSizeImageUrl">
+                                            <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
+                                        </a>
+                                    </template>
+                                    <template v-else>
+                                        <a class="btn btn-sm btn-light name color-container" :title="spec.Name" :href="'/'+ product.SeName + '?' + item.Name + '=' + spec.Name">
+                                            <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
+                                        </a>
+                                    </template>
+                                </template>
+                                <template v-if="item.AttributeControlType == 45">
+                                    <template v-if="spec.PictureModel.FullSizeImageUrl !== null">
+                                        <a class="btn btn-sm btn-light p-1 name image-container" v-on:click="productImage" :data-href="spec.PictureModel.FullSizeImageUrl">
+                                            <img :src="spec.ImageSquaresPictureModel?.ImageUrl" :alt="spec.Name"/>
+                                        </a>
+                                    </template>
+                                    <template v-else>
+                                        <a class="btn btn-sm btn-light p-1 name image-container" :href="'/'+ product.SeName + '?' + item.Name + '=' + spec.Name">
+                                            <img :src="spec.ImageSquaresPictureModel?.ImageUrl" alt="spec.Name"/>
+                                        </a>
+                                    </template>
+                                </template>
+                            </template>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <div class="desc" v-html="product.ShortDescription"></div>
+    <template v-if="product.ShowQty">
+        <input class="form-control input-group-addon catalog-quantity" type="number" min="1" :id="'addtocart_' + product.Id + '_EnteredQuantity'" :name="'addtocart_' + product.Id + '_EnteredQuantity'" value="1">
+    </template>
+    <div class="btn-group">
+        <template v-if="!product.ProductPrice.DisableWishlistButton && product.ProductType == 0">
+            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="product.AddToWishlistUrl" :data-show-qty="product.ShowQty" :data-product-id="product.Id">
+                <span class="visually-hidden">AddToWishlist</span>
+                <i class="b-icon bi bi-heart" aria-hidden="true"></i>
+            </button>
+        </template>
+        <template v-if="!product.ProductPrice.DisableBuyButton">
+            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="product.AddToCartUrl" :data-show-qty="product.ShowQty" :data-product-id="product.Id">
+                <i class="b-icon bi bi-cart2 mx-auto d-sm-none d-block" aria-hidden="true"></i>
+                <span class="add-cart-text d-sm-block d-none">
+                    <template v-if="product.ProductType == 20">
+                        @Loc["ShoppingCart.Reservation"]
+                    </template>
+                    <template v-else>
+                        <template v-if="product.ProductPrice.AvailableForPreOrder">
+                            @Loc["ShoppingCart.PreOrder"]
+                        </template>
+                        <template v-else>
+                            @Loc["ShoppingCart.AddToCart"]
+                        </template>
+                    </template>
+                </span>
+                <span class="visually-hidden">AddToCart</span>
+            </button>
+        </template>
+        <template v-else>
+            <template v-if="product.ProductType == 40">
+                <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="product.AddToCartUrl" :data-show-qty="product.ShowQty" :data-product-id="product.Id">
+                    <i class="b-icon bi bi-hammer mx-auto d-sm-none d-block" aria-hidden="true"></i>
+                    <span class="add-cart-text d-sm-block d-none">@Loc["ShoppingCart.Bids"]</span>
+                    <span class="visually-hidden">AddToCart</span>
+                </button>
+            </template>
+        </template>
+        <template v-if="!product.ProductPrice.DisableAddToCompareListButton && product.ProductType == 0">
+            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" data-cart-action="compare" :data-product-id="product.Id">
+                <span class="visually-hidden">AddToCompareList</span>
+                <i class="b-icon bi bi-shuffle" aria-hidden="true"></i>
+            </button>
+        </template>
+    </div>
+</div>
+</article>

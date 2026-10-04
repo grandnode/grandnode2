@@ -7,7 +7,7 @@ using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -39,7 +39,7 @@ public class NewsLetterSubscriptionServiceTests
         var newsLetterSubscription = new NewsLetterSubscription {
             Email = email
         };
-        Assert.ThrowsExceptionAsync<GrandException>(async () =>
+        Assert.ThrowsExactlyAsync<GrandException>(async () =>
             await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription));
     }
 

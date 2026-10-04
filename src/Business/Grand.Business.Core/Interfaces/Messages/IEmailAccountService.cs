@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Messages;
+﻿using Grand.Domain;
+using Grand.Domain.Messages;
 
 namespace Grand.Business.Core.Interfaces.Messages;
 
@@ -30,8 +31,11 @@ public interface IEmailAccountService
     Task<EmailAccount> GetEmailAccountById(string emailAccountId);
 
     /// <summary>
-    ///     Gets all email accounts
+    ///     Gets all email accounts, optionally filtered by store, with pagination support.
     /// </summary>
-    /// <returns>Email accounts list</returns>
-    Task<IList<EmailAccount>> GetAllEmailAccounts();
+    /// <param name="storeId">Store identifier; pass empty string to return all accounts</param>
+    /// <param name="pageIndex">Page index (0-based)</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Paged list of email accounts</returns>
+    Task<IPagedList<EmailAccount>> GetAllEmailAccounts(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 }

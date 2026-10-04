@@ -1,10 +1,10 @@
-using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Data;
 using Grand.Domain.Pages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Cms.Services;
 
@@ -54,7 +54,7 @@ public class PageLayoutService : IPageLayoutService
                 orderby pt.DisplayOrder
                 select pt;
 
-            return await Task.FromResult(query.ToList());
+            return await _pageLayoutRepository.ToListAsync(query);
         });
     }
 

@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Data;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

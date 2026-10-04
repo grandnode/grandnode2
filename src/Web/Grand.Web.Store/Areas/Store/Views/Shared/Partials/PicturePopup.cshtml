@@ -1,0 +1,73 @@
+﻿@using Microsoft.AspNetCore.Mvc.Razor
+@model PictureModel
+@{
+    Layout = "";
+}
+<form id="PicturePopup" asp-area="@Constants.AreaStore" asp-action="PicturePopup" enctype="multipart/form-data" method="post">
+    <!-- #region languages template -->
+    @{
+        Func<int, HelperResult> template = @<div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="@Model.Locales[item].AltAttribute"/>
+            <admin-field asp-for="@Model.Locales[item].TitleAttribute"/>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
+    }
+    <div asp-validation-summary="All"></div>
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="ObjectId" type="hidden"/>
+    <input asp-for="PictureUrl" type="hidden"/>
+    @* the product picture popup's shape, shared by the category, brand, collection and blog
+       picture editors *@
+    <admin-popup title="@Loc["Admin.Catalog.Picture"]" icon="bi-image">
+        <admin-field asp-for="PictureUrl">
+            <a href="@Model.PictureUrl" target="_blank" class="grand-thumb">
+                <img src="@Model.PictureUrl" alt=""/>
+            </a>
+        </admin-field>
+        <localized-editor localized-template="template" name="picturevalue-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="AltAttribute"/>
+                <admin-field asp-for="TitleAttribute"/>
+            </div>
+        </localized-editor>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="Style"/>
+            <admin-field asp-for="ExtraField"/>
+        </div>
+        <div class="grand-popup__actions">
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </div>
+    </admin-popup>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#PicturePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>

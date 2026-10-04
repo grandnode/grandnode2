@@ -5,7 +5,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -53,8 +53,8 @@ public class CustomerTagServiceTests
         var result = await _customerTagService.GetCustomersByTag("1");
 
         //Assert
-        Assert.IsTrue(result.Any());
-        Assert.AreEqual(2, result.Count);
+        Assert.IsNotEmpty(result);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -79,9 +79,8 @@ public class CustomerTagServiceTests
         var result = await _customerTagService.GetCustomersByTag("1");
 
         //Assert
-        Assert.IsFalse(result.Any());
-        Assert.AreEqual(0, result.Count);
-        Assert.AreEqual(0, _repositoryCustomerTag.Table.Count());
+        Assert.IsEmpty(result);
+        Assert.IsEmpty(_repositoryCustomerTag.Table);
     }
 
     [TestMethod]
@@ -96,8 +95,8 @@ public class CustomerTagServiceTests
         var result = await _customerTagService.GetAllCustomerTags();
 
         //Assert
-        Assert.IsTrue(result.Any());
-        Assert.AreEqual(3, result.Count);
+        Assert.IsNotEmpty(result);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -150,7 +149,7 @@ public class CustomerTagServiceTests
         var result = await _customerTagService.GetCustomerTagsByName("test");
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -163,7 +162,7 @@ public class CustomerTagServiceTests
         await _customerTagService.InsertCustomerTag(customerTag);
 
         //Assert
-        Assert.IsTrue(_repositoryCustomerTag.Table.Any());
+        Assert.IsNotEmpty(_repositoryCustomerTag.Table);
     }
 
     [TestMethod]
@@ -180,8 +179,8 @@ public class CustomerTagServiceTests
         await _customerTagService.InsertTagToCustomer(customerTag.Id, customer.Id);
 
         //Assert
-        Assert.IsTrue(_repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
-            .Contains(customerTag.Id));
+        Assert.Contains(customerTag.Id, _repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
+);
     }
 
     [TestMethod]
@@ -199,8 +198,8 @@ public class CustomerTagServiceTests
         await _customerTagService.DeleteTagFromCustomer(customerTag.Id, customer.Id);
 
         //Assert
-        Assert.IsFalse(_repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
-            .Contains(customerTag.Id));
+        Assert.DoesNotContain(customerTag.Id, _repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
+);
     }
 
     [TestMethod]
@@ -215,7 +214,7 @@ public class CustomerTagServiceTests
         await _customerTagService.UpdateCustomerTag(customerTag);
 
         //Assert
-        Assert.IsTrue(_repositoryCustomerTag.Table.FirstOrDefault(x => x.Id == customerTag.Id).Name == "test2");
+        Assert.AreEqual("test2", _repositoryCustomerTag.Table.FirstOrDefault(x => x.Id == customerTag.Id).Name);
     }
 
     [TestMethod]
@@ -251,7 +250,7 @@ public class CustomerTagServiceTests
         var result = await _customerTagService.GetCustomerTagProducts("1");
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -294,7 +293,7 @@ public class CustomerTagServiceTests
         await _customerTagService.InsertCustomerTagProduct(new CustomerTagProduct());
 
         //Assert
-        Assert.IsTrue(_repositoryCustomerTagProduct.Table.Any());
+        Assert.IsNotEmpty(_repositoryCustomerTagProduct.Table);
     }
 
     [TestMethod]
@@ -309,8 +308,7 @@ public class CustomerTagServiceTests
         await _customerTagService.UpdateCustomerTagProduct(customerTagProduct);
 
         //Assert
-        Assert.IsTrue(_repositoryCustomerTagProduct.Table.FirstOrDefault(x => x.Id == customerTagProduct.Id)
-            .DisplayOrder == 10);
+        Assert.AreEqual(10, _repositoryCustomerTagProduct.Table.FirstOrDefault(x => x.Id == customerTagProduct.Id).DisplayOrder);
     }
 
     [TestMethod]
@@ -324,6 +322,6 @@ public class CustomerTagServiceTests
         await _customerTagService.DeleteCustomerTagProduct(customerTagProduct);
 
         //Assert
-        Assert.IsFalse(_repositoryCustomerTag.Table.Any());
+        Assert.IsEmpty(_repositoryCustomerTag.Table);
     }
 }

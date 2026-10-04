@@ -54,7 +54,7 @@ public class CustomerAttributeParserTests
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));
         var result = await _parser.ParseCustomerAttributes(customAtr);
-        Assert.IsTrue(result.Count == 4);
+        Assert.HasCount(4, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("key1")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("key2")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("key3")));
@@ -69,7 +69,7 @@ public class CustomerAttributeParserTests
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>()))
             .Returns(() => Task.FromResult<CustomerAttribute>(null));
         var result = await _parser.ParseCustomerAttributes(customAtr);
-        Assert.IsTrue(result.Count == 0);
+        Assert.IsEmpty(result);
     }
 
     [TestMethod]
@@ -78,7 +78,7 @@ public class CustomerAttributeParserTests
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));
         var result = await _parser.ParseCustomerAttributeValues(customAtr);
-        Assert.IsTrue(result.Count == 3);
+        Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("value2")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("value3")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("value4")));
@@ -92,31 +92,31 @@ public class CustomerAttributeParserTests
         //not exist
 
         var result = _parser.AddCustomerAttribute(customAtr, new CustomerAttribute { Id = "key7" }, "value7");
-        Assert.IsTrue(result.Count == 5);
+        Assert.HasCount(5, result);
         Assert.IsTrue(result.Any(c => c.Key.Equals("key7")));
     }
 
     [TestMethod]
     public async Task GetAttributeWarnings_Return_NoWarning()
     {
-        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes())
+        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes(It.IsAny<string>()))
             .Returns(() => Task.FromResult((IList<CustomerAttribute>)_customerAtr));
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));
         var result = await _parser.GetAttributeWarnings(customAtr);
-        Assert.IsTrue(result.Count == 0);
+        Assert.IsEmpty(result);
     }
 
     [TestMethod]
     public async Task GetAttributeWarnings_Return_WithWarning()
     {
         _customerAtr.FirstOrDefault(x => x.Id == "key5").IsRequired = true;
-        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes())
+        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes(It.IsAny<string>()))
             .Returns(() => Task.FromResult((IList<CustomerAttribute>)_customerAtr));
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));
         var result = await _parser.GetAttributeWarnings(customAtr);
-        Assert.IsTrue(result.Count == 1);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -130,6 +130,6 @@ public class CustomerAttributeParserTests
             new List<CustomAttribute> {
                 new() { Key = "key1", Value = "value1" }
             });
-        Assert.IsTrue(result == "name1: value1");
+        Assert.AreEqual("name1: value1", result);
     }
 }

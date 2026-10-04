@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Customers.Commands.Handlers;
 using Grand.Domain.Customers;
 using Grand.Domain.Vendors;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

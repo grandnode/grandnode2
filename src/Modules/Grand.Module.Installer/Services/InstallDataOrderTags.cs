@@ -1,4 +1,4 @@
-﻿using Grand.Domain.Orders;
+using Grand.Domain.Orders;
 
 namespace Grand.Module.Installer.Services;
 
@@ -6,22 +6,22 @@ public partial class InstallationService
 {
     protected virtual async Task InstallOrderTags()
     {
-        var coolTag = new OrderTag {
-            Name = "cool",
+        var giftTag = new OrderTag {
+            Name = "gift",
             Count = 0
         };
-        await _orderTagRepository.InsertAsync(coolTag);
+        await _orderTagRepository.InsertAsync(giftTag);
 
-        var newTag = new OrderTag {
-            Name = "new",
+        var priorityTag = new OrderTag {
+            Name = "priority",
             Count = 0
         };
-        await _orderTagRepository.InsertAsync(newTag);
+        await _orderTagRepository.InsertAsync(priorityTag);
 
-        var oldTag = new OrderTag {
-            Name = "old",
+        var wholesaleTag = new OrderTag {
+            Name = "wholesale",
             Count = 0
         };
-        await _orderTagRepository.InsertAsync(oldTag);
+        await _orderTagRepository.InsertAsync(wholesaleTag);
     }
 }

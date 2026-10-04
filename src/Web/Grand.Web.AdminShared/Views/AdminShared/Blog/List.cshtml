@@ -1,0 +1,34 @@
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogPosts"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+@* The product list's shape without filters: Add new as the one primary action in the page header
+   and the grid in a flush card. *@
+<admin-page title="@Loc["Admin.Content.Blog.BlogPosts"]" icon="bi-chat">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="blogpost-grid" read-url="@Url.Action("List", "Blog", new { area })">
+            <grid-text name="comments" value="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]"/>
+            <grid-column field="Title" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Title"]" width="400">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Title }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Comments" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]" width="200">
+                <cell-template>
+                    <a class="text-decoration-none" href="Comments?filterByBlogPostId={{ Id }}">{{ $texts.comments }} - {{ Comments }} </a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="StartDate" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.StartDate"]" width="150" format="{0:G}"/>
+            <grid-column field="EndDate" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.EndDate"]" width="150" format="{0:G}"/>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Content.Blog.BlogPosts.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

@@ -1,0 +1,42 @@
+@model Payments.StripeCheckout.Models.ConfigurationModel
+@{
+    Layout = "~/Areas/Store/Views/Shared/_StoreLayout.cshtml";
+    ViewBag.Title = Loc["Admin.Configuration.Payment.Methods"];
+}
+<input id="active-menu-item" type="hidden" value="/Store/Payment/Index"/>
+
+@* the setup steps as a note, then the credentials; Save as the one primary action *@
+<form asp-area="Store" asp-controller="StripeCheckout" asp-action="Configure" method="post">
+    <admin-page title="@Loc["Plugins.Payments.StripeCheckout.FriendlyName"]" icon="bi-credit-card">
+        <page-actions>
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <div class="note note-info">
+            For plugin configuration please check:<br/>
+            <br/>
+            1. Generate API keys from the Stripe Dashboard: <a href="https://stripe.com/docs/api/authentication" target="_blank">Click here.</a><br/>
+            2. Register webhook endpoints with Stripe <a href="https://stripe.com/docs/development/dashboard/register-webhook" target="_blank">Click here.</a><br/>
+            3. Your Webhook URL: @ViewBag.WebhookUrl <br/>
+            4. Fill in your credentials below.<br/>
+            5. Save the configuration.<br/>
+            <br/>
+            <em>Note: Ensure that you have configured your primary store currency that is supported by selected payment service provider.</em><br/>
+        </div>
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="ApiKey"/>
+                <admin-field asp-for="WebhookEndpointSecret"/>
+                <admin-field asp-for="Line"/>
+                <admin-field asp-for="DisplayOrder" size="sm"/>
+            </div>
+            <div class="grand-fields">
+                <admin-field asp-for="Description">
+                    <admin-textarea asp-for="Description"/>
+                </admin-field>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

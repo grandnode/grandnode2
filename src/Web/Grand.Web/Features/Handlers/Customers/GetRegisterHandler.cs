@@ -2,13 +2,13 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Web.Models.Newsletter;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Features.Handlers.Customers;
@@ -85,10 +85,17 @@ public class GetRegisterHandler : IRequestHandler<GetRegister, RegisterModel>
         //countries and states
         if (_customerSettings.CountryEnabled)
         {
-            model.AvailableCountries.Add(new SelectListItem
-                { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
+            var countries = await _countryService.GetAllCountries(request.Language.Id, request.Store.Id);
 
-            foreach (var c in await _countryService.GetAllCountries(request.Language.Id, request.Store.Id))
+            //start in the store's default country; the form binds CountryId, not the Selected flag
+            if (string.IsNullOrEmpty(model.CountryId)
+                && !string.IsNullOrEmpty(request.Store.DefaultCountryId)
+                && countries.Any(c => c.Id == request.Store.DefaultCountryId))
+                model.CountryId = request.Store.DefaultCountryId;
+
+            model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
+
+            foreach (var c in countries)
                 model.AvailableCountries.Add(new SelectListItem {
                     Text = c.GetTranslation(x => x.Name, request.Language.Id),
                     Value = c.Id,
@@ -99,12 +106,12 @@ public class GetRegisterHandler : IRequestHandler<GetRegister, RegisterModel>
             {
                 //states
                 var states = await _countryService.GetStateProvincesByCountryId(model.CountryId, request.Language.Id);
-                model.AvailableStates.Add(new SelectListItem
-                    { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
+                model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 
                 foreach (var s in states)
                     model.AvailableStates.Add(new SelectListItem {
-                        Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id,
+                        Text = s.GetTranslation(x => x.Name, request.Language.Id),
+                        Value = s.Id,
                         Selected = s.Id == model.StateProvinceId
                     });
             }

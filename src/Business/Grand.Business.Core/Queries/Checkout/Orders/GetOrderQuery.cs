@@ -1,7 +1,7 @@
 ﻿using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Checkout.Orders;
 

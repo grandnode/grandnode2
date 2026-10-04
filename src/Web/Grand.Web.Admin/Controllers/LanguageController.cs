@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Localization;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Localization;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
@@ -126,11 +126,11 @@ public class LanguageController : BaseAdminController
         if (ModelState.IsValid)
         {
             //ensure we have at least one published language
-            var allLanguages = await _languageService.GetAllLanguages();
-            if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id &&
-                !model.Published)
+            var (canProceed, message) =
+                await _languageViewModelService.ValidateLanguageUnpublish(language.Id, model.Published);
+            if (!canProceed)
             {
-                Error("At least one published language is required.");
+                Error(message);
                 return RedirectToAction("Edit", new { id = language.Id });
             }
 
@@ -167,10 +167,10 @@ public class LanguageController : BaseAdminController
             return RedirectToAction("List");
 
         //ensure we have at least one published language
-        var allLanguages = await _languageService.GetAllLanguages();
-        if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id)
+        var (canDelete, message) = await _languageViewModelService.ValidateLanguageDelete(language);
+        if (!canDelete)
         {
-            Error("At least one published language is required.");
+            Error(message);
             return RedirectToAction("Edit", new { id = language.Id });
         }
 
@@ -194,7 +194,6 @@ public class LanguageController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
-    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> Resources(string languageId, DataSourceRequest command,
         LanguageResourceFilterModel model)
     {

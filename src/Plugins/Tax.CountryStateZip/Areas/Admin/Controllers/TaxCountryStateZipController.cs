@@ -68,7 +68,7 @@ public class TaxCountryStateZipController : BaseAdminPluginController
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> RatesList(DataSourceRequest command)
     {
-        var records = await _taxRateService.GetAllTaxRates(command.Page - 1, command.PageSize);
+        var records = await _taxRateService.GetAllTaxRates(pageIndex: command.Page - 1, pageSize: command.PageSize);
         var taxRatesModel = new List<TaxRateModel>();
         foreach (var x in records)
         {

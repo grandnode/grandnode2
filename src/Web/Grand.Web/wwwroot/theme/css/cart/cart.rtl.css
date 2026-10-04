@@ -3,6 +3,14 @@
 .cart-view .sidebar-cart:not(.wishlist) {
     pointer-events: none;
 }
+.b-sidebar-body .item {
+    padding: 10px 0;
+    align-items: flex-start;
+}
+.b-sidebar-body .item img {
+    width: 80px;
+    margin-left: 12px;
+}
 
 /* shopping cart */
 
@@ -82,7 +90,7 @@
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
 }
-.coupon-button.not-collapsed::after {
+.coupon-button:not(.collapsed)::after {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
 }
@@ -113,7 +121,7 @@
 [dark-theme="true"] .opc-header .card-header .btn-info {
     color: #fff;
 }
-.opc-header .card-header .btn-info.not-collapsed {
+.opc-header .card-header .btn-info:not(.collapsed) {
     color: #1FB0C7;
     font-weight: 500;
 }
@@ -136,10 +144,10 @@
 [dark-theme="true"] .opc-header .card-header .btn-info::after {
     background: #fff;
 }
-[dark-theme="true"] .opc-header .card-header .btn-info.not-collapsed::before,
-[dark-theme="true"] .opc-header .card-header .btn-info.not-collapsed::after,
-.opc-header .card-header .btn-info.not-collapsed::before,
-.opc-header .card-header .btn-info.not-collapsed::after {
+[dark-theme="true"] .opc-header .card-header .btn-info:not(.collapsed)::before,
+[dark-theme="true"] .opc-header .card-header .btn-info:not(.collapsed)::after,
+.opc-header .card-header .btn-info:not(.collapsed)::before,
+.opc-header .card-header .btn-info:not(.collapsed)::after {
     background: #1FB0C7;
 }
 .opc-header .card-header:last-child .btn-info::before,
@@ -357,9 +365,20 @@
 }
 [dark-theme="true"] .shopping-cart.table td {
     border-color: #555;
+    color: #fff;
 }
 @media (max-width: 991px) {
     [dark-theme="true"] .shopping-cart.table td, [dark-theme="true"] .shopping-cart.table td:first-child, [dark-theme="true"] .shopping-cart.table td:last-child {
         border-color: #fff;
     }
+}
+
+/* opc back / continue button spacing */
+#shipping-buttons-container > .btn,
+#billing-buttons-container > .btn,
+#shipping-method-buttons-container > .btn,
+#payment-method-buttons-container > .btn,
+#payment-info-buttons-container > .btn,
+#confirm-order-buttons-container > .btn {
+    margin-left: .5rem;
 }

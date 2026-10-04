@@ -1,5 +1,5 @@
 ﻿<template v-if="PopupQuickViewVueModal.ProductType !== 10">
-    <div class="prices d-flex justify-content-center align-items-start flex-column" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+    <div class="prices d-flex justify-content-center align-items-start flex-column">
         <template v-if="PopupQuickViewVueModal.ProductPrice.EnteredPrice">
             @*Display empty space*@
         </template>
@@ -63,15 +63,9 @@
                 </template>
             </template>
             <template v-if="PopupQuickViewVueModal.ProductPrice.BasePricePAngV !== null">
-                <div class="base-price-pangv ml-2">
+                <div class="base-price-pangv ms-2">
                     {{PopupQuickViewVueModal.ProductPrice.BasePricePAngV}}
                 </div>
-            </template>
-            <template v-if="PopupQuickViewVueModal.ProductPrice.CurrencyCode !== null">
-                <meta itemprop="priceCurrency" :content="PopupQuickViewVueModal.ProductPrice.CurrencyCode"/>
-            </template>
-            <template v-if="PopupQuickViewVueModal.ProductPrice.PriceWithDiscount">
-                <meta itemprop="price" :content="PopupQuickViewVueModal.ProductPrice.PriceValue"/>
             </template>
         </template>
     </div>

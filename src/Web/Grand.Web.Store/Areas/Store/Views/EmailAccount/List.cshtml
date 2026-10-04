@@ -1,0 +1,26 @@
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.EmailAccounts"];
+}
+
+<admin-page title="@Loc["Admin.Configuration.EmailAccounts"]" icon="bi-envelope">
+    <page-actions>
+        <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-card flush>
+        <admin-grid id="email-accounts-grid"
+                    read-url="@Url.Action("List", "EmailAccount", new { area = Constants.AreaStore })"
+                    pager="Compact">
+            <grid-column field="Email" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Email }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayName" title="@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"/>
+            <grid-column field="Host" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>

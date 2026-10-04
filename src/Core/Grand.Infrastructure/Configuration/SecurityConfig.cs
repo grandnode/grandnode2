@@ -74,13 +74,48 @@ public class SecurityConfig
     public int? HttpsRedirectionHttpsPort { get; set; }
 
     /// <summary>
-    ///     When enabled, allowing Razor files to be updated if they're edited.
-    /// </summary>
-    public bool EnableRuntimeCompilation { get; set; }
-
-    /// <summary>
     ///     Gets or sets a value indicating whether to verify access to a specific controller and action in the admin panel
     ///     using menu configuration.
     /// </summary>
     public bool AuthorizeAdminMenu { get; set; }
+
+    /// <summary>
+    ///     Server-side secret ("pepper") mixed into the PBKDF2 password hash. Optional but recommended: it must be stored
+    ///     outside the database (appsettings/secret store), so a database-only leak is not enough to verify hashes offline.
+    ///     Leave empty to hash without a pepper.
+    ///     IMPORTANT: changing this value invalidates all existing PBKDF2 hashes (affected customers must reset their
+    ///     password); legacy SHA hashes are unaffected. Set it once, before going live.
+    /// </summary>
+    public string PasswordHashKey { get; set; }
+
+    /// <summary>
+    ///     PBKDF2 (HMAC-SHA256) iteration count for newly created/upgraded password hashes. Default 210000 (OWASP 2023).
+    ///     The value is embedded in each stored hash, so raising it later does not break existing hashes.
+    /// </summary>
+    public int PasswordHashIterations { get; set; }
+
+    /// <summary>
+    ///     Hosts whose iframes survive HTML sanitization of rich-text content (product descriptions, blog posts, pages).
+    ///     An iframe pointing anywhere else is removed, because its src is otherwise attacker-controlled.
+    ///     Matching is case-insensitive on the host only; a leading "*." matches any subdomain.
+    ///     Leave empty to fall back to the built-in video-embed defaults; set to a single empty entry to block every iframe.
+    /// </summary>
+    public string[] SanitizerAllowedIframeHosts { get; set; }
+
+    /// <summary>
+    ///     Hosts on the internal network that picture URLs in Excel imports may point to. Any other host must resolve to
+    ///     a public address, because the URL is written by whoever prepared the import file and would otherwise let it
+    ///     reach services only the server can see. A listed host may also use a port other than 80/443.
+    ///     Matching is case-insensitive on the host only; a leading "*." matches any subdomain. Empty by default.
+    /// </summary>
+    public string[] PictureImportAllowedPrivateHosts { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether [SanitizeHtml] and [NoHtml] reject markup on save. Default true.
+    ///     This is an operational escape hatch, not a security setting: turn it off only temporarily, if the
+    ///     allowlist is found to reject legitimate content in production, while a fix is prepared - every field
+    ///     these attributes guard (Vendor/Store-manager-editable rich text rendered unencoded via Html.Raw/v-html)
+    ///     goes back to accepting raw, unsanitized HTML the moment this is false. Re-enable as soon as possible.
+    /// </summary>
+    public bool EnableHtmlSanitization { get; set; } = true;
 }

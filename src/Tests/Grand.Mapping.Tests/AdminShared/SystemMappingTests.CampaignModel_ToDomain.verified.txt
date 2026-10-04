@@ -1,0 +1,7 @@
+﻿{
+  Name: Summer Campaign,
+  Subject: Summer Sale!,
+  Body: Check our summer deals,
+  StoreId: store-001,
+  Id: ObjectId_1
+}

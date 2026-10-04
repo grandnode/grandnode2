@@ -1,0 +1,14 @@
+﻿{
+  Name: English,
+  LanguageCulture: en-US,
+  UniqueSeoCode: en,
+  FlagImageFileName: us.png,
+  Rtl: false,
+  Published: true,
+  DisplayOrder: 1,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

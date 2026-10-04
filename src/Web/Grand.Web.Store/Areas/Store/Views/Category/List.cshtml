@@ -1,0 +1,83 @@
+﻿@model CategoryListModel
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Categories.Manage"];
+}
+@* The Admin list without what a store owner does not get: no store filter (the list is the
+   store's own) and no export or import. The ids the script below looks up are unchanged. *@
+<admin-page title="@Loc["Admin.Catalog.Categories.Manage"]" icon="bi-diagram-3">
+    <page-actions>
+        <vc:admin-widget widget-zone="category_list_buttons" additional-data="null"/>
+        <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+        </a>
+    </page-actions>
+
+    <admin-filters id="category-filters" submit-id="search-categories">
+        <filters-search>
+            <admin-input asp-for="SearchCategoryName"/>
+        </filters-search>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="categories-grid"
+                    read-url="@Url.Action("List", "Category", new { area = Constants.AreaStore })"
+                    additional-data="additionalData">
+            <grid-text name="published" value="@Loc["Admin.Catalog.Categories.Fields.Published"]"/>
+            <grid-text name="unpublished" value="@Loc["Admin.Catalog.Products.Fields.Published.Unpublished"]"/>
+            <grid-column field="Breadcrumb" title="@Loc["Admin.Catalog.Categories.Fields.Name"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Breadcrumb }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="ShowOnHomePage" title="@Loc["Admin.Catalog.Categories.Fields.ShowOnHomePage"]" width="175" align="Center" min-screen-width="750">
+                <cell-template>
+                    <i data-if="ShowOnHomePage" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="IncludeInMenu" title="@Loc["Admin.Catalog.Categories.Fields.ShowInMenu"]" width="175" align="Center" min-screen-width="750">
+                <cell-template>
+                    <i data-if="IncludeInMenu" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                    <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                </cell-template>
+            </grid-column>
+            @* a state is a word, not a tick *@
+            <grid-column field="Published" title="@Loc["Admin.Catalog.Categories.Fields.Published"]" width="110" align="Center" min-screen-width="500">
+                <cell-template>
+                    <span data-if="Published" class="grand-chip grand-chip--green">{{ $texts.published }}</span>
+                    <span data-else class="grand-chip grand-chip--red">{{ $texts.unpublished }}</span>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Categories.Fields.DisplayOrder"]" width="125" align="Center" min-screen-width="750"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+<script>
+    $(document).ready(function () {
+        //search button
+        $('#search-categories').click(function () {
+            //search
+            var grid = GrandAdmin.grids.get('#categories-grid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.SearchCategoryName)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-categories").click();
+                return false;
+            }
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            SearchCategoryName: $('#@Html.IdFor(model => model.SearchCategoryName)').val(),
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

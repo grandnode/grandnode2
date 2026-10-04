@@ -3,6 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Tax;
 
@@ -47,8 +48,9 @@ public interface ITaxService
     /// <param name="product">Product</param>
     /// <param name="price">Price</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, Customer customer);
+    Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, Customer customer, Store store);
 
     /// <summary>
     ///     Gets price
@@ -57,9 +59,9 @@ public interface ITaxService
     /// <param name="price">Price</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, bool includingTax,
-        Customer customer);
+    Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, bool includingTax, Customer customer, Store store);
 
     /// <summary>
     ///     Gets price
@@ -70,9 +72,10 @@ public interface ITaxService
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
     /// <param name="priceIncludesTax">A value indicating whether price already includes tax</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
     Task<(double productprice, double taxRate)> GetProductPrice(Product product, string taxCategoryId, double price,
-        bool includingTax, Customer customer, bool priceIncludesTax);
+        bool includingTax, Customer customer, Store store, bool priceIncludesTax);
 
 
     /// <summary>
@@ -80,6 +83,7 @@ public interface ITaxService
     /// </summary>
     /// <param name="product">Product</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <param name="unitPrice">Unit Price</param>
     /// <param name="unitPriceWithoutDisc">Unit price without discount</param>
     /// <param name="quantity">Quantity</param>
@@ -90,6 +94,7 @@ public interface ITaxService
     Task<TaxProductPrice> GetTaxProductPrice(
         Product product,
         Customer customer,
+        Store store,
         double unitPrice,
         double unitPriceWithoutDisc,
         int quantity,
@@ -103,8 +108,9 @@ public interface ITaxService
     /// </summary>
     /// <param name="price">Price</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, Customer customer);
+    Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, Customer customer, Store store);
 
     /// <summary>
     ///     Gets shipping price
@@ -112,16 +118,18 @@ public interface ITaxService
     /// <param name="price">Price</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, bool includingTax, Customer customer);
+    Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, bool includingTax, Customer customer, Store store);
 
     /// <summary>
     ///     Gets payment method additional handling fee
     /// </summary>
     /// <param name="price">Price</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, Customer customer);
+    Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, Customer customer, Store store);
 
     /// <summary>
     ///     Gets payment method additional handling fee
@@ -129,9 +137,9 @@ public interface ITaxService
     /// <param name="price">Price</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, bool includingTax,
-        Customer customer);
+    Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, bool includingTax, Customer customer, Store store);
 
     /// <summary>
     ///     Gets checkout attribute value price
@@ -139,8 +147,7 @@ public interface ITaxService
     /// <param name="ca">Checkout attribute</param>
     /// <param name="cav">Checkout attribute value</param>
     /// <returns>Price</returns>
-    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca,
-        CheckoutAttributeValue cav);
+    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav);
 
     /// <summary>
     ///     Gets checkout attribute value price
@@ -148,9 +155,9 @@ public interface ITaxService
     /// <param name="ca">Checkout attribute</param>
     /// <param name="cav">Checkout attribute value</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca,
-        CheckoutAttributeValue cav, Customer customer);
+    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, Customer customer, Store store);
 
     /// <summary>
     ///     Gets checkout attribute value price
@@ -159,9 +166,9 @@ public interface ITaxService
     /// <param name="cav">Checkout attribute value</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <returns>Price</returns>
-    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca,
-        CheckoutAttributeValue cav, bool includingTax, Customer customer);
+    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, bool includingTax, Customer customer, Store store);
 
     /// <summary>
     ///     Gets a value indicating whether a product is tax exempt

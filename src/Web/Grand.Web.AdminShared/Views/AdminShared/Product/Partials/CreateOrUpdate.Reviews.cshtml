@@ -1,0 +1,33 @@
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+
+<div class="grand-card">
+    <partial name="Partials/WidgetZone.Reviews.Top" model="Model"/>
+    <div class="grand-card__body grand-card__body--flush">
+        <admin-grid id="reviews-grid"
+                    read-only="@readOnly"
+                    read-url="@Url.Action("Reviews", "Product", new { productId = Model.Id, area = area })"
+                    auto-bind="false">
+            @*the links are partials: Vendor overrides them with plain text (it cannot open customers or reviews)*@
+            <grid-column field="CustomerId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Customer"]" width="200" min-screen-width="750">
+                <cell-template><partial name="Partials/Reviews.CustomerLinkTemplate"/></cell-template>
+            </grid-column>
+            <grid-column field="Title" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Title"]" width="280">
+                <cell-template><partial name="Partials/Reviews.TitleLinkTemplate"/></cell-template>
+            </grid-column>
+            <grid-column field="Rating" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Rating"]" width="60" min-screen-width="500"/>
+            <grid-column field="IsApproved" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.IsApproved"]" width="80" align="Center" min-screen-width="500">
+                <cell-template>
+                    <i data-if="IsApproved" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CreatedOn" title="@Loc[$"{Scope.ResourceKeyPrefix}.Orders.Fields.CreatedOn"]" width="150" format="{0:G}" min-screen-width="500"/>
+        </admin-grid>
+    </div>
+    <partial name="Partials/WidgetZone.Reviews.Bottom" model="Model"/>
+</div>

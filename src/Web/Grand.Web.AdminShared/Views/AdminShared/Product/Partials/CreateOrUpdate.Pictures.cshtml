@@ -1,0 +1,98 @@
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <div class="grand-card">
+        <partial name="Partials/WidgetZone.Pictures.Top" model="Model"/>
+        <div class="grand-card__body grand-card__body--flush">
+            <admin-grid id="productpictures-grid"
+                        read-only="@readOnly"
+                        read-url="@Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("ProductPictureDelete", "Product", new { area = area })"
+                        pager="Compact"
+                        auto-bind="false"
+                        confirm-destroy="true"
+                        on-data-bound="bindProductPicturePopups">
+                <grid-column field="PictureUrl" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.Picture"]" width="165">
+                    <cell-template>
+                        @if (readOnly)
+                        {
+                            <img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' />
+                        }
+                        else
+                        {
+                            <a class='text-decoration-none editpicture' href="@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
+                        }
+                    </cell-template>
+                </grid-column>
+                <grid-column field="IsDefault" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.IsDefault"]" width="100" align="Center">
+                    <cell-template>
+                        <i data-if="IsDefault" class="bi bi-check-lg text-success" aria-hidden="true"></i>
+                        <i data-else class="bi bi-x-lg text-danger" aria-hidden="true"></i>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.DisplayOrder"]" width="100" align="Center" format="{0:0}" min-screen-width="750"/>
+                <grid-column field="AltAttribute" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.OverrideAltAttribute"]" min-screen-width="500"/>
+                <grid-column field="TitleAttribute" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Fields.OverrideTitleAttribute"]" min-screen-width="500"/>
+                <grid-commands destroy="true" width="200"/>
+            </admin-grid>
+        </div>
+        <partial name="Partials/WidgetZone.Pictures.Bottom" model="Model"/>
+    </div>
+    <script>
+            function bindProductPicturePopups() {
+                $('.editpicture').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
+            }
+</script>
+
+    @if (!readOnly)
+    {
+        @* the uploader posts each file itself and then clicks the hidden refresh button, which
+           reloads the grid above; nothing in this card is submitted with the product form *@
+        <admin-card title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.AddNew"]" icon="bi-image">
+            @{
+                ViewData["Reference"] = "Product";
+                ViewData["ObjectId"] = Model.Id;
+                ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
+                ViewData["Click"] = "btnRefreshProductPictures";
+            }
+            <admin-input asp-for="AddPictureModel.PictureId"/>
+            <span asp-validation-for="AddPictureModel.PictureId"></span>
+            <input type="submit" id="btnRefreshProductPictures" class="d-none"/>
+            <script>
+                $(document).ready(function () {
+                    $('#btnRefreshProductPictures').click(function () {
+                        //refresh grid
+                        var grid = GrandAdmin.grids.get("#productpictures-grid");
+                        grid.dataSource.read();
+
+                        //return false to don't reload a page
+                        return false;
+                    });
+                });
+            </script>
+        </admin-card>
+    }
+}
+else
+{
+    <div class="note note-info">
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.SaveBeforeEdit"]
+    </div>
+}

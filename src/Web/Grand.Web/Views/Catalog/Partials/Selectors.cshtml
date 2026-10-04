@@ -1,12 +1,12 @@
 ﻿<template v-if="catalog.Model.Products.length > 0">
     <div class="generalMarginSupporter categoryGrid catalog-selectors mb-3">
         @*Rendering mobile left side trigger*@
-        <div class="d-flex flex-row row px-3">
+        <div class="d-flex flex-row flex-wrap px-3">
             @*Rendering sorting*@
             <template v-if="catalog.Model.PagingFilteringContext.AllowProductSorting">
                 <div class="sort-container">
                     <label class="col-form-label">@Loc["Catalog.OrderBy"]</label>
-                    <select class="custom-select form-control" id="AvailableSortOption" name="AvailableSortOption" v-on:change="catalog.loadProducts($event.target.value)" aria-label="@Loc["Catalog.OrderBy"]">
+                    <select class="form-select form-control" id="AvailableSortOption" name="AvailableSortOption" v-on:change="catalog.loadProducts($event.target.value)" aria-label="@Loc["Catalog.OrderBy"]">
                         <template v-for="item in catalog.Model.PagingFilteringContext.AvailableSortOptions">
                             <option :selected="item.Selected" :value="item.Value" :disabled="false">
                                 {{item.Text}}
@@ -39,7 +39,7 @@
             <template v-if="catalog.Model.PagingFilteringContext.AllowCustomersToSelectPageSize">
                 <div class="sort-container">
                     <label class="col-form-label">@Loc["Catalog.PageSize"]</label>
-                    <select class="custom-select form-control" id="PageSizeOption" name="PageSizeOption" v-on:change="catalog.loadProducts($event.target.value)" aria-label="@Loc["Catalog.PageSize"]">
+                    <select class="form-select form-control" id="PageSizeOption" name="PageSizeOption" v-on:change="catalog.loadProducts($event.target.value)" aria-label="@Loc["Catalog.PageSize"]">
                         <template v-for="item in catalog.Model.PagingFilteringContext.PageSizeOptions">
                             <option :selected="item.Selected" :value="item.Value" :disabled="false">
                                 {{item.Text}}
@@ -51,16 +51,16 @@
             @*Rendering view mode selectors*@
             <template v-if="catalog.Model.PagingFilteringContext.AllowProductViewModeChanging">
                 <template v-if="catalog.Model.PagingFilteringContext.AvailableViewModes.length > 1">
-                    <div class="sort-container order-3 d-inline-flex ml-sm-0 ml-auto change-view">
+                    <div class="sort-container order-3 d-inline-flex ms-sm-0 ms-auto change-view">
                         <template v-for="viewmode in catalog.Model.PagingFilteringContext.AvailableViewModes">
                             <a class="viewmode-icon d-flex align-items-center" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" @@click="catalog.loadProducts(viewmode.Value)" :title="viewmode.Text">
                                 <template v-if="viewmode.Value.includes('viewmode=grid')">
-                                    <b-icon scale="2" icon="grid3x2-gap" class="grid-icon"></b-icon>
-                                    <span class="sr-only">viewmode grid</span>
+                                    <i class="b-icon bi bi-grid-3x2-gap grid-icon" style="font-size:2em" aria-hidden="true"></i>
+                                    <span class="visually-hidden">viewmode grid</span>
                                 </template>
                                 <template v-else>
-                                    <b-icon scale="2" icon="list" class="list-icon"></b-icon>
-                                    <span class="sr-only">viewmode list</span>
+                                    <i class="b-icon bi bi-list list-icon" style="font-size:2em" aria-hidden="true"></i>
+                                    <span class="visually-hidden">viewmode list</span>
                                 </template>
                             </a>
                         </template>

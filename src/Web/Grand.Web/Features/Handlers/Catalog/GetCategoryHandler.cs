@@ -15,7 +15,7 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog;

@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Checkout.Orders;
 

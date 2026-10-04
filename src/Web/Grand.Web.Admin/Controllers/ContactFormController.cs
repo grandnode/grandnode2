@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Messages;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;

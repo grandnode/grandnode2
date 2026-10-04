@@ -1,0 +1,10 @@
+﻿{
+  Name: FAQ,
+  ParentCategoryId: ,
+  DisplayOrder: 1,
+  Description: Frequently asked questions,
+  Published: true,
+  SeName: faq,
+  LimitedToStores: false,
+  Id: kb-001
+}

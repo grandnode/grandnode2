@@ -1,0 +1,10 @@
+﻿{
+  Name: VIP Customers,
+  FreeShipping: true,
+  TaxExempt: false,
+  Active: true,
+  IsSystem: false,
+  SystemName: vip,
+  EnablePasswordLifetime: false,
+  Id: cg-001
+}

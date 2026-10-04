@@ -1,0 +1,36 @@
+﻿using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.Models;
+
+namespace Grand.Web.AdminShared.Models.Vendors;
+
+public class VendorReviewModel : BaseEntityModel
+{
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.Vendor")]
+    public string VendorId { get; set; }
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.Vendor")]
+    public string VendorName { get; set; }
+
+    public string Ids => Id + ":" + VendorId;
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.Customer")]
+    public string CustomerId { get; set; }
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.Customer")]
+    public string CustomerInfo { get; set; }
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.Title")]
+    public string Title { get; set; }
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.ReviewText")]
+    public string ReviewText { get; set; }
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.Rating")]
+    public int Rating { get; set; }
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.IsApproved")]
+    public bool IsApproved { get; set; }
+
+    [GrandResourceDisplayName("Admin.VendorReviews.Fields.CreatedOn")]
+    public DateTime CreatedOn { get; set; }
+}

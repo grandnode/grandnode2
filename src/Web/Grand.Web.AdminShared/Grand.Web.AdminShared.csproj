@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <Import Project="..\..\Build\Grand.Common.props" />
+  <PropertyGroup>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+    <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
+    <ProjectReference Include="..\Grand.SharedUIResources\Grand.SharedUIResources.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="elFinder.Net.AspNetCore" />
+		<PackageReference Include="elFinder.Net.Core" />
+		<PackageReference Include="elFinder.Net.Drivers.FileSystem" />
+		<!-- Not used in code. elFinder.Net.* 1.5.0 drags in the ASP.NET Core 2.1.x graph, and its
+		     Microsoft.AspNetCore.Http 2.1.1 has a known high severity advisory (GHSA-hxrm-9w7p-39cc).
+		     This reference lifts it to a patched 2.x. Remove only together with elFinder. -->
+		<PackageReference Include="Microsoft.AspNetCore.Http" />
+	</ItemGroup>
+</Project>

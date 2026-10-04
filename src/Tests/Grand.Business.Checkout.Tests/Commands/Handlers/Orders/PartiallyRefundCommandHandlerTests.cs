@@ -8,7 +8,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

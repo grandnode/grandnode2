@@ -5,7 +5,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -73,7 +73,7 @@ public class CustomerProductServiceTests
         await _customerProductService.InsertCustomerProductPrice(customerProductPrice);
 
         //Assert
-        Assert.IsTrue(_repositoryCustomerProductPrice.Table.Any());
+        Assert.IsNotEmpty(_repositoryCustomerProductPrice.Table);
     }
 
     [TestMethod]
@@ -122,7 +122,7 @@ public class CustomerProductServiceTests
         var result = await _customerProductService.GetProductsPriceByCustomer("1");
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -165,7 +165,7 @@ public class CustomerProductServiceTests
         await _customerProductService.InsertCustomerProduct(customerProduct);
 
         //Assert
-        Assert.IsTrue(_repositoryCustomerProduct.Table.Any());
+        Assert.IsNotEmpty(_repositoryCustomerProduct.Table);
     }
 
     [TestMethod]
@@ -214,6 +214,6 @@ public class CustomerProductServiceTests
         var result = await _customerProductService.GetProductsByCustomer("1");
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 }

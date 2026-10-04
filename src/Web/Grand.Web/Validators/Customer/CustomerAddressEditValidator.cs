@@ -2,11 +2,12 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Customer;
 using Grand.Web.Validators.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -18,10 +19,11 @@ public class CustomerAddressEditValidator : BaseGrandValidator<CustomerAddressEd
         IMediator mediator, IAddressAttributeParser addressAttributeParser,
         ITranslationService translationService,
         ICountryService countryService,
-        AddressSettings addressSettings)
+        AddressSettings addressSettings,
+        IContextAccessor contextAccessor)
         : base(validators)
     {
         RuleFor(x => x.Address).SetValidator(new AddressValidator(addressValidators, mediator, addressAttributeParser,
-            translationService, countryService, addressSettings));
+            translationService, countryService, addressSettings, contextAccessor));
     }
 }

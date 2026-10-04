@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Domain.Courses;
 using Grand.Web.Commands.Models.Courses;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Courses;
 

@@ -1,0 +1,54 @@
+@using Grand.Web.AdminShared.Models.Messages
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Constants = Grand.SharedUIResources.Constants
+@model ContactAttributeValueModel
+
+<link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/farbtastic/farbtastic.css"/>
+<script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/farbtastic/farbtastic.js"></script>
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+<input asp-for="ContactAttributeId" type="hidden"/>
+<input asp-for="DisplayColorSquaresRgb" type="hidden"/>
+
+<partial name="Partials/WidgetZone.Value.Top" model="Model"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+                       <admin-field asp-for="@Model.Locales[item].Name"/>
+                       <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
+                   </div>;
+}
+
+@* the checkout attribute value popup's layout: the localized name, the fields two to a row, and
+   Save as the popup's one primary action *@
+<localized-editor localized-template="@template" name="contactattributevalue-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+    <div class="grand-fields">
+        <admin-field asp-for="Name"/>
+    </div>
+</localized-editor>
+
+<div class="grand-fields grand-fields--2col">
+    @if (Model.DisplayColorSquaresRgb)
+    {
+        <admin-field asp-for="ColorSquaresRgb">
+            <admin-input asp-for="ColorSquaresRgb"/>
+            <div id="color-picker"></div>
+            <script type="text/javascript">
+                $(document).ready(function(){
+                    $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
+                });
+            </script>
+        </admin-field>
+    }
+    <admin-field asp-for="DisplayOrder" size="sm"/>
+    <admin-field asp-for="IsPreSelected"/>
+</div>
+<partial name="Partials/WidgetZone.Value.Bottom" model="Model"/>
+<div class="grand-popup__actions">
+    <partial name="Partials/WidgetZone.ValueButtons"/>
+    <button class="btn btn-primary" type="submit" name="save">
+        <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+    </button>
+</div>

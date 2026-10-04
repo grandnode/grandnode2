@@ -1,0 +1,19 @@
+﻿{
+  CaptchaEnabled: true,
+  CaptchaShowOnLoginPage: true,
+  CaptchaShowOnRegistrationPage: false,
+  CaptchaShowOnPasswordRecoveryPage: false,
+  CaptchaShowOnContactUsPage: true,
+  CaptchaShowOnEmailWishlistToFriendPage: false,
+  CaptchaShowOnEmailProductToFriendPage: false,
+  CaptchaShowOnAskQuestionPage: false,
+  CaptchaShowOnBlogCommentPage: false,
+  CaptchaShowOnArticleCommentPage: false,
+  CaptchaShowOnNewsCommentPage: false,
+  CaptchaShowOnProductReviewPage: false,
+  CaptchaShowOnApplyVendorPage: false,
+  CaptchaShowOnVendorReviewPage: false,
+  ReCaptchaPublicKey: public-key-123,
+  ReCaptchaPrivateKey: private-key-456,
+  ReCaptchaVersion: V2
+}

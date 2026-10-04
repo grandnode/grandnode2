@@ -1,0 +1,63 @@
+@*
+    Resolves the colour scheme before the first paint.
+
+    localStorage only ever holds an *explicit* choice made with the switch. While it is
+    absent the OS preference wins and is followed live, which is what a visitor who runs
+    a dark desktop expects on first visit.
+
+    This has to be inline in <head>: the previous implementation set the attribute from
+    app.js on Vue's `mounted`, so every page painted light first and then flipped.
+*@
+<script>
+    (function () {
+        var stored = null;
+        try { stored = localStorage.getItem('darkMode'); } catch (e) { /* private mode */ }
+        if (stored !== 'true' && stored !== 'false') stored = null;
+
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        var dark = stored === null ? mq.matches : stored === 'true';
+
+        function apply(value) {
+            dark = value;
+            //Bootstrap 5.3 themes its own components off this attribute
+            document.documentElement.setAttribute('data-bs-theme', value ? 'dark' : 'light');
+            //legacy: the hand-written [dark-theme=true] rules still key off this one.
+            //#app carries it too because many of those rules are written as #app[dark-theme=true].
+            var flag = String(value);
+            document.documentElement.setAttribute('dark-theme', flag);
+            if (document.body) document.body.setAttribute('dark-theme', flag);
+            var app = document.getElementById('app');
+            if (app) app.setAttribute('dark-theme', flag);
+        }
+
+        apply(dark);
+
+        //body and #app do not exist yet at this point; tag them the moment they are
+        //parsed, otherwise the legacy rules would still cause a flash
+        var observer = new MutationObserver(function () {
+            if (document.body) document.body.setAttribute('dark-theme', String(dark));
+            var app = document.getElementById('app');
+            if (app) {
+                app.setAttribute('dark-theme', String(dark));
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        document.addEventListener('DOMContentLoaded', function () { observer.disconnect(); apply(dark); });
+
+        //only track the OS while the visitor has not decided for themselves
+        mq.addEventListener('change', function (e) {
+            if (stored !== null) return;
+            apply(e.matches);
+            if (window.vm) window.vm.darkMode = e.matches;
+        });
+
+        //called by the switch; from then on the choice is the visitor's, not the OS'
+        window.grandSetColorScheme = function (value) {
+            stored = String(!!value);
+            try { localStorage.setItem('darkMode', stored); } catch (e) { /* private mode */ }
+            apply(!!value);
+        };
+        window.grandColorSchemeIsDark = function () { return dark; };
+    })();
+</script>

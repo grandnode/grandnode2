@@ -24,7 +24,7 @@ public class FileSystemStoreTests
         var result = await _store.GetFileInfo(myFile);
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(result.Name, myFile);
+        Assert.AreEqual(myFile, result.Name);
     }
 
     [TestMethod]
@@ -34,7 +34,7 @@ public class FileSystemStoreTests
         var result = _store.GetDirectoryInfo("Upload");
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(result.Name, "Upload");
+        Assert.AreEqual("Upload", result.Name);
     }
 
     [TestMethod]
@@ -44,7 +44,7 @@ public class FileSystemStoreTests
         var result = await _store.GetPhysicalDirectoryInfo("Upload");
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(result.Name, "Upload");
+        Assert.AreEqual("Upload", result.Name);
         Assert.IsTrue(result.IsDirectory);
     }
 
@@ -54,8 +54,8 @@ public class FileSystemStoreTests
         //Act
         var result = _store.GetDirectoryContent("Upload");
         //Assert
-        Assert.AreEqual(1, result.Count);
-        Assert.IsTrue(result.Any());
+        Assert.HasCount(1, result);
+        Assert.IsNotEmpty(result);
     }
 
     [TestMethod]

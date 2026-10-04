@@ -7,6 +7,7 @@ using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Contact;
@@ -28,7 +29,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         IContextAccessor contextAccessor,
         ITranslationService translationService, CommonSettings commonSettings,
         CaptchaSettings captchaSettings,
-        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator)
+        IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator)
         : base(validators)
     {
         _contactAttributeParser = contactAttributeParser;

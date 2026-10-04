@@ -41,6 +41,14 @@ public interface ICustomerAttributeParser
     Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes);
 
     /// <summary>
+    ///     Validates customer attributes limited to the specified store
+    /// </summary>
+    /// <param name="customAttributes">Attributes</param>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Warnings</returns>
+    Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes, string storeId);
+
+    /// <summary>
     ///     Formats attributes
     /// </summary>
     /// <param name="language">Language</param>

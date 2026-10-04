@@ -1,0 +1,109 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model CheckoutAttributeModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<script>
+            $(document).ready(function () {
+
+                $("#@Html.IdFor(model => model.IsTaxExempt)").click(toggleTax);
+                $("#@Html.IdFor(model => model.AttributeControlTypeId)").change(toggleAttributeControlType);
+
+                toggleTax();
+                toggleAttributeControlType();
+            });
+
+            function toggleTax() {
+                if ($('#@Html.IdFor(model => model.IsTaxExempt)').is(':checked')) {
+                    $('#pnlTaxCategory').hide();
+                } else {
+                    $('#pnlTaxCategory').show();
+                }
+            }
+
+            function toggleAttributeControlType() {
+                var selectedAttributeControlTypeId = $("#@Html.IdFor(model => model.AttributeControlTypeId)").val();
+                if (selectedAttributeControlTypeId == @(((int)AttributeControlType.TextBox).ToString())) {
+                    $('#pnlValidationMinLength').show();
+                    $('#pnlValidationMaxLength').show();
+                    $('#pnlValidationFileMaximumSize').hide();
+                    $('#pnlValidationFileAllowedExtensions').hide();
+                    $('#pnlDefaultValue').show();
+                    $('#tab-checkoutAttributesValues').hide();
+                } else if (selectedAttributeControlTypeId == @(((int)AttributeControlType.MultilineTextbox).ToString())) {
+                    $('#pnlValidationMinLength').show();
+                    $('#pnlValidationMaxLength').show();
+                    $('#pnlValidationFileMaximumSize').hide();
+                    $('#pnlValidationFileAllowedExtensions').hide();
+                    $('#pnlDefaultValue').show();
+                    $('#tab-checkoutAttributesValues').hide();
+                } else if (selectedAttributeControlTypeId == @(((int)AttributeControlType.FileUpload).ToString())) {
+                    $('#pnlValidationMinLength').hide();
+                    $('#pnlValidationMaxLength').hide();
+                    $('#pnlValidationFileMaximumSize').show();
+                    $('#pnlValidationFileAllowedExtensions').show();
+                    $('#pnlDefaultValue').hide();
+                    $('#tab-checkoutAttributesValues').hide();
+                } else if (selectedAttributeControlTypeId == @(((int)AttributeControlType.Checkboxes).ToString()) ||
+                    selectedAttributeControlTypeId == @(((int)AttributeControlType.ReadonlyCheckboxes).ToString()) ||
+                    selectedAttributeControlTypeId == @(((int)AttributeControlType.RadioList).ToString()) ||
+                    selectedAttributeControlTypeId == @(((int)AttributeControlType.ColorSquares).ToString()) ||
+                    selectedAttributeControlTypeId == @(((int)AttributeControlType.DropdownList).ToString())){
+                    $('#pnlValidationMinLength').hide();
+                    $('#pnlValidationMaxLength').hide();
+                    $('#pnlValidationFileMaximumSize').hide();
+                    $('#pnlValidationFileAllowedExtensions').hide();
+                    $('#pnlDefaultValue').hide();
+                    $('#tab-checkoutAttributesValues').show();
+                }else {
+                    $('#pnlValidationMinLength').hide();
+                    $('#pnlValidationMaxLength').hide();
+                    $('#pnlValidationFileMaximumSize').hide();
+                    $('#pnlValidationFileAllowedExtensions').hide();
+                    $('#pnlDefaultValue').hide();
+                    $('#tab-checkoutAttributesValues').hide();
+                }
+            }
+</script>
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].TextPrompt"/>
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
+        </div>;
+    var attributeControlTypes =
+        EnumTranslationService.ToSelectList(((AttributeControlType)Model.AttributeControlTypeId), valuesToExclude: [(int)AttributeControlType.ImageSquares, (int)AttributeControlType.Hidden]);
+}
+
+@* The attribute's names in the localized editor, then one card of two-column fields. The panels
+   the script above shows and hides keep their ids on the <admin-field> itself. *@
+<admin-card>
+    <localized-editor localized-template="@template" name="checkoutattribute-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="TextPrompt"/>
+        </div>
+    </localized-editor>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="AttributeControlTypeId" asp-items="attributeControlTypes"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="IsRequired"/>
+        <admin-field asp-for="ShippableProductRequired"/>
+        <admin-field asp-for="IsTaxExempt"/>
+        <admin-field asp-for="TaxCategoryId" asp-items="Model.AvailableTaxCategories" id="pnlTaxCategory"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="CustomerGroups"/>
+            <admin-field asp-for="Stores"/>
+        }
+        <admin-field asp-for="ValidationMinLength" size="sm" id="pnlValidationMinLength"/>
+        <admin-field asp-for="ValidationMaxLength" size="sm" id="pnlValidationMaxLength"/>
+        <admin-field asp-for="ValidationFileAllowedExtensions" id="pnlValidationFileAllowedExtensions"/>
+        <admin-field asp-for="ValidationFileMaximumSize" size="sm" id="pnlValidationFileMaximumSize"/>
+        <admin-field asp-for="DefaultValue" id="pnlDefaultValue"/>
+    </div>
+</admin-card>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

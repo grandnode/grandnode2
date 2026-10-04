@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Models.Cms;
+using Grand.Web.AdminShared.Models.Cms;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 

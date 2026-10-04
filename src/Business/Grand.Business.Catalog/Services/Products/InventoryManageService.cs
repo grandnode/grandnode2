@@ -8,7 +8,7 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Products;
 
@@ -61,9 +61,7 @@ public class InventoryManageService : IInventoryManageService
             if (pwi.ReservedQuantity < 0)
                 pwi.ReservedQuantity = 0;
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
-
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
             product.StockQuantity = product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
             product.ReservedQuantity = product.ProductWarehouseInventory.Sum(x => x.ReservedQuantity);
             await UpdateStockProduct(product);
@@ -89,9 +87,7 @@ public class InventoryManageService : IInventoryManageService
             if (combination.ReservedQuantity < 0)
                 combination.ReservedQuantity = 0;
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                combination.Id, combination);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
         }
         else
         {
@@ -107,9 +103,7 @@ public class InventoryManageService : IInventoryManageService
             combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
             combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                combination.Id, combination);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
         }
 
         product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
@@ -168,7 +162,7 @@ public class InventoryManageService : IInventoryManageService
             where j.ProductId == product.Id && j.PositionId == shipmentItem.Id
             select j.Id;
 
-        return await Task.FromResult(query.Any());
+        return await _inventoryJournalRepository.AnyAsync(query);
     }
 
     private async Task ReverseBookedInventory(Product product, InventoryJournal inventoryJournal)
@@ -188,9 +182,7 @@ public class InventoryManageService : IInventoryManageService
                 if (pwi.ReservedQuantity < 0)
                     pwi.ReservedQuantity = 0;
 
-                await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id,
-                    pwi);
-                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+                await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
                 break;
             }
             case ManageInventoryMethod.ManageStock:
@@ -215,10 +207,7 @@ public class InventoryManageService : IInventoryManageService
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
-                    await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                        combination.Id, combination);
-                    await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
-
+                    await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
                     await UpdateStockProduct(product);
                 }
                 else
@@ -239,9 +228,7 @@ public class InventoryManageService : IInventoryManageService
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
-                    await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                        combination.Id, combination);
-                    await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+                    await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
                     await UpdateStockProduct(product);
                 }
 
@@ -315,10 +302,11 @@ public class InventoryManageService : IInventoryManageService
                         product.DisableBuyButton = true;
                         product.LowStock = true;
 
-                        await _productRepository.UpdateField(product.Id, x => x.DisableBuyButton,
-                            product.DisableBuyButton);
-                        await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
-                        await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+                        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+                            UpdateBuilder<Product>.Create()
+                                .Set(x => x.DisableBuyButton, product.DisableBuyButton)
+                                .Set(x => x.LowStock, product.LowStock));
+
                         //cache
                         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
 
@@ -330,9 +318,10 @@ public class InventoryManageService : IInventoryManageService
                         product.Published = false;
                         product.LowStock = true;
 
-                        await _productRepository.UpdateField(product.Id, x => x.Published, product.Published);
-                        await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
-                        await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+                        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+                            UpdateBuilder<Product>.Create()
+                                .Set(x => x.Published, product.Published)
+                                .Set(x => x.LowStock, product.LowStock));
 
                         //cache
                         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -355,10 +344,10 @@ public class InventoryManageService : IInventoryManageService
                             product.DisableBuyButton = false;
                             product.LowStock = product.MinStockQuantity <= prevStockQuantity;
 
-                            await _productRepository.UpdateField(product.Id, x => x.DisableBuyButton,
-                                product.DisableBuyButton);
-                            await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
-                            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+                            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+                                UpdateBuilder<Product>.Create()
+                                    .Set(x => x.DisableBuyButton, product.DisableBuyButton)
+                                    .Set(x => x.LowStock, product.LowStock));
 
                             //cache
                             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -371,9 +360,10 @@ public class InventoryManageService : IInventoryManageService
                             product.Published = true;
                             product.LowStock = product.MinStockQuantity < prevStockQuantity;
 
-                            await _productRepository.UpdateField(product.Id, x => x.Published, product.Published);
-                            await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
-                            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+                            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+                                UpdateBuilder<Product>.Create()
+                                    .Set(x => x.Published, product.Published)
+                                    .Set(x => x.LowStock, product.LowStock));
 
                             //cache
                             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -469,8 +459,7 @@ public class InventoryManageService : IInventoryManageService
             if (pwi.ReservedQuantity < 0)
                 pwi.ReservedQuantity = 0;
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
         }
 
         //cache
@@ -507,10 +496,9 @@ public class InventoryManageService : IInventoryManageService
 
             product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                combination.Id, combination);
-            await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
+            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+                UpdateBuilder<Product>.Create().Set(x => x.ReservedQuantity, product.ReservedQuantity));
         }
         else
         {
@@ -527,10 +515,9 @@ public class InventoryManageService : IInventoryManageService
 
             product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                combination.Id, combination);
-            await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
+            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+                UpdateBuilder<Product>.Create().Set(x => x.ReservedQuantity, product.ReservedQuantity));
         }
 
         //cache
@@ -573,8 +560,7 @@ public class InventoryManageService : IInventoryManageService
             if (pwi.ReservedQuantity < 0)
                 pwi.ReservedQuantity = 0;
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
         }
 
         //cache
@@ -607,10 +593,9 @@ public class InventoryManageService : IInventoryManageService
 
             product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                combination.Id, combination);
-            await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
+            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+                UpdateBuilder<Product>.Create().Set(x => x.ReservedQuantity, product.ReservedQuantity));
         }
         else
         {
@@ -624,9 +609,7 @@ public class InventoryManageService : IInventoryManageService
 
             combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
 
-            await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id,
-                combination.Id, combination);
-            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
         }
 
         //cache
@@ -713,14 +696,15 @@ public class InventoryManageService : IInventoryManageService
         if (product.ReservedQuantity < 0)
             product.ReservedQuantity = 0;
 
-        //update
-        await _productRepository.UpdateField(product.Id, x => x.StockQuantity, product.StockQuantity);
-        await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
-        await _productRepository.UpdateField(product.Id, x => x.LowStock,
-            (product.MinStockQuantity > 0 &&
-             product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) ||
-            product.StockQuantity - product.ReservedQuantity <= 0);
-        await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+        //update - one write, so the three stock fields never land out of step
+        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+            UpdateBuilder<Product>.Create()
+                .Set(x => x.StockQuantity, product.StockQuantity)
+                .Set(x => x.ReservedQuantity, product.ReservedQuantity)
+                .Set(x => x.LowStock,
+                    (product.MinStockQuantity > 0 &&
+                     product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) ||
+                    product.StockQuantity - product.ReservedQuantity <= 0));
 
 
         //cache

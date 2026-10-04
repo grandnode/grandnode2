@@ -1,0 +1,31 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model BlogCategoryModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
+        </div>;
+}
+
+<partial name="Partials/WidgetZone.CategoryInfo.Top" model="Model"/>
+<admin-card>
+    <localized-editor localized-template="@template" name="blogcategory-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+        </div>
+    </localized-editor>
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="SeName"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="Stores"/>
+        }
+    </div>
+</admin-card>
+<partial name="Partials/WidgetZone.CategoryInfo.Bottom" model="Model"/>

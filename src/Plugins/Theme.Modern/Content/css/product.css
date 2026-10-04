@@ -1,0 +1,159 @@
+/* Modern - product page: gallery, sticky buy panel, attributes, tabs, reviews. */
+
+.product-details-page { padding-top: 8px; }
+
+/* ---------- gallery ---------- */
+
+.product-details-page .gallery img.image.main-image,
+[dark-theme="true"] .product-details-page .gallery img.image.main-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    /* contain, not cover: this is where the customer must see the whole product */
+    object-fit: contain;
+    background: var(--mdn-surface);
+    border: 0;
+    border-radius: var(--mdn-r-block);
+}
+
+.product-details-page .gallery img.image.thumb-image,
+[dark-theme="true"] .product-details-page .gallery img.image.thumb-image {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    background: var(--mdn-surface);
+    border: 2px solid transparent;
+    border-radius: var(--mdn-r-input);
+    cursor: pointer;
+    transition: border-color var(--mdn-dur) var(--mdn-ease);
+}
+.product-details-page .gallery img.image.thumb-image:hover,
+.product-details-page .gallery img.image.thumb-image:focus-visible { border-color: var(--mdn-ink); }
+
+/* ---------- buy panel ---------- */
+
+@media (min-width: 768px) {
+    .product-details-page .overview {
+        position: sticky;
+        top: 140px; /* under the two-row sticky header */
+        align-self: flex-start;
+        padding-left: clamp(16px, 3vw, 48px) !important; /* beats Default's .ps-md-3 */
+    }
+}
+
+.product-details-page .overview .generalTitle {
+    margin: 4px 0 8px;
+    font-size: clamp(26px, 2.8vw, 38px);
+    letter-spacing: -.03em;
+}
+
+.product-details-page .overview .product-label { position: static; margin-bottom: 8px; }
+
+.product-details-page .short-description { color: var(--mdn-muted-text); font-size: 16px; line-height: 1.55; }
+
+.product-details-page .overview .label,
+[dark-theme="true"] .product-details-page .overview .label { color: var(--mdn-muted-text); font-weight: 400; }
+.product-details-page .overview .value { color: var(--mdn-ink); }
+
+.product-details-page .overview .prices { margin-inline: 0; padding: 0 !important; align-items: flex-start !important; } /* beats .px-3 / .justify-content-center; .row's negative margins pushed the price out of line */
+.product-details-page .overview .actual-price,
+[dark-theme="true"] .product-details-page .overview .actual-price {
+    color: var(--mdn-ink);
+    font-family: var(--mdn-mono);
+    font-size: clamp(26px, 2.4vw, 32px);
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
+.product-details-page .overview .old-price,
+.product-details-page .overview .old-product-price { color: var(--mdn-muted-text); font-family: var(--mdn-mono); text-decoration: line-through; }
+
+/* attributes: a surface block instead of Default's bordered table */
+.attributes,
+[dark-theme="true"] .attributes {
+    padding: 8px 16px;
+    background: var(--mdn-surface);
+    border: 0;
+    border-radius: var(--mdn-r-card);
+}
+.attributes .table > :not(caption) > * > * { padding: 10px 0; background: transparent; border-color: var(--mdn-line); }
+.attributes .attribute-name,
+[dark-theme="true"] .attributes .attribute-name { color: var(--mdn-ink); font-size: 15px; font-weight: 600; }
+
+/* radio and checkbox options as pills; colour squares keep Default's swatches */
+.attributes .option-list:not(.color-squares) .form-check { display: inline-block; margin: 0 8px 8px 0; padding: 0; }
+.attributes .option-list:not(.color-squares) .form-check-input { position: absolute; opacity: 0; }
+.attributes .option-list:not(.color-squares) .form-check-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 16px;
+    background: var(--mdn-bg);
+    border: 1px solid var(--mdn-line);
+    border-radius: var(--mdn-r-pill);
+    cursor: pointer;
+    transition: border-color var(--mdn-dur) var(--mdn-ease), background-color var(--mdn-dur) var(--mdn-ease);
+}
+.attributes .option-list:not(.color-squares) .form-check-input:checked + .form-check-label,
+[dark-theme="true"] .attributes .option-list:not(.color-squares) .form-check-input:checked + .form-check-label {
+    background: var(--mdn-ink);
+    border-color: var(--mdn-ink);
+    color: var(--mdn-on-ink);
+}
+.attributes .option-list:not(.color-squares) .form-check-input:focus-visible + .form-check-label { outline: 2px solid var(--mdn-accent); outline-offset: 2px; }
+.attributes .color-container .color { border-radius: var(--mdn-r-pill); box-shadow: inset 0 0 0 1px var(--mdn-line); } /* a white swatch disappears on the surface without it */
+
+/* quantity + add to cart */
+.product-details-page .product-add-to-cart { gap: 8px; }
+.product-details-page .product-add-to-cart .qty-input,
+.product-details-page .product-add-to-cart .qty-dropdown { flex: 0 0 88px; width: 88px; min-height: 52px; text-align: center; }
+/* Bootstrap squares the inner corners at (0,6,0): .input-group:not(.has-validation) > :not(:last-child)... */
+.product-details-page .product-add-to-cart.input-group > .form-control:not(:last-child):not(.dropdown-toggle) { border-radius: var(--mdn-r-pill); }
+.product-details-page .add-to-cart-button { min-height: 52px; justify-content: center; align-items: center; border-radius: var(--mdn-r-pill); font-size: 16px; }
+
+.product-details-page .overview .btn-group { gap: 8px; }
+/* above Bootstrap's .btn-group > .btn:not(:last-child):not(.dropdown-toggle) (0,4,0) */
+.product-details-page .overview .btn-group > .btn:not(.btn-check):not(.dropdown-toggle) { flex: 1; min-height: 44px; border-radius: var(--mdn-r-pill); }
+
+/* ---------- tabs as a segmented control ---------- */
+
+.product-details-page .nav-tabs,
+[dark-theme="true"] .product-details-page .nav-tabs {
+    justify-content: flex-start !important; /* beats the .justify-content-center utility gn-tabs align="center" adds */
+    gap: 4px;
+    width: max-content;
+    max-width: 100%;
+    padding: 4px;
+    overflow-x: auto;
+    background: var(--mdn-surface);
+    border: 0;
+    border-radius: var(--mdn-r-pill);
+}
+.product-details-page .nav-tabs .nav-link,
+[dark-theme="true"] .product-details-page .nav-tabs .nav-link {
+    padding: 8px 16px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--mdn-r-pill);
+    color: var(--mdn-muted-text);
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.product-details-page .nav-tabs .nav-link::before { display: none; }
+.product-details-page .nav-tabs .nav-link:hover:not(.active),
+[dark-theme="true"] .product-details-page .nav-tabs .nav-link:hover:not(.active) { background: transparent; color: var(--mdn-ink); }
+.product-details-page .nav-tabs .nav-link.active,
+[dark-theme="true"] .product-details-page .nav-tabs .nav-link.active {
+    background: var(--mdn-bg);
+    box-shadow: var(--mdn-shadow);
+    color: var(--mdn-ink);
+}
+.product-details-page .tab-content { padding-top: 24px; line-height: 1.6; }
+
+/* ---------- reviews ---------- */
+
+.product-review-item.card,
+[dark-theme="true"] .product-review-item.card { background: var(--mdn-surface); border-radius: var(--mdn-r-card); }
+.product-review-item .card-header { border: 0; font-weight: 600; }
+
+/* related / also-purchased rows: left-aligned heads like the home sections */
+.linked-product-grid > h2.generalTitle { margin-bottom: 20px; font-size: clamp(22px, 2.2vw, 28px); text-align: left !important; } /* beats .text-center */

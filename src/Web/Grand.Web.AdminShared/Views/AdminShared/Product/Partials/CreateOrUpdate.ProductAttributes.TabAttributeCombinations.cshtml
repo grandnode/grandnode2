@@ -1,0 +1,171 @@
+﻿@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+<div class="note note-info">
+    <p>
+        <strong>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Description"]</strong>
+    </p>
+    <p>
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Description2"]
+    </p>
+</div>
+<div class="grand-card">
+    <div class="grand-card__header">
+        <h2 class="grand-card__title"></h2>
+        @if (!readOnly)
+        {
+            <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
+            <button type="submit" id="btnGenerateAllCombinations" class="btn btn-outline-secondary btn-sm"><span class="bi bi-palette"></span> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
+            <button type="submit" id="btnClearAllCombinations" class="btn btn-outline-danger btn-sm"><span class="bi bi-scissors"></span> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
+            <input type="submit" id="btnRefreshCombinations" style="display: none"/>
+        }
+    </div>
+    <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Top" model="Model"/>
+    <div class="grand-card__body grand-card__body--flush">
+        <admin-grid id="attributecombinations-grid"
+                    read-only="@readOnly"
+                    read-url="@Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("ProductAttributeCombinationDelete", "Product", new { area = area })"
+                    server-paging="false"
+                    auto-bind="false"
+                    confirm-destroy="true"
+                    on-data-bound="bindAttributeCombinationPopups">
+            @*Attributes is markup built by the product attribute formatter; Warnings are plain texts*@
+            <grid-column field="Attributes" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]">
+                <cell-template>
+                    @if (readOnly)
+                    {
+                        <span>{{{ Attributes }}}<br />
+                        <span data-if="Warnings != null" style="color: red">{{ Warnings }}</span>
+                        </span>
+                    }
+                    else
+                    {
+                        <a class='text-decoration-none editcombinationlink' href="@Url.Action("AttributeCombinationPopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshCombinations&formId=product-form">{{{ Attributes }}}<br />
+                        <span data-if="Warnings != null" style="color: red">{{ Warnings }}</span>
+                        </a>
+                    }
+                </cell-template>
+            </grid-column>
+            <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity"]" align="Center" format="{0:0}"/>
+            <grid-column field="AllowOutOfStockOrders" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.AllowOutOfStockOrders"]" align="Center">
+                <cell-template>
+                    <i data-if="AllowOutOfStockOrders" class="bi bi-check-lg" aria-hidden="true" style="color:green"></i>
+                    <i data-else class="bi bi-x-lg" aria-hidden="true" style="color:red"></i>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Sku" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Sku"]"/>
+            <grid-column field="OverriddenPrice" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.OverriddenPrice"]" align="Center"/>
+            <grid-commands destroy="true" width="50"/>
+        </admin-grid>
+    </div>
+    <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Bottom" model="Model"/>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#btnAddNewCombination').magnificPopup({
+            type: 'ajax',
+            settings: { cache: false, async: false },
+            midClick: true,
+            callbacks: {
+                parseAjax: function (mfpResponse) {
+                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                },
+                ajaxContentAdded: function () {
+                    $('.mfp-wrap').removeAttr('tabindex');
+                }
+            }
+        });
+    });
+    function bindAttributeCombinationPopups() {
+        $('.editcombinationlink').magnificPopup({
+            type: 'ajax',
+            settings: { cache: false, async: false },
+            midClick: true,
+            callbacks: {
+                parseAjax: function (mfpResponse) {
+                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                },
+                ajaxContentAdded: function () {
+                    $('.mfp-wrap').removeAttr('tabindex');
+                }
+            }
+        });
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        //refresh button
+        $('#btnRefreshCombinations').click(function () {
+            //refresh grid
+            var grid = GrandAdmin.grids.get("#attributecombinations-grid");
+            grid.dataSource.read();
+
+            //return false to don't reload a page
+            return false;
+        });
+
+
+        //generate combinations
+        $('#btnGenerateAllCombinations').click(function () {
+            GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]').then(function (confirmed) {
+                if (!confirmed) return;
+
+                var postData = {
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: 'POST',
+                    url: '@Url.Action("GenerateAllAttributeCombinations", "Product", new { productId = Model.Id, area = area })',
+                    data: postData,
+                    dataType: 'json',
+                    success: function(data) {
+                        //refresh grid
+                        var grid = GrandAdmin.grids.get("#attributecombinations-grid");
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert('Error while generating attribute combinations');
+                    }
+                });
+            });
+            return false;
+        });
+
+        //clear combinations
+        $('#btnClearAllCombinations').click(function () {
+            GrandAdmin.modal.confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]').then(function (confirmed) {
+                if (!confirmed) return;
+
+                var postData = {
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: 'POST',
+                    url: '@Url.Action("ClearAllAttributeCombinations", "Product", new { productId = Model.Id, area = area })',
+                    data: postData,
+                    dataType: 'json',
+                    success: function(data) {
+                        //refresh grid
+                        var grid = GrandAdmin.grids.get("#attributecombinations-grid");
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert('Error while clearing attribute combinations');
+                    }
+                });
+            });
+            return false;
+        });
+
+    });
+</script>

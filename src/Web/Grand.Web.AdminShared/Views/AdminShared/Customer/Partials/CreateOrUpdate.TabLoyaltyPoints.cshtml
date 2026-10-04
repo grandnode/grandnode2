@@ -1,0 +1,84 @@
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+@* the notes tabs' shape: the history grid in a flush card, then a card to add points *@
+<div class="grand-card">
+    <partial name="Partials/WidgetZone.LoyaltyPointsTop" model="Model"/>
+    <div class="grand-card__body grand-card__body--flush">
+        <admin-grid id="customer-loyaltypoints-grid"
+                    read-url="@Url.Action("LoyaltyPointsHistorySelect", "Customer", new { customerId = Model.Id, area = area })"
+                    pager="Compact"
+                    auto-bind="false">
+            @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
+            {
+                <grid-column field="StoreName" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Store"]"/>
+            }
+            <grid-column field="Points" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Points"]"/>
+            <grid-column field="PointsBalance" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.PointsBalance"]"/>
+            <grid-column field="Message" title="@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Message"]"/>
+            <grid-column field="CreatedOn" title="@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+        </admin-grid>
+    </div>
+    <partial name="Partials/WidgetZone.LoyaltyPointsBottom" model="Model"/>
+</div>
+
+<admin-card title="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddTitle"]">
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="AddLoyaltyPointsValue" size="md"/>
+        <admin-field asp-for="AddLoyaltyPointsMessage"/>
+        @if (area == "Admin")
+        {
+            <admin-field asp-for="AddLoyaltyPointsStoreId" asp-items="Model.LoyaltyPointsAvailableStores"/>
+        }
+    </div>
+    <div class="mt-3">
+        <button type="button" id="addLoyaltyPoints" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]</button>
+    </div>
+</admin-card>
+<script>
+        $(document).ready(function () {
+            $('#addLoyaltyPoints').click(function () {
+                var loyaltyPointsValue = $("#@Html.IdFor(model => model.AddLoyaltyPointsValue)").val();
+                var loyaltyPointsMessage = $("#@Html.IdFor(model => model.AddLoyaltyPointsMessage)").val();
+@if (area == "Admin")
+{
+                    <text>
+                var loyaltyPointsStoreId = $("#@Html.IdFor(model => model.AddLoyaltyPointsStoreId)").val();
+                    </text>
+}
+                $('#addLoyaltyPoints').attr('disabled', true);
+
+                var postData = {
+                    addLoyaltyPointsValue: loyaltyPointsValue,
+                    addLoyaltyPointsMessage: loyaltyPointsMessage,
+@if (area == "Admin")
+{
+                    <text>
+                    storeId: loyaltyPointsStoreId,
+                    </text>
+}
+                    customerId: '@Model.Id'
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache:false,
+                    type: "POST",
+                    url: "@(Url.Action("LoyaltyPointsHistoryAdd", "Customer", new { area = area }))",
+                    data: postData,
+                    success: function (data) {
+                        var grid = GrandAdmin.grids.get("#customer-loyaltypoints-grid");
+                        grid.dataSource.read();
+                        $('#addLoyaltyPoints').attr('disabled', false);
+                    },
+                    error:function (xhr, ajaxOptions, thrownError){
+                        alert('Failed to add loyalty points.');
+                        $('#addLoyaltyPoints').attr('disabled', false);
+                    }
+                });
+            });
+        });
+</script>

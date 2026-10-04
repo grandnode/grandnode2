@@ -1,0 +1,6 @@
+﻿{
+  Name: Tech News,
+  SeName: tech-news,
+  DisplayOrder: 1,
+  Id: bc-001
+}

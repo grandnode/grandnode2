@@ -1,0 +1,5 @@
+﻿{
+  Email: subscriber@example.com,
+  Active: true,
+  Id: ObjectId_1
+}

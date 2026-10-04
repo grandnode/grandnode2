@@ -1,0 +1,72 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model CustomerAttributeModel
+@{
+    var isReadOnly = Model.IsGlobalAttribute;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.AttributeControlTypeId)").change(toggleAttributeControlType);
+        toggleAttributeControlType();
+        $("#@Html.IdFor(model => model.IsReadOnly)").click(toggleIsReadOnly);
+        toggleIsReadOnly();
+    });
+
+    function toggleIsReadOnly() {
+        if ($('#@Html.IdFor(model => model.IsReadOnly)').is(':checked')) {
+            $('#pnlIsRequired').hide();
+        } else {
+            $('#pnlIsRequired').show();
+        }
+    }
+
+    function toggleAttributeControlType() {
+        var selectedAttributeControlTypeId = $("#@Html.IdFor(model => model.AttributeControlTypeId)").val();
+        if (selectedAttributeControlTypeId == @(((int)AttributeControlType.TextBox).ToString()) || selectedAttributeControlTypeId == @(((int)AttributeControlType.Hidden).ToString())) {
+            $('#tab-customerattributesvalues').hide();
+        } else if (selectedAttributeControlTypeId == @(((int)AttributeControlType.MultilineTextbox).ToString())) {
+            $('#tab-customerattributesvalues').hide();
+        } else {
+            $('#tab-customerattributesvalues').show();
+        }
+    }
+
+</script>
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
+        </div>;
+    var attributeControlTypes =
+        EnumTranslationService.ToSelectList(
+        ((AttributeControlType)Model.AttributeControlTypeId), valuesToExclude: //custom customer attributes don't support some attribute control types
+            [(int)AttributeControlType.FileUpload, (int)AttributeControlType.Datepicker, (int)AttributeControlType.ColorSquares, (int)AttributeControlType.ImageSquares, (int)AttributeControlType.ReadonlyCheckboxes]);
+}
+
+@* The localized name, then one card of two-column fields. IsRequired sits beside IsReadOnly,
+   the switch that hides it, and keeps its pnlIsRequired id for the script above. A global
+   attribute opened by a store owner is shown in a disabled fieldset: nothing on it can be saved. *@
+<admin-card>
+    <fieldset disabled="@isReadOnly">
+        <localized-editor localized-template="@template" name="customerattribute-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+            <div class="grand-fields">
+                <admin-field asp-for="Name"/>
+            </div>
+        </localized-editor>
+        <div class="grand-fields grand-fields--2col mt-3">
+            <admin-field asp-for="AttributeControlTypeId" asp-items="attributeControlTypes" size="md"/>
+            <admin-field asp-for="DisplayOrder" size="sm"/>
+            <admin-field asp-for="IsReadOnly"/>
+            <admin-field asp-for="IsRequired" id="pnlIsRequired"/>
+            @if (area == "Admin")
+            {
+                <admin-field asp-for="Stores"/>
+            }
+        </div>
+    </fieldset>
+</admin-card>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

@@ -1,43 +1,33 @@
 ﻿@using System.Globalization
 @model ProductOverviewModel
 @{
-    //prepare "Add to cart" Axios link
-    var addtocartlink = "";
-    var addtowishlistlink = "";
-    var quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
-
-    const int shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
-    const int quantity = 1;
-    if (!Model.ShowQty)
-    {
-        addtocartlink = Model.ProductPrice.ForceRedirectionAfterAddingToCart ? Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart }) : Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity });
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity });
-    }
-    else
-    {
-        addtocartlink = Model.ProductPrice.ForceRedirectionAfterAddingToCart ? Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart }) : Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId });
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist });
-    }
+    @*
+        Cards above the fold opt out of lazy loading: the browser only discovers a
+        lazy image after layout, which on a category page delays the very image that
+        decides LCP. The caller sets this for the first row; everything else stays
+        lazy, which is the right default further down the page.
+    *@
+    var eagerImage = ViewData["EagerImage"] as bool? ?? false;
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
 <article v-bind:class="{ mobile: isMobile()}" class="card product-box mb-2">
     <div class="picture-container">
         <a class="img-container" href="@Url.RouteUrl("Product", new { Model.SeName })" title="@Model.DefaultPictureModel.Title">
-            <b-card-img-lazy alt="@Model.DefaultPictureModel.AlternateText" class="main-product-img" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title"></b-card-img-lazy>
+            <img class="card-img main-product-img" src="@Model.DefaultPictureModel.ImageUrl" alt="@Model.DefaultPictureModel.AlternateText" loading="@(eagerImage ? "eager" : "lazy")" fetchpriority="@(eagerImage ? "high" : "auto")" title="@Model.DefaultPictureModel.Title">
             @if (!string.IsNullOrEmpty(Model.SecondPictureModel.ImageUrl))
             {
-                <b-card-img-lazy class="hover-img" alt="@Model.SecondPictureModel.AlternateText" src="@Model.SecondPictureModel.ImageUrl"></b-card-img-lazy>
+                <img class="card-img hover-img" src="@Model.SecondPictureModel.ImageUrl" alt="@Model.SecondPictureModel.AlternateText" loading="lazy">
             }
         </a>
-        <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-target="ModalQuickView" onclick="AxiosCart.quickview_product('@quickviewurl');return false;">
-            <b-icon icon="search"></b-icon>
+        <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-bs-target="ModalQuickView" data-cart-action="quickview" data-url="@Model.QuickViewUrl">
+            <i class="b-icon bi bi-search" aria-hidden="true"></i>
             <span>@Loc["Products.QuickView"]</span>
         </a>
         @if (!string.IsNullOrEmpty(Model.Flag))
         {
             <div class="product-label">
-                <div class="badge badge-info">@Model.Flag</div>
+                <div class="badge text-bg-info">@Model.Flag</div>
             </div>
         }
     </div>
@@ -54,12 +44,10 @@
         <div class="prices-rating">
             @if (Model.ReviewOverviewModel.AllowCustomerReviews)
             {
-                <template>
-                    <div class="rating">
-                        <b-form-rating id="rating-inline-grid-@Model.Id" aria-label="Rating" class="p-0" variant="warning" no-border size="sm" show-value aria-valuenow="@(Model.ReviewOverviewModel.AvgRating.ToString("0.00", CultureInfo.InvariantCulture))" precision="2" readonly inline value="@Model.ReviewOverviewModel.AvgRating.ToString("0.00", CultureInfo.InvariantCulture)"></b-form-rating>
-                        <b-link href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
-                    </div>
-                </template>
+                <div class="rating">
+                    <partial name="Partials/Rating" model="Model.ReviewOverviewModel.AvgRating" />
+                    <a href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</a>
+                </div>
             }
             @if (Model.ProductType == ProductType.Auction)
             {
@@ -71,10 +59,10 @@
                             <countdown :end-time="@Model.EndTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">
                                 <template v-slot:process="{ timeObj }">
                                     <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
-                                    <span>{{ `${timeObj.d}` }}</span>
-                                    <span>{{ `${timeObj.h}` }}</span>
-                                    <span>{{ `${timeObj.m}` }}</span>
-                                    <span>{{ `${timeObj.s}` }}</span>
+                                    <span>{{ `${timeObj.d}` }}@Loc["Countdown.Days"]</span>
+                                    <span>{{ `${timeObj.h}` }}@Loc["Countdown.Hours"]</span>
+                                    <span>{{ `${timeObj.m}` }}@Loc["Countdown.Minutes"]</span>
+                                    <span>{{ `${timeObj.s}` }}@Loc["Countdown.Seconds"]</span>
                                 </template>
                                 <template v-slot:finish>
                                     <span>@Loc["ShoppingCart.Auctionends"]</span>
@@ -222,7 +210,7 @@
                 </table>
             </div>
         }
-        <div class="desc">
+        <div class="desc" v-pre>
             @Html.Raw(Model.ShortDescription)
         </div>
         @if (Model.ShowQty)
@@ -233,9 +221,9 @@
         <div class="btn-group">
             @if (!Model.ProductPrice.DisableWishlistButton && Model.ProductType == ProductType.SimpleProduct)
             {
-                <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocart_catalog('@addtowishlistlink', '@Model.ShowQty', '@Model.Id');return false;">
-                    <b-icon icon="heart"></b-icon>
-                    <span class="sr-only">AddToWishlist</span>
+                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" data-url="@Model.AddToWishlistUrl" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
+                    <i class="b-icon bi bi-heart" aria-hidden="true"></i>
+                    <span class="visually-hidden">AddToWishlist</span>
                 </button>
             }
             @if (!Model.ProductPrice.DisableBuyButton)
@@ -251,10 +239,10 @@
                     addToCartText = Loc["ShoppingCart.PreOrder"];
                 }
 
-                <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
-                    <b-icon icon="cart2" class="mx-auto d-sm-none d-block"></b-icon>
+                <button class="btn btn-info justify-content-center w-100" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
+                    <i class="b-icon bi bi-cart2 mx-auto d-sm-none d-block" aria-hidden="true"></i>
                     <span class="add-cart-text d-sm-block d-none">@(addToCartText)</span>
-                    <span class="sr-only">AddToCart</span>
+                    <span class="visually-hidden">AddToCart</span>
                 </button>
             }
             else
@@ -262,18 +250,18 @@
                 if (Model.ProductType == ProductType.Auction)
                 {
                     var addToCartText = Loc["ShoppingCart.Bids"];
-                    <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
-                        <b-icon icon="hammer" class="mx-auto d-sm-none d-block"></b-icon>
+                    <button class="btn btn-info justify-content-center w-100" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="false" data-product-id="@Model.Id">
+                        <i class="b-icon bi bi-hammer mx-auto d-sm-none d-block" aria-hidden="true"></i>
                         <span class="add-cart-text d-sm-block d-none">@(addToCartText)</span>
-                        <span class="sr-only">AddToCart</span>
+                        <span class="visually-hidden">AddToCart</span>
                     </button>
                 }
             }
             @if (!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == ProductType.SimpleProduct)
             {
-                <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocomparelist('@Model.Id', '@Loc["Products.ProductHasBeenAddedToCompareList.Link"]', '@Url.RouteUrl("CompareProducts")')">
-                    <span class="sr-only">AddToCompareList</span>
-                    <b-icon icon="shuffle"></b-icon>
+                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" data-cart-action="compare" data-product-id="@Model.Id">
+                    <span class="visually-hidden">AddToCompareList</span>
+                    <i class="b-icon bi bi-shuffle" aria-hidden="true"></i>
                 </button>
             }
         </div>

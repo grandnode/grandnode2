@@ -11,7 +11,7 @@ public class FormatTextTests
     [DataRow("&nbsp;&nbsp; sample <br /> sample &nbsp;&nbsp;")]
     public void ConvertTextTest(string text)
     {
-        Assert.IsFalse(FormatText.ConvertText(text).Contains("<br"));
-        Assert.IsFalse(FormatText.ConvertText(text).Contains("&nbsp;&nbsp;"));
+        Assert.DoesNotContain("<br", FormatText.ConvertText(text));
+        Assert.DoesNotContain("&nbsp;&nbsp;", FormatText.ConvertText(text));
     }
 }

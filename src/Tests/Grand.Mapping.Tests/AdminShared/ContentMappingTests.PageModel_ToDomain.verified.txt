@@ -1,0 +1,23 @@
+﻿{
+  SystemName: about-us,
+  IncludeInSitemap: true,
+  IncludeInMenu: false,
+  IncludeInFooterRow1: false,
+  IncludeInFooterRow2: false,
+  IncludeInFooterRow3: false,
+  DisplayOrder: 1,
+  AccessibleWhenStoreClosed: false,
+  IsPasswordProtected: false,
+  Title: About Us,
+  Body: <p>About us page</p>,
+  Published: true,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

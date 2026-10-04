@@ -7,6 +7,7 @@ using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Menu;
@@ -59,16 +60,24 @@ public class StartupApplication : IStartupApplication
         var config = new RedisConfig();
         configuration.GetSection("Redis").Bind(config);
 
-        serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
-
         if (config.RedisPubSubEnabled)
         {
-            var redis = ConnectionMultiplexer.Connect(config.RedisPubSubConnectionString);
-            serviceCollection.AddSingleton(_ => redis.GetSubscriber());
-            serviceCollection.AddSingleton<IMessageBus, RedisMessageBus>();
+            //AbortOnConnectFail=false lets the multiplexer keep retrying in the background
+            //instead of crashing the instance when Redis is temporarily unavailable at startup
+            var options = ConfigurationOptions.Parse(config.RedisPubSubConnectionString);
+            options.AbortOnConnectFail = false;
+            var redis = ConnectionMultiplexer.Connect(options);
+            serviceCollection.AddSingleton<IConnectionMultiplexer>(redis);
+            //single instance exposed both as the message bus and as a hosted service that
+            //owns the subscription lifecycle (start/stop) instead of the constructor
+            serviceCollection.AddSingleton<RedisMessageBus>();
+            serviceCollection.AddSingleton<IMessageBus>(sp => sp.GetRequiredService<RedisMessageBus>());
+            serviceCollection.AddHostedService(sp => sp.GetRequiredService<RedisMessageBus>());
             serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
             return;
         }
+
+        serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
     }
 
     private static void RegisterContextService(IServiceCollection serviceCollection)
@@ -124,7 +133,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddSingleton<IPoweredByMiddlewareOptions, PoweredByMiddlewareOptions>();
 
         //request reCAPTCHA service
-        serviceCollection.AddHttpClient<GoogleReCaptchaValidator>();
+        serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>();
 
         serviceCollection.AddScoped<IViewRenderService, ViewRenderService>();
     }

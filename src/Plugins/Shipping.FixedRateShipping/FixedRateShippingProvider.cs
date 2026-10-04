@@ -63,8 +63,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
             !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId)
                 ? getShippingOptionRequest.ShippingAddress.CountryId
                 : "";
-        var shippingMethods =
-            await _shippingMethodService.GetAllShippingMethods(restrictByCountryId, getShippingOptionRequest.Customer);
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId, getShippingOptionRequest.Customer, _contextAccessor.StoreContext.CurrentStore.Id);
         foreach (var shippingMethod in shippingMethods)
         {
             var shippingOption = new ShippingOption {

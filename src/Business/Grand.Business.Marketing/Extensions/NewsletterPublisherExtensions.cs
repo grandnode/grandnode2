@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Events.Marketing;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Extensions;
 

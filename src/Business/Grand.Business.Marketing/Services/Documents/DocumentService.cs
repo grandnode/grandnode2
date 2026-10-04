@@ -4,7 +4,7 @@ using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Documents;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Documents;
 
@@ -61,7 +61,7 @@ public class DocumentService : IDocumentService
         if (status >= 0)
             query = query.Where(d => d.StatusId == (DocumentStatus)status);
 
-        return await PagedList<Document>.Create(query, pageIndex, pageSize);
+        return await _documentRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 

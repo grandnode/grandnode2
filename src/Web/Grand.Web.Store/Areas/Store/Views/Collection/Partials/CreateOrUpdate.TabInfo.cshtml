@@ -1,0 +1,93 @@
+﻿@using Microsoft.AspNetCore.Mvc.Razor
+@model CollectionModel
+<script>
+        $(document).ready(function () {
+            $("#@Html.IdFor(model => model.AllowCustomersToSelectPageSize)").click(togglePageSize);
+            togglePageSize();
+        });
+
+        function togglePageSize() {
+            if ($('#@Html.IdFor(model => model.AllowCustomersToSelectPageSize)').is(':checked')) {
+                $('#pnlPageSize').hide();
+                $('#pnlPageSizeOptions').show();
+            } else {
+                $('#pnlPageSize').show();
+                $('#pnlPageSizeOptions').hide();
+            }
+        }
+</script>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+            <admin-field asp-for="@Model.Locales[item].Name"/>
+            <admin-field asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
+            <admin-field asp-for="@Model.Locales[item].BottomDescription" asp-template="Editor"/>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+        </div>;
+}
+@* The Admin tab without the customer group and store mappings a store owner does not set.
+   Three cards instead of one column of 3/9 rows: what the collection says, where it sits, and how
+   it is shown. The ids the script above shows and hides - pnlPageSize, pnlPageSizeOptions - sit
+   on the same fields as before. *@
+<vc:store-widget widget-zone="store_collection_details_info_top" additional-data="Model"/>
+<admin-card>
+    <localized-editor localized-template="@template" name="collection-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="Description" asp-template="Editor"/>
+            <admin-field asp-for="BottomDescription" asp-template="Editor"/>
+        </div>
+    </localized-editor>
+</admin-card>
+@{
+    ViewData["Reference"] = "Collection";
+    ViewData["ObjectId"] = Model.Id;
+}
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="Icon"/>
+        <admin-field asp-for="CollectionLayoutId" asp-items="Model.AvailableCollectionLayouts"/>
+        <admin-field asp-for="PictureId">
+            <admin-input asp-for="PictureId"/>
+            @if (!string.IsNullOrEmpty(Model.PictureId))
+            {
+                <div class="mt-2">
+                    <a class='text-decoration-none editpicture' href="@Url.Action("PicturePopup", "Collection", new { area = Constants.AreaStore })/?collectionId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $('.editpicture').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            midClick: true,
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    });
+                </script>
+            }
+        </admin-field>
+    </div>
+</admin-card>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="ShowOnHomePage"/>
+        <admin-field asp-for="FeaturedProductsOnHomePage"/>
+        <admin-field asp-for="IncludeInMenu"/>
+        <admin-field asp-for="AllowCustomersToSelectPageSize"/>
+        <admin-field asp-for="PageSize" id="pnlPageSize" size="sm"/>
+        <admin-field asp-for="PageSizeOptions" id="pnlPageSizeOptions"/>
+        <admin-field asp-for="DefaultSort" asp-items="Model.AvailableSortOptions"/>
+        <admin-field asp-for="Published"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+        <admin-field asp-for="ExternalId"/>
+    </div>
+</admin-card>
+<vc:store-widget widget-zone="store_collection_details_info_bottom" additional-data="Model"/>

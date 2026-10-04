@@ -1,0 +1,258 @@
+using elFinder.Net.AspNetCore.Extensions;
+using elFinder.Net.Drivers.FileSystem.Extensions;
+using Grand.Domain.Blogs;
+using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Domain.Customers;
+using Grand.Domain.Discounts;
+using Grand.Domain.News;
+using Grand.Domain.Messages;
+using Grand.Domain.Orders;
+using Grand.Domain.Pages;
+using Grand.Domain.Payments;
+using Grand.Domain.Shipping;
+using Grand.Domain.Tax;
+using Grand.Domain.Vendors;
+using Grand.Infrastructure;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Services;
+using Grand.Web.Common.View;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Grand.Web.AdminShared.Startup;
+
+public class StartupApplication : IStartupApplication
+{
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    {
+        #region elFinder
+
+        services.AddElFinderAspNetCore().AddFileSystemDriver();
+
+        #endregion
+
+        services.AddScoped<IAddressAttributeViewModelService, AddressAttributeViewModelService>();
+        services.AddScoped<IAffiliateViewModelService, AffiliateViewModelService>();
+        services.AddScoped<IBlogViewModelService, BlogViewModelService>();
+        services.AddScoped<ICampaignViewModelService, CampaignViewModelService>();
+        services.AddScoped<ICategoryViewModelService, CategoryViewModelService>();
+        services.AddScoped<ICheckoutAttributeViewModelService, CheckoutAttributeViewModelService>();
+        services.AddScoped<IContactAttributeViewModelService, ContactAttributeViewModelService>();
+        services.AddScoped<IContactFormViewModelService, ContactFormViewModelService>();
+        services.AddScoped<ICountryViewModelService, CountryViewModelService>();
+        services.AddScoped<ICourseViewModelService, CourseViewModelService>();
+        services.AddScoped<ICurrencyViewModelService, CurrencyViewModelService>();
+        services.AddScoped<ICustomerAttributeViewModelService, CustomerAttributeViewModelService>();
+        services.AddScoped<ICustomerViewModelService, CustomerViewModelService>();
+        services.AddScoped<ICustomerReportViewModelService, CustomerReportViewModelService>();
+        services.AddScoped<ICustomerGroupViewModelService, CustomerGroupViewModelService>();
+        services.AddScoped<ICustomerTagViewModelService, CustomerTagViewModelService>();
+        services.AddScoped<IDiscountViewModelService, DiscountViewModelService>();
+        services.AddScoped<IDocumentViewModelService, DocumentViewModelService>();
+        services.AddScoped<IEmailAccountViewModelService, EmailAccountViewModelService>();
+        services.AddScoped<IGiftVoucherViewModelService, GiftVoucherViewModelService>();
+        services.AddScoped<IKnowledgebaseViewModelService, KnowledgebaseViewModelService>();
+        services.AddScoped<ILanguageViewModelService, LanguageViewModelService>();
+        services.AddScoped<ICollectionViewModelService, CollectionViewModelService>();
+        services.AddScoped<INewsViewModelService, NewsViewModelService>();
+        services.AddScoped<IOrderViewModelService, OrderViewModelService>();
+        services.AddScoped<IShipmentViewModelService, ShipmentViewModelService>();
+        services.AddScoped<IProductReviewViewModelService, ProductReviewViewModelService>();
+        services.AddScoped<IMerchandiseReturnViewModelService, MerchandiseReturnViewModelService>();
+        services.AddScoped<IVendorViewModelService, VendorViewModelService>();
+        services.AddScoped<IPageViewModelService, PageViewModelService>();
+        services.AddScoped<IStoreViewModelService, StoreViewModelService>();
+        services.AddScoped<IBrandViewModelService, BrandViewModelService>();
+        services.AddScoped<IProductViewModelService, ProductViewModelService>();
+        services.AddScoped<IPictureViewModelService, PictureViewModelService>();
+        services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
+        services.AddScoped<IMenuViewModelService, MenuViewModelService>();
+        services.AddScoped<IPanelPasswordRecoveryService, PanelPasswordRecoveryService>();
+
+        // IAdminDataScope<Product>: registered once here (not per-host) via a route-driven resolver.
+        // Grand.Web (the combined host) references Admin, Store, and Vendor together in one DI
+        // container, so three competing AddScoped<IAdminDataScope<Product>, X>() calls (one per host's
+        // own StartupApplication) would just have the last-registered host silently win for every
+        // area - see RoutedProductDataScope's doc comment for the NullReferenceException this caused.
+        // The three concrete scopes are registered as themselves so the resolver can pick between them
+        // per-request based on the "area" route value.
+        services.AddScoped<GlobalAdminDataScope<Product>>();
+        services.AddScoped<StoreAdminDataScope<Product>>();
+        services.AddScoped<VendorProductDataScope>();
+        services.AddScoped<IAdminDataScope<Product>, RoutedProductDataScope>();
+
+        // IAdminDataScope<Category>: registered once here for the same reason as Product above — see
+        // RoutedCategoryDataScope's doc comment. No Vendor scope: Category has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Category>>();
+        services.AddScoped<StoreAdminDataScope<Category>>();
+        services.AddScoped<IAdminDataScope<Category>, RoutedCategoryDataScope>();
+
+        // IAdminDataScope<Collection>: registered once here for the same reason as Category above — see
+        // RoutedCollectionDataScope's doc comment. No Vendor scope: Collection has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Collection>>();
+        services.AddScoped<StoreAdminDataScope<Collection>>();
+        services.AddScoped<IAdminDataScope<Collection>, RoutedCollectionDataScope>();
+
+        // IAdminDataScope<Brand>: registered once here for the same reason as Category/Collection above —
+        // see RoutedBrandDataScope's doc comment. No Vendor scope: Brand has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Brand>>();
+        services.AddScoped<StoreAdminDataScope<Brand>>();
+        services.AddScoped<IAdminDataScope<Brand>, RoutedBrandDataScope>();
+
+        // IAdminDataScope<Order>: three bespoke implementations, none reusing the generic Global/Store
+        // scopes — see AdminOrderDataScope/StoreOrderDataScope/VendorOrderDataScope doc comments.
+        services.AddScoped<AdminOrderDataScope>();
+        services.AddScoped<StoreOrderDataScope>();
+        services.AddScoped<VendorOrderDataScope>();
+        services.AddScoped<IAdminDataScope<Order>, RoutedOrderDataScope>();
+
+        // IAdminDataScope<Discount>: bespoke Admin scope (Store Manager gating), reuses the generic
+        // StoreAdminDataScope<T> for Store — see AdminDiscountDataScope/RoutedDiscountDataScope doc
+        // comments. No Vendor scope: Discount has no Vendor screen.
+        services.AddScoped<AdminDiscountDataScope>();
+        services.AddScoped<StoreAdminDataScope<Discount>>();
+        services.AddScoped<IAdminDataScope<Discount>, RoutedDiscountDataScope>();
+
+        // IAdminDataScope<Shipment>: registered once here for the same reason as Order above — see
+        // RoutedShipmentDataScope's doc comment. Admin reuses the generic GlobalAdminDataScope<T>
+        // unmodified (no Sales-Manager restriction on Shipment); Store/Vendor are bespoke because
+        // Shipment isn't IStoreLinkEntity and Vendor ownership is a flat VendorId field.
+        services.AddScoped<GlobalAdminDataScope<Shipment>>();
+        services.AddScoped<StoreShipmentDataScope>();
+        services.AddScoped<VendorShipmentDataScope>();
+        services.AddScoped<IAdminDataScope<Shipment>, RoutedShipmentDataScope>();
+
+        // IAdminDataScope<PaymentTransaction>: registered once here for the same reason as
+        // Product/Category/Collection/Order above — see RoutedPaymentTransactionDataScope's doc
+        // comment. No Vendor scope: PaymentTransaction has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<PaymentTransaction>>();
+        services.AddScoped<StorePaymentTransactionDataScope>();
+        services.AddScoped<IAdminDataScope<PaymentTransaction>, RoutedPaymentTransactionDataScope>();
+
+        // IAdminDataScope<MerchandiseReturn>: Admin reuses the generic GlobalAdminDataScope directly (no
+        // bespoke Admin scope - confirmed no restriction exists despite the entity's SeId field, spec §2.1).
+        services.AddScoped<GlobalAdminDataScope<MerchandiseReturn>>();
+        services.AddScoped<StoreMerchandiseReturnDataScope>();
+        services.AddScoped<VendorMerchandiseReturnDataScope>();
+        services.AddScoped<IAdminDataScope<MerchandiseReturn>, RoutedMerchandiseReturnDataScope>();
+
+        // IAdminDataScope<GiftVoucher>: registered once here for the same reason as
+        // Category/Collection above — see RoutedGiftVoucherDataScope's doc comment. No Vendor
+        // scope: GiftVoucher has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<GiftVoucher>>();
+        services.AddScoped<StoreGiftVoucherDataScope>();
+        services.AddScoped<IAdminDataScope<GiftVoucher>, RoutedGiftVoucherDataScope>();
+
+        // IAdminDataScope<ProductReview>: registered once here for the same reason as
+        // Category/Collection/GiftVoucher above — see RoutedProductReviewDataScope's doc
+        // comment. No Vendor scope: ProductReview has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<ProductReview>>();
+        services.AddScoped<StoreProductReviewDataScope>();
+        services.AddScoped<IAdminDataScope<ProductReview>, RoutedProductReviewDataScope>();
+
+        // IAdminDataScope<MessageTemplate>: registered once here for the same reason as
+        // Category/Collection/GiftVoucher above — see RoutedMessageTemplateDataScope's doc
+        // comment. No Vendor scope: MessageTemplate has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<MessageTemplate>>();
+        services.AddScoped<StoreMessageTemplateDataScope>();
+        services.AddScoped<IAdminDataScope<MessageTemplate>, RoutedMessageTemplateDataScope>();
+
+        // IAdminDataScope<Customer>: two bespoke implementations, neither reusing
+        // GlobalAdminDataScope<T>/StoreAdminDataScope<T> — see AdminCustomerDataScope/
+        // StoreCustomerDataScope doc comments. No Vendor scope: Customer has no Vendor screen.
+        services.AddScoped<AdminCustomerDataScope>();
+        services.AddScoped<StoreCustomerDataScope>();
+        services.AddScoped<IAdminDataScope<Customer>, RoutedCustomerDataScope>();
+
+        // IAdminDataScope<EmailAccount>: registered once here for the same reason as
+        // Category/Collection/GiftVoucher/MessageTemplate above — see
+        // RoutedEmailAccountDataScope's doc comment. No Vendor scope: EmailAccount has no
+        // Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<EmailAccount>>();
+        services.AddScoped<StoreEmailAccountDataScope>();
+        services.AddScoped<IAdminDataScope<EmailAccount>, RoutedEmailAccountDataScope>();
+
+        // IAdminDataScope<Warehouse>: registered once here for the same reason as Category/
+        // EmailAccount above — see RoutedWarehouseDataScope's doc comment. No Vendor scope:
+        // Shipping has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Warehouse>>();
+        services.AddScoped<StoreWarehouseDataScope>();
+        services.AddScoped<IAdminDataScope<Warehouse>, RoutedWarehouseDataScope>();
+
+        // IAdminDataScope<ShippingMethod>: registered once here, same reason as Warehouse above.
+        services.AddScoped<GlobalAdminDataScope<ShippingMethod>>();
+        services.AddScoped<StoreShippingMethodDataScope>();
+        services.AddScoped<IAdminDataScope<ShippingMethod>, RoutedShippingMethodDataScope>();
+
+        // IAdminDataScope<DeliveryDate>: registered once here, same reason as Warehouse/ShippingMethod above.
+        services.AddScoped<GlobalAdminDataScope<DeliveryDate>>();
+        services.AddScoped<StoreDeliveryDateDataScope>();
+        services.AddScoped<IAdminDataScope<DeliveryDate>, RoutedDeliveryDateDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<PickupPoint>>();
+        services.AddScoped<StorePickupPointDataScope>();
+        services.AddScoped<IAdminDataScope<PickupPoint>, RoutedPickupPointDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<TaxCategory>>();
+        services.AddScoped<StoreTaxCategoryDataScope>();
+        services.AddScoped<IAdminDataScope<TaxCategory>, RoutedTaxCategoryDataScope>();
+
+        services.AddScoped<AdminReportDataScope>();
+        services.AddScoped<StoreReportDataScope>();
+        services.AddScoped<VendorReportDataScope>();
+        services.AddScoped<IReportDataScope, RoutedReportDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<VendorReview>>();
+        services.AddScoped<VendorVendorReviewDataScope>();
+        services.AddScoped<IAdminDataScope<VendorReview>, RoutedVendorReviewDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<AddressAttribute>>();
+        services.AddScoped<StoreAdminDataScope<AddressAttribute>>();
+        services.AddScoped<IAdminDataScope<AddressAttribute>, RoutedAddressAttributeDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<ContactAttribute>>();
+        services.AddScoped<StoreAdminDataScope<ContactAttribute>>();
+        services.AddScoped<IAdminDataScope<ContactAttribute>, RoutedContactAttributeDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<CustomerAttribute>>();
+        services.AddScoped<StoreAdminDataScope<CustomerAttribute>>();
+        services.AddScoped<IAdminDataScope<CustomerAttribute>, RoutedCustomerAttributeDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<CheckoutAttribute>>();
+        services.AddScoped<StoreAdminDataScope<CheckoutAttribute>>();
+        services.AddScoped<IAdminDataScope<CheckoutAttribute>, RoutedCheckoutAttributeDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<ProductAttribute>>();
+        services.AddScoped<StoreAdminDataScope<ProductAttribute>>();
+        services.AddScoped<IAdminDataScope<ProductAttribute>, RoutedProductAttributeDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<SpecificationAttribute>>();
+        services.AddScoped<StoreAdminDataScope<SpecificationAttribute>>();
+        services.AddScoped<IAdminDataScope<SpecificationAttribute>, RoutedSpecificationAttributeDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<NewsItem>>();
+        services.AddScoped<StoreAdminDataScope<NewsItem>>();
+        services.AddScoped<IAdminDataScope<NewsItem>, RoutedNewsItemDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<Page>>();
+        services.AddScoped<StoreAdminDataScope<Page>>();
+        services.AddScoped<IAdminDataScope<Page>, RoutedPageDataScope>();
+
+        services.AddScoped<GlobalAdminDataScope<BlogPost>>();
+        services.AddScoped<StoreAdminDataScope<BlogPost>>();
+        services.AddScoped<IAdminDataScope<BlogPost>, RoutedBlogPostDataScope>();
+        services.AddScoped<GlobalAdminDataScope<BlogCategory>>();
+        services.AddScoped<StoreAdminDataScope<BlogCategory>>();
+        services.AddScoped<IAdminDataScope<BlogCategory>, RoutedBlogCategoryDataScope>();
+    }
+
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
+    {
+    }
+
+    public int Priority => 101;
+    public bool BeforeConfigure => false;
+}

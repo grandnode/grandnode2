@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -44,5 +44,36 @@ public class ShipCommandHandlerTests
         var result = await _shipCommandHandler.Handle(shipCommand, CancellationToken.None);
         //Assert
         _shipmentServiceMock.Verify(c => c.UpdateShipment(It.IsAny<Shipment>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutDate_StampsNow()
+    {
+        //Arrange
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
+            .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
+        var shipment = new Shipment();
+        var before = DateTime.UtcNow;
+        //Act
+        await _shipCommandHandler.Handle(new ShipCommand { Shipment = shipment }, CancellationToken.None);
+        //Assert
+        Assert.IsTrue(shipment.ShippedDateUtc >= before && shipment.ShippedDateUtc <= DateTime.UtcNow);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithDate_KeepsGivenDate()
+    {
+        //Arrange
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
+            .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
+        var shipment = new Shipment();
+        var shippedOn = new DateTime(2026, 3, 14, 10, 30, 0, DateTimeKind.Utc);
+        //Act
+        await _shipCommandHandler.Handle(new ShipCommand { Shipment = shipment, ShippedDateUtc = shippedOn },
+            CancellationToken.None);
+        //Assert
+        Assert.AreEqual(shippedOn, shipment.ShippedDateUtc);
     }
 }

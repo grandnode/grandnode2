@@ -1,10 +1,10 @@
-using Grand.Business.Core.Interfaces.Catalog.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Directory;
 
@@ -71,7 +71,7 @@ public class SearchTermService : ISearchTermService
         var query = from st in _searchTermRepository.Table
             where st.Keyword == keyword && st.StoreId == storeId
             select st;
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _searchTermRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class SearchTermService : ISearchTermService
                 Keyword = r.Keyword,
                 Count = r.Count
             });
-        return await PagedList<SearchTermReportLine>.Create(query, pageIndex, pageSize);
+        return await _searchTermRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

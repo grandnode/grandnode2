@@ -6,20 +6,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Search"]);
 }
-<script asp-location="Footer" asp-order="300">
-    document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("@Html.IdFor(model => model.adv)").addEventListener('click', toggleAdvancedSearch);
-        toggleAdvancedSearch();
-    });
-    function toggleAdvancedSearch() {
-        if (document.getElementById('@Html.IdFor(model => model.adv)').checked) {
-            document.getElementById('advanced-search-block').style.display = "flex";
-        }
-        else {
-            document.getElementById('advanced-search-block').style.display = "none";
-        }
-    }
-</script>
+<script type="application/json" data-grand-vm="advancedSearch">@Json.Serialize(new {
+                                                                   elements = new {
+                                                                       checkboxId = Html.IdFor(m => m.adv),
+                                                                       blockId = "advanced-search-block"
+                                                                   }
+                                                               })</script>
 
 <div class="page search-page">
     <h1 class="generalTitle h2">@Loc["Search"]</h1>
@@ -37,15 +29,15 @@
                         </div>
                         @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_basic" })
                         <div class="inputs reversed">
-                            <label for="adv" class="custom-control custom-checkbox">
-                                <span class="sr-only">adv</span>
-                                <input asp-for="adv" class="custom-control-input"/>
-                                <span class="custom-control-label"></span>
+                            <label for="adv" class="form-check">
+                                <span class="visually-hidden">adv</span>
+                                <input asp-for="adv" class="form-check-input"/>
+                                <span class="form-check-label"></span>
                                 <span class="custom-control-description">@Loc["search.advancedsearch"]</span>
                             </label>
                         </div>
                     </div>
-                    <div class="advanced-search form-row" id="advanced-search-block">
+                    <div class="advanced-search row" id="advanced-search-block">
                         @if (Model.AvailableCategories.Any())
                         {
                             <div class="col-md-6 col-12">
@@ -90,9 +82,9 @@
                                 </div>
                             </div>
                             <div class="inputs reversed">
-                                <label for="sid" class="custom-control custom-checkbox">
-                                    <input asp-for="sid" class="custom-control-input"/>
-                                    <span class="custom-control-label"></span>
+                                <label for="sid" class="form-check">
+                                    <input asp-for="sid" class="form-check-input"/>
+                                    <span class="form-check-label"></span>
                                     <span class="custom-control-description">@Loc["search.searchindescriptions"]</span>
                                 </label>
                             </div>
@@ -105,16 +97,16 @@
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
     <div class="search-results">
-        <div id="catalog-products">
+        <div id="catalog-products" vue-island="catalog">
             @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
             <partial name="Partials/Selectors"/>
             <template v-if="catalog.Model.Products.length > 0">
                 <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                     <div class="col-12 product-grid px-0">
-                        <div class="form-row">
-                            <template v-for="Model in catalog.Model.Products">
+                        <div class="row">
+                            <template v-for="product in catalog.Model.Products">
                                 <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                    <partial name="Partials/CatalogProductGridView"/>
+                                    <partial name="Partials/Client/CatalogProductGridView"/>
                                 </div>
                             </template>
                         </div>
@@ -124,8 +116,8 @@
                     <div class="product-list">
                         <div class="col-12">
                             <div class="row">
-                                <template v-for="Model in catalog.Model.Products">
-                                    <partial name="Partials/CatalogProductListView"/>
+                                <template v-for="product in catalog.Model.Products">
+                                    <partial name="Partials/Client/CatalogProductListView"/>
                                 </template>
                             </div>
                         </div>
@@ -156,4 +148,4 @@
     <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter"/>
 }
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

@@ -27,7 +27,11 @@ public partial class InstallationService
 {
     protected virtual async Task InstallSettings(bool installSampleData)
     {
-        var path = Path.Combine(_hostingEnvironment.WebRootPath, "logo.png");
+        //sample installs open in the Nordic theme; its logo is a warm mid tone that stays legible
+        //on both its light and dark scheme, where the stock teal-on-white logo loses half its lettering
+        var path = installSampleData
+            ? Path.Combine(_hostingEnvironment.WebRootPath, "assets", "samples", "logo_nordic.png")
+            : Path.Combine(_hostingEnvironment.WebRootPath, "logo.png");
 
         var storePictureId = (await _pictureRepository.InsertPicture(await File.ReadAllBytesAsync(path), "image/png", "Logo")).Id;
 
@@ -80,7 +84,7 @@ public partial class InstallationService
             AutoCompleteSearchThumbPictureSize = 50,
             ImageSquarePictureSize = 32,
             MaximumImageSize = 1980,
-            ImageQuality = 100,
+            ImageQuality = 80,
             DefaultPictureZoomEnabled = true,
             AllowedFileTypes = ".gif, .jpg, .jpeg, .png, .bmp, .webp"
         });
@@ -209,7 +213,7 @@ public partial class InstallationService
             ProductSearchAutoCompleteNumberOfProducts = 10,
             ProductSearchTermMinimumLength = 3,
             ShowProductImagesInSearchAutoComplete = true,
-            ShowBestsellersOnHomepage = false,
+            ShowBestsellersOnHomepage = installSampleData,
             NumberOfBestsellersOnHomepage = 4,
             BestsellersFromReports = false,
             PeriodBestsellers = 6,
@@ -233,8 +237,8 @@ public partial class InstallationService
             ProductsByTagAllowCustomersToSelectPageSize = true,
             ProductsByTagPageSizeOptions = "6, 3, 9, 18",
             CollectionsBlockItemsToDisplay = 2,
-            DefaultCategoryPageSizeOptions = "6, 3, 9",
-            DefaultCollectionPageSize = 6,
+            DefaultPageSizeOptions = "6, 3, 9",
+            DefaultPageSize = 6,
             LimitOfFeaturedProducts = 30,
             SecondPictureOnCatalogPages = true
         });
@@ -319,7 +323,8 @@ public partial class InstallationService
         await _settingRepository.SaveSetting(new StoreInformationSettings {
             LogoPictureId = storePictureId,
             StoreClosed = false,
-            DefaultStoreTheme = "Default",
+            //the sample store is presented in the Nordic Editorial theme; a plain install stays on Default
+            DefaultStoreTheme = installSampleData ? "Nordic" : "Default",
             AllowCustomerToSelectTheme = false,
             DisplayCookieInformation = false,
             FacebookLink = "https://www.facebook.com/grandnodecom",
@@ -471,13 +476,13 @@ public partial class InstallationService
             AllowNotRegisteredUsersToLeaveComments = false,
             NotifyAboutNewBlogComments = false,
             NumberOfTags = 15,
-            ShowBlogOnHomePage = false,
-            HomePageBlogCount = 3,
+            ShowBlogOnHomePage = installSampleData,
+            HomePageBlogCount = installSampleData ? 2 : 3,
             MaxTextSizeHomePage = 200
         });
 
         await _settingRepository.SaveSetting(new KnowledgebaseSettings {
-            Enabled = false,
+            Enabled = installSampleData,
             AllowNotRegisteredUsersToLeaveComments = false,
             NotifyAboutNewArticleComments = false
         });

@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>true</ImplicitUsings>
     </PropertyGroup>
@@ -42,7 +42,7 @@
     </ItemGroup>
     <Target Name="SetVersion" BeforeTargets="PrepareForBuild">
         <PropertyGroup>
-            <Version>2.3.0</Version>
+            <Version>2.4.0</Version>
         </PropertyGroup>
     </Target>
 </Project>

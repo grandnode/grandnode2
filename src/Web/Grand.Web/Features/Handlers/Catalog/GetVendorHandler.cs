@@ -4,15 +4,15 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog;

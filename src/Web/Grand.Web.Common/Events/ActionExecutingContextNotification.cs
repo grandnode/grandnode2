@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Grand.Web.Common.Events;

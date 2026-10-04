@@ -153,6 +153,7 @@ public class WorkContextSetter : IWorkContextSetter
         if (workContext.CurrentCustomer != null)
         {
             workContext.CurrentVendor = await CurrentVendor(workContext.CurrentCustomer);
+            workContext.StoreManager = await GetStoreManager(workContext.CurrentCustomer);
             workContext.OriginalCustomerIfImpersonated = _originalCustomerIfImpersonated;
             workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, currentStore);
             workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, currentStore);
@@ -317,6 +318,32 @@ public class WorkContextSetter : IWorkContextSetter
     }
 
     /// <summary>
+    ///    Get the store the customer manages (store manager)
+    /// </summary>
+    /// <remarks>
+    ///    Read from StaffStoreId, the same field AuthorizeStoreAttribute admits the store panel by.
+    ///    StoreId is only the store the customer registered in and is empty for accounts the admin creates.
+    /// </remarks>
+    /// <param name="customer"></param>
+    /// <returns></returns>
+    protected async Task<Store> GetStoreManager(Customer customer)
+    {
+        if (customer == null)
+            return await Task.FromResult<Store>(null);
+
+        if (string.IsNullOrEmpty(customer.StaffStoreId))
+            return await Task.FromResult<Store>(null);
+
+        //try to get store
+        var store = await _storeService.GetStoreById(customer.StaffStoreId);
+        //check store availability
+        if (store == null)  // || store.Deleted || !store.Published)
+            return await Task.FromResult<Store>(null);
+
+        return store;
+    }
+
+    /// <summary>
     ///     Set current user working language by Middleware
     /// </summary>
     /// <param name="customer"></param>
@@ -373,6 +400,12 @@ public class WorkContextSetter : IWorkContextSetter
         }
 
         var allStoreCurrencies = await _currencyService.GetAllCurrencies(storeId: store.Id);
+
+        //no published currency is mapped to the store - fall back to the primary store currency
+        //rather than failing every request for that store
+        if (!allStoreCurrencies.Any())
+            return await _currencyService.GetPrimaryStoreCurrency() ??
+                   throw new Exception("No currency could be loaded");
 
         if (allStoreCurrencies.Count == 1)
             return allStoreCurrencies.FirstOrDefault();
@@ -431,6 +464,8 @@ public class WorkContextSetter : IWorkContextSetter
         public Language WorkingLanguage { get; set; }
 
         public Currency WorkingCurrency { get; set; }
+
+        public Store StoreManager { get; set; }
 
         public TaxDisplayType TaxDisplayType { get; set; }
     }

@@ -1,0 +1,13 @@
+﻿{
+  Name: US Dollar,
+  CurrencyCode: USD,
+  DisplayLocale: en-US,
+  Rate: 1.0,
+  CustomFormatting: ${0:N2},
+  NumberDecimal: 2,
+  Published: true,
+  DisplayOrder: 1,
+  IsPrimaryExchangeRateCurrency: false,
+  IsPrimaryStoreCurrency: false,
+  Id: cur-001
+}

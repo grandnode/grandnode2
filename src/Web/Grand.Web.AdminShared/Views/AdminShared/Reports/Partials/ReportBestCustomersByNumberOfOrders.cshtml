@@ -1,0 +1,54 @@
+@model BestCustomersReportModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+<partial name="Partials/WidgetZone.CustomerByNumberOfOrdersTop" model="Model"/>
+@* the criteria in a filter bar opened on load, the grid in a flush card; Search is an outline
+   button because the other report tab on the same screen carries a Search of its own *@
+<admin-filters id="best-customers-numberoforders-filters" submit-id="search-best-customers-numberoforders-grid" expanded="true" secondary-submit="true">
+    <div class="grand-range">
+        <admin-field asp-for="StartDate"/>
+        <admin-field asp-for="EndDate"/>
+    </div>
+    <admin-field asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
+    <admin-field asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
+    <admin-field asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses"/>
+</admin-filters>
+<admin-card flush>
+    <admin-grid id="best-customers-numberoforders-grid"
+                read-url="@Url.Action("ReportBestCustomersByNumberOfOrdersList", "Reports", new { area })"
+                additional-data="bestCustomersNumberOfOrdersAdditionalData">
+        <grid-column field="CustomerName" title="@Loc["Admin.Reports.Customers.BestBy.Fields.Customer"]">
+            <cell-template>
+                <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerName }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="OrderTotal" title="@Loc["Admin.Reports.Customers.BestBy.Fields.OrderTotal"]"/>
+        <grid-column field="OrderCount" title="@Loc["Admin.Reports.Customers.BestBy.Fields.OrderCount"]"/>
+    </admin-grid>
+</admin-card>
+<partial name="Partials/WidgetZone.CustomerByNumberOfOrdersBottom" model="Model"/>
+<script>
+$(document).ready(function () {
+
+    $('#search-best-customers-numberoforders-grid').click(function () {
+        var grid = GrandAdmin.grids.get('#best-customers-numberoforders-grid');
+        grid.dataSource.page(1); //new search. Set page size to 1
+        //grid.dataSource.read(); we already loaded the grid above using "page" function
+        return false;
+    });
+
+});
+function bestCustomersNumberOfOrdersAdditionalData(e) {
+    var data = {
+        StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+        EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+        OrderStatusId: $('#@Html.IdFor(model => model.OrderStatusId)').val(),
+        PaymentStatusId: $('#@Html.IdFor(model => model.PaymentStatusId)').val(),
+        ShippingStatusId: $('#@Html.IdFor(model => model.ShippingStatusId)').val()
+    };
+    addAntiForgeryToken(data);
+    return data;
+}
+</script>

@@ -6,7 +6,7 @@ using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -65,7 +65,7 @@ public class SlugServiceTests
         entity.Slug = "slug2";
         await _slugService.UpdateEntityUrl(entity);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == entity.Id).Slug == entity.Slug);
+        Assert.AreEqual(entity.Slug, _repository.Table.FirstOrDefault(x => x.Id == entity.Id).Slug);
     }
 
     [TestMethod]

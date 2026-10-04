@@ -1,6 +1,6 @@
 ﻿@model ProductAskQuestionSimpleModel
 <input value="@Model.Id" type="hidden" id="AskQuestionProductId" ref="AskQuestionProductId" name="AskQuestionProductId"/>
-<div id="contact-us-product">
+<div id="contact-us-product" vue-island="askquestion">
     <validation-observer ref="contact" tag="div">
         <fieldset class="form-group">
             <validation-provider tag="div" rules="required|email" name="AskQuestionEmail" v-slot="{ errors, classes }">
@@ -40,67 +40,14 @@
         <div class="buttons generalMarginSupporter pt-1 pb-1">
             <input type="submit" name="send-email" class="btn btn-info send-ask-question-button"
                    value="@Loc["Products.AskQuestion.Button"]" @@click="askquestion.sendContactUsForm('@Url.RouteUrl("AskQuestionOnProduct")')"/>
-            <span class="sr-only">@Loc["Products.AskQuestion.Button"]</span>
+            <span class="visually-hidden">@Loc["Products.AskQuestion.Button"]</span>
         </div>
     </validation-observer>
-    <script asp-location="Footer" asp-order="300">
-                var askquestion = new Vue({
-                    data: () => ({
-                        @{
-                            <text>
-                                AskQuestionEmail: '@Html.Raw(Model.AskQuestionEmail)',
-                                AskQuestionFullName: '@Html.Raw(Model.AskQuestionFullName)',
-                                AskQuestionMessage: '@Html.Raw(Model.AskQuestionMessage)',
-                            </text>
-                        }
-                    }),
-                    methods: {
-                        async sendContactUsForm(urladd) {
-                            var bodyFormData = new FormData();
-                            bodyFormData.append('AskQuestionEmail', vm.$refs.AskQuestionEmail.value);
-                            bodyFormData.append('AskQuestionFullName', vm.$refs.AskQuestionFullName.value);
-                            bodyFormData.append('AskQuestionPhone', vm.$refs.AskQuestionPhone.value);
-                            bodyFormData.append('AskQuestionMessage', vm.$refs.AskQuestionMessage.value);
-                            bodyFormData.append('Id', vm.$refs.AskQuestionProductId.value);
-                            bodyFormData.append('__RequestVerificationToken', document.querySelector('.product-details-page input[name=__RequestVerificationToken]').value);
-                            if (document.querySelector("[id^='g-recaptcha-response']")) {
-                                bodyFormData.append('g-recaptcha-response-value', document.querySelector("[id^='g-recaptcha-response']").value);
-                            }
-                            if (await vm.$refs.contact.validate())
-                            {
-                                axios({
-                                    url: urladd,
-                                    data: bodyFormData,
-                                    method: 'post',
-                                    headers: { 'Content-Type': 'multipart/form-data' }
-                                }).then(function (response) {
-                                    if (response.data.success) {
-                                        document.querySelector('.product-standard #contact-us-product').style.display = "none";
-                                        document.querySelector('.product-standard .product-contact-error').style.display = "none";
-                                        document.querySelector('.product-standard .product-contact-send').innerHTML = response.data.message;
-                                        document.querySelector('.product-standard .product-contact-send').style.display = "block";
-                                    }
-                                    else {
-                                        document.querySelector('.product-standard .product-contact-error').innerHTML = response.data.message;
-                                        document.querySelector('.product-standard .product-contact-error').style.display = "block";
-                                    }
-                                }).catch(function (error) {
-                                    alert(error);
-                                });
-                            }
-                        },
-                        @if (Model.DisplayCaptcha)
-                        {
-                            <text>
-                                    getCaptcha() {
-                                        var html = document.getElementById("captcha-box");
-                                        document.getElementById("captcha-place").prepend(html);
-                                    }
-                            </text>
-                        }
-                    }
-                });
-    </script>
+    <script type="application/json" data-grand-vm="askQuestion">@Json.Serialize(new {
+                                                                data = new { Model.AskQuestionEmail, Model.AskQuestionFullName, Model.AskQuestionMessage },
+                                                                captchaTarget = Model.DisplayCaptcha ? "captcha-place" : null,
+                                                                res = new { warning = Loc["common.warning"].ToString() }
+                                                            })</script>
 
 
 </div>

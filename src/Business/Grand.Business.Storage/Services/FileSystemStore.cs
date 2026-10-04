@@ -234,10 +234,7 @@ public class FileSystemStore : IFileStore
     {
         var physicalPath = GetPhysicalPath(path);
 
-        if (!File.Exists(physicalPath))
-            File.Create(physicalPath).Close();
-
-        return File.WriteAllTextAsync(physicalPath, text, Encoding.UTF8);
+        return AtomicFile.WriteAllTextAsync(physicalPath, text);
     }
 
 

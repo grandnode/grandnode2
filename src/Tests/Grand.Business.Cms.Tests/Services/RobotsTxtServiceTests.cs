@@ -8,7 +8,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -75,7 +75,7 @@ public class RobotsTxtServiceTests
         robotsTxt.Text = "test";
         await _robotsTxtService.UpdateRobotsTxt(robotsTxt);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == robotsTxt.Id).Text == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == robotsTxt.Id).Text);
     }
 
     [TestMethod]

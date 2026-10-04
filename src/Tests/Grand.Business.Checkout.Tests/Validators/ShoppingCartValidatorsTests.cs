@@ -501,6 +501,50 @@ public class ShoppingCartValidatorsTests
     }
 
     [TestMethod]
+    public async Task ShoppingCartReservationProductValidator_ReservationsNotStoredAtMidnight_Success()
+    {
+        //Arrange
+        var shoppingCartReservationProductValidator =
+            new ShoppingCartReservationProductValidator(_translationServiceMock.Object,
+                _productReservationServiceMock.Object);
+
+        _productReservationServiceMock.Setup(x => x.GetCustomerReservationsHelpers(It.IsAny<string>()))
+            .Returns(() => Task.FromResult((IList<CustomerReservationsHelper>)new List<CustomerReservationsHelper>()));
+
+        //reservations generated at the store's local midnight are read back with the utc offset in the time part
+        _productReservationServiceMock.Setup(x =>
+                x.GetProductReservationsByProductId(It.IsAny<string>(), true, null, 0, int.MaxValue))
+            .Returns(() => Task.FromResult((IPagedList<ProductReservation>)
+                new PagedList<ProductReservation> {
+                    new() { Id = "1", Date = DateTime.UtcNow.AddDays(1).Date.AddHours(22), Resource = "Room 1" },
+                    new() { Id = "2", Date = DateTime.UtcNow.AddDays(2).Date.AddHours(22), Resource = "Room 1" },
+                    new() { Id = "3", Date = DateTime.UtcNow.AddDays(3).Date.AddHours(22), Resource = "Room 1" }
+                }
+            ));
+
+        var product = new Product
+            { Id = "1", ProductTypeId = ProductType.Reservation, IntervalUnitId = IntervalUnit.Day };
+
+        //Act - the datepicker always posts midnight
+        var result = await shoppingCartReservationProductValidator.ValidateAsync(
+            new ShoppingCartReservationProductValidatorRecord(
+                new Customer(),
+                product,
+                new ShoppingCartItem {
+                    ProductId = "1",
+                    Quantity = 1,
+                    ShoppingCartTypeId = ShoppingCartType.ShoppingCart,
+                    StoreId = "1",
+                    RentalStartDateUtc = DateTime.UtcNow.AddDays(1).Date,
+                    RentalEndDateUtc = DateTime.UtcNow.AddDays(3).Date
+                }
+            ));
+
+        //Assert
+        Assert.IsTrue(result.IsValid);
+    }
+
+    [TestMethod]
     public async Task ShoppingCartCommonWarningsValidator_Success()
     {
         //Arrange

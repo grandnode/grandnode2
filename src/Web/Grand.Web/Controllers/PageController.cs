@@ -6,7 +6,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Pages;
 using Grand.Web.Models.Pages;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
@@ -44,14 +44,13 @@ public class PageController : BasePublicController
         if (string.IsNullOrEmpty(pageId))
             return RedirectToRoute("HomePage");
 
-        var model = await _mediator.Send(new GetPageBlock { PageId = pageId });
-        if (model == null)
-            return RedirectToRoute("HomePage");
+        //Check whether the current user has a "Manage pages" permission
+        //It allows him to preview a page before publishing or outside its date range
+        var canPreview = await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+                         await _permissionService.Authorize(StandardPermission.ManagePages);
 
-        //hide page if it`s set as no published
-        if (!model.Published
-            && !await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel)
-            && !await _permissionService.Authorize(StandardPermission.ManagePages))
+        var model = await _mediator.Send(new GetPageBlock { PageId = pageId, ShowHidden = canPreview });
+        if (model == null)
             return RedirectToRoute("HomePage");
 
         //layout

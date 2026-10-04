@@ -2,7 +2,7 @@
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Orders;
 
@@ -10,5 +10,5 @@ public class GetMerchandiseReturn : IRequest<MerchandiseReturnModel>
 {
     public Order Order { get; set; }
     public Language Language { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 }

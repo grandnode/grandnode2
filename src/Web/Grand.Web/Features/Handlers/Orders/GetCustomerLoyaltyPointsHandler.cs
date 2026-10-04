@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Orders;
 

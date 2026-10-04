@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Courses;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Courses;
 
@@ -28,14 +28,14 @@ public class CourseActionService : ICourseActionService
             where a.CustomerId == customerId && a.LessonId == lessonId
             select a;
 
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _courseActionRepository.FirstOrDefaultAsync(query);
     }
 
     public virtual async Task<bool> CustomerLessonCompleted(string customerId, string lessonId)
     {
-        var query = await Task.FromResult((from a in _courseActionRepository.Table
+        var query = await _courseActionRepository.FirstOrDefaultAsync(from a in _courseActionRepository.Table
             where a.CustomerId == customerId && a.LessonId == lessonId
-            select a).FirstOrDefault());
+            select a);
 
         return query is { Finished: true };
     }

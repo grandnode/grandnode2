@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.History;
@@ -30,8 +30,8 @@ public class HistoryService : IHistoryService
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var history = await Task.FromResult(_historyRepository.Table.Where(x => x.Object.Id == entity.Id)
-            .Select(x => (T)x.Object).ToList());
+        var history = await _historyRepository.ToListAsync(_historyRepository.Table
+            .Where(x => x.Object.Id == entity.Id).Select(x => (T)x.Object));
         return history;
     }
 
@@ -39,7 +39,8 @@ public class HistoryService : IHistoryService
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var history = await Task.FromResult(_historyRepository.Table.Where(x => x.Object.Id == entity.Id).ToList());
+        var history = await _historyRepository.ToListAsync(
+            _historyRepository.Table.Where(x => x.Object.Id == entity.Id));
         return history;
     }
 }

@@ -23,7 +23,7 @@ public class LiquidShipment : Drop
         _store = store;
         _order = order;
         _host = host;
-        url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+        url = _host?.Url.Trim('/') ?? _store.Url.Trim('/');
 
         ShipmentItems = new List<LiquidShipmentItem>();
         AdditionalTokens = new Dictionary<string, string>();

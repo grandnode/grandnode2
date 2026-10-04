@@ -1,0 +1,13 @@
+﻿{
+  SearchInProducts: true,
+  SearchInCategories: true,
+  SearchInCollections: false,
+  SearchInPages: true,
+  SearchInNews: false,
+  SearchInBlogs: true,
+  SearchInCustomers: true,
+  SearchInOrders: true,
+  MinSearchTermLength: 3,
+  MaxSearchResultsCount: 10,
+  SearchInMenu: false
+}

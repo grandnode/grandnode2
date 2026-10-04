@@ -2,13 +2,16 @@
 @{
     var vendorlink = Url.RouteUrl("Vendor", new { SeName = Model.VendorSeName });
 }
-<b-modal id="ModalVendorReview" ref="ModalVendorReview" :dark-theme="darkMode" size="xl" @@shown="vendorreviews.modalReviewShown()" @@hide="vendorreviews.modalReviewClose()" centered hide-footer hide-header>
+<div class="modal fade" id="ModalVendorReview" tabindex="-1" aria-hidden="true" vue-island="vendorreviews">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
     <template v-if="vendorreviews.Model !== null">
         <h2 class="generalTitle h3">
             @Loc["Reviews.VendorReviewsFor"] <a href="@vendorlink">{{vendorreviews.Model.VendorName}}</a>
         </h2>
-        <a class="modal-close" @@click="$bvModal.hide('ModalVendorReview')">
-            <b-icon icon="x"></b-icon>
+        <a class="modal-close" data-bs-dismiss="modal">
+            <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </a>
         <template v-if="!vendorreviews.Model.AddVendorReview.SuccessfullyAdded">
             <div class="write-review" id="review-form">
@@ -38,7 +41,7 @@
                                 <div class="form-group review-rating d-flex flex-wrap">
                                     <label for="AddVendorReview_Rating" class="col-form-label w-100">@Loc["Reviews.Fields.Rating"]:</label>
                                     <b-form-rating v-model="value" variant="warning" show-value value="5" inline></b-form-rating>
-                                    <input class="sr-only" id="AddVendorReview_Rating" name="AddVendorReview.Rating" v-model="value"/>
+                                    <input class="visually-hidden" id="AddVendorReview_Rating" name="AddVendorReview.Rating" v-model="value"/>
                                 </div>
                                 <template v-if="vendorreviews.Model.AddVendorReview.DisplayCaptcha">
                                     <div id="captcha-popup"></div>
@@ -58,4 +61,7 @@
             </div>
         </template>
     </template>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>

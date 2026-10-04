@@ -1,0 +1,7 @@
+﻿{
+  Name: Kilogram,
+  SystemKeyword: kg,
+  Ratio: 1.0,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

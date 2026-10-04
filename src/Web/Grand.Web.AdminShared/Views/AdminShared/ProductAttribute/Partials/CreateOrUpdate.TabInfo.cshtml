@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Mvc.Razor
+@model ProductAttributeModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
+
+@{
+    Func<int, HelperResult>
+        template = @<div class="grand-fields">
+                       <admin-field asp-for="@Model.Locales[item].Name"/>
+                       <admin-field asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
+                       <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+                   </div>;
+}
+
+@* What the attribute is called, then - in the main panel only - where it is sold and its URL. *@
+<admin-card>
+    <localized-editor localized-template="@template" name="productattribute-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="grand-fields">
+            <admin-field asp-for="Name"/>
+            <admin-field asp-for="Description" asp-template="Editor"/>
+        </div>
+    </localized-editor>
+</admin-card>
+@if (area == "Admin")
+{
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="Stores"/>
+            <admin-field asp-for="SeName"/>
+        </div>
+    </admin-card>
+}
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

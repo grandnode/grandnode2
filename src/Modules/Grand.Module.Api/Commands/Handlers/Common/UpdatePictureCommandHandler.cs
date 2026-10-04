@@ -1,6 +1,6 @@
 ﻿using Grand.Module.Api.Commands.Models.Common;
 using Grand.Business.Core.Interfaces.Storage;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Common;
 

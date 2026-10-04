@@ -1,10 +1,10 @@
-using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+﻿using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.GiftVouchers;
 
@@ -51,6 +51,7 @@ public class GiftVoucherService : IGiftVoucherService
     ///     Gets all gift vouchers
     /// </summary>
     /// <param name="purchasedWithOrderItemId">Associated order ID; null to load all records</param>
+    /// <param name="storeId">Store identifier; null to load all records</param>
     /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
     /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
     /// <param name="isGiftVoucherActivated">Value indicating whether gift voucher is activated; null to load all records</param>
@@ -63,7 +64,7 @@ public class GiftVoucherService : IGiftVoucherService
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         bool? isGiftVoucherActivated = null, string giftVoucherCouponCode = null,
         string recipientName = null,
-        int pageIndex = 0, int pageSize = int.MaxValue)
+        int pageIndex = 0, int pageSize = int.MaxValue, string storeId = "")
     {
         var model = new GetGiftVoucherQuery {
             CreatedFromUtc = createdFromUtc,
@@ -73,11 +74,12 @@ public class GiftVoucherService : IGiftVoucherService
             PageIndex = pageIndex,
             PageSize = pageSize,
             PurchasedWithOrderItemId = purchasedWithOrderItemId,
+            StoreId = storeId,
             RecipientName = recipientName
         };
 
         var query = await _mediator.Send(model);
-        return await PagedList<GiftVoucher>.Create(query, pageIndex, pageSize);
+        return await _giftVoucherRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task<IList<GiftVoucherUsageHistory>> GetAllGiftVoucherUsageHistory(string orderId = "")
@@ -87,7 +89,7 @@ public class GiftVoucherService : IGiftVoucherService
             select h;
 
         query = query.Where(x => x.UsedWithOrderId == orderId);
-        return await Task.FromResult(query.ToList());
+        return await _giftVoucherRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -154,7 +156,7 @@ public class GiftVoucherService : IGiftVoucherService
             gc.PurchasedWithOrderItem != null && gc.PurchasedWithOrderItem.Id == purchasedWithOrderItemId);
         query = query.OrderBy(gc => gc.Id);
 
-        return await Task.FromResult(query.ToList());
+        return await _giftVoucherRepository.ToListAsync(query);
     }
 
     /// <summary>

@@ -1,3 +1,13 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - feature/*
+pr:
+  branches:
+    include:
+      - develop
+
 resources:
   containers:
   - container: mongo
@@ -28,39 +38,27 @@ steps:
   clean: true
   fetchDepth: 1
 
-- task: Bash@3
-  displayName: 'Pre-clean + disk check'
-  inputs:
-    targetType: 'inline'
-    script: |
-      set -euxo pipefail
-      echo "=== Disk before cleanup ==="
-      df -h
-
-      rm -rf "$(Agent.TempDirectory)"/* || true
-      find "$(Build.SourcesDirectory)" -type d \( -name bin -o -name obj \) -prune -exec rm -rf {} + || true
-
-      echo "=== Disk after cleanup ==="
-      df -h
+- bash: |
+    sudo rm -rf /usr/local/lib/android
+    sudo rm -rf /usr/share/swift
+    sudo rm -rf /opt/hostedtoolcache/CodeQL
+    sudo rm -rf /usr/local/share/powershell
+    sudo apt-get clean
+    
+    df -h
+  displayName: Free disk space
 
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK 10'
   inputs:
-    version: '10.0.x'
-
-- task: Bash@3
-  displayName: Install .NET Aspire workload
-  inputs:
-    targetType: 'inline'
-    script: |
-      dotnet workload install aspire
+    version: '10.0.301'
 
 # Replaced NuGet tasks with dotnet CLI commands to fix Ubuntu 24.04 compatibility
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
   inputs:
     command: 'restore'
-    projects: '**/*.sln'
+    projects: '**/*.slnx'
     feedsToUse: 'select'
 
 - task: DotNetCoreCLI@2

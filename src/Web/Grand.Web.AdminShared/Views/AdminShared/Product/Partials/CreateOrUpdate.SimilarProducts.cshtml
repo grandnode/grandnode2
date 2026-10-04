@@ -1,0 +1,76 @@
+﻿@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a product the store may see but not change (see BaseProductController.Edit)
+    bool readOnly = ViewBag.IsReadOnly == true;
+}
+
+
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts"]</h2>
+            @if (!readOnly)
+            {
+                <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
+                <input type="submit" id="btnRefreshSimilarProducts" style="display: none"/>
+            }
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
+            <admin-grid id="similarproducts-grid"
+                        read-only="@readOnly"
+                        read-url="@Url.Action("SimilarProductList", "Product", new { productId = Model.Id, area = area })"
+                        update-url="@Url.Action("SimilarProductUpdate", "Product", new { area = area })"
+                        destroy-url="@Url.Action("SimilarProductDelete", "Product", new { area = area })"
+                        pager="Compact"
+                        auto-bind="false"
+                        edit-mode="Inline">
+                <grid-column field="Product2Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.Fields.Product"]">
+                    <cell-template>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { id = "", area = area })/{{ ProductId2 }}">{{ Product2Name }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.Fields.DisplayOrder"]" width="120" align="Center" format="{0:0}" editor="Integer"/>
+                <grid-commands edit="true" destroy="true"/>
+            </admin-grid>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnAddNewSimilarProduct').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshSimilarProducts').click(function () {
+                //refresh grid
+                var grid = GrandAdmin.grids.get("#similarproducts-grid");
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.SaveBeforeEdit"]
+    </div>
+}

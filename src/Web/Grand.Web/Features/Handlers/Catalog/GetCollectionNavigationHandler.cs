@@ -6,7 +6,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -35,7 +35,7 @@ public class GetCollectionNavigationHandler : IRequestHandler<GetCollectionNavig
         {
             var currentCollection = await _collectionService.GetCollectionById(request.CurrentCollectionId);
             var collections =
-                await _collectionService.GetAllCollections(pageSize: _catalogSettings.CollectionsBlockItemsToDisplay,
+                await _collectionService.GetAllCollections(collectionName: "", pageSize: _catalogSettings.CollectionsBlockItemsToDisplay,
                     storeId: request.Store.Id);
             var model = new CollectionNavigationModel {
                 TotalCollections = collections.TotalCount

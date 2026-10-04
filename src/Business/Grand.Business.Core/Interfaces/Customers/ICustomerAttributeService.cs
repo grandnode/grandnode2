@@ -14,6 +14,13 @@ public interface ICustomerAttributeService
     Task<IList<CustomerAttribute>> GetAllCustomerAttributes();
 
     /// <summary>
+    ///     Gets all customer attributes for the specified store
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Customer attributes</returns>
+    Task<IList<CustomerAttribute>> GetAllCustomerAttributes(string storeId);
+
+    /// <summary>
     ///     Gets a customer attribute
     /// </summary>
     /// <param name="customerAttributeId">Customer attribute identifier</param>
