@@ -16,15 +16,11 @@
   ·
   <a href="https://grandnode.com/?utm_source=github&utm_medium=link&utm_campaign=readme">Website</a>
   ·
-  <a href="https://docs.grandnode.com/?utm_source=github&utm_medium=link&utm_campaign=readme">Documentation</a>
+  <a href="https://grandnode.com/knowledgebase?utm_source=github&utm_medium=link&utm_campaign=readme">Documentation</a>
   ·
   <a href="https://github.com/grandnode/grandnode2/discussions">Discussions</a>
   ·
-  <a href="https://grandnode.com/grandnode-themes/?utm_source=github&utm_medium=link&utm_campaign=readme">Themes</a>
-  ·
-  <a href="https://grandnode.com/extensions/?utm_source=github&utm_medium=link&utm_campaign=readme">Integrations & plugins</a>
-  ·
-  <a href="https://grandnode.com/premium-support-packages/?utm_source=github&utm_medium=link&utm_campaign=readme">Premium support</a>
+  <a href="https://grandnode.com/official?utm_source=github&utm_medium=link&utm_campaign=readme">LTS & support</a>
 </p>
 
 <div align="center">
@@ -151,7 +147,7 @@ The demo is restored to its original state once per day.
 
 * [Installation](docs/installation.md) - Docker, multiple instances, Linux hosting
 * [Development](docs/development.md) - building the backend and frontend, running locally
-* [User and developer guides](https://docs.grandnode.com/?utm_source=github&utm_medium=link&utm_campaign=readme) on docs.grandnode.com
+* [User and developer guides](https://grandnode.com/knowledgebase?utm_source=github&utm_medium=link&utm_campaign=readme) in the GrandNode knowledgebase
 * [Contributing guide](CONTRIBUTING.md)
 
 ## Community and support
@@ -159,7 +155,7 @@ The demo is restored to its original state once per day.
 * Questions and ideas: [GitHub Discussions](https://github.com/grandnode/grandnode2/discussions)
 * Bugs and feature requests: [GitHub Issues](https://github.com/grandnode/grandnode2/issues/new/choose)
 * Security vulnerabilities: see the [security policy](SECURITY.md) - please do not open public issues
-* Commercial help: [premium support packages](https://grandnode.com/premium-support-packages/?utm_source=github&utm_medium=link&utm_campaign=readme)
+* Commercial help: [GrandNode Official](https://grandnode.com/official?utm_source=github&utm_medium=link&utm_campaign=readme) - LTS releases and support
 
 See [SUPPORT.md](SUPPORT.md) for where each kind of question goes.
 
