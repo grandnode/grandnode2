@@ -18,4 +18,4 @@ And that's all, you are GrandNode official contributor!
 
 How to build and run the code locally: [docs/development.md](docs/development.md)
 
-[Coding standards and guides](https://docs.grandnode.com/developers-guide)
+[Coding standards and guides](https://grandnode.com/developers)
