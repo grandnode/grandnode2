@@ -112,12 +112,15 @@ Stable versions are also on the [Releases](https://github.com/grandnode/grandnod
 ### Run with Docker
 
 ```bash
-docker run -d -p 127.0.0.1:27017:27017 --name mongodb mongo
-docker run -d -p 80:8080 --name grandnode2 --link mongodb:mongo -v grandnode_images:/app/wwwroot/assets/images -v grandnode_appdata:/app/App_Data grandnode/grandnode2
+docker network create grandnode
+docker run -d --name mongo --network grandnode -v grandnode_db:/data/db mongo
+docker run -d --name grandnode2 --network grandnode -p 80:8080 -e Application__MediaPath=/app/media -v grandnode_appdata:/app/App_Data -v grandnode_media:/app/media grandnode/grandnode2
 ```
 
-Open <http://localhost>, and the installer asks for the MongoDB connection string (`mongodb://mongo/grandnode`
-with the commands above) and the administrator account.
+Open <http://localhost>, and the installer asks for the MongoDB connection string (`mongodb://mongo:27017/grandnode`
+with the commands above) and the administrator account. `App_Data` keeps the settings and the installation state,
+and `/app/media` keeps everything the store writes at runtime (uploaded images, thumbnails, custom CSS/JS,
+sitemaps), so both survive a container update.
 
 ### Run from source
 
