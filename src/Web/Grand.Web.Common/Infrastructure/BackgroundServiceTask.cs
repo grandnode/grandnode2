@@ -108,9 +108,6 @@ public class BackgroundServiceTask : BackgroundService
         var scheduleTask = serviceProvider.GetRequiredKeyedService<IScheduleTask>(task.ScheduleTaskName);
         if (scheduleTask != null)
         {
-            //assign current customer (background task) / current store (from task)
-            await WorkContext(serviceProvider, task);
-
             if (!due)
                 return;
 
@@ -126,6 +123,14 @@ public class BackgroundServiceTask : BackgroundService
                 task.LeasedByInstance = InstanceId;
                 try
                 {
+                    //assign current customer (background task) / current store (from task).
+                    //Set in this frame, not in an awaited helper: AsyncLocal values written inside
+                    //an async method are discarded when it returns, so Execute would see null
+                    var contextAccessor = serviceProvider.GetRequiredService<IContextAccessor>();
+                    var (storeContext, workContext) = await InitializeContext(serviceProvider, task);
+                    contextAccessor.StoreContext = storeContext;
+                    contextAccessor.WorkContext = workContext;
+
                     logger.LogInformation("Task {TaskName} execute", Name);
                     await scheduleTask.Execute();
                     task.LastSuccessUtc = DateTime.UtcNow;
@@ -166,14 +171,15 @@ public class BackgroundServiceTask : BackgroundService
             await scheduleTaskService.UpdateTask(task);
     }
 
-    private static async Task WorkContext(IServiceProvider serviceProvider, ScheduleTask scheduleTask)
+    private static async Task<(IStoreContext storeContext, IWorkContext workContext)> InitializeContext(
+        IServiceProvider serviceProvider, ScheduleTask scheduleTask)
     {
-        var contextAccessor = serviceProvider.GetRequiredService<IContextAccessor>();
-        
-        var storeContext = serviceProvider.GetRequiredService<IStoreContextSetter>();
-        contextAccessor.StoreContext = await storeContext.InitializeStoreContext(scheduleTask.StoreId);
+        var storeContextSetter = serviceProvider.GetRequiredService<IStoreContextSetter>();
+        var storeContext = await storeContextSetter.InitializeStoreContext(scheduleTask.StoreId);
 
-        var workContext = serviceProvider.GetRequiredService<IWorkContextSetter>();
-        contextAccessor.WorkContext = await workContext.InitializeWorkContext(scheduleTask.StoreId);
+        var workContextSetter = serviceProvider.GetRequiredService<IWorkContextSetter>();
+        var workContext = await workContextSetter.InitializeWorkContext(scheduleTask.StoreId);
+
+        return (storeContext, workContext);
     }
 }
