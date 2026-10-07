@@ -10,7 +10,8 @@ using System.Reflection;
 namespace Grand.Web.Common.TagHelpers.Admin;
 
 /// <summary>
-///     input tag helper
+///     The editor of a model property, rendered through the editor template picked from the
+///     property type, or the one named in asp-template.
 /// </summary>
 [HtmlTargetElement("admin-input", Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
 public class AdminInputTagHelper : TagHelper
@@ -25,65 +26,53 @@ public class AdminInputTagHelper : TagHelper
 
     private readonly IHtmlHelper _htmlHelper;
 
-    /// <summary>
-    ///     Ctor
-    /// </summary>
-    /// <param name="htmlHelper">HTML helper</param>
     public AdminInputTagHelper(IHtmlHelper htmlHelper)
     {
         _htmlHelper = htmlHelper;
     }
 
-    /// <summary>
-    ///     An expression to be evaluated against the current model
-    /// </summary>
+    /// <summary>The model property the editor is bound to.</summary>
     [HtmlAttributeName(ForAttributeName)]
     public ModelExpression For { get; set; }
 
-    /// <summary>
-    ///     Indicates whether the field is disabled
-    /// </summary>
+    /// <summary>"true" renders the editor disabled, so the browser does not post it.</summary>
     [HtmlAttributeName(DisabledAttributeName)]
     public string IsDisabled { set; get; }
 
-    /// <summary>
-    ///     Indicates whether the field is required
-    /// </summary>
+    /// <summary>"true" wraps the editor in the input group that shows the required asterisk.</summary>
     [HtmlAttributeName(RequiredAttributeName)]
     public string IsRequired { set; get; }
 
     /// <summary>
-    ///     Indicates whether the "form-control" class shold be added to the input
+    ///     "true" or "false" forces the form-control class on or off. Left out, only string
+    ///     properties get it.
     /// </summary>
     [HtmlAttributeName(RenderFormControlClassAttributeName)]
     public string RenderFormControlClass { set; get; }
 
-    /// <summary>
-    ///     Editor template for the field
-    /// </summary>
+    /// <summary>Editor template to use instead of the one picked from the property type.</summary>
     [HtmlAttributeName(TemplateAttributeName)]
     public string Template { set; get; }
 
-    [HtmlAttributeName(PostSelectItem)] public IList<SelectListItem> SelectItems { set; get; }
-
     /// <summary>
-    ///     Postfix
+    ///     Options for a template that renders a list. They reach it through ViewData["SelectList"],
+    ///     and an empty list clears what an earlier field left there.
     /// </summary>
+    [HtmlAttributeName(PostSelectItem)]
+    public IList<SelectListItem> SelectItems { set; get; }
+
+    /// <summary>Text shown after the editor, such as a unit or a currency code.</summary>
     [HtmlAttributeName(PostfixAttributeName)]
     public string Postfix { set; get; }
 
-    /// <summary>
-    ///     ViewContext
-    /// </summary>
     [HtmlAttributeNotBound]
     [ViewContext]
     public ViewContext ViewContext { get; set; }
 
     /// <summary>
-    ///     Process
+    ///     Renders the editor template through a TemplateBuilder built from the html helper's
+    ///     private view engine and buffer scope, the same path Html.EditorFor takes.
     /// </summary>
-    /// <param name="context">Context</param>
-    /// <param name="output">Output</param>
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         ArgumentNullException.ThrowIfNull(context);
