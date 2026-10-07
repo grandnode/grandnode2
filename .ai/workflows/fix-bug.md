@@ -62,7 +62,7 @@ Before writing code, answer:
 - What happens on an installation that already worked around this bug?
 - If the fix is wrong, how does an operator recover?
 
-Run `.ai/checklists/data-change.md` if the answer touched entities, settings, or migrations.
+Run `.ai/checklists/upgrade-safety.md` if the answer touched entities, settings, or migrations.
 
 **Gate:** no unanswered question above.
 

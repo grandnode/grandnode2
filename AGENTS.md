@@ -110,7 +110,7 @@ Skills carry their own domain checklists; these cover what no single skill owns.
 - Run `.ai/checklists/code-review.md` when reviewing a diff, including your own before opening a PR.
 - Run `.ai/checklists/security.md` when the change touches auth, input, scoped data, secrets, payments, or file handling.
 - Run `.ai/checklists/performance.md` when the change adds a query, iterates entities, or touches a render path.
-- Run `.ai/checklists/data-change.md` when the change touches entities, migrations, settings, resources, permissions, or persisted identities.
+- Run `.ai/checklists/upgrade-safety.md` when the change touches entities, migrations, settings, resources, permissions, or persisted identities.
 - Run `.ai/checklists/plugin-release.md` before shipping a plugin or theme.
 
 ## Examples and Templates
