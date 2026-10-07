@@ -177,7 +177,7 @@ Each file in `.ai/agents/` wraps one prompt or workflow, using the GitHub custom
 3. Look at existing patterns before proposing a change. Prefer the abstractions, conventions and test utilities that are already there.
 4. Name things with the glossary's words.
 5. Stay inside the requested scope. Never overwrite unrelated changes or someone's local work.
-6. Work on a feature branch. In Claude Code, the hook in `.claude/settings.json` blocks commits and pushes on `develop` and `main`.
+6. Work on a feature branch. Never commit or push to `develop` or `main`; changes reach them through a pull request.
 7. Validate with the narrowest build or test command that proves the change.
 8. Run the matching checklists before reporting completion.
 

@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Grand.Web.Common.TagHelpers.Admin;
 
 /// <summary>
-///     A multi-line text field bound to a model property: a &lt;textarea&gt; with the panel's
-///     form-control styling, a default size of 4 rows by 20 columns, and the required marker
-///     when asked for.
+///     nop-textarea tag helper
 /// </summary>
 [HtmlTargetElement("admin-textarea", Attributes = ForAttributeName)]
 public class AdminTextAreaTagHelper : TextAreaTagHelper
@@ -16,22 +14,31 @@ public class AdminTextAreaTagHelper : TextAreaTagHelper
     private const string RequiredAttributeName = "asp-required";
     private const string DisabledAttributeName = "asp-disabled";
 
+    /// <summary>
+    ///     Ctor
+    /// </summary>
+    /// <param name="generator">HTML generator</param>
     public AdminTextAreaTagHelper(IHtmlGenerator generator) : base(generator)
     {
     }
 
-    /// <summary>"true" renders the field disabled, so the browser does not post it.</summary>
+    /// <summary>
+    ///     Indicates whether the input is disabled
+    /// </summary>
     [HtmlAttributeName(DisabledAttributeName)]
     public string IsDisabled { set; get; }
 
-    /// <summary>"true" wraps the field in the input group that shows the required asterisk.</summary>
+    /// <summary>
+    ///     Indicates whether the field is required
+    /// </summary>
     [HtmlAttributeName(RequiredAttributeName)]
     public string IsRequired { set; get; }
 
     /// <summary>
-    ///     Keeps a class set in the view instead of the default form-control. An explicit
-    ///     rows or cols attribute wins over the default size.
+    ///     Process
     /// </summary>
+    /// <param name="context">Context</param>
+    /// <param name="output">Output</param>
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
         //tag details
