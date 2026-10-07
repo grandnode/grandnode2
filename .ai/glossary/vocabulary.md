@@ -1,68 +1,65 @@
 # Vocabulary
 
-The words GrandNode uses for its domain concepts, and the generic e-commerce words that must not replace them. Using the generic term produces types that read as foreign to the codebase, and searches that find nothing.
+Check this page before you name a type, a property, a resource key or a variable. Each row gives the word GrandNode uses and the generic e-commerce word that must not replace it. A type named with the generic word looks out of place next to its neighbors, and a search for it in this repository comes back empty.
 
-Read this before naming a type, a model property, a resource key, or a variable.
+## Catalog
 
-| Use | Not | Type |
+| Write | Never | Implemented by |
 |---|---|---|
 | **Brand** | Manufacturer | `Grand.Domain.Catalog.Brand` |
-| **Collection** | — | `Grand.Domain.Catalog.Collection` |
-| **Page** | Topic | `Grand.Domain.Pages.Page` |
-| **Customer group** | Customer role | `Grand.Domain.Customers.CustomerGroup` |
+| **Collection** | — (own concept, no generic equivalent) | `Grand.Domain.Catalog.Collection` |
+| **Product layout** | Product template | `Grand.Domain.Catalog.ProductLayout` |
+| **Specification attribute option** | — | `Grand.Domain.Catalog.SpecificationAttributeOption` |
+
+Selectable renderings are always **layouts**: `ProductLayout`, `CategoryLayout`, `BrandLayout`, `CollectionLayout`, `PageLayout`. The word *template* is reserved for two other things: a message template (`Grand.Domain.Messages.MessageTemplate`, rendered with DotLiquid) and a Razor view file.
+
+## Sales
+
+| Write | Never | Implemented by |
+|---|---|---|
 | **Merchandise return** | Return request | `Grand.Domain.Orders.MerchandiseReturn` |
 | **Loyalty points** | Reward points | `Grand.Domain.Orders.LoyaltyPointsHistory` |
 | **Gift voucher** | Gift card | `Grand.Domain.Orders.GiftVoucher` |
+| **Discount rule** | Discount requirement | `Grand.Domain.Discounts.DiscountRule` |
+| **Checkout attribute** | — | `CheckoutAttribute` |
+
+Payment state uses two separate enums, and mixing them up is a real bug:
+
+- **`PaymentStatus`** (`Order.PaymentStatusId`): the commercial position of the whole order.
+- **`TransactionStatus`** (`PaymentTransaction.TransactionStatus`): where a single payment attempt stands with its provider.
+
+One order can have several payment transactions.
+
+## Customers
+
+| Write | Never | Implemented by |
+|---|---|---|
+| **Customer group** | Customer role | `Grand.Domain.Customers.CustomerGroup` |
 | **User field** | Generic attribute | `Grand.Domain.Common.UserField` |
+| **Address attribute** | — | `AddressAttribute` |
+
+`CustomerGroup` and `PluginInfo.Group` share a word and nothing else. The first is a set of customers that drives pricing, visibility and permissions. The second is the category string in a plugin manifest, such as `"Payment methods"`, `"Widgets"` or `"Themes"`.
+
+## Platform
+
+| Write | Never | Implemented by |
+|---|---|---|
+| **Store** | Shop, site, tenant | `Grand.Domain.Stores.Store` |
+| **Page** | Topic | `Grand.Domain.Pages.Page` |
 | **Translation resource** | Locale string resource | `Grand.Domain.Localization.TranslationResource` |
 | **Translation entity** | Localized property | `Grand.Domain.Localization.TranslationEntity` |
 | **Entity URL** | URL record, slug record | `Grand.Domain.Seo.EntityUrl` |
-| **Product layout** | Product template | `Grand.Domain.Catalog.ProductLayout` |
-| **Discount rule** | Discount requirement | `Grand.Domain.Discounts.DiscountRule` |
-| **Specification attribute option** | — | `Grand.Domain.Catalog.SpecificationAttributeOption` |
-| **Address attribute**, **checkout attribute** | — | `AddressAttribute`, `CheckoutAttribute` |
 
-## Layouts, not templates
+A store is a storefront with its own domain hosts, currency, language and settings. Use no other word for it.
 
-Every entity that has a selectable rendering has a `*Layout` type — `ProductLayout`, `CategoryLayout`, `BrandLayout`, `CollectionLayout`, `PageLayout`. "Template" in this codebase means a **message template** (`Grand.Domain.Messages.MessageTemplate`, DotLiquid) or a Razor view file, never a catalog rendering choice.
+## Extensibility
 
-## Two payment vocabularies
+The **plugin** is what gets installed: an assembly, its manifest, an `IPlugin` implementation, an output folder. A **provider** is a capability that a plugin registers, such as `IPaymentProvider`, `IShippingRateCalculationProvider`, `IWidgetProvider`, `IDiscountProvider` or `IThemeView`. One plugin can register several providers. The provider's `SystemName` must equal the manifest's (`.ai/standards/naming.md`).
 
-`PaymentStatus` and `TransactionStatus` are different enums for different objects:
+## Identifiers that must not appear
 
-- `Order.PaymentStatusId` → `Grand.Domain.Payments.PaymentStatus` — where the order stands commercially.
-- `PaymentTransaction.TransactionStatus` → `Grand.Domain.Payments.TransactionStatus` — where one payment attempt stands with the provider.
+A grep for these in new code should come back empty:
 
-An order may have several payment transactions. Do not treat the two as interchangeable.
+`Manufacturer` · `Topic` · `CustomerRole` · `ReturnRequest` · `RewardPoints` · `GiftCard` · `GenericAttribute` · `Tenant`
 
-## Groups, twice
-
-"Group" means two unrelated things depending on the namespace:
-
-- `CustomerGroup` — a set of customers, used for pricing, visibility, and permissions.
-- `PluginInfo.Group` — the plugin category string in a manifest (`"Payment methods"`, `"Widgets"`, `"Themes"`).
-
-## Provider vs plugin
-
-- A **plugin** is the installable unit: an assembly, a manifest, an `IPlugin` implementation, an output folder.
-- A **provider** is a capability the plugin registers: `IPaymentProvider`, `IShippingRateCalculationProvider`, `IWidgetProvider`, `IDiscountProvider`, `IThemeView`.
-
-One plugin may register several providers. `SystemName` on the provider and `SystemName` in the manifest must match — see `.ai/standards/naming.md`.
-
-## Store vs shop vs site
-
-The codebase says **store** (`Grand.Domain.Stores.Store`) — a storefront with its own domain hosts, currency, language, and settings. "Shop", "site", and "tenant" appear nowhere; do not introduce them.
-
-## Words to avoid entirely
-
-| Do not write | Because |
-|---|---|
-| `Manufacturer` | it is `Brand` |
-| `Topic` | it is `Page` |
-| `CustomerRole` | it is `CustomerGroup` |
-| `ReturnRequest` | it is `MerchandiseReturn` |
-| `RewardPoints` | it is `LoyaltyPoints` |
-| `GiftCard` | it is `GiftVoucher` |
-| `GenericAttribute` | it is `UserField` |
-| `Tenant` | it is `Store` |
-| `Repository` as a type-name suffix on a business service | the repository is `IRepository<T>`; services are `*Service` |
+Do not give a business service the `Repository` suffix either. Data access goes through `IRepository<T>`, and services are named `*Service`.

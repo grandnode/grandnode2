@@ -1,173 +1,195 @@
 # Repository Agent Instructions
 
-## Purpose
-Provide model-agnostic operating instructions for AI agents working in this repository.
+Instructions for any AI agent that changes or reviews code in this repository. They do not depend on a particular tool: Claude Code loads this file through `CLAUDE.md`, and GitHub Copilot through `.github/copilot-instructions.md`. Everything under `.ai/` is indexed here.
 
-## When To Use
-Use this file before making or reviewing repository changes.
+## How to start
 
-| Path | Contains | Use it to |
+1. Pick a **prompt** when the goal is known, or a **workflow** when the cause, bottleneck, or path still has to be found. Each one names the skills, knowledge, standards, and templates to load.
+2. Read `.ai/constraints.md` (hard prohibitions) and `.ai/glossary/vocabulary.md` (the domain's words) once in full. Both apply to every change.
+3. Find the closest existing code of the same shape and follow it. When a standard and that code disagree, follow the code and say so.
+4. Finish with the checklists that match the change.
+
+| Folder | Holds | Reach for it to |
 |---|---|---|
-| `.ai/principles.md` | why the code is shaped this way | resolve a judgment call |
+| `.ai/principles.md` | the reasons the code looks the way it does | settle a judgment call between two valid options |
 | `.ai/constraints.md` | hard prohibitions | know what is never acceptable |
-| `.ai/prompts/` | task entry points | start work when you know what to build |
-| `.ai/workflows/` | multi-phase procedures with gates | start work when you must first find something out |
+| `.ai/prompts/` | entry points for a known task | start building |
+| `.ai/workflows/` | procedures with gates | start finding out |
 | `.ai/skills/` | domain procedures with mandatory rules | do or review work in one domain |
-| `.ai/knowledge/` | shared context and patterns | understand how the system works |
-| `.ai/glossary/` | the domain vocabulary | name things the way this domain names them |
-| `.ai/standards/` | binding conventions | name, format, structure, and ship a change |
-| `.ai/checklists/` | cross-cutting gates | verify a change before calling it done |
-| `.ai/examples/` | worked walkthroughs of shipped code | see the rules applied before writing new code |
+| `.ai/knowledge/` | how the system works | get context before touching it |
+| `.ai/glossary/` | domain vocabulary | name things the way the code does |
+| `.ai/standards/` | binding conventions | name, format, structure, and ship |
+| `.ai/checklists/` | cross-cutting gates | verify before calling it done |
+| `.ai/examples/` | walkthroughs of shipped code | see the rules applied |
 | `.ai/templates/` | copy-ready skeletons | scaffold a plugin, theme, or migration |
-| `.ai/agents/` | agent definition wrappers | index reusable agent entry points to follow manually (mirror into `.github/agents/` for GitHub Copilot to discover them) |
+| `.ai/agents/` | thin wrappers around a prompt or workflow | hand off a whole recurring task |
 
-**Start from a prompt or a workflow.** It names the skills, knowledge, standards, and templates to load. Use a prompt when the goal is known; use a workflow when the cause, bottleneck, or path is not.
+## Prompts — the goal is known
 
-`.ai/constraints.md` and `.ai/glossary/vocabulary.md` apply to every change and are worth reading once in full.
+| Prompt | For |
+|---|---|
+| `.ai/prompts/implement-feature.md` | a feature or change across layers |
+| `.ai/prompts/review-change.md` | reviewing a pull request or diff against every applicable skill |
+| `.ai/prompts/create-plugin.md` | a new installable plugin |
+| `.ai/prompts/create-theme.md` | a storefront theme, or view overrides in one |
+| `.ai/prompts/add-migration.md` | a migration for existing installations |
+| `.ai/prompts/write-tests.md` | new or extended unit tests |
+| `.ai/prompts/explore-repository.md` | "where does X live" and "how does X work" |
+| `.ai/prompts/convert-admin-screens.md` | one admin module (list, edit, tabs, popups) moved to the component layer across Admin, Store and Vendor |
+| `.ai/prompts/upgrade-kendo-view.md` | an admin or plugin view moved off Kendo UI, Bootstrap 4 and Font Awesome onto `<admin-grid>`, `window.GrandAdmin` and Bootstrap 5 |
 
-## Prompt Routing
-- Use `.ai/prompts/review-change.md` to review a pull request or diff against all applicable skills.
-- Use `.ai/prompts/implement-feature.md` to implement or change a feature across layers.
-- Use `.ai/prompts/create-plugin.md` to scaffold a new installable plugin.
-- Use `.ai/prompts/create-theme.md` to create a storefront theme or add view overrides to one.
-- Use `.ai/prompts/add-migration.md` to add an upgrade migration for existing installations.
-- Use `.ai/prompts/write-tests.md` to add or extend unit tests.
-- Use `.ai/prompts/explore-repository.md` to answer "where does X live" or "how does X work".
-- Use `.ai/prompts/convert-admin-screens.md` to convert one admin module (list, edit, tabs, popups) to the component layer across Admin, Store and Vendor.
-- Use `.ai/prompts/upgrade-kendo-view.md` to move an admin or plugin view off Kendo UI, Bootstrap 4 and Font Awesome onto `<admin-grid>`, `window.GrandAdmin` and Bootstrap 5.
+## Workflows — the answer is not known yet
 
-## Workflow Routing
-Use a workflow when the answer is not known at the start. Each ends by handing off to a prompt.
-- Use `.ai/workflows/fix-bug.md` when something is broken and the cause is unknown — reproduce, find the cause, choose a fix, assess risk, test, verify.
-- Use `.ai/workflows/investigate-performance.md` when something is slow and the bottleneck is unknown — define, measure, explain, fix, re-measure.
-- Use `.ai/workflows/refactor-safely.md` to change structure without changing behavior.
-- Use `.ai/workflows/upgrade-dependency.md` to move a NuGet package, framework, or shared version.
-- Use `.ai/workflows/respond-to-review.md` to work through review feedback, including automated findings.
+Each workflow ends by handing off to a prompt.
 
-## Skill Routing
-- Use `.ai/skills/architecture-review.md` for design, layering, dependency, module boundary, public contract, and maintainability reviews.
-- Use `.ai/skills/security-review.md` for authentication, authorization, input handling, secrets, cryptography, sensitive data, and trust-boundary reviews.
-- Use `.ai/skills/dotnet-review.md` for C#, .NET, ASP.NET Core, MongoDB repository usage, NuGet, MSBuild, and .NET test reviews.
-- Use `.ai/skills/database-review.md` for migrations, schema, indexes, queries, transactions, ORM mappings, and data integrity reviews.
-- Use `.ai/skills/mongodb-review.md` for MongoDB collections, filters, projections, indexes, repository queries, aggregations, updates, and data migrations.
-- Use `.ai/skills/plugin-module.md` for GrandNode plugins and modules, including provider plugins, themes, API modules, migrations, and installer behavior.
-- Use `.ai/skills/plugin-shipping.md` for shipping rate calculation plugins (IShippingRateCalculationProvider), GetShippingOptions, ShippingOption, ShippingRateCalculationType, and IShipmentTracker.
-- Use `.ai/skills/plugin-payment.md` for payment method plugins (IPaymentProvider), Standard vs Redirection flow, ProcessPayment, Capture, Refund, Void, and PaymentTransaction status.
-- Use `.ai/skills/plugin-widget.md` for widget plugins (IWidgetProvider), GetWidgetZones, view components, widget zone names, and GDPR consent gating.
-- Use `.ai/skills/plugin-discount-rules.md` for discount rule plugins (IDiscountProvider, IDiscountRule), CheckRequirement, DiscountRule.Metadata, and rule configuration controllers.
-- Use `.ai/skills/template-creation.md` for Razor views, layouts, partials, view components, plugin views, theme overrides, Vue-in-Razor templates, PDF templates, and DotLiquid message templates.
-- Use `.ai/skills/theme-creation.md` for storefront themes: IThemeView, GetViewLocations fallback, theme view folders, theme _ViewImports, theme Content assets, and theme project setup.
-- Use `.ai/skills/frontend-bundle-workflow.md` for Vue/Vite build, theme CSS changes, when to run `npm run build`, bundle output files, and committing bundles alongside source.
-- Use `.ai/skills/admin-area-changes.md` for admin-facing changes that may affect Main Admin, Store Owner, Vendor, shared admin models, permissions, navigation, validation, or scoped data access.
-- Use `.ai/skills/admin-ui-component-layer.md` to build or convert any admin screen, tab or popup to the panel's visual style: `<admin-page>`, `<admin-card>`, `<admin-field>`, `<admin-filters>`, `<admin-popup>`, button hierarchy, Add new placement, and the CSS traps already paid for.
-- Use `.ai/skills/project-structure.md` to understand repository structure, technology ownership, layer responsibilities, and how to expand GrandNode consistently.
-- Use `.ai/skills/settings-and-localization.md` for settings classes, store-scoped overrides, ISettingService, localization resources, ITranslationService, IPluginTranslateResource, localized domain entities, and localized admin models.
-- Use `.ai/skills/message-notification.md` for message templates, DotLiquid tokens and drops, IMessageProviderService, queued email lifecycle, LiquidObjectBuilder, MessageTokensAddedEvent plugin extension, and domain event notification handlers.
-- Use `.ai/skills/scheduled-task.md` for scheduled task classes, IScheduleTask, AddKeyedScoped registration, ScheduleTask seed, multi-instance distributed locking, error handling, and task migrations.
-- Use `.ai/skills/permission-navigation.md` for permissions, PermissionSystemName, PermissionActionName, StandardPermission, PermissionProvider, controller authorization attributes, AdminSiteMap entries, and permission or navigation migrations.
-- Use `.ai/knowledge/async.md` for async/await patterns, CancellationToken, Task vs ValueTask, and blocking anti-patterns.
-- Use `.ai/knowledge/mongodb.md` for IRepository<T> usage, query patterns, partial updates, and write conventions.
-- Use `.ai/knowledge/performance.md` for ICacheBase, CacheKey constants, cache invalidation, pagination, and partial field writes.
-- Use `.ai/knowledge/security.md` for authorization checks, FluentValidation patterns, guard clauses, HTML encoding, and safe MongoDB queries.
-- Use `.ai/knowledge/architecture.md` for layering rules, DI lifetimes, mediator commands/queries, and domain events.
-- Use `.ai/knowledge/request-lifecycle.md` for startup, IStartupApplication priorities, middleware order, ContextMiddleware, and the controller-to-view path.
-- Use `.ai/knowledge/scoping.md` for store, vendor, customer group, language, and currency boundaries, and for code that runs without ambient context.
-- Use `.ai/knowledge/caching.md` for ICacheBase, CacheKey constants, key composition, and invalidation including cross-family clearing.
-- Use `.ai/knowledge/domain-events.md` for commands vs queries vs notifications, entity events, and notification handler rules.
-- Use `.ai/knowledge/repository-map.md` to place a new file in the owning project and find where an existing concern lives.
-- Use `.ai/knowledge/admin-areas.md` for the three admin panels (Admin, Store, Vendor), what each owns and how they share code.
-- Use `.ai/knowledge/plugin-types.md` for the shipped plugin inventory by kind, to pick the closest plugin to copy.
-- Use `.ai/knowledge/module-types.md` for the shipped modules (API, installer, migration) and how they differ from plugins.
-- Use `.ai/knowledge/template-types.md` for which kind of view (storefront, admin, plugin, theme, PDF, message template) a change belongs in.
-- Use `.ai/knowledge/tests.md` for MSTest + Moq patterns, test structure, validator testing, and controller test setup.
-- Use `.ai/knowledge/dotnet.md` for C# idioms: records, guard clauses, result objects, pattern matching, nullable types, and configuration binding.
-- Use multiple skills when a change crosses domains.
+| Workflow | When |
+|---|---|
+| `.ai/workflows/fix-bug.md` | something is broken and the cause is unknown: reproduce, find the cause, choose a fix, assess risk, test, verify |
+| `.ai/workflows/investigate-performance.md` | something is slow and the bottleneck is unknown: define, measure, explain, fix, re-measure |
+| `.ai/workflows/refactor-safely.md` | structure changes, behavior must not |
+| `.ai/workflows/upgrade-dependency.md` | moving a NuGet package, the framework, or a shared version |
+| `.ai/workflows/respond-to-review.md` | working through review feedback, automated findings included |
 
-## Glossary Routing
-Use the domain's own vocabulary. GrandNode names many concepts differently from other e-commerce platforms; the generic word produces types that read as foreign and searches that find nothing.
-- Read `.ai/glossary/vocabulary.md` before naming anything — Brand not Manufacturer, Page not Topic, Customer group not Customer role, Merchandise return not Return request, Loyalty points not Reward points, User field not Generic attribute.
-- Use `.ai/glossary/entity-model.md` for base entity types, marker interfaces, user fields, localized properties, and slugs.
-- Use `.ai/glossary/catalog.md` for products, product types, category/brand/collection, product vs specification attributes, pricing, and inventory.
-- Use `.ai/glossary/sales.md` for cart, order, the three order statuses, payment transactions, shipping, merchandise returns, discounts, and loyalty points.
-- Use `.ai/glossary/customers.md` for customers, groups, tags, vendors, sales employees, affiliates, and the four party boundaries.
-- Use `.ai/glossary/platform.md` for stores, localization, settings, permissions, SEO, CMS content, media, messaging, and tasks.
+## Skills — one domain each
 
-## Global Rules
-- Read `.ai/principles.md` for the reasoning behind the codebase's shape; use it when two valid approaches conflict.
-- Read `.ai/constraints.md` for hard prohibitions. A violation is a defect, not a trade-off to weigh.
+A change that crosses domains loads every skill it touches.
 
-## Standards Routing
-Standards are binding. When a standard and the closest existing file disagree, follow the existing file and say so.
-- Use `.ai/standards/naming.md` for project, type, file, key, and member naming, including plugin system names, setting keys, localization keys, and cache key constants.
-- Use `.ai/standards/csharp-style.md` for formatting enforced by `.editorconfig`, file layout, constructor injection, guards, and what not to introduce.
-- Use `.ai/standards/razor-frontend.md` for Razor conventions, Vue-in-Razor rules, storefront data attributes, admin tag helpers, and asset placement.
-- Use `.ai/standards/git-and-pr.md` for branches, commit format, the pull request template, and the pre-PR checklist.
-- Use `.ai/standards/dependencies.md` for central package management, shared MSBuild props, project references, output paths, and SDK selection.
+| Skill | Covers |
+|---|---|
+| `.ai/skills/architecture-review.md` | design, layering, dependencies, module boundaries, public contracts, maintainability |
+| `.ai/skills/security-review.md` | authentication, authorization, input, secrets, cryptography, sensitive data, trust boundaries |
+| `.ai/skills/dotnet-review.md` | C#, .NET, ASP.NET Core, repository usage, NuGet, MSBuild, .NET tests |
+| `.ai/skills/database-review.md` | migrations, schema, indexes, queries, transactions, mappings, data integrity |
+| `.ai/skills/mongodb-review.md` | collections, filters, projections, indexes, repository queries, aggregations, updates, data migrations |
+| `.ai/skills/project-structure.md` | repository layout, technology ownership, layer responsibilities, growing GrandNode consistently |
+| `.ai/skills/plugin-module.md` | plugins and modules in general: provider plugins, themes, API modules, migrations, installer behavior |
+| `.ai/skills/plugin-payment.md` | `IPaymentProvider`, Standard vs Redirection flow, ProcessPayment, Capture, Refund, Void, `PaymentTransaction` status |
+| `.ai/skills/plugin-shipping.md` | `IShippingRateCalculationProvider`, GetShippingOptions, `ShippingOption`, `ShippingRateCalculationType`, `IShipmentTracker` |
+| `.ai/skills/plugin-widget.md` | `IWidgetProvider`, GetWidgetZones, view components, widget zone names, GDPR consent gating |
+| `.ai/skills/plugin-discount-rules.md` | `IDiscountProvider`, `IDiscountRule`, CheckRequirement, `DiscountRule.Metadata`, rule configuration controllers |
+| `.ai/skills/theme-creation.md` | `IThemeView`, GetViewLocations fallback, theme view folders, theme `_ViewImports`, theme Content assets, theme project setup |
+| `.ai/skills/template-creation.md` | Razor views, layouts, partials, view components, plugin views, theme overrides, Vue-in-Razor, PDF templates, DotLiquid message templates |
+| `.ai/skills/frontend-bundle-workflow.md` | Vue/Vite build, theme CSS, when to run `npm run build`, bundle outputs, committing bundles with their source |
+| `.ai/skills/admin-area-changes.md` | anything admin-facing that may reach Main Admin, Store Owner or Vendor: shared models, permissions, navigation, validation, scoped data |
+| `.ai/skills/admin-ui-component-layer.md` | building or converting an admin screen, tab or popup: `<admin-page>`, `<admin-card>`, `<admin-field>`, `<admin-filters>`, `<admin-popup>`, button hierarchy, Add new placement, known CSS traps |
+| `.ai/skills/settings-and-localization.md` | settings classes, store-scoped overrides, `ISettingService`, translation resources, `ITranslationService`, `IPluginTranslateResource`, translated entities and admin models |
+| `.ai/skills/message-notification.md` | message templates, DotLiquid tokens and drops, `IMessageProviderService`, queued email lifecycle, `LiquidObjectBuilder`, `MessageTokensAddedEvent`, notification handlers |
+| `.ai/skills/scheduled-task.md` | `IScheduleTask`, `AddKeyedScoped` registration, `ScheduleTask` seed, distributed locking across instances, error handling, task migrations |
+| `.ai/skills/permission-navigation.md` | `PermissionSystemName`, `PermissionActionName`, `StandardPermission`, `PermissionProvider`, controller authorization attributes, `AdminSiteMap` entries and their migrations |
 
-## Checklist Routing
+## Knowledge — how the system works
+
+| File | Explains |
+|---|---|
+| `.ai/knowledge/repository-map.md` | which project owns what, and where a new file goes |
+| `.ai/knowledge/architecture.md` | layering, DI lifetimes, mediator commands and queries, domain events |
+| `.ai/knowledge/request-lifecycle.md` | startup, `IStartupApplication` priorities, middleware order, `ContextMiddleware`, controller to view |
+| `.ai/knowledge/scoping.md` | store, vendor, customer group, language and currency boundaries, and code that runs without ambient context |
+| `.ai/knowledge/admin-areas.md` | the three admin panels (Admin, Store, Vendor), what each owns and how they share code |
+| `.ai/knowledge/plugin-types.md` | shipped plugins by kind, to pick the closest one to copy |
+| `.ai/knowledge/module-types.md` | shipped modules (API, installer, migration) and how they differ from plugins |
+| `.ai/knowledge/template-types.md` | which kind of view (storefront, admin, plugin, theme, PDF, message template) a change belongs in |
+| `.ai/knowledge/mongodb.md` | `IRepository<T>`, query patterns, partial updates, write conventions |
+| `.ai/knowledge/caching.md` | `ICacheBase`, `CacheKey` constants, key composition, invalidation including cross-family clearing |
+| `.ai/knowledge/performance.md` | pagination, partial field writes, and the cost side of caching |
+| `.ai/knowledge/domain-events.md` | commands vs queries vs notifications, entity events, handler rules |
+| `.ai/knowledge/security.md` | authorization checks, FluentValidation, guard clauses, HTML encoding, safe queries |
+| `.ai/knowledge/async.md` | async/await, `CancellationToken`, `Task` vs `ValueTask`, blocking anti-patterns |
+| `.ai/knowledge/dotnet.md` | records, guard clauses, result objects, pattern matching, nullable types, configuration binding |
+| `.ai/knowledge/tests.md` | MSTest + Moq, test structure, validator tests, controller test setup |
+
+## Glossary — use the domain's words
+
+GrandNode names many concepts its own way. A generic e-commerce word in a type name reads as foreign to the codebase, and a search for it finds nothing. `.ai/glossary/vocabulary.md` lists the words to use and the ones to avoid: Brand, Page, Customer group, Merchandise return, Loyalty points, User field.
+
+| File | Covers |
+|---|---|
+| `.ai/glossary/entity-model.md` | base entity types, marker interfaces, user fields, translated properties, slugs |
+| `.ai/glossary/catalog.md` | products and product types, category/brand/collection, product vs specification attributes, pricing, inventory |
+| `.ai/glossary/sales.md` | cart, order, the three order statuses, payment transactions, shipping, merchandise returns, discounts, loyalty points |
+| `.ai/glossary/customers.md` | customers, groups, tags, vendors, sales employees, affiliates, the four party boundaries |
+| `.ai/glossary/platform.md` | stores, localization, settings, permissions, SEO, CMS content, media, messaging, tasks |
+
+## Standards — binding
+
+| Standard | Governs |
+|---|---|
+| `.ai/standards/naming.md` | projects, types, files, members, plugin system names, setting keys, resource keys, cache key constants |
+| `.ai/standards/csharp-style.md` | `.editorconfig` formatting, file layout, constructor injection, guards, what not to introduce |
+| `.ai/standards/razor-frontend.md` | Razor conventions, Vue-in-Razor, storefront data attributes, admin tag helpers, asset placement |
+| `.ai/standards/git-and-pr.md` | branches, commit format, the pull request template, the pre-PR checklist |
+| `.ai/standards/dependencies.md` | central package management, shared MSBuild props, project references, output paths, SDK selection |
+
+## Checklists — before calling it done
+
 Skills carry their own domain checklists; these cover what no single skill owns.
-- Run `.ai/checklists/definition-of-done.md` on every change before reporting it complete.
-- Run `.ai/checklists/code-review.md` when reviewing a diff, including your own before opening a PR.
-- Run `.ai/checklists/security.md` when the change touches auth, input, scoped data, secrets, payments, or file handling.
-- Run `.ai/checklists/performance.md` when the change adds a query, iterates entities, or touches a render path.
-- Run `.ai/checklists/upgrade-safety.md` when the change touches entities, migrations, settings, resources, permissions, or persisted identities.
-- Run `.ai/checklists/plugin-release.md` before shipping a plugin or theme.
 
-## Examples and Templates
-- Use `.ai/examples/cached-store-scoped-service.md` for the canonical business service: read-through cache, store scope, invalidation, entity events.
-- Use `.ai/examples/payment-plugin-walkthrough.md` for a complete plugin, file by file, from manifest to admin configuration screen.
-- Use `.ai/examples/theme-override-walkthrough.md` for how a theme overrides a subset of views and what falls through to defaults.
-- Use `.ai/templates/plugin/base-plugin.md` for the files every installable plugin needs.
-- Use `.ai/templates/plugin/admin-configuration.md` for a plugin's admin configuration screen.
-- Use `.ai/templates/theme/theme-plugin.md` for a storefront theme skeleton.
-- Use `.ai/templates/migration.md` for an upgrade migration skeleton.
+| Checklist | Run it |
+|---|---|
+| `.ai/checklists/definition-of-done.md` | on every change |
+| `.ai/checklists/code-review.md` | on any diff under review, your own included before a PR |
+| `.ai/checklists/security.md` | when the change touches auth, input, scoped data, secrets, payments, or files |
+| `.ai/checklists/performance.md` | when the change adds a query, iterates entities, or sits on a render path |
+| `.ai/checklists/persisted-data.md` | when the change leaves something in the database: entities, settings, resources, permissions, migrations, persisted names |
+| `.ai/checklists/plugin-release.md` | before shipping a plugin or theme |
 
-Templates are the shape; skills are the contract. Read the skill first, then diff the scaffold against the closest shipped plugin in `src/Plugins/`.
+## Examples and templates
 
-## Agent Routing
-Each file in `.ai/agents/` is a thin wrapper around one prompt or workflow — same frontmatter
-shape as a GitHub custom agent (`name`, `description`, `tools`), kept in `.ai/` rather than
-`.github/agents/` so it stays indexed alongside the rest of the single source of truth. GitHub
-Copilot only discovers repository-scoped custom agents from `.github/agents/`, so these files are
-not directly usable by Copilot unless mirrored/moved there. Use them as a reference to follow when
-you want to hand off a whole recurring task instead of following a prompt manually.
-- Use `.ai/agents/plugin-creator.md` to scaffold a new installable plugin end to end.
-- Use `.ai/agents/bug-fixer.md` to diagnose and fix a broken behavior when the cause is unknown.
-- Use `.ai/agents/test-writer.md` to add or extend unit tests for a change.
-- Use `.ai/agents/reviewer.md` to review a pull request or diff against all applicable skills and checklists.
-- Use `.ai/agents/dotnet-expert.md` to write or review idiomatic C#/.NET code, async/await, and .NET test patterns.
-- Use `.ai/agents/mongodb-expert.md` to write or review MongoDB queries, indexes, aggregations, and data migrations.
-- Use `.ai/agents/security-reviewer.md` to audit authentication, authorization, input handling, secrets, and trust boundaries.
-- Use `.ai/agents/architecture-reviewer.md` to review layering, module boundaries, and public contracts.
-- Use `.ai/agents/theme-builder.md` to create a storefront theme or add view overrides to one.
-- Use `.ai/agents/migration-writer.md` to add an upgrade migration for existing installations.
-- Use `.ai/agents/admin-ui-specialist.md` for admin-facing changes across Main Admin, Store Owner, and Vendor.
-- Use `.ai/agents/performance-investigator.md` to diagnose slow queries or render paths.
-- Use `.ai/agents/permission-navigation-specialist.md` to add or change permissions and admin navigation entries.
-- Use `.ai/agents/notification-specialist.md` for message templates, DotLiquid tokens, and notification handlers.
-- Use `.ai/agents/scheduled-task-writer.md` to add a new scheduled task.
-- Use `.ai/agents/dependency-upgrader.md` to move a NuGet package, framework, or shared version.
+Templates give the shape; skills are the contract. Read the skill first, then compare the scaffold with the closest shipped plugin in `src/Plugins/`.
 
-## Operating Rules
-1. Read the user's goal before inspecting files.
-2. Load the matching prompt from `.ai/prompts/` or workflow from `.ai/workflows/`, plus the skills and standards it names.
-3. Inspect existing repository patterns before proposing changes.
-4. Use the domain vocabulary from `.ai/glossary/` when naming anything.
-5. Keep changes limited to the requested scope.
-6. Preserve user work and unrelated local changes.
-7. Prefer existing abstractions, conventions, and test utilities.
-8. Validate changes with the narrowest meaningful build or test command when execution is available.
-9. Run the applicable checklists from `.ai/checklists/` before reporting completion.
-10. Report commands that were run and any commands that could not be run.
-11. Provide concrete file references for findings or changes.
+| File | Shows |
+|---|---|
+| `.ai/examples/cached-store-scoped-service.md` | the reference business service: read-through cache, store scope, invalidation, entity events |
+| `.ai/examples/payment-plugin-walkthrough.md` | a complete plugin, file by file, from manifest to admin configuration screen |
+| `.ai/examples/theme-override-walkthrough.md` | a theme overriding some views while the rest fall through to the defaults |
+| `.ai/templates/plugin/base-plugin.md` | the files every installable plugin needs |
+| `.ai/templates/plugin/admin-configuration.md` | a plugin's admin configuration screen |
+| `.ai/templates/theme/theme-plugin.md` | a storefront theme skeleton |
+| `.ai/templates/migration.md` | a migration skeleton |
 
-## Constraints
-`.ai/constraints.md` holds the full list of hard prohibitions. The ones that govern agent behavior itself:
-- Never overwrite unrelated changes.
+## Agents
+
+Each file in `.ai/agents/` wraps one prompt or workflow, using the GitHub custom agent frontmatter (`name`, `description`, `tools`). The files live here so they stay indexed with the rest. Copilot only discovers custom agents in `.github/agents/`, so treat these as task descriptions to follow until they are mirrored there.
+
+| Agent | Hands off |
+|---|---|
+| `.ai/agents/plugin-creator.md` | a new installable plugin, end to end |
+| `.ai/agents/bug-fixer.md` | broken behavior with an unknown cause |
+| `.ai/agents/test-writer.md` | new or extended unit tests |
+| `.ai/agents/reviewer.md` | a pull request or diff against every applicable skill and checklist |
+| `.ai/agents/dotnet-expert.md` | idiomatic C#/.NET, async/await, .NET test patterns |
+| `.ai/agents/mongodb-expert.md` | MongoDB queries, indexes, aggregations, data migrations |
+| `.ai/agents/security-reviewer.md` | authentication, authorization, input, secrets, trust boundaries |
+| `.ai/agents/architecture-reviewer.md` | layering, module boundaries, public contracts |
+| `.ai/agents/theme-builder.md` | a storefront theme or view overrides |
+| `.ai/agents/migration-writer.md` | a migration for existing installations |
+| `.ai/agents/admin-ui-specialist.md` | admin-facing changes across Main Admin, Store Owner and Vendor |
+| `.ai/agents/performance-investigator.md` | slow queries or render paths |
+| `.ai/agents/permission-navigation-specialist.md` | new or changed permissions and admin navigation |
+| `.ai/agents/notification-specialist.md` | message templates, DotLiquid tokens, notification handlers |
+| `.ai/agents/scheduled-task-writer.md` | a new scheduled task |
+| `.ai/agents/dependency-upgrader.md` | a NuGet package, framework, or shared version move |
+
+## Operating rules
+
+1. Understand the user's goal before opening files.
+2. Load the matching prompt or workflow, and the skills and standards it names.
+3. Look at existing patterns before proposing a change. Prefer the abstractions, conventions and test utilities that are already there.
+4. Name things with the glossary's words.
+5. Stay inside the requested scope. Never overwrite unrelated changes or someone's local work.
+6. Work on a feature branch. In Claude Code, the hook in `.claude/settings.json` blocks commits and pushes on `develop` and `main`.
+7. Validate with the narrowest build or test command that proves the change.
+8. Run the matching checklists before reporting completion.
+
+## Constraints on the agent itself
+
+The full list is in `.ai/constraints.md`. These govern how an agent behaves:
+
 - Never invent requirements or repository conventions.
 - Never broaden scope without a clear reason.
-- Never leave generated, temporary, or diagnostic artifacts unless they are part of the requested output.
+- Never leave generated, temporary, or diagnostic files behind unless they are part of the requested output.
 - Never report a change as verified when it was not.
 
-## Expected Output
-Return a concise result that states what changed, what was reviewed, what was validated, and what risk remains.
+## Reporting
+
+State what changed (with file references), what was reviewed, which commands ran and which could not, and what risk remains.

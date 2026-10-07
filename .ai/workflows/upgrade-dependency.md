@@ -61,7 +61,7 @@ Then:
 ## Phase 5 — Assess the deployment risk
 
 - Does an existing installation need anything, or is it drop-in?
-- Does the serialized shape of any persisted document change? If so, run `.ai/checklists/upgrade-safety.md`.
+- Does the serialized shape of any persisted document change? If so, run `.ai/checklists/persisted-data.md`.
 - Do third-party plugins compiled against the old version still load?
 - What is the rollback: revert the version, or is there persisted state to undo?
 

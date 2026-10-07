@@ -1,21 +1,20 @@
 # Glossary
 
-The vocabulary of the GrandNode domain, mapped to the types that implement it.
+GrandNode's domain words and the types behind them. Use them for type names, model properties, resource keys, and variables. A search for the generic word finds nothing here, and a type named with it reads as if it came from another system.
 
-Read this before naming anything, before writing a model, and before assuming a term means what it means in another e-commerce platform. GrandNode has its own vocabulary — using a generic e-commerce word in a new type name produces code that reads as if it belongs to a different system.
+## Where to look
 
-| File | Covers |
+| Topic | File |
 |---|---|
-| `entity-model.md` | Base types, marker interfaces, and the mechanics every entity shares |
-| `catalog.md` | Products, grouping, attributes, pricing, inventory |
-| `sales.md` | Cart, orders, payment, shipping, returns, discounts |
-| `customers.md` | Customers, groups, vendors, sales employees |
-| `platform.md` | Stores, localization, settings, permissions, CMS, media, messaging |
-| `vocabulary.md` | The GrandNode word for each concept and the generic word to avoid — read this first |
+| Which word to use, which to avoid — **start here** | `vocabulary.md` |
+| What every entity shares: base types, marker interfaces, user fields, translations, slugs | `entity-model.md` |
+| Products, product types, category/brand/collection, attributes, pricing, inventory | `catalog.md` |
+| Cart, orders, payment, shipping, merchandise returns, discounts, loyalty points | `sales.md` |
+| Customers, customer groups, vendors, sales employees, affiliates | `customers.md` |
+| Stores, localization, settings, permissions, SEO, CMS, media, messaging, tasks | `platform.md` |
 
-## Rules
+## How the glossary is kept
 
-1. Use the domain term the codebase uses. A "return request" is a **merchandise return**; a "customer role" is a **customer group**.
-2. The domain term is also the type name. `Grand.Domain.Orders.MerchandiseReturn` — no `Entity`, `Model`, or `Dto` suffix in the domain layer.
-3. When a glossary entry and the shipped entity disagree, the entity is correct — fix the glossary.
-4. New domain concepts get a glossary entry in the same change that introduces them.
+- The term is the type name: `Grand.Domain.Orders.MerchandiseReturn`, with no `Entity`, `Model` or `Dto` suffix in the domain layer.
+- The shipped code wins. If an entry disagrees with the entity, correct the entry.
+- A change that introduces a new domain concept adds its entry in the same change.

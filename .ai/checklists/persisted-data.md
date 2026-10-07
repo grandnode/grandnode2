@@ -1,4 +1,4 @@
-# Checklist: Upgrade Safety
+# Checklist: Persisted Data
 
 Use this whenever a change leaves something behind in the database: an entity or field, a setting, a translation resource, a permission, a sitemap entry, a migration, or any name another record points to.
 
