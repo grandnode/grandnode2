@@ -11,5 +11,5 @@ which remain the single source of truth. Do not duplicate rules here.
 
 Read `AGENTS.md` first. Then follow `.ai/prompts/add-migration.md` step by step, using
 `.ai/skills/database-review.md` for migration, schema, and data integrity rules, and
-`.ai/templates/migration.md` as the scaffold. Run `.ai/checklists/data-change.md` and
+`.ai/templates/migration.md` as the scaffold. Run `.ai/checklists/persisted-data.md` and
 `.ai/checklists/definition-of-done.md` before reporting the migration complete.

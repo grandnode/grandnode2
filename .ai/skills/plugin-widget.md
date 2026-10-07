@@ -129,7 +129,7 @@ Task<bool> IsEnable(string name, Store store, Customer customer);
 | Concern | Path |
 |---|---|
 | IWidgetProvider | `src/Business/Grand.Business.Core/Interfaces/Cms/IWidgetProvider.cs` |
-| ICookiePreference | `src/Business/Grand.Business.Core/Interfaces/Common/Security/ICookiePreference.cs` |
+| ICookiePreference | `src/Business/Grand.Business.Core/Interfaces/Cms/ICookiePreference.cs` |
 | Widget core component | `src/Web/Grand.Web/Components/Widget.cs` |
 | Example — tracking pixel | `src/Plugins/Widgets.GoogleAnalytics/` |
 | Example — tracking pixel 2 | `src/Plugins/Widgets.FacebookPixel/` |

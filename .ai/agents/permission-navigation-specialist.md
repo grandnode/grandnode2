@@ -12,5 +12,5 @@ which remain the single source of truth. Do not duplicate rules here.
 Read `AGENTS.md` first. Then read `.ai/skills/permission-navigation.md` for permissions,
 `PermissionSystemName`, `PermissionActionName`, `StandardPermission`, `PermissionProvider`,
 controller authorization attributes, `AdminSiteMap` entries, and permission or navigation
-migration rules. Run `.ai/checklists/data-change.md` and `.ai/checklists/definition-of-done.md`
+migration rules. Run `.ai/checklists/persisted-data.md` and `.ai/checklists/definition-of-done.md`
 before reporting the change complete.

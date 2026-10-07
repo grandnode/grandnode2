@@ -8,7 +8,7 @@ Cross-cutting gates. Skills carry their own domain checklists (a widget plugin's
 | `code-review.md` | When reviewing someone else's diff, or your own before opening a PR |
 | `security.md` | When the change touches auth, input, scoped data, secrets, or file handling |
 | `performance.md` | When the change adds a query, a loop over entities, or a page render path |
-| `data-change.md` | When the change touches entities, migrations, settings, or persisted identities |
+| `persisted-data.md` | When the change leaves something in the database: entities, settings, resources, permissions, migrations, persisted names |
 | `plugin-release.md` | Before shipping a plugin or theme |
 
 ## How to use

@@ -71,7 +71,7 @@ Stock lives at the product, the combination, or the warehouse level depending on
 
 ## Layout
 
-`ProductLayout`, `CategoryLayout`, `BrandLayout`, `CollectionLayout` select which view renders the entity. **Layout**, never "template" — in this codebase a template is a message template or a Razor file. See `renamed-terms.md`.
+`ProductLayout`, `CategoryLayout`, `BrandLayout`, `CollectionLayout` select which view renders the entity. **Layout**, never "template" — in this codebase a template is a message template or a Razor file. See `vocabulary.md`.
 
 ## Reviews and relations
 

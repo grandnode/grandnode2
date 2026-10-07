@@ -16,7 +16,7 @@ Answer "where does X live" and "how does X work" questions about GrandNode witho
    |---|---|
    | "Where is entity X stored?" | `src/Core/Grand.Domain/{Area}/` then grep for `IRepository<X>` |
    | "What happens when a customer does X?" | `.ai/knowledge/request-lifecycle.md`, then the controller in `src/Web/Grand.Web/Controllers/` |
-   | "Where is this admin screen?" | `src/Web/Grand.Web.Admin/Areas/Admin/Controllers/` + matching `Views/` folder |
+   | "Where is this admin screen?" | `src/Web/Grand.Web.Admin/Controllers/` + matching `Areas/Admin/Views/` folder (Store: `Grand.Web.Store`, Vendor: `Grand.Web.Vendor`) |
    | "Why is this value cached/stale?" | `.ai/knowledge/caching.md`, then grep the `CacheKey` constant |
    | "Who reacts when X is saved?" | `.ai/knowledge/domain-events.md`, then grep `EntityUpdated<X>` |
    | "Where is this string from?" | grep the resource key in `App_Data/Resources/` |
