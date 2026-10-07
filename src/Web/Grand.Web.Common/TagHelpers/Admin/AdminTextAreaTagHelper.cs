@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Grand.Web.Common.TagHelpers.Admin;
 
 /// <summary>
-///     nop-textarea tag helper
+///     admin-textarea tag helper
 /// </summary>
 [HtmlTargetElement("admin-textarea", Attributes = ForAttributeName)]
 public class AdminTextAreaTagHelper : TextAreaTagHelper

@@ -1,26 +1,26 @@
-# Renamed Terms
+# Vocabulary
 
-GrandNode descends from nopCommerce and renamed much of the vocabulary. Using the old term produces types that read as foreign to the codebase, and searches that find nothing.
+The words GrandNode uses for its domain concepts, and the generic e-commerce words that must not replace them. Using the generic term produces types that read as foreign to the codebase, and searches that find nothing.
 
 Read this before naming a type, a model property, a resource key, or a variable.
 
-| Elsewhere | In GrandNode | Type |
+| Use | Not | Type |
 |---|---|---|
-| Manufacturer | **Brand** | `Grand.Domain.Catalog.Brand` |
-| — (new concept) | **Collection** | `Grand.Domain.Catalog.Collection` |
-| Topic | **Page** | `Grand.Domain.Pages.Page` |
-| Customer role | **Customer group** | `Grand.Domain.Customers.CustomerGroup` |
-| Return request | **Merchandise return** | `Grand.Domain.Orders.MerchandiseReturn` |
-| Reward points | **Loyalty points** | `Grand.Domain.Orders.LoyaltyPointsHistory` |
-| Gift card | **Gift voucher** | `Grand.Domain.Orders.GiftVoucher` |
-| Generic attribute | **User field** | `Grand.Domain.Common.UserField` |
-| Locale string resource | **Translation resource** | `Grand.Domain.Localization.TranslationResource` |
-| Localized property | **Translation entity** | `Grand.Domain.Localization.TranslationEntity` |
-| URL record / slug record | **Entity URL** | `Grand.Domain.Seo.EntityUrl` |
-| Product template | **Product layout** | `Grand.Domain.Catalog.ProductLayout` |
-| Discount requirement | **Discount rule** | `Grand.Domain.Discounts.DiscountRule` |
-| Specification attribute option | **Specification attribute option** | unchanged |
-| Address attribute, checkout attribute | unchanged | `AddressAttribute`, `CheckoutAttribute` |
+| **Brand** | Manufacturer | `Grand.Domain.Catalog.Brand` |
+| **Collection** | — | `Grand.Domain.Catalog.Collection` |
+| **Page** | Topic | `Grand.Domain.Pages.Page` |
+| **Customer group** | Customer role | `Grand.Domain.Customers.CustomerGroup` |
+| **Merchandise return** | Return request | `Grand.Domain.Orders.MerchandiseReturn` |
+| **Loyalty points** | Reward points | `Grand.Domain.Orders.LoyaltyPointsHistory` |
+| **Gift voucher** | Gift card | `Grand.Domain.Orders.GiftVoucher` |
+| **User field** | Generic attribute | `Grand.Domain.Common.UserField` |
+| **Translation resource** | Locale string resource | `Grand.Domain.Localization.TranslationResource` |
+| **Translation entity** | Localized property | `Grand.Domain.Localization.TranslationEntity` |
+| **Entity URL** | URL record, slug record | `Grand.Domain.Seo.EntityUrl` |
+| **Product layout** | Product template | `Grand.Domain.Catalog.ProductLayout` |
+| **Discount rule** | Discount requirement | `Grand.Domain.Discounts.DiscountRule` |
+| **Specification attribute option** | — | `Grand.Domain.Catalog.SpecificationAttributeOption` |
+| **Address attribute**, **checkout attribute** | — | `AddressAttribute`, `CheckoutAttribute` |
 
 ## Layouts, not templates
 

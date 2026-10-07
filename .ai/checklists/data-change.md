@@ -13,7 +13,7 @@ The question behind every item: **what happens to a store that already has data 
 - [ ] A new field has a default that makes existing documents behave as they did before.
 - [ ] A removed or renamed field has a migration, or the old data is knowingly abandoned and the PR says so.
 - [ ] No UI concern, persistence detail, or infrastructure dependency added to `Grand.Domain`.
-- [ ] Naming matches `.ai/glossary/` — the domain word, not the nopCommerce word.
+- [ ] Naming matches `.ai/glossary/` — the GrandNode domain word, not a generic e-commerce one.
 
 ## Migration
 

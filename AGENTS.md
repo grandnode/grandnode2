@@ -23,7 +23,7 @@ Use this file before making or reviewing repository changes.
 
 **Start from a prompt or a workflow.** It names the skills, knowledge, standards, and templates to load. Use a prompt when the goal is known; use a workflow when the cause, bottleneck, or path is not.
 
-`.ai/constraints.md` and `.ai/glossary/renamed-terms.md` apply to every change and are worth reading once in full.
+`.ai/constraints.md` and `.ai/glossary/vocabulary.md` apply to every change and are worth reading once in full.
 
 ## Prompt Routing
 - Use `.ai/prompts/review-change.md` to review a pull request or diff against all applicable skills.
@@ -74,13 +74,18 @@ Use a workflow when the answer is not known at the start. Each ends by handing o
 - Use `.ai/knowledge/scoping.md` for store, vendor, customer group, language, and currency boundaries, and for code that runs without ambient context.
 - Use `.ai/knowledge/caching.md` for ICacheBase, CacheKey constants, key composition, and invalidation including cross-family clearing.
 - Use `.ai/knowledge/domain-events.md` for commands vs queries vs notifications, entity events, and notification handler rules.
+- Use `.ai/knowledge/repository-map.md` to place a new file in the owning project and find where an existing concern lives.
+- Use `.ai/knowledge/admin-areas.md` for the three admin panels (Admin, Store, Vendor), what each owns and how they share code.
+- Use `.ai/knowledge/plugin-types.md` for the shipped plugin inventory by kind, to pick the closest plugin to copy.
+- Use `.ai/knowledge/module-types.md` for the shipped modules (API, installer, migration) and how they differ from plugins.
+- Use `.ai/knowledge/template-types.md` for which kind of view (storefront, admin, plugin, theme, PDF, message template) a change belongs in.
 - Use `.ai/knowledge/tests.md` for MSTest + Moq patterns, test structure, validator testing, and controller test setup.
 - Use `.ai/knowledge/dotnet.md` for C# idioms: records, guard clauses, result objects, pattern matching, nullable types, and configuration binding.
 - Use multiple skills when a change crosses domains.
 
 ## Glossary Routing
-Use the domain's own vocabulary. GrandNode renamed much of the nopCommerce terminology; the old word produces types that read as foreign and searches that find nothing.
-- Read `.ai/glossary/renamed-terms.md` before naming anything — Brand not Manufacturer, Page not Topic, Customer group not Customer role, Merchandise return not Return request, Loyalty points not Reward points, User field not Generic attribute.
+Use the domain's own vocabulary. GrandNode names many concepts differently from other e-commerce platforms; the generic word produces types that read as foreign and searches that find nothing.
+- Read `.ai/glossary/vocabulary.md` before naming anything — Brand not Manufacturer, Page not Topic, Customer group not Customer role, Merchandise return not Return request, Loyalty points not Reward points, User field not Generic attribute.
 - Use `.ai/glossary/entity-model.md` for base entity types, marker interfaces, user fields, localized properties, and slugs.
 - Use `.ai/glossary/catalog.md` for products, product types, category/brand/collection, product vs specification attributes, pricing, and inventory.
 - Use `.ai/glossary/sales.md` for cart, order, the three order statuses, payment transactions, shipping, merchandise returns, discounts, and loyalty points.

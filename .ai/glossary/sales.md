@@ -52,7 +52,7 @@ They move independently. A `Complete` order can be partially refunded; a `Proces
 | **Payment provider** | `IPaymentProvider` — the plugin capability |
 | **Payment restriction** | `PaymentRestrictedSettings` — which methods are hidden for which countries/groups |
 
-An order may have several payment transactions (retry, capture, refund). `PaymentTransaction` is the audit trail; `Order.PaymentStatusId` is the summary. See `renamed-terms.md` for why they must not be conflated.
+An order may have several payment transactions (retry, capture, refund). `PaymentTransaction` is the audit trail; `Order.PaymentStatusId` is the summary. See `vocabulary.md` for why they must not be conflated.
 
 Flows: **Standard** (charged in-process) vs **Redirection** (customer leaves to the provider and returns). Which one a plugin implements changes everything about its lifecycle — see `.ai/skills/plugin-payment.md`.
 
