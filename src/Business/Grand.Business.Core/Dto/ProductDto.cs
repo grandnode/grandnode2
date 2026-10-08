@@ -116,4 +116,7 @@ public class ProductDto
     public string Picture1 { get; set; }
     public string Picture2 { get; set; }
     public string Picture3 { get; set; }
+
+    /// <summary>Row import only: when present it replaces Picture1..3</summary>
+    public IList<string> PictureUrls { get; set; }
 }

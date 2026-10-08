@@ -12,13 +12,18 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
 
-public class ProductImportDataObject : IImportDataObject<ProductDto>
+public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport<ProductDto>
 {
+    /// <summary>Most picture downloads one Import call performs; later pictures get a warning instead</summary>
+    public const int MaxPictureDownloadsPerBatch = 20;
+
     private readonly IBrandService _brandService;
     private readonly ICategoryService _categoryService;
     private readonly ICollectionService _collectionService;
@@ -34,6 +39,12 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
     private readonly IWarehouseService _warehouseService;
     private readonly ISeNameService _seNameService;
     private readonly SecurityConfig _securityConfig;
+    private readonly TaxSettings _taxSettings;
+    private readonly ImportHtmlGuard _htmlGuard;
+    private readonly ILogger<ProductImportDataObject> _logger;
+    private readonly Func<string, Task<DownloadedImage>> _downloadImage;
+
+    /// <param name="downloadImage">Test seam; the default downloads through <see cref="DownloadUrl.DownloadImage" /></param>
     public ProductImportDataObject(
         IProductService productService,
         IPictureService pictureService,
@@ -49,7 +60,11 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         ICollectionService collectionService,
         IProductCollectionService productCollectionService,
         ISeNameService seNameService,
-        SecurityConfig securityConfig)
+        SecurityConfig securityConfig,
+        TaxSettings taxSettings,
+        ImportHtmlGuard htmlGuard,
+        ILogger<ProductImportDataObject> logger,
+        Func<string, Task<DownloadedImage>> downloadImage = null)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -66,32 +81,175 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         _productCollectionService = productCollectionService;
         _seNameService = seNameService;
         _securityConfig = securityConfig;
+        _taxSettings = taxSettings;
+        _htmlGuard = htmlGuard;
+        _logger = logger;
+        //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
+        //import read any file on the server
+        _downloadImage = downloadImage ??
+                         (url => DownloadUrl.DownloadImage(url, _securityConfig.PictureImportAllowedPrivateHosts));
     }
 
     public async Task Execute(IEnumerable<ProductDto> data)
     {
-        foreach (var item in data) await Import(item);
+        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        ImportRows.LogRejected(_logger, "product", result);
     }
 
-    private async Task Import(ProductDto productDto)
+    /// <summary>Row API: an unknown Id is rejected, a row without Id is matched by Sku</summary>
+    public Task<ImportBatchResult> Import(IReadOnlyList<ProductDto> rows, bool dryRun,
+        CancellationToken cancellationToken = default)
     {
-        var product = await _productService.GetProductById(productDto.Id);
-        product ??= await _productService.GetProductBySku(productDto.Sku);
+        return Import(rows, dryRun, ImportMode.Row, cancellationToken);
+    }
 
+    /// <summary>
+    ///     Row: unknown Id rejected, Sku matching only when no Id is given. Panel (XLSX): by Id, then by Sku; an unknown Id
+    ///     creates the product with that Id.
+    /// </summary>
+    private enum ImportMode
+    {
+        Row,
+        Panel
+    }
+
+    private sealed class PictureBudget
+    {
+        public int Downloads;
+    }
+
+    private async Task<ImportBatchResult> Import(IReadOnlyList<ProductDto> rows, bool dryRun, ImportMode mode,
+        CancellationToken cancellationToken = default)
+    {
+        var results = new List<ImportRowResult>(rows.Count);
+        //the cap protects the row API; the panel's spreadsheet import downloads every picture
+        var budget = mode == ImportMode.Row ? new PictureBudget() : null;
+        for (var i = 0; i < rows.Count; i++)
+        {
+            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
+            if (cancellationToken.IsCancellationRequested)
+            {
+                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].Id, Key(rows[i])));
+                continue;
+            }
+
+            results.Add(await ImportRow(i + 1, rows[i], dryRun, mode, budget));
+        }
+
+        return new ImportBatchResult(dryRun, results);
+    }
+
+    private async Task<ImportRowResult> ImportRow(int row, ProductDto dto, bool dryRun, ImportMode mode,
+        PictureBudget budget)
+    {
+        var errors = new List<string>();
+        var warnings = new List<string>();
+        var key = Key(dto);
+
+        Product existing = null;
+        if (!string.IsNullOrEmpty(dto.Id))
+            existing = await _productService.GetProductById(dto.Id);
+        if (existing == null && (string.IsNullOrEmpty(dto.Id) || mode == ImportMode.Panel))
+            existing = await _productService.GetProductBySku(dto.Sku);
+
+        if (!string.IsNullOrEmpty(dto.Id) && existing == null && mode == ImportMode.Row)
+            errors.Add($"Id '{dto.Id}' was not found.");
+        else if (dto.Name == "")
+            errors.Add("Name cannot be empty.");
+        else if (string.IsNullOrEmpty(dto.Name ?? existing?.Name))
+            errors.Add("Name is required.");
+
+        errors.AddRange(_htmlGuard.RichTextErrors((nameof(dto.ShortDescription), dto.ShortDescription),
+            (nameof(dto.FullDescription), dto.FullDescription)));
+        errors.AddRange(_htmlGuard.PlainTextErrors((nameof(dto.Name), dto.Name), (nameof(dto.SeName), dto.SeName),
+            (nameof(dto.MetaKeywords), dto.MetaKeywords), (nameof(dto.MetaDescription), dto.MetaDescription),
+            (nameof(dto.MetaTitle), dto.MetaTitle), (nameof(dto.Sku), dto.Sku)));
+
+        await AddReferenceWarnings(dto, warnings);
+        //the Sku is what a later call matches on; without one the row cannot be found again
+        if (mode == ImportMode.Row && existing == null && string.IsNullOrEmpty(dto.Sku))
+            warnings.Add("Row has no Sku; sending it again creates a duplicate.");
+
+        if (errors.Count > 0)
+            return new ImportRowResult(row, ImportRowStatus.Rejected, existing?.Id ?? "", key, errors, warnings);
+
+        if (dryRun)
+            return new ImportRowResult(row, existing == null ? ImportRowStatus.Created : ImportRowStatus.Updated,
+                existing?.Id ?? dto.Id ?? "", key, errors, warnings);
+
+        //a product found by Sku keeps its own id (Panel: the old code mapped the foreign Id over the found product)
+        if (existing != null) dto.Id = existing.Id;
+        var product = existing;
         var isNew = product == null;
+        if (product == null)
+        {
+            product = dto.MapTo<ProductDto, Product>();
+            if (mode == ImportMode.Row) ApplyCreateDefaults(dto, product);
+        }
+        else
+        {
+            dto.MapTo(product);
+        }
 
-        if (product == null) product = productDto.MapTo<ProductDto, Product>();
-        else productDto.MapTo(product);
-
-        if (!ValidProduct(product)) return;
+        if (!ValidProduct(product))
+        {
+            errors.Add("Name is required.");
+            return new ImportRowResult(row, ImportRowStatus.Rejected, "", key, errors, warnings);
+        }
 
         if (isNew) await _productService.InsertProduct(product);
         else await _productService.UpdateProduct(product);
 
-        await UpdateProductData(productDto, product, isNew);
+        await UpdateProductData(dto, product, isNew, budget, warnings);
+        return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, product.Id, key,
+            errors, warnings);
     }
 
-    private async Task UpdateProductData(ProductDto productDto, Product product, bool isNew)
+    /// <summary>
+    ///     Row create: the defaults the admin panel puts on a new product, for every field the row leaves out - without
+    ///     them a product cannot be bought (maximum quantity 0) nor found (not visible individually). Published is not
+    ///     defaulted: a row-created product stays unpublished unless the row says otherwise.
+    /// </summary>
+    private void ApplyCreateDefaults(ProductDto dto, Product product)
+    {
+        if (!dto.VisibleIndividually.HasValue) product.VisibleIndividually = true;
+        if (!dto.OrderMinimumQuantity.HasValue) product.OrderMinimumQuantity = 1;
+        if (!dto.OrderMaximumQuantity.HasValue) product.OrderMaximumQuantity = 10000;
+        if (!dto.NotifyAdminForQuantityBelow.HasValue) product.NotifyAdminForQuantityBelow = 1;
+        if (!dto.IsShipEnabled.HasValue) product.IsShipEnabled = true;
+        if (!dto.AllowCustomerReviews.HasValue) product.AllowCustomerReviews = true;
+        if (dto.TaxCategoryId == null) product.TaxCategoryId = _taxSettings.DefaultTaxCategoryId;
+    }
+
+    private static string Key(ProductDto dto)
+    {
+        return !string.IsNullOrEmpty(dto.Name) ? dto.Name : !string.IsNullOrEmpty(dto.Sku) ? dto.Sku : dto.Id ?? "";
+    }
+
+    /// <summary>Ids that do not exist are skipped (categories, collections) or cleared (brand); say so</summary>
+    private async Task AddReferenceWarnings(ProductDto dto, List<string> warnings)
+    {
+        if (!string.IsNullOrEmpty(dto.BrandId) && await _brandService.GetBrandById(dto.BrandId) == null)
+            warnings.Add($"BrandId '{dto.BrandId}' was not found and was cleared.");
+
+        foreach (var id in SplitIds(dto.CategoryIds))
+            if (await _categoryService.GetCategoryById(id) == null)
+                warnings.Add($"Category id '{id}' was not found and was skipped.");
+
+        foreach (var id in SplitIds(dto.CollectionIds))
+            if (await _collectionService.GetCollectionById(id) == null)
+                warnings.Add($"Collection id '{id}' was not found and was skipped.");
+    }
+
+    private static IEnumerable<string> SplitIds(string ids)
+    {
+        return string.IsNullOrEmpty(ids)
+            ? []
+            : ids.Split([';'], StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+    }
+
+    private async Task UpdateProductData(ProductDto productDto, Product product, bool isNew,
+        PictureBudget budget, List<string> warnings)
     {
         await UpdateProductDataLayout(product);
         await UpdateProductDataDeliveryDate(product);
@@ -116,7 +274,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
             await PrepareProductCollections(product, productDto.CollectionIds);
 
         //pictures
-        await PrepareProductPictures(productDto, product, isNew);
+        await PrepareProductPictures(productDto, product, isNew, budget, warnings);
     }
 
     private async Task UpdateProductDataLayout(Product product)
@@ -209,22 +367,32 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         }
     }
 
-    private async Task PrepareProductPictures(ProductDto productDto, Product product, bool isNew)
+    private async Task PrepareProductPictures(ProductDto productDto, Product product, bool isNew,
+        PictureBudget budget, List<string> warnings)
     {
-        var picture1 = productDto.Picture1;
-        var picture2 = productDto.Picture2;
-        var picture3 = productDto.Picture3;
+        //PictureUrls, when sent, replaces Picture1..3
+        IEnumerable<string> urls = productDto.PictureUrls is { Count: > 0 }
+            ? productDto.PictureUrls
+            : new[] { productDto.Picture1, productDto.Picture2, productDto.Picture3 };
 
-        foreach (var pictureUrl in new[] { picture1, picture2, picture3 })
+        foreach (var pictureUrl in urls)
         {
             if (string.IsNullOrEmpty(pictureUrl))
                 continue;
 
-            //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
-            //import read any file on the server
-            var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts);
-            if (image == null)
+            if (budget is { Downloads: >= MaxPictureDownloadsPerBatch })
+            {
+                warnings.Add($"Picture '{pictureUrl}' was not downloaded: picture limit for one batch reached.");
                 continue;
+            }
+
+            if (budget != null) budget.Downloads++;
+            var image = await _downloadImage(pictureUrl);
+            if (image == null)
+            {
+                warnings.Add($"Picture '{pictureUrl}' could not be downloaded.");
+                continue;
+            }
 
             var pictureAlreadyExists = false;
             if (!isNew)

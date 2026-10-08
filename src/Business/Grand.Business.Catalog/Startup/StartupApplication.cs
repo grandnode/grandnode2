@@ -109,6 +109,8 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IImportDataObject<CollectionDto>>(sp => sp.GetRequiredService<CollectionImportDataObject>());
         serviceCollection.AddScoped<IRowImport<CollectionDto>>(sp => sp.GetRequiredService<CollectionImportDataObject>());
         serviceCollection.AddScoped<ImportHtmlGuard>();
-        serviceCollection.AddScoped<IImportDataObject<ProductDto>, ProductImportDataObject>();
+        serviceCollection.AddScoped<ProductImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<ProductDto>>(sp => sp.GetRequiredService<ProductImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<ProductDto>>(sp => sp.GetRequiredService<ProductImportDataObject>());
     }
 }
