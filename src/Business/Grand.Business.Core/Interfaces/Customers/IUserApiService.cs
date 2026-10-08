@@ -3,6 +3,7 @@ using Grand.Domain.Customers;
 
 namespace Grand.Business.Core.Interfaces.Customers;
 
+[Obsolete("API users with a shared SecretKey are deprecated - configure OidcResourceServer and use access tokens of your identity provider")]
 public interface IUserApiService
 {
     /// <summary>

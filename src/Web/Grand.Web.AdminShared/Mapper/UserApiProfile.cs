@@ -3,6 +3,8 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.AdminShared.Models.Customers;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Web.AdminShared.Mapper;
 
 public class UserApiProfile : Profile, IAutoMapperProfile

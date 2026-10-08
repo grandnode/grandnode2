@@ -2,6 +2,7 @@
 
 namespace Grand.Business.Core.Interfaces.Authentication;
 
+[Obsolete("API users with a shared SecretKey are deprecated - configure OidcResourceServer and use access tokens of your identity provider")]
 public interface IJwtBearerAuthenticationService
 {
     /// <summary>

@@ -5,6 +5,8 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Business.Customers.Services;
 
 public class UserApiService : IUserApiService

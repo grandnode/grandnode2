@@ -8,6 +8,8 @@ using Grand.Web.AdminShared.Models.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyMSTest;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Mapping.Tests.AdminShared;
 
 [TestClass]

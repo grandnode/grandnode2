@@ -6,6 +6,8 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Module.Api.Validators.Common;
 
 public class LoginValidator : BaseGrandValidator<LoginModel>

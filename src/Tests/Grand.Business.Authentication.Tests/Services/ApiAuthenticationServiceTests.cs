@@ -14,6 +14,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Business.Authentication.Tests.Services;
 
 [TestClass]

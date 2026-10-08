@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Module.Api.Infrastructure;
 
 public class ApiAuthenticationRegistrar : IAuthenticationBuilder
