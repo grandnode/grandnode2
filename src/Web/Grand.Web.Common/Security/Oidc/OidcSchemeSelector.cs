@@ -10,7 +10,7 @@ namespace Grand.Web.Common.Security.Oidc;
 /// <summary>
 ///     Lets the other JwtBearer schemes (the Web API's "Bearer") hand requests on protected resources to the Oidc
 ///     scheme: requests without a readable bearer JWT (so the 401 is the OIDC challenge) and requests whose token
-///     names the identity provider as issuer. Tokens of other issuers - those GrandNode signs with its SecretKey -
+///     names the identity provider as issuer or is signed asymmetrically. HMAC tokens of other issuers - those GrandNode signs with its SecretKey -
 ///     stay with the original scheme. The issuer is read unvalidated, for routing only; Oidc validates the token.
 /// </summary>
 public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
@@ -44,7 +44,8 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
     }
 
     /// <summary>
-    ///     True when the request carries no readable bearer JWT, or one whose (unvalidated) issuer is the identity provider
+    ///     True when the request carries no readable bearer JWT, or one signed with an asymmetric algorithm or whose
+    ///     (unvalidated) issuer is the identity provider
     /// </summary>
     public static bool IsOidcRequest(HttpRequest request, string issuer)
     {
@@ -52,7 +53,24 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         if (token == null)
             return true;
 
-        return string.Equals(ReadIssuer(token)?.TrimEnd('/'), issuer?.TrimEnd('/'), StringComparison.Ordinal);
+        //identity providers sign asymmetrically; the tokens GrandNode issues itself are HMAC (HS*)
+        return IsAsymmetric(token) ||
+               string.Equals(ReadIssuer(token)?.TrimEnd('/'), issuer?.TrimEnd('/'), StringComparison.Ordinal);
+    }
+
+    private static bool IsAsymmetric(string token)
+    {
+        try
+        {
+            var algorithm = new JsonWebToken(token).Alg;
+            return algorithm != null && (algorithm.StartsWith("RS", StringComparison.Ordinal) ||
+                                         algorithm.StartsWith("PS", StringComparison.Ordinal) ||
+                                         algorithm.StartsWith("ES", StringComparison.Ordinal));
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public static string ReadBearerToken(HttpRequest request)

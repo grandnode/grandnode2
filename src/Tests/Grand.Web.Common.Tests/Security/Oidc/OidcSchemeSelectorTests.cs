@@ -45,6 +45,16 @@ public class OidcSchemeSelectorTests
     [TestMethod] public void IdpToken_OutsideResources_Null() => Assert.IsNull(_selector.Select(Request("/customer/info", "Bearer " + Token(Issuer))));
 
     [TestMethod]
+    public void AsymmetricToken_ForeignIssuer_Oidc()
+    {
+        var token = OidcTestHost.Token(issuer: "https://other.example.com");
+        Assert.AreEqual("Oidc", _selector.Select(Request("/api/Product", "Bearer " + token)));
+    }
+
+    [TestMethod]
+    public void HmacToken_ForeignIssuer_Null() => Assert.IsNull(_selector.Select(Request("/api/Product", "Bearer " + Token("https://other.example.com"))));
+
+    [TestMethod]
     [DataRow("Bearer not-a-jwt")]
     [DataRow("Bearer ")]
     [DataRow("Basic dXNlcjpwYXNz")]

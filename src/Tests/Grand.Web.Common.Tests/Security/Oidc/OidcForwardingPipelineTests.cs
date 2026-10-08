@@ -43,6 +43,8 @@ public class OidcForwardingPipelineTests
                 e.MapGet("/api/legacy", (HttpContext c) =>
                         c.User.FindFirst("sub")?.Value ?? c.User.FindFirst("Email")?.Value ?? "none")
                     .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme });
+                e.MapGet("/api/forbid", () => Results.Forbid(authenticationSchemes: [JwtBearerDefaults.AuthenticationScheme]))
+                    .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme });
                 //no [Authorize]: the work context path
                 e.MapGet("/api/plain", async (HttpContext c) =>
                 {
@@ -110,6 +112,24 @@ public class OidcForwardingPipelineTests
     public async Task ForgedIssuer_WrongKey_401()
     {
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/legacy", OidcTestHost.Token(key: OidcTestHost.ForeignKey))).StatusCode);
+        _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task IdpToken_ForbidResult_403_NoError_Never500()
+    {
+        var response = await Get("/api/forbid", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.IsFalse(response.Headers.WwwAuthenticate.ToString().Contains("error="), response.Headers.WwwAuthenticate.ToString());
+    }
+
+    [TestMethod]
+    public async Task IdpSignedToken_OtherIssuer_401_InvalidToken_ResolverNotCalled()
+    {
+        var response = await Get("/api/legacy", OidcTestHost.Token(issuer: "https://other.example.com"));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "error=\"invalid_token\"");
+        StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "issuer");
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
     }
 
