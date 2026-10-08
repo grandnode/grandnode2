@@ -221,6 +221,7 @@ public static class StartupBase
         services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
         services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
         services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
+        services.StartupConfig<OidcResourceServerConfig>(configuration.GetSection("OidcResourceServer"));
         services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
         services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
         services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
