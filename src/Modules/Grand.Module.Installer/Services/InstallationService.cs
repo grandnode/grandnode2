@@ -911,7 +911,8 @@ public partial class InstallationService : IInstallationService
         //one customer per external identity - makes linking an access token subject safe against concurrent requests
         await dbContext.CreateIndex(_externalAuthenticationRepository,
             OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.ProviderSystemName)
-                .Ascending(x => x.ExternalIdentifier), "ProviderSystemName_ExternalIdentifier", true);
+                .Ascending(x => x.ExternalIdentifier), "ProviderSystemName_ExternalIdentifier",
+            dataSettings.DbProvider != DbProvider.LiteDB); //LiteDB would make each field unique on its own
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,

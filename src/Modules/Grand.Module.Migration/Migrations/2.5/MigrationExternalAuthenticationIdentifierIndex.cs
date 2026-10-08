@@ -32,8 +32,10 @@ public class MigrationExternalAuthenticationIdentifierIndex : IMigration
 
             //duplicates left by older external logins must not stop the upgrade - keep a non-unique index for the
             //lookups and report them
-            var unique = duplicates.Count == 0;
-            if (!unique)
+            //LiteDB indexes every field of a composite index on its own, so a unique flag would make each field unique
+            var isMongo = DataSettingsManager.Instance.LoadSettings().DbProvider == DbProvider.MongoDB;
+            var unique = duplicates.Count == 0 && isMongo;
+            if (duplicates.Count != 0)
                 logService.LogError(
                     "The index {IndexName} was created as non-unique - these external identities are linked more than once: {Identities}. Remove the duplicates and recreate the index as unique",
                     IndexName, string.Join(", ", duplicates));
