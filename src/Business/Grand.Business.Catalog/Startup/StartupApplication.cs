@@ -111,6 +111,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ImportHtmlGuard>();
         serviceCollection.AddScoped<IRowImport<SpecificationAttributeDto>, SpecificationAttributeImportDataObject>();
         serviceCollection.AddScoped<IRowImport<ProductAttributeDto>, ProductAttributeImportDataObject>();
+        serviceCollection.AddScoped<IRowImport<ProductVariantsDto>, ProductVariantImportDataObject>();
         serviceCollection.AddScoped<ProductImportDataObject>();
         serviceCollection.AddScoped<IImportDataObject<ProductDto>>(sp => sp.GetRequiredService<ProductImportDataObject>());
         serviceCollection.AddScoped<IRowImport<ProductDto>>(sp => sp.GetRequiredService<ProductImportDataObject>());
