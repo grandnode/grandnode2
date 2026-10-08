@@ -6,12 +6,14 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
+using Grand.Domain.Seo;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
 
-public class CategoryImportDataObject : IImportDataObject<CategoryDto>
+public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImport<CategoryDto>
 {
     private readonly ICategoryLayoutService _categoryLayoutService;
     private readonly ICategoryService _categoryService;
@@ -19,6 +21,9 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>
     private readonly ISlugService _slugService;
     private readonly ISeNameService _seNameService;
     private readonly SecurityConfig _securityConfig;
+    private readonly ImportHtmlGuard _htmlGuard;
+    private readonly SeoSettings _seoSettings;
+    private readonly ILogger<CategoryImportDataObject> _logger;
     
     public CategoryImportDataObject(
         ICategoryService categoryService,
@@ -26,7 +31,10 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>
         ICategoryLayoutService categoryLayoutService,
         ISlugService slugService,
         ISeNameService seNameService,
-        SecurityConfig securityConfig)
+        SecurityConfig securityConfig,
+        ImportHtmlGuard htmlGuard,
+        SeoSettings seoSettings,
+        ILogger<CategoryImportDataObject> logger)
     {
         _categoryService = categoryService;
         _pictureService = pictureService;
@@ -34,26 +42,142 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>
         _slugService = slugService;
         _seNameService = seNameService;
         _securityConfig = securityConfig;
+        _htmlGuard = htmlGuard;
+        _seoSettings = seoSettings;
+        _logger = logger;
     }
 
     public async Task Execute(IEnumerable<CategoryDto> data)
     {
-        foreach (var item in data) await Import(item);
+        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        ImportRows.LogRejected(_logger, "category", result);
     }
 
-    private async Task Import(CategoryDto categoryDto)
+    /// <summary>Row API: an unknown Id is rejected, a row without Id is matched by SeName, else (best effort) by Name</summary>
+    public Task<ImportBatchResult> Import(IReadOnlyList<CategoryDto> rows, bool dryRun,
+        CancellationToken cancellationToken = default)
     {
-        var category = await _categoryService.GetCategoryById(categoryDto.Id);
-        var isNew = category == null;
-        if (category == null) category = categoryDto.MapTo<CategoryDto, Category>();
-        else categoryDto.MapTo(category);
+        return Import(rows, dryRun, ImportMode.Row, cancellationToken);
+    }
 
-        if (!ValidCategory(category)) return;
+    /// <summary>
+    ///     Row: unknown Id rejected, SeName matching. Panel (XLSX): unknown Id creates the entity with that Id, no SeName matching.
+    /// </summary>
+    private enum ImportMode
+    {
+        Row,
+        Panel
+    }
+
+    private async Task<ImportBatchResult> Import(IReadOnlyList<CategoryDto> rows, bool dryRun, ImportMode mode,
+        CancellationToken cancellationToken = default)
+    {
+        var results = new List<ImportRowResult>(rows.Count);
+        for (var i = 0; i < rows.Count; i++)
+        {
+            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
+            if (cancellationToken.IsCancellationRequested)
+            {
+                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].Id, Key(rows[i])));
+                continue;
+            }
+
+            results.Add(await ImportRow(i + 1, rows[i], dryRun, mode));
+        }
+
+        return new ImportBatchResult(dryRun, results);
+    }
+
+    private async Task<ImportRowResult> ImportRow(int row, CategoryDto dto, bool dryRun, ImportMode mode)
+    {
+        var errors = new List<string>();
+        var warnings = new List<string>();
+        var key = Key(dto);
+
+        var (existing, matchedByName) = await FindCategory(dto, mode);
+        if (matchedByName)
+            warnings.Add(ImportRows.MatchedByNameWarning(existing.Name));
+        if (!string.IsNullOrEmpty(dto.Id) && existing == null && mode == ImportMode.Row)
+            errors.Add($"Id '{dto.Id}' was not found.");
+        else if (existing == null && string.IsNullOrEmpty(dto.Name))
+            errors.Add("Name is required for a new category.");
+        if (dto.Name == "")
+            errors.Add("Name cannot be empty.");
+
+        errors.AddRange(_htmlGuard.RichTextErrors((nameof(dto.Description), dto.Description),
+            (nameof(dto.BottomDescription), dto.BottomDescription)));
+        errors.AddRange(_htmlGuard.PlainTextErrors((nameof(dto.Name), dto.Name), (nameof(dto.SeName), dto.SeName),
+            (nameof(dto.MetaKeywords), dto.MetaKeywords), (nameof(dto.MetaDescription), dto.MetaDescription),
+            (nameof(dto.MetaTitle), dto.MetaTitle)));
+
+        if (!string.IsNullOrEmpty(dto.ParentCategoryId) && await _categoryService.GetCategoryById(dto.ParentCategoryId) == null)
+            warnings.Add($"ParentCategoryId '{dto.ParentCategoryId}' was not found and was cleared.");
+
+        if (errors.Count > 0)
+            return new ImportRowResult(row, ImportRowStatus.Rejected, existing?.Id ?? "", key, errors, warnings);
+
+        if (dryRun)
+            return new ImportRowResult(row, existing == null ? ImportRowStatus.Created : ImportRowStatus.Updated,
+                existing?.Id ?? dto.Id ?? "", key, errors, warnings);
+
+        //an entity found by SeName keeps its own id
+        if (existing != null) dto.Id = existing.Id;
+        var category = existing;
+        var isNew = category == null;
+        if (category == null) category = dto.MapTo<CategoryDto, Category>();
+        else dto.MapTo(category);
+
+        if (!ValidCategory(category))
+        {
+            errors.Add("Name is required for a new category.");
+            return new ImportRowResult(row, ImportRowStatus.Rejected, "", key, errors, warnings);
+        }
 
         if (isNew) await _categoryService.InsertCategory(category);
         else await _categoryService.UpdateCategory(category);
 
-        await UpdateCategoryData(categoryDto, category);
+        await UpdateCategoryData(dto, category);
+        return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, category.Id, key,
+            errors, warnings);
+    }
+
+    private static string Key(CategoryDto dto)
+    {
+        return !string.IsNullOrEmpty(dto.Name) ? dto.Name : !string.IsNullOrEmpty(dto.SeName) ? dto.SeName : dto.Id ?? "";
+    }
+
+    /// <summary>
+    ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by the slug
+    ///     its Name would get - accepted only when the stored name is the same (any case) and, when the row names a
+    ///     parent, under that parent
+    /// </summary>
+    private async Task<(Category category, bool matchedByName)> FindCategory(CategoryDto dto, ImportMode mode)
+    {
+        if (!string.IsNullOrEmpty(dto.Id))
+            return (await _categoryService.GetCategoryById(dto.Id), false);
+
+        if (mode == ImportMode.Panel)
+            return (null, false);
+
+        if (!string.IsNullOrEmpty(dto.SeName))
+            return (await FindCategoryBySlug(dto.SeName), false);
+
+        if (string.IsNullOrEmpty(dto.Name))
+            return (null, false);
+
+        var found = await FindCategoryBySlug(ImportRows.NameSlug(dto.Name, _seoSettings));
+        var matches = found != null && string.Equals(found.Name, dto.Name, StringComparison.OrdinalIgnoreCase) &&
+                      (string.IsNullOrEmpty(dto.ParentCategoryId) || dto.ParentCategoryId == found.ParentCategoryId);
+        return matches ? (found, true) : (null, false);
+    }
+
+    private async Task<Category> FindCategoryBySlug(string slug)
+    {
+        var url = await _slugService.GetBySlug(slug);
+        if (url is not { EntityName: EntityTypes.Category } || string.IsNullOrEmpty(url.EntityId))
+            return null;
+
+        return await _categoryService.GetCategoryById(url.EntityId);
     }
 
     private async Task UpdateCategoryData(CategoryDto categoryDto, Category category)

@@ -99,9 +99,16 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ISchemaProperty<Collection>, CollectionSchemaProperty>();
         serviceCollection.AddScoped<ISchemaProperty<Product>, ProductSchemaProperty>();
 
-        serviceCollection.AddScoped<IImportDataObject<CategoryDto>, CategoryImportDataObject>();
-        serviceCollection.AddScoped<IImportDataObject<BrandDto>, BrandImportDataObject>();
-        serviceCollection.AddScoped<IImportDataObject<CollectionDto>, CollectionImportDataObject>();
+        serviceCollection.AddScoped<CategoryImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<CategoryDto>>(sp => sp.GetRequiredService<CategoryImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<CategoryDto>>(sp => sp.GetRequiredService<CategoryImportDataObject>());
+        serviceCollection.AddScoped<BrandImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<BrandDto>>(sp => sp.GetRequiredService<BrandImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<BrandDto>>(sp => sp.GetRequiredService<BrandImportDataObject>());
+        serviceCollection.AddScoped<CollectionImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<CollectionDto>>(sp => sp.GetRequiredService<CollectionImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<CollectionDto>>(sp => sp.GetRequiredService<CollectionImportDataObject>());
+        serviceCollection.AddScoped<ImportHtmlGuard>();
         serviceCollection.AddScoped<IImportDataObject<ProductDto>, ProductImportDataObject>();
     }
 }
