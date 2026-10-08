@@ -9,6 +9,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
+using Grand.Web.Common.Security.Oidc;
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -177,6 +178,11 @@ public static class ServiceCollectionExtensions
                 : CookieSecurePolicy.SameAsRequest;
             options.Cookie.SameSite = securityConfig.CookieSameSiteExternalAuth;
         });
+
+        //OAuth 2.1 resource server: access tokens of an external OpenID Connect provider on protected resources
+        var oidcConfig = new OidcResourceServerConfig();
+        configuration.GetSection("OidcResourceServer").Bind(oidcConfig);
+        authenticationBuilder.AddOidcResourceServer(oidcConfig);
 
         //register external authentication plugins now
         var typeSearcher = new TypeSearcher();
