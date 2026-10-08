@@ -119,6 +119,8 @@ customer in this order.
    * With `RequireEmailVerified = false` back-office accounts are **never** linked by e-mail.
 5. System accounts and guests are never mapped.
 6. One identity per customer: when the customer is already linked to another `sub`, the new subject is refused (403).
+   Links do not record the provider instance, so after switching `Authority` to another provider the customers
+   linked by the previous one are refused until their link is removed.
 7. With `RegisterCustomersPerStore` enabled an account of another store is refused (403) and lookups are store-scoped.
 
 ### 3.2 Automatic registration
@@ -153,6 +155,8 @@ After the mapping the resource's conditions apply; a refusal is 403 without `WWW
 * `BackendAPI:Enabled = false` switches the Web API off for both token kinds. An OIDC-only setup still needs
   `BackendAPI:Enabled = true` and a strong `BackendAPI:SecretKey` (at least 32 characters; startup check outside
   Development), although no SecretKey token has to be issued.
+* The Web API module itself is off by default: set `FeatureManagement:Grand.Module.Api = true` (environment variable
+  `FeatureManagement__Grand.Module.Api`). Without it `/api/...` answers with the storefront's 404 page.
 
 ## 4. Errors, metadata, routing
 
@@ -271,7 +275,8 @@ Tested version: Keycloak 26.8.0 (image `quay.io/keycloak/keycloak:26.8.0`). Docu
 Experimental features (Keycloak marks both as experimental; enable with `--features=resource-indicators,cimd`):
 
 * **Resource indicators (RFC 8707)**: Keycloak then processes the `resource` parameter and rejects unknown values with
-  `invalid_target`. Create a client that represents the resource and set its client attribute `resource_url` to the
+  `invalid_target` (at the token endpoint). A `resource` equal to the *Included Custom Audience* of the scope's
+  Audience mapper (steps 2-3) is accepted, so that setup works with the feature on or off. Alternatively create a client that represents the resource and set its client attribute `resource_url` to the
   resource URI (Admin REST API or realm import); the application's client gets an Audience mapper with *Included
   Client Audience* pointing at that client. Without the feature Keycloak ignores `resource` and the audience comes from
   the scope's Audience mapper (steps 2-3), which is the setup used for GrandNode by default.
@@ -300,11 +305,14 @@ Zitadel differs from Keycloak in four points that shape the configuration:
 
 Steps:
 
-1. **Project and application.** Create a project (note its id) and an application of type *Web* or *User Agent* with
-   authentication method *PKCE* (public client, S256), the application's redirect URIs and **Auth Token Type = JWT**
-   (*Token Settings*). Note the client id.
-2. **Audience.** Request the scope `urn:zitadel:iam:org:project:id:{projectId}:aud` so the project id is in `aud`.
-   The audience (client id of an application in the project) is in `aud` as well.
+1. **Project and application.** Create a project (note its id) and turn on **Assert Roles on Authentication** in its
+   settings (Zitadel sends the user's grants to the Actions target only then, or when the client requests
+   `urn:zitadel:iam:org:projects:roles`). Create an application of type *Web* or *User Agent* with
+   authentication method *PKCE* (public client, S256), the application's redirect URIs (`http` redirect URIs need
+   *Development Mode*) and **Auth Token Type = JWT** (*Token Settings*). Note the client id.
+2. **Audience.** Zitadel puts the project id and the client ids of all applications of the project into `aud`.
+   Requesting the scope `urn:zitadel:iam:org:project:id:{projectId}:aud` makes the project id explicit; it is
+   harmless when it is already there. Zitadel sends the client in `client_id`, not `azp`.
 3. **E-mail, entitlement and the Actions v2 target.** Zitadel Actions v1 (`api.v1.claims.setClaim`, complement token
    flow) is deprecated and planned for removal in Zitadel v5. Use an Actions v2 target on the function
    `preaccesstoken`. `docs/oidc/zitadel-email-target.js` is a small HTTP target that answers with `append_claims`:
@@ -354,7 +362,7 @@ Steps:
    ```
 
    `AuthorizedParties` is **mandatory** for Zitadel: the audience is a project id shared by every application of the
-   project, so only `azp` binds the token to your client. With `Audiences` set the store URL based audience is still
+   project, so only the authorized party (`azp`, for Zitadel the `client_id` claim) binds the token to your client. With `Audiences` set the store URL based audience is still
    accepted next to it.
 
    **What gates access with Zitadel**, from the outside in: (1) the token is a valid JWT of the instance's issuer;

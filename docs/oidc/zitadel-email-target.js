@@ -6,6 +6,8 @@
 //   scope                 - GRANDNODE_SCOPE (default "grandnode.api") ONLY when the user is entitled: the user has a
 //                           project role GRANDNODE_ROLE (default "grandnode.api") in the project GRANDNODE_PROJECT_ID
 //                           (user_grants of the payload). Not entitled: no scope claim, so GrandNode answers 403.
+//                           Zitadel sends user_grants only when the project has "Assert Roles on Authentication"
+//                           on (or the client requests urn:zitadel:iam:org:projects:roles).
 // ID tokens never pass through this function, so they never carry the scope.
 // GRANDNODE_PROJECT_ID is required; without it no scope is ever added.
 // Zitadel calls it as a "Call" target (the response is used): see docs/oidc-resource-server.md.
@@ -28,9 +30,10 @@ function claimsFor(payload) {
   const info = payload.userinfo || {};
   const human = (payload.user && payload.user.human) || {};
   const email = info.email || (human.email && (human.email.email || human.email)) || '';
+  // Zitadel v4 sends user.human.email as a string and the flag as user.human.is_email_verified
   const verifiedRaw = info.email_verified !== undefined
     ? info.email_verified
-    : human.email && (human.email.is_verified ?? human.email.isVerified);
+    : human.is_email_verified ?? (human.email && (human.email.is_verified ?? human.email.isVerified));
   const claims = [];
   if (isEntitled(payload)) claims.push({ key: 'scope', value: scope });
   if (typeof email === 'string' && email) {
