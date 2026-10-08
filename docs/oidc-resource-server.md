@@ -57,7 +57,7 @@ Each entry of `Resources` (plugins register the same object, section 5):
 `offline_access` is never advertised in `scopes_supported` or in a challenge `scope`.
 
 Startup validation (outside Development the application refuses to start, in Development it warns): `Authority`
-absolute and https; at least one resource (configuration or plugins); each resource has a name and a valid prefix;
+absolute, https (an `http` Authority is accepted in Development only, with `RequireHttpsMetadata = false`); at least one resource (configuration or plugins); each resource has a name and a valid prefix;
 names and prefixes unique and not nested; `Resource` absolute without fragment; `ClockSkewSeconds` 0-300; claim names
 not empty.
 
@@ -95,8 +95,10 @@ A token is accepted when its `aud` contains the resource URI or one of `Audience
 }
 ```
 
-**Always set `RequiredScopes`.** With client-id style audiences (Zitadel: `Audiences`/`AuthorizedParties`) an ID token
-of the same client could otherwise pass the audience check.
+**Always set `RequiredScopes`** (and, with client-id style audiences such as Zitadel's, `AuthorizedParties`). With
+client-id style audiences an ID token of the same client could otherwise pass the audience check. `RequiredScopes`
+is only as strong as the provider's rule for issuing the scope: a provider that puts the scope into every access token
+of its instance turns it into a formality (see Zitadel, section 7, for what gates access there).
 
 ## 3. From token to customer
 
@@ -121,7 +123,8 @@ customer in this order.
 
 ### 3.2 Automatic registration
 
-When no customer matches and `AutoRegister = true`:
+When no customer matches and `AutoRegister = false`, the answer is 403 "No customer account matches the token"; the
+customer has to exist already (it is then linked by the verified e-mail, section 3.1). With `AutoRegister = true`:
 
 * the new customer gets the **Registered** group only, never an admin or vendor group;
 * store registration set to *Disabled* gives 403;
@@ -203,7 +206,9 @@ the request continues as cookie or guest customer. Protect plugin endpoints with
 
 ### 4.5 Impersonation
 
-Impersonation is not applied to token-authenticated customers.
+Impersonation is not applied to token-authenticated customers. The OIDC request customer resolver runs before the
+built-in cookie step in `WorkContextSetter.CurrentCustomer`, and impersonation happens only for the cookie customer
+(pinned by `OidcWorkContextTests.ValidToken_TokenCustomerNeverImpersonated`).
 
 ### 4.6 Routing of tokens
 
@@ -291,7 +296,7 @@ Zitadel differs from Keycloak in four points that shape the configuration:
 * Access tokens are **opaque by default**; GrandNode needs JWT.
 * The `resource` parameter is ignored; the audience is the project id (and the client ids).
 * A JWT access token has **no `email`, `email_verified` and `scope` claims**.
-* Custom scopes are not defined by the provider.
+* Custom scopes are not defined by the provider, so a `scope` claim can only come from an Action.
 
 Steps:
 
@@ -300,13 +305,18 @@ Steps:
    (*Token Settings*). Note the client id.
 2. **Audience.** Request the scope `urn:zitadel:iam:org:project:id:{projectId}:aud` so the project id is in `aud`.
    The audience (client id of an application in the project) is in `aud` as well.
-3. **E-mail, scope and the Actions v2 target.** Zitadel Actions v1 (`api.v1.claims.setClaim`, complement token flow)
-   is deprecated and planned for removal in Zitadel v5. Use an Actions v2 target on the function `preaccesstoken`.
-   `docs/oidc/zitadel-email-target.js` is a small HTTP target that answers with `append_claims`: `email`,
-   `email_verified` (from the payload) and `scope` with the fixed value `grandnode.api`. The `scope` claim makes
-   `RequiredScopes` work and also keeps ID tokens out: `preaccesstoken` runs only for access tokens. In the test
-   environment the target runs as the service `zitadel-email-target`. Create the target and the execution with the
-   management API (token of an admin or service user with the right to manage actions):
+3. **E-mail, entitlement and the Actions v2 target.** Zitadel Actions v1 (`api.v1.claims.setClaim`, complement token
+   flow) is deprecated and planned for removal in Zitadel v5. Use an Actions v2 target on the function
+   `preaccesstoken`. `docs/oidc/zitadel-email-target.js` is a small HTTP target that answers with `append_claims`:
+   `email` and `email_verified` (from the payload), and `scope = grandnode.api` **only when the user has the project
+   role `grandnode.api` in the GrandNode project** (`user_grants` of the payload; role key `GRANDNODE_ROLE`, project
+   `GRANDNODE_PROJECT_ID`, both environment variables of the target). Without the role, or without
+   `GRANDNODE_PROJECT_ID`, no scope is added and GrandNode answers 403 `insufficient_scope`. To use it: create the
+   role `grandnode.api` in the project (step 1), grant it to the users who may call the API, and set
+   `GRANDNODE_PROJECT_ID` in the `.env` file of the test environment. `preaccesstoken` runs for access tokens only, so
+   ID tokens never carry the scope. In the test environment the target runs as the service `zitadel-email-target`.
+   Create the target and the execution with the management API (token of an admin or service user with the right to
+   manage actions):
 
    ```bash
    curl -X POST 'http://localhost:8081/v2/actions/targets' \
@@ -320,7 +330,8 @@ Steps:
    ```
 
    A "call" target uses the response; a webhook ignores it. Zitadel refuses targets on private addresses by default
-   (`HTTPClient.DenyList`); the test compose file overrides it. In production use an HTTPS endpoint and verify the
+   (`HTTPClient.DenyList`); the test compose file overrides it (test only, it restores SSRF exposure: do not copy to
+   production). In production use an HTTPS endpoint and verify the
    `ZITADEL-Signature` header (the sample does not).
 4. **GrandNode.**
 
@@ -342,22 +353,36 @@ Steps:
    }
    ```
 
-   With `Audiences` set the store URL based audience is still accepted next to it; `AuthorizedParties` restricts the
-   tokens to your client(s).
+   `AuthorizedParties` is **mandatory** for Zitadel: the audience is a project id shared by every application of the
+   project, so only `azp` binds the token to your client. With `Audiences` set the store URL based audience is still
+   accepted next to it.
+
+   **What gates access with Zitadel**, from the outside in: (1) the token is a valid JWT of the instance's issuer;
+   (2) `aud` contains the project id (or the store resource URI); (3) `azp` is one of your clients; (4) the `scope`
+   claim contains `grandnode.api`, which the target adds only for users holding the project role; (5) the GrandNode
+   customer exists or is registered, is in a group with *Access admin panel* and the needed permissions. Step 4 is only
+   as strong as who may grant the project role or edit Zitadel Actions. If
+   you do not run the target, leave `RequiredScopes` **empty** for Zitadel (a required scope would reject every token)
+   and rely on (1)-(3) and (5); then any user of the instance who can log in to an allowed client reaches the
+   GrandNode permission check, and a user that is auto-registered holds the Registered group only, which has no
+   admin panel access. Set `AutoRegister = false` to refuse unknown users entirely.
 5. **Dynamic client registration** (RFC 7591) is **off by default** in Zitadel. Two modes: with a token of a user
    holding the `project.app.register_dynamic` permission, or open (`dynamicClientRegistration.allowUnauthenticated =
    true`), which MCP-class clients need. See <https://zitadel.com/docs/guides/integrate/dynamic-client-registration>.
    Clients registered this way still need the audience scope of step 2.
 
-Fallback for a Zitadel version that still runs Actions v1 (property names from the v1 reference): trigger *Complement
-Token > Pre access token creation*:
+Fallback for a Zitadel version that still runs Actions v1 (property names from the v1 reference; the role check uses
+`ctx.v1.user.grants`, replace the project id): trigger *Complement Token > Pre access token creation*:
 
 ```js
 function addClaims(ctx, api) {
   if (!ctx.v1.user || !ctx.v1.user.human) return;
   api.v1.claims.setClaim('email', ctx.v1.user.human.email);
   api.v1.claims.setClaim('email_verified', ctx.v1.user.human.isEmailVerified);
-  api.v1.claims.setClaim('scope', 'grandnode.api');
+  var entitled = (ctx.v1.user.grants || []).some(function (g) {
+    return g.projectId === '<project id>' && g.roles && g.roles.indexOf('grandnode.api') >= 0;
+  });
+  if (entitled) api.v1.claims.setClaim('scope', 'grandnode.api');
 }
 ```
 
@@ -382,9 +407,23 @@ the calls need, then remove the API user.
 (`http://localhost:8081`) with PostgreSQL 17, and the Zitadel claim target. Placeholder credentials, http only, for
 tests only:
 
+Create a `docs/oidc/.env` file with your own values (the compose file refuses to start while one is missing):
+
+```ini
+KC_ADMIN_USER=admin
+KC_ADMIN_PASSWORD=<choose a password>
+ZITADEL_DB_PASSWORD=<choose a password>
+ZITADEL_MASTERKEY=<exactly 32 characters>
+ZITADEL_ADMIN_PASSWORD=<password with upper and lower case, digit and symbol>
+# after creating the GrandNode project in Zitadel, then `docker compose ... up -d zitadel-email-target`
+GRANDNODE_PROJECT_ID=
+```
+
 ```bash
 docker compose -f docs/oidc/docker-compose.yml up -d
 ```
+
+Ports are published on `127.0.0.1` only.
 
 Use the URLs above as `Authority` (`http://localhost:8080/realms/<realm>` for Keycloak, `http://localhost:8081` for
 Zitadel) with `RequireHttpsMetadata: false` in Development.
