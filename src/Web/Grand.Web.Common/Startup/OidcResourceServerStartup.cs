@@ -1,3 +1,4 @@
+using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
@@ -23,6 +24,9 @@ public class OidcResourceServerStartup : IStartupApplication
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
+        if (!DataSettingsManager.DatabaseIsInstalled())
+            return;
+
         var config = application.Services.GetRequiredService<OidcResourceServerConfig>();
         if (!config.Enabled)
             return;

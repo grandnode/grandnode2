@@ -1,3 +1,5 @@
+using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
@@ -8,10 +10,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -80,6 +84,7 @@ public sealed class OidcTestHost : IAsyncDisposable
                 s.AddAuthorization();
                 s.AddProblemDetails();
                 services?.Invoke(s);
+                s.TryAddSingleton(StoreContextSetter("http://localhost/"));
                 var builder = s.AddAuthentication();
                 auth?.Invoke(builder);
                 builder.AddOidcResourceServer(config, o =>
@@ -106,6 +111,15 @@ public sealed class OidcTestHost : IAsyncDisposable
                 });
             })).StartAsync();
         return _host.GetTestClient();
+    }
+
+    public static IStoreContextSetter StoreContextSetter(string url)
+    {
+        var storeContext = new Mock<IStoreContext>();
+        storeContext.Setup(c => c.CurrentStore).Returns(new Store { Id = "store1", Url = url });
+        var setter = new Mock<IStoreContextSetter>();
+        setter.Setup(s => s.InitializeStoreContext(It.IsAny<string>())).ReturnsAsync(storeContext.Object);
+        return setter.Object;
     }
 
     public async ValueTask DisposeAsync()

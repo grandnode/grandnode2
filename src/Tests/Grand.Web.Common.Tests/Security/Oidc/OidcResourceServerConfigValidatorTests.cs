@@ -38,8 +38,20 @@ public class OidcResourceServerConfigValidatorTests
     {
         var config = Valid();
         config.Authority = "http://localhost:8080/realms/shop";
+        Assert.AreEqual(2, Validate(config).Count);
+        config.RequireHttpsMetadata = false;
         Assert.AreEqual(1, Validate(config).Count);
         Assert.AreEqual(0, Validate(config, true).Count);
+    }
+
+    [TestMethod]
+    public void HttpAuthority_RequiresHttpsMetadataOff()
+    {
+        var config = Valid();
+        config.Authority = "http://localhost:8080/realms/shop";
+        var errors = Validate(config, true);
+        Assert.AreEqual(1, errors.Count);
+        Assert.AreEqual("OidcResourceServer.RequireHttpsMetadata must be false for an http Authority.", errors[0]);
     }
 
     [TestMethod]

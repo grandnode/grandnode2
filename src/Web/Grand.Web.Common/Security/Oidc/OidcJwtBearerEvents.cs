@@ -23,16 +23,16 @@ public class OidcJwtBearerEvents : JwtBearerEvents
     public override async Task TokenValidated(TokenValidatedContext context)
     {
         var principal = context.Principal!;
-        var registry = context.HttpContext.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();
-        var resource = registry.Match(context.HttpContext.Request.Path);
+        var http = context.HttpContext;
+        var registry = http.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();
+        var resource = registry.Match(http.Request.Path);
         if (resource == null)
         {
             Reject(context, OidcFailureKind.InvalidToken, "The token is not accepted on this path");
             return;
         }
-        context.HttpContext.Items[OidcResourceServerDefaults.ResourceItemKey] = resource;
 
-        var canonical = OidcCanonicalUri.ResourceFor(resource, context.HttpContext.Request);
+        var canonical = OidcCanonicalUri.ResourceFor(resource, await OidcCanonicalUri.StoreBaseUrl(http));
         if (!OidcTokenChecks.HasAudience(principal, canonical, resource.Audiences))
         {
             Reject(context, OidcFailureKind.InvalidToken, "The token was issued for another audience");
@@ -53,14 +53,24 @@ public class OidcJwtBearerEvents : JwtBearerEvents
             return;
         }
 
-        await AfterTokenChecks(context, resource);
+        http.Items[OidcResourceServerDefaults.ResourceItemKey] = resource;
+
+        if (!await AfterTokenChecks(context, resource) && OidcAuthenticationFailure.Get(http) == null)
+            Reject(context, OidcFailureKind.InvalidToken, "The token is not accepted");
     }
 
     /// <summary>
-    ///     Runs after the resource, audience, party and scope checks; calls Reject and returns false to refuse
+    ///     Runs after the resource, audience, party and scope checks; calls Reject and returns false to refuse.
+    ///     The base refuses resources with account conditions: checking them needs the customer an override resolves.
     /// </summary>
-    protected virtual Task<bool> AfterTokenChecks(TokenValidatedContext context, OidcProtectedResource resource) =>
-        Task.FromResult(true);
+    protected virtual Task<bool> AfterTokenChecks(TokenValidatedContext context, OidcProtectedResource resource)
+    {
+        if (!resource.RequireAdminPanelAccess && !resource.DenyVendors && !resource.DenyStoreManagers)
+            return Task.FromResult(true);
+
+        Reject(context, OidcFailureKind.Forbidden, "Account conditions for this resource are not available");
+        return Task.FromResult(false);
+    }
 
     public override Task AuthenticationFailed(AuthenticationFailedContext context)
     {
@@ -73,7 +83,7 @@ public class OidcJwtBearerEvents : JwtBearerEvents
                 "The token signature is invalid",
             _ => "The token is invalid"
         };
-        Logger(context.HttpContext).LogWarning("Access token rejected: {Reason} ({Exception})", description,
+        Logger(context.HttpContext).LogInformation("Access token rejected: {Reason} ({Exception})", description,
             context.Exception.GetType().Name);
         OidcAuthenticationFailure.Set(context.HttpContext,
             new OidcAuthenticationFailure { Kind = OidcFailureKind.InvalidToken, Description = description });
@@ -89,7 +99,9 @@ public class OidcJwtBearerEvents : JwtBearerEvents
             failure = new OidcAuthenticationFailure { Kind = OidcFailureKind.InvalidToken, Description = "The token is invalid" };
 
         var resource = http.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>().Match(http.Request.Path);
-        var metadataUrl = resource != null ? OidcProtectedResourceMetadata.MetadataUrl(http.Request, resource) : null;
+        var metadataUrl = resource != null
+            ? OidcProtectedResourceMetadata.MetadataUrl(await OidcCanonicalUri.StoreBaseUrl(http), resource)
+            : null;
         var scope = resource != null ? string.Join(' ', OidcTokenChecks.PublicScopes(resource.RequiredScopes)) : null;
         await OidcChallengeWriter.Write(http, failure, metadataUrl, scope);
     }

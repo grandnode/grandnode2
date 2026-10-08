@@ -1,6 +1,5 @@
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text.Json;
 
@@ -16,18 +15,10 @@ public class OidcProtectedResourceMetadataTests
         new() { Name = "Tools", PathPrefix = "/tools", Resource = "https://tools.example.com/", ScopesSupported = ["tools.read"] }
     ];
 
-    private static HttpRequest Request(string path = "/")
-    {
-        var context = new DefaultHttpContext();
-        context.Request.Scheme = "https";
-        context.Request.Host = new HostString("shop.example.com");
-        context.Request.PathBase = "/eu";
-        context.Request.Path = path;
-        return context.Request;
-    }
+    private const string BaseUrl = "https://shop.example.com/eu";
 
     private JsonElement Json(OidcProtectedResource resource) =>
-        JsonSerializer.SerializeToElement(OidcProtectedResourceMetadata.Build(_config, _resources, resource, Request()));
+        JsonSerializer.SerializeToElement(OidcProtectedResourceMetadata.Build(_config, _resources, resource, BaseUrl));
 
     private static string[] Strings(JsonElement e, string name) =>
         e.GetProperty(name).EnumerateArray().Select(x => x.GetString()).ToArray();
@@ -37,7 +28,7 @@ public class OidcProtectedResourceMetadataTests
     {
         var json = Json(_resources[0]);
         Assert.AreEqual("https://shop.example.com/eu/api", json.GetProperty("resource").GetString());
-        CollectionAssert.AreEqual(new[] { "https://idp.example.com/realms/shop" }, Strings(json, "authorization_servers"));
+        CollectionAssert.AreEqual(new[] { "https://idp.example.com/realms/shop/" }, Strings(json, "authorization_servers"));
         CollectionAssert.AreEqual(new[] { "grandnode.api" }, Strings(json, "scopes_supported"));
         CollectionAssert.AreEqual(new[] { "header" }, Strings(json, "bearer_methods_supported"));
         Assert.AreEqual("BackendApi", json.GetProperty("resource_name").GetString());
@@ -59,5 +50,5 @@ public class OidcProtectedResourceMetadataTests
     [TestMethod]
     public void MetadataUrl_PerResource() =>
         Assert.AreEqual("https://shop.example.com/eu/.well-known/oauth-protected-resource/api",
-            OidcProtectedResourceMetadata.MetadataUrl(Request("/api/Product"), _resources[0]));
+            OidcProtectedResourceMetadata.MetadataUrl(BaseUrl, _resources[0]));
 }

@@ -17,34 +17,37 @@ public static class OidcProtectedResourceMetadata
     public static void Map(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(WellKnownPath, (HttpContext context) => Document(context, null)).AllowAnonymous();
-        endpoints.MapGet(WellKnownPath + "/{**path}", (HttpContext context, string path) =>
+        endpoints.MapGet(WellKnownPath + "/{**path}", async (HttpContext context, string path) =>
         {
             var registry = context.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();
             var wanted = OidcPath.Normalize("/" + path);
             var resource = registry.Resources.FirstOrDefault(r =>
                 string.Equals(OidcPath.Normalize(r.PathPrefix), wanted, StringComparison.OrdinalIgnoreCase));
-            return resource == null ? Results.NotFound() : Document(context, resource);
+            return resource == null ? Results.NotFound() : await Document(context, resource);
         }).AllowAnonymous();
     }
 
-    private static IResult Document(HttpContext context, OidcProtectedResource resource)
+    private static async Task<IResult> Document(HttpContext context, OidcProtectedResource resource)
     {
         var config = context.RequestServices.GetRequiredService<OidcResourceServerConfig>();
         if (!config.Enabled)
             return Results.NotFound();
         var registry = context.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();
-        return Results.Json(Build(config, registry.Resources, resource, context.Request));
+        var baseUrl = await OidcCanonicalUri.StoreBaseUrl(context);
+        return Results.Json(Build(config, registry.Resources, resource, baseUrl));
     }
 
-    public static string MetadataUrl(HttpRequest request, OidcProtectedResource resource) =>
-        OidcCanonicalUri.BaseUrl(request) + WellKnownPath + OidcPath.Normalize(resource.PathPrefix);
+    /// <param name="baseUrl">Store base URL (<see cref="OidcCanonicalUri.StoreBaseUrl" />)</param>
+    /// <param name="resource">Protected resource</param>
+    public static string MetadataUrl(string baseUrl, OidcProtectedResource resource) =>
+        string.IsNullOrEmpty(baseUrl) ? null : baseUrl + WellKnownPath + OidcPath.Normalize(resource.PathPrefix);
 
     public static object Build(OidcResourceServerConfig config, IReadOnlyList<OidcProtectedResource> all,
-        OidcProtectedResource resource, HttpRequest request) =>
+        OidcProtectedResource resource, string baseUrl) =>
         new MetadataDocument {
-            Resource = resource != null ? OidcCanonicalUri.ResourceFor(resource, request) : OidcCanonicalUri.BaseUrl(request),
+            Resource = resource != null ? OidcCanonicalUri.ResourceFor(resource, baseUrl) : baseUrl,
             ResourceName = resource?.Name,
-            AuthorizationServers = [config.Authority.TrimEnd('/')],
+            AuthorizationServers = [config.Authority],
             ScopesSupported = OidcTokenChecks.PublicScopes(resource != null
                 ? resource.ScopesSupported
                 : all.SelectMany(r => r.ScopesSupported ?? [])),

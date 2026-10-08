@@ -18,8 +18,13 @@ public static class OidcResourceServerConfigValidator
         if (!Uri.TryCreate(config.Authority, UriKind.Absolute, out var authority) ||
             (authority.Scheme != Uri.UriSchemeHttps && authority.Scheme != Uri.UriSchemeHttp))
             errors.Add("OidcResourceServer.Authority must be the absolute URL of the identity provider's issuer.");
-        else if (authority.Scheme != Uri.UriSchemeHttps && !isDevelopment)
-            errors.Add("OidcResourceServer.Authority must use https outside Development.");
+        else if (authority.Scheme != Uri.UriSchemeHttps)
+        {
+            if (!isDevelopment)
+                errors.Add("OidcResourceServer.Authority must use https outside Development.");
+            if (config.RequireHttpsMetadata)
+                errors.Add("OidcResourceServer.RequireHttpsMetadata must be false for an http Authority.");
+        }
 
         if (config.ClockSkewSeconds is < 0 or > 300)
             errors.Add("OidcResourceServer.ClockSkewSeconds must be between 0 and 300.");

@@ -2,6 +2,7 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 
@@ -25,6 +26,35 @@ public class OidcPipelineTests
 
     [TestCleanup]
     public async Task Cleanup() => await _host.DisposeAsync();
+
+    [TestMethod]
+    public async Task ForeignHostHeader_TokenForThatHost_401()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, "/api/ping");
+        request.Headers.Host = "evil.test";
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", OidcTestHost.Token(audience: "http://evil.test/api"));
+        var response = await _client.SendAsync(request);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task AccountConditionFlag_ValidToken_403()
+    {
+        await Start(OidcTestHost.Config(new OidcProtectedResource {
+            Name = "BackendApi", PathPrefix = "/api", RequiredScopes = ["grandnode.api"], RequireAdminPanelAccess = true
+        }));
+        Assert.AreEqual(HttpStatusCode.Forbidden, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Disabled_OidcEndpoint_401NotServerError()
+    {
+        var config = OidcTestHost.Config();
+        config.Enabled = false;
+        await Start(config);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping")).StatusCode);
+    }
 
     private Task<HttpResponseMessage> Get(string path, string token = null, string scheme = "Bearer") =>
         OidcTestHost.Send(_client, path, token, scheme);

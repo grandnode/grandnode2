@@ -1,5 +1,7 @@
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Common.Security.Oidc;
 
@@ -8,13 +10,37 @@ namespace Grand.Web.Common.Security.Oidc;
 /// </summary>
 public static class OidcCanonicalUri
 {
-    public static string BaseUrl(HttpRequest request) =>
-        Normalize($"{request.Scheme}://{request.Host}{request.PathBase}");
+    private const string StoreBaseUrlItemKey = "Grand.Oidc.StoreBaseUrl";
 
-    public static string ResourceFor(OidcProtectedResource resource, HttpRequest request) =>
-        !string.IsNullOrWhiteSpace(resource.Resource)
-            ? Normalize(resource.Resource.Trim())
-            : Normalize(BaseUrl(request) + OidcPath.Normalize(resource.PathPrefix));
+    /// <summary>
+    ///     Normalized URL of the store resolved for the request; never taken from the client-controlled Host header
+    /// </summary>
+    public static async Task<string> StoreBaseUrl(HttpContext context)
+    {
+        if (context.Items.TryGetValue(StoreBaseUrlItemKey, out var cached))
+            return cached as string;
+
+        var store = context.RequestServices.GetService<IContextAccessor>()?.StoreContext?.CurrentStore;
+        if (store == null)
+        {
+            var storeContext = await context.RequestServices.GetRequiredService<IStoreContextSetter>()
+                .InitializeStoreContext();
+            store = storeContext?.CurrentStore;
+        }
+
+        var baseUrl = string.IsNullOrWhiteSpace(store?.Url) ? null : Normalize(store.Url.Trim());
+        context.Items[StoreBaseUrlItemKey] = baseUrl;
+        return baseUrl;
+    }
+
+    /// <param name="resource">Protected resource</param>
+    /// <param name="baseUrl">Store base URL (<see cref="StoreBaseUrl" />), used when the resource has no configured URI</param>
+    public static string ResourceFor(OidcProtectedResource resource, string baseUrl)
+    {
+        if (!string.IsNullOrWhiteSpace(resource.Resource))
+            return Normalize(resource.Resource.Trim());
+        return string.IsNullOrEmpty(baseUrl) ? null : Normalize(baseUrl + OidcPath.Normalize(resource.PathPrefix));
+    }
 
     public static bool Equal(string a, string b) =>
         a != null && b != null && string.Equals(Normalize(a), Normalize(b), StringComparison.Ordinal);

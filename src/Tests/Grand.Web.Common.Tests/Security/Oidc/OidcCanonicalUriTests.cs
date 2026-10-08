@@ -1,6 +1,5 @@
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Web.Common.Tests.Security.Oidc;
@@ -8,29 +7,24 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 [TestClass]
 public class OidcCanonicalUriTests
 {
-    private static HttpRequest Request(string host = "shop.example.com", string pathBase = "")
-    {
-        var context = new DefaultHttpContext();
-        context.Request.Scheme = "https";
-        context.Request.Host = new HostString(host);
-        context.Request.PathBase = pathBase;
-        return context.Request;
-    }
-
     [TestMethod]
-    public void Derived_FromRequestAndPrefix() =>
+    public void Derived_FromBaseUrlAndPrefix() =>
         Assert.AreEqual("https://shop.example.com/eu/api",
-            OidcCanonicalUri.ResourceFor(new OidcProtectedResource { PathPrefix = "/api/" }, Request(pathBase: "/eu")));
+            OidcCanonicalUri.ResourceFor(new OidcProtectedResource { PathPrefix = "/api/" }, "https://shop.example.com/eu"));
 
     [TestMethod]
     public void Derived_KeepsNonDefaultPort_LowercasesHost() =>
         Assert.AreEqual("https://shop.example.com:8443/api",
-            OidcCanonicalUri.ResourceFor(new OidcProtectedResource { PathPrefix = "/api" }, Request(host: "Shop.Example.com:8443")));
+            OidcCanonicalUri.ResourceFor(new OidcProtectedResource { PathPrefix = "/api" }, "https://Shop.Example.com:8443"));
 
     [TestMethod]
     public void Configured_WinsAndIsNormalized() =>
         Assert.AreEqual("https://api.example.com/v1",
-            OidcCanonicalUri.ResourceFor(new OidcProtectedResource { PathPrefix = "/api", Resource = "HTTPS://API.Example.com:443/v1/" }, Request()));
+            OidcCanonicalUri.ResourceFor(new OidcProtectedResource { PathPrefix = "/api", Resource = "HTTPS://API.Example.com:443/v1/" }, "https://shop.example.com"));
+
+    [TestMethod]
+    public void Derived_NoBaseUrl_Null() =>
+        Assert.IsNull(OidcCanonicalUri.ResourceFor(new OidcProtectedResource { PathPrefix = "/api" }, null));
 
     [TestMethod]
     [DataRow("https://shop.example.com/api", "https://shop.example.com/api")]
