@@ -110,7 +110,7 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             var now = DateTime.UtcNow;
             var pages = (await _pageService.GetAllPages(request.Store.Id))
                 .PreferStoreOverrides(request.Store.Id)
-                .Where(t => t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
+                .Where(t => t.Published && t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                             (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
                 .ToList();
             model.Pages = pages.Select(page => new PageModel {
