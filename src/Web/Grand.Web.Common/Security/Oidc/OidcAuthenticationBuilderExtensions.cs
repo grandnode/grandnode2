@@ -2,6 +2,7 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
@@ -27,6 +28,8 @@ public static class OidcAuthenticationBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
         var enabled = config.Enabled;
+        if (enabled)
+            builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, OidcSchemeSelector>();
 
         builder.AddJwtBearer(OidcResourceServerDefaults.AuthenticationScheme, options =>
         {

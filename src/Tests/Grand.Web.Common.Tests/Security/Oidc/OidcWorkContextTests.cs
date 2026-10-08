@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
@@ -86,7 +87,7 @@ public class OidcWorkContextTests
             new ApiUserCustomerResolver(_apiAuthentication.Object, _accessor.Object, _customerService.Object));
         services.AddSingleton<IRequestCustomerResolver>(new CookieCustomerResolver(_authentication.Object));
         services.AddSingleton<IRequestCustomerResolver>(
-            new OidcRequestCustomerResolver(_accessor.Object, _registry.Object));
+            new OidcRequestCustomerResolver(_accessor.Object, _registry.Object, OidcTestHost.Config()));
         services.AddSingleton<IRequestCustomerResolver>(
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, Mock.Of<IGroupService>()));
         services.AddSingleton<IRequestCustomerResolver>(
@@ -101,7 +102,7 @@ public class OidcWorkContextTests
     [TestMethod]
     public void Order_BeforeEveryBuiltInResolver()
     {
-        var resolver = new OidcRequestCustomerResolver(_accessor.Object, _registry.Object);
+        var resolver = new OidcRequestCustomerResolver(_accessor.Object, _registry.Object, OidcTestHost.Config());
         Assert.IsTrue(resolver.Order < RequestCustomerResolverOrder.AllowAnonymous);
     }
 
@@ -173,6 +174,23 @@ public class OidcWorkContextTests
         var customer = await CreateSetter().CurrentCustomerForTest(new Store());
 
         Assert.AreEqual("cookie", customer.Id);
+        _aspNetAuthentication.Verify(a => a.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TokenOfAnotherIssuer_LeftToTheWebApiScheme()
+    {
+        //the SecretKey JWT GrandNode issues itself: HMAC-signed, another issuer
+        var secretKey = new SymmetricSecurityKey(new byte[32]);
+        _httpContext.Request.Headers.Authorization = "Bearer " + OidcTestHost.Token(key: secretKey,
+            algorithm: SecurityAlgorithms.HmacSha256, issuer: "https://grandnode.api");
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
+        _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api", Active = true });
+        TokenValidatedFor(new Customer { Id = "token", Active = true });
+
+        var customer = await CreateSetter().CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("api", customer.Id);
         _aspNetAuthentication.Verify(a => a.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()), Times.Never);
     }
 

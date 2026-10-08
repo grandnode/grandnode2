@@ -1,4 +1,5 @@
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 
@@ -19,11 +20,14 @@ public class OidcRequestCustomerResolver : IRequestCustomerResolver
 
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOidcProtectedResourceRegistry _registry;
+    private readonly OidcResourceServerConfig _config;
 
-    public OidcRequestCustomerResolver(IHttpContextAccessor httpContextAccessor, IOidcProtectedResourceRegistry registry)
+    public OidcRequestCustomerResolver(IHttpContextAccessor httpContextAccessor, IOidcProtectedResourceRegistry registry,
+        OidcResourceServerConfig config)
     {
         _httpContextAccessor = httpContextAccessor;
         _registry = registry;
+        _config = config;
     }
 
     public int Order => ResolverOrder;
@@ -32,6 +36,10 @@ public class OidcRequestCustomerResolver : IRequestCustomerResolver
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null || _registry.Match(httpContext.Request.Path) == null)
+            return null;
+
+        //a token of another issuer (the SecretKey JWT of the Web API) belongs to its own scheme
+        if (!OidcSchemeSelector.IsOidcRequest(httpContext.Request, _config.Authority))
             return null;
 
         //for [Authorize] endpoints the authorization middleware already did this - the result is cached per request
