@@ -171,6 +171,9 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = await GetBackgroundTaskCustomer();
         if (customer != null) return customer;
 
+        customer = await GetRequestResolvedCustomer(store);
+        if (customer != null) return customer;
+
         customer = await GetAllowAnonymousCustomer();
         if (customer != null) return customer;
 
@@ -197,6 +200,21 @@ public class WorkContextSetter : IWorkContextSetter
         if (_httpContextAccessor.HttpContext != null) return null;
 
         return await _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
+    }
+
+    private async Task<Customer> GetRequestResolvedCustomer(Store store)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        var resolvers = httpContext?.RequestServices?.GetServices<IRequestCustomerResolver>();
+        if (resolvers == null) return null;
+
+        foreach (var resolver in resolvers.OrderBy(x => x.Order))
+        {
+            var customer = await resolver.Resolve(httpContext, store);
+            if (customer != null) return customer;
+        }
+
+        return null;
     }
 
     private async Task<Customer> GetAllowAnonymousCustomer()
