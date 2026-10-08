@@ -908,6 +908,10 @@ public partial class InstallationService : IInstallationService
         //externalauth
         await dbContext.CreateIndex(_externalAuthenticationRepository,
             OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.CustomerId), CustomerId);
+        //one customer per external identity - makes linking an access token subject safe against concurrent requests
+        await dbContext.CreateIndex(_externalAuthenticationRepository,
+            OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.ProviderSystemName)
+                .Ascending(x => x.ExternalIdentifier), "ProviderSystemName_ExternalIdentifier", true);
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,
