@@ -1,12 +1,15 @@
 using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -24,6 +27,8 @@ public class OidcCustomerResolverTests
     private Mock<ICustomerService> _customerService;
     private Mock<ICustomerManagerService> _customerManagerService;
     private Mock<ISettingService> _settingService;
+    private Mock<IGroupService> _groupService;
+    private Mock<IPermissionService> _permissionService;
     private Mock<IMediator> _mediator;
     private OidcResourceServerConfig _config;
     private CustomerConfig _customerConfig;
@@ -36,6 +41,9 @@ public class OidcCustomerResolverTests
         _customerService = new Mock<ICustomerService>();
         _customerManagerService = new Mock<ICustomerManagerService>();
         _settingService = new Mock<ISettingService>();
+        _groupService = new Mock<IGroupService>();
+        _groupService.Setup(x => x.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+        _permissionService = new Mock<IPermissionService>();
         _mediator = new Mock<IMediator>();
         _config = new OidcResourceServerConfig { Enabled = true, AutoRegister = false };
         _customerConfig = new CustomerConfig();
@@ -47,7 +55,7 @@ public class OidcCustomerResolverTests
 
     private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication> links = null) =>
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
-            _mediator.Object, _config, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
+            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
 
     private static ClaimsPrincipal Principal(string sub = "sub-1", string email = "John@Example.com",
         string emailVerified = "true")
@@ -266,6 +274,7 @@ public class OidcCustomerResolverTests
         var links = new Mock<IRepository<ExternalAuthentication>>();
         links.SetupSequence(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>()))
             .ReturnsAsync((ExternalAuthentication)null)
+            .ReturnsAsync((ExternalAuthentication)null) //no other identity linked to the matched customer
             .ReturnsAsync(new ExternalAuthentication { CustomerId = "c1", ProviderSystemName = "Oidc", ExternalIdentifier = "sub-1" });
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new Exception("duplicate key"));
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
@@ -283,5 +292,136 @@ public class OidcCustomerResolverTests
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new InvalidOperationException("db down"));
 
         await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => Resolver(links.Object).Resolve(Principal(), "store1"));
+    }
+
+    [TestMethod]
+    public async Task LinkedSystemAccount_Forbidden()
+    {
+        await Link("c1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer {
+            Id = "c1", Active = true, IsSystemAccount = true, SystemName = SystemCustomerNames.BackgroundTask
+        });
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+    }
+
+    [TestMethod]
+    public async Task EmailMatchesGuest_Forbidden_NotLinked()
+    {
+        var guest = new Customer { Id = "c1", Active = true };
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(guest);
+        _groupService.Setup(x => x.IsRegistered(guest)).ReturnsAsync(false);
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task EmailMatchesCustomerLinkedToAnotherSubject_Forbidden_NotLinked()
+    {
+        await Link("c1", sub: "other-sub");
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task UnverifiedEmail_AdminPanelAccount_Forbidden_NotLinked()
+    {
+        _config.RequireEmailVerified = false;
+        var admin = new Customer { Id = "c1", Active = true };
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(admin);
+        _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, admin)).ReturnsAsync(true);
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(emailVerified: null), "store1")).Failure);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    [DataRow("vendor1", null)]
+    [DataRow(null, "store1")]
+    public async Task UnverifiedEmail_VendorOrStaffAccount_Forbidden_NotLinked(string vendorId, string staffStoreId)
+    {
+        _config.RequireEmailVerified = false;
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer {
+            Id = "c1", Active = true, VendorId = vendorId, StaffStoreId = staffStoreId
+        });
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(emailVerified: null), "store1")).Failure);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task UnverifiedEmail_PlainRegisteredCustomer_Linked()
+    {
+        _config.RequireEmailVerified = false;
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(emailVerified: null), "store1")).Succeeded);
+        Assert.AreEqual("c1", (await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).CustomerId);
+    }
+
+    [TestMethod]
+    public async Task VerifiedEmail_BackOfficeAccount_Linked()
+    {
+        var admin = new Customer { Id = "c1", Active = true, StaffStoreId = "store1" };
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(admin);
+        _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, admin)).ReturnsAsync(true);
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+    }
+
+    [TestMethod]
+    public async Task PerStore_LinkedCustomerOfAnotherStore_Forbidden()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("store1")]
+    public async Task PerStore_LinkedStorelessOrSameStoreCustomer_Allowed(string customerStoreId)
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = customerStoreId });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+    }
+
+    [TestMethod]
+    public async Task NotPerStore_LinkedCustomerOfAnotherStore_Allowed()
+    {
+        await Link("c1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+    }
+
+    [TestMethod]
+    public async Task UsernameTaken_Forbidden_NoRegistration()
+    {
+        _config.AutoRegister = true;
+        _customerService.Setup(x => x.GetCustomerByUsername("john@example.com", "")).ReturnsAsync(new Customer { Id = "other" });
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+        _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
+        _customerManagerService.Verify(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UsernameTaken_PerStore_StoreLookup()
+    {
+        _config.AutoRegister = true;
+        _customerConfig.RegisterCustomersPerStore = true;
+        _customerService.Setup(x => x.GetCustomerByUsername("john@example.com", "store1")).ReturnsAsync(new Customer { Id = "other" });
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+        _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
     }
 }

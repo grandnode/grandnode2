@@ -18,7 +18,9 @@ public class OidcResourceServerConfig
     public OidcClaimNames Claims { get; set; } = new();
 
     /// <summary>
-    ///     An unverified e-mail address never links to an account and never registers one
+    ///     True: a token whose e-mail is not verified never links to an account and never registers one. False: the
+    ///     e-mail in the token is trusted as is, except that back-office accounts (admin panel access, vendor, store
+    ///     staff) are never linked by it
     /// </summary>
     public bool RequireEmailVerified { get; set; } = true;
 
