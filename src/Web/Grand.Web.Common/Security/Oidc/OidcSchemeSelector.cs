@@ -63,7 +63,15 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
             return null;
 
         var token = authorization["Bearer ".Length..].Trim();
-        return token.Length > 0 && new JsonWebTokenHandler().CanReadToken(token) ? token : null;
+        try
+        {
+            return token.Length > 0 && new JsonWebTokenHandler().CanReadToken(token) ? token : null;
+        }
+        catch (Exception)
+        {
+            //attacker-controlled input read for routing only: never a 500
+            return null;
+        }
     }
 
     private static string ReadIssuer(string token)
@@ -72,7 +80,7 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         {
             return new JsonWebToken(token).Issuer;
         }
-        catch (ArgumentException)
+        catch (Exception)
         {
             return null;
         }

@@ -62,4 +62,17 @@ public class OidcSchemeSelectorTests
         Assert.AreEqual("Oidc", bearer.ForwardDefaultSelector(Request("/api/x")));
         Assert.AreEqual("Previous", bearer.ForwardDefaultSelector(Request("/other")));
     }
+
+    [TestMethod]
+    [DataRow("https://idp.example.com/realms/shop", "https://idp.example.com/realms/shop/")]
+    [DataRow("https://idp.example.com/realms/shop/", "https://idp.example.com/realms/shop")]
+    public void TrailingSlash_Differences_StillOidc(string authority, string issuer)
+    {
+        var config = new OidcResourceServerConfig {
+            Enabled = true, Authority = authority,
+            Resources = [new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api" }]
+        };
+        var selector = new OidcSchemeSelector(config, new OidcProtectedResourceRegistry(config, []));
+        Assert.AreEqual("Oidc", selector.Select(Request("/api/Product", "Bearer " + Token(issuer))));
+    }
 }

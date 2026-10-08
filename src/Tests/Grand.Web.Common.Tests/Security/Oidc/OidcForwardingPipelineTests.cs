@@ -129,4 +129,35 @@ public class OidcForwardingPipelineTests
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/legacy", OidcTestHost.Token())).StatusCode);
         Assert.AreEqual(HttpStatusCode.OK, (await Get("/api/legacy", LegacyToken())).StatusCode);
     }
+
+    private static string Unsigned(string payloadJson)
+    {
+        static string B64(string json) => Convert.ToBase64String(Encoding.UTF8.GetBytes(json)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        return B64("{\"alg\":\"none\"}") + "." + B64(payloadJson) + ".";
+    }
+
+    [TestMethod]
+    [DataRow("{\"iss\":123}")]
+    [DataRow("{\"iss\":{\"a\":1}}")]
+    [DataRow("{\"iss\":[\"a\",\"b\"]}")]
+    [DataRow("[1,2]")]
+    [DataRow("null")]
+    public async Task MalformedIssuerPayload_Never500(string payload)
+    {
+        var token = Unsigned(payload);
+        var legacy = await Get("/api/legacy", token);
+        Assert.IsTrue((int)legacy.StatusCode < 500, "legacy " + legacy.StatusCode);
+        var plain = await Get("/api/plain", token);
+        Assert.AreEqual(HttpStatusCode.OK, plain.StatusCode);
+        Assert.AreEqual("none", await plain.Content.ReadAsStringAsync());
+    }
+
+    [TestMethod]
+    public async Task Anonymous_PlainEndpoint_NoChallenge_ResolverNotCalled()
+    {
+        var response = await Get("/api/plain");
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        Assert.AreEqual("none", await response.Content.ReadAsStringAsync());
+        _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
+    }
 }
