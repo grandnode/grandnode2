@@ -32,7 +32,6 @@ public class WorkContextSetterTests
             Mock.Of<IGrandAuthenticationService>(),
             Mock.Of<ICurrencyService>(),
             Mock.Of<ICustomerService>(),
-            Mock.Of<IGroupService>(),
             Mock.Of<ILanguageService>(),
             _storeServiceMock.Object,
             Mock.Of<IAclService>(),
@@ -99,7 +98,6 @@ public class WorkContextSetterTests
         IGrandAuthenticationService authenticationService,
         ICurrencyService currencyService,
         ICustomerService customerService,
-        IGroupService groupService,
         ILanguageService languageService,
         IStoreService storeService,
         IAclService aclService,
@@ -108,7 +106,7 @@ public class WorkContextSetterTests
         AppConfig config,
         IEnumerable<IRequestCustomerResolver> requestCustomerResolvers)
         : WorkContextSetter(httpContextAccessor, authenticationService, currencyService, customerService,
-            groupService, languageService, storeService, aclService, vendorService, taxSettings, config,
+            languageService, storeService, aclService, vendorService, taxSettings, config,
             requestCustomerResolvers)
     {
         public Task<Store> GetStoreManagerForTest(Customer customer) => GetStoreManager(customer);

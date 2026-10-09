@@ -86,11 +86,7 @@ public class StartupApplication : IStartupApplication
         //work context
         serviceCollection.AddSingleton<IContextAccessor, ContextAccessor>();
         serviceCollection.AddScoped<IWorkContextSetter, WorkContextSetter>();
-        serviceCollection.AddScoped<IRequestCustomerResolver, AllowAnonymousCustomerResolver>();
-        serviceCollection.AddScoped<IRequestCustomerResolver, CookieCustomerResolver>();
-        serviceCollection.AddScoped<IRequestCustomerResolver, GuestCookieCustomerResolver>();
-        serviceCollection.AddScoped<IRequestCustomerResolver, SearchEngineCustomerResolver>();
-        serviceCollection.AddScoped<IRequestCustomerResolver, ApiUserCustomerResolver>();
+        serviceCollection.AddRequestCustomerResolvers();
         serviceCollection.AddScoped<IStoreContextSetter, StoreContextSetter>();
         serviceCollection.AddScoped<IAdminStoreService, AdminStoreService>();
         //View factory

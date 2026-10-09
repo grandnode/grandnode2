@@ -48,7 +48,6 @@ public class WorkContextSetter : IWorkContextSetter
         IGrandAuthenticationService authenticationService,
         ICurrencyService currencyService,
         ICustomerService customerService,
-        IGroupService groupService,
         ILanguageService languageService,
         IStoreService storeService,
         IAclService aclService,

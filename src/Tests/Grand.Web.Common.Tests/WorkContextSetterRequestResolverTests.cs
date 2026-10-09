@@ -46,7 +46,7 @@ public class WorkContextSetterRequestResolverTests
     private TestableSetter CreateSetter(params IRequestCustomerResolver[] resolvers)
     {
         return new TestableSetter(_accessor.Object, _authentication.Object, Mock.Of<ICurrencyService>(),
-            _customerService.Object, _groupService.Object, Mock.Of<ILanguageService>(),
+            _customerService.Object, Mock.Of<ILanguageService>(),
             Mock.Of<IStoreService>(), Mock.Of<IAclService>(), Mock.Of<IVendorService>(),
             new TaxSettings(), new AppConfig(), resolvers);
     }
@@ -288,12 +288,12 @@ public class WorkContextSetterRequestResolverTests
 
     private class TestableSetter(
         IHttpContextAccessor httpContextAccessor, IGrandAuthenticationService authenticationService,
-        ICurrencyService currencyService, ICustomerService customerService, IGroupService groupService,
+        ICurrencyService currencyService, ICustomerService customerService,
         ILanguageService languageService, IStoreService storeService, IAclService aclService,
         IVendorService vendorService, TaxSettings taxSettings, AppConfig config,
         IEnumerable<IRequestCustomerResolver> resolvers)
         : WorkContextSetter(httpContextAccessor, authenticationService, currencyService, customerService,
-            groupService, languageService, storeService, aclService, vendorService, taxSettings, config, resolvers)
+            languageService, storeService, aclService, vendorService, taxSettings, config, resolvers)
     {
         public Customer OriginalCustomerForTest =>
             (Customer)typeof(WorkContextSetter)

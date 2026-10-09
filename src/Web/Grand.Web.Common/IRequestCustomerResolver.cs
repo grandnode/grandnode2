@@ -16,6 +16,7 @@ public interface IRequestCustomerResolver
 {
     /// <summary>
     ///     Position in the chain, ascending. Built-in steps use <see cref="RequestCustomerResolverOrder" />.
+    ///     Equal values run in registration order; pick a value no other resolver uses.
     /// </summary>
     int Order { get; }
 
