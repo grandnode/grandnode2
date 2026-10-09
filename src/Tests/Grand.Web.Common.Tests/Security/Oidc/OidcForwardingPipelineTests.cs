@@ -109,6 +109,14 @@ public class OidcForwardingPipelineTests
     }
 
     [TestMethod]
+    public async Task ThreeSegmentNonJwt_OnBearerEndpoint_401_OidcChallenge()
+    {
+        var response = await Get("/api/legacy", "x.y.z");
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "resource_metadata");
+    }
+
+    [TestMethod]
     public async Task ForgedIssuer_WrongKey_401()
     {
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/legacy", OidcTestHost.Token(key: OidcTestHost.ForeignKey))).StatusCode);

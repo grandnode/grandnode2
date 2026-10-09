@@ -56,6 +56,7 @@ public class OidcSchemeSelectorTests
 
     [TestMethod]
     [DataRow("Bearer not-a-jwt")]
+    [DataRow("Bearer x.y.z")]
     [DataRow("Bearer ")]
     [DataRow("Basic dXNlcjpwYXNz")]
     public void Unreadable_TreatedAsNoToken(string header) => Assert.AreEqual("Oidc", _selector.Select(Request("/api/x", header)));

@@ -83,7 +83,11 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         var token = authorization["Bearer ".Length..].Trim();
         try
         {
-            return token.Length > 0 && new JsonWebTokenHandler().CanReadToken(token) ? token : null;
+            //CanReadToken accepts any three segments ("x.y.z"); only a value that parses as a JWT counts as a token
+            if (token.Length == 0 || !new JsonWebTokenHandler().CanReadToken(token))
+                return null;
+            _ = new JsonWebToken(token);
+            return token;
         }
         catch (Exception)
         {
