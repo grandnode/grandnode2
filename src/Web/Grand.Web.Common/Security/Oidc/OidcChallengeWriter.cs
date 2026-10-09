@@ -1,7 +1,6 @@
 using Grand.Business.Core.Utilities.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -30,11 +29,8 @@ public static class OidcChallengeWriter
             Detail = failure?.Description
         };
 
-        var problemDetailsService = context.RequestServices.GetService<IProblemDetailsService>();
-        if (problemDetailsService != null &&
-            await problemDetailsService.TryWriteAsync(new ProblemDetailsContext { HttpContext = context, ProblemDetails = problem }))
-            return;
-
+        //written directly: IProblemDetailsService picks MVC's writer first on controller endpoints, and that writer
+        //writes nothing for controllers without [ApiController] while still reporting the body as written
         await context.Response.WriteAsJsonAsync(problem, (JsonSerializerOptions)null, "application/problem+json");
     }
 

@@ -82,8 +82,9 @@ public sealed class OidcTestHost : IAsyncDisposable
                 s.AddSingleton<IOidcProtectedResourceRegistry, OidcProtectedResourceRegistry>();
                 s.AddRouting();
                 s.AddAuthorization();
-                s.AddProblemDetails();
+                //before AddProblemDetails, as in the app: MVC is registered first, so its problem details writer comes first
                 services?.Invoke(s);
+                s.AddProblemDetails();
                 s.TryAddSingleton(StoreContextSetter("http://localhost/"));
                 var builder = s.AddAuthentication();
                 auth?.Invoke(builder);
