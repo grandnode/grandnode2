@@ -219,6 +219,8 @@ built-in cookie step in `WorkContextSetter.CurrentCustomer`, and impersonation h
 On a resource path a request is handled by the `Oidc` scheme when it carries no readable bearer JWT (so the 401 is the
 OIDC challenge), when the token's `iss` equals `Authority`, or when the token is signed with RS/PS/ES. Tokens signed
 with HS\* by another issuer (GrandNode's own `SecretKey` tokens) stay with the old scheme.
+A bearer value that does not parse as a JWT (for example three arbitrary dot-separated segments) counts as no
+token and gets the OIDC challenge.
 
 `Authority` must equal the `issuer` of the provider's discovery document. In container setups the application's
 `Authority` URL and the token `iss` must be the same string: use the public host name for both (for example
