@@ -13,11 +13,8 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.DependencyInjection;
-using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common;
 
@@ -32,7 +29,6 @@ public class WorkContextSetter : IWorkContextSetter
     private readonly IGrandAuthenticationService _authenticationService;
     private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
-    private readonly IGroupService _groupService;
     private readonly ILanguageService _languageService;
     private readonly IStoreService _storeService;
     private readonly IAclService _aclService;
@@ -40,6 +36,7 @@ public class WorkContextSetter : IWorkContextSetter
 
     private readonly TaxSettings _taxSettings;
     private readonly AppConfig _config;
+    private readonly IReadOnlyList<IRequestCustomerResolver> _requestCustomerResolvers;
 
     private Customer _originalCustomerIfImpersonated;
 
@@ -57,19 +54,20 @@ public class WorkContextSetter : IWorkContextSetter
         IAclService aclService,
         IVendorService vendorService,
         TaxSettings taxSettings,
-        AppConfig config)
+        AppConfig config,
+        IEnumerable<IRequestCustomerResolver> requestCustomerResolvers)
     {
         _httpContextAccessor = httpContextAccessor;
         _authenticationService = authenticationService;
         _currencyService = currencyService;
         _customerService = customerService;
-        _groupService = groupService;
         _languageService = languageService;
         _storeService = storeService;
         _aclService = aclService;
         _vendorService = vendorService;
         _taxSettings = taxSettings;
         _config = config;
+        _requestCustomerResolvers = requestCustomerResolvers.OrderBy(x => x.Order).ToList();
     }
 
     #endregion
@@ -171,28 +169,22 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = await GetBackgroundTaskCustomer();
         if (customer != null) return customer;
 
-        customer = await GetRequestResolvedCustomer(store);
-        if (customer != null) return customer;
+        foreach (var resolver in _requestCustomerResolvers)
+        {
+            customer = await resolver.Resolve(store);
+            if (customer == null) continue;
 
-        customer = await GetAllowAnonymousCustomer();
-        if (customer != null) return customer;
+            if (!resolver.SupportsImpersonation) return customer;
 
-        customer = await GetCookieAuthenticatedCustomer();
-        if (customer != null) return customer;
+            var impersonatedCustomer = await ImpersonatedCustomer(customer);
+            if (impersonatedCustomer == null) return customer;
 
-        customer = await GetGuestCustomer();
-        if (customer != null) return customer;
-
-        customer = await GetSearchEngineCustomer();
-        if (customer != null) return customer;
-
-        customer = await GetApiUserCustomer();
-        if (customer != null) return customer;
+            _originalCustomerIfImpersonated = customer;
+            return impersonatedCustomer;
+        }
 
         //create guest if not exists
-        customer = await CreateCustomerGuest(store);
-
-        return customer;
+        return await CreateCustomerGuest(store);
     }
 
     private async Task<Customer> GetBackgroundTaskCustomer()
@@ -200,70 +192,6 @@ public class WorkContextSetter : IWorkContextSetter
         if (_httpContextAccessor.HttpContext != null) return null;
 
         return await _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
-    }
-
-    private async Task<Customer> GetRequestResolvedCustomer(Store store)
-    {
-        var httpContext = _httpContextAccessor.HttpContext;
-        var resolvers = httpContext?.RequestServices?.GetServices<IRequestCustomerResolver>();
-        if (resolvers == null) return null;
-
-        foreach (var resolver in resolvers.OrderBy(x => x.Order))
-        {
-            var customer = await resolver.Resolve(httpContext, store);
-            if (customer != null) return customer;
-        }
-
-        return null;
-    }
-
-    private async Task<Customer> GetAllowAnonymousCustomer()
-    {
-        var endpoint = _httpContextAccessor.HttpContext?.GetEndpoint();
-        if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() == null) return null;
-
-        return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
-    }
-
-    private async Task<Customer> GetCookieAuthenticatedCustomer()
-    {
-        var customer = await _authenticationService.GetAuthenticatedCustomer();
-        if (customer == null) return null;
-
-        var impersonatedCustomer = await ImpersonatedCustomer(customer);
-        if (impersonatedCustomer != null)
-        {
-            _originalCustomerIfImpersonated = customer;
-            return impersonatedCustomer;
-        }
-        return customer;
-    }
-
-    private async Task<Customer> GetApiUserCustomer()
-    {
-        var apiAuthenticationService = _httpContextAccessor.HttpContext.RequestServices.GetService<IApiAuthenticationService>();
-        return await apiAuthenticationService.GetAuthenticatedCustomer();
-    }
-
-    private async Task<Customer> GetSearchEngineCustomer()
-    {
-        var detectionService = _httpContextAccessor.HttpContext.RequestServices.GetService<IDetectionService>();
-        var isCrawler = detectionService.Crawler?.IsCrawler;
-        if (!isCrawler.GetValueOrDefault()) return null;
-
-        return await _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
-    }
-
-    private async Task<Customer> GetGuestCustomer()
-    {
-        var guid = await _authenticationService.GetCustomerGuid();
-        if (string.IsNullOrEmpty(guid) || !Guid.TryParse(guid, out var customerGuid)) return null;
-
-        var customerByGuid = await _customerService.GetCustomerByGuid(customerGuid);
-        if (customerByGuid is { Deleted: false, Active: true } && !await _groupService.IsRegistered(customerByGuid))
-            return customerByGuid;
-
-        return null;
     }
 
     private async Task<Customer> CreateCustomerGuest(Store store)

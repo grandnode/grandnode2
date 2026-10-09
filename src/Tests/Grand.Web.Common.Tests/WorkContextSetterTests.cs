@@ -38,7 +38,8 @@ public class WorkContextSetterTests
             Mock.Of<IAclService>(),
             Mock.Of<IVendorService>(),
             new TaxSettings(),
-            new AppConfig());
+            new AppConfig(),
+            []);
     }
 
     [TestMethod]
@@ -104,9 +105,11 @@ public class WorkContextSetterTests
         IAclService aclService,
         IVendorService vendorService,
         TaxSettings taxSettings,
-        AppConfig config)
+        AppConfig config,
+        IEnumerable<IRequestCustomerResolver> requestCustomerResolvers)
         : WorkContextSetter(httpContextAccessor, authenticationService, currencyService, customerService,
-            groupService, languageService, storeService, aclService, vendorService, taxSettings, config)
+            groupService, languageService, storeService, aclService, vendorService, taxSettings, config,
+            requestCustomerResolvers)
     {
         public Task<Store> GetStoreManagerForTest(Customer customer) => GetStoreManager(customer);
     }
