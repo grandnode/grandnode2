@@ -18,11 +18,14 @@ public class ApiAuthenticationService : IApiAuthenticationService
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IAuthenticationSchemeProvider _schemeProvider;
 
     public ApiAuthenticationService(
         ICustomerService customerService,
-        IGroupService groupService, IHttpContextAccessor httpContextAccessor)
+        IGroupService groupService, IHttpContextAccessor httpContextAccessor,
+        IAuthenticationSchemeProvider schemeProvider)
     {
+        _schemeProvider = schemeProvider;
         _customerService = customerService;
         _groupService = groupService;
         _httpContextAccessor = httpContextAccessor;
@@ -39,9 +42,17 @@ public class ApiAuthenticationService : IApiAuthenticationService
 
         if (IsApiFrontAuthenticated())
         {
+            //the scheme exists only when the Web API module is enabled
+            if (await _schemeProvider.GetSchemeAsync(FrontendAPIConfig.AuthenticationScheme) == null)
+                return null;
+
             customer = await ApiCustomer();
             return customer;
         }
+
+        //the scheme exists only when the Web API module is enabled
+        if (await _schemeProvider.GetSchemeAsync(JwtBearerDefaults.AuthenticationScheme) == null)
+            return null;
 
         var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
         if (!authenticateResult.Succeeded)
