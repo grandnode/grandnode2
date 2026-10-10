@@ -8,6 +8,7 @@ using Grand.Mediator;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authentication.OpenIdConnect.Controllers;
@@ -39,6 +40,8 @@ public class OidcLoginController : BasePluginController
     #endregion
 
     #region Fields
+
+    private const string LinkSubjectKey = "Grand.OidcLogin.LinkSubject";
 
     private readonly IExternalRegistrationContext _externalRegistrationContext;
     private readonly IOidcCustomerResolver _oidcCustomerResolver;
@@ -97,13 +100,19 @@ public class OidcLoginController : BasePluginController
         if (pending == null)
             return RedirectToRoute("OidcLoginFailed");
 
+        //an existing session never connects an account: the password is always asked for again.
+        //Only the sign-in cookie is ended; IGrandAuthenticationService.SignOut would also drop the
+        //external cookie that holds the pending identity
+        if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
+            await HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme);
+
+        HttpContext.Session.SetString(LinkSubjectKey, pending.Subject);
+
         returnUrl = LocalOrNull(returnUrl);
         var completeUrl = Url.RouteUrl("OidcLoginLinkComplete", new { returnUrl });
         return View(new LinkModel {
             Email = pending.Email,
-            CompleteUrl = completeUrl,
-            LoginUrl = Url.RouteUrl("Login", new { returnUrl = completeUrl }),
-            SignedIn = await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)
+            LoginUrl = Url.RouteUrl("Login", new { returnUrl = completeUrl })
         });
     }
 
@@ -117,6 +126,18 @@ public class OidcLoginController : BasePluginController
         var pending = await _externalRegistrationContext.GetPending();
         if (pending == null)
             return RedirectToRoute("OidcLoginFailed");
+
+        //the marker proves the link page was shown for this identity before the password sign-in
+        var marker = HttpContext.Session.GetString(LinkSubjectKey);
+        HttpContext.Session.Remove(LinkSubjectKey);
+        if (marker == null || marker != pending.Subject)
+            return RedirectToRoute("OidcLoginLink", new { returnUrl });
+
+        if (pending.ProviderSystemName != OidcLoginDefaults.ProviderSystemName)
+        {
+            await _externalRegistrationContext.Clear();
+            return RedirectToRoute("OidcLoginFailed");
+        }
 
         //only the account the provider identity names may be connected to it
         if (!string.Equals(customer.Email?.Trim(), pending.Email.Trim(), StringComparison.OrdinalIgnoreCase))

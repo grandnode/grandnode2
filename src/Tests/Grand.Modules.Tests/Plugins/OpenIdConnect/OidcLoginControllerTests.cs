@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -33,6 +34,24 @@ public class OidcLoginControllerTests
     private Mock<IGroupService> _groups;
     private Customer _current;
     private OidcLoginController _controller;
+    private Mock<IAuthenticationService> _httpAuth;
+    private readonly List<UrlRouteContext> _routes = [];
+
+    private const string MarkerKey = "Grand.OidcLogin.LinkSubject";
+
+    private sealed class TestSession : ISession
+    {
+        private readonly Dictionary<string, byte[]> _data = new();
+        public bool IsAvailable => true;
+        public string Id => "s";
+        public IEnumerable<string> Keys => _data.Keys;
+        public void Clear() => _data.Clear();
+        public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public void Remove(string key) => _data.Remove(key);
+        public void Set(string key, byte[] value) => _data[key] = value;
+        public bool TryGetValue(string key, out byte[] value) => _data.TryGetValue(key, out value);
+    }
 
     [TestInitialize]
     public void Init()
@@ -56,14 +75,24 @@ public class OidcLoginControllerTests
         ctx.Setup(x => x.WorkContext).Returns(work.Object);
         ctx.Setup(x => x.StoreContext).Returns(store.Object);
 
+        _httpAuth = new Mock<IAuthenticationService>();
+        var http = new DefaultHttpContext {
+            Session = new TestSession(),
+            RequestServices = new ServiceCollection().AddSingleton(_httpAuth.Object).BuildServiceProvider()
+        };
         _controller = new OidcLoginController(_external.Object, _resolver.Object, _auth.Object, _mediator.Object,
             _externalAuth.Object, _schemes.Object, _groups.Object, ctx.Object) {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            ControllerContext = new ControllerContext { HttpContext = http }
         };
         var url = new Mock<IUrlHelper>();
         url.Setup(x => x.IsLocalUrl(It.IsAny<string>())).Returns<string>(u => !string.IsNullOrEmpty(u) && u.StartsWith('/') && !u.StartsWith("//"));
-        url.Setup(x => x.RouteUrl(It.IsAny<UrlRouteContext>())).Returns<UrlRouteContext>(c => "/" + c.RouteName);
+        url.Setup(x => x.RouteUrl(It.IsAny<UrlRouteContext>())).Returns<UrlRouteContext>(c => {
+            _routes.Add(c);
+            return "/" + c.RouteName + (c.Values == null ? "" : "?" + string.Join("&", c.Values.GetType().GetProperties()
+                .Select(p => p.Name + "=" + p.GetValue(c.Values))));
+        });
         _controller.Url = url.Object;
+        _controller.TempData = new Mock<Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataDictionary>().Object;
     }
 
     [TestMethod]
@@ -72,6 +101,7 @@ public class OidcLoginControllerTests
         var result = (ChallengeResult)await _controller.Login("https://evil.example/");
         Assert.AreEqual(OidcLoginDefaults.AuthenticationScheme, result.AuthenticationSchemes.Single());
         Assert.IsFalse(result.Properties!.RedirectUri!.Contains("evil"));
+        Assert.AreEqual("/OidcLoginCallback?returnUrl=", result.Properties.RedirectUri);
     }
 
     [TestMethod]
@@ -151,6 +181,7 @@ public class OidcLoginControllerTests
     public async Task LinkComplete_EmailMatches_Links()
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        Marker("sub-1");
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
         Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
@@ -161,6 +192,7 @@ public class OidcLoginControllerTests
     {
         _current = new Customer { Id = "c2", Email = "someone@else.com" };
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        Marker("sub-1");
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         var result = (RedirectToRouteResult)await _controller.LinkComplete("/");
         Assert.AreEqual("OidcLoginFailed", result.RouteName);
@@ -172,8 +204,87 @@ public class OidcLoginControllerTests
     public async Task LinkComplete_SubjectTaken_Failed()
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        Marker("sub-1");
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.SubjectLinkedToOtherCustomer);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
+    }
+
+    private void Marker(string subject) => _controller.HttpContext.Session.SetString(MarkerKey, subject);
+
+    [TestMethod]
+    public async Task Callback_SignIn_ExternalReturnUrl_GoesHome()
+    {
+        var customer = new Customer { Id = "c9" };
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(customer));
+        Assert.AreEqual("HomePage", ((RedirectToRouteResult)await _controller.Callback("https://evil.example/")).RouteName);
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_ExternalReturnUrl_GoesHome()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        Marker("sub-1");
+        Assert.AreEqual("HomePage", ((RedirectToRouteResult)await _controller.LinkComplete("https://evil.example/")).RouteName);
+    }
+
+    [TestMethod]
+    public async Task Link_RegisteredCustomer_SignedOutAndMarkerSet()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        var result = await _controller.Link("/");
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _httpAuth.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme,
+            It.IsAny<AuthenticationProperties>()), Times.Once);
+        _httpAuth.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme,
+            It.IsAny<AuthenticationProperties>()), Times.Never);
+        _auth.Verify(x => x.SignOut(), Times.Never);
+        Assert.AreEqual("sub-1", _controller.HttpContext.Session.GetString(MarkerKey));
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_NoMarker_BackToLink_NothingLinked()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_OtherSubjectMarker_BackToLink_NothingLinked()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        Marker("sub-other");
+        Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_Success_RemovesMarker()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        Marker("sub-1");
+        await _controller.LinkComplete("/");
+        Assert.IsNull(_controller.HttpContext.Session.GetString(MarkerKey));
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_OtherProviderPending_ClearsAndFails()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { ProviderSystemName = "Other" });
+        Marker("sub-1");
+        Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Clear(), Times.Once);
     }
 }
