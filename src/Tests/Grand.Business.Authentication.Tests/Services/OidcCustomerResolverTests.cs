@@ -67,7 +67,7 @@ public class OidcCustomerResolverTests
         return new ClaimsPrincipal(new ClaimsIdentity(claims, "Oidc"));
     }
 
-    private Task Link(string customerId, string sub = "sub-1", string provider = "Oidc") =>
+    private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName) =>
         _links.InsertAsync(new ExternalAuthentication { CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub });
 
     [TestMethod]
@@ -158,6 +158,9 @@ public class OidcCustomerResolverTests
     }
 
     [TestMethod]
+    public void AutoRegister_DefaultsToFalse() => Assert.IsFalse(new OidcResourceServerConfig().AutoRegister);
+
+    [TestMethod]
     public async Task ExistingCustomer_NotPerStore_GlobalLookup_Linked()
     {
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
@@ -166,7 +169,7 @@ public class OidcCustomerResolverTests
 
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
         Assert.AreEqual("c1", link.CustomerId);
-        Assert.AreEqual("Oidc", link.ProviderSystemName);
+        Assert.AreEqual("ExternalAuth.OpenIdConnect", link.ProviderSystemName);
         Assert.AreEqual("john@example.com", link.Email);
     }
 

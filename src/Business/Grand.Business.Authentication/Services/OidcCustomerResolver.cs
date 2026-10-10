@@ -25,7 +25,7 @@ namespace Grand.Business.Authentication.Services;
 /// </summary>
 public class OidcCustomerResolver : IOidcCustomerResolver
 {
-    public const string ProviderSystemName = "Oidc";
+    public const string ProviderSystemName = "ExternalAuth.OpenIdConnect";
 
     private readonly IRepository<ExternalAuthentication> _externalAuthenticationRepository;
     private readonly ICustomerService _customerService;

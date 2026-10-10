@@ -25,9 +25,10 @@ public class OidcResourceServerConfig
     public bool RequireEmailVerified { get; set; } = true;
 
     /// <summary>
-    ///     Register an unknown user (customer group Registered only)
+    ///     Register an unknown user on first use (customer group Registered only). Off by default: an account should exist,
+    ///     or be created through the store's registration, before a token can use it
     /// </summary>
-    public bool AutoRegister { get; set; } = true;
+    public bool AutoRegister { get; set; }
 
     public List<OidcProtectedResource> Resources { get; set; } = [];
 }
