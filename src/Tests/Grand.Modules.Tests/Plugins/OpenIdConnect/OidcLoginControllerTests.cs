@@ -14,8 +14,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
 
@@ -35,6 +38,8 @@ public class OidcLoginControllerTests
     private Customer _current;
     private OidcLoginController _controller;
     private Mock<IAuthenticationService> _httpAuth;
+    private Mock<ILogger<OidcLoginController>> _logger;
+    private DateTimeOffset? _ticketIssued;
     private readonly List<UrlRouteContext> _routes = [];
 
     private const string MarkerKey = "Grand.OidcLogin.LinkSubject";
@@ -76,12 +81,17 @@ public class OidcLoginControllerTests
         ctx.Setup(x => x.StoreContext).Returns(store.Object);
 
         _httpAuth = new Mock<IAuthenticationService>();
+        _ticketIssued = DateTimeOffset.UtcNow;
+        _httpAuth.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity("test")),
+                new AuthenticationProperties { IssuedUtc = _ticketIssued }, GrandCookieAuthenticationDefaults.AuthenticationScheme)));
+        _logger = new Mock<ILogger<OidcLoginController>>();
         var http = new DefaultHttpContext {
             Session = new TestSession(),
             RequestServices = new ServiceCollection().AddSingleton(_httpAuth.Object).BuildServiceProvider()
         };
         _controller = new OidcLoginController(_external.Object, _resolver.Object, _auth.Object, _mediator.Object,
-            _externalAuth.Object, _schemes.Object, _groups.Object, ctx.Object) {
+            _externalAuth.Object, _schemes.Object, _groups.Object, ctx.Object, _logger.Object) {
             ControllerContext = new ControllerContext { HttpContext = http }
         };
         var url = new Mock<IUrlHelper>();
@@ -109,6 +119,10 @@ public class OidcLoginControllerTests
     {
         _schemes.Setup(x => x.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme)).ReturnsAsync((AuthenticationScheme)null);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Login("/")).RouteName);
+        _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(
+                "OpenID Connect login is installed but OidcResourceServer:Authority or OidcLogin:ClientId is empty")),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -210,7 +224,46 @@ public class OidcLoginControllerTests
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
     }
 
-    private void Marker(string subject) => _controller.HttpContext.Session.SetString(MarkerKey, subject);
+    //the link page was shown a minute ago unless a test says otherwise
+    private void Marker(string subject, DateTimeOffset? shown = null) =>
+        _controller.HttpContext.Session.SetString(MarkerKey,
+            (shown ?? DateTimeOffset.UtcNow.AddMinutes(-1)).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture) + ":" + subject);
+
+    [TestMethod]
+    public async Task LinkComplete_TicketIssuedBeforeLink_BackToLink_NothingLinked()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        Marker("sub-1", DateTimeOffset.UtcNow);
+        _ticketIssued = DateTimeOffset.UtcNow.AddMinutes(-5);
+        Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_TicketWithoutIssueTime_BackToLink_NothingLinked()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        Marker("sub-1");
+        _ticketIssued = null;
+        Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_TicketIssuedAfterLink_Links()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        Marker("sub-1", DateTimeOffset.UtcNow.AddMinutes(-2));
+        _ticketIssued = DateTimeOffset.UtcNow.AddMinutes(-1);
+        Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
+        _external.Verify(x => x.Complete(_current), Times.Once);
+    }
 
     [TestMethod]
     public async Task Callback_SignIn_ExternalReturnUrl_GoesHome()
@@ -244,7 +297,9 @@ public class OidcLoginControllerTests
         _httpAuth.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme,
             It.IsAny<AuthenticationProperties>()), Times.Never);
         _auth.Verify(x => x.SignOut(), Times.Never);
-        Assert.AreEqual("sub-1", _controller.HttpContext.Session.GetString(MarkerKey));
+        var marker = _controller.HttpContext.Session.GetString(MarkerKey)!.Split(':', 2);
+        Assert.AreEqual("sub-1", marker[1]);
+        Assert.IsTrue(Math.Abs(long.Parse(marker[0], CultureInfo.InvariantCulture) - DateTimeOffset.UtcNow.ToUnixTimeSeconds()) <= 5);
     }
 
     [TestMethod]

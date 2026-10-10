@@ -10,6 +10,8 @@ using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Authentication.OpenIdConnect.Controllers;
 
@@ -25,7 +27,8 @@ public class OidcLoginController : BasePluginController
         IExternalAuthenticationService externalAuthenticationService,
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IGroupService groupService,
-        IContextAccessor contextAccessor)
+        IContextAccessor contextAccessor,
+        ILogger<OidcLoginController> logger)
     {
         _externalRegistrationContext = externalRegistrationContext;
         _oidcCustomerResolver = oidcCustomerResolver;
@@ -35,6 +38,7 @@ public class OidcLoginController : BasePluginController
         _authenticationSchemeProvider = authenticationSchemeProvider;
         _groupService = groupService;
         _contextAccessor = contextAccessor;
+        _logger = logger;
     }
 
     #endregion
@@ -51,6 +55,7 @@ public class OidcLoginController : BasePluginController
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
     private readonly IGroupService _groupService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly ILogger<OidcLoginController> _logger;
 
     #endregion
 
@@ -58,9 +63,15 @@ public class OidcLoginController : BasePluginController
 
     public async Task<IActionResult> Login(string returnUrl)
     {
-        if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName) ||
-            await _authenticationSchemeProvider.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
+        if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName))
             return RedirectToRoute("OidcLoginFailed");
+
+        //the scheme is registered only when both the provider and the client are configured
+        if (await _authenticationSchemeProvider.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
+        {
+            _logger.LogWarning("OpenID Connect login is installed but OidcResourceServer:Authority or OidcLogin:ClientId is empty");
+            return RedirectToRoute("OidcLoginFailed");
+        }
 
         var properties = new AuthenticationProperties {
             RedirectUri = Url.RouteUrl("OidcLoginCallback", new { returnUrl = LocalOrNull(returnUrl) })
@@ -106,7 +117,9 @@ public class OidcLoginController : BasePluginController
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
             await HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme);
 
-        HttpContext.Session.SetString(LinkSubjectKey, pending.Subject);
+        //when the link page was shown, in whole seconds like the sign-in ticket's issue time once stored in the cookie
+        HttpContext.Session.SetString(LinkSubjectKey,
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture) + ":" + pending.Subject);
 
         returnUrl = LocalOrNull(returnUrl);
         var completeUrl = Url.RouteUrl("OidcLoginLinkComplete", new { returnUrl });
@@ -127,10 +140,12 @@ public class OidcLoginController : BasePluginController
         if (pending == null)
             return RedirectToRoute("OidcLoginFailed");
 
-        //the marker proves the link page was shown for this identity before the password sign-in
+        //the marker proves the link page was shown for this identity, and the sign-in ticket that the
+        //password sign-in issued after it
         var marker = HttpContext.Session.GetString(LinkSubjectKey);
         HttpContext.Session.Remove(LinkSubjectKey);
-        if (marker == null || marker != pending.Subject)
+        if (!TryReadMarker(marker, out var shown, out var subject) || subject != pending.Subject ||
+            !await SignedInAfter(shown))
             return RedirectToRoute("OidcLoginLink", new { returnUrl });
 
         if (pending.ProviderSystemName != OidcLoginDefaults.ProviderSystemName)
@@ -157,6 +172,26 @@ public class OidcLoginController : BasePluginController
     #endregion
 
     #region Utilities
+
+    private static bool TryReadMarker(string marker, out long shown, out string subject)
+    {
+        shown = 0;
+        subject = null;
+        var separator = marker?.IndexOf(':') ?? -1;
+        if (separator <= 0 ||
+            !long.TryParse(marker.AsSpan(0, separator), NumberStyles.None, CultureInfo.InvariantCulture, out shown))
+            return false;
+        subject = marker[(separator + 1)..];
+        return true;
+    }
+
+    //the main sign-in ticket must be issued after the link page was shown; no issue time means not fresh
+    private async Task<bool> SignedInAfter(long shown)
+    {
+        var result = await HttpContext.AuthenticateAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme);
+        var issued = result.Succeeded ? result.Properties?.IssuedUtc : null;
+        return issued.HasValue && issued.Value.ToUnixTimeSeconds() > shown;
+    }
 
     private string LocalOrNull(string returnUrl) =>
         !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : null;
