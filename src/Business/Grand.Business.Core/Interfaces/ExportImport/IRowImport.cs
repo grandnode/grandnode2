@@ -20,6 +20,15 @@ public sealed record ImportRowResult(int Row, ImportRowStatus Status, string Id,
     {
         return new ImportRowResult(row, ImportRowStatus.Rejected, id ?? "", key, [NotProcessedError], []);
     }
+
+    public const string FailedError =
+        "The row failed while it was being saved and may be partly written; the error is in the log. Send the row again.";
+
+    /// <summary>A row that threw; the batch went on with the next row</summary>
+    public static ImportRowResult Failed(int row, string id, string key)
+    {
+        return new ImportRowResult(row, ImportRowStatus.Rejected, id ?? "", key, [FailedError], []);
+    }
 }
 
 public sealed record ImportBatchResult(bool DryRun, IReadOnlyList<ImportRowResult> Rows)
@@ -31,7 +40,9 @@ public sealed record ImportBatchResult(bool DryRun, IReadOnlyList<ImportRowResul
 
 /// <summary>
 ///     Row-level import with validation and dry run; the panel's Execute runs it with dryRun = false. A cancelled
-///     token does not throw: the rows not reached yet come back rejected with <see cref="ImportRowResult.NotProcessedError" />
+///     token does not throw: the rows not reached yet come back rejected with <see cref="ImportRowResult.NotProcessedError" />.
+///     Neither does a row that fails while saving: it comes back rejected with <see cref="ImportRowResult.FailedError" />
+///     and the batch goes on
 /// </summary>
 public interface IRowImport<in TDto>
 {

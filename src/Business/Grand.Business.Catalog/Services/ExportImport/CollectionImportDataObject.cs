@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Dto;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.ExportImport;
@@ -22,7 +22,6 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
     private readonly ISeNameService _seNameService;
     private readonly SecurityConfig _securityConfig;
     private readonly ImportHtmlGuard _htmlGuard;
-    private readonly SeoSettings _seoSettings;
     private readonly ILogger<CollectionImportDataObject> _logger;
     public CollectionImportDataObject(
         ICollectionService collectionService,
@@ -32,7 +31,6 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         ISeNameService seNameService,
         SecurityConfig securityConfig,
         ImportHtmlGuard htmlGuard,
-        SeoSettings seoSettings,
         ILogger<CollectionImportDataObject> logger)
     {
         _collectionService = collectionService;
@@ -43,7 +41,6 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         _seNameService = seNameService;
         _securityConfig = securityConfig;
         _htmlGuard = htmlGuard;
-        _seoSettings = seoSettings;
         _logger = logger;
     }
 
@@ -60,32 +57,12 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         return Import(rows, dryRun, ImportMode.Row, cancellationToken);
     }
 
-    /// <summary>
-    ///     Row: unknown Id rejected, SeName matching. Panel (XLSX): unknown Id creates the entity with that Id, no SeName matching.
-    /// </summary>
-    private enum ImportMode
-    {
-        Row,
-        Panel
-    }
-
-    private async Task<ImportBatchResult> Import(IReadOnlyList<CollectionDto> rows, bool dryRun, ImportMode mode,
+    /// <summary>Row: unknown Id rejected, SeName/Name matching. Panel (XLSX): unknown Id creates the entity with that Id, no matching.</summary>
+    private Task<ImportBatchResult> Import(IReadOnlyList<CollectionDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
-        var results = new List<ImportRowResult>(rows.Count);
-        for (var i = 0; i < rows.Count; i++)
-        {
-            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
-            if (cancellationToken.IsCancellationRequested)
-            {
-                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].Id, Key(rows[i])));
-                continue;
-            }
-
-            results.Add(await ImportRow(i + 1, rows[i], dryRun, mode));
-        }
-
-        return new ImportBatchResult(dryRun, results);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, mode),
+            mode == ImportMode.Row, _logger, cancellationToken);
     }
 
     private async Task<ImportRowResult> ImportRow(int row, CollectionDto dto, bool dryRun, ImportMode mode)
@@ -94,7 +71,9 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         var warnings = new List<string>();
         var key = Key(dto);
 
-        var (existing, matchedByName) = await FindCollection(dto, mode);
+        var (existing, matchedByName, matchError) = await FindCollection(dto, mode);
+        if (matchError != null)
+            errors.Add(matchError);
         if (matchedByName)
             warnings.Add(ImportRows.MatchedByNameWarning(existing.Name));
         if (!string.IsNullOrEmpty(dto.Id) && existing == null && mode == ImportMode.Row)
@@ -144,35 +123,28 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
     }
 
     /// <summary>
-    ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by the slug
-    ///     its Name would get - accepted only when the stored name is the same (any case)
+    ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by its stored
+    ///     name (any case) - more than one collection of that name is an error
     /// </summary>
-    private async Task<(Collection collection, bool matchedByName)> FindCollection(CollectionDto dto, ImportMode mode)
+    private async Task<(Collection collection, bool matchedByName, string error)> FindCollection(CollectionDto dto,
+        ImportMode mode)
     {
         if (!string.IsNullOrEmpty(dto.Id))
-            return (await _collectionService.GetCollectionById(dto.Id), false);
+            return (await _collectionService.GetCollectionById(dto.Id), false, null);
 
         if (mode == ImportMode.Panel)
-            return (null, false);
+            return (null, false, null);
 
         if (!string.IsNullOrEmpty(dto.SeName))
-            return (await FindCollectionBySlug(dto.SeName), false);
+            return (await ImportRows.FindBySlug(_slugService, dto.SeName, EntityTypes.Collection,
+                _collectionService.GetCollectionById), false, null);
 
         if (string.IsNullOrEmpty(dto.Name))
-            return (null, false);
+            return (null, false, null);
 
-        var found = await FindCollectionBySlug(ImportRows.NameSlug(dto.Name, _seoSettings));
-        var matches = found != null && string.Equals(found.Name, dto.Name, StringComparison.OrdinalIgnoreCase);
-        return matches ? (found, true) : (null, false);
-    }
-
-    private async Task<Collection> FindCollectionBySlug(string slug)
-    {
-        var url = await _slugService.GetBySlug(slug);
-        if (url is not { EntityName: EntityTypes.Collection } || string.IsNullOrEmpty(url.EntityId))
-            return null;
-
-        return await _collectionService.GetCollectionById(url.EntityId);
+        var candidates = await _collectionService.GetAllCollections(dto.Name, "", showHidden: true);
+        var (found, error) = ImportRows.SingleByName(candidates, c => c.Name, dto.Name, "collection");
+        return (found, found != null, error);
     }
 
     private async Task UpdateCollectionData(CollectionDto collectionDto, Collection collection)

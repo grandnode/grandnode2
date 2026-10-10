@@ -697,7 +697,97 @@ public class ProductImportDataObjectTests
         Assert.IsTrue(product.IsShipEnabled);
         Assert.IsTrue(product.AllowCustomerReviews);
         Assert.AreEqual("tax-default", product.TaxCategoryId);
+        Assert.AreEqual(1000, product.MaxEnteredPrice);
+        Assert.IsTrue(product.UnlimitedDownloads);
+        Assert.AreEqual(10, product.MaxNumberOfDownloads);
+        Assert.AreEqual(100, product.RecurringCycleLength);
+        Assert.AreEqual(10, product.RecurringTotalCycles);
         Assert.IsFalse(product.Published);
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task Import_UpdateByIdToAnotherProductsSku_IsRejected(bool dryRun)
+    {
+        SetupLookups();
+        var first = new Product { Name = "first", Sku = "A1" };
+        var second = new Product { Name = "second", Sku = "B1" };
+        await _productService.InsertProduct(first);
+        await _productService.InsertProduct(second);
+
+        var result = await _productImportDataObject.Import(new List<ProductDto> {
+            new() { Id = second.Id, Sku = "A1" }
+        }, dryRun);
+
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.Contains("Sku 'A1' is already used by product 'first'.", result.Rows[0].Errors);
+        Assert.AreEqual("B1", (await _repository.GetByIdAsync(second.Id)).Sku);
+    }
+
+    [TestMethod]
+    public async Task Import_UpdateByIdKeepingOwnSku_IsUpdated()
+    {
+        SetupLookups();
+        var product = new Product { Name = "first", Sku = "A1" };
+        await _productService.InsertProduct(product);
+
+        var result = await _productImportDataObject.Import(new List<ProductDto> {
+            new() { Id = product.Id, Sku = "A1", Name = "renamed" }
+        }, false);
+
+        Assert.AreEqual(ImportRowStatus.Updated, result.Rows[0].Status);
+    }
+
+    [TestMethod]
+    public async Task Import_RowThatThrows_IsRejectedAndLaterRowsAreSaved()
+    {
+        SetupLookups();
+        _categoryServiceMock.Setup(c => c.GetCategoryById("cat")).ReturnsAsync(new Category { Id = "cat" });
+        _productCategoryServiceMock
+            .Setup(c => c.InsertProductCategory(It.IsAny<ProductCategory>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        var result = await _productImportDataObject.Import(new List<ProductDto> {
+            new() { Name = "broken", Sku = "X1", CategoryIds = "cat" },
+            new() { Name = "fine", Sku = "X2" }
+        }, false);
+
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.Contains(ImportRowResult.FailedError, result.Rows[0].Errors);
+        Assert.AreEqual(ImportRowStatus.Created, result.Rows[1].Status);
+        Assert.AreEqual(2, _repository.Table.Count());
+    }
+
+    [TestMethod]
+    public async Task Execute_RowThatThrows_StillThrows()
+    {
+        SetupLookups();
+        _categoryServiceMock.Setup(c => c.GetCategoryById("cat")).ReturnsAsync(new Category { Id = "cat" });
+        _productCategoryServiceMock
+            .Setup(c => c.InsertProductCategory(It.IsAny<ProductCategory>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            _productImportDataObject.Execute(new List<ProductDto> { new() { Name = "broken", CategoryIds = "cat" } }));
+    }
+
+    [TestMethod]
+    public async Task Import_ReferencesAreReadOncePerRow()
+    {
+        SetupLookups();
+        _categoryServiceMock.Setup(c => c.GetCategoryById("cat")).ReturnsAsync(new Category { Id = "cat" });
+        _brandServiceMock.Setup(c => c.GetBrandById("brand")).ReturnsAsync(new Brand { Id = "brand" });
+
+        await _productImportDataObject.Import(new List<ProductDto> {
+            new() { Name = "p", CategoryIds = "cat", BrandId = "brand" }
+        }, false);
+
+        _categoryServiceMock.Verify(c => c.GetCategoryById("cat"), Times.Once);
+        _brandServiceMock.Verify(c => c.GetBrandById("brand"), Times.Once);
+        _productCategoryServiceMock.Verify(
+            c => c.InsertProductCategory(It.Is<ProductCategory>(pc => pc.CategoryId == "cat"), It.IsAny<string>()),
+            Times.Once);
     }
 
     [TestMethod]

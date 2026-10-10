@@ -73,7 +73,7 @@ public class CategoryImportDataObjectTests
         _categoryImportDataObject = new CategoryImportDataObject(_categoryService, _pictureServiceMock.Object,
             _categoryLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
             _securityConfig, new ImportHtmlGuard(new HtmlSanitizationService(_securityConfig), _securityConfig),
-            new SeoSettings(), (_loggerMock = new Mock<ILogger<CategoryImportDataObject>>()).Object);
+            (_loggerMock = new Mock<ILogger<CategoryImportDataObject>>()).Object);
     }
 
     [TestMethod]
@@ -468,6 +468,26 @@ public class CategoryImportDataObjectTests
         Assert.Contains("Matched existing 'Running Shoes' by name.", result.Rows[0].Warnings);
         Assert.AreEqual(1, _repository.Table.Count());
         Assert.AreEqual(dryRun ? 0 : 7, _repository.Table.Single().DisplayOrder);
+    }
+
+    [TestMethod]
+    public async Task Import_NameOnlyMatchingCategoriesUnderTwoParents_IsRejected()
+    {
+        SetupLayouts();
+        var men = new Category { Name = "Men" };
+        await _categoryService.InsertCategory(men);
+        var women = new Category { Name = "Women" };
+        await _categoryService.InsertCategory(women);
+        await _categoryService.InsertCategory(new Category { Name = "Shoes", ParentCategoryId = men.Id });
+        await _categoryService.InsertCategory(new Category { Name = "Shoes", ParentCategoryId = women.Id });
+
+        var ambiguous = await _categoryImportDataObject.Import(new List<CategoryDto> { new() { Name = "Shoes" } }, true);
+        var underWomen = await _categoryImportDataObject.Import(
+            new List<CategoryDto> { new() { Name = "Shoes", ParentCategoryId = women.Id } }, true);
+
+        Assert.AreEqual(ImportRowStatus.Rejected, ambiguous.Rows[0].Status);
+        Assert.Contains("Name 'Shoes' matches more than one category; send Id or SeName.", ambiguous.Rows[0].Errors);
+        Assert.AreEqual(ImportRowStatus.Updated, underWomen.Rows[0].Status);
     }
 
     [TestMethod]

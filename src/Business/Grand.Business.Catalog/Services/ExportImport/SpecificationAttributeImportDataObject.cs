@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
 
@@ -11,34 +12,24 @@ namespace Grand.Business.Catalog.Services.ExportImport;
 public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAttributeDto>
 {
     private readonly ImportHtmlGuard _htmlGuard;
+    private readonly ILogger<SpecificationAttributeImportDataObject> _logger;
     private readonly SeoSettings _seoSettings;
     private readonly ISpecificationAttributeService _specificationAttributeService;
 
     public SpecificationAttributeImportDataObject(ISpecificationAttributeService specificationAttributeService,
-        SeoSettings seoSettings, ImportHtmlGuard htmlGuard)
+        SeoSettings seoSettings, ImportHtmlGuard htmlGuard, ILogger<SpecificationAttributeImportDataObject> logger)
     {
+        _logger = logger;
         _specificationAttributeService = specificationAttributeService;
         _seoSettings = seoSettings;
         _htmlGuard = htmlGuard;
     }
 
-    public async Task<ImportBatchResult> Import(IReadOnlyList<SpecificationAttributeDto> rows, bool dryRun,
+    public Task<ImportBatchResult> Import(IReadOnlyList<SpecificationAttributeDto> rows, bool dryRun,
         CancellationToken cancellationToken = default)
     {
-        var results = new List<ImportRowResult>(rows.Count);
-        for (var i = 0; i < rows.Count; i++)
-        {
-            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
-            if (cancellationToken.IsCancellationRequested)
-            {
-                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].Id, Key(rows[i])));
-                continue;
-            }
-
-            results.Add(await ImportRow(i + 1, rows[i], dryRun));
-        }
-
-        return new ImportBatchResult(dryRun, results);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun), true,
+            _logger, cancellationToken);
     }
 
     private async Task<ImportRowResult> ImportRow(int row, SpecificationAttributeDto dto, bool dryRun)
@@ -70,6 +61,13 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
                 ("Option ColorSquaresRgb", option.ColorSquaresRgb)));
         }
 
+        //the storefront's specification filters find an attribute by SeName, so it has to stay unique
+        var seName = existing == null || !string.IsNullOrEmpty(dto.SeName)
+            ? GetSeName(string.IsNullOrEmpty(dto.SeName) ? dto.Name : dto.SeName)
+            : null;
+        if (!string.IsNullOrEmpty(seName) && await FindBySeName(seName) is { } owner && owner.Id != existing?.Id)
+            errors.Add($"SeName '{seName}' is already used by '{owner.Name}'.");
+
         if (errors.Count > 0)
             return new ImportRowResult(row, ImportRowStatus.Rejected, existing?.Id ?? "", key, errors, warnings);
 
@@ -81,8 +79,7 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
         var attribute = existing ?? new SpecificationAttribute { Name = dto.Name };
         if (!string.IsNullOrEmpty(dto.Name)) attribute.Name = dto.Name;
         if (dto.DisplayOrder.HasValue) attribute.DisplayOrder = dto.DisplayOrder.Value;
-        if (isNew || !string.IsNullOrEmpty(dto.SeName))
-            attribute.SeName = GetSeName(string.IsNullOrEmpty(dto.SeName) ? attribute.Name : dto.SeName);
+        if (seName != null) attribute.SeName = seName;
 
         //a repeated name in the same row matches the option just added, so it collapses into it
         foreach (var optionDto in dto.Options ?? [])

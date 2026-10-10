@@ -73,7 +73,7 @@ public class CollectionImportDataObjectTests
         _collectionImportDataObject = new CollectionImportDataObject(_collectionService, _pictureServiceMock.Object,
             _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
             _securityConfig, new ImportHtmlGuard(new HtmlSanitizationService(_securityConfig), _securityConfig),
-            new SeoSettings(), (_loggerMock = new Mock<ILogger<CollectionImportDataObject>>()).Object);
+            (_loggerMock = new Mock<ILogger<CollectionImportDataObject>>()).Object);
     }
 
     [TestMethod]

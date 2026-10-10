@@ -103,40 +103,26 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         return Import(rows, dryRun, ImportMode.Row, cancellationToken);
     }
 
-    /// <summary>
-    ///     Row: unknown Id rejected, Sku matching only when no Id is given. Panel (XLSX): by Id, then by Sku; an unknown Id
-    ///     creates the product with that Id.
-    /// </summary>
-    private enum ImportMode
-    {
-        Row,
-        Panel
-    }
-
     private sealed class PictureBudget
     {
         public int Downloads;
     }
 
-    private async Task<ImportBatchResult> Import(IReadOnlyList<ProductDto> rows, bool dryRun, ImportMode mode,
+    /// <summary>The brand, categories and collections of the row that exist, read once per row</summary>
+    private sealed record References(bool BrandMissing, List<string> CategoryIds, List<string> CollectionIds);
+
+    /// <summary>
+    ///     Row: unknown Id rejected, Sku matching only when no Id is given. Panel (XLSX): by Id, then by Sku; an unknown Id
+    ///     creates the product with that Id.
+    /// </summary>
+    private Task<ImportBatchResult> Import(IReadOnlyList<ProductDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
-        var results = new List<ImportRowResult>(rows.Count);
         //the cap protects the row API; the panel's spreadsheet import downloads every picture
         var budget = mode == ImportMode.Row ? new PictureBudget() : null;
-        for (var i = 0; i < rows.Count; i++)
-        {
-            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
-            if (cancellationToken.IsCancellationRequested)
-            {
-                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].Id, Key(rows[i])));
-                continue;
-            }
-
-            results.Add(await ImportRow(i + 1, rows[i], dryRun, mode, budget));
-        }
-
-        return new ImportBatchResult(dryRun, results);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
+            (row, dto) => ImportRow(row, dto, dryRun, mode, budget), mode == ImportMode.Row, _logger,
+            cancellationToken);
     }
 
     private async Task<ImportRowResult> ImportRow(int row, ProductDto dto, bool dryRun, ImportMode mode,
@@ -165,7 +151,12 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             (nameof(dto.MetaKeywords), dto.MetaKeywords), (nameof(dto.MetaDescription), dto.MetaDescription),
             (nameof(dto.MetaTitle), dto.MetaTitle), (nameof(dto.Sku), dto.Sku)));
 
-        await AddReferenceWarnings(dto, warnings);
+        //Sku is what a row without Id is matched on, so the row API keeps it unique
+        if (mode == ImportMode.Row && existing != null && !string.IsNullOrEmpty(dto.Sku) &&
+            await _productService.GetProductBySku(dto.Sku) is { } skuOwner && skuOwner.Id != existing.Id)
+            errors.Add($"Sku '{dto.Sku}' is already used by product '{skuOwner.Name}'.");
+
+        var references = await ResolveReferences(dto, warnings);
         //the Sku is what a later call matches on; without one the row cannot be found again
         if (mode == ImportMode.Row && existing == null && string.IsNullOrEmpty(dto.Sku))
             warnings.Add("Row has no Sku; sending it again creates a duplicate.");
@@ -200,7 +191,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         if (isNew) await _productService.InsertProduct(product);
         else await _productService.UpdateProduct(product);
 
-        await UpdateProductData(dto, product, isNew, budget, warnings);
+        await UpdateProductData(dto, product, isNew, references, budget, warnings);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, product.Id, key,
             errors, warnings);
     }
@@ -218,6 +209,11 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         if (!dto.NotifyAdminForQuantityBelow.HasValue) product.NotifyAdminForQuantityBelow = 1;
         if (!dto.IsShipEnabled.HasValue) product.IsShipEnabled = true;
         if (!dto.AllowCustomerReviews.HasValue) product.AllowCustomerReviews = true;
+        if (!dto.MaxEnteredPrice.HasValue) product.MaxEnteredPrice = 1000;
+        if (!dto.UnlimitedDownloads.HasValue) product.UnlimitedDownloads = true;
+        if (!dto.MaxNumberOfDownloads.HasValue) product.MaxNumberOfDownloads = 10;
+        if (!dto.RecurringCycleLength.HasValue) product.RecurringCycleLength = 100;
+        if (!dto.RecurringTotalCycles.HasValue) product.RecurringTotalCycles = 10;
         if (dto.TaxCategoryId == null) product.TaxCategoryId = _taxSettings.DefaultTaxCategoryId;
     }
 
@@ -227,18 +223,27 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     }
 
     /// <summary>Ids that do not exist are skipped (categories, collections) or cleared (brand); say so</summary>
-    private async Task AddReferenceWarnings(ProductDto dto, List<string> warnings)
+    private async Task<References> ResolveReferences(ProductDto dto, List<string> warnings)
     {
-        if (!string.IsNullOrEmpty(dto.BrandId) && await _brandService.GetBrandById(dto.BrandId) == null)
+        var brandMissing = !string.IsNullOrEmpty(dto.BrandId) && await _brandService.GetBrandById(dto.BrandId) == null;
+        if (brandMissing)
             warnings.Add($"BrandId '{dto.BrandId}' was not found and was cleared.");
 
+        var categoryIds = new List<string>();
         foreach (var id in SplitIds(dto.CategoryIds))
             if (await _categoryService.GetCategoryById(id) == null)
                 warnings.Add($"Category id '{id}' was not found and was skipped.");
+            else
+                categoryIds.Add(id);
 
+        var collectionIds = new List<string>();
         foreach (var id in SplitIds(dto.CollectionIds))
             if (await _collectionService.GetCollectionById(id) == null)
                 warnings.Add($"Collection id '{id}' was not found and was skipped.");
+            else
+                collectionIds.Add(id);
+
+        return new References(brandMissing, categoryIds, collectionIds);
     }
 
     private static IEnumerable<string> SplitIds(string ids)
@@ -249,29 +254,25 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     }
 
     private async Task UpdateProductData(ProductDto productDto, Product product, bool isNew,
-        PictureBudget budget, List<string> warnings)
+        References references, PictureBudget budget, List<string> warnings)
     {
         await UpdateProductDataLayout(product);
         await UpdateProductDataDeliveryDate(product);
         await UpdateProductDataTaxCategory(product);
         await UpdateProductDataWarehouse(product);
         await UpdateProductDataUnit(product);
-        await UpdateProductDataBrand(product);
+        await UpdateProductDataBrand(productDto, product, references);
 
         //search engine name
         var seName = product.SeName ?? product.Name;
         seName = await _seNameService.ValidateSeName(product, seName, product.Name, true);
         await _slugService.SaveSlug(product, seName, "");
         product.SeName = seName;
+        //UpdateProduct also works out LowStock
         await _productService.UpdateProduct(product);
 
-        product.LowStock = product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity;
-
-        if (!string.IsNullOrEmpty(productDto.CategoryIds))
-            await PrepareProductCategories(product, productDto.CategoryIds);
-
-        if (!string.IsNullOrEmpty(productDto.CollectionIds))
-            await PrepareProductCollections(product, productDto.CollectionIds);
+        await PrepareProductCategories(product, references.CategoryIds);
+        await PrepareProductCollections(product, references.CollectionIds);
 
         //pictures
         await PrepareProductPictures(productDto, product, isNew, budget, warnings);
@@ -323,25 +324,25 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             product.UnitId = "";
     }
 
-    private async Task UpdateProductDataBrand(Product product)
+    private async Task UpdateProductDataBrand(ProductDto productDto, Product product, References references)
     {
         if (string.IsNullOrEmpty(product.BrandId)) return;
-        var brand = await _brandService.GetBrandById(product.BrandId);
-        if (brand == null)
+        //the row's own brand was looked up already; only a stored one it did not replace is read here
+        var missing = product.BrandId == productDto.BrandId
+            ? references.BrandMissing
+            : await _brandService.GetBrandById(product.BrandId) == null;
+        if (missing)
             product.BrandId = "";
     }
 
-    private async Task PrepareProductCategories(Product product, string categoryIds)
+    /// <param name="categoryIds">Ids already known to exist</param>
+    private async Task PrepareProductCategories(Product product, List<string> categoryIds)
     {
-        foreach (var id in categoryIds.Split([';'], StringSplitOptions.RemoveEmptyEntries)
-                     .Select(x => x.Trim()))
+        foreach (var id in categoryIds)
         {
             if (product.ProductCategories.FirstOrDefault(x => x.CategoryId == id) != null) continue;
-            //ensure that category exists
-            var category = await _categoryService.GetCategoryById(id);
-            if (category == null) continue;
             var productCategory = new ProductCategory {
-                CategoryId = category.Id,
+                CategoryId = id,
                 IsFeaturedProduct = false,
                 DisplayOrder = 1
             };
@@ -349,17 +350,14 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         }
     }
 
-    private async Task PrepareProductCollections(Product product, string collectionIds)
+    /// <param name="collectionIds">Ids already known to exist</param>
+    private async Task PrepareProductCollections(Product product, List<string> collectionIds)
     {
-        foreach (var id in collectionIds.Split([';'], StringSplitOptions.RemoveEmptyEntries)
-                     .Select(x => x.Trim()))
+        foreach (var id in collectionIds)
         {
             if (product.ProductCollections.FirstOrDefault(x => x.CollectionId == id) != null) continue;
-            //ensure that collection exists
-            var collection = await _collectionService.GetCollectionById(id);
-            if (collection == null) continue;
             var productCollection = new ProductCollection {
-                CollectionId = collection.Id,
+                CollectionId = id,
                 IsFeaturedProduct = false,
                 DisplayOrder = 1
             };

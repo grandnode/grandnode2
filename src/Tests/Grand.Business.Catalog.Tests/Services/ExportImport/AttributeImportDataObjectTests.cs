@@ -6,6 +6,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Security;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -42,7 +43,8 @@ public class AttributeImportDataObjectTests
         _specificationAttributeService.Setup(s => s.UpdateSpecificationAttribute(It.IsAny<SpecificationAttribute>()))
             .Callback(() => _writes++).Returns(Task.CompletedTask);
         _specificationImport =
-            new SpecificationAttributeImportDataObject(_specificationAttributeService.Object, new SeoSettings(), guard);
+            new SpecificationAttributeImportDataObject(_specificationAttributeService.Object, new SeoSettings(), guard,
+                new Mock<ILogger<SpecificationAttributeImportDataObject>>().Object);
 
         _productAttributeService = new Mock<IProductAttributeService>();
         _productAttributeService.Setup(s => s.GetProductAttributeById(It.IsAny<string>()))
@@ -53,7 +55,8 @@ public class AttributeImportDataObjectTests
             .Callback((ProductAttribute a) => { _writes++; _productAttributes.Add(a); }).Returns(Task.CompletedTask);
         _productAttributeService.Setup(s => s.UpdateProductAttribute(It.IsAny<ProductAttribute>()))
             .Callback(() => _writes++).Returns(Task.CompletedTask);
-        _productImport = new ProductAttributeImportDataObject(_productAttributeService.Object, new SeoSettings(), guard);
+        _productImport = new ProductAttributeImportDataObject(_productAttributeService.Object, new SeoSettings(), guard,
+            new Mock<ILogger<ProductAttributeImportDataObject>>().Object);
     }
 
     [TestMethod]
@@ -335,12 +338,72 @@ public class AttributeImportDataObjectTests
     }
 
     [TestMethod]
-    public async Task Specification_SlugOfDifferentlyNamedAttribute_IsNotMatchedByName()
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task Specification_SlugOfDifferentlyNamedAttribute_IsRejectedAsSeNameTaken(bool dryRun)
     {
         _specificationAttributes.Add(new SpecificationAttribute { Id = "1", Name = "Shirt-Size", SeName = "shirt-size" });
 
-        var result = await _specificationImport.Import([new SpecificationAttributeDto { Name = "Shirt Size" }], true);
+        var result = await _specificationImport.Import([new SpecificationAttributeDto { Name = "Shirt Size" }], dryRun);
 
-        Assert.AreEqual(ImportRowStatus.Created, result.Rows[0].Status);
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.Contains("SeName 'shirt-size' is already used by 'Shirt-Size'.", result.Rows[0].Errors);
+        Assert.AreEqual(1, _specificationAttributes.Count);
+    }
+
+    [TestMethod]
+    public async Task Specification_UpdateByIdToAnotherAttributesSeName_IsRejected()
+    {
+        _specificationAttributes.Add(new SpecificationAttribute { Id = "1", Name = "Color", SeName = "color" });
+        _specificationAttributes.Add(new SpecificationAttribute { Id = "2", Name = "Size", SeName = "size" });
+
+        var result = await _specificationImport.Import([new SpecificationAttributeDto { Id = "2", SeName = "Color" }],
+            false);
+
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.AreEqual("size", _specificationAttributes[1].SeName);
+        Assert.AreEqual(0, _writes);
+    }
+
+    [TestMethod]
+    public async Task Product_SlugOfDifferentlyNamedAttribute_IsRejectedAsSeNameTaken()
+    {
+        _productAttributes.Add(new ProductAttribute { Id = "7", Name = "Gift-Wrap", SeName = "gift-wrap" });
+
+        var result = await _productImport.Import([new ProductAttributeDto { Name = "Gift Wrap" }], false);
+
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.Contains("SeName 'gift-wrap' is already used by 'Gift-Wrap'.", result.Rows[0].Errors);
+        Assert.AreEqual(1, _productAttributes.Count);
+    }
+
+    [TestMethod]
+    public async Task Product_AttributesAreLoadedOncePerBatch()
+    {
+        var result = await _productImport.Import([
+            new ProductAttributeDto { Name = "Gift Wrap" }, new ProductAttributeDto { Name = "gift wrap" },
+            new ProductAttributeDto { SeName = "gift-wrap" }
+        ], false);
+
+        Assert.AreEqual(1, result.Created);
+        Assert.AreEqual(2, result.Updated);
+        _productAttributeService.Verify(
+            s => s.GetAllProductAttributes(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Specification_RowThatThrows_IsRejectedAndBatchContinues()
+    {
+        _specificationAttributeService.Setup(s => s.InsertSpecificationAttribute(
+                It.Is<SpecificationAttribute>(a => a.Name == "Broken")))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        var result = await _specificationImport.Import([
+            new SpecificationAttributeDto { Name = "Broken" }, new SpecificationAttributeDto { Name = "Material" }
+        ], false);
+
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.Contains(ImportRowResult.FailedError, result.Rows[0].Errors);
+        Assert.AreEqual(ImportRowStatus.Created, result.Rows[1].Status);
     }
 }

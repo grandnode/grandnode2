@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
 
@@ -11,12 +12,14 @@ namespace Grand.Business.Catalog.Services.ExportImport;
 public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
 {
     private readonly ImportHtmlGuard _htmlGuard;
+    private readonly ILogger<ProductAttributeImportDataObject> _logger;
     private readonly IProductAttributeService _productAttributeService;
     private readonly SeoSettings _seoSettings;
 
     public ProductAttributeImportDataObject(IProductAttributeService productAttributeService,
-        SeoSettings seoSettings, ImportHtmlGuard htmlGuard)
+        SeoSettings seoSettings, ImportHtmlGuard htmlGuard, ILogger<ProductAttributeImportDataObject> logger)
     {
+        _logger = logger;
         _productAttributeService = productAttributeService;
         _seoSettings = seoSettings;
         _htmlGuard = htmlGuard;
@@ -25,29 +28,20 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
     public async Task<ImportBatchResult> Import(IReadOnlyList<ProductAttributeDto> rows, bool dryRun,
         CancellationToken cancellationToken = default)
     {
-        var results = new List<ImportRowResult>(rows.Count);
-        for (var i = 0; i < rows.Count; i++)
-        {
-            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
-            if (cancellationToken.IsCancellationRequested)
-            {
-                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].Id, Key(rows[i])));
-                continue;
-            }
-
-            results.Add(await ImportRow(i + 1, rows[i], dryRun));
-        }
-
-        return new ImportBatchResult(dryRun, results);
+        //there is no lookup by SeName: the attributes are loaded once per batch, and the ones it creates are added
+        var all = (await _productAttributeService.GetAllProductAttributes()).ToList();
+        return await ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, all),
+            true, _logger, cancellationToken);
     }
 
-    private async Task<ImportRowResult> ImportRow(int row, ProductAttributeDto dto, bool dryRun)
+    private async Task<ImportRowResult> ImportRow(int row, ProductAttributeDto dto, bool dryRun,
+        List<ProductAttribute> all)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
         var key = Key(dto);
 
-        var (existing, matchedByName) = await Find(dto);
+        var (existing, matchedByName) = await Find(dto, all);
         if (matchedByName)
             warnings.Add(ImportRows.MatchedByNameWarning(existing.Name));
         if (!string.IsNullOrEmpty(dto.Id) && existing == null)
@@ -70,6 +64,12 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
             errors.AddRange(_htmlGuard.PlainTextErrors(("Value Name", value.Name)));
         }
 
+        var seName = existing == null || !string.IsNullOrEmpty(dto.SeName)
+            ? GetSeName(string.IsNullOrEmpty(dto.SeName) ? dto.Name : dto.SeName)
+            : null;
+        if (!string.IsNullOrEmpty(seName) && FindBySeName(all, seName) is { } owner && owner.Id != existing?.Id)
+            errors.Add($"SeName '{seName}' is already used by '{owner.Name}'.");
+
         if (errors.Count > 0)
             return new ImportRowResult(row, ImportRowStatus.Rejected, existing?.Id ?? "", key, errors, warnings);
 
@@ -81,8 +81,7 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
         var attribute = existing ?? new ProductAttribute { Name = dto.Name };
         if (!string.IsNullOrEmpty(dto.Name)) attribute.Name = dto.Name;
         if (dto.Description != null) attribute.Description = dto.Description;
-        if (isNew || !string.IsNullOrEmpty(dto.SeName))
-            attribute.SeName = GetSeName(string.IsNullOrEmpty(dto.SeName) ? attribute.Name : dto.SeName);
+        if (seName != null) attribute.SeName = seName;
 
         //a repeated name in the same row matches the value just added, so it collapses into it
         foreach (var valueDto in dto.Values ?? [])
@@ -102,8 +101,15 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
             if (valueDto.DisplayOrder.HasValue) value.DisplayOrder = valueDto.DisplayOrder.Value;
         }
 
-        if (isNew) await _productAttributeService.InsertProductAttribute(attribute);
-        else await _productAttributeService.UpdateProductAttribute(attribute);
+        if (isNew)
+        {
+            await _productAttributeService.InsertProductAttribute(attribute);
+            all.Add(attribute);
+        }
+        else
+        {
+            await _productAttributeService.UpdateProductAttribute(attribute);
+        }
 
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, attribute.Id, key,
             errors, warnings);
@@ -118,31 +124,29 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
     ///     By Id, else by SeName normalized as a new attribute's is, else (best effort) by the SeName its Name would get,
     ///     accepted only when the stored name is the same (any case)
     /// </summary>
-    private async Task<(ProductAttribute attribute, bool matchedByName)> Find(ProductAttributeDto dto)
+    private async Task<(ProductAttribute attribute, bool matchedByName)> Find(ProductAttributeDto dto,
+        List<ProductAttribute> all)
     {
         if (!string.IsNullOrEmpty(dto.Id))
             return (await _productAttributeService.GetProductAttributeById(dto.Id), false);
 
         if (!string.IsNullOrEmpty(dto.SeName))
-            return (await FindBySeName(GetSeName(dto.SeName)), false);
+            return (FindBySeName(all, GetSeName(dto.SeName)), false);
 
         if (string.IsNullOrEmpty(dto.Name))
             return (null, false);
 
-        var found = await FindBySeName(GetSeName(dto.Name));
+        var found = FindBySeName(all, GetSeName(dto.Name));
         return found != null && string.Equals(found.Name, dto.Name, StringComparison.OrdinalIgnoreCase)
             ? (found, true)
             : (null, false);
     }
 
-    //no lookup by SeName exists: load all and match
-    private async Task<ProductAttribute> FindBySeName(string seName)
+    private static ProductAttribute FindBySeName(List<ProductAttribute> all, string seName)
     {
-        if (string.IsNullOrEmpty(seName))
-            return null;
-
-        var all = await _productAttributeService.GetAllProductAttributes();
-        return all.FirstOrDefault(a => string.Equals(a.SeName, seName, StringComparison.OrdinalIgnoreCase));
+        return string.IsNullOrEmpty(seName)
+            ? null
+            : all.FirstOrDefault(a => string.Equals(a.SeName, seName, StringComparison.OrdinalIgnoreCase));
     }
 
     //same normalization as the panel's product attribute controller

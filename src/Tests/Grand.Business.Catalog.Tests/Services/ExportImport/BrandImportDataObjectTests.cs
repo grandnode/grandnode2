@@ -72,7 +72,7 @@ public class BrandImportDataObjectTests
         _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object,
             _brandLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService,
             _securityConfig, new ImportHtmlGuard(new HtmlSanitizationService(_securityConfig), _securityConfig),
-            new SeoSettings(), (_loggerMock = new Mock<ILogger<BrandImportDataObject>>()).Object);
+            (_loggerMock = new Mock<ILogger<BrandImportDataObject>>()).Object);
     }
 
     [TestMethod]
@@ -442,6 +442,37 @@ public class BrandImportDataObjectTests
         Assert.Contains("Matched existing 'Acme Co' by name.", result.Rows[0].Warnings);
         Assert.AreEqual(1, _repository.Table.Count());
         Assert.AreEqual(dryRun ? 0 : 7, _repository.Table.Single().DisplayOrder);
+    }
+
+    [TestMethod]
+    public async Task Import_NameOnly_MatchesBrandWhoseSlugWasRenumbered()
+    {
+        SetupLayouts();
+        var existing = new Brand { Name = "Apple", SeName = "apple-2" };
+        await _brandService.InsertBrand(existing);
+
+        var first = await _brandImportDataObject.Import(new List<BrandDto> { new() { Name = "Apple" } }, false);
+        var second = await _brandImportDataObject.Import(new List<BrandDto> { new() { Name = "Apple" } }, false);
+
+        Assert.AreEqual(existing.Id, first.Rows[0].Id);
+        Assert.AreEqual(existing.Id, second.Rows[0].Id);
+        Assert.AreEqual(1, _repository.Table.Count());
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task Import_NameOnlyMatchingTwoBrands_IsRejected(bool dryRun)
+    {
+        SetupLayouts();
+        await _brandService.InsertBrand(new Brand { Name = "Apple", SeName = "apple" });
+        await _brandService.InsertBrand(new Brand { Name = "APPLE", SeName = "apple-1" });
+
+        var result = await _brandImportDataObject.Import(new List<BrandDto> { new() { Name = "apple" } }, dryRun);
+
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.Contains("Name 'apple' matches more than one brand; send Id or SeName.", result.Rows[0].Errors);
+        Assert.AreEqual(2, _repository.Table.Count());
     }
 
     private void InitAutoMapper()

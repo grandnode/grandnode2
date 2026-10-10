@@ -22,7 +22,6 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     private readonly ISeNameService _seNameService;
     private readonly SecurityConfig _securityConfig;
     private readonly ImportHtmlGuard _htmlGuard;
-    private readonly SeoSettings _seoSettings;
     private readonly ILogger<CategoryImportDataObject> _logger;
     
     public CategoryImportDataObject(
@@ -33,7 +32,6 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         ISeNameService seNameService,
         SecurityConfig securityConfig,
         ImportHtmlGuard htmlGuard,
-        SeoSettings seoSettings,
         ILogger<CategoryImportDataObject> logger)
     {
         _categoryService = categoryService;
@@ -43,7 +41,6 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         _seNameService = seNameService;
         _securityConfig = securityConfig;
         _htmlGuard = htmlGuard;
-        _seoSettings = seoSettings;
         _logger = logger;
     }
 
@@ -60,32 +57,12 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         return Import(rows, dryRun, ImportMode.Row, cancellationToken);
     }
 
-    /// <summary>
-    ///     Row: unknown Id rejected, SeName matching. Panel (XLSX): unknown Id creates the entity with that Id, no SeName matching.
-    /// </summary>
-    private enum ImportMode
-    {
-        Row,
-        Panel
-    }
-
-    private async Task<ImportBatchResult> Import(IReadOnlyList<CategoryDto> rows, bool dryRun, ImportMode mode,
+    /// <summary>Row: unknown Id rejected, SeName/Name matching. Panel (XLSX): unknown Id creates the entity with that Id, no matching.</summary>
+    private Task<ImportBatchResult> Import(IReadOnlyList<CategoryDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
-        var results = new List<ImportRowResult>(rows.Count);
-        for (var i = 0; i < rows.Count; i++)
-        {
-            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
-            if (cancellationToken.IsCancellationRequested)
-            {
-                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].Id, Key(rows[i])));
-                continue;
-            }
-
-            results.Add(await ImportRow(i + 1, rows[i], dryRun, mode));
-        }
-
-        return new ImportBatchResult(dryRun, results);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, mode),
+            mode == ImportMode.Row, _logger, cancellationToken);
     }
 
     private async Task<ImportRowResult> ImportRow(int row, CategoryDto dto, bool dryRun, ImportMode mode)
@@ -94,7 +71,9 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         var warnings = new List<string>();
         var key = Key(dto);
 
-        var (existing, matchedByName) = await FindCategory(dto, mode);
+        var (existing, matchedByName, matchError) = await FindCategory(dto, mode);
+        if (matchError != null)
+            errors.Add(matchError);
         if (matchedByName)
             warnings.Add(ImportRows.MatchedByNameWarning(existing.Name));
         if (!string.IsNullOrEmpty(dto.Id) && existing == null && mode == ImportMode.Row)
@@ -110,7 +89,9 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
             (nameof(dto.MetaKeywords), dto.MetaKeywords), (nameof(dto.MetaDescription), dto.MetaDescription),
             (nameof(dto.MetaTitle), dto.MetaTitle)));
 
-        if (!string.IsNullOrEmpty(dto.ParentCategoryId) && await _categoryService.GetCategoryById(dto.ParentCategoryId) == null)
+        var parentMissing = !string.IsNullOrEmpty(dto.ParentCategoryId) &&
+                            await _categoryService.GetCategoryById(dto.ParentCategoryId) == null;
+        if (parentMissing)
             warnings.Add($"ParentCategoryId '{dto.ParentCategoryId}' was not found and was cleared.");
 
         if (errors.Count > 0)
@@ -136,7 +117,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         if (isNew) await _categoryService.InsertCategory(category);
         else await _categoryService.UpdateCategory(category);
 
-        await UpdateCategoryData(dto, category);
+        await UpdateCategoryData(dto, category, parentMissing);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, category.Id, key,
             errors, warnings);
     }
@@ -147,40 +128,32 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     }
 
     /// <summary>
-    ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by the slug
-    ///     its Name would get - accepted only when the stored name is the same (any case) and, when the row names a
-    ///     parent, under that parent
+    ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by its stored
+    ///     name (any case) - under the row's parent when it names one; more than one category of that name is an error
     /// </summary>
-    private async Task<(Category category, bool matchedByName)> FindCategory(CategoryDto dto, ImportMode mode)
+    private async Task<(Category category, bool matchedByName, string error)> FindCategory(CategoryDto dto,
+        ImportMode mode)
     {
         if (!string.IsNullOrEmpty(dto.Id))
-            return (await _categoryService.GetCategoryById(dto.Id), false);
+            return (await _categoryService.GetCategoryById(dto.Id), false, null);
 
         if (mode == ImportMode.Panel)
-            return (null, false);
+            return (null, false, null);
 
         if (!string.IsNullOrEmpty(dto.SeName))
-            return (await FindCategoryBySlug(dto.SeName), false);
+            return (await ImportRows.FindBySlug(_slugService, dto.SeName, EntityTypes.Category,
+                _categoryService.GetCategoryById), false, null);
 
         if (string.IsNullOrEmpty(dto.Name))
-            return (null, false);
+            return (null, false, null);
 
-        var found = await FindCategoryBySlug(ImportRows.NameSlug(dto.Name, _seoSettings));
-        var matches = found != null && string.Equals(found.Name, dto.Name, StringComparison.OrdinalIgnoreCase) &&
-                      (string.IsNullOrEmpty(dto.ParentCategoryId) || dto.ParentCategoryId == found.ParentCategoryId);
-        return matches ? (found, true) : (null, false);
+        var parentId = string.IsNullOrEmpty(dto.ParentCategoryId) ? null : dto.ParentCategoryId;
+        var candidates = await _categoryService.GetAllCategories(parentId, dto.Name, "", showHidden: true);
+        var (found, error) = ImportRows.SingleByName(candidates, c => c.Name, dto.Name, "category");
+        return (found, found != null, error);
     }
 
-    private async Task<Category> FindCategoryBySlug(string slug)
-    {
-        var url = await _slugService.GetBySlug(slug);
-        if (url is not { EntityName: EntityTypes.Category } || string.IsNullOrEmpty(url.EntityId))
-            return null;
-
-        return await _categoryService.GetCategoryById(url.EntityId);
-    }
-
-    private async Task UpdateCategoryData(CategoryDto categoryDto, Category category)
+    private async Task UpdateCategoryData(CategoryDto categoryDto, Category category, bool parentMissing)
     {
         if (string.IsNullOrEmpty(category.CategoryLayoutId))
         {
@@ -193,12 +166,13 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
                 category.CategoryLayoutId = (await _categoryLayoutService.GetAllCategoryLayouts()).FirstOrDefault()?.Id;
         }
 
-        if (!string.IsNullOrEmpty(category.ParentCategoryId))
-        {
-            var parentCategory = await _categoryService.GetCategoryById(category.ParentCategoryId);
-            if (parentCategory == null)
-                category.ParentCategoryId = string.Empty;
-        }
+        //the row's own parent was looked up already; only a stored one it did not replace is read here
+        if (parentMissing)
+            category.ParentCategoryId = string.Empty;
+        else if (!string.IsNullOrEmpty(category.ParentCategoryId) &&
+                 category.ParentCategoryId != categoryDto.ParentCategoryId &&
+                 await _categoryService.GetCategoryById(category.ParentCategoryId) == null)
+            category.ParentCategoryId = string.Empty;
 
         if (!string.IsNullOrEmpty(categoryDto.Picture))
         {

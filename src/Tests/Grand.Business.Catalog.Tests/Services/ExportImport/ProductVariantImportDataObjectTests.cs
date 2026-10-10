@@ -12,6 +12,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Security;
 using Grand.Infrastructure.Tests.Caching;
+using Microsoft.Extensions.Logging;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -60,7 +61,7 @@ public class ProductVariantImportDataObjectTests
         var securityConfig = new SecurityConfig();
         var guard = new ImportHtmlGuard(new HtmlSanitizationService(securityConfig), securityConfig);
         _import = new ProductVariantImportDataObject(_productService.Object, _attributeService.Object,
-            new SeoSettings(), guard);
+            new SeoSettings(), guard, new Mock<ILogger<ProductVariantImportDataObject>>().Object);
     }
 
     private int Writes => _attributeService.Invocations.Count(i =>

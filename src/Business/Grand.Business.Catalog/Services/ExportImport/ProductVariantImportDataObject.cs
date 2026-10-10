@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Seo;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
 
@@ -19,36 +20,32 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
     public const int MaxCombinationsPerProduct = 50;
 
     private readonly ImportHtmlGuard _htmlGuard;
+    private readonly ILogger<ProductVariantImportDataObject> _logger;
     private readonly IProductAttributeService _productAttributeService;
     private readonly IProductService _productService;
     private readonly SeoSettings _seoSettings;
 
     public ProductVariantImportDataObject(IProductService productService,
-        IProductAttributeService productAttributeService, SeoSettings seoSettings, ImportHtmlGuard htmlGuard)
+        IProductAttributeService productAttributeService, SeoSettings seoSettings, ImportHtmlGuard htmlGuard,
+        ILogger<ProductVariantImportDataObject> logger)
     {
+        _logger = logger;
         _productService = productService;
         _productAttributeService = productAttributeService;
         _seoSettings = seoSettings;
         _htmlGuard = htmlGuard;
     }
 
-    public async Task<ImportBatchResult> Import(IReadOnlyList<ProductVariantsDto> rows, bool dryRun,
+    /// <summary>
+    ///     The writes of one row are not atomic: a row that fails part way comes back with
+    ///     <see cref="ImportRowResult.FailedError" />. Sending it again is safe - mappings, values and combinations are
+    ///     matched, not added twice - and completes it
+    /// </summary>
+    public Task<ImportBatchResult> Import(IReadOnlyList<ProductVariantsDto> rows, bool dryRun,
         CancellationToken cancellationToken = default)
     {
-        var results = new List<ImportRowResult>(rows.Count);
-        for (var i = 0; i < rows.Count; i++)
-        {
-            //a batch that runs out of time stops at a row boundary: what was saved is reported, the rest is not touched
-            if (cancellationToken.IsCancellationRequested)
-            {
-                results.Add(ImportRowResult.NotProcessed(i + 1, rows[i].ProductId, Key(rows[i])));
-                continue;
-            }
-
-            results.Add(await ImportRow(i + 1, rows[i], dryRun));
-        }
-
-        return new ImportBatchResult(dryRun, results);
+        return ImportRows.RunBatch(rows, dryRun, r => r.ProductId, Key, (row, dto) => ImportRow(row, dto, dryRun),
+            true, _logger, cancellationToken);
     }
 
     private async Task<ImportRowResult> ImportRow(int row, ProductVariantsDto dto, bool dryRun)
