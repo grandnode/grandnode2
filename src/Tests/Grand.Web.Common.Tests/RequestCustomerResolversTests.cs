@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
 using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,8 +14,6 @@ namespace Grand.Web.Common.Tests;
 [TestClass]
 public class RequestCustomerResolversTests
 {
-    private readonly Store _store = new() { Id = "s1" };
-
     [TestMethod]
     public async Task AllowAnonymous_NoEndpoint_ReturnsNull()
     {
@@ -25,9 +22,8 @@ public class RequestCustomerResolversTests
 
         var resolver = new AllowAnonymousCustomerResolver(accessor, customers.Object);
 
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
         Assert.AreEqual(RequestCustomerResolverOrder.AllowAnonymous, resolver.Order);
-        Assert.IsFalse(((IRequestCustomerResolver)resolver).SupportsImpersonation);
     }
 
     [TestMethod]
@@ -35,7 +31,7 @@ public class RequestCustomerResolversTests
     {
         var resolver = new AllowAnonymousCustomerResolver(AccessorWith(null), Mock.Of<ICustomerService>());
 
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
     }
 
     [TestMethod]
@@ -49,7 +45,7 @@ public class RequestCustomerResolversTests
 
         var resolver = new AllowAnonymousCustomerResolver(AccessorWith(context), customers.Object);
 
-        Assert.AreEqual("anonymous", (await resolver.Resolve(_store)).Id);
+        Assert.AreEqual("anonymous", (await resolver.Resolve()).Id);
     }
 
     [TestMethod]
@@ -58,9 +54,8 @@ public class RequestCustomerResolversTests
         var authentication = new Mock<IGrandAuthenticationService>();
         var resolver = new CookieCustomerResolver(authentication.Object);
 
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
         Assert.AreEqual(RequestCustomerResolverOrder.Cookie, resolver.Order);
-        Assert.IsTrue(resolver.SupportsImpersonation);
     }
 
     [TestMethod]
@@ -71,7 +66,7 @@ public class RequestCustomerResolversTests
 
         var resolver = new CookieCustomerResolver(authentication.Object);
 
-        Assert.AreEqual("cookie", (await resolver.Resolve(_store)).Id);
+        Assert.AreEqual("cookie", (await resolver.Resolve()).Id);
     }
 
     [TestMethod]
@@ -81,9 +76,8 @@ public class RequestCustomerResolversTests
         var resolver = new GuestCookieCustomerResolver(authentication.Object, Mock.Of<ICustomerService>(),
             Mock.Of<IGroupService>());
 
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
         Assert.AreEqual(RequestCustomerResolverOrder.GuestCookie, resolver.Order);
-        Assert.IsFalse(((IRequestCustomerResolver)resolver).SupportsImpersonation);
     }
 
     [TestMethod]
@@ -94,7 +88,7 @@ public class RequestCustomerResolversTests
         var resolver = new GuestCookieCustomerResolver(authentication.Object, Mock.Of<ICustomerService>(),
             Mock.Of<IGroupService>());
 
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
     }
 
     [TestMethod]
@@ -110,7 +104,7 @@ public class RequestCustomerResolversTests
         var resolver = new GuestCookieCustomerResolver(authentication.Object, customers.Object,
             Mock.Of<IGroupService>());
 
-        Assert.AreSame(guest, await resolver.Resolve(_store));
+        Assert.AreSame(guest, await resolver.Resolve());
     }
 
     [TestMethod]
@@ -126,13 +120,13 @@ public class RequestCustomerResolversTests
         var registered = new Customer { Id = "r", Active = true };
         customers.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync(registered);
         groups.Setup(g => g.IsRegistered(registered)).ReturnsAsync(true);
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
 
         customers.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync(new Customer { Active = true, Deleted = true });
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
 
         customers.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync(new Customer { Active = false });
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
     }
 
     [TestMethod]
@@ -142,14 +136,13 @@ public class RequestCustomerResolversTests
         var resolver = new SearchEngineCustomerResolver(detection.Object, Mock.Of<ICustomerService>());
 
         //Crawler is null: the null-safe read must not throw
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
         Assert.AreEqual(RequestCustomerResolverOrder.SearchEngine, resolver.Order);
-        Assert.IsFalse(((IRequestCustomerResolver)resolver).SupportsImpersonation);
 
         var crawler = new Mock<ICrawlerService>();
         crawler.SetupGet(c => c.IsCrawler).Returns(false);
         detection.SetupGet(d => d.Crawler).Returns(crawler.Object);
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
     }
 
     [TestMethod]
@@ -165,18 +158,48 @@ public class RequestCustomerResolversTests
 
         var resolver = new SearchEngineCustomerResolver(detection.Object, customers.Object);
 
-        Assert.AreEqual("crawler", (await resolver.Resolve(_store)).Id);
+        Assert.AreEqual("crawler", (await resolver.Resolve()).Id);
     }
 
     [TestMethod]
     public async Task ApiUser_NoApiCustomer_ReturnsNull()
     {
         var api = new Mock<IApiAuthenticationService>();
-        var resolver = new ApiUserCustomerResolver(api.Object);
+        var resolver = new ApiUserCustomerResolver(api.Object, AccessorWith(new DefaultHttpContext()),
+            Mock.Of<ICustomerService>());
 
-        Assert.IsNull(await resolver.Resolve(_store));
+        Assert.IsNull(await resolver.Resolve());
         Assert.AreEqual(RequestCustomerResolverOrder.ApiUser, resolver.Order);
-        Assert.IsFalse(((IRequestCustomerResolver)resolver).SupportsImpersonation);
+    }
+
+    [TestMethod]
+    public async Task ApiUser_RejectedBearerToken_ReturnsAnonymous()
+    {
+        var context = new DefaultHttpContext();
+        context.Request.Headers.Authorization = "Bearer expired";
+        var customers = new Mock<ICustomerService>();
+        customers.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.Anonymous))
+            .ReturnsAsync(new Customer { Id = "anonymous" });
+
+        var resolver = new ApiUserCustomerResolver(Mock.Of<IApiAuthenticationService>(), AccessorWith(context),
+            customers.Object);
+
+        Assert.AreEqual("anonymous", (await resolver.Resolve()).Id);
+    }
+
+    [TestMethod]
+    public async Task ApiUser_RejectedBasicCredentials_ReturnsNull()
+    {
+        //a staging site behind basic auth: a new visitor still becomes a new guest
+        var context = new DefaultHttpContext();
+        context.Request.Headers.Authorization = "Basic dXNlcjpwYXNz";
+        var customers = new Mock<ICustomerService>();
+
+        var resolver = new ApiUserCustomerResolver(Mock.Of<IApiAuthenticationService>(), AccessorWith(context),
+            customers.Object);
+
+        Assert.IsNull(await resolver.Resolve());
+        customers.Verify(c => c.GetCustomerBySystemName(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -185,9 +208,10 @@ public class RequestCustomerResolversTests
         var api = new Mock<IApiAuthenticationService>();
         api.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api" });
 
-        var resolver = new ApiUserCustomerResolver(api.Object);
+        var resolver = new ApiUserCustomerResolver(api.Object, AccessorWith(new DefaultHttpContext()),
+            Mock.Of<ICustomerService>());
 
-        Assert.AreEqual("api", (await resolver.Resolve(_store)).Id);
+        Assert.AreEqual("api", (await resolver.Resolve()).Id);
     }
 
     private static IHttpContextAccessor AccessorWith(HttpContext context)

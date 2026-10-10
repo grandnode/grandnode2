@@ -13,6 +13,8 @@ using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Wangkanai.Detection.Services;
@@ -45,19 +47,20 @@ public class WorkContextSetterRequestResolverTests
 
     private TestableSetter CreateSetter(params IRequestCustomerResolver[] resolvers)
     {
+        var services = new ServiceCollection();
+        foreach (var resolver in resolvers)
+            services.AddSingleton(resolver);
         return new TestableSetter(_accessor.Object, _authentication.Object, Mock.Of<ICurrencyService>(),
             _customerService.Object, Mock.Of<ILanguageService>(),
             Mock.Of<IStoreService>(), Mock.Of<IAclService>(), Mock.Of<IVendorService>(),
-            new TaxSettings(), new AppConfig(), resolvers);
+            new TaxSettings(), new AppConfig(), services.BuildServiceProvider());
     }
 
-    private static Mock<IRequestCustomerResolver> ResolverMock(int order, Customer result,
-        bool supportsImpersonation = false)
+    private static Mock<IRequestCustomerResolver> ResolverMock(int order, Customer result)
     {
         var mock = new Mock<IRequestCustomerResolver>();
         mock.SetupGet(r => r.Order).Returns(order);
-        mock.SetupGet(r => r.SupportsImpersonation).Returns(supportsImpersonation);
-        mock.Setup(r => r.Resolve(It.IsAny<Store>())).ReturnsAsync(result);
+        mock.Setup(r => r.Resolve()).ReturnsAsync(result);
         return mock;
     }
 
@@ -65,7 +68,7 @@ public class WorkContextSetterRequestResolverTests
     private IRequestCustomerResolver[] BuiltIns()
     {
         return [
-            new ApiUserCustomerResolver(_apiAuthentication.Object),
+            new ApiUserCustomerResolver(_apiAuthentication.Object, _accessor.Object, _customerService.Object),
             new SearchEngineCustomerResolver(_detection.Object, _customerService.Object),
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, _groupService.Object),
             new CookieCustomerResolver(_authentication.Object),
@@ -170,7 +173,51 @@ public class WorkContextSetterRequestResolverTests
         var customer = await CreateSetter(resolver.Object).CurrentCustomerForTest(new Store());
 
         Assert.AreEqual("task", customer.Id);
-        resolver.Verify(r => r.Resolve(It.IsAny<Store>()), Times.Never);
+        resolver.Verify(r => r.Resolve(), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task BackgroundTask_FromContainer_ResolversAreNotConstructed()
+    {
+        //the real registration: resolvers needing the request (detection, API authentication) must not be built
+        //in a scope without one, so a resolver that cannot be constructed there must not fail the task
+        _accessor.Setup(a => a.HttpContext).Returns((HttpContext)null);
+        _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask))
+            .ReturnsAsync(new Customer { Id = "task" });
+        var services = new ServiceCollection();
+        services.AddSingleton(_accessor.Object);
+        services.AddSingleton(_authentication.Object);
+        services.AddSingleton(Mock.Of<ICurrencyService>());
+        services.AddSingleton(_customerService.Object);
+        services.AddSingleton(Mock.Of<ILanguageService>());
+        services.AddSingleton(Mock.Of<IStoreService>());
+        services.AddSingleton(Mock.Of<IAclService>());
+        services.AddSingleton(Mock.Of<IVendorService>());
+        services.AddSingleton(new TaxSettings());
+        services.AddSingleton(new AppConfig());
+        services.AddScoped<TestableSetter>();
+        services.AddRequestCustomerResolvers();
+        services.AddScoped<IRequestCustomerResolver, UnconstructibleResolver>();
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+
+        var customer = await scope.ServiceProvider.GetRequiredService<TestableSetter>()
+            .CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("task", customer.Id);
+    }
+
+    [TestMethod]
+    public async Task Resolver_Throws_IsSkippedAndNextResolverAsked()
+    {
+        var failing = new Mock<IRequestCustomerResolver>();
+        failing.SetupGet(r => r.Order).Returns(10);
+        failing.Setup(r => r.Resolve()).ThrowsAsync(new InvalidOperationException("idp down"));
+        var next = ResolverMock(20, new Customer { Id = "next" });
+
+        var customer = await CreateSetter(failing.Object, next.Object).CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("next", customer.Id);
     }
 
     [TestMethod]
@@ -211,29 +258,19 @@ public class WorkContextSetterRequestResolverTests
             .CurrentCustomerForTest(new Store());
 
         Assert.AreEqual("first", customer.Id);
-        skipped.Verify(r => r.Resolve(It.IsAny<Store>()), Times.Once);
-        second.Verify(r => r.Resolve(It.IsAny<Store>()), Times.Never);
+        skipped.Verify(r => r.Resolve(), Times.Once);
+        second.Verify(r => r.Resolve(), Times.Never);
     }
 
     [TestMethod]
-    public async Task Resolver_ReceivesTheStore()
-    {
-        var store = new Store { Id = "s1" };
-        var resolver = ResolverMock(10, new Customer { Id = "x" });
-
-        await CreateSetter(resolver.Object).CurrentCustomerForTest(store);
-
-        resolver.Verify(r => r.Resolve(store), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Impersonation_AppliedWhenWinnerSupportsIt()
+    public async Task Impersonation_AppliedToSignedInCustomer()
     {
         var signedIn = new Customer { Id = "admin" };
         signedIn.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.ImpersonatedCustomerId, Value = "target", StoreId = "" });
         var target = new Customer { Id = "target", Active = true };
         _customerService.Setup(c => c.GetCustomerById("target")).ReturnsAsync(target);
-        var setter = CreateSetter(ResolverMock(10, signedIn, true).Object);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(signedIn);
+        var setter = CreateSetter(new CookieCustomerResolver(_authentication.Object));
 
         var customer = await setter.CurrentCustomerForTest(new Store());
 
@@ -242,7 +279,7 @@ public class WorkContextSetterRequestResolverTests
     }
 
     [TestMethod]
-    public async Task Impersonation_NotAppliedWhenWinnerDoesNotSupportIt()
+    public async Task Impersonation_NotAppliedToCustomerOfAnotherResolver()
     {
         var other = new Customer { Id = "other" };
         other.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.ImpersonatedCustomerId, Value = "target", StoreId = "" });
@@ -264,7 +301,8 @@ public class WorkContextSetterRequestResolverTests
         signedIn.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.ImpersonatedCustomerId, Value = "target", StoreId = "" });
         _customerService.Setup(c => c.GetCustomerById("target"))
             .ReturnsAsync(new Customer { Id = "target", Active = false });
-        var setter = CreateSetter(ResolverMock(10, signedIn, true).Object);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(signedIn);
+        var setter = CreateSetter(new CookieCustomerResolver(_authentication.Object));
 
         var customer = await setter.CurrentCustomerForTest(new Store());
 
@@ -291,9 +329,10 @@ public class WorkContextSetterRequestResolverTests
         ICurrencyService currencyService, ICustomerService customerService,
         ILanguageService languageService, IStoreService storeService, IAclService aclService,
         IVendorService vendorService, TaxSettings taxSettings, AppConfig config,
-        IEnumerable<IRequestCustomerResolver> resolvers)
+        IServiceProvider serviceProvider)
         : WorkContextSetter(httpContextAccessor, authenticationService, currencyService, customerService,
-            languageService, storeService, aclService, vendorService, taxSettings, config, resolvers)
+            languageService, storeService, aclService, vendorService, taxSettings, config, serviceProvider,
+            NullLogger<WorkContextSetter>.Instance)
     {
         public Customer OriginalCustomerForTest =>
             (Customer)typeof(WorkContextSetter)
@@ -301,5 +340,14 @@ public class WorkContextSetterRequestResolverTests
                 .GetValue(this);
 
         public Task<Customer> CurrentCustomerForTest(Store store) => CurrentCustomer(store);
+    }
+
+    private class UnconstructibleResolver : IRequestCustomerResolver
+    {
+        public UnconstructibleResolver() => throw new InvalidOperationException("needs the request");
+
+        public int Order => 1;
+
+        public Task<Customer> Resolve() => Task.FromResult<Customer>(null);
     }
 }

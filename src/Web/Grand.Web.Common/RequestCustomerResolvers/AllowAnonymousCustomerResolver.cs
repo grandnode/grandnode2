@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
@@ -15,7 +14,7 @@ public class AllowAnonymousCustomerResolver(
 {
     public int Order => RequestCustomerResolverOrder.AllowAnonymous;
 
-    public async Task<Customer> Resolve(Store store)
+    public async Task<Customer> Resolve()
     {
         var endpoint = httpContextAccessor.HttpContext?.GetEndpoint();
         if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() == null) return null;

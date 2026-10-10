@@ -9,6 +9,9 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -38,7 +41,8 @@ public class WorkContextSetterTests
             Mock.Of<IVendorService>(),
             new TaxSettings(),
             new AppConfig(),
-            []);
+            new ServiceCollection().BuildServiceProvider(),
+            NullLogger<WorkContextSetter>.Instance);
     }
 
     [TestMethod]
@@ -104,10 +108,11 @@ public class WorkContextSetterTests
         IVendorService vendorService,
         TaxSettings taxSettings,
         AppConfig config,
-        IEnumerable<IRequestCustomerResolver> requestCustomerResolvers)
+        IServiceProvider serviceProvider,
+        ILogger<WorkContextSetter> logger)
         : WorkContextSetter(httpContextAccessor, authenticationService, currencyService, customerService,
             languageService, storeService, aclService, vendorService, taxSettings, config,
-            requestCustomerResolvers)
+            serviceProvider, logger)
     {
         public Task<Store> GetStoreManagerForTest(Customer customer) => GetStoreManager(customer);
     }

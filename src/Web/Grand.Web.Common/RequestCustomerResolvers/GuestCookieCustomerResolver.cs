@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
 
 namespace Grand.Web.Common.RequestCustomerResolvers;
 
@@ -16,7 +15,7 @@ public class GuestCookieCustomerResolver(
 {
     public int Order => RequestCustomerResolverOrder.GuestCookie;
 
-    public async Task<Customer> Resolve(Store store)
+    public async Task<Customer> Resolve()
     {
         var guid = await authenticationService.GetCustomerGuid();
         if (string.IsNullOrEmpty(guid) || !Guid.TryParse(guid, out var customerGuid)) return null;

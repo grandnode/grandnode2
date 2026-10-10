@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
 using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common.RequestCustomerResolvers;
@@ -14,7 +13,7 @@ public class SearchEngineCustomerResolver(
 {
     public int Order => RequestCustomerResolverOrder.SearchEngine;
 
-    public async Task<Customer> Resolve(Store store)
+    public async Task<Customer> Resolve()
     {
         var isCrawler = detectionService.Crawler?.IsCrawler;
         if (!isCrawler.GetValueOrDefault()) return null;

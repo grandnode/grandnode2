@@ -13,8 +13,11 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Common;
 
@@ -36,7 +39,8 @@ public class WorkContextSetter : IWorkContextSetter
 
     private readonly TaxSettings _taxSettings;
     private readonly AppConfig _config;
-    private readonly IReadOnlyList<IRequestCustomerResolver> _requestCustomerResolvers;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<WorkContextSetter> _logger;
 
     private Customer _originalCustomerIfImpersonated;
 
@@ -54,7 +58,8 @@ public class WorkContextSetter : IWorkContextSetter
         IVendorService vendorService,
         TaxSettings taxSettings,
         AppConfig config,
-        IEnumerable<IRequestCustomerResolver> requestCustomerResolvers)
+        IServiceProvider serviceProvider,
+        ILogger<WorkContextSetter> logger)
     {
         _httpContextAccessor = httpContextAccessor;
         _authenticationService = authenticationService;
@@ -66,7 +71,8 @@ public class WorkContextSetter : IWorkContextSetter
         _vendorService = vendorService;
         _taxSettings = taxSettings;
         _config = config;
-        _requestCustomerResolvers = requestCustomerResolvers.OrderBy(x => x.Order).ToList();
+        _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     #endregion
@@ -127,15 +133,6 @@ public class WorkContextSetter : IWorkContextSetter
         return requestLanguage;
     }
 
-    protected virtual async Task<Customer> OriginalCustomerIfImpersonated(Customer customer)
-    {
-        var impersonatedCustomerId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
-        if (string.IsNullOrEmpty(impersonatedCustomerId)) return null;
-        var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
-        if (impersonatedCustomer is not { Deleted: false, Active: true }) return null;
-        return impersonatedCustomer;
-    }
-
 
     #endregion
 
@@ -168,12 +165,15 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = await GetBackgroundTaskCustomer();
         if (customer != null) return customer;
 
-        foreach (var resolver in _requestCustomerResolvers)
+        //resolved here, not injected: a scope without a request (background task) must not build them
+        var resolvers = _serviceProvider.GetServices<IRequestCustomerResolver>().OrderBy(x => x.Order);
+        foreach (var resolver in resolvers)
         {
-            customer = await resolver.Resolve(store);
+            customer = await ResolveCustomer(resolver);
             if (customer == null) continue;
 
-            if (!resolver.SupportsImpersonation) return customer;
+            //impersonation belongs to the signed-in admin only, never to a plugin's identity
+            if (resolver is not CookieCustomerResolver) return customer;
 
             var impersonatedCustomer = await ImpersonatedCustomer(customer);
             if (impersonatedCustomer == null) return customer;
@@ -184,6 +184,21 @@ public class WorkContextSetter : IWorkContextSetter
 
         //create guest if not exists
         return await CreateCustomerGuest(store);
+    }
+
+    private async Task<Customer> ResolveCustomer(IRequestCustomerResolver resolver)
+    {
+        try
+        {
+            return await resolver.Resolve();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            //one failing resolver (a plugin's identity provider down) must not fail every request, admin login included
+            _logger.LogError(ex, "Request customer resolver {Resolver} failed; the next resolver is asked",
+                resolver.GetType().FullName);
+            return null;
+        }
     }
 
     private async Task<Customer> GetBackgroundTaskCustomer()
