@@ -172,6 +172,14 @@ public class WorkContextSetter : IWorkContextSetter
             customer = await ResolveCustomer(resolver);
             if (customer == null) continue;
 
+            //resolvers come from plugins too: a deleted or deactivated account never becomes the current customer
+            if (!customer.IsSystemAccount && customer is not { Deleted: false, Active: true })
+            {
+                _logger.LogWarning("Request customer resolver {Resolver} returned an inactive or deleted customer {CustomerId}; the next resolver is asked",
+                    resolver.GetType().FullName, customer.Id);
+                continue;
+            }
+
             //impersonation belongs to the signed-in admin only, never to a plugin's identity
             if (resolver is not CookieCustomerResolver) return customer;
 

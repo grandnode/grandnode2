@@ -10,7 +10,8 @@ namespace Grand.Web.Common;
 /// <remarks>
 ///     The built-in steps are registered with the values of <see cref="RequestCustomerResolverOrder" />; pick a
 ///     value between them to run before or after a built-in step. Resolvers are created only for requests, never
-///     in a background task scope. A resolver whose <see cref="Resolve" /> throws is logged and skipped. Admin
+///     in a background task scope. A resolver whose <see cref="Resolve" /> throws is logged and skipped, and so is
+///     a deleted or inactive customer it returns (system accounts excepted). Admin
 ///     impersonation applies only to the signed-in (cookie) customer, never to a customer another resolver returns.
 /// </remarks>
 public interface IRequestCustomerResolver

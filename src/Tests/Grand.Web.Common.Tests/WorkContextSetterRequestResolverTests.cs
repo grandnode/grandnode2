@@ -81,8 +81,8 @@ public class WorkContextSetterRequestResolverTests
         var endpoint = new Endpoint(null, new EndpointMetadataCollection(new AllowAnonymousAttribute()), "test");
         _httpContext.SetEndpoint(endpoint);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.Anonymous))
-            .ReturnsAsync(new Customer { Id = "anonymous" });
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "cookie" });
+            .ReturnsAsync(new Customer { Id = "anonymous", IsSystemAccount = true });
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "cookie", Active = true });
         var guid = Guid.NewGuid();
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
         _customerService.Setup(c => c.GetCustomerByGuid(guid))
@@ -91,8 +91,8 @@ public class WorkContextSetterRequestResolverTests
         crawler.SetupGet(c => c.IsCrawler).Returns(true);
         _detection.SetupGet(d => d.Crawler).Returns(crawler.Object);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.SearchEngine))
-            .ReturnsAsync(new Customer { Id = "crawler" });
-        _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api" });
+            .ReturnsAsync(new Customer { Id = "crawler", IsSystemAccount = true });
+        _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api", Active = true });
     }
 
     [TestMethod]
@@ -167,8 +167,8 @@ public class WorkContextSetterRequestResolverTests
     {
         _accessor.Setup(a => a.HttpContext).Returns((HttpContext)null);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask))
-            .ReturnsAsync(new Customer { Id = "task" });
-        var resolver = ResolverMock(10, new Customer { Id = "resolved" });
+            .ReturnsAsync(new Customer { Id = "task", IsSystemAccount = true });
+        var resolver = ResolverMock(10, new Customer { Id = "resolved", Active = true });
 
         var customer = await CreateSetter(resolver.Object).CurrentCustomerForTest(new Store());
 
@@ -183,7 +183,7 @@ public class WorkContextSetterRequestResolverTests
         //in a scope without one, so a resolver that cannot be constructed there must not fail the task
         _accessor.Setup(a => a.HttpContext).Returns((HttpContext)null);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask))
-            .ReturnsAsync(new Customer { Id = "task" });
+            .ReturnsAsync(new Customer { Id = "task", IsSystemAccount = true });
         var services = new ServiceCollection();
         services.AddSingleton(_accessor.Object);
         services.AddSingleton(_authentication.Object);
@@ -213,11 +213,34 @@ public class WorkContextSetterRequestResolverTests
         var failing = new Mock<IRequestCustomerResolver>();
         failing.SetupGet(r => r.Order).Returns(10);
         failing.Setup(r => r.Resolve()).ThrowsAsync(new InvalidOperationException("idp down"));
-        var next = ResolverMock(20, new Customer { Id = "next" });
+        var next = ResolverMock(20, new Customer { Id = "next", Active = true });
 
         var customer = await CreateSetter(failing.Object, next.Object).CurrentCustomerForTest(new Store());
 
         Assert.AreEqual("next", customer.Id);
+    }
+
+    [TestMethod]
+    public async Task Resolver_ReturnsDeletedOrInactiveCustomer_NextResolverAsked()
+    {
+        var deleted = ResolverMock(10, new Customer { Id = "deleted", Active = true, Deleted = true });
+        var inactive = ResolverMock(20, new Customer { Id = "inactive", Active = false });
+        var next = ResolverMock(30, new Customer { Id = "next", Active = true });
+
+        var customer = await CreateSetter(deleted.Object, inactive.Object, next.Object)
+            .CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("next", customer.Id);
+    }
+
+    [TestMethod]
+    public async Task Resolver_ReturnsSystemAccount_AcceptedWithoutActiveFlag()
+    {
+        var system = ResolverMock(10, new Customer { Id = "system", IsSystemAccount = true });
+
+        var customer = await CreateSetter(system.Object).CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("system", customer.Id);
     }
 
     [TestMethod]
@@ -227,7 +250,7 @@ public class WorkContextSetterRequestResolverTests
         _httpContext.SetEndpoint(null);
         _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         //between Cookie (2000) and GuestCookie (3000)
-        var custom = ResolverMock(2500, new Customer { Id = "custom" });
+        var custom = ResolverMock(2500, new Customer { Id = "custom", Active = true });
         var all = BuiltIns().Append(custom.Object).ToArray();
 
         var customer = await CreateSetter(all).CurrentCustomerForTest(new Store());
@@ -239,7 +262,7 @@ public class WorkContextSetterRequestResolverTests
     public async Task CustomResolver_BeforeAllowAnonymous_Wins()
     {
         ArrangeAllBuiltInsMatch();
-        var custom = ResolverMock(100, new Customer { Id = "custom" });
+        var custom = ResolverMock(100, new Customer { Id = "custom", Active = true });
         var all = BuiltIns().Append(custom.Object).ToArray();
 
         var customer = await CreateSetter(all).CurrentCustomerForTest(new Store());
@@ -250,8 +273,8 @@ public class WorkContextSetterRequestResolverTests
     [TestMethod]
     public async Task Resolvers_AskedInOrder_FirstNonNullWins()
     {
-        var second = ResolverMock(20, new Customer { Id = "second" });
-        var first = ResolverMock(10, new Customer { Id = "first" });
+        var second = ResolverMock(20, new Customer { Id = "second", Active = true });
+        var first = ResolverMock(10, new Customer { Id = "first", Active = true });
         var skipped = ResolverMock(5, null);
 
         var customer = await CreateSetter(second.Object, skipped.Object, first.Object)
@@ -265,7 +288,7 @@ public class WorkContextSetterRequestResolverTests
     [TestMethod]
     public async Task Impersonation_AppliedToSignedInCustomer()
     {
-        var signedIn = new Customer { Id = "admin" };
+        var signedIn = new Customer { Id = "admin", Active = true };
         signedIn.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.ImpersonatedCustomerId, Value = "target", StoreId = "" });
         var target = new Customer { Id = "target", Active = true };
         _customerService.Setup(c => c.GetCustomerById("target")).ReturnsAsync(target);
@@ -281,7 +304,7 @@ public class WorkContextSetterRequestResolverTests
     [TestMethod]
     public async Task Impersonation_NotAppliedToCustomerOfAnotherResolver()
     {
-        var other = new Customer { Id = "other" };
+        var other = new Customer { Id = "other", Active = true };
         other.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.ImpersonatedCustomerId, Value = "target", StoreId = "" });
         _customerService.Setup(c => c.GetCustomerById("target"))
             .ReturnsAsync(new Customer { Id = "target", Active = true });
@@ -297,7 +320,7 @@ public class WorkContextSetterRequestResolverTests
     [TestMethod]
     public async Task Impersonation_TargetInactive_KeepsSignedInCustomer()
     {
-        var signedIn = new Customer { Id = "admin" };
+        var signedIn = new Customer { Id = "admin", Active = true };
         signedIn.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.ImpersonatedCustomerId, Value = "target", StoreId = "" });
         _customerService.Setup(c => c.GetCustomerById("target"))
             .ReturnsAsync(new Customer { Id = "target", Active = false });
