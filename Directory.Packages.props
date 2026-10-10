@@ -41,6 +41,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson" Version="10.0.12" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="10.0.12" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.12" />
     <PackageVersion Include="Braintree" Version="5.41.0" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="10.0.12" />
     <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.7.4" />
