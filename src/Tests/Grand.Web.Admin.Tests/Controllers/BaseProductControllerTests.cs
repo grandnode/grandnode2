@@ -2975,8 +2975,7 @@ public class BaseProductControllerTests
 
         var result = await _controller.ImportExcel(fileMock.Object, importManagerMock.Object);
 
-        var redirect = result as RedirectToActionResult;
-        Assert.IsNotNull(redirect);
+        var redirect = Assert.IsInstanceOfType<RedirectToActionResult>(result);
         Assert.AreEqual("List", redirect.ActionName);
         importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
         _translationServiceMock.Verify(t => t.GetResource("Admin.AccessDenied.Title"), Times.Once);
@@ -2992,8 +2991,7 @@ public class BaseProductControllerTests
 
         var result = await _controller.ImportExcel(fileMock.Object, importManagerMock.Object);
 
-        var redirect = result as RedirectToActionResult;
-        Assert.IsNotNull(redirect);
+        var redirect = Assert.IsInstanceOfType<RedirectToActionResult>(result);
         Assert.AreEqual("List", redirect.ActionName);
         importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
         _translationServiceMock.Verify(t => t.GetResource("Admin.AccessDenied.Title"), Times.Once);
