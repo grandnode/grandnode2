@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
@@ -158,8 +159,9 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             return OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity);
         }
 
-        //the first link of a back-office account, and of any account whose e-mail nobody verified, needs the account's password
-        if (!emailVerified || await IsBackOfficeAccount(customer))
+        //the first link of a back-office account, of an account protected by two-factor authentication, and of any account
+        //whose e-mail nobody verified, needs the account's password (and its second factor)
+        if (!emailVerified || await IsBackOfficeAccount(customer) || await HasTwoFactor(customer, storeId))
             return OidcLoginResult.LinkRequired(customer);
 
         return await LinkIdentity(customer, sub, email) switch {
@@ -332,6 +334,11 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     private async Task<bool> HasOtherLink(Customer customer, string sub) =>
         await _externalAuthenticationRepository.GetOneAsync(x =>
             x.ProviderSystemName == ProviderSystemName && x.CustomerId == customer.Id && x.ExternalIdentifier != sub) != null;
+
+    //the same condition the password sign-in uses to ask for the second factor
+    private async Task<bool> HasTwoFactor(Customer customer, string storeId) =>
+        customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) &&
+        (await _settingService.LoadSetting<CustomerSettings>(storeId)).TwoFactorAuthenticationEnabled;
 
     private async Task<bool> IsBackOfficeAccount(Customer customer) =>
         !string.IsNullOrEmpty(customer.VendorId) || !string.IsNullOrEmpty(customer.StaffStoreId) ||

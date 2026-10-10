@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
@@ -131,6 +132,45 @@ public class OidcCustomerResolverLoginTests
         var customer = new Customer { Id = "c1", Active = true, VendorId = vendorId, StaffStoreId = staffStoreId };
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
         Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    private static Customer TwoFactorCustomer()
+    {
+        var customer = new Customer { Id = "c1", Active = true };
+        customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
+        return customer;
+    }
+
+    [TestMethod]
+    public async Task ExistingTwoFactorCustomer_Verified_LinkRequired_NotLinked()
+    {
+        _customerSettings.TwoFactorAuthenticationEnabled = true;
+        var customer = TwoFactorCustomer();
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, result.Outcome);
+        Assert.AreSame(customer, result.Customer);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task ExistingTwoFactorCustomer_StoreTwoFactorOff_Verified_SignIn()
+    {
+        _customerSettings.TwoFactorAuthenticationEnabled = false;
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(TwoFactorCustomer());
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.IsNotNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task LinkedTwoFactorCustomer_SignIn()
+    {
+        _customerSettings.TwoFactorAuthenticationEnabled = true;
+        var customer = TwoFactorCustomer();
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
+        await Link("c1");
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
     }
 
     [TestMethod]
