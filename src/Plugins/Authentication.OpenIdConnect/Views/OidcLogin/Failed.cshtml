@@ -1,0 +1,19 @@
+@using Grand.Business.Core.Utilities.Authentication
+@model Authentication.OpenIdConnect.Models.FailedModel
+@{
+    Layout = "_SingleColumn";
+    var key = Model.Mismatch
+        ? "Plugins.ExternalAuth.OpenIdConnect.Link.Mismatch"
+        : Model.Reason switch {
+            OidcLoginRefusal.AccountInactive => "Plugins.ExternalAuth.OpenIdConnect.Failed.AccountInactive",
+            OidcLoginRefusal.RegistrationDisabled => "Plugins.ExternalAuth.OpenIdConnect.Failed.RegistrationDisabled",
+            OidcLoginRefusal.LinkedToOtherIdentity => "Plugins.ExternalAuth.OpenIdConnect.Failed.LinkedToOtherIdentity",
+            _ => "Plugins.ExternalAuth.OpenIdConnect.Failed.Generic"
+        };
+}
+<div class="page oidc-failed-page">
+    <div class="page-title"><h1>@Loc["Plugins.ExternalAuth.OpenIdConnect.Failed.Title"]</h1></div>
+    <div class="page-body">
+        <div class="alert alert-danger">@Loc[key]</div>
+    </div>
+</div>
