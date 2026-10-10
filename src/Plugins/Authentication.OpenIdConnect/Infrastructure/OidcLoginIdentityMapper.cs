@@ -1,5 +1,6 @@
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.ExternalRegistration;
+using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 
 namespace Authentication.OpenIdConnect.Infrastructure;
@@ -20,5 +21,15 @@ public static class OidcLoginIdentityMapper
         return new ExternalRegistrationIdentity(OidcLoginDefaults.ProviderSystemName, sub, email.Trim(),
             string.Equals(principal.FindFirst(claims.EmailVerified)?.Value, "true", StringComparison.OrdinalIgnoreCase),
             principal.FindFirst("given_name")?.Value, principal.FindFirst("family_name")?.Value);
+    }
+
+    /// <summary>
+    ///     The pending identity lives a fixed time: non-persistent and not renewed by the sliding expiration
+    /// </summary>
+    public static void ApplyPendingLifetime(AuthenticationProperties properties, DateTimeOffset now)
+    {
+        properties.IsPersistent = false;
+        properties.AllowRefresh = false;
+        properties.ExpiresUtc = now.Add(OidcLoginDefaults.PendingLifetime);
     }
 }

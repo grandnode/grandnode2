@@ -55,21 +55,20 @@ public class OidcLoginAuthenticationBuilder : IAuthenticationBuilder
                     {
                         ctx.HandleResponse();
                         Logger(ctx.HttpContext).LogWarning("OpenID Connect sign-in without a subject or an e-mail");
-                        ctx.Response.Redirect(OidcLoginDefaults.FailedPath);
+                        ctx.Response.Redirect(ctx.Request.PathBase + OidcLoginDefaults.FailedPath);
                         return Task.CompletedTask;
                     }
 
                     //only what the sign-in needs, kept briefly in the external authentication cookie
                     ctx.Principal = ExternalRegistrationContext.CreatePrincipal(identity);
-                    ctx.Properties!.IsPersistent = false;
-                    ctx.Properties.ExpiresUtc = DateTimeOffset.UtcNow.Add(OidcLoginDefaults.PendingLifetime);
+                    OidcLoginIdentityMapper.ApplyPendingLifetime(ctx.Properties!, DateTimeOffset.UtcNow);
                     return Task.CompletedTask;
                 },
                 OnRemoteFailure = ctx =>
                 {
                     ctx.HandleResponse();
                     Logger(ctx.HttpContext).LogWarning(ctx.Failure, "OpenID Connect sign-in failed");
-                    ctx.Response.Redirect(OidcLoginDefaults.FailedPath);
+                    ctx.Response.Redirect(ctx.Request.PathBase + OidcLoginDefaults.FailedPath);
                     return Task.CompletedTask;
                 }
             };

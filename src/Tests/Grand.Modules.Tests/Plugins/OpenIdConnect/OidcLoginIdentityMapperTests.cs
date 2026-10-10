@@ -1,5 +1,6 @@
 using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security.Claims;
 
@@ -54,5 +55,17 @@ public class OidcLoginIdentityMapperTests
         if (sub != null) claims.Add(("sub", sub));
         if (email != null) claims.Add(("email", email));
         Assert.IsNull(OidcLoginIdentityMapper.Map(P(claims.ToArray()), new OidcClaimNames()));
+    }
+
+    [TestMethod]
+    public void PendingLifetime_IsAbsolute()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var props = new AuthenticationProperties { IsPersistent = true };
+        OidcLoginIdentityMapper.ApplyPendingLifetime(props, now);
+        Assert.IsFalse(props.IsPersistent);
+        Assert.IsFalse(props.AllowRefresh);
+        //the properties keep whole seconds
+        Assert.IsTrue((now.AddMinutes(15) - props.ExpiresUtc.Value).Duration() < TimeSpan.FromSeconds(1));
     }
 }
