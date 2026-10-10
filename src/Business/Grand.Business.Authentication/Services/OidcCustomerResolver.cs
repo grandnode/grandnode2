@@ -18,7 +18,7 @@ using System.Security.Claims;
 namespace Grand.Business.Authentication.Services;
 
 /// <summary>
-///     Maps a validated access token to a customer: stored subject link; customer with the verified e-mail (link
+///     Maps a validated access token or a browser sign-in to a customer: stored subject link; customer with the verified e-mail (link
 ///     stored); registration with the Registered group only. Only active, registered, non-system accounts are used,
 ///     and one customer holds at most one identity. A unique index on (provider, identifier) makes the
 ///     first concurrent requests of one user converge on one account.
@@ -102,12 +102,10 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         }
 
         //one identity per customer - a second subject with the same e-mail must not take over the account
-        var otherLink = await _externalAuthenticationRepository.GetOneAsync(x =>
-            x.ProviderSystemName == ProviderSystemName && x.CustomerId == customer.Id && x.ExternalIdentifier != sub);
-        if (otherLink != null)
+        if (await HasOtherLink(customer, sub))
         {
-            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is already linked to subject {LinkedSubject}",
-                sub, customer.Id, otherLink.ExternalIdentifier);
+            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is already linked to another subject",
+                sub, customer.Id);
             return OidcCustomerResult.Forbidden("The customer account is linked to another identity");
         }
 
@@ -118,6 +116,76 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         _logger.LogInformation("Access token subject {Subject} linked to existing customer {CustomerId} (store {StoreId})",
             sub, customer.Id, storeId);
         return result;
+    }
+
+    public virtual async Task<OidcLoginResult> ResolveForLogin(string sub, string email, bool emailVerified, string storeId)
+    {
+        if (string.IsNullOrEmpty(sub))
+            return OidcLoginResult.Refused(OidcLoginRefusal.InvalidIdentity);
+
+        var link = await GetLink(sub);
+        if (link != null)
+        {
+            var linked = await _customerService.GetCustomerById(link.CustomerId);
+            var reason = await Check(linked, sub, storeId);
+            return reason == Unusable.None ? OidcLoginResult.SignIn(linked) : OidcLoginResult.Refused(ToRefusal(reason));
+        }
+
+        if (string.IsNullOrWhiteSpace(email))
+            return OidcLoginResult.Refused(OidcLoginRefusal.InvalidIdentity);
+
+        var customer = await _customerService.GetCustomerByEmail(email,
+            _customerConfig.RegisterCustomersPerStore ? storeId : "");
+        if (customer == null)
+        {
+            var customerSettings = await _settingService.LoadSetting<CustomerSettings>(storeId);
+            if (customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
+            {
+                _logger.LogWarning("Sign-in subject {Subject}: registration is disabled in store {StoreId}", sub, storeId);
+                return OidcLoginResult.Refused(OidcLoginRefusal.RegistrationDisabled);
+            }
+
+            return OidcLoginResult.RegistrationRequired();
+        }
+
+        var usable = await Check(customer, sub, storeId);
+        if (usable != Unusable.None)
+            return OidcLoginResult.Refused(ToRefusal(usable));
+
+        if (await HasOtherLink(customer, sub))
+        {
+            _logger.LogWarning("Sign-in subject {Subject}: customer {CustomerId} is linked to another identity", sub, customer.Id);
+            return OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity);
+        }
+
+        //the first link of a back-office account, and of any account whose e-mail nobody verified, needs the account's password
+        if (!emailVerified || await IsBackOfficeAccount(customer))
+            return OidcLoginResult.LinkRequired(customer);
+
+        return await LinkIdentity(customer, sub, email) switch {
+            OidcLinkResult.Linked => OidcLoginResult.SignIn(customer),
+            _ => OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity)
+        };
+    }
+
+    public virtual async Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email)
+    {
+        ArgumentNullException.ThrowIfNull(customer);
+        ArgumentException.ThrowIfNullOrEmpty(sub);
+
+        var existing = await GetLink(sub);
+        if (existing != null)
+            return existing.CustomerId == customer.Id ? OidcLinkResult.Linked : OidcLinkResult.SubjectLinkedToOtherCustomer;
+
+        if (await HasOtherLink(customer, sub))
+            return OidcLinkResult.CustomerLinkedToOtherSubject;
+
+        var winner = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "");
+        if (winner?.Id != customer.Id)
+            return OidcLinkResult.SubjectLinkedToOtherCustomer;
+
+        _logger.LogInformation("Subject {Subject} linked to customer {CustomerId}", sub, customer.Id);
+        return OidcLinkResult.Linked;
     }
 
     private async Task<OidcCustomerResult> Register(string sub, string email, string storeId)
@@ -213,37 +281,57 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     ///     The checks every other login path applies: an active, registered, non-system account, and with per-store
     ///     identity one of the request's store (or of no store)
     /// </summary>
-    private async Task<OidcCustomerResult> Usable(Customer customer, string sub, string storeId)
+    private enum Unusable { None, Missing, Inactive, Unusable, OtherStore }
+
+    //the checks every other login path applies: an active, registered, non-system account, and with per-store
+    //identity one of the request's store (or of no store)
+    private async Task<Unusable> Check(Customer customer, string sub, string storeId)
     {
         if (customer == null)
         {
-            _logger.LogWarning("Access token subject {Subject} is linked to a customer that no longer exists", sub);
-            return OidcCustomerResult.Forbidden("The customer account no longer exists");
+            _logger.LogWarning("Subject {Subject} is linked to a customer that no longer exists", sub);
+            return Unusable.Missing;
         }
 
         if (!customer.Active || customer.Deleted)
         {
-            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is inactive or deleted", sub, customer.Id);
-            return OidcCustomerResult.Forbidden("The customer account is inactive");
+            _logger.LogWarning("Subject {Subject}: customer {CustomerId} is inactive or deleted", sub, customer.Id);
+            return customer.Deleted ? Unusable.Unusable : Unusable.Inactive;
         }
 
         if (customer.IsSystemAccount() || !await _groupService.IsRegistered(customer))
         {
-            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is a system or non-registered account",
-                sub, customer.Id);
-            return OidcCustomerResult.Forbidden("The customer account cannot be used");
+            _logger.LogWarning("Subject {Subject}: customer {CustomerId} is a system or non-registered account", sub, customer.Id);
+            return Unusable.Unusable;
         }
 
-        if (_customerConfig.RegisterCustomersPerStore && !string.IsNullOrEmpty(customer.StoreId) &&
-            customer.StoreId != storeId)
+        if (_customerConfig.RegisterCustomersPerStore && !string.IsNullOrEmpty(customer.StoreId) && customer.StoreId != storeId)
         {
-            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} belongs to store {CustomerStoreId}, not {StoreId}",
+            _logger.LogWarning("Subject {Subject}: customer {CustomerId} belongs to store {CustomerStoreId}, not {StoreId}",
                 sub, customer.Id, customer.StoreId, storeId);
-            return OidcCustomerResult.Forbidden("The account belongs to another store");
+            return Unusable.OtherStore;
         }
 
-        return OidcCustomerResult.Success(customer);
+        return Unusable.None;
     }
+
+    private async Task<OidcCustomerResult> Usable(Customer customer, string sub, string storeId) =>
+        await Check(customer, sub, storeId) switch {
+            Unusable.None => OidcCustomerResult.Success(customer),
+            Unusable.Missing => OidcCustomerResult.Forbidden("The customer account no longer exists"),
+            Unusable.Inactive => OidcCustomerResult.Forbidden("The customer account is inactive"),
+            Unusable.OtherStore => OidcCustomerResult.Forbidden("The account belongs to another store"),
+            _ => customer.Deleted
+                ? OidcCustomerResult.Forbidden("The customer account is inactive")
+                : OidcCustomerResult.Forbidden("The customer account cannot be used")
+        };
+
+    private static OidcLoginRefusal ToRefusal(Unusable reason) =>
+        reason == Unusable.Inactive ? OidcLoginRefusal.AccountInactive : OidcLoginRefusal.AccountUnusable;
+
+    private async Task<bool> HasOtherLink(Customer customer, string sub) =>
+        await _externalAuthenticationRepository.GetOneAsync(x =>
+            x.ProviderSystemName == ProviderSystemName && x.CustomerId == customer.Id && x.ExternalIdentifier != sub) != null;
 
     private async Task<bool> IsBackOfficeAccount(Customer customer) =>
         !string.IsNullOrEmpty(customer.VendorId) || !string.IsNullOrEmpty(customer.StaffStoreId) ||
