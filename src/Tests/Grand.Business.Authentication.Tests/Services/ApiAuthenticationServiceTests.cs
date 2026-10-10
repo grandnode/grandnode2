@@ -1,4 +1,4 @@
-using Grand.Business.Authentication.Services;
+﻿using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
@@ -6,6 +6,10 @@ using Grand.Domain.Customers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Grand.Infrastructure.Configuration;
+using Grand.SharedKernel.Attributes;
+using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
@@ -30,7 +34,7 @@ public class ApiAuthenticationServiceTests
         _userApiServiceMock = new Mock<IUserApiService>();
         _groupService = new Mock<IGroupService>();
         _authService = new ApiAuthenticationService(_customerService.Object, _groupService.Object,
-            _httpContextAccessorMoc.Object);
+            _httpContextAccessorMoc.Object, new Mock<IAuthenticationSchemeProvider>().Object);
         _jwtBearerAuthenticationService =
             new JwtBearerAuthenticationService(_customerService.Object, _userApiServiceMock.Object);
     }
@@ -179,5 +183,71 @@ public class ApiAuthenticationServiceTests
             .Returns(() => Task.FromResult(customer));
         var result = await _authService.GetAuthenticatedCustomer();
         Assert.IsNull(result);
+    }
+
+    private static HttpContext CreateHttpContext(Action<AuthenticationBuilder> configure, Endpoint endpoint = null)
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        var builder = services.AddAuthentication();
+        configure?.Invoke(builder);
+        var context = new DefaultHttpContext { RequestServices = services.BuildServiceProvider() };
+        context.Request.Headers["Authorization"] = "Bearer anything";
+        if (endpoint != null) context.SetEndpoint(endpoint);
+        return context;
+    }
+
+    private IApiAuthenticationService CreateService(HttpContext context)
+    {
+        _httpContextAccessorMoc.Setup(c => c.HttpContext).Returns(context);
+        return new ApiAuthenticationService(_customerService.Object, _groupService.Object,
+            _httpContextAccessorMoc.Object,
+            context.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>());
+    }
+
+    [TestMethod]
+    public async Task GetAuthenticatedCustomer_BearerHeaderWithoutJwtScheme_ReturnsNull()
+    {
+        var context = CreateHttpContext(null);
+        var result = await CreateService(context).GetAuthenticatedCustomer();
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetAuthenticatedCustomer_FrontApiEndpointWithoutFrontScheme_ReturnsNull()
+    {
+        var endpoint = new Endpoint(null,
+            new EndpointMetadataCollection(new ApiGroupAttribute(ApiConstants.ApiGroupNameV2)), "front");
+        var context = CreateHttpContext(null, endpoint);
+        var result = await CreateService(context).GetAuthenticatedCustomer();
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetAuthenticatedCustomer_JwtSchemeRegisteredAndSucceeds_ReturnsCustomer()
+    {
+        var customer = new Customer { Id = "c1", Active = true };
+        _customerService.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(customer);
+        _groupService.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        var context = CreateHttpContext(b => b.AddScheme<AuthenticationSchemeOptions, OkHandler>(
+            JwtBearerDefaults.AuthenticationScheme, null));
+        var result = await CreateService(context).GetAuthenticatedCustomer();
+        Assert.AreSame(customer, result);
+    }
+
+    private class OkHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    {
+        public OkHandler(Microsoft.Extensions.Options.IOptionsMonitor<AuthenticationSchemeOptions> options,
+            Microsoft.Extensions.Logging.ILoggerFactory logger, System.Text.Encodings.Web.UrlEncoder encoder)
+            : base(options, logger, encoder)
+        {
+        }
+
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            var identity = new ClaimsIdentity(new[] { new Claim("CustomerId", "c1") }, "test");
+            return Task.FromResult(AuthenticateResult.Success(
+                new AuthenticationTicket(new ClaimsPrincipal(identity), Scheme.Name)));
+        }
     }
 }
