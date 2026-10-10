@@ -109,8 +109,9 @@ customer in this order.
 ### 3.1 Linking rules
 
 1. No `sub` claim: 401.
-2. A stored link for `sub` (provider `ExternalAuth.OpenIdConnect`, exact, case-sensitive match) selects the customer. The customer must be
-   active, not deleted, registered, and not a system account; otherwise 403. An inactive customer is never reactivated.
+2. A stored link for `sub` (provider `ExternalAuth.OpenIdConnect`, exact, case-sensitive match) selects the customer.
+   The customer must be active, not deleted, registered, and not a system account; otherwise 403. An inactive customer
+   is never reactivated.
 3. Without a link the e-mail claim is needed (missing: 401). With `RequireEmailVerified = true` it must be verified
    (otherwise 401).
 4. A customer with the same e-mail address is linked on first use, and the link is stored.
@@ -376,8 +377,9 @@ Steps:
    as strong as who may grant the project role or edit Zitadel Actions. If
    you do not run the target, leave `RequiredScopes` **empty** for Zitadel (a required scope would reject every token)
    and rely on (1)-(3) and (5); then any user of the instance who can log in to an allowed client reaches the
-   GrandNode permission check, and a user that is auto-registered holds the Registered group only, which has no
-   admin panel access. `AutoRegister` is off by default; turn it on only when every user of the provider may get a store account.
+   GrandNode permission check. With `AutoRegister` enabled, a user registered automatically holds the Registered group
+   only, which has no admin panel access. `AutoRegister` is off by default; turn it on only when every user of the
+   provider may get a store account.
 5. **Dynamic client registration** (RFC 7591) is **off by default** in Zitadel. Two modes: with a token of a user
    holding the `project.app.register_dynamic` permission, or open (`dynamicClientRegistration.allowUnauthenticated =
    true`), which MCP-class clients need. See <https://zitadel.com/docs/guides/integrate/dynamic-client-registration>.
@@ -471,8 +473,8 @@ After the provider signed the user in, the result depends on the GrandNode side:
 | Situation | Result |
 |---|---|
 | A link for the provider's `sub` exists | The linked customer is signed in. Staff included; the admin panel access follows their existing permissions. The customer must be active, not deleted and registered. |
-| No link; an account with the same e-mail exists, the provider **verified** the e-mail, the account is **not staff** | The account is linked and signed in at once. |
-| No link; the account is **staff** (admin panel access, vendor, store staff), or the provider did **not** verify the e-mail | "Connect your account": the page ends any current store session, and the visitor signs in **once** with the store password (and the two-factor code, when enabled). The connection is then completed (`/oidc/link/complete`); the signed-in account must have the same e-mail address. |
+| No link; an account with the same e-mail exists, the provider **verified** the e-mail, the account is **not staff** and does not use GrandNode two-factor authentication | The account is linked and signed in at once. |
+| No link; the account is **staff** (admin panel access, vendor, store staff), the account uses **GrandNode two-factor authentication** (enabled for the customer and in the store), or the provider did **not** verify the e-mail | "Connect your account": the page ends any current store session, and the visitor signs in **once** with the store password (and the two-factor code, when enabled). The connection is then completed (`/oidc/link/complete`); the signed-in account must have the same e-mail address. |
 | No account with that e-mail | The regular registration form opens with the e-mail taken from the provider (read-only) and **no password fields**. Store registration type "Standard" becomes e-mail validation when the provider did not verify the e-mail; "E-mail validation" becomes standard when it did; "Admin approval" stays admin approval either way. New accounts get the **Registered** group only. |
 | Registration disabled in the store, account inactive, e-mail already linked to another identity | The failure page (fixed text; the reason is written to the log). |
 
@@ -483,6 +485,11 @@ Notes:
   ignored.
 * A provider that sends `email_verified` as `"True"`, `true` or not at all is handled: the comparison ignores case and a
   missing value means unverified.
+* **"Admin approval" and an unverified e-mail.** The account waits for approval and GrandNode sends no activation
+  e-mail (its activation link would approve the account), so GrandNode does not validate an e-mail address the
+  provider reported as unverified. Administrators should check the address before approving such an account.
+* A customer who uses GrandNode two-factor authentication connects the provider identity **once** with the store
+  password and the two-factor code, like staff; after that the provider sign-in alone signs the customer in.
 * With `RegisterCustomersPerStore` enabled all lookups are limited to the store of the request.
 * Provider tokens are **not stored**.
 * The Web API setting `OidcResourceServer:AutoRegister` is `false` by default (section 3.2); browser sign-in registers
@@ -566,8 +573,10 @@ Use the project of section 7. Create a **separate** application for the browser 
    sign-in with a verified e-mail the application log must not contain "OpenID Connect sign-in without a subject or an
    e-mail". If it does, enable the ID token option of step 3 and check that the user's e-mail is marked verified in
    Zitadel (an unverified e-mail is sent with `email_verified = false`).
-5. Users need a verified e-mail address in Zitadel to be linked automatically. Enforce MFA for staff in the login
-   policy of the organization (section 11.6).
+5. Users need a verified e-mail address in Zitadel to be linked automatically. Zitadel's hosted login asks a user
+   whose e-mail is not verified to confirm it with a code before it completes the sign-in, so `email_verified` is
+   normally `true` for sign-ins through Zitadel. Enforce MFA for staff in the login policy of the organization
+   (section 11.6).
 
 ### 11.6 Security notes
 
@@ -595,7 +604,7 @@ Use the project of section 7. Create a **separate** application for the browser 
 | Failure caused by token lifetime ("not yet valid", "expired") | Clock skew between the application server and the provider; synchronize the clocks (NTP). |
 | Discovery document cannot be loaded | `Authority` must equal the `issuer` of `{Authority}/.well-known/openid-configuration`; `http` needs `RequireHttpsMetadata: false` (Development only); in container setups use a host name both the application and the browser resolve. |
 | Visitor is sent to the registration form although the account exists | The e-mail differs, or `RegisterCustomersPerStore` limits lookups to another store. |
-| Visitor is asked to connect accounts though the e-mail is verified | The account is staff, or the provider sends `email_verified` as false or not at all (for Zitadel check the user info answer). |
+| Visitor is asked to connect accounts though the e-mail is verified | The account is staff or uses GrandNode two-factor authentication, or the provider sends `email_verified` as false or not at all (for Zitadel check the user info answer). |
 | After sign-in the visitor lands on the home page, not on the requested page | The `returnUrl` was not local. |
 
 Sources used for provider specifics (checked 2026-10-08): Keycloak 26.8 MCP guide and release notes, Zitadel v4.19.4
