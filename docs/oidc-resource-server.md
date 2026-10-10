@@ -452,7 +452,9 @@ GrandNode** still decide what the user may do.
 
 * A **sign-in button** next to the other external authentication methods.
 * The provider and its claim names are the ones of `OidcResourceServer` (`Authority`, `RequireHttpsMetadata`,
-  `Claims:*`, `RequireEmailVerified`). The plugin adds one client of its own (section 11.3).
+  `Claims:*`). The plugin adds one client of its own (section 11.3). `RequireEmailVerified` applies to API tokens
+  only; browser sign-in links an account automatically only when the provider reports the e-mail as verified,
+  whatever that setting says.
 * The link between the provider's `sub` and the customer is stored in the same place as for API tokens (provider name
   `ExternalAuth.OpenIdConnect`). An account linked by browser sign-in is the account API tokens map to, and the other
   way round.
@@ -471,7 +473,7 @@ After the provider signed the user in, the result depends on the GrandNode side:
 | A link for the provider's `sub` exists | The linked customer is signed in. Staff included; the admin panel access follows their existing permissions. The customer must be active, not deleted and registered. |
 | No link; an account with the same e-mail exists, the provider **verified** the e-mail, the account is **not staff** | The account is linked and signed in at once. |
 | No link; the account is **staff** (admin panel access, vendor, store staff), or the provider did **not** verify the e-mail | "Connect your account": the page ends any current store session, and the visitor signs in **once** with the store password (and the two-factor code, when enabled). The connection is then completed (`/oidc/link/complete`); the signed-in account must have the same e-mail address. |
-| No account with that e-mail | The regular registration form opens with the e-mail taken from the provider (read-only) and **no password fields**. A verified e-mail skips e-mail validation; an unverified e-mail always needs e-mail activation. Admin approval, when the store requires it, still applies. New accounts get the **Registered** group only. |
+| No account with that e-mail | The regular registration form opens with the e-mail taken from the provider (read-only) and **no password fields**. Store registration type "Standard" becomes e-mail validation when the provider did not verify the e-mail; "E-mail validation" becomes standard when it did; "Admin approval" stays admin approval either way. New accounts get the **Registered** group only. |
 | Registration disabled in the store, account inactive, e-mail already linked to another identity | The failure page (fixed text; the reason is written to the log). |
 
 Notes:
@@ -517,7 +519,8 @@ Section `OidcLogin` of `appsettings.json`:
 ```
 
 `Authority`, `RequireHttpsMetadata` and the claim names come from `OidcResourceServer`. `OidcResourceServer:Enabled`
-does not have to be on for browser sign-in; the plugin only reads `Authority` and the other values above.
+does not have to be on for browser sign-in; the plugin only reads `Authority` and the other values above. It does not
+read `RequireEmailVerified`: automatic linking always needs an e-mail the provider reports as verified.
 
 **Not configured.** When `Authority` or `ClientId` is empty the plugin registers no sign-in scheme and the button leads
 to the failure page; it never causes an error page.
@@ -554,10 +557,10 @@ Use the project of section 7. Create a **separate** application for the browser 
    (`OidcLogin__ClientSecret`; the secret is shown once).
 2. Redirect URIs: `https://<store-url>/signin-oidc` (an `http` redirect needs *Development Mode*). Post logout URIs
    are not used (logout is local).
-3. The plugin takes `sub` from the ID token and **e-mail and `email_verified` from the user info endpoint**, which
-   Zitadel answers for the scope `email`. If the ID token should carry the user information as well, enable the
-   application's option to put user information into the ID token (token settings of the application). The
-   default scopes `openid profile email` are sufficient.
+3. The plugin reads the claims from the ID token or, when they are absent there, from the user info endpoint (the
+   handler merges both); Zitadel answers the user info endpoint for the scope `email`. To have the ID token carry the
+   user information as well, enable the application's option to put user information into the ID token (token
+   settings of the application). The default scopes `openid profile email` are sufficient.
 4. **The Actions v2 target of section 7 is not required for browser sign-in.** It runs on `preaccesstoken`, that is for
    access tokens only, and the plugin does not use the access token. Verify this on your instance: after a test
    sign-in with a verified e-mail the application log must not contain "OpenID Connect sign-in without a subject or an
