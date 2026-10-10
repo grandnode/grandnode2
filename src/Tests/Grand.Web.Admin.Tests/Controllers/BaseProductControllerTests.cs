@@ -2963,6 +2963,42 @@ public class BaseProductControllerTests
         _translationServiceMock.Verify(t => t.GetResource("Admin.Common.UploadFile"), Times.Once);
     }
 
+    // --- ImportExcel: global scope only ---
+
+    [TestMethod]
+    public async Task ImportExcel_StoreScope_DeniesAndNeverCallsImportManager()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(100);
+        var importManagerMock = new Mock<IImportManager<ProductDto>>();
+
+        var result = await _controller.ImportExcel(fileMock.Object, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.AccessDenied.Title"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ImportExcel_VendorScope_DeniesAndNeverCallsImportManager()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-1");
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(100);
+        var importManagerMock = new Mock<IImportManager<ProductDto>>();
+
+        var result = await _controller.ImportExcel(fileMock.Object, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.AccessDenied.Title"), Times.Once);
+    }
+
     [TestMethod]
     public async Task ImportExcel_NullFile_DoesNotImport_RedirectsToListWithError()
     {
