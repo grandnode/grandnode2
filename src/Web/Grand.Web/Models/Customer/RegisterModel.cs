@@ -25,6 +25,11 @@ public class RegisterModel : BaseModel
 
     public bool CheckUsernameAvailabilityEnabled { get; set; }
 
+    /// <summary>Display only: the server decides external mode from the pending identity, never from this value</summary>
+    public bool ExternalRegistration { get; set; }
+
+    public string ExternalProviderName { get; set; }
+
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.Fields.Password")]
     public string Password { get; set; }

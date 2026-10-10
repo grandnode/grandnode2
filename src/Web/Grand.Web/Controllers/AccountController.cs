@@ -13,11 +13,13 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Attributes;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
@@ -431,7 +433,9 @@ public class AccountController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [HttpGet]
-    public virtual async Task<ActionResult<RegisterModel>> Register()
+    public virtual async Task<ActionResult<RegisterModel>> Register(
+        [FromServices] IExternalRegistrationContext externalRegistrationContext,
+        [FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -447,13 +451,31 @@ public class AccountController : BasePublicController
             Store = _contextAccessor.StoreContext.CurrentStore
         });
 
+        PrepareExternalRegistration(model, await externalRegistrationContext.GetPending(), externalAuthenticationService);
         return View(model);
+    }
+
+    private static void PrepareExternalRegistration(RegisterModel model, ExternalRegistrationIdentity pending,
+        IExternalAuthenticationService externalAuthenticationService)
+    {
+        model.ExternalRegistration = pending != null;
+        if (pending == null)
+            return;
+
+        model.Email = pending.Email;
+        if (string.IsNullOrEmpty(model.FirstName)) model.FirstName = pending.FirstName;
+        if (string.IsNullOrEmpty(model.LastName)) model.LastName = pending.LastName;
+        model.ExternalProviderName =
+            externalAuthenticationService.LoadAuthenticationProviderBySystemName(pending.ProviderSystemName)?.FriendlyName
+            ?? pending.ProviderSystemName;
     }
 
     [HttpPost]
     //available even when navigation is not allowed
     [PublicStore(true)]
-    public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl)
+    public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl,
+        [FromServices] IExternalRegistrationContext externalRegistrationContext,
+        [FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -462,15 +484,27 @@ public class AccountController : BasePublicController
         //check if customer is registered. 
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("HomePage");
 
+        var pending = await externalRegistrationContext.GetPending();
+        if (pending != null)
+            model.Email = pending.Email;
+        var registrationType = pending == null
+            ? _customerSettings.UserRegistrationType
+            : ExternalRegistrationPolicy.EffectiveRegistrationType(_customerSettings.UserRegistrationType, pending.EmailVerified);
+
         if (ModelState.IsValid)
         {
             if (_customerSettings.UsernamesEnabled && model.Username != null) model.Username = model.Username.Trim();
 
-            var isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
+            var isApproved = registrationType == UserRegistrationType.Standard;
             var registrationRequest = new RegistrationRequest(_contextAccessor.WorkContext.CurrentCustomer, model.Email,
-                _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password,
+                _customerSettings.UsernamesEnabled ? model.Username : model.Email,
+                pending == null ? model.Password : CommonHelper.GenerateRandomDigitCode(20),
                 _customerSettings.DefaultPasswordFormat, _contextAccessor.StoreContext.CurrentStore.Id, isApproved);
             await _customerManagerService.RegisterCustomer(registrationRequest);
+
+            //connect the provider identity before anything can sign the customer in
+            if (pending != null)
+                await externalRegistrationContext.Complete(_contextAccessor.WorkContext.CurrentCustomer);
 
             var customerAttributes = await _mediator.Send(new GetParseCustomAttributes
                 { SelectedAttributes = model.SelectedAttributes });
@@ -489,7 +523,7 @@ public class AccountController : BasePublicController
             //raise event       
             await _mediator.Publish(new CustomerRegisteredEvent(_contextAccessor.WorkContext.CurrentCustomer));
 
-            switch (_customerSettings.UserRegistrationType)
+            switch (registrationType)
             {
                 case UserRegistrationType.EmailValidation:
                 {
@@ -540,7 +574,18 @@ public class AccountController : BasePublicController
                 { SelectedAttributes = model.SelectedAttributes })
         });
 
+        PrepareExternalRegistration(model, pending, externalAuthenticationService);
         return View(model);
+    }
+
+    //available even when navigation is not allowed
+    [PublicStore(true)]
+    [HttpGet]
+    public virtual async Task<IActionResult> RegisterExternalCancel(
+        [FromServices] IExternalRegistrationContext externalRegistrationContext)
+    {
+        await externalRegistrationContext.Clear();
+        return RedirectToRoute("Register");
     }
 
     //available even when navigation is not allowed

@@ -73,6 +73,9 @@ public class EndpointProvider : IEndpointProvider
         endpointRouteBuilder.MapControllerRoute("Register",
             $"{pattern}register/",
             new { controller = "Account", action = "Register" });
+        endpointRouteBuilder.MapControllerRoute("RegisterExternalCancel",
+            $"{pattern}register/external/cancel/",
+            new { controller = "Account", action = "RegisterExternalCancel" });
         //logout
         endpointRouteBuilder.MapControllerRoute("Logout",
             $"{pattern}logout/",

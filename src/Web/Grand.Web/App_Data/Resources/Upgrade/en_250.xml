@@ -3,4 +3,10 @@
 	<Resource Name="Admin.System.APIUsers.Deprecated" Area="Admin">
 		<Value>API users signed with a shared secret key are deprecated. Configure the OIDC resource server (OidcResourceServer in appsettings) and use access tokens issued by your identity provider.</Value>
 	</Resource>
+	<Resource Name="Account.Register.External.Notice" Area="Front">
+		<Value>You are signing up with your {0} account. No password is needed: you sign in with that account.</Value>
+	</Resource>
+	<Resource Name="Account.Register.External.Cancel" Area="Front">
+		<Value>Cancel</Value>
+	</Resource>
 </Language>

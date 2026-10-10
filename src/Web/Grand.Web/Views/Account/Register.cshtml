@@ -16,6 +16,13 @@
 <form asp-route="Register" asp-route-returnurl="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ReturnUrl"])" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
 <div class="page registration-page">
 <div asp-validation-summary="All" class="message-error"></div>
+@if (Model.ExternalRegistration)
+{
+    <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <span>@string.Format(Loc["Account.Register.External.Notice"], Model.ExternalProviderName)</span>
+        <a href="@Url.RouteUrl("RegisterExternalCancel")" class="btn btn-sm btn-outline-secondary">@Loc["Account.Register.External.Cancel"]</a>
+    </div>
+}
 <div class="card my-3">
     <div class="card-header">
         <h3 class="h5 mb-0">@Loc["Account.YourPersonalDetails"]</h3>
@@ -112,7 +119,7 @@
             <validation-provider tag="div" rules="required" name="Email" v-slot="{ errors, classes }">
                 <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                 <span class="required">*</span>
-                <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Fields.Email.Required"]/>
+                <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" readonly="@Model.ExternalRegistration" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Fields.Email.Required"]/>
                 <span class="field-validation-error">{{ errors[0] }}</span>
                 <span asp-validation-for="Email"></span>
             </validation-provider>
@@ -413,27 +420,33 @@
         </div>
     </div>
 }
-<div class="card mb-3">
-    <div class="card-header">
-        <h3 class="h5 mb-0">@Loc["Account.YourPassword"]</h3>
-    </div>
+<div class="card mb-3" hidden="@(Model.ExternalRegistration && !Model.DisplayCaptcha)">
+    @if (!Model.ExternalRegistration || Model.DisplayCaptcha)
+    {
+        <div class="card-header">
+            <h3 class="h5 mb-0">@Loc["Account.YourPassword"]</h3>
+        </div>
+    }
     <div class="card-body">
-        <div class="form-group">
-            <validation-provider tag="div" vid="customer.Password" rules="required" v-slot="{ errors, classes }">
-                <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
-                <input asp-for="Password" v-model="customer.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-required=@Loc["Account.Fields.Password.Required"]/>
-                <span class="field-validation-error">{{ errors[0] }}</span>
-                <span asp-validation-for="Password"></span>
-            </validation-provider>
-        </div>
-        <div class="form-group">
-            <validation-provider tag="div" vid="customer.ConfirmPassword" rules="required|confirmed:@@customer.Password" v-slot="{ errors, classes }">
-                <label asp-for="ConfirmPassword" class="col-form-label">@Loc["Account.Fields.ConfirmPassword"]:</label>
-                <input asp-for="ConfirmPassword" v-model="customer.ConfirmPassword" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-equalto=@Loc["Account.Fields.Password.EnteredPasswordsDoNotMatch"] data-val-required=@Loc["Account.Fields.Password.Required"]/>
-                <span class="field-validation-error">{{ errors[0] }}</span>
-                <span asp-validation-for="ConfirmPassword"></span>
-            </validation-provider>
-        </div>
+        @if (!Model.ExternalRegistration)
+        {
+            <div class="form-group">
+                <validation-provider tag="div" vid="customer.Password" rules="required" v-slot="{ errors, classes }">
+                    <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
+                    <input asp-for="Password" v-model="customer.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-required=@Loc["Account.Fields.Password.Required"]/>
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="Password"></span>
+                </validation-provider>
+            </div>
+            <div class="form-group">
+                <validation-provider tag="div" vid="customer.ConfirmPassword" rules="required|confirmed:@@customer.Password" v-slot="{ errors, classes }">
+                    <label asp-for="ConfirmPassword" class="col-form-label">@Loc["Account.Fields.ConfirmPassword"]:</label>
+                    <input asp-for="ConfirmPassword" v-model="customer.ConfirmPassword" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-equalto=@Loc["Account.Fields.Password.EnteredPasswordsDoNotMatch"] data-val-required=@Loc["Account.Fields.Password.Required"]/>
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="ConfirmPassword"></span>
+                </validation-provider>
+            </div>
+        }
         @if (Model.DisplayCaptcha)
         {
             <div class="captcha-box form-group">
