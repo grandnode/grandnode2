@@ -6,12 +6,14 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
+using Grand.Domain.Seo;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
 
-public class BrandImportDataObject : IImportDataObject<BrandDto>
+public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<BrandDto>
 {
     private readonly IBrandLayoutService _brandLayoutService;
     private readonly IBrandService _brandService;
@@ -19,6 +21,8 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
     private readonly ISlugService _slugService;
     private readonly ISeNameService _seNameService;
     private readonly SecurityConfig _securityConfig;
+    private readonly ImportHtmlGuard _htmlGuard;
+    private readonly ILogger<BrandImportDataObject> _logger;
     
     public BrandImportDataObject(
         IBrandService brandService,
@@ -26,7 +30,9 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
         IBrandLayoutService brandLayoutService,
         ISlugService slugService,
         ISeNameService seNameService,
-        SecurityConfig securityConfig)
+        SecurityConfig securityConfig,
+        ImportHtmlGuard htmlGuard,
+        ILogger<BrandImportDataObject> logger)
     {
         _brandService = brandService;
         _pictureService = pictureService;
@@ -34,27 +40,110 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
         _slugService = slugService;
         _seNameService = seNameService;
         _securityConfig = securityConfig;
+        _htmlGuard = htmlGuard;
+        _logger = logger;
     }
 
     public async Task Execute(IEnumerable<BrandDto> data)
     {
-        foreach (var item in data) await Import(item);
+        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        ImportRows.LogRejected(_logger, "brand", result);
     }
 
-    private async Task Import(BrandDto brandDto)
+    /// <summary>Row API: an unknown Id is rejected, a row without Id is matched by SeName, else (best effort) by Name</summary>
+    public Task<ImportBatchResult> Import(IReadOnlyList<BrandDto> rows, bool dryRun,
+        CancellationToken cancellationToken = default)
     {
-        var brand = await _brandService.GetBrandById(brandDto.Id);
+        return Import(rows, dryRun, ImportMode.Row, cancellationToken);
+    }
+
+    /// <summary>Row: unknown Id rejected, SeName/Name matching. Panel (XLSX): unknown Id creates the entity with that Id, no matching.</summary>
+    private Task<ImportBatchResult> Import(IReadOnlyList<BrandDto> rows, bool dryRun, ImportMode mode,
+        CancellationToken cancellationToken = default)
+    {
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, mode),
+            mode == ImportMode.Row, _logger, cancellationToken);
+    }
+
+    private async Task<ImportRowResult> ImportRow(int row, BrandDto dto, bool dryRun, ImportMode mode)
+    {
+        var errors = new List<string>();
+        var warnings = new List<string>();
+        var key = Key(dto);
+
+        var (existing, matchedByName, matchError) = await FindBrand(dto, mode);
+        if (matchError != null)
+            errors.Add(matchError);
+        if (matchedByName && existing != null)
+            warnings.Add(ImportRows.MatchedByNameWarning(existing.Name));
+        if (!string.IsNullOrEmpty(dto.Id) && existing == null && mode == ImportMode.Row)
+            errors.Add($"Id '{dto.Id}' was not found.");
+        else if (existing == null && string.IsNullOrEmpty(dto.Name))
+            errors.Add("Name is required for a new brand.");
+        if (dto.Name == "")
+            errors.Add("Name cannot be empty.");
+
+        errors.AddRange(_htmlGuard.RichTextErrors((nameof(dto.Description), dto.Description),
+            (nameof(dto.BottomDescription), dto.BottomDescription)));
+        errors.AddRange(_htmlGuard.PlainTextErrors((nameof(dto.Name), dto.Name), (nameof(dto.SeName), dto.SeName),
+            (nameof(dto.MetaKeywords), dto.MetaKeywords), (nameof(dto.MetaDescription), dto.MetaDescription),
+            (nameof(dto.MetaTitle), dto.MetaTitle)));
+
+        if (errors.Count > 0)
+            return new ImportRowResult(row, ImportRowStatus.Rejected, existing?.Id ?? "", key, errors, warnings);
+
+        if (dryRun)
+            return new ImportRowResult(row, existing == null ? ImportRowStatus.Created : ImportRowStatus.Updated,
+                existing?.Id ?? dto.Id ?? "", key, errors, warnings);
+
+        //an entity found by SeName keeps its own id
+        if (existing != null) dto.Id = existing.Id;
+        var brand = existing;
         var isNew = brand == null;
+        if (brand == null) brand = dto.MapTo<BrandDto, Brand>();
+        else dto.MapTo(brand);
 
-        if (brand == null) brand = brandDto.MapTo<BrandDto, Brand>();
-        else brandDto.MapTo(brand);
-
-        if (!ValidBrand(brand)) return;
+        if (!ValidBrand(brand))
+        {
+            errors.Add("Name is required for a new brand.");
+            return new ImportRowResult(row, ImportRowStatus.Rejected, "", key, errors, warnings);
+        }
 
         if (isNew) await _brandService.InsertBrand(brand);
         else await _brandService.UpdateBrand(brand);
 
-        await UpdateBrandData(brandDto, brand);
+        await UpdateBrandData(dto, brand);
+        return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, brand.Id, key,
+            errors, warnings);
+    }
+
+    private static string Key(BrandDto dto)
+    {
+        return !string.IsNullOrEmpty(dto.Name) ? dto.Name : !string.IsNullOrEmpty(dto.SeName) ? dto.SeName : dto.Id ?? "";
+    }
+
+    /// <summary>
+    ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by its stored
+    ///     name (any case) - more than one brand of that name is an error
+    /// </summary>
+    private async Task<(Brand brand, bool matchedByName, string error)> FindBrand(BrandDto dto, ImportMode mode)
+    {
+        if (!string.IsNullOrEmpty(dto.Id))
+            return (await _brandService.GetBrandById(dto.Id), false, null);
+
+        if (mode == ImportMode.Panel)
+            return (null, false, null);
+
+        if (!string.IsNullOrEmpty(dto.SeName))
+            return (await ImportRows.FindBySlug(_slugService, dto.SeName, EntityTypes.Brand,
+                _brandService.GetBrandById), false, null);
+
+        if (string.IsNullOrEmpty(dto.Name))
+            return (null, false, null);
+
+        var candidates = await _brandService.GetAllBrands(dto.Name, "", showHidden: true);
+        var (found, error) = ImportRows.SingleByName(candidates, b => b.Name, dto.Name, "brand");
+        return (found, found != null, error);
     }
 
     private async Task UpdateBrandData(BrandDto brandDto, Brand brand)

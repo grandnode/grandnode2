@@ -99,9 +99,21 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ISchemaProperty<Collection>, CollectionSchemaProperty>();
         serviceCollection.AddScoped<ISchemaProperty<Product>, ProductSchemaProperty>();
 
-        serviceCollection.AddScoped<IImportDataObject<CategoryDto>, CategoryImportDataObject>();
-        serviceCollection.AddScoped<IImportDataObject<BrandDto>, BrandImportDataObject>();
-        serviceCollection.AddScoped<IImportDataObject<CollectionDto>, CollectionImportDataObject>();
-        serviceCollection.AddScoped<IImportDataObject<ProductDto>, ProductImportDataObject>();
+        serviceCollection.AddScoped<CategoryImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<CategoryDto>>(sp => sp.GetRequiredService<CategoryImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<CategoryDto>>(sp => sp.GetRequiredService<CategoryImportDataObject>());
+        serviceCollection.AddScoped<BrandImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<BrandDto>>(sp => sp.GetRequiredService<BrandImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<BrandDto>>(sp => sp.GetRequiredService<BrandImportDataObject>());
+        serviceCollection.AddScoped<CollectionImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<CollectionDto>>(sp => sp.GetRequiredService<CollectionImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<CollectionDto>>(sp => sp.GetRequiredService<CollectionImportDataObject>());
+        serviceCollection.AddScoped<ImportHtmlGuard>();
+        serviceCollection.AddScoped<IRowImport<SpecificationAttributeDto>, SpecificationAttributeImportDataObject>();
+        serviceCollection.AddScoped<IRowImport<ProductAttributeDto>, ProductAttributeImportDataObject>();
+        serviceCollection.AddScoped<IRowImport<ProductVariantsDto>, ProductVariantImportDataObject>();
+        serviceCollection.AddScoped<ProductImportDataObject>();
+        serviceCollection.AddScoped<IImportDataObject<ProductDto>>(sp => sp.GetRequiredService<ProductImportDataObject>());
+        serviceCollection.AddScoped<IRowImport<ProductDto>>(sp => sp.GetRequiredService<ProductImportDataObject>());
     }
 }
