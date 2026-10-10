@@ -217,6 +217,11 @@ public class AccountController : BasePublicController
                 {
                     var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
                     HttpContext.Session.SetString("RequiresTwoFactor", userName);
+                    //the sign-in that follows the code must still go where the login was asked to go
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        HttpContext.Session.SetString("RequiresTwoFactorReturnUrl", returnUrl);
+                    else
+                        HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
                     return RedirectToRoute("TwoFactorAuthorization");
                 }
             }
@@ -289,9 +294,11 @@ public class AccountController : BasePublicController
             {
                 //remove session
                 HttpContext.Session.Remove("RequiresTwoFactor");
+                var returnUrl = HttpContext.Session.GetString("RequiresTwoFactorReturnUrl");
+                HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
 
                 //sign in
-                return await SignInAction(customer);
+                return await SignInAction(customer, false, returnUrl);
             }
 
             ModelState.AddModelError("",
