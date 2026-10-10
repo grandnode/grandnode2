@@ -36,7 +36,7 @@ Section `OidcResourceServer` of `appsettings.json` (environment variables use `_
 | `Claims:Email` | `email` | Claim holding the e-mail address. |
 | `Claims:EmailVerified` | `email_verified` | Claim holding the verification flag (JSON boolean or the string `true`, case-insensitive). |
 | `RequireEmailVerified` | `true` | An unverified e-mail never links to an account and never registers one. See [linking rules](#31-linking-rules). |
-| `AutoRegister` | `true` | Register an unknown user on first use (customer group **Registered** only). |
+| `AutoRegister` | `false` | Register an unknown user on first use (customer group **Registered** only). |
 | `Resources` | one entry for `/api` | Protected resources, below. |
 
 Each entry of `Resources` (plugins register the same object, section 5):
@@ -81,7 +81,7 @@ A token is accepted when its `aud` contains the resource URI or one of `Audience
   "Enabled": true,
   "Authority": "https://idp.example.com/realms/shop",
   "RequireEmailVerified": true,
-  "AutoRegister": true,
+  "AutoRegister": false,
   "Resources": [
     {
       "Name": "BackendApi",
@@ -108,7 +108,7 @@ customer in this order.
 ### 3.1 Linking rules
 
 1. No `sub` claim: 401.
-2. A stored link for `sub` (provider `Oidc`, exact, case-sensitive match) selects the customer. The customer must be
+2. A stored link for `sub` (provider `ExternalAuth.OpenIdConnect`, exact, case-sensitive match) selects the customer. The customer must be
    active, not deleted, registered, and not a system account; otherwise 403. An inactive customer is never reactivated.
 3. Without a link the e-mail claim is needed (missing: 401). With `RequireEmailVerified = true` it must be verified
    (otherwise 401).
@@ -125,8 +125,9 @@ customer in this order.
 
 ### 3.2 Automatic registration
 
-When no customer matches and `AutoRegister = false`, the answer is 403 "No customer account matches the token"; the
-customer has to exist already (it is then linked by the verified e-mail, section 3.1). With `AutoRegister = true`:
+`AutoRegister` is `false` by default. When no customer matches, the answer is 403 "No customer account matches the token"; the
+customer has to exist already (it is then linked by the verified e-mail, section 3.1). Set `AutoRegister = true` to opt in to registering
+an unknown user on first use; then:
 
 * the new customer gets the **Registered** group only, never an admin or vendor group;
 * store registration set to *Disabled* gives 403;
@@ -375,7 +376,7 @@ Steps:
    you do not run the target, leave `RequiredScopes` **empty** for Zitadel (a required scope would reject every token)
    and rely on (1)-(3) and (5); then any user of the instance who can log in to an allowed client reaches the
    GrandNode permission check, and a user that is auto-registered holds the Registered group only, which has no
-   admin panel access. Set `AutoRegister = false` to refuse unknown users entirely.
+   admin panel access. `AutoRegister` is off by default; turn it on only when every user of the provider may get a store account.
 5. **Dynamic client registration** (RFC 7591) is **off by default** in Zitadel. Two modes: with a token of a user
    holding the `project.app.register_dynamic` permission, or open (`dynamicClientRegistration.allowUnauthenticated =
    true`), which MCP-class clients need. See <https://zitadel.com/docs/guides/integrate/dynamic-client-registration>.
