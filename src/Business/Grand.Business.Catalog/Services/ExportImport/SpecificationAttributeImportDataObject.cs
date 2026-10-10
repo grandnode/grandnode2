@@ -39,7 +39,7 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
         var key = Key(dto);
 
         var (existing, matchedByName) = await Find(dto);
-        if (matchedByName)
+        if (matchedByName && existing != null)
             warnings.Add(ImportRows.MatchedByNameWarning(existing.Name));
         if (!string.IsNullOrEmpty(dto.Id) && existing == null)
             errors.Add($"Id '{dto.Id}' was not found.");

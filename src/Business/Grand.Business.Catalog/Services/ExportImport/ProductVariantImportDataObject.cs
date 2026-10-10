@@ -92,7 +92,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
 
         var attributes = await ResolveAttributes(attributeDtos, combinationDtos, errors);
 
-        if (errors.Count > 0)
+        if (errors.Count > 0 || product == null)
             return new ImportRowResult(row, ImportRowStatus.Rejected, product?.Id ?? "", key, errors, warnings);
 
         //the product was read from the database, not the cache, so a dry run can change it in memory freely

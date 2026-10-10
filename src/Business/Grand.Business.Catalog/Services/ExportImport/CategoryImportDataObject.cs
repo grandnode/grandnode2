@@ -74,7 +74,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         var (existing, matchedByName, matchError) = await FindCategory(dto, mode);
         if (matchError != null)
             errors.Add(matchError);
-        if (matchedByName)
+        if (matchedByName && existing != null)
             warnings.Add(ImportRows.MatchedByNameWarning(existing.Name));
         if (!string.IsNullOrEmpty(dto.Id) && existing == null && mode == ImportMode.Row)
             errors.Add($"Id '{dto.Id}' was not found.");
