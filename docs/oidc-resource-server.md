@@ -51,8 +51,8 @@ Each entry of `Resources` (plugins register the same object, section 5):
 | `ScopesSupported` | `[]` | Advertised in the metadata document. |
 | `RequiredScopes` | `[]` | Every listed scope must be in the token's `scope` (space separated) or `scp` (string or repeated claim). Compared exactly. Missing: 403 `insufficient_scope`. |
 | `RequireAdminPanelAccess` | `false` | The customer needs the `ManageAccessAdminPanel` permission. |
-| `DenyVendors` | `false` | Refuse customers that belong to a vendor. |
-| `DenyStoreManagers` | `false` | Refuse store manager accounts. |
+| `DenyVendors` | `false` | Refuse customers that belong to a vendor. The shipped `BackendApi` entry sets `true`. |
+| `DenyStoreManagers` | `false` | Refuse store manager accounts. The shipped `BackendApi` entry sets `true`. |
 
 `offline_access` is never advertised in `scopes_supported` or in a challenge `scope`.
 
@@ -102,7 +102,9 @@ A token is accepted when its `aud` contains the resource URI or one of `Audience
       "Resource": "https://shop.example.com/api",
       "ScopesSupported": [ "grandnode.api" ],
       "RequiredScopes": [ "grandnode.api" ],
-      "RequireAdminPanelAccess": true
+      "RequireAdminPanelAccess": true,
+      "DenyVendors": true,
+      "DenyStoreManagers": true
     }
   ]
 }
@@ -170,13 +172,21 @@ A token alone grants no rights. To let a user call the API:
 After the mapping the resource's conditions apply; a refusal is 403 without `WWW-Authenticate`:
 `DenyVendors`, `DenyStoreManagers`, `RequireAdminPanelAccess`.
 
+The Web API's controllers apply no vendor or store scoping, so the shipped `BackendApi` resource sets `DenyVendors` and
+`DenyStoreManagers` to `true`: vendor accounts and store managers are refused even with admin panel access. Keep both
+on unless every endpoint the resource covers scopes its data.
+
 ### 3.5 Web API (`/api`)
 
 * OIDC tokens are accepted on `/api` **next to** the existing `SecretKey` tokens, which keep working.
 * Access still requires the `ManageAccessAdminPanel` permission and passes the admin IP allow-list.
 * The per-user *API users* opt-in does **not** apply to OIDC tokens. Who may call the API is decided by which users
   the provider grants the `grandnode.api` scope, plus their GrandNode groups.
-* `BackendAPI:Enabled = false` switches the Web API off for both token kinds. An OIDC-only setup still needs
+* `BackendAPI:Enabled = false` switches the Web API off for both token kinds. For OIDC tokens this happens before
+  the token is looked at: the Web API module withdraws its paths (`IOidcDisabledPathProvider`), so every resource on
+  or under `/api` is left out of the registry (logged at startup), no metadata is published for it, and a provider
+  token there goes to the `SecretKey` scheme, which refuses it (401). No customer is registered, linked or looked up
+  and the store is not pinned. The setting is read at startup; changing it needs a restart. An OIDC-only setup still needs
   `BackendAPI:Enabled = true` and a strong `BackendAPI:SecretKey` (at least 32 characters; startup check outside
   Development), although no SecretKey token has to be issued.
 * The Web API module itself is off by default: set `FeatureManagement:Grand.Module.Api = true` (environment variable
@@ -258,11 +268,14 @@ built-in cookie step in `WorkContextSetter.CurrentCustomer`, and impersonation h
 
 ### 4.6 Routing of tokens
 
-On a resource path a request is handled by the `Oidc` scheme when it carries no readable bearer JWT (so the 401 is the
-OIDC challenge), when the token's `iss` equals `Authority`, or when the token is signed with RS/PS/ES. Tokens signed
-with HS\* by another issuer (GrandNode's own `SecretKey` tokens) stay with the old scheme.
+On a resource path the Web API's `Bearer` scheme hands a request to the `Oidc` scheme when it carries no readable
+bearer JWT (so the 401 is the OIDC challenge) or when the token's `alg` is one the `Oidc` scheme accepts (RS256/384/512,
+PS256/384/512, ES256/384/512). Every other token, HS\* in particular (GrandNode's own `SecretKey` tokens), stays with
+the `Bearer` scheme whatever `iss` it claims; the `Oidc` scheme would refuse an HMAC token anyway. The algorithm is read
+from the unvalidated header for routing only, once per request; the scheme the request lands on validates the token.
 A bearer value that does not parse as a JWT (for example three arbitrary dot-separated segments) counts as no
-token and gets the OIDC challenge.
+token and gets the OIDC challenge. Only the `Bearer` scheme forwards: other JwtBearer schemes (the frontend API,
+plugins) keep their own validation and challenge, also on a resource path.
 
 `Authority` must equal the `issuer` of the provider's discovery document. In container setups the application's
 `Authority` URL and the token `iss` must be the same string: use the public host name for both (for example
@@ -399,7 +412,9 @@ Steps:
          "AuthorizedParties": [ "<client id>" ],
          "ScopesSupported": [ "grandnode.api" ],
          "RequiredScopes": [ "grandnode.api" ],
-         "RequireAdminPanelAccess": true
+         "RequireAdminPanelAccess": true,
+         "DenyVendors": true,
+         "DenyStoreManagers": true
        }
      ]
    }
