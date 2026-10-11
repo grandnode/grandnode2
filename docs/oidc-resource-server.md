@@ -528,11 +528,11 @@ After the provider signed the user in, the result depends on the GrandNode side:
 
 | Situation | Result |
 |---|---|
-| A link for the provider's `sub` exists | The linked customer is signed in. Staff included; the admin panel access follows their existing permissions. The customer must be active, not deleted and registered. |
+| A link for the provider's `sub` exists | The linked customer is signed in. Staff included; the admin panel access follows their existing permissions. The customer must be active, not deleted and registered. When the account uses GrandNode two-factor authentication (enabled for the customer and in the store), the store's two-factor page asks for the code first. |
 | No link; an account with the same e-mail exists, the provider **verified** the e-mail, the account is **not staff** and does not use GrandNode two-factor authentication | The account is linked and signed in at once. |
 | No link; the account is **staff** (admin panel access, vendor, store staff), the account uses **GrandNode two-factor authentication** (enabled for the customer and in the store), or the provider did **not** verify the e-mail | "Connect your account": the page ends any current store session, and the visitor signs in **once** with the store password (and the two-factor code, when enabled). The connection is then completed (`/oidc/link/complete`); the signed-in account must have the same e-mail address. |
 | No account with that e-mail | The regular registration form opens with the e-mail taken from the provider (read-only) and **no password fields**. Store registration type "Standard" becomes e-mail validation when the provider did not verify the e-mail; "E-mail validation" becomes standard when it did; "Admin approval" stays admin approval either way. New accounts get the **Registered** group only. |
-| Registration disabled in the store, account inactive, e-mail already linked to another identity | The failure page (fixed text; the reason is written to the log). |
+| Registration disabled in the store, account inactive, e-mail already linked to another identity, provider identity already linked to another account, the sign-in method switched off (or limited to other stores or groups) while the sign-in was in progress | The failure page (fixed text; the reason is written to the log). |
 
 Notes:
 
@@ -545,7 +545,8 @@ Notes:
   e-mail (its activation link would approve the account), so GrandNode does not validate an e-mail address the
   provider reported as unverified. Administrators should check the address before approving such an account.
 * A customer who uses GrandNode two-factor authentication connects the provider identity **once** with the store
-  password and the two-factor code, like staff; after that the provider sign-in alone signs the customer in.
+  password and the two-factor code, like staff; after that the provider sign-in replaces the password only, and the
+  two-factor code is still asked for on every sign-in.
 * With `RegisterCustomersPerStore` enabled all lookups are limited to the store of the request, and a link belongs to
   the store of the linked account (section 3.1): the same provider identity can be connected to a separate account in
   each store, while an account of no store (such as staff) keeps one link that works in every store.
@@ -638,9 +639,11 @@ Use the project of section 7. Create a **separate** application for the browser 
 
 ### 11.6 Security notes
 
-* **After linking, staff sign in with the provider only.** The button signs a linked staff account in without the
-  GrandNode password and **without GrandNode two-factor authentication**. Enforce MFA at the provider for every user
-  who may be linked to a staff account. The first link of a staff account always needs the store password (and its 2FA).
+* **After linking, staff sign in without the GrandNode password.** The provider sign-in replaces the password only:
+  an account with GrandNode two-factor authentication (enabled for the customer and in the store) is still asked for
+  its code. A staff account without GrandNode two-factor authentication signs in with the provider alone, so enforce
+  MFA at the provider for every user who may be linked to a staff account. The first link of a staff account always
+  needs the store password (and its 2FA).
 * A staff account is never linked by e-mail alone, but the one who completes the password sign-in and holds the
   provider identity owns the link; keep the provider's e-mail verification and e-mail change policy strict (same advice
   as section 3.1).
