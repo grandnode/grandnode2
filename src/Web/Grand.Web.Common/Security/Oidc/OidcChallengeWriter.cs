@@ -15,17 +15,24 @@ public static class OidcChallengeWriter
     public static async Task Write(HttpContext context, OidcAuthenticationFailure failure, string resourceMetadataUrl,
         string scope)
     {
-        var status = failure?.Kind is OidcFailureKind.Forbidden or OidcFailureKind.InsufficientScope
-            ? StatusCodes.Status403Forbidden
-            : StatusCodes.Status401Unauthorized;
+        var status = failure?.Kind switch {
+            OidcFailureKind.Forbidden or OidcFailureKind.InsufficientScope => StatusCodes.Status403Forbidden,
+            OidcFailureKind.ServiceUnavailable => StatusCodes.Status503ServiceUnavailable,
+            _ => StatusCodes.Status401Unauthorized
+        };
 
-        if (failure?.Kind != OidcFailureKind.Forbidden)
+        //no bearer error when the token was not at fault: a refusal of the account, or no authorization server
+        if (failure?.Kind is not (OidcFailureKind.Forbidden or OidcFailureKind.ServiceUnavailable))
             context.Response.Headers[HeaderNames.WWWAuthenticate] = BuildHeader(failure, resourceMetadataUrl, scope);
 
         context.Response.StatusCode = status;
         var problem = new ProblemDetails {
             Status = status,
-            Title = status == StatusCodes.Status401Unauthorized ? "Authentication failed" : "Access denied",
+            Title = status switch {
+                StatusCodes.Status401Unauthorized => "Authentication failed",
+                StatusCodes.Status503ServiceUnavailable => "Service unavailable",
+                _ => "Access denied"
+            },
             Detail = failure?.Description
         };
 
@@ -61,9 +68,9 @@ public static class OidcChallengeWriter
     private static string Escape(string value)
     {
         var builder = new StringBuilder(value.Length);
-        foreach (var c in value)
+        //printable ASCII only: control and non-ASCII characters are dropped
+        foreach (var c in value.Where(c => c is >= (char)0x20 and < (char)0x7f))
         {
-            if (c < 0x20 || c >= 0x7f) continue;
             if (c is '"' or '\\') builder.Append('\\');
             builder.Append(c);
         }

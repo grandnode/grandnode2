@@ -37,11 +37,14 @@ public static class OidcResourceServerConfigValidator
         if (registry.Resources.Count == 0 && registry.Errors.Count == 0)
             errors.Add("OidcResourceServer is enabled but no protected resource is configured or registered by a plugin.");
 
-        foreach (var resource in registry.Resources.Where(r => !string.IsNullOrWhiteSpace(r.Resource)))
-            if (!Uri.TryCreate(resource.Resource, UriKind.Absolute, out var uri) || !string.IsNullOrEmpty(uri.Fragment) ||
-                (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
-                errors.Add($"Protected resource '{resource.Name}': Resource must be an absolute http(s) URI without a fragment.");
+        errors.AddRange(registry.Resources
+            .Where(r => !string.IsNullOrWhiteSpace(r.Resource) && !IsResourceUri(r.Resource))
+            .Select(r => $"Protected resource '{r.Name}': Resource must be an absolute http(s) URI without a fragment."));
 
         return errors;
     }
+
+    private static bool IsResourceUri(string value) =>
+        Uri.TryCreate(value, UriKind.Absolute, out var uri) && string.IsNullOrEmpty(uri.Fragment) &&
+        (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
 }
