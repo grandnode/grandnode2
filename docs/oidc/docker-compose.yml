@@ -1,0 +1,92 @@
+# TEST ENVIRONMENT ONLY. Placeholder credentials, plain http, no persistence guarantees.
+# Never use this file for a real installation. Guide: docs/oidc-resource-server.md
+#
+#   docker compose -f docs/oidc/docker-compose.yml up -d
+#
+# Required variables (a .env file next to this file, example in docs/oidc-resource-server.md section 10):
+#   KC_ADMIN_USER, KC_ADMIN_PASSWORD, ZITADEL_DB_PASSWORD, ZITADEL_MASTERKEY (32 chars), ZITADEL_ADMIN_PASSWORD
+# Optional: GRANDNODE_PROJECT_ID (Zitadel project id, for the claim target)
+# Ports are bound to 127.0.0.1 only.
+#
+# Keycloak 26.8.0  http://localhost:8080   admin user: KC_ADMIN_USER / KC_ADMIN_PASSWORD
+# Zitadel  v4.19.4 http://localhost:8081   admin: zitadel-admin@zitadel.localhost / ZITADEL_ADMIN_PASSWORD
+#
+# Use exactly these public URLs as OidcResourceServer:Authority and in the browser - the token issuer is built from them
+# (Keycloak: http://localhost:8080/realms/<realm>, Zitadel: http://localhost:8081).
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.0
+    # resource-indicators and cimd are experimental features in Keycloak 26.8
+    command: start-dev --features=resource-indicators,cimd
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN_USER:?set KC_ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:?set KC_ADMIN_PASSWORD}
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  zitadel-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${ZITADEL_DB_PASSWORD:?set ZITADEL_DB_PASSWORD}
+      POSTGRES_DB: zitadel
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zitadel"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - zitadel-db-data:/var/lib/postgresql/data
+
+  zitadel:
+    # latest stable release at the time of writing (2026-10-08)
+    image: ghcr.io/zitadel/zitadel:v4.19.4
+    command: start-from-init --masterkeyFromEnv --tlsMode disabled
+    depends_on:
+      zitadel-db:
+        condition: service_healthy
+    environment:
+      # exactly 32 characters, cannot be changed after the first start
+      ZITADEL_MASTERKEY: ${ZITADEL_MASTERKEY:?set ZITADEL_MASTERKEY (32 characters)}
+      ZITADEL_DATABASE_POSTGRES_HOST: zitadel-db
+      ZITADEL_DATABASE_POSTGRES_PORT: 5432
+      ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DB_PASSWORD:?set ZITADEL_DB_PASSWORD}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: postgres
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${ZITADEL_DB_PASSWORD:?set ZITADEL_DB_PASSWORD}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
+      # the public address: issuer = http://localhost:8081
+      ZITADEL_EXTERNALDOMAIN: localhost
+      ZITADEL_EXTERNALPORT: 8081
+      ZITADEL_EXTERNALSECURE: "false"
+      # use the login UI built into the zitadel container (the default in v4 is a separate "zitadel-login" container
+      # behind a reverse proxy, see https://github.com/zitadel/zitadel/tree/main/deploy/compose)
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: "false"
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: zitadel-admin
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_ADMIN_PASSWORD:?set ZITADEL_ADMIN_PASSWORD}
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
+      # TEST ONLY - restores SSRF exposure of Actions targets; do not copy to production.
+      # Targets on private addresses are refused by default; the e-mail target below lives in this network
+      ZITADEL_HTTPCLIENT_DENYLIST: "169.254.0.0/16"
+    ports:
+      - "127.0.0.1:8081:8080"
+
+  # Zitadel Actions v2 target that adds email, email_verified and scope to access tokens
+  # (endpoint for the target: http://zitadel-email-target:8090/)
+  zitadel-email-target:
+    image: node:22-alpine
+    command: node /app/zitadel-email-target.js
+    environment:
+      PORT: 8090
+      GRANDNODE_SCOPE: grandnode.api
+      # project role key and the id of the GrandNode project (set in .env after creating the project in Zitadel)
+      GRANDNODE_ROLE: grandnode.api
+      GRANDNODE_PROJECT_ID: ${GRANDNODE_PROJECT_ID:-}
+    volumes:
+      - ./zitadel-email-target.js:/app/zitadel-email-target.js:ro
+
+volumes:
+  zitadel-db-data:
