@@ -23,6 +23,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IOidcCustomerResolver, OidcCustomerResolver>();
         services.AddScoped<IJwtBearerCustomerAuthenticationService, JwtBearerCustomerAuthenticationService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IOidcTokenRevocationService, OidcTokenRevocationService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
