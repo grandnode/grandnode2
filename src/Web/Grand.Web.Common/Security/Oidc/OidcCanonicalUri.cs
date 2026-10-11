@@ -1,4 +1,5 @@
-using Grand.Infrastructure;
+using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,27 +11,39 @@ namespace Grand.Web.Common.Security.Oidc;
 /// </summary>
 public static class OidcCanonicalUri
 {
-    private const string StoreBaseUrlItemKey = "Grand.Oidc.StoreBaseUrl";
+    private const string StoreItemKey = "Grand.Oidc.Store";
 
     /// <summary>
-    ///     Normalized URL of the store resolved for the request; never taken from the client-controlled Host header
+    ///     The store serving the request host (<see cref="IStoreService.GetStoreByHost" /> on Request.Host); when no
+    ///     store lists the host, the only store of a single-store installation, otherwise null. Resolved once per
+    ///     request. The store cookie and the ambient store context are never used: they can name another store than
+    ///     the one whose host the request reached, and a token issued for that store would then pass the audience check.
+    /// </summary>
+    public static async Task<Store> RequestStore(HttpContext context)
+    {
+        if (context.Items.TryGetValue(StoreItemKey, out var cached))
+            return cached as Store;
+
+        var storeService = context.RequestServices.GetRequiredService<IStoreService>();
+        var host = context.Request.Host.Host;
+        var store = string.IsNullOrEmpty(host) ? null : await storeService.GetStoreByHost(host);
+        if (store == null)
+        {
+            var stores = await storeService.GetAllStores();
+            store = stores.Count == 1 ? stores[0] : null;
+        }
+
+        context.Items[StoreItemKey] = store;
+        return store;
+    }
+
+    /// <summary>
+    ///     Normalized URL of <see cref="RequestStore" />; null when no store is resolved or it has no URL
     /// </summary>
     public static async Task<string> StoreBaseUrl(HttpContext context)
     {
-        if (context.Items.TryGetValue(StoreBaseUrlItemKey, out var cached))
-            return cached as string;
-
-        var store = context.RequestServices.GetService<IContextAccessor>()?.StoreContext?.CurrentStore;
-        if (store == null)
-        {
-            var storeContext = await context.RequestServices.GetRequiredService<IStoreContextSetter>()
-                .InitializeStoreContext();
-            store = storeContext?.CurrentStore;
-        }
-
-        var baseUrl = string.IsNullOrWhiteSpace(store?.Url) ? null : Normalize(store.Url.Trim());
-        context.Items[StoreBaseUrlItemKey] = baseUrl;
-        return baseUrl;
+        var store = await RequestStore(context);
+        return string.IsNullOrWhiteSpace(store?.Url) ? null : Normalize(store.Url.Trim());
     }
 
     /// <param name="resource">Protected resource</param>

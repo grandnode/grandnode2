@@ -1,5 +1,5 @@
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
@@ -85,7 +85,7 @@ public sealed class OidcTestHost : IAsyncDisposable
                 //before AddProblemDetails, as in the app: MVC is registered first, so its problem details writer comes first
                 services?.Invoke(s);
                 s.AddProblemDetails();
-                s.TryAddSingleton(StoreContextSetter("http://localhost/"));
+                s.TryAddSingleton(StoreService(new Store { Id = "store1", Url = "http://localhost/" }));
                 var builder = s.AddAuthentication();
                 auth?.Invoke(builder);
                 builder.AddOidcResourceServer(config, o =>
@@ -114,13 +114,18 @@ public sealed class OidcTestHost : IAsyncDisposable
         return _host.GetTestClient();
     }
 
-    public static IStoreContextSetter StoreContextSetter(string url)
+    /// <summary>
+    ///     Stores matched by host as StoreService does: a store lists its hosts in Domains
+    /// </summary>
+    public static IStoreService StoreService(params Store[] stores)
     {
-        var storeContext = new Mock<IStoreContext>();
-        storeContext.Setup(c => c.CurrentStore).Returns(new Store { Id = "store1", Url = url });
-        var setter = new Mock<IStoreContextSetter>();
-        setter.Setup(s => s.InitializeStoreContext(It.IsAny<string>())).ReturnsAsync(storeContext.Object);
-        return setter.Object;
+        var service = new Mock<IStoreService>();
+        service.Setup(s => s.GetAllStores()).ReturnsAsync(stores.ToList());
+        service.Setup(s => s.GetStoreByHost(It.IsAny<string>()))
+            .ReturnsAsync((string host) => stores.FirstOrDefault(s => s.ContainsHostValue(host)));
+        service.Setup(s => s.GetStoreById(It.IsAny<string>()))
+            .ReturnsAsync((string id) => stores.FirstOrDefault(s => s.Id == id));
+        return service.Object;
     }
 
     public async ValueTask DisposeAsync()
