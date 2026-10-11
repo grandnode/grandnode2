@@ -908,11 +908,13 @@ public partial class InstallationService : IInstallationService
         //externalauth
         await dbContext.CreateIndex(_externalAuthenticationRepository,
             OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.CustomerId), CustomerId);
-        //unique: one customer per external identity - makes linking an access token subject safe against concurrent
-        //requests (indexes are created for MongoDB only; LiteDB gets a non-unique one from the 2.5 migration)
+        //unique: one customer per external identity and store (the store is set only when customers are registered
+        //per store) - makes linking an access token subject safe against concurrent requests (indexes are created
+        //for MongoDB only; LiteDB gets a non-unique one from the 2.5 migration)
         await dbContext.CreateIndex(_externalAuthenticationRepository,
             OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.ProviderSystemName)
-                .Ascending(x => x.ExternalIdentifier), "ProviderSystemName_ExternalIdentifier", true);
+                .Ascending(x => x.ExternalIdentifier).Ascending(x => x.StoreId),
+            "ProviderSystemName_ExternalIdentifier_StoreId", true);
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,
