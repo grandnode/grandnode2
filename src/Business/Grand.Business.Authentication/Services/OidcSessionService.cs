@@ -92,8 +92,119 @@ public class OidcSessionService : IOidcSessionService
         return session.Id;
     }
 
-    public virtual Task<bool> Validate(string sessionId, Customer customer) =>
-        throw new NotImplementedException();
+    public virtual async Task<bool> Validate(string sessionId, Customer customer)
+    {
+        if (string.IsNullOrEmpty(sessionId) || customer == null)
+            return false;
+
+        var session = await Get(sessionId);
+        if (session == null || session.EndedUtc.HasValue || session.CustomerId != customer.Id)
+            return false;
+
+        //back-office is evaluated now: an account promoted or demoted during the session follows its current role
+        if (!await _permissionService.IsBackOfficeAccount(customer))
+            return true;
+
+        var now = DateTime.UtcNow;
+        if (now - session.LastActivityUtc > _config.StaffIdleTimeout)
+            return await EndInvalid(session, OidcSessionEndReason.Idle);
+        if (now - session.CreatedUtc > _config.StaffMaxSession)
+            return await EndInvalid(session, OidcSessionEndReason.MaxLifetime);
+        if (string.IsNullOrEmpty(session.ProtectedRefreshToken))
+            return await EndInvalid(session, OidcSessionEndReason.NoRefreshToken);
+
+        if (now - session.LastValidatedUtc >= _config.StaffRevalidationInterval && !await Revalidate(session, now))
+            return false;
+
+        if (now - session.LastActivityUtc >= ActivityWriteInterval)
+        {
+            await _sessionRepository.UpdateField(session.Id, x => x.LastActivityUtc, now);
+            await _cache.RemoveAsync(string.Format(CacheKey.OIDC_SESSION_BY_ID_KEY, session.Id));
+        }
+
+        return true;
+    }
+
+    private async Task<bool> EndInvalid(OidcSession session, OidcSessionEndReason reason)
+    {
+        await End(session.Id, reason);
+        return false;
+    }
+
+    /// <summary>
+    ///     Confirms the account at the provider. A refusal ends the session and refuses the subject's older access tokens;
+    ///     no answer keeps the session until two intervals passed since the last confirmation
+    /// </summary>
+    private async Task<bool> Revalidate(OidcSession session, DateTime now)
+    {
+        var grace = _config.StaffRevalidationInterval * 2;
+        if (!RefreshesInProgress.TryAdd(session.Id, 0))
+            return now - session.LastValidatedUtc < grace;
+
+        try
+        {
+            var refresher = _tokenRefreshers.FirstOrDefault();
+            var refreshToken = Unprotect(session.ProtectedRefreshToken);
+            OidcRefreshResult result;
+            if (refresher == null || refreshToken == null)
+                result = OidcRefreshResult.Refused();
+            else
+            {
+                try
+                {
+                    result = await refresher.Refresh(refreshToken);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    //a failing refresher is no answer from the provider
+                    _logger.LogWarning("Refreshing session {SessionId} failed: {ExceptionType}", session.Id, ex.GetType().Name);
+                    result = OidcRefreshResult.Unavailable();
+                }
+            }
+
+            switch (result.Outcome)
+            {
+                case OidcRefreshOutcome.Refreshed:
+                {
+                    var update = UpdateBuilder<OidcSession>.Create().Set(x => x.LastValidatedUtc, now);
+                    if (!string.IsNullOrEmpty(result.RefreshToken))
+                        update.Set(x => x.ProtectedRefreshToken, _protector.Protect(result.RefreshToken));
+                    //conditional on the token read: a newer token stored meanwhile by another instance is never overwritten
+                    await _sessionRepository.UpdateOneAsync(
+                        x => x.Id == session.Id && x.ProtectedRefreshToken == session.ProtectedRefreshToken, update);
+                    await _cache.RemoveAsync(string.Format(CacheKey.OIDC_SESSION_BY_ID_KEY, session.Id));
+                    return true;
+                }
+                case OidcRefreshOutcome.Refused:
+                {
+                    //the token may have been rotated by another instance in the meantime: then the refusal is about the old one
+                    var current = await _sessionRepository.GetByIdAsync(session.Id);
+                    if (current is { EndedUtc: null } && current.ProtectedRefreshToken != session.ProtectedRefreshToken)
+                    {
+                        await _cache.RemoveAsync(string.Format(CacheKey.OIDC_SESSION_BY_ID_KEY, session.Id));
+                        return true;
+                    }
+
+                    _logger.LogWarning("The identity provider refused the session {SessionId} of customer {CustomerId}",
+                        session.Id, session.CustomerId);
+                    await End(session.Id, OidcSessionEndReason.RevalidationRefused);
+                    await _tokenRevocationService.RevokeTokens(session.Subject);
+                    return false;
+                }
+                default:
+                    _logger.LogWarning("The identity provider could not confirm session {SessionId}; last confirmed {LastValidatedUtc}",
+                        session.Id, session.LastValidatedUtc);
+                    if (now - session.LastValidatedUtc < grace)
+                        return true;
+                    await End(session.Id, OidcSessionEndReason.RevalidationUnavailable);
+                    return false;
+            }
+        }
+        finally
+        {
+            RefreshesInProgress.TryRemove(session.Id, out _);
+        }
+    }
 
     public virtual async Task End(string sessionId, OidcSessionEndReason reason)
     {

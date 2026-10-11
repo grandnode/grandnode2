@@ -164,19 +164,233 @@ public class OidcSessionServiceTests
     [TestMethod]
     public async Task DeleteExpired_KeepsRecentAndOpen()
     {
+        //the staff rule alone must remove the old staff session: the customer lifetime is longer than its age
+        _securityConfig.CookieAuthExpires = 100;
         var endedLongAgo = await Session();
         await _sessions.UpdateField(endedLongAgo.Id, x => x.EndedUtc, DateTime.UtcNow.AddDays(-8));
         var endedRecently = await Session();
         await _sessions.UpdateField(endedRecently.Id, x => x.EndedUtc, DateTime.UtcNow.AddDays(-1));
         //staff (refresh token kept) past the maximum lifetime + retention
         var oldStaff = await Session(age: TimeSpan.FromHours(10) + TimeSpan.FromDays(8));
-        //customer (no refresh token) past the cookie lifetime (24 h here) + retention
-        var oldCustomer = await Session(age: TimeSpan.FromHours(24) + TimeSpan.FromDays(8), refreshToken: null);
+        //customer (no refresh token) past the cookie lifetime (100 h here) + retention
+        var oldCustomer = await Session(age: TimeSpan.FromHours(100) + TimeSpan.FromDays(8), refreshToken: null);
         var openCustomer = await Session(age: TimeSpan.FromHours(30), refreshToken: null);
 
         await Service().DeleteExpired();
 
         CollectionAssert.AreEquivalent(new[] { endedRecently.Id, openCustomer.Id },
             _sessions.Table.Select(x => x.Id).ToArray());
+    }
+
+    private static readonly TimeSpan Interval = TimeSpan.FromMinutes(10);
+
+    [TestMethod]
+    public async Task Validate_MissingOrEmptyId_False()
+    {
+        Assert.IsFalse(await Service().Validate("000000000000000000000000", _customer));
+        Assert.IsFalse(await Service().Validate("", _customer));
+    }
+
+    [TestMethod]
+    public async Task Validate_Ended_False()
+    {
+        var session = await Session();
+        await Service().End(session.Id, OidcSessionEndReason.BackChannel);
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+    }
+
+    //a cookie whose session claim was copied into another customer's ticket
+    [TestMethod]
+    public async Task Validate_OtherCustomer_False()
+    {
+        var session = await Session(customerId: "c2");
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+    }
+
+    //customers keep the long cookie: no idle, maximum or provider check
+    [TestMethod]
+    public async Task Validate_Customer_OldAndIdle_True_NoRefresh()
+    {
+        var session = await Session(age: TimeSpan.FromDays(30), idle: TimeSpan.FromDays(20),
+            sinceValidated: TimeSpan.FromDays(30), refreshToken: null);
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        _refresher.Verify(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffIdle_Ends()
+    {
+        _staff = true;
+        var session = await Session(idle: TimeSpan.FromMinutes(31));
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.Idle, Stored(session.Id).EndReason);
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffPastMaximum_Ends()
+    {
+        _staff = true;
+        var session = await Session(age: TimeSpan.FromHours(10) + TimeSpan.FromMinutes(1));
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.MaxLifetime, Stored(session.Id).EndReason);
+    }
+
+    //a customer promoted to staff during the session has no refresh token to check the account with
+    [TestMethod]
+    public async Task Validate_StaffWithoutRefreshToken_Ends()
+    {
+        _staff = true;
+        var session = await Session(refreshToken: null);
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.NoRefreshToken, Stored(session.Id).EndReason);
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffWithinInterval_NoRefresh()
+    {
+        _staff = true;
+        var session = await Session(sinceValidated: TimeSpan.FromMinutes(9));
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        _refresher.Verify(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffRefreshed_RotatedTokenStored()
+    {
+        _staff = true;
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Refreshed("rt-2"));
+        var session = await Session(sinceValidated: Interval);
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        var stored = Stored(session.Id);
+        Assert.AreEqual("rt-2", Unprotect(stored.ProtectedRefreshToken));
+        Assert.IsTrue(stored.LastValidatedUtc > DateTime.UtcNow.AddMinutes(-1));
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffRefreshedWithoutRotation_OldTokenKept()
+    {
+        _staff = true;
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Refreshed(null));
+        var session = await Session(sinceValidated: Interval);
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual("rt-1", Unprotect(Stored(session.Id).ProtectedRefreshToken));
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffRefused_EndsAndRevokesTokens()
+    {
+        _staff = true;
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Refused());
+        var session = await Session(sinceValidated: Interval);
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.RevalidationRefused, Stored(session.Id).EndReason);
+        _revocation.Verify(x => x.RevokeTokens("sub-1"), Times.Once);
+    }
+
+    //another request (or instance) used the rotated token first and stored the new one: the refusal is about the old token
+    [TestMethod]
+    public async Task Refused_AfterAnotherRefreshStoredNewToken_StaysValid()
+    {
+        _staff = true;
+        var session = await Session(sinceValidated: Interval);
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).Returns(async () =>
+        {
+            await _sessions.UpdateField(session.Id, x => x.ProtectedRefreshToken, Protect("rt-2"));
+            return OidcRefreshResult.Refused();
+        });
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.IsNull(Stored(session.Id).EndedUtc);
+        _revocation.Verify(x => x.RevokeTokens(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffUnavailable_WithinTwoIntervals_Valid()
+    {
+        _staff = true;
+        _refresher.Setup(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Unavailable());
+        var session = await Session(sinceValidated: Interval + TimeSpan.FromMinutes(5));
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.IsNull(Stored(session.Id).EndedUtc);
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffUnavailable_PastTwoIntervals_Ends()
+    {
+        _staff = true;
+        _refresher.Setup(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Unavailable());
+        var session = await Session(sinceValidated: Interval * 2 + TimeSpan.FromMinutes(1));
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.RevalidationUnavailable, Stored(session.Id).EndReason);
+        _revocation.Verify(x => x.RevokeTokens(It.IsAny<string>()), Times.Never);
+    }
+
+    //a refresher that fails is no answer from the provider: the session is kept within the grace time
+    [TestMethod]
+    public async Task Validate_RefresherThrows_TreatedAsUnavailable()
+    {
+        _staff = true;
+        _refresher.Setup(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+        var session = await Session(sinceValidated: Interval + TimeSpan.FromMinutes(5));
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.IsNull(Stored(session.Id).EndedUtc);
+        _revocation.Verify(x => x.RevokeTokens(It.IsAny<string>()), Times.Never);
+    }
+
+    //the login plugin was uninstalled: staff sessions end at the next check, customers are not affected
+    [TestMethod]
+    public async Task NoRefresher_CountsAsRefused()
+    {
+        _staff = true;
+        _refreshers.Clear();
+        var session = await Session(sinceValidated: Interval);
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.RevalidationRefused, Stored(session.Id).EndReason);
+    }
+
+    //a parallel request finds the refresh in progress and goes on while the last check is recent enough
+    [TestMethod]
+    public async Task RefreshInProgress_RecentCheck_Valid()
+    {
+        _staff = true;
+        var release = new TaskCompletionSource<OidcRefreshResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var started = new TaskCompletionSource();
+        _refresher.Setup(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                started.TrySetResult();
+                return release.Task;
+            });
+        var session = await Session(sinceValidated: Interval);
+
+        var first = Service().Validate(session.Id, _customer);
+        try
+        {
+            //the first request holds the refresh before the second one starts
+            await started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        }
+        finally
+        {
+            //always released: the in-progress marker is process-wide and must not outlive the test
+            release.TrySetResult(OidcRefreshResult.Refreshed("rt-2"));
+        }
+
+        Assert.IsTrue(await first);
+        _refresher.Verify(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Validate_StaffActivity_WrittenAtMostOncePerMinute()
+    {
+        _staff = true;
+        var fresh = await Session(idle: TimeSpan.FromSeconds(10));
+        var before = Stored(fresh.Id).LastActivityUtc;
+        Assert.IsTrue(await Service().Validate(fresh.Id, _customer));
+        Assert.AreEqual(before, Stored(fresh.Id).LastActivityUtc);
+
+        var stale = await Session(idle: TimeSpan.FromMinutes(2));
+        Assert.IsTrue(await Service().Validate(stale.Id, _customer));
+        Assert.IsTrue(Stored(stale.Id).LastActivityUtc > DateTime.UtcNow.AddMinutes(-1));
     }
 }
