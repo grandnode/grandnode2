@@ -12,6 +12,7 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
 {
     private readonly List<(string Prefix, OidcProtectedResource Resource)> _entries = [];
     private readonly List<string> _errors = [];
+    private readonly IReadOnlyList<OidcProtectedResource> _resources = [];
 
     public OidcProtectedResourceRegistry(OidcResourceServerConfig config,
         IEnumerable<IOidcProtectedResourceProvider> providers)
@@ -38,9 +39,11 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
             foreach (var resource in resources)
                 Add(resource, provider.GetType().FullName);
         }
+
+        _resources = _entries.Select(x => x.Resource).ToList().AsReadOnly();
     }
 
-    public IReadOnlyList<OidcProtectedResource> Resources => _entries.Select(x => x.Resource).ToList();
+    public IReadOnlyList<OidcProtectedResource> Resources => _resources;
     public IReadOnlyList<string> Errors => _errors;
 
     public OidcProtectedResource Match(PathString path)

@@ -67,4 +67,20 @@ public class OidcChallengeWriterTests
         Assert.AreEqual(401, context.Response.StatusCode);
         StringAssert.Contains(context.Response.Headers.WWWAuthenticate.ToString(), "resource_metadata");
     }
+
+    [TestMethod]
+    public async Task Write_ServiceUnavailable_503_NoBearerError_ProblemJson()
+    {
+        var context = Context();
+        await OidcChallengeWriter.Write(context,
+            new OidcAuthenticationFailure { Kind = OidcFailureKind.ServiceUnavailable, Description = "The authorization server is unavailable" }, Meta, null);
+
+        Assert.AreEqual(503, context.Response.StatusCode);
+        Assert.IsFalse(context.Response.Headers.ContainsKey("WWW-Authenticate"));
+        StringAssert.StartsWith(context.Response.ContentType, "application/problem+json");
+        context.Response.Body.Position = 0;
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        StringAssert.Contains(body, "\"status\":503");
+        StringAssert.Contains(body, "\"title\":\"Service unavailable\"");
+    }
 }
