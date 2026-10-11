@@ -34,7 +34,7 @@ public static class OidcResourceServerConfigValidator
             errors.Add("OidcResourceServer.Claims: Subject, Email and EmailVerified must name a claim.");
 
         errors.AddRange(registry.Errors);
-        if (registry.Resources.Count == 0 && registry.Errors.Count == 0)
+        if (registry.Resources.Count == 0 && registry.Errors.Count == 0 && registry.Withdrawn.Count == 0)
             errors.Add("OidcResourceServer is enabled but no protected resource is configured or registered by a plugin.");
 
         errors.AddRange(registry.Resources
