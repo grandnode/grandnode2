@@ -50,6 +50,16 @@ public class OidcRequestStoreTests
         Assert.AreEqual("https://a.test", await OidcCanonicalUri.StoreBaseUrl(Context("a.test", StoreA, StoreB)));
 
     [TestMethod]
+    public async Task HostWithPort_StoreListsHostWithPort_ThatStore() =>
+        //the installer seeds HostName with the port of the install request
+        Assert.AreEqual("https://c.test:8443", await OidcCanonicalUri.StoreBaseUrl(Context("c.test:8443", StoreA,
+            Store("C", "https://c.test:8443/", "c.test:8443"))));
+
+    [TestMethod]
+    public async Task HostWithPort_StoreListsHostWithoutPort_ThatStore() =>
+        Assert.AreEqual("https://a.test", await OidcCanonicalUri.StoreBaseUrl(Context("a.test:8443", StoreA, StoreB)));
+
+    [TestMethod]
     public async Task UnknownHost_SeveralStores_Null() =>
         Assert.IsNull(await OidcCanonicalUri.StoreBaseUrl(Context("evil.test", StoreA, StoreB)));
 
