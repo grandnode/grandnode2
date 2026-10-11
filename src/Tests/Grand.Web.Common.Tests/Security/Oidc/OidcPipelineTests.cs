@@ -221,6 +221,15 @@ public class OidcPipelineTests
     }
 
     [TestMethod]
+    public async Task NegativeClockSkew_TreatedAsZero_Not500()
+    {
+        var config = OidcTestHost.Config();
+        config.ClockSkewSeconds = -30;
+        await Start(config);
+        Assert.AreEqual(HttpStatusCode.OK, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+    }
+
+    [TestMethod]
     public async Task AuthorizationServerUnreachable_503_NotInvalidToken()
     {
         var logs = new ListLoggerProvider();

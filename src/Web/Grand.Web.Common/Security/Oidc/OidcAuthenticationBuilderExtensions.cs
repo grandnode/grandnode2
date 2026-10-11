@@ -51,7 +51,8 @@ public static class OidcAuthenticationBuilderExtensions
                 ValidateIssuerSigningKey = true,
                 RequireExpirationTime = true,
                 ValidAlgorithms = AsymmetricAlgorithms,
-                ClockSkew = TimeSpan.FromSeconds(config.ClockSkewSeconds),
+                //negative throws when the options are built (first request); the validator reports the value
+                ClockSkew = TimeSpan.FromSeconds(Math.Max(0, config.ClockSkewSeconds)),
                 NameClaimType = config.Claims.Subject
             };
             options.Events = new OidcJwtBearerEvents(config);
