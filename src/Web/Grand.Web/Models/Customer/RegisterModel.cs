@@ -30,6 +30,9 @@ public class RegisterModel : BaseModel
 
     public string ExternalProviderName { get; set; }
 
+    /// <summary>Display only: the provider identity is connected on registration and no password is asked for</summary>
+    public bool ExternalConnects { get; set; }
+
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.Fields.Password")]
     public string Password { get; set; }

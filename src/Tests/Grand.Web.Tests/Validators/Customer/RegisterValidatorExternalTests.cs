@@ -73,6 +73,14 @@ public class RegisterValidatorExternalTests
     }
 
     [TestMethod]
+    public async Task Pending_Unverified_NoPassword_Invalid()
+    {
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
+        var result = await Validator().ValidateAsync(new RegisterModel { Email = Pending.Email });
+        Assert.IsTrue(result.Errors.Any(e => e.PropertyName == nameof(RegisterModel.Password)));
+    }
+
+    [TestMethod]
     public async Task NoPending_NoPassword_Invalid_EvenWithFormFlag()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
