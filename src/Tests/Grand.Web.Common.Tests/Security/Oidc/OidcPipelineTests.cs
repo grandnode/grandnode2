@@ -303,6 +303,47 @@ public class OidcPipelineTests
         Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
     }
 
+    [TestMethod]
+    public async Task AuthorizationServerBackAfterOutage_503Then200AndForged401()
+    {
+        var handler = new SwitchableHandler();
+        await _host.DisposeAsync();
+        _host = new OidcTestHost();
+        _client = await _host.Start(OidcTestHost.Config(), jwtBearer: o =>
+        {
+            o.Configuration = null;
+            o.Backchannel = new HttpClient(handler);
+        });
+
+        using (var outage = await Get("/api/ping", OidcTestHost.Token()))
+            Assert.AreEqual(HttpStatusCode.ServiceUnavailable, outage.StatusCode);
+
+        //the identity provider answers again: the unavailable flag clears, tokens are judged on their own merits
+        handler.Reachable = true;
+        using var valid = await Get("/api/ping", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
+        using var forged = await Get("/api/ping", OidcTestHost.Token(key: OidcTestHost.ForeignKey));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, forged.StatusCode);
+        StringAssert.Contains(forged.Headers.WwwAuthenticate.ToString(), "invalid_token");
+    }
+
+    private sealed class SwitchableHandler : HttpMessageHandler
+    {
+        private readonly HttpMessageInvoker _discovery = new(new DiscoveryHandler());
+        public volatile bool Reachable;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Reachable
+                ? _discovery.SendAsync(request, cancellationToken)
+                : throw new HttpRequestException("No such host is known.");
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _discovery.Dispose();
+            base.Dispose(disposing);
+        }
+    }
+
     private sealed class DiscoveryHandler : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
