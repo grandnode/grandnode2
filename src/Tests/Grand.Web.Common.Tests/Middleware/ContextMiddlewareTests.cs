@@ -17,7 +17,7 @@ public class ContextMiddlewareTests
     private Mock<IStoreContextSetter> _storeContextSetter;
     private Mock<IWorkContextSetter> _workContextSetter;
 
-    private async Task<bool> Invoke(string routePattern)
+    private async Task<bool> Invoke(string routePattern, Action<HttpContext> request = null)
     {
         _storeContextSetter = new Mock<IStoreContextSetter>();
         var storeContext = new Mock<IStoreContext>();
@@ -31,6 +31,7 @@ public class ContextMiddlewareTests
         var http = new DefaultHttpContext { RequestServices = services.BuildServiceProvider() };
         http.SetEndpoint(new RouteEndpoint(_ => Task.CompletedTask, RoutePatternFactory.Parse(routePattern), 0,
             EndpointMetadataCollection.Empty, null));
+        request?.Invoke(http);
 
         var nextCalled = false;
         var middleware = new ContextMiddleware(_ =>
@@ -59,5 +60,19 @@ public class ContextMiddlewareTests
     {
         Assert.IsTrue(await Invoke("/api/{controller}"));
         _workContextSetter.Verify(x => x.InitializeWorkContext("store1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task NoPinnedStore_StoreContextFromCookieOrHost()
+    {
+        Assert.IsTrue(await Invoke("/api/{controller}"));
+        _storeContextSetter.Verify(x => x.InitializeStoreContext(null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PinnedStore_PassedToTheStoreContext()
+    {
+        Assert.IsTrue(await Invoke("/api/{controller}", http => RequestStorePin.Set(http, "store2")));
+        _storeContextSetter.Verify(x => x.InitializeStoreContext("store2"), Times.Once);
     }
 }

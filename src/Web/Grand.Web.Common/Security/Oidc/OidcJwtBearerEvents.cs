@@ -68,8 +68,7 @@ public class OidcJwtBearerEvents : JwtBearerEvents
     {
         var http = context.HttpContext;
         var services = http.RequestServices;
-        //the store whose URL the audience was checked against (from the host, never the store cookie); [Authorize]
-        //authenticates in the authorization middleware, before ContextMiddleware sets the store context anyway
+        //the store whose URL the audience was checked against (from the host, never the store cookie)
         var storeId = (await OidcCanonicalUri.RequestStore(http))?.Id ?? "";
         var result = await services.GetRequiredService<IOidcCustomerResolver>().Resolve(context.Principal!, storeId);
         if (!result.Succeeded)
@@ -86,6 +85,9 @@ public class OidcJwtBearerEvents : JwtBearerEvents
         }
 
         http.Items[OidcResourceServerDefaults.CustomerItemKey] = result.Customer;
+        //the work context is built in the same store: prices, settings and per-store checks follow the token, not a
+        //store cookie the client also sends (authenticated before ContextMiddleware, see OidcAuthenticationMiddleware)
+        RequestStorePin.Set(http, storeId);
         return true;
     }
 
