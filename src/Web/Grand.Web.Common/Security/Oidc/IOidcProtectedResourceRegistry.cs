@@ -11,6 +11,9 @@ public interface IOidcProtectedResourceRegistry
     /// <summary>Configuration problems found while merging (reported at startup)</summary>
     IReadOnlyList<string> Errors { get; }
 
+    /// <summary>Configured resources left out because the module serving their path is switched off</summary>
+    IReadOnlyList<OidcProtectedResource> Withdrawn { get; }
+
     /// <summary>The resource covering the path, or null</summary>
     OidcProtectedResource Match(PathString path);
 }

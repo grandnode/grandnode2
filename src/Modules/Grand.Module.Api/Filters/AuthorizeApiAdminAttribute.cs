@@ -49,6 +49,14 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
         {
             ArgumentNullException.ThrowIfNull(filterContext);
 
+            //the kill switch also covers tokens forwarded to the OpenID Connect scheme, which skip the Bearer scheme's
+            //check; it applies to every action, including those that ignore the admin area checks below
+            if (!backendApiConfig.Enabled)
+            {
+                filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
+                return;
+            }
+
             //check whether this filter has been overridden for the action
             var actionFilter = filterContext.ActionDescriptor.FilterDescriptors
                 .Where(f => f.Scope == FilterScope.Action)
@@ -57,13 +65,6 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
             //ignore filter (the action is available even if a customer hasn't access to the admin area)
             if (actionFilter?.IgnoreFilter ?? ignoreFilter)
                 return;
-
-            //the kill switch also covers tokens forwarded to the OpenID Connect scheme, which skip the Bearer scheme's check
-            if (!backendApiConfig.Enabled)
-            {
-                filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
-                return;
-            }
 
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;

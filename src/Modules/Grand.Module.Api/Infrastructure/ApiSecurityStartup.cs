@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -65,6 +66,8 @@ public class ApiSecurityStartup : IStartupApplication
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        //a disabled Web API also refuses access tokens of the identity provider, before any customer is resolved
+        services.AddSingleton<IOidcDisabledPathProvider, ApiOidcDisabledPathProvider>();
     }
 
     public int Priority => 0;

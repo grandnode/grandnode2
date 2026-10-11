@@ -63,6 +63,21 @@ public class OidcResourceServerConfigValidatorTests
     }
 
     [TestMethod]
+    public void OnlyWithdrawnResources_NoError()
+    {
+        //the Web API is switched off: its resource is configured but withdrawn, which is not a misconfiguration
+        var config = Valid();
+        var registry = new OidcProtectedResourceRegistry(config, [], [new DisabledApi()]);
+        Assert.AreEqual(0, registry.Resources.Count);
+        Assert.AreEqual(0, OidcResourceServerConfigValidator.Validate(config, registry, false).Count);
+    }
+
+    private class DisabledApi : Grand.Business.Core.Interfaces.Authentication.IOidcDisabledPathProvider
+    {
+        public IEnumerable<string> GetDisabledPaths() => ["/api"];
+    }
+
+    [TestMethod]
     public void RegistryErrorsIncluded()
     {
         var config = Valid();
