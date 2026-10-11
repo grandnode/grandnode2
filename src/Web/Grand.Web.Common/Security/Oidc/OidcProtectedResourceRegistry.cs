@@ -6,19 +6,37 @@ namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
 ///     Protected resources from appsettings and from installed plugins, validated once: unique names, unique and
-///     non-overlapping prefixes. Invalid entries are left out and reported in <see cref="Errors" />.
+///     non-overlapping prefixes. Invalid entries are left out and reported in <see cref="Errors" />; resources on the
+///     paths of a switched-off module (<see cref="IOidcDisabledPathProvider" />) are left out and listed in
+///     <see cref="Withdrawn" />.
 /// </summary>
 public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
 {
     private readonly List<(string Prefix, OidcProtectedResource Resource)> _entries = [];
     private readonly List<string> _errors = [];
+    private readonly List<OidcProtectedResource> _withdrawn = [];
+    private readonly List<string> _disabledPrefixes = [];
     private readonly IReadOnlyList<OidcProtectedResource> _resources = [];
 
     public OidcProtectedResourceRegistry(OidcResourceServerConfig config,
-        IEnumerable<IOidcProtectedResourceProvider> providers)
+        IEnumerable<IOidcProtectedResourceProvider> providers,
+        IEnumerable<IOidcDisabledPathProvider> disabledPaths = null)
     {
         if (config is not { Enabled: true })
             return;
+
+        foreach (var provider in disabledPaths ?? [])
+        {
+            try
+            {
+                _disabledPrefixes.AddRange((provider.GetDisabledPaths() ?? []).Select(OidcPath.Normalize)
+                    .Where(x => x != null));
+            }
+            catch (Exception ex)
+            {
+                _errors.Add($"{provider.GetType().FullName} failed to return its disabled paths: {ex.Message}");
+            }
+        }
 
         foreach (var resource in config.Resources ?? [])
             Add(resource, "configuration");
@@ -45,6 +63,7 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
 
     public IReadOnlyList<OidcProtectedResource> Resources => _resources;
     public IReadOnlyList<string> Errors => _errors;
+    public IReadOnlyList<OidcProtectedResource> Withdrawn => _withdrawn;
 
     public OidcProtectedResource Match(PathString path)
     {
@@ -63,6 +82,14 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
         if (string.IsNullOrWhiteSpace(resource.Name) || prefix == null)
         {
             _errors.Add($"Protected resource '{resource.Name}' from {source}: a name and a path prefix starting with '/' (not '/' alone) are required.");
+            return;
+        }
+
+        //the module serving the path is switched off: no token there reaches the Oidc scheme
+        if (_disabledPrefixes.Any(disabled =>
+                OidcPath.Covers(disabled, new PathString(prefix)) || OidcPath.Covers(prefix, new PathString(disabled))))
+        {
+            _withdrawn.Add(resource);
             return;
         }
 

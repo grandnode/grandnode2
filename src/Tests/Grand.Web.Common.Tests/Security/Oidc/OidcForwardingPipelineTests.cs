@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -25,12 +26,19 @@ public class OidcForwardingPipelineTests
     private HttpClient _client;
     private Mock<IOidcCustomerResolver> _resolver;
 
-    private async Task Start(OidcResourceServerConfig config)
+    private async Task Start(OidcResourceServerConfig config, bool webApiDisabled = false)
     {
         if (_host != null) await _host.DisposeAsync();
         _host = new OidcTestHost();
         _client = await _host.Start(config,
-            services: s => s.AddSingleton(_resolver.Object),
+            services: s =>
+            {
+                s.AddSingleton(_resolver.Object);
+                //what Grand.Module.Api registers while BackendAPI.Enabled is false
+                if (webApiDisabled)
+                    s.AddSingleton<IOidcDisabledPathProvider>(new DisabledPaths("/api"));
+            },
+            afterAuthorization: app => app.UseMiddleware<OidcAuthenticationMiddleware>(),
             auth: b => b.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
             {
                 o.TokenValidationParameters = new TokenValidationParameters {
@@ -192,6 +200,36 @@ public class OidcForwardingPipelineTests
         Assert.AreEqual(HttpStatusCode.Unauthorized, idpToken.StatusCode);
         using var legacyToken = await Get("/api/legacy", LegacyToken());
         Assert.AreEqual(HttpStatusCode.OK, legacyToken.StatusCode);
+    }
+
+    private class DisabledPaths(params string[] paths) : IOidcDisabledPathProvider
+    {
+        public IEnumerable<string> GetDisabledPaths() => paths;
+    }
+
+    [TestMethod]
+    public async Task WebApiDisabled_IdpToken_RefusedBeforeCustomerResolution()
+    {
+        await Start(OidcTestHost.Config(), webApiDisabled: true);
+
+        using var bearerEndpoint = await Get("/api/legacy", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Unauthorized, bearerEndpoint.StatusCode);
+        using var pinned = await Get("/api/legacy/store", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Unauthorized, pinned.StatusCode);
+        //no [Authorize]: neither OidcAuthenticationMiddleware nor the work context maps the token
+        using var plain = await Get("/api/plain", OidcTestHost.Token());
+        Assert.AreEqual("none", await plain.Content.ReadAsStringAsync());
+
+        _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task WebApiDisabled_ResourceNotPublished()
+    {
+        await Start(OidcTestHost.Config(), webApiDisabled: true);
+
+        using var response = await Get("/.well-known/oauth-protected-resource/api");
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     private static string Unsigned(string payloadJson)
