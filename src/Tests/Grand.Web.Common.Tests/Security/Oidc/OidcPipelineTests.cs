@@ -1,4 +1,6 @@
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
@@ -14,11 +16,12 @@ public class OidcPipelineTests
     private OidcTestHost _host;
     private HttpClient _client;
 
-    private async Task Start(OidcResourceServerConfig config = null)
+    private async Task Start(OidcResourceServerConfig config = null, params Store[] stores)
     {
         if (_host != null) await _host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(config ?? OidcTestHost.Config());
+        _client = await _host.Start(config ?? OidcTestHost.Config(),
+            stores.Length > 0 ? s => s.AddSingleton(OidcTestHost.StoreService(stores)) : null);
     }
 
     [TestInitialize]
@@ -154,5 +157,48 @@ public class OidcPipelineTests
         StringAssert.Contains(await response.Content.ReadAsStringAsync(), "\"resource\":\"http://localhost/api\"");
         Assert.AreEqual(HttpStatusCode.OK, (await _client.GetAsync("/.well-known/oauth-protected-resource")).StatusCode);
         Assert.AreEqual(HttpStatusCode.NotFound, (await _client.GetAsync("/.well-known/oauth-protected-resource/other")).StatusCode);
+    }
+
+    private async Task<string> MetadataResource(string path, string host = null)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        if (host != null) request.Headers.Host = host;
+        using var response = await _client.SendAsync(request);
+        if (response.StatusCode != HttpStatusCode.OK) return ((int)response.StatusCode).ToString();
+        using var json = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        return json.RootElement.GetProperty("resource").GetString();
+    }
+
+    [TestMethod]
+    public async Task ConfiguredResource_MetadataAtItsHostRoot()
+    {
+        await Start(OidcTestHost.Config(new OidcProtectedResource {
+            Name = "BackendApi", PathPrefix = "/api", Resource = "https://api.x.test/v1", RequiredScopes = ["grandnode.api"]
+        }));
+        StringAssert.Contains((await Get("/api/ping")).Headers.WwwAuthenticate.ToString(),
+            "resource_metadata=\"https://api.x.test/.well-known/oauth-protected-resource/v1\"");
+        Assert.AreEqual("https://api.x.test/v1", await MetadataResource("/.well-known/oauth-protected-resource/v1"));
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api"));
+    }
+
+    [TestMethod]
+    public async Task StoreUnderSubPath_MetadataPathCarriesStorePath()
+    {
+        await Start(null, new Store { Id = "store1", Url = "http://localhost/shop/" });
+        StringAssert.Contains((await Get("/api/ping")).Headers.WwwAuthenticate.ToString(),
+            "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource/shop/api\"");
+        Assert.AreEqual("http://localhost/shop/api", await MetadataResource("/.well-known/oauth-protected-resource/shop/api"));
+        Assert.AreEqual("http://localhost/shop", await MetadataResource("/.well-known/oauth-protected-resource/shop"));
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api"));
+    }
+
+    [TestMethod]
+    public async Task SameResourcePath_PickedByRequestAuthority()
+    {
+        await Start(OidcTestHost.Config(
+            new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api" },
+            new OidcProtectedResource { Name = "Tools", PathPrefix = "/tools", Resource = "http://tools.test/api" }));
+        Assert.AreEqual("http://localhost/api", await MetadataResource("/.well-known/oauth-protected-resource/api"));
+        Assert.AreEqual("http://tools.test/api", await MetadataResource("/.well-known/oauth-protected-resource/api", "tools.test"));
     }
 }

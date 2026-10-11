@@ -100,7 +100,8 @@ public class OidcJwtBearerEvents : JwtBearerEvents
 
         var resource = http.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>().Match(http.Request.Path);
         var metadataUrl = resource != null
-            ? OidcProtectedResourceMetadata.MetadataUrl(await OidcCanonicalUri.StoreBaseUrl(http), resource)
+            ? OidcProtectedResourceMetadata.MetadataUrl(
+                OidcCanonicalUri.ResourceFor(resource, await OidcCanonicalUri.StoreBaseUrl(http)))
             : null;
         var scope = resource != null ? string.Join(' ', OidcTokenChecks.PublicScopes(resource.RequiredScopes)) : null;
         await OidcChallengeWriter.Write(http, failure, metadataUrl, scope);
