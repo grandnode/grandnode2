@@ -45,6 +45,9 @@ public class OidcForwardingPipelineTests
                     .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme });
                 e.MapGet("/api/forbid", () => Results.Forbid(authenticationSchemes: [JwtBearerDefaults.AuthenticationScheme]))
                     .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme });
+                //the store ContextMiddleware builds the work context in
+                e.MapGet("/api/legacy/store", (HttpContext c) => RequestStorePin.Get(c) ?? "none")
+                    .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme });
                 //no [Authorize]: the work context path
                 e.MapGet("/api/plain", async (HttpContext c) =>
                 {
@@ -89,6 +92,20 @@ public class OidcForwardingPipelineTests
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("admin@example.com", await response.Content.ReadAsStringAsync());
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task IdpToken_OnBearerEndpoint_StorePinned()
+    {
+        var response = await Get("/api/legacy/store", OidcTestHost.Token());
+        Assert.AreEqual("store1", await response.Content.ReadAsStringAsync());
+    }
+
+    [TestMethod]
+    public async Task LegacySecretKeyToken_StoreNotPinned()
+    {
+        var response = await Get("/api/legacy/store", LegacyToken());
+        Assert.AreEqual("none", await response.Content.ReadAsStringAsync());
     }
 
     [TestMethod]
