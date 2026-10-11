@@ -130,16 +130,22 @@ customer in this order.
 3. Without a link the e-mail claim is needed (missing: 401). With `RequireEmailVerified = true` it must be verified
    (otherwise 401).
 4. A customer with the same e-mail address is linked on first use, and the link is stored.
-   * With `RequireEmailVerified = true` this **includes back-office accounts** (administrators, vendors, store staff):
-     the identity provider is trusted for verified e-mail addresses. Secure the provider accordingly (verify e-mail
-     addresses, restrict self-registration and e-mail changes).
-   * With `RequireEmailVerified = false` back-office accounts are **never** linked by e-mail.
+   * **Back-office accounts** (admin panel access, vendors, store staff) are **never** linked by e-mail, verified or
+     not (403 without a link). A provider where someone can mark an address as verified without owning it (an
+     administrator of another organization or realm creating a user) would otherwise hand over an administrator
+     account. Staff connect their account once through the browser sign-in plugin (section 11), which asks for the
+     store password and two-factor code; their tokens then use that link. A customer who is already linked keeps the
+     link when an administrator later grants back-office access (section 3.3).
+   * Ordinary customers are linked by a verified e-mail. With `RequireEmailVerified = false` they are linked by an
+     unverified one too: only for providers that never send `email_verified` and do not let users choose an address.
 5. System accounts and guests are never mapped.
 6. One identity per customer: when the customer is already linked to another `sub`, the new subject is refused (403).
    One identity per customer is enforced by the link's identifier, which is derived from the customer, so two
    concurrent requests with different subjects cannot both link the same customer.
-   Links do not record the provider instance, so after switching `Authority` to another provider the customers
-   linked by the previous one are refused until their link is removed.
+   Links do not record the provider instance, and a `sub` is unique only within one provider. Before switching
+   `Authority` to another provider (or realm), remove the `ExternalAuth.OpenIdConnect` links: a subject of the new
+   provider equal to a stored one would select the old customer, and customers linked by the previous provider would be
+   refused as linked to another identity.
 7. With `RegisterCustomersPerStore` enabled an account of another store is refused (403) and lookups are store-scoped.
 
 **Per-store identity.** With `RegisterCustomersPerStore` enabled the same person can have a separate customer in each
@@ -168,6 +174,11 @@ A token alone grants no rights. To let a user call the API:
 1. let the provider issue the user a token with the `grandnode.api` scope (provider side, below);
 2. in GrandNode add the (auto-registered or existing) customer to a **customer group** whose permissions include
    *Access admin panel* and the permissions the calls need (or use a group created for API access).
+
+The customer must be **linked** to the provider identity. An account that already has admin panel access, a vendor or
+a staff store is not linked by e-mail (section 3.1): connect it once with the browser sign-in plugin (section 11), or
+grant the access to an account that is already linked (registered or linked by an earlier token while it was an
+ordinary customer).
 
 ### 3.4 Resource conditions
 
@@ -645,9 +656,9 @@ Use the project of section 7. Create a **separate** application for the browser 
   staff account always needs the store password (and its 2FA).
 * The button never replaces another signed-in account: a visitor signed in to the store as someone else gets the
   failure page and stays signed in.
-* A staff account is never linked by e-mail alone, but the one who completes the password sign-in and holds the
-  provider identity owns the link; keep the provider's e-mail verification and e-mail change policy strict (same advice
-  as section 3.1).
+* A staff account is never linked by e-mail alone, neither here nor by an access token (section 3.1), but the one who
+  completes the password sign-in and holds the provider identity owns the link; keep the provider's e-mail
+  verification and e-mail change policy strict.
 * **Logout is local.** Signing out of GrandNode does not end the provider session; the next click on the button signs
   in again without a prompt while the provider session lasts.
 * Provider tokens are not stored. The only data kept from the provider is the `sub`/e-mail link, plus the pending

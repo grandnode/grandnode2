@@ -371,11 +371,36 @@ public class OidcCustomerResolverTests
     }
 
     [TestMethod]
-    public async Task VerifiedEmail_BackOfficeAccount_Linked()
+    public async Task VerifiedEmail_AdminAccount_Forbidden_NotLinked()
     {
-        var admin = new Customer { Id = "c1", Active = true, StaffStoreId = "store1" };
+        var admin = new Customer { Id = "c1", Active = true };
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(admin);
         _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, admin)).ReturnsAsync(true);
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    [DataRow("vendor1", null)]
+    [DataRow(null, "store1")]
+    public async Task VerifiedEmail_VendorOrStaffAccount_Forbidden_NotLinked(string vendorId, string staffStoreId)
+    {
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer {
+            Id = "c1", Active = true, VendorId = vendorId, StaffStoreId = staffStoreId
+        });
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task BackOfficeAccount_ExistingLink_Succeeds()
+    {
+        //staff connect once through the browser sign-in (password and two-factor); the link then serves tokens
+        var admin = new Customer { Id = "c1", Active = true, StaffStoreId = "store1" };
+        await Link("c1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(admin);
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
     }

@@ -22,7 +22,7 @@ namespace Grand.Business.Authentication.Services;
 
 /// <summary>
 ///     Maps a validated access token or a browser sign-in to a customer: stored subject link; customer with the verified e-mail (link
-///     stored); registration with the Registered group only. Only active, registered, non-system accounts are used,
+///     stored; never a back-office account, which connects only through the browser sign-in with its password); registration with the Registered group only. Only active, registered, non-system accounts are used,
 ///     and one customer holds at most one identity (enforced by the link's identifier, see <see cref="OidcLinkId" />).
 ///     With per-store identity a subject has one link per store (plus the link of a customer of no store, valid in
 ///     every store). A unique index on (provider, identifier, store) makes the first concurrent requests of one user
@@ -98,12 +98,14 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (!result.Succeeded)
             return result;
 
-        //an e-mail nobody verified could take over a back-office account, so those are never linked by it
-        if (!_config.RequireEmailVerified && await IsBackOfficeAccount(customer))
+        //a back-office account is never linked by e-mail, verified or not: a provider that lets someone mark an address
+        //as verified without owning it would hand over the account; staff connect once through the browser sign-in,
+        //with the account's password and second factor, and their tokens then use that link
+        if (await IsBackOfficeAccount(customer))
         {
-            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is a back-office account and the e-mail is not verified",
+            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is a back-office account without a link",
                 sub, customer.Id);
-            return OidcCustomerResult.Forbidden("Back-office accounts can only be linked with a verified e-mail");
+            return OidcCustomerResult.Forbidden("Back-office accounts are not linked by e-mail; connect the account through the browser sign-in first");
         }
 
         //one identity per customer - a second subject with the same e-mail must not take over the account; the
