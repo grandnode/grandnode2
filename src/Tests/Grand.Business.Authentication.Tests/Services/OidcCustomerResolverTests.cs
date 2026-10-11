@@ -566,4 +566,121 @@ public class OidcCustomerResolverTests
         Assert.HasCount(2, links);
         Assert.AreEqual("store2", links.Single(x => x.CustomerId == "c2").StoreId);
     }
+    /// <summary>
+    ///     Repository that lets a concurrent request store its record right before this one's insert
+    /// </summary>
+    private sealed class RacingLinks : MongoDBRepositoryTest<ExternalAuthentication>
+    {
+        public Func<Task> BeforeInsert { get; set; }
+
+        public override async Task<ExternalAuthentication> InsertAsync(ExternalAuthentication entity)
+        {
+            var before = BeforeInsert;
+            BeforeInsert = null;
+            if (before != null)
+                await before();
+            return await base.InsertAsync(entity);
+        }
+    }
+
+    [TestMethod]
+    public void OidcLinkId_Stable_24LowerHex_DerivedFromCustomer()
+    {
+        var id = OidcCustomerResolver.OidcLinkId("c1");
+
+        var hash = System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes("ExternalAuth.OpenIdConnect:c1"));
+        Assert.AreEqual(Convert.ToHexStringLower(hash, 0, 12), id);
+        Assert.AreEqual(id, OidcCustomerResolver.OidcLinkId("c1"));
+        Assert.MatchesRegex("^[0-9a-f]{24}$", id);
+        Assert.AreNotEqual(id, OidcCustomerResolver.OidcLinkId("c2"));
+    }
+
+    [TestMethod]
+    public async Task LinkingExisting_StoresLinkWithCustomerDerivedId()
+    {
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+
+        Assert.AreEqual(OidcCustomerResolver.OidcLinkId("c1"), LinksOf("sub-1").Single().Id);
+    }
+
+    [TestMethod]
+    public async Task Registration_StoresLinkWithCustomerDerivedId()
+    {
+        _config.AutoRegister = true;
+
+        Assert.AreEqual("new1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+
+        Assert.AreEqual(OidcCustomerResolver.OidcLinkId("new1"), LinksOf("sub-1").Single().Id);
+    }
+
+    [TestMethod]
+    public async Task Race_SameCustomer_SecondSubject_LoserRefused_NoException()
+    {
+        //both requests pass the "no other identity" check; the other subject stores its link first
+        var links = new RacingLinks();
+        links.BeforeInsert = () => links.InsertAsync(new ExternalAuthentication {
+            Id = OidcCustomerResolver.OidcLinkId("c1"), CustomerId = "c1",
+            ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "other-sub", StoreId = ""
+        });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        var result = await Resolver(links).Resolve(Principal(), "store1");
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
+        Assert.AreEqual("The customer account is linked to another identity", result.Description);
+        var stored = links.Table.Where(x => x.CustomerId == "c1").ToList();
+        Assert.HasCount(1, stored);
+        Assert.AreEqual("other-sub", stored.Single().ExternalIdentifier);
+    }
+
+    [TestMethod]
+    public async Task Race_SameCustomer_SameSubject_ReturnsCustomer()
+    {
+        var links = new RacingLinks();
+        links.BeforeInsert = () => links.InsertAsync(new ExternalAuthentication {
+            Id = OidcCustomerResolver.OidcLinkId("c1"), CustomerId = "c1",
+            ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "sub-1", StoreId = ""
+        });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        Assert.AreEqual("c1", (await Resolver(links).Resolve(Principal(), "store1")).Customer.Id);
+        Assert.HasCount(1, LinksOf("sub-1"));
+    }
+
+    [TestMethod]
+    public async Task Unlink_ThenOtherSubject_RelinksWithTheSameId()
+    {
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+        var first = LinksOf("sub-1").Single();
+
+        //My account - remove the external association by its record id
+        await _links.DeleteAsync(first);
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(sub: "sub-2"), "store1")).Customer.Id);
+        var relinked = LinksOf("sub-2").Single();
+        Assert.AreEqual(first.Id, relinked.Id);
+        Assert.AreEqual("c1", relinked.CustomerId);
+        Assert.IsEmpty(LinksOf("sub-1"));
+    }
+
+    [TestMethod]
+    public async Task PerStore_CustomersOfEachStore_GetTheirOwnLinkIds()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+
+        var links = LinksOf("sub-1");
+        Assert.HasCount(2, links);
+        Assert.AreEqual(OidcCustomerResolver.OidcLinkId("c1"), links.Single(x => x.StoreId == "store1").Id);
+        Assert.AreEqual(OidcCustomerResolver.OidcLinkId("c2"), links.Single(x => x.StoreId == "store2").Id);
+    }
 }

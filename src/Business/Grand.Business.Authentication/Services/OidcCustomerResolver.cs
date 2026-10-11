@@ -15,15 +15,18 @@ using Grand.Mediator;
 using Grand.SharedKernel.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Grand.Business.Authentication.Services;
 
 /// <summary>
 ///     Maps a validated access token or a browser sign-in to a customer: stored subject link; customer with the verified e-mail (link
 ///     stored); registration with the Registered group only. Only active, registered, non-system accounts are used,
-///     and one customer holds at most one identity. With per-store identity a subject has one link per store (plus
-///     the link of a customer of no store, valid in every store). A unique index on (provider, identifier, store)
-///     makes the first concurrent requests of one user converge on one account.
+///     and one customer holds at most one identity (enforced by the link's identifier, see <see cref="OidcLinkId" />).
+///     With per-store identity a subject has one link per store (plus the link of a customer of no store, valid in
+///     every store). A unique index on (provider, identifier, store) makes the first concurrent requests of one user
+///     converge on one account.
 /// </summary>
 public class OidcCustomerResolver : IOidcCustomerResolver
 {
@@ -103,15 +106,14 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             return OidcCustomerResult.Forbidden("Back-office accounts can only be linked with a verified e-mail");
         }
 
-        //one identity per customer - a second subject with the same e-mail must not take over the account
+        //one identity per customer - a second subject with the same e-mail must not take over the account; the
+        //link's identifier enforces it against concurrent requests, this check gives the answer in the normal case
         if (await HasOtherLink(customer, sub))
-        {
-            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is already linked to another subject",
-                sub, customer.Id);
-            return OidcCustomerResult.Forbidden("The customer account is linked to another identity");
-        }
+            return LinkedToOtherIdentity(customer, sub);
 
-        var linked = await LinkOrGetWinner(customer, sub, email, storeId);
+        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId);
+        if (other != null)
+            return LinkedToOtherIdentity(customer, sub);
         if (linked?.Id != customer.Id)
             return await Usable(linked, sub, storeId);
 
@@ -184,7 +186,9 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (await HasOtherLink(customer, sub))
             return OidcLinkResult.CustomerLinkedToOtherSubject;
 
-        var winner = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "", storeId);
+        var (winner, other) = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "", storeId);
+        if (other != null)
+            return OidcLinkResult.CustomerLinkedToOtherSubject;
         if (winner?.Id != customer.Id)
             return OidcLinkResult.SubjectLinkedToOtherCustomer;
 
@@ -233,12 +237,12 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         await _customerManagerService.RegisterCustomer(new RegistrationRequest(customer, normalizedEmail,
             normalizedEmail, CommonHelper.GenerateRandomDigitCode(20), PasswordFormat.Hashed, storeId));
 
-        var linked = await LinkOrGetWinner(customer, sub, email, storeId);
-        if (linked?.Id != customer.Id)
+        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId);
+        if (other != null || linked?.Id != customer.Id)
         {
             //lost the race: drop the account just created and use the one the winner linked
             await _customerService.DeleteCustomer(customer, true);
-            return await Usable(linked, sub, storeId);
+            return other != null ? LinkedToOtherIdentity(customer, sub) : await Usable(linked, sub, storeId);
         }
 
         //only after the link is stored, so the loser of a race sends no welcome message
@@ -289,15 +293,26 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     private string LinkStoreId(Customer customer) =>
         _customerConfig.RegisterCustomersPerStore ? customer.StoreId ?? "" : "";
 
-    /// <summary>
-    ///     Stores the link; when a concurrent request stored one first, returns the customer of that link. Rethrows
-    ///     when the insert failed for another reason.
-    /// </summary>
-    private async Task<Customer> LinkOrGetWinner(Customer customer, string sub, string email, string storeId)
+    private OidcCustomerResult LinkedToOtherIdentity(Customer customer, string sub)
     {
+        _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is already linked to another subject",
+            sub, customer.Id);
+        return OidcCustomerResult.Forbidden("The customer account is linked to another identity");
+    }
+
+    /// <summary>
+    ///     Stores the link under the customer's <see cref="OidcLinkId" />. When a concurrent request stored a link
+    ///     first: the link of another subject now holding this customer (OtherLink), or the customer the subject's
+    ///     winning link points to (Customer). Rethrows when the insert failed for another reason.
+    /// </summary>
+    private async Task<(Customer Customer, ExternalAuthentication OtherLink)> LinkOrGetWinner(Customer customer,
+        string sub, string email, string storeId)
+    {
+        var linkId = OidcLinkId(customer.Id);
         try
         {
             await _externalAuthenticationRepository.InsertAsync(new ExternalAuthentication {
+                Id = linkId,
                 CustomerId = customer.Id,
                 Email = email.ToLowerInvariant(),
                 ExternalIdentifier = sub,
@@ -305,17 +320,34 @@ public class OidcCustomerResolver : IOidcCustomerResolver
                 ProviderSystemName = ProviderSystemName,
                 StoreId = LinkStoreId(customer)
             });
-            return customer;
+            return (customer, null);
         }
         catch (Exception ex)
         {
             _logger.LogInformation("Storing the identity link for subject {Subject} failed ({ExceptionType}); re-reading",
                 sub, ex.GetType().Name);
+            var customerLink = await _externalAuthenticationRepository.GetByIdAsync(linkId);
+            if (customerLink != null && customerLink.ExternalIdentifier != sub)
+                return (null, customerLink);
             var winner = await GetLink(sub, storeId);
             if (winner == null)
                 throw;
-            return await _customerService.GetCustomerById(winner.CustomerId);
+            return (await _customerService.GetCustomerById(winner.CustomerId), null);
         }
+    }
+
+    /// <summary>
+    ///     Identifier of a customer's OIDC link: the first 12 bytes of SHA-256 over "ExternalAuth.OpenIdConnect:" +
+    ///     customer id, as 24 lower-case hex characters (shaped like an ObjectId). Every OIDC link gets it, so the
+    ///     primary key lets one customer hold one OIDC link - on MongoDB and LiteDB, without an extra index and
+    ///     without restricting other providers. Lookups go by subject or customer (only a failed insert reads by
+    ///     this value), so links stored with a random identifier keep working.
+    /// </summary>
+    public static string OidcLinkId(string customerId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(customerId);
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(ProviderSystemName + ":" + customerId));
+        return Convert.ToHexStringLower(hash, 0, 12);
     }
 
     /// <summary>
