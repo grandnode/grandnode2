@@ -126,18 +126,22 @@ customer in this order.
 1. No `sub` claim: 401.
 2. A stored link for `sub` (provider `ExternalAuth.OpenIdConnect`, exact, case-sensitive match) selects the customer.
    The customer must be active, not deleted, registered, and not a system account; otherwise 403. An inactive customer
-   is never reactivated.
+   is never reactivated. A link made by e-mail (point 4) is checked again on every use: once the account has
+   back-office access or GrandNode two-factor authentication, the link no longer serves it (403) until the account is
+   connected with its password.
 3. Without a link the e-mail claim is needed (missing: 401). With `RequireEmailVerified = true` it must be verified
    (otherwise 401).
-4. A customer with the same e-mail address is linked on first use, and the link is stored.
-   * **Back-office accounts** (admin panel access, vendors, store staff) are **never** linked by e-mail, verified or
-     not (403 without a link). A provider where someone can mark an address as verified without owning it (an
-     administrator of another organization or realm creating a user) would otherwise hand over an administrator
-     account. Staff connect their account once through the browser sign-in plugin (section 11), which asks for the
-     store password and two-factor code; their tokens then use that link. A customer who is already linked keeps the
-     link when an administrator later grants back-office access (section 3.3).
+4. A customer with the same e-mail address is linked on first use, and the link is stored, marked as made by e-mail.
+   * **Back-office accounts** (admin panel access, vendors, store staff) and accounts that use **GrandNode two-factor
+     authentication** (enabled for the customer and in the store) are **never** linked by e-mail, verified or not
+     (403 without a link). A provider where someone can mark an address as verified without owning it (an
+     administrator of another organization or realm creating a user) must not be enough to take over such an account.
+     They are connected once with the account's password: through the browser sign-in plugin (section 11), which asks
+     for the store password and two-factor code; their tokens then use that link.
    * Ordinary customers are linked by a verified e-mail. With `RequireEmailVerified = false` they are linked by an
      unverified one too: only for providers that never send `email_verified` and do not let users choose an address.
+     The browser sign-in does not take over such a link as it is: it asks for the password whenever the provider
+     does not report the e-mail as verified.
 5. System accounts and guests are never mapped.
 6. One identity per customer: when the customer is already linked to another `sub`, the new subject is refused (403).
    One identity per customer is enforced by the link's identifier, which is derived from the customer, so two
@@ -175,10 +179,15 @@ A token alone grants no rights. To let a user call the API:
 2. in GrandNode add the (auto-registered or existing) customer to a **customer group** whose permissions include
    *Access admin panel* and the permissions the calls need (or use a group created for API access).
 
-The customer must be **linked** to the provider identity. An account that already has admin panel access, a vendor or
-a staff store is not linked by e-mail (section 3.1): connect it once with the browser sign-in plugin (section 11), or
-grant the access to an account that is already linked (registered or linked by an earlier token while it was an
-ordinary customer).
+The customer must be **linked** to the provider identity, and a link made by e-mail does not serve an account with
+admin panel access, a vendor or a staff store (section 3.1). Either:
+
+* connect the account once with the browser sign-in plugin (section 11), which asks for its password; or
+* without that plugin, let the token register the account (`AutoRegister = true`, section 3.2) and grant the access
+  to that account: a link made by the registration is not a link made by e-mail.
+
+Granting back-office access to a customer linked by e-mail stops its tokens (403) until the account is connected with
+its password.
 
 ### 3.4 Resource conditions
 
@@ -539,7 +548,8 @@ After the provider signed the user in, the result depends on the GrandNode side:
 
 | Situation | Result |
 |---|---|
-| A link for the provider's `sub` exists | The linked customer is signed in. Staff included; the admin panel access follows their existing permissions. The customer must be active, not deleted and registered. GrandNode two-factor authentication is not asked for; the provider's multi-factor policy applies. |
+| A link for the provider's `sub` made by e-mail (by an access token, or by this sign-in without a password), and the account is now **staff** or uses **GrandNode two-factor authentication**, or the provider did **not** verify the e-mail | "Connect your account" (as below); the password sign-in confirms the existing link. |
+| A link for the provider's `sub` exists (other cases) | The linked customer is signed in. Staff included; the admin panel access follows their existing permissions. The customer must be active, not deleted and registered. GrandNode two-factor authentication is not asked for; the provider's multi-factor policy applies. |
 | No link; an account with the same e-mail exists, the provider **verified** the e-mail, the account is **not staff** and does not use GrandNode two-factor authentication | The account is linked and signed in at once. |
 | No link; the account is **staff** (admin panel access, vendor, store staff), the account uses **GrandNode two-factor authentication** (enabled for the customer and in the store), or the provider did **not** verify the e-mail | "Connect your account": the page ends any current store session, and the visitor signs in **once** with the store password (and the two-factor code, when enabled). The connection is then completed (`/oidc/link/complete`); the signed-in account must have the same e-mail address. |
 | No account with that e-mail | The regular registration form opens with the e-mail taken from the provider (read-only). When the provider **verified** the e-mail, the form has **no password fields** and the new account is connected to the provider identity. When it did **not**, the customer chooses a password as in any registration and the account is **not** connected; the customer connects it later with "Connect your account" (row above). Store registration type "Standard" becomes e-mail validation when the provider did not verify the e-mail; "E-mail validation" becomes standard when it did; "Admin approval" stays admin approval either way. New accounts get the **Registered** group only. |
@@ -656,7 +666,8 @@ Use the project of section 7. Create a **separate** application for the browser 
   staff account always needs the store password (and its 2FA).
 * The button never replaces another signed-in account: a visitor signed in to the store as someone else gets the
   failure page and stays signed in.
-* A staff account is never linked by e-mail alone, neither here nor by an access token (section 3.1), but the one who
+* A staff account is never linked by e-mail alone, neither here nor by an access token (section 3.1), and a link
+  made by e-mail before the account became staff asks for the password again; but the one who
   completes the password sign-in and holds the provider identity owns the link; keep the provider's e-mail
   verification and e-mail change policy strict.
 * **Logout is local.** Signing out of GrandNode does not end the provider session; the next click on the button signs

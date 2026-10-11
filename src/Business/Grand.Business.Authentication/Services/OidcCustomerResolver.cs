@@ -22,7 +22,9 @@ namespace Grand.Business.Authentication.Services;
 
 /// <summary>
 ///     Maps a validated access token or a browser sign-in to a customer: stored subject link; customer with the verified e-mail (link
-///     stored; never a back-office account, which connects only through the browser sign-in with its password); registration with the Registered group only. Only active, registered, non-system accounts are used,
+///     stored and marked as made by e-mail; never a back-office account or an account with two-factor authentication, which connect
+///     only with their password); registration with the Registered group only. A link made by e-mail is re-checked on every use
+///     against the rules of a first link. Only active, registered, non-system accounts are used,
 ///     and one customer holds at most one identity (enforced by the link's identifier, see <see cref="OidcLinkId" />).
 ///     With per-store identity a subject has one link per store (plus the link of a customer of no store, valid in
 ///     every store). A unique index on (provider, identifier, store) makes the first concurrent requests of one user
@@ -31,6 +33,9 @@ namespace Grand.Business.Authentication.Services;
 public class OidcCustomerResolver : IOidcCustomerResolver
 {
     public const string ProviderSystemName = "ExternalAuth.OpenIdConnect";
+
+    public const string PasswordRequiredDescription =
+        "The account must be connected to the identity with its password first";
 
     private readonly IRepository<ExternalAuthentication> _externalAuthenticationRepository;
     private readonly ICustomerService _customerService;
@@ -77,7 +82,15 @@ public class OidcCustomerResolver : IOidcCustomerResolver
 
         var link = await GetLink(sub, storeId);
         if (link != null)
-            return await Usable(await _customerService.GetCustomerById(link.CustomerId), sub, storeId);
+        {
+            var linkedCustomer = await _customerService.GetCustomerById(link.CustomerId);
+            var linkedResult = await Usable(linkedCustomer, sub, storeId);
+            //a link made by e-mail proves no more than the e-mail: it stops serving an account that has since
+            //become one that connects only with its password
+            if (linkedResult.Succeeded && link.LinkedByEmail && await RequiresPassword(linkedCustomer, storeId))
+                return PasswordRequired(linkedCustomer, sub);
+            return linkedResult;
+        }
 
         var email = principal.FindFirst(_config.Claims.Email)?.Value;
         if (string.IsNullOrWhiteSpace(email))
@@ -98,22 +111,17 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (!result.Succeeded)
             return result;
 
-        //a back-office account is never linked by e-mail, verified or not: a provider that lets someone mark an address
-        //as verified without owning it would hand over the account; staff connect once through the browser sign-in,
-        //with the account's password and second factor, and their tokens then use that link
-        if (await IsBackOfficeAccount(customer))
-        {
-            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is a back-office account without a link",
-                sub, customer.Id);
-            return OidcCustomerResult.Forbidden("Back-office accounts are not linked by e-mail; connect the account through the browser sign-in first");
-        }
-
         //one identity per customer - a second subject with the same e-mail must not take over the account; the
         //link's identifier enforces it against concurrent requests, this check gives the answer in the normal case
         if (await HasOtherLink(customer, sub))
             return LinkedToOtherIdentity(customer, sub);
 
-        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId);
+        //a back-office account and an account protected by two-factor authentication are never linked by e-mail,
+        //verified or not; they connect with the account's password (browser sign-in), and tokens then use that link
+        if (await RequiresPassword(customer, storeId))
+            return PasswordRequired(customer, sub);
+
+        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId, true);
         if (other != null)
             return LinkedToOtherIdentity(customer, sub);
         if (linked?.Id != customer.Id)
@@ -134,7 +142,14 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         {
             var linked = await _customerService.GetCustomerById(link.CustomerId);
             var reason = await Check(linked, sub, storeId);
-            return reason == Unusable.None ? OidcLoginResult.SignIn(linked) : OidcLoginResult.Refused(ToRefusal(reason));
+            if (reason != Unusable.None)
+                return OidcLoginResult.Refused(ToRefusal(reason));
+
+            //a link made by e-mail (by an access token or an earlier sign-in) is held to the rules of a first link
+            if (link.LinkedByEmail && (!emailVerified || await RequiresPassword(linked, storeId)))
+                return OidcLoginResult.LinkRequired(linked);
+
+            return OidcLoginResult.SignIn(linked);
         }
 
         if (string.IsNullOrWhiteSpace(email))
@@ -166,16 +181,19 @@ public class OidcCustomerResolver : IOidcCustomerResolver
 
         //the first link of a back-office account, of an account protected by two-factor authentication, and of any account
         //whose e-mail nobody verified, needs the account's password (and its second factor)
-        if (!emailVerified || await IsBackOfficeAccount(customer) || await HasTwoFactor(customer, storeId))
+        if (!emailVerified || await RequiresPassword(customer, storeId))
             return OidcLoginResult.LinkRequired(customer);
 
-        return await LinkIdentity(customer, sub, email, storeId) switch {
+        return await Link(customer, sub, email, storeId, true) switch {
             OidcLinkResult.Linked => OidcLoginResult.SignIn(customer),
             _ => OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity)
         };
     }
 
-    public virtual async Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email, string storeId)
+    public virtual Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email, string storeId) =>
+        Link(customer, sub, email, storeId, false);
+
+    private async Task<OidcLinkResult> Link(Customer customer, string sub, string email, string storeId, bool byEmail)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentException.ThrowIfNullOrEmpty(sub);
@@ -183,12 +201,20 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         //the link this store would use - with per-store identity a link of another store does not block this one
         var existing = await GetLink(sub, storeId);
         if (existing != null)
-            return existing.CustomerId == customer.Id ? OidcLinkResult.Linked : OidcLinkResult.SubjectLinkedToOtherCustomer;
+        {
+            if (existing.CustomerId != customer.Id)
+                return OidcLinkResult.SubjectLinkedToOtherCustomer;
+
+            //the account's password now stands behind a link made by e-mail
+            if (!byEmail && existing.LinkedByEmail)
+                await _externalAuthenticationRepository.UpdateField(existing.Id, x => x.LinkedByEmail, false);
+            return OidcLinkResult.Linked;
+        }
 
         if (await HasOtherLink(customer, sub))
             return OidcLinkResult.CustomerLinkedToOtherSubject;
 
-        var (winner, other) = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "", storeId);
+        var (winner, other) = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "", storeId, byEmail);
         if (other != null)
             return OidcLinkResult.CustomerLinkedToOtherSubject;
         if (winner?.Id != customer.Id)
@@ -239,7 +265,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         await _customerManagerService.RegisterCustomer(new RegistrationRequest(customer, normalizedEmail,
             normalizedEmail, CommonHelper.GenerateRandomDigitCode(20), PasswordFormat.Hashed, storeId));
 
-        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId);
+        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId, false);
         if (other != null || linked?.Id != customer.Id)
         {
             //lost the race: drop the account just created and use the one the winner linked
@@ -302,13 +328,20 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         return OidcCustomerResult.Forbidden("The customer account is linked to another identity");
     }
 
+    private OidcCustomerResult PasswordRequired(Customer customer, string sub)
+    {
+        _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} must be connected with its password",
+            sub, customer.Id);
+        return OidcCustomerResult.Forbidden(PasswordRequiredDescription);
+    }
+
     /// <summary>
     ///     Stores the link under the customer's <see cref="OidcLinkId" />. When a concurrent request stored a link
     ///     first: the link of another subject now holding this customer (OtherLink), or the customer the subject's
     ///     winning link points to (Customer). Rethrows when the insert failed for another reason.
     /// </summary>
     private async Task<(Customer Customer, ExternalAuthentication OtherLink)> LinkOrGetWinner(Customer customer,
-        string sub, string email, string storeId)
+        string sub, string email, string storeId, bool byEmail)
     {
         var linkId = OidcLinkId(customer.Id);
         try
@@ -320,7 +353,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
                 ExternalIdentifier = sub,
                 ExternalDisplayIdentifier = email,
                 ProviderSystemName = ProviderSystemName,
-                StoreId = LinkStoreId(customer)
+                StoreId = LinkStoreId(customer),
+                LinkedByEmail = byEmail
             });
             return (customer, null);
         }
@@ -412,6 +446,10 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     private async Task<bool> HasTwoFactor(Customer customer, string storeId) =>
         customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) &&
         (await _settingService.LoadSetting<CustomerSettings>(storeId)).TwoFactorAuthenticationEnabled;
+
+    //accounts that are never linked by e-mail alone, and whose links made by e-mail stop serving them
+    private async Task<bool> RequiresPassword(Customer customer, string storeId) =>
+        await IsBackOfficeAccount(customer) || await HasTwoFactor(customer, storeId);
 
     private async Task<bool> IsBackOfficeAccount(Customer customer) =>
         !string.IsNullOrEmpty(customer.VendorId) || !string.IsNullOrEmpty(customer.StaffStoreId) ||
