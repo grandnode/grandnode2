@@ -48,7 +48,22 @@ public class OidcProtectedResourceMetadataTests
     }
 
     [TestMethod]
-    public void MetadataUrl_PerResource() =>
-        Assert.AreEqual("https://shop.example.com/eu/.well-known/oauth-protected-resource/api",
-            OidcProtectedResourceMetadata.MetadataUrl(BaseUrl, _resources[0]));
+    [DataRow("https://shop.example.com/api", "https://shop.example.com/.well-known/oauth-protected-resource/api")]
+    [DataRow("https://shop.example.com", "https://shop.example.com/.well-known/oauth-protected-resource")]
+    [DataRow("https://api.example.com/v1", "https://api.example.com/.well-known/oauth-protected-resource/v1")]
+    [DataRow("https://shop.example.com:8443/eu/api", "https://shop.example.com:8443/.well-known/oauth-protected-resource/eu/api")]
+    [DataRow("grandnode-api", null)]
+    [DataRow(null, null)]
+    public void MetadataUrl_WellKnownBetweenHostAndPath(string resourceUri, string expected) =>
+        Assert.AreEqual(expected, OidcProtectedResourceMetadata.MetadataUrl(resourceUri));
+
+    [TestMethod]
+    public void MetadataUrl_StoreUnderSubPath_AtHostRoot() =>
+        Assert.AreEqual("https://shop.example.com/.well-known/oauth-protected-resource/eu/api",
+            OidcProtectedResourceMetadata.MetadataUrl(OidcCanonicalUri.ResourceFor(_resources[0], BaseUrl)));
+
+    [TestMethod]
+    public void MetadataUrl_ConfiguredResource() =>
+        Assert.AreEqual("https://tools.example.com/.well-known/oauth-protected-resource",
+            OidcProtectedResourceMetadata.MetadataUrl(OidcCanonicalUri.ResourceFor(_resources[1], BaseUrl)));
 }
