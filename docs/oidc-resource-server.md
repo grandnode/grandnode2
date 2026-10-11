@@ -15,8 +15,9 @@ identity provider and never issues tokens, registers clients or shows a consent 
 * GrandNode publishes RFC 9728 protected resource metadata, so clients discover which provider to use. A 401 carries
   a `WWW-Authenticate` header with `resource_metadata`.
 * Off by default (`OidcResourceServer:Enabled = false`): no scheme, no metadata endpoints, no behavior change.
-* One identity provider at a time. Not covered: browser login of storefront or admin panel users, opaque tokens
-  (see [Introspection](#8-introspection)).
+* One identity provider at a time. Not covered here: opaque tokens (see [Introspection](#8-introspection)) and
+  login to the admin panels. Browser sign-in of storefront users is a separate plugin
+  ([section 11](#11-browser-sign-in-openid-connect-login-plugin)).
 
 Accepted signing algorithms: RS256/384/512, PS256/384/512, ES256/384/512. Tokens signed with HS\*, or with `alg: none`,
 are refused by the OpenID Connect scheme.
@@ -432,9 +433,9 @@ Steps:
    exists or is registered, is in a group with *Access admin panel* and the needed permissions. Step 4 is only as strong
    as who may grant the project role or edit Zitadel Actions. If you do not run the target, leave `RequiredScopes`
    **empty** for Zitadel (a required scope would reject every token) and rely on (1)-(3) and (5); then any user of the
-   instance who can log in to an allowed client reaches the GrandNode permission check, and a user that is
-   auto-registered holds the Registered group only, which has no admin panel access. `AutoRegister` is off by default;
-   turn it on only when every user of the provider may get a store account.
+   instance who can log in to an allowed client reaches the GrandNode permission check. With `AutoRegister` enabled, a
+   user registered automatically holds the Registered group only, which has no admin panel access. `AutoRegister` is off
+   by default; turn it on only when every user of the provider may get a store account.
 5. **Dynamic client registration** (RFC 7591) is **off by default** in Zitadel. Two modes: with a token of a user
    holding the `project.app.register_dynamic` permission, or open (`dynamicClientRegistration.allowUnauthenticated =
    true`), which MCP-class clients need. See <https://zitadel.com/docs/guides/integrate/dynamic-client-registration>.
@@ -496,6 +497,177 @@ Ports are published on `127.0.0.1` only.
 
 Use the URLs above as `Authority` (`http://localhost:8080/realms/<realm>` for Keycloak, `http://localhost:8081` for
 Zitadel) with `RequireHttpsMetadata: false` in Development.
+
+## 11. Browser sign-in (OpenID Connect login plugin)
+
+The plugin `Authentication.OpenIdConnect` (system name `ExternalAuth.OpenIdConnect`) lets customers and staff sign in
+to the storefront with the same provider that issues the API tokens. It is separate from the resource server: the
+resource server validates access tokens, the plugin runs the browser flow (authorization code with PKCE) and gives the
+visitor a normal GrandNode session. The provider proves who the user is; the customer's **groups and permissions in
+GrandNode** still decide what the user may do.
+
+### 11.1 What the visitor sees
+
+* A **sign-in button** next to the other external authentication methods.
+* The provider and its claim names are the ones of `OidcResourceServer` (`Authority`, `RequireHttpsMetadata`,
+  `Claims:*`). The plugin adds one client of its own (section 11.3). `RequireEmailVerified` applies to API tokens
+  only; browser sign-in links an account automatically only when the provider reports the e-mail as verified,
+  whatever that setting says.
+* The link between the provider's `sub` and the customer is stored in the same place as for API tokens (provider name
+  `ExternalAuth.OpenIdConnect`). An account linked by browser sign-in is the account API tokens map to, and the other
+  way round.
+* "My account" lists the connection and lets the customer remove it. After removing it, the button leads to linking
+  again. The account always has a password (random until the customer sets one with "Forgot password"), so removing the
+  connection never locks the customer out.
+* Routes used: `/oidc/login`, `/signin-oidc` (callback of the OpenID Connect handler), `/oidc/callback`, `/oidc/link`,
+  `/oidc/link/complete`, `/oidc/failed`.
+
+### 11.2 Account rules
+
+After the provider signed the user in, the result depends on the GrandNode side:
+
+| Situation | Result |
+|---|---|
+| A link for the provider's `sub` exists | The linked customer is signed in. Staff included; the admin panel access follows their existing permissions. The customer must be active, not deleted and registered. GrandNode two-factor authentication is not asked for; the provider's multi-factor policy applies. |
+| No link; an account with the same e-mail exists, the provider **verified** the e-mail, the account is **not staff** and does not use GrandNode two-factor authentication | The account is linked and signed in at once. |
+| No link; the account is **staff** (admin panel access, vendor, store staff), the account uses **GrandNode two-factor authentication** (enabled for the customer and in the store), or the provider did **not** verify the e-mail | "Connect your account": the page ends any current store session, and the visitor signs in **once** with the store password (and the two-factor code, when enabled). The connection is then completed (`/oidc/link/complete`); the signed-in account must have the same e-mail address. |
+| No account with that e-mail | The regular registration form opens with the e-mail taken from the provider (read-only). When the provider **verified** the e-mail, the form has **no password fields** and the new account is connected to the provider identity. When it did **not**, the customer chooses a password as in any registration and the account is **not** connected; the customer connects it later with "Connect your account" (row above). Store registration type "Standard" becomes e-mail validation when the provider did not verify the e-mail; "E-mail validation" becomes standard when it did; "Admin approval" stays admin approval either way. New accounts get the **Registered** group only. |
+| Registration disabled in the store, account inactive, e-mail already linked to another identity, provider identity already linked to another account, the sign-in method switched off (or limited to other stores or groups) while the sign-in was in progress, another account already signed in to the store | The failure page (fixed text; the reason is written to the log). |
+
+Notes:
+
+* The provider's identity is kept for **15 minutes** (absolute) in the `ExternalAuthentication` cookie, which is not
+  persistent. It only decides who is registering or connecting; an e-mail value posted with the registration form is
+  ignored.
+* A provider that sends `email_verified` as `"True"`, `true` or not at all is handled: the comparison ignores case and a
+  missing value means unverified.
+* **"Admin approval" and an unverified e-mail.** The account waits for approval and GrandNode sends no activation
+  e-mail (its activation link would approve the account), so GrandNode does not validate an e-mail address the
+  provider reported as unverified. Administrators should check the address before approving such an account.
+* A customer who uses GrandNode two-factor authentication connects the provider identity **once** with the store
+  password and the two-factor code, like staff; after that the provider sign-in alone signs the customer in (the
+  provider's multi-factor policy applies, not GrandNode two-factor authentication).
+* With `RegisterCustomersPerStore` enabled all lookups are limited to the store of the request, and a link belongs to
+  the store of the linked account (section 3.1): the same provider identity can be connected to a separate account in
+  each store, while an account of no store (such as staff) keeps one link that works in every store.
+* Provider tokens are **not stored**.
+* The Web API setting `OidcResourceServer:AutoRegister` is `false` by default (section 3.2); browser sign-in registers
+  new users through the registration form instead.
+
+### 11.3 Configuration
+
+1. Build the plugin and install it in the admin panel (*Configuration > Plugins*). The plugin output contains only its
+   own assembly and `Microsoft.AspNetCore.Authentication.OpenIdConnect.dll`; it uses the `Microsoft.IdentityModel.*`
+   assemblies of the application.
+2. Enable it in *Configuration > External authentication*. The display order of the button is set on the plugin's
+   configuration page.
+3. Configure the provider (section 11.4 or 11.5) and add the `OidcLogin` section. The secret goes into an environment
+   variable, never into the database or the admin panel.
+
+Section `OidcLogin` of `appsettings.json`:
+
+| Key | Default | Meaning |
+|---|---|---|
+| `ClientId` | empty | Client id of the **confidential** client created for browser sign-in. |
+| `ClientSecret` | empty | Its secret. Prefer the environment variable `OidcLogin__ClientSecret`. |
+| `Scopes` | `openid profile email` | Space separated scopes requested at the provider. `openid` and `email` are needed. |
+
+```json
+"OidcResourceServer": {
+  "Authority": "https://idp.example.com/realms/grandnode",
+  "RequireHttpsMetadata": true
+},
+"OidcLogin": {
+  "ClientId": "grandnode-login",
+  "ClientSecret": "",
+  "Scopes": "openid profile email"
+}
+```
+
+`Authority`, `RequireHttpsMetadata` and the claim names come from `OidcResourceServer`. `OidcResourceServer:Enabled`
+does not have to be on for browser sign-in; the plugin only reads `Authority` and the other values above. It does not
+read `RequireEmailVerified`: automatic linking always needs an e-mail the provider reports as verified.
+
+**Not configured.** When `Authority` or `ClientId` is empty the plugin registers no sign-in scheme and the button leads
+to the failure page; it never causes an error page.
+
+Handler settings (fixed): authorization code flow with PKCE (S256), response mode `query`, `sub`, e-mail,
+`email_verified`, `given_name` and `family_name` are also read from the **user info endpoint**, provider tokens are not
+saved, claims are not renamed. State and nonce are checked by the handler.
+
+The redirect URI of the client is `https://<store-url>/signin-oidc` for **every** store URL (each store of a
+multi-store installation, each host name).
+
+### 11.4 Keycloak 26.8
+
+Use the realm of section 6. Create a **separate** client; do not reuse the public client of the API.
+
+1. *Clients > Create client*: client type OpenID Connect, client id `grandnode-login`.
+2. Capability config: *Client authentication* **on** (confidential), *Standard flow* **on**; the other flows can stay
+   off.
+3. Login settings: *Valid redirect URIs* `https://<store-url>/signin-oidc` (one entry per store URL), *Web origins*
+   the store origin `https://<store-url>`.
+4. *Advanced > Advanced settings*: set *Proof Key for Code Exchange Code Challenge Method* to `S256`.
+5. *Credentials* tab: copy the client secret into `OidcLogin__ClientSecret`.
+6. The default `profile` and `email` client scopes are assigned to a new client; keep them. `email_verified` is part of
+   the ID token and of the user info answer by default. Users need a verified e-mail address (*Users > Email
+   verified*, or enable *Verify email* in the realm login settings) to be linked automatically.
+7. Enforce MFA for staff in the realm (section 11.6).
+
+### 11.5 Zitadel v4.19
+
+Use the project of section 7. Create a **separate** application for the browser flow.
+
+1. In the project add an application of type **Web** with authentication method **Code** (authorization code with a
+   client secret). PKCE is sent by the plugin. Copy the client id and the generated client secret
+   (`OidcLogin__ClientSecret`; the secret is shown once).
+2. Redirect URIs: `https://<store-url>/signin-oidc` (an `http` redirect needs *Development Mode*). Post logout URIs
+   are not used (logout is local).
+3. The plugin reads the claims from the ID token or, when they are absent there, from the user info endpoint (the
+   handler merges both); Zitadel answers the user info endpoint for the scope `email`. To have the ID token carry the
+   user information as well, enable the application's option to put user information into the ID token (token
+   settings of the application). The default scopes `openid profile email` are sufficient.
+4. **The Actions v2 target of section 7 is not required for browser sign-in.** It runs on `preaccesstoken`, that is for
+   access tokens only, and the plugin does not use the access token. Verify this on your instance: after a test
+   sign-in with a verified e-mail the application log must not contain "OpenID Connect sign-in without a subject or an
+   e-mail". If it does, enable the ID token option of step 3 and check that the user's e-mail is marked verified in
+   Zitadel (an unverified e-mail is sent with `email_verified = false`).
+5. Users need a verified e-mail address in Zitadel to be linked automatically. Zitadel's hosted login asks a user
+   whose e-mail is not verified to confirm it with a code before it completes the sign-in, so `email_verified` is
+   normally `true` for sign-ins through Zitadel. Enforce MFA for staff in the login policy of the organization
+   (section 11.6).
+
+### 11.6 Security notes
+
+* **After linking, the provider sign-in is the whole sign-in.** A linked account, staff included, signs in without the
+  GrandNode password and **without GrandNode two-factor authentication**: the security of the sign-in is the
+  provider's. Enforce MFA at the provider for every user who may be linked to a staff account. The first link of a
+  staff account always needs the store password (and its 2FA).
+* The button never replaces another signed-in account: a visitor signed in to the store as someone else gets the
+  failure page and stays signed in.
+* A staff account is never linked by e-mail alone, but the one who completes the password sign-in and holds the
+  provider identity owns the link; keep the provider's e-mail verification and e-mail change policy strict (same advice
+  as section 3.1).
+* **Logout is local.** Signing out of GrandNode does not end the provider session; the next click on the button signs
+  in again without a prompt while the provider session lasts.
+* Provider tokens are not stored. The only data kept from the provider is the `sub`/e-mail link, plus the pending
+  identity for at most 15 minutes.
+* After sign-in only a **local** `returnUrl` is followed; anything else leads to the store home page.
+* New accounts created through this path get the Registered group only.
+* Keep `ClientSecret` out of source control: environment variable or secret store.
+
+### 11.7 Troubleshooting
+
+| Symptom | Check |
+|---|---|
+| The button is not shown | `OidcResourceServer:Authority` and `OidcLogin:ClientId` set? The plugin installed and enabled in *External authentication*? The application restarted after the install or a settings change? Without both settings, or before the restart, no sign-in scheme exists and the button is hidden. |
+| "Sign-in failed" after the provider page | The reason is in the application log (`OpenID Connect sign-in failed`, with the provider's error), never on the page. Common: wrong client secret, the user cancelled at the provider, the state/nonce cookie lost (a proxy, or a host name different from the one that started the flow). |
+| Provider error about the redirect URI | The redirect URI at the provider must equal `https://<store-url>/signin-oidc` exactly: scheme, host, port, no trailing slash. Behind a TLS-terminating proxy GrandNode must see `https` (forwarded headers) or it builds an `http` URI. |
+| Failure caused by token lifetime ("not yet valid", "expired") | Clock skew between the application server and the provider; synchronize the clocks (NTP). |
+| Discovery document cannot be loaded | `Authority` must equal the `issuer` of `{Authority}/.well-known/openid-configuration`; `http` needs `RequireHttpsMetadata: false` (Development only); in container setups use a host name both the application and the browser resolve. |
+| Visitor is sent to the registration form although the account exists | The e-mail differs, or `RegisterCustomersPerStore` limits lookups to another store. |
+| Visitor is asked to connect accounts though the e-mail is verified | The account is staff or uses GrandNode two-factor authentication, or the provider sends `email_verified` as false or not at all (for Zitadel check the user info answer). |
+| After sign-in the visitor lands on the home page, not on the requested page | The `returnUrl` was not local. |
 
 Sources used for provider specifics (checked 2026-10-08): Keycloak 26.8 MCP guide and release notes, Zitadel v4.19.4
 claims, scopes, Actions v2 and dynamic client registration documentation; MCP authorization 2026-07-28; RFC 9728,
