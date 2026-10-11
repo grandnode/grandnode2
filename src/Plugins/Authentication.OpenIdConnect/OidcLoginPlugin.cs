@@ -31,9 +31,13 @@ public class OidcLoginPlugin(
         ("Failed.LinkedToOtherIdentity", "This account is already connected to another identity provider account."),
         ("Failed.IdentityLinkedToOtherAccount",
             "Your identity provider account is already connected to another account in this store. Nothing was connected."),
+        ("Failed.SignedInAsOtherAccount",
+            "You are already signed in with another account. Sign out first, then sign in with your identity provider."),
         ("DisplayOrder", "Display order"),
         ("ClientId", "Client ID"),
         ("ClientSecret", "Client secret"),
+        ("ClientSecret.Set", "set"),
+        ("ClientSecret.NotSet", "not set"),
         ("Authority", "Identity provider (Authority)"),
         ("Description",
             "<p>The identity provider and the client are configured in the application settings file (appsettings), not here: " +

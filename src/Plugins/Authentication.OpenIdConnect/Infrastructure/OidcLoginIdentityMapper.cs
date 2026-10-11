@@ -1,6 +1,7 @@
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Security.Claims;
 
 namespace Authentication.OpenIdConnect.Infrastructure;
@@ -31,5 +32,17 @@ public static class OidcLoginIdentityMapper
         properties.IsPersistent = false;
         properties.AllowRefresh = false;
         properties.ExpiresUtc = now.Add(OidcLoginDefaults.PendingLifetime);
+    }
+
+    /// <summary>
+    ///     The scopes of the configuration, always with "openid": without it the provider issues no ID token and every
+    ///     sign-in fails
+    /// </summary>
+    public static IEnumerable<string> Scopes(string configured)
+    {
+        var scopes = (configured ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries).Distinct().ToList();
+        if (!scopes.Contains(OpenIdConnectScope.OpenId))
+            scopes.Insert(0, OpenIdConnectScope.OpenId);
+        return scopes;
     }
 }

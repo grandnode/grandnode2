@@ -55,7 +55,9 @@ public class OidcLoginSettingsController : BaseAdminPluginController
             Authority = _resourceServerConfig.Authority,
             ClientId = _oidcLoginConfig.ClientId,
             //never the secret itself
-            ClientSecret = string.IsNullOrWhiteSpace(_oidcLoginConfig.ClientSecret) ? "not set" : "set",
+            ClientSecret = _translationService.GetResource(string.IsNullOrWhiteSpace(_oidcLoginConfig.ClientSecret)
+                ? "Plugins.ExternalAuth.OpenIdConnect.ClientSecret.NotSet"
+                : "Plugins.ExternalAuth.OpenIdConnect.ClientSecret.Set"),
             DisplayOrder = _oidcLoginSettings.DisplayOrder
         };
 

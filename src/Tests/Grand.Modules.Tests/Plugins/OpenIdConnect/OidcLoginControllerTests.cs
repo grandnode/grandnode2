@@ -41,7 +41,6 @@ public class OidcLoginControllerTests
     private OidcLoginController _controller;
     private Mock<IAuthenticationService> _httpAuth;
     private Mock<ILogger<OidcLoginController>> _logger;
-    private CustomerSettings _customerSettings;
     private DateTimeOffset? _ticketIssued;
     private readonly List<UrlRouteContext> _routes = [];
 
@@ -89,13 +88,12 @@ public class OidcLoginControllerTests
             .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity("test")),
                 new AuthenticationProperties { IssuedUtc = _ticketIssued }, GrandCookieAuthenticationDefaults.AuthenticationScheme)));
         _logger = new Mock<ILogger<OidcLoginController>>();
-        _customerSettings = new CustomerSettings();
         var http = new DefaultHttpContext {
             Session = new TestSession(),
             RequestServices = new ServiceCollection().AddSingleton(_httpAuth.Object).BuildServiceProvider()
         };
         _controller = new OidcLoginController(_external.Object, _resolver.Object, _auth.Object, _mediator.Object,
-            _externalAuth.Object, _schemes.Object, _groups.Object, ctx.Object, _customerSettings, _logger.Object) {
+            _externalAuth.Object, _schemes.Object, _groups.Object, ctx.Object, _logger.Object) {
             ControllerContext = new ControllerContext { HttpContext = http }
         };
         var url = new Mock<IUrlHelper>();
@@ -125,7 +123,7 @@ public class OidcLoginControllerTests
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Login("/")).RouteName);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(
-                "OpenID Connect login is installed but OidcResourceServer:Authority or OidcLogin:ClientId is empty")),
+                "or the application was not restarted after the plugin was installed")),
             It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
@@ -294,58 +292,85 @@ public class OidcLoginControllerTests
         _external.Verify(x => x.Clear(), Times.Once);
     }
 
-    private Customer TwoFactorCustomer()
+    [TestMethod]
+    public async Task Callback_SignIn_TwoFactorCustomer_SignsInWithoutStoreCode()
     {
-        _customerSettings.TwoFactorAuthenticationEnabled = true;
-        var customer = new Customer { Id = "c9", Email = "john@example.com", Username = "john" };
+        var customer = new Customer { Id = "c9", Email = "john@example.com" };
         customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
-        return customer;
+        Assert.AreEqual("/cart", ((RedirectResult)await _controller.Callback("/cart")).Url);
+        _auth.Verify(x => x.SignIn(customer, false), Times.Once);
     }
 
     [TestMethod]
-    public async Task Callback_SignIn_TwoFactor_ToTwoFactorPage_NotSignedIn()
+    public async Task Callback_SignIn_OtherAccountSignedIn_ClearsAndFails_SessionKept()
     {
-        TwoFactorCustomer();
-        var result = (RedirectToRouteResult)await _controller.Callback("/cart");
-        Assert.AreEqual("TwoFactorAuthorization", result.RouteName);
-        Assert.AreEqual("john@example.com", _controller.HttpContext.Session.GetString("RequiresTwoFactor"));
-        Assert.AreEqual("/cart", _controller.HttpContext.Session.GetString("RequiresTwoFactorReturnUrl"));
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(new Customer { Id = "other" }));
+        var result = (RedirectToRouteResult)await _controller.Callback("/");
+        Assert.AreEqual("OidcLoginFailed", result.RouteName);
+        Assert.AreEqual(true, result.RouteValues!["signedIn"]);
+        _external.Verify(x => x.Clear(), Times.Once);
         _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
         _mediator.Verify(x => x.Publish(It.IsAny<CustomerLoggedInEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Callback_SignIn_SameAccountSignedIn_RedirectsWithoutNewSignIn()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(_current));
+        Assert.AreEqual("/cart", ((RedirectResult)await _controller.Callback("/cart")).Url);
+        _external.Verify(x => x.Clear(), Times.Once);
+        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Callback_RegistrationRequired_SignedIn_ClearsAndFails()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.RegistrationRequired());
+        var result = (RedirectToRouteResult)await _controller.Callback("/");
+        Assert.AreEqual("OidcLoginFailed", result.RouteName);
+        Assert.AreEqual(true, result.RouteValues!["signedIn"]);
         _external.Verify(x => x.Clear(), Times.Once);
     }
 
     [TestMethod]
-    public async Task Callback_SignIn_TwoFactor_UsernamesEnabled_UsesUsername_DropsStaleReturnUrl()
+    public async Task Callback_LinkRequired_SignedIn_StillToLink()
     {
-        TwoFactorCustomer();
-        _customerSettings.UsernamesEnabled = true;
-        _controller.HttpContext.Session.SetString("RequiresTwoFactorReturnUrl", "/stale");
-        await _controller.Callback("https://evil.example/");
-        Assert.AreEqual("john", _controller.HttpContext.Session.GetString("RequiresTwoFactor"));
-        Assert.IsNull(_controller.HttpContext.Session.GetString("RequiresTwoFactorReturnUrl"));
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.LinkRequired(new Customer { Id = "other" }));
+        Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
     }
 
     [TestMethod]
-    public async Task Callback_SignIn_TwoFactor_NoUsername_ToPasswordLogin()
+    public async Task LinkComplete_TicketIssuedInSameSecondAsLink_Links()
     {
-        TwoFactorCustomer().Username = null;
-        _customerSettings.UsernamesEnabled = true;
-        Assert.AreEqual("Login", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
-        Assert.IsNull(_controller.HttpContext.Session.GetString("RequiresTwoFactor"));
-        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
+        var now = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        Marker("sub-1", now);
+        _ticketIssued = now.AddMilliseconds(800);
+        Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
     }
 
     [TestMethod]
-    public async Task Callback_SignIn_TwoFactorDisabledInStore_SignsIn()
+    public void Failed_SignedIn_InModel()
     {
-        var customer = TwoFactorCustomer();
-        _customerSettings.TwoFactorAuthenticationEnabled = false;
-        Assert.AreEqual("/", ((RedirectResult)await _controller.Callback("/")).Url);
-        _auth.Verify(x => x.SignIn(customer, false), Times.Once);
+        var model = (FailedModel)((ViewResult)_controller.Failed(null, signedIn: true)).Model!;
+        Assert.IsTrue(model.SignedInAsOtherAccount);
     }
 
     //the link page was shown a minute ago unless a test says otherwise

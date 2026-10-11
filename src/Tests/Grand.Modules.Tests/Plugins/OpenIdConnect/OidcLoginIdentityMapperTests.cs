@@ -68,4 +68,14 @@ public class OidcLoginIdentityMapperTests
         //the properties keep whole seconds
         Assert.IsTrue((now.AddMinutes(15) - props.ExpiresUtc.Value).Duration() < TimeSpan.FromSeconds(1));
     }
+
+    [TestMethod]
+    [DataRow("profile email offline_access", "openid profile email offline_access")]
+    [DataRow("openid  profile email openid", "openid profile email")]
+    [DataRow("", "openid")]
+    [DataRow(null, "openid")]
+    public void Scopes_AlwaysOpenId(string configured, string expected)
+    {
+        Assert.AreEqual(expected, string.Join(' ', OidcLoginIdentityMapper.Scopes(configured)));
+    }
 }
