@@ -1,14 +1,15 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,8 +35,8 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 public sealed class OidcTestHost : IAsyncDisposable
 {
     public const string Issuer = "https://idp.test/realms/shop";
-    public static readonly RsaSecurityKey IdpKey = new(RSA.Create(2048)) { KeyId = "idp-1" };
-    public static readonly RsaSecurityKey ForeignKey = new(RSA.Create(2048)) { KeyId = "idp-1" };
+    public static readonly RsaSecurityKey IdpKey = NewKey("idp-1");
+    public static readonly RsaSecurityKey ForeignKey = NewKey("idp-1");
 
     private IHost _host;
 
@@ -68,17 +69,25 @@ public sealed class OidcTestHost : IAsyncDisposable
             : [new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api", ScopesSupported = ["grandnode.api"], RequiredScopes = ["grandnode.api"] }]
     };
 
-    public static Task<HttpResponseMessage> Send(HttpClient client, string path, string token = null, string scheme = "Bearer")
+    /// <summary>A signing key held as parameters, so no RSA instance outlives its creation</summary>
+    private static RsaSecurityKey NewKey(string keyId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, path);
+        using var rsa = RSA.Create(2048);
+        return new RsaSecurityKey(rsa.ExportParameters(true)) { KeyId = keyId };
+    }
+
+    public static async Task<HttpResponseMessage> Send(HttpClient client, string path, string token = null, string scheme = "Bearer")
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
         if (token != null) request.Headers.Authorization = new AuthenticationHeaderValue(scheme, token);
-        return client.SendAsync(request);
+        return await client.SendAsync(request);
     }
 
     public async Task<HttpClient> Start(OidcResourceServerConfig config,
         Action<IServiceCollection> services = null,
         Action<AuthenticationBuilder> auth = null,
-        Action<IEndpointRouteBuilder> endpoints = null)
+        Action<IEndpointRouteBuilder> endpoints = null,
+        Action<JwtBearerOptions> jwtBearer = null)
     {
         _host = await new HostBuilder().ConfigureWebHost(web => web
             .UseTestServer()
@@ -91,7 +100,7 @@ public sealed class OidcTestHost : IAsyncDisposable
                 //before AddProblemDetails, as in the app: MVC is registered first, so its problem details writer comes first
                 services?.Invoke(s);
                 s.AddProblemDetails();
-                s.TryAddSingleton(StoreContextSetter("http://localhost/"));
+                s.TryAddSingleton(StoreService(new Store { Id = "store1", Url = "http://localhost/" }));
                 //defaults for what the Oidc events need; a test registers its own mock before these to override
                 var defaultResolver = new Mock<IOidcCustomerResolver>();
                 defaultResolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
@@ -111,6 +120,7 @@ public sealed class OidcTestHost : IAsyncDisposable
                     var configuration = new OpenIdConnectConfiguration { Issuer = Issuer };
                     configuration.SigningKeys.Add(IdpKey);
                     o.Configuration = configuration;
+                    jwtBearer?.Invoke(o);
                 });
             })
             .Configure(app =>
@@ -132,13 +142,18 @@ public sealed class OidcTestHost : IAsyncDisposable
         return _host.GetTestClient();
     }
 
-    public static IStoreContextSetter StoreContextSetter(string url)
+    /// <summary>
+    ///     Stores matched by host as StoreService does: a store lists its hosts in Domains
+    /// </summary>
+    public static IStoreService StoreService(params Store[] stores)
     {
-        var storeContext = new Mock<IStoreContext>();
-        storeContext.Setup(c => c.CurrentStore).Returns(new Store { Id = "store1", Url = url });
-        var setter = new Mock<IStoreContextSetter>();
-        setter.Setup(s => s.InitializeStoreContext(It.IsAny<string>())).ReturnsAsync(storeContext.Object);
-        return setter.Object;
+        var service = new Mock<IStoreService>();
+        service.Setup(s => s.GetAllStores()).ReturnsAsync(stores.ToList());
+        service.Setup(s => s.GetStoreByHost(It.IsAny<string>()))
+            .ReturnsAsync((string host) => stores.FirstOrDefault(s => s.ContainsHostValue(host)));
+        service.Setup(s => s.GetStoreById(It.IsAny<string>()))
+            .ReturnsAsync((string id) => stores.FirstOrDefault(s => s.Id == id));
+        return service.Object;
     }
 
     public async ValueTask DisposeAsync()

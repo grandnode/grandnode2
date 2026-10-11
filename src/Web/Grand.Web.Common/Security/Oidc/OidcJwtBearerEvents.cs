@@ -68,7 +68,8 @@ public class OidcJwtBearerEvents : JwtBearerEvents
     {
         var http = context.HttpContext;
         var services = http.RequestServices;
-        //[Authorize] authenticates in the authorization middleware, before ContextMiddleware sets the store context
+        //the store whose URL the audience was checked against (from the host, never the store cookie); [Authorize]
+        //authenticates in the authorization middleware, before ContextMiddleware sets the store context anyway
         var storeId = (await OidcCanonicalUri.RequestStore(http))?.Id ?? "";
         var result = await services.GetRequiredService<IOidcCustomerResolver>().Resolve(context.Principal!, storeId);
         if (!result.Succeeded)
@@ -90,6 +91,19 @@ public class OidcJwtBearerEvents : JwtBearerEvents
 
     public override Task AuthenticationFailed(AuthenticationFailedContext context)
     {
+        if (ConfigurationUnavailable(context))
+        {
+            Logger(context.HttpContext).LogError(context.Exception,
+                "Access token not validated: the authorization server metadata or signing keys could not be obtained from {MetadataAddress}",
+                context.Options.MetadataAddress);
+            OidcAuthenticationFailure.Set(context.HttpContext, new OidcAuthenticationFailure {
+                Kind = OidcFailureKind.ServiceUnavailable, Description = "The authorization server is unavailable"
+            });
+            //a result stops JwtBearer from rethrowing a retrieval exception it caught itself
+            context.Fail(context.Exception);
+            return Task.CompletedTask;
+        }
+
         var description = context.Exception switch {
             SecurityTokenExpiredException => "The token has expired",
             SecurityTokenNotYetValidException => "The token is not valid yet",
@@ -106,6 +120,24 @@ public class OidcJwtBearerEvents : JwtBearerEvents
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    ///     The failure comes from the authorization server's metadata or keys being unobtainable, not from the token:
+    ///     the configuration manager reports it, or the exception is the retrieval failure itself (IDX20803, or a
+    ///     network error inside)
+    /// </summary>
+    private static bool ConfigurationUnavailable(AuthenticationFailedContext context)
+    {
+        if (context.Options.ConfigurationManager is OidcConfigurationManager { Unavailable: true })
+            return true;
+
+        if (context.Exception is InvalidOperationException invalid && invalid.Message.Contains("IDX20803"))
+            return true;
+        for (var exception = context.Exception; exception != null; exception = exception.InnerException)
+            if (exception is HttpRequestException)
+                return true;
+        return false;
+    }
+
     public override async Task Challenge(JwtBearerChallengeContext context)
     {
         context.HandleResponse();
@@ -116,7 +148,8 @@ public class OidcJwtBearerEvents : JwtBearerEvents
 
         var resource = http.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>().Match(http.Request.Path);
         var metadataUrl = resource != null
-            ? OidcProtectedResourceMetadata.MetadataUrl(await OidcCanonicalUri.StoreBaseUrl(http), resource)
+            ? OidcProtectedResourceMetadata.MetadataUrl(
+                OidcCanonicalUri.ResourceFor(resource, await OidcCanonicalUri.StoreBaseUrl(http)))
             : null;
         var scope = resource != null ? string.Join(' ', OidcTokenChecks.PublicScopes(resource.RequiredScopes)) : null;
         await OidcChallengeWriter.Write(http, failure, metadataUrl, scope);
