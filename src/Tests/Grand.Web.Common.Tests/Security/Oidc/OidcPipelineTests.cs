@@ -219,6 +219,67 @@ public class OidcPipelineTests
         Assert.IsTrue(logs.Messages.Any(m => m.Contains("BackendApi")), string.Join(" | ", logs.Messages));
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
     }
+
+    [TestMethod]
+    public async Task AuthorizationServerUnreachable_503_NotInvalidToken()
+    {
+        var logs = new ListLoggerProvider();
+        await _host.DisposeAsync();
+        _host = new OidcTestHost();
+        _client = await _host.Start(OidcTestHost.Config(), s => s.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(logs),
+            jwtBearer: o =>
+            {
+                //the configuration manager built from Authority, over a backchannel that cannot reach the identity provider
+                o.Configuration = null;
+                o.Backchannel = new HttpClient(new UnreachableHandler());
+            });
+
+        using var response = await Get("/api/ping", OidcTestHost.Token());
+        var body = await response.Content.ReadAsStringAsync();
+
+        Assert.AreEqual(HttpStatusCode.ServiceUnavailable, response.StatusCode, body);
+        Assert.IsFalse(response.Headers.WwwAuthenticate.ToString().Contains("invalid_token"));
+        Assert.AreEqual("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        Assert.IsTrue(logs.Messages.Any(m => m.StartsWith("Error:")), string.Join(" | ", logs.Messages));
+    }
+
+    [TestMethod]
+    public async Task AuthorizationServerReachable_ForgedToken401_ValidToken200()
+    {
+        await _host.DisposeAsync();
+        _host = new OidcTestHost();
+        _client = await _host.Start(OidcTestHost.Config(), jwtBearer: o =>
+        {
+            o.Configuration = null;
+            o.Backchannel = new HttpClient(new DiscoveryHandler());
+        });
+
+        using var forged = await Get("/api/ping", OidcTestHost.Token(key: OidcTestHost.ForeignKey));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, forged.StatusCode);
+        StringAssert.Contains(forged.Headers.WwwAuthenticate.ToString(), "invalid_token");
+        using var valid = await Get("/api/ping", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
+    }
+
+    private sealed class DiscoveryHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var body = request.RequestUri!.AbsolutePath.EndsWith("/jwks")
+                ? System.Text.Json.JsonSerializer.Serialize(new {
+                    keys = new[] { JsonWebKeyConverter.ConvertFromRSASecurityKey(OidcTestHost.IdpKey) }
+                        .Select(k => new { kty = k.Kty, kid = k.Kid, n = k.N, e = k.E, use = "sig" })
+                })
+                : $"{{\"issuer\":\"{OidcTestHost.Issuer}\",\"jwks_uri\":\"{OidcTestHost.Issuer}/jwks\"}}";
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(body, Encoding.UTF8, "application/json") });
+        }
+    }
+
+    private sealed class UnreachableHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            throw new HttpRequestException("No such host is known.");
+    }
 }
 
 internal sealed class ListLoggerProvider : Microsoft.Extensions.Logging.ILoggerProvider

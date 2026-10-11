@@ -2,6 +2,8 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
@@ -57,6 +59,28 @@ public static class OidcAuthenticationBuilderExtensions
                 configure?.Invoke(options);
         });
 
+        //after JwtBearer's own post-configuration, which derives the metadata address and creates the backchannel
+        if (enabled)
+            builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>>(
+                new PostConfigureOptions<JwtBearerOptions>(OidcResourceServerDefaults.AuthenticationScheme,
+                    UseOidcConfigurationManager));
+
         return builder;
+    }
+
+    /// <summary>
+    ///     Replaces the configuration manager JwtBearer built from Authority with one that reports retrieval failures
+    /// </summary>
+    private static void UseOidcConfigurationManager(JwtBearerOptions options)
+    {
+        if (options.Configuration != null ||
+            options.ConfigurationManager?.GetType() != typeof(ConfigurationManager<OpenIdConnectConfiguration>))
+            return;
+
+        options.ConfigurationManager = new OidcConfigurationManager(options.MetadataAddress,
+            new HttpDocumentRetriever(options.Backchannel) { RequireHttps = options.RequireHttpsMetadata }) {
+            RefreshInterval = options.RefreshInterval,
+            AutomaticRefreshInterval = options.AutomaticRefreshInterval
+        };
     }
 }

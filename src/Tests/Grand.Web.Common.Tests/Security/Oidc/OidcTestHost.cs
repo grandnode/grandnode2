@@ -3,6 +3,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -72,7 +73,8 @@ public sealed class OidcTestHost : IAsyncDisposable
     public async Task<HttpClient> Start(OidcResourceServerConfig config,
         Action<IServiceCollection> services = null,
         Action<AuthenticationBuilder> auth = null,
-        Action<IEndpointRouteBuilder> endpoints = null)
+        Action<IEndpointRouteBuilder> endpoints = null,
+        Action<JwtBearerOptions> jwtBearer = null)
     {
         _host = await new HostBuilder().ConfigureWebHost(web => web
             .UseTestServer()
@@ -93,6 +95,7 @@ public sealed class OidcTestHost : IAsyncDisposable
                     var configuration = new OpenIdConnectConfiguration { Issuer = Issuer };
                     configuration.SigningKeys.Add(IdpKey);
                     o.Configuration = configuration;
+                    jwtBearer?.Invoke(o);
                 });
             })
             .Configure(app =>

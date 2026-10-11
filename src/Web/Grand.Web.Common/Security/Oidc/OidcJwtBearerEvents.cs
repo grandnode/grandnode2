@@ -74,6 +74,19 @@ public class OidcJwtBearerEvents : JwtBearerEvents
 
     public override Task AuthenticationFailed(AuthenticationFailedContext context)
     {
+        if (ConfigurationUnavailable(context))
+        {
+            Logger(context.HttpContext).LogError(context.Exception,
+                "Access token not validated: the authorization server metadata or signing keys could not be obtained from {MetadataAddress}",
+                context.Options.MetadataAddress);
+            OidcAuthenticationFailure.Set(context.HttpContext, new OidcAuthenticationFailure {
+                Kind = OidcFailureKind.ServiceUnavailable, Description = "The authorization server is unavailable"
+            });
+            //a result stops JwtBearer from rethrowing a retrieval exception it caught itself
+            context.Fail(context.Exception);
+            return Task.CompletedTask;
+        }
+
         var description = context.Exception switch {
             SecurityTokenExpiredException => "The token has expired",
             SecurityTokenNotYetValidException => "The token is not valid yet",
@@ -88,6 +101,24 @@ public class OidcJwtBearerEvents : JwtBearerEvents
         OidcAuthenticationFailure.Set(context.HttpContext,
             new OidcAuthenticationFailure { Kind = OidcFailureKind.InvalidToken, Description = description });
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    ///     The failure comes from the authorization server's metadata or keys being unobtainable, not from the token:
+    ///     the configuration manager reports it, or the exception is the retrieval failure itself (IDX20803, or a
+    ///     network error inside)
+    /// </summary>
+    private static bool ConfigurationUnavailable(AuthenticationFailedContext context)
+    {
+        if (context.Options.ConfigurationManager is OidcConfigurationManager { Unavailable: true })
+            return true;
+
+        if (context.Exception is InvalidOperationException invalid && invalid.Message.Contains("IDX20803"))
+            return true;
+        for (var exception = context.Exception; exception != null; exception = exception.InnerException)
+            if (exception is HttpRequestException)
+                return true;
+        return false;
     }
 
     public override async Task Challenge(JwtBearerChallengeContext context)
