@@ -279,6 +279,7 @@ public class OidcPipelineTests
         var body = await response.Content.ReadAsStringAsync();
 
         Assert.AreEqual(HttpStatusCode.ServiceUnavailable, response.StatusCode, body);
+        Assert.AreEqual(TimeSpan.FromSeconds(30), response.Headers.RetryAfter?.Delta);
         Assert.IsFalse(response.Headers.WwwAuthenticate.ToString().Contains("invalid_token"));
         Assert.AreEqual("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         Assert.IsTrue(logs.Messages.Any(m => m.StartsWith("Error:")), string.Join(" | ", logs.Messages));

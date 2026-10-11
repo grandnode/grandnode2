@@ -54,6 +54,7 @@ public class OidcChallengeWriterTests
             new OidcAuthenticationFailure { Kind = OidcFailureKind.Forbidden, Description = "The customer account is inactive" }, Meta, null);
 
         Assert.AreEqual(403, context.Response.StatusCode);
+        Assert.IsFalse(context.Response.Headers.ContainsKey("Retry-After"));
         Assert.IsFalse(context.Response.Headers.ContainsKey("WWW-Authenticate"));
         StringAssert.StartsWith(context.Response.ContentType, "application/problem+json");
     }
@@ -76,6 +77,7 @@ public class OidcChallengeWriterTests
             new OidcAuthenticationFailure { Kind = OidcFailureKind.ServiceUnavailable, Description = "The authorization server is unavailable" }, Meta, null);
 
         Assert.AreEqual(503, context.Response.StatusCode);
+        Assert.AreEqual("30", context.Response.Headers.RetryAfter.ToString());
         Assert.IsFalse(context.Response.Headers.ContainsKey("WWW-Authenticate"));
         StringAssert.StartsWith(context.Response.ContentType, "application/problem+json");
         context.Response.Body.Position = 0;
