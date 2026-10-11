@@ -29,8 +29,8 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 public sealed class OidcTestHost : IAsyncDisposable
 {
     public const string Issuer = "https://idp.test/realms/shop";
-    public static readonly RsaSecurityKey IdpKey = new(RSA.Create(2048)) { KeyId = "idp-1" };
-    public static readonly RsaSecurityKey ForeignKey = new(RSA.Create(2048)) { KeyId = "idp-1" };
+    public static readonly RsaSecurityKey IdpKey = NewKey("idp-1");
+    public static readonly RsaSecurityKey ForeignKey = NewKey("idp-1");
 
     private IHost _host;
 
@@ -63,11 +63,18 @@ public sealed class OidcTestHost : IAsyncDisposable
             : [new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api", ScopesSupported = ["grandnode.api"], RequiredScopes = ["grandnode.api"] }]
     };
 
-    public static Task<HttpResponseMessage> Send(HttpClient client, string path, string token = null, string scheme = "Bearer")
+    /// <summary>A signing key held as parameters, so no RSA instance outlives its creation</summary>
+    private static RsaSecurityKey NewKey(string keyId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, path);
+        using var rsa = RSA.Create(2048);
+        return new RsaSecurityKey(rsa.ExportParameters(true)) { KeyId = keyId };
+    }
+
+    public static async Task<HttpResponseMessage> Send(HttpClient client, string path, string token = null, string scheme = "Bearer")
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
         if (token != null) request.Headers.Authorization = new AuthenticationHeaderValue(scheme, token);
-        return client.SendAsync(request);
+        return await client.SendAsync(request);
     }
 
     public async Task<HttpClient> Start(OidcResourceServerConfig config,

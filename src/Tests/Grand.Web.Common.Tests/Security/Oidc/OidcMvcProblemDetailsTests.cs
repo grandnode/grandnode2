@@ -37,13 +37,13 @@ public class OidcMvcProblemDetailsTests
     [DataRow("/api/apiprobe", "scope:other", 403)]
     public async Task ChallengeAndRefusal_WriteProblemDetailsBody(string path, string token, int status)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, path);
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         if (token != null)
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer",
                 token == "scope:other" ? OidcTestHost.Token(scope: "other") : token);
 
-        var response = await _client.SendAsync(request);
+        using var response = await _client.SendAsync(request);
         var body = await response.Content.ReadAsStringAsync();
 
         Assert.AreEqual(status, (int)response.StatusCode);

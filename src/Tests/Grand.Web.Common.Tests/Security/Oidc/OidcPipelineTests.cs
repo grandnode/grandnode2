@@ -33,10 +33,10 @@ public class OidcPipelineTests
     [TestMethod]
     public async Task ForeignHostHeader_TokenForThatHost_401()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, "/api/ping");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/ping");
         request.Headers.Host = "evil.test";
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", OidcTestHost.Token(audience: "http://evil.test/api"));
-        var response = await _client.SendAsync(request);
+        using var response = await _client.SendAsync(request);
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
