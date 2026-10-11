@@ -136,6 +136,12 @@ customer in this order.
    linked by the previous one are refused until their link is removed.
 7. With `RegisterCustomersPerStore` enabled an account of another store is refused (403) and lookups are store-scoped.
 
+**Per-store identity.** With `RegisterCustomersPerStore` enabled the same person can have a separate customer in each
+store, so one `sub` gets one link per store: the link records the store of the linked customer, and a request uses the
+link of its own store. In a store where the subject has no link yet, the rules above link (or register) that store's
+customer. A customer of no store, such as a back-office account, has one link without a store, and it works in every
+store. Without per-store identity a link has no store and is used in every store, as before.
+
 ### 3.2 Automatic registration
 
 `AutoRegister` is `false` by default. When no customer matches, the answer is 403 "No customer account matches the token"; the

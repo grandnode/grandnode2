@@ -21,8 +21,9 @@ namespace Grand.Business.Authentication.Services;
 /// <summary>
 ///     Maps a validated access token or a browser sign-in to a customer: stored subject link; customer with the verified e-mail (link
 ///     stored); registration with the Registered group only. Only active, registered, non-system accounts are used,
-///     and one customer holds at most one identity. A unique index on (provider, identifier) makes the
-///     first concurrent requests of one user converge on one account.
+///     and one customer holds at most one identity. With per-store identity a subject has one link per store (plus
+///     the link of a customer of no store, valid in every store). A unique index on (provider, identifier, store)
+///     makes the first concurrent requests of one user converge on one account.
 /// </summary>
 public class OidcCustomerResolver : IOidcCustomerResolver
 {
@@ -71,7 +72,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (string.IsNullOrEmpty(sub))
             return OidcCustomerResult.InvalidToken("The token has no subject");
 
-        var link = await GetLink(sub);
+        var link = await GetLink(sub, storeId);
         if (link != null)
             return await Usable(await _customerService.GetCustomerById(link.CustomerId), sub, storeId);
 
@@ -110,7 +111,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             return OidcCustomerResult.Forbidden("The customer account is linked to another identity");
         }
 
-        var linked = await LinkOrGetWinner(customer, sub, email);
+        var linked = await LinkOrGetWinner(customer, sub, email, storeId);
         if (linked?.Id != customer.Id)
             return await Usable(linked, sub, storeId);
 
@@ -124,7 +125,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (string.IsNullOrEmpty(sub))
             return OidcLoginResult.Refused(OidcLoginRefusal.InvalidIdentity);
 
-        var link = await GetLink(sub);
+        var link = await GetLink(sub, storeId);
         if (link != null)
         {
             var linked = await _customerService.GetCustomerById(link.CustomerId);
@@ -175,14 +176,14 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentException.ThrowIfNullOrEmpty(sub);
 
-        var existing = await GetLink(sub);
+        var existing = await GetLink(sub, customer.StoreId);
         if (existing != null)
             return existing.CustomerId == customer.Id ? OidcLinkResult.Linked : OidcLinkResult.SubjectLinkedToOtherCustomer;
 
         if (await HasOtherLink(customer, sub))
             return OidcLinkResult.CustomerLinkedToOtherSubject;
 
-        var winner = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "");
+        var winner = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "", customer.StoreId);
         if (winner?.Id != customer.Id)
             return OidcLinkResult.SubjectLinkedToOtherCustomer;
 
@@ -206,7 +207,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         }
 
         //a concurrent request may have registered this subject since the first lookup
-        var existing = await GetLink(sub);
+        var existing = await GetLink(sub, storeId);
         if (existing != null)
             return await Usable(await _customerService.GetCustomerById(existing.CustomerId), sub, storeId);
 
@@ -231,7 +232,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         await _customerManagerService.RegisterCustomer(new RegistrationRequest(customer, normalizedEmail,
             normalizedEmail, CommonHelper.GenerateRandomDigitCode(20), PasswordFormat.Hashed, storeId));
 
-        var linked = await LinkOrGetWinner(customer, sub, email);
+        var linked = await LinkOrGetWinner(customer, sub, email, storeId);
         if (linked?.Id != customer.Id)
         {
             //lost the race: drop the account just created and use the one the winner linked
@@ -246,16 +247,42 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         return OidcCustomerResult.Success(customer);
     }
 
-    //subjects are case-sensitive - exact comparison
-    private Task<ExternalAuthentication> GetLink(string sub) =>
-        _externalAuthenticationRepository.GetOneAsync(x =>
-            x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub);
+    /// <summary>
+    ///     The link of the subject usable in the store. With per-store identity: the link of the store, otherwise
+    ///     the link of a customer of no store (empty or, for older records, missing store); without it: any link.
+    ///     Subjects are case-sensitive - exact comparison.
+    /// </summary>
+    private async Task<ExternalAuthentication> GetLink(string sub, string storeId)
+    {
+        if (!_customerConfig.RegisterCustomersPerStore)
+            return await _externalAuthenticationRepository.GetOneAsync(x =>
+                x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub);
+
+        if (!string.IsNullOrEmpty(storeId))
+        {
+            var storeLink = await _externalAuthenticationRepository.GetOneAsync(x =>
+                x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub && x.StoreId == storeId);
+            if (storeLink != null)
+                return storeLink;
+        }
+
+        return await _externalAuthenticationRepository.GetOneAsync(x =>
+            x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub &&
+            (x.StoreId == null || x.StoreId == ""));
+    }
+
+    /// <summary>
+    ///     Store part of the link key: the customer's store with per-store identity, empty otherwise - never null,
+    ///     so the unique index sees one value for "no store"
+    /// </summary>
+    private string LinkStoreId(Customer customer) =>
+        _customerConfig.RegisterCustomersPerStore ? customer.StoreId ?? "" : "";
 
     /// <summary>
     ///     Stores the link; when a concurrent request stored one first, returns the customer of that link. Rethrows
     ///     when the insert failed for another reason.
     /// </summary>
-    private async Task<Customer> LinkOrGetWinner(Customer customer, string sub, string email)
+    private async Task<Customer> LinkOrGetWinner(Customer customer, string sub, string email, string storeId)
     {
         try
         {
@@ -264,7 +291,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
                 Email = email.ToLowerInvariant(),
                 ExternalIdentifier = sub,
                 ExternalDisplayIdentifier = email,
-                ProviderSystemName = ProviderSystemName
+                ProviderSystemName = ProviderSystemName,
+                StoreId = LinkStoreId(customer)
             });
             return customer;
         }
@@ -272,7 +300,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         {
             _logger.LogInformation("Storing the identity link for subject {Subject} failed ({ExceptionType}); re-reading",
                 sub, ex.GetType().Name);
-            var winner = await GetLink(sub);
+            var winner = await GetLink(sub, storeId);
             if (winner == null)
                 throw;
             return await _customerService.GetCustomerById(winner.CustomerId);
