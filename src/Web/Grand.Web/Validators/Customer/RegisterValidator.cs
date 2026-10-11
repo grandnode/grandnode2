@@ -54,8 +54,8 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
                 .WithMessage(translationService.GetResource("Account.Fields.LastName.Required"));
         }
 
-        //an account created from a provider identity has no password the customer types
-        WhenAsync(async (_, _) => await externalRegistrationContext.GetPending() == null, () =>
+        //an account connected to a provider identity (verified e-mail) has no password the customer types
+        WhenAsync(async (_, _) => !ExternalRegistrationPolicy.ConnectsAtRegistration(await externalRegistrationContext.GetPending()), () =>
         {
             RuleFor(x => x.Password).NotEmpty()
                 .WithMessage(translationService.GetResource("Account.Fields.Password.Required"));
