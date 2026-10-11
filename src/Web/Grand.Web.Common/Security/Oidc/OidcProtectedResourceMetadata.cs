@@ -23,7 +23,11 @@ public static class OidcProtectedResourceMetadata
         //typed as Func<..., Task<IResult>>: a lambda taking only HttpContext binds to RequestDelegate and its result
         //is discarded
         endpoints.MapGet(WellKnownPath, (Func<HttpContext, Task<IResult>>)(async context =>
-            Document(context, null, await OidcCanonicalUri.StoreBaseUrl(context)))).AllowAnonymous();
+        {
+            var baseUrl = await OidcCanonicalUri.StoreBaseUrl(context);
+            //RFC 9728 section 3.3: the root URL describes the bare host; a store under a path is served by {**path}
+            return HasPath(baseUrl) ? Results.NotFound() : Document(context, null, baseUrl);
+        })).AllowAnonymous();
         endpoints.MapGet(WellKnownPath + "/{**path}", async (HttpContext context, string path) =>
         {
             var baseUrl = await OidcCanonicalUri.StoreBaseUrl(context);
@@ -31,6 +35,9 @@ public static class OidcProtectedResourceMetadata
             return found ? Document(context, resource, baseUrl) : Results.NotFound();
         }).AllowAnonymous();
     }
+
+    private static bool HasPath(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.AbsolutePath.TrimEnd('/').Length > 0;
 
     /// <summary>
     ///     The resource whose canonical URI has the requested path: a protected resource, or the store base URL itself

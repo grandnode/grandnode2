@@ -194,6 +194,14 @@ public class OidcPipelineTests
     }
 
     [TestMethod]
+    public async Task StoreUnderSubPath_RootMetadata404()
+    {
+        //RFC 9728 section 3.3: the root URL describes http://localhost, not the store at http://localhost/shop
+        await Start(null, new Store { Id = "store1", Url = "http://localhost/shop/" });
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource"));
+    }
+
+    [TestMethod]
     public async Task SameResourcePath_PickedByRequestAuthority()
     {
         await Start(OidcTestHost.Config(
