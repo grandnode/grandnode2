@@ -2,6 +2,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
@@ -12,6 +13,9 @@ namespace Grand.Web.Common.Security.Oidc;
 /// </summary>
 public static class OidcChallengeWriter
 {
+    /// <summary>Retry-After of the 503 answered while the authorization server is unreachable</summary>
+    public const int RetryAfterSeconds = 30;
+
     public static async Task Write(HttpContext context, OidcAuthenticationFailure failure, string resourceMetadataUrl,
         string scope)
     {
@@ -24,6 +28,10 @@ public static class OidcChallengeWriter
         //no bearer error when the token was not at fault: a refusal of the account, or no authorization server
         if (failure?.Kind is not (OidcFailureKind.Forbidden or OidcFailureKind.ServiceUnavailable))
             context.Response.Headers[HeaderNames.WWWAuthenticate] = BuildHeader(failure, resourceMetadataUrl, scope);
+
+        //RFC 9110 section 10.2.3: a hint when to try again; the identity provider is retried on later requests
+        if (status == StatusCodes.Status503ServiceUnavailable)
+            context.Response.Headers[HeaderNames.RetryAfter] = RetryAfterSeconds.ToString(CultureInfo.InvariantCulture);
 
         context.Response.StatusCode = status;
         var problem = new ProblemDetails {

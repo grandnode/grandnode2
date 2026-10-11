@@ -68,17 +68,24 @@ A token is accepted when its `aud` contains the resource URI or one of `Audience
 
 * With an empty `Resource` the resource URI is the **URL of the GrandNode store serving the request host** (field
   *Store URL* in the admin panel) plus `PathPrefix`, for example `https://shop.example.com/api`. The store is the one
-  whose *Hosts* list the request host; the store cookie is never used. When no store lists the host, a single-store
-  installation uses its only store; with several stores the request has no audience and every token is rejected
-  (and the metadata endpoints answer 404). The URI itself always comes from the *Store URL*, never from the `Host`
+  whose *Hosts* list the request host, compared with its port first (`localhost:44350`, as the installer records the
+  host of the install request) and then without it (`shop.example.com`); the store cookie is never used. When no
+  store lists the host, a single-store installation uses its only store; with several stores the request has no
+  audience and every token is rejected (and the metadata endpoints answer 404). The URI itself always comes from the *Store URL*, never from the `Host`
   header. A request whose token is accepted runs in that same store (prices, settings, per-store accounts), even when
   it also carries another store's cookie; without an accepted token the store cookie keeps its usual priority.
 * Behind a TLS-terminating proxy the *Store URL* must be the public `https://` URL, or the audience will not match.
+  Also set `Security:UseForwardedHeaders = true` so that `X-Forwarded-Proto` makes the request scheme `https`
+  (ASP.NET Core applies it only from a trusted proxy, loopback by default): the metadata endpoint picks between
+  resources sharing a path by the scheme and host the request reached, and an `http` scheme there does not match an
+  `https` resource URI. `X-Forwarded-Host` is not applied, so the proxy has to pass the original `Host` header, the
+  one listed in the store's *Hosts*.
 * Multi-store: every store has its own audience (`https://shop-a.example.com/api`, `https://shop-b.example.com/api`),
   chosen by the host the request reached, so a token issued for store B is not accepted on store A's host. To accept
   one audience only, set `Resource` explicitly.
 * A store without a *Store URL* and a resource without `Resource` have no resource URI: tokens are rejected and the
-  metadata endpoint answers 404, with a warning in the log naming the resource.
+  metadata endpoint answers 404, with a warning in the log naming the resource. A request for a host no store serves
+  also gets 404, logged at Debug level only, since any anonymous request can name such a host.
 * Comparison is canonical: scheme and host lower-case, default port dropped, no trailing slash, path exact.
 
 ### Example for the Web API
@@ -181,15 +188,16 @@ After the mapping the resource's conditions apply; a refusal is 403 without `WWW
 | The provider's discovery document or signing keys cannot be obtained (provider down, wrong `Authority`) | 503 | none |
 
 The body is `application/problem+json` (ProblemDetails). `error_description` is a fixed text; a token is never logged
-or echoed. The 503 is logged at Error level with the metadata address; clients keep their token and retry, instead of
-discarding a valid token as `invalid_token`.
+or echoed. The 503 carries `Retry-After: 30` and is logged at Error level with the metadata address; clients keep
+their token and retry, instead of discarding a valid token as `invalid_token`. The provider is tried again on the next
+request, so tokens are judged normally as soon as it answers.
 
 ### 4.2 Metadata URLs
 
 | URL | Document |
 |---|---|
 | `/.well-known/oauth-protected-resource{path of the resource URI}` | Metadata of one resource, for example `/.well-known/oauth-protected-resource/api` for `https://shop.example.com/api` |
-| `/.well-known/oauth-protected-resource` | Store root: `resource` is the store URL, scopes are the union of all `ScopesSupported` |
+| `/.well-known/oauth-protected-resource` | Store root: `resource` is the store URL, scopes are the union of all `ScopesSupported`. 404 when the store URL has a path (`https://example.com/shop`): the root URL describes the bare host (RFC 9728 section 3.3), and that store is described at `/.well-known/oauth-protected-resource/shop` |
 
 As RFC 9728 section 3.1 requires, the well-known segment goes between the host and the path of the resource URI, at
 the host of that URI:
@@ -224,7 +232,9 @@ When GrandNode is published under a path base (for example `https://example.com/
 host root: `https://example.com/.well-known/oauth-protected-resource/shop/api`, both in the challenge and for clients
 that build it themselves. The application cannot answer outside its path base, so the reverse proxy has to route
 `/.well-known/oauth-protected-resource/...` at the host root to the application (keeping the full path, here
-`/.well-known/oauth-protected-resource/shop/api`).
+`/.well-known/oauth-protected-resource/shop/api`). The same holds for a store whose *Store URL* has a path
+(`https://example.com/shop`): its documents are at `/.well-known/oauth-protected-resource/shop/...` on the host root,
+and the root document `/.well-known/oauth-protected-resource` answers 404 for it.
 
 ### 4.4 Endpoints without `[Authorize]`
 
