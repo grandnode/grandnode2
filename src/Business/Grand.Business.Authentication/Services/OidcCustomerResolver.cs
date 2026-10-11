@@ -179,7 +179,9 @@ public class OidcCustomerResolver : IOidcCustomerResolver
 
     /// <summary>
     ///     The link of the subject usable in the store. With per-store identity: the link of the store, otherwise
-    ///     the link of a customer of no store (empty or, for older records, missing store); without it: any link.
+    ///     the link without a store (empty or, for older records, missing) unless its customer belongs to another
+    ///     store - such a link was stored before customers were registered per store and must not keep the
+    ///     subject from linking this store's customer; without per-store identity: any link.
     ///     Subjects are case-sensitive - exact comparison.
     /// </summary>
     private async Task<ExternalAuthentication> GetLink(string sub, string storeId)
@@ -196,9 +198,17 @@ public class OidcCustomerResolver : IOidcCustomerResolver
                 return storeLink;
         }
 
-        return await _externalAuthenticationRepository.GetOneAsync(x =>
+        var globalLink = await _externalAuthenticationRepository.GetOneAsync(x =>
             x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub &&
             (x.StoreId == null || x.StoreId == ""));
+        if (globalLink == null)
+            return null;
+
+        var linkedCustomer = await _customerService.GetCustomerById(globalLink.CustomerId);
+        if (linkedCustomer != null && !string.IsNullOrEmpty(linkedCustomer.StoreId) && linkedCustomer.StoreId != storeId)
+            return null;
+
+        return globalLink;
     }
 
     /// <summary>
