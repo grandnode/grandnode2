@@ -1853,13 +1853,8 @@ public abstract class BaseProductController(
         return File(bytes, "text/xls", "products.xlsx");
     }
 
-    // Not virtual: Vendor's original ProductController has no ImportExcel action at all, and Vendor is
-    // never granted the "Products" permission's Import action (grep across src/Web/Grand.Web.Vendor found
-    // no PermissionActionName.Import usage anywhere) - vendors are deliberately not allowed to bulk-import
-    // products. [PermissionAuthorizeAction(PermissionActionName.Import)] below already 403s for any host
-    // whose role has no Import grant for Products, so this is safe to expose unconditionally on the base
-    // class; Vendor's (future) subclass simply never routes a view to it, same as any other
-    // permission-gated action already in this file.
+    // Global scope only, as for brands, categories and collections: the importer is not store- or
+    // vendor-aware.
     //
     // Concern (flagged, not fixed - out of scope for this row): ImportExcel only checks
     // `importexcelfile.Length > 0` before handing the raw stream to IImportManager<ProductDto>.Import.
@@ -1875,6 +1870,12 @@ public abstract class BaseProductController(
     {
         try
         {
+            if (Scope.DefaultStoreId is not null || Scope.DefaultVendorId is not null)
+            {
+                Error(translationService.GetResource("Admin.AccessDenied.Title"));
+                return RedirectToAction("List");
+            }
+
             if (importexcelfile is { Length: > 0 })
             {
                 await importManager.Import(importexcelfile.OpenReadStream());
