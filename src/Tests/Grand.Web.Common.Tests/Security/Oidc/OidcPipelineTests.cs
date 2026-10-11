@@ -201,4 +201,39 @@ public class OidcPipelineTests
         Assert.AreEqual("http://localhost/api", await MetadataResource("/.well-known/oauth-protected-resource/api"));
         Assert.AreEqual("http://tools.test/api", await MetadataResource("/.well-known/oauth-protected-resource/api", "tools.test"));
     }
+
+    [TestMethod]
+    public async Task StoreWithoutUrl_Metadata404AndWarning_TokenRejected()
+    {
+        var logs = new ListLoggerProvider();
+        await _host.DisposeAsync();
+        _host = new OidcTestHost();
+        _client = await _host.Start(OidcTestHost.Config(), s =>
+        {
+            s.AddSingleton(OidcTestHost.StoreService(new Store { Id = "store1" }));
+            s.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(logs);
+        });
+
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api"));
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource"));
+        Assert.IsTrue(logs.Messages.Any(m => m.Contains("BackendApi")), string.Join(" | ", logs.Messages));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+    }
+}
+
+internal sealed class ListLoggerProvider : Microsoft.Extensions.Logging.ILoggerProvider
+{
+    public System.Collections.Concurrent.ConcurrentQueue<string> Messages { get; } = new();
+    public Microsoft.Extensions.Logging.ILogger CreateLogger(string categoryName) => new Logger(this);
+    public void Dispose() { }
+
+    private sealed class Logger(ListLoggerProvider provider) : Microsoft.Extensions.Logging.ILogger
+    {
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => null;
+        public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
+
+        public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, Microsoft.Extensions.Logging.EventId eventId,
+            TState state, Exception exception, Func<TState, Exception, string> formatter) =>
+            provider.Messages.Enqueue($"{logLevel}: {formatter(state, exception)}");
+    }
 }

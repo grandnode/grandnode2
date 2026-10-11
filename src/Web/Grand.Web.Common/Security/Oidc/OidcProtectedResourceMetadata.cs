@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 
 namespace Grand.Web.Common.Security.Oidc;
@@ -36,14 +37,23 @@ public static class OidcProtectedResourceMetadata
     {
         var registry = context.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();
         var wanted = path.TrimEnd('/');
-        var matches = registry.Resources
+        var candidates = registry.Resources
             .Select(r => (Resource: r, Uri: OidcCanonicalUri.ResourceFor(r, baseUrl)))
             .Append((Resource: null, Uri: baseUrl))
             .Select(x => (x.Resource, Uri: Uri.TryCreate(x.Uri, UriKind.Absolute, out var uri) ? uri : null))
+            .ToList();
+        var matches = candidates
             .Where(x => x.Uri != null &&
                         string.Equals(Uri.UnescapeDataString(x.Uri.AbsolutePath).TrimEnd('/'), wanted,
                             StringComparison.OrdinalIgnoreCase))
             .ToList();
+        if (matches.Count == 0)
+        {
+            //a resource without a URI (store without a URL, no Resource) is found by its prefix, to be reported
+            var unresolved = candidates.FirstOrDefault(x => x.Resource != null && x.Uri == null &&
+                string.Equals(OidcPath.Normalize(x.Resource.PathPrefix), wanted, StringComparison.OrdinalIgnoreCase));
+            return unresolved.Resource != null ? (true, unresolved.Resource) : (false, null);
+        }
         if (matches.Count > 1)
         {
             var authority = OidcCanonicalUri.Normalize($"{context.Request.Scheme}://{context.Request.Host}");
@@ -54,11 +64,25 @@ public static class OidcProtectedResourceMetadata
         return matches.Count == 1 ? (true, matches[0].Resource) : (false, null);
     }
 
+    /// <summary>
+    ///     404 with a warning when the resource has no URI: RFC 9728 requires "resource", and tokens for it are
+    ///     rejected anyway (no audience to match)
+    /// </summary>
     private static IResult Document(HttpContext context, OidcProtectedResource resource, string baseUrl)
     {
         var config = context.RequestServices.GetRequiredService<OidcResourceServerConfig>();
         if (!config.Enabled)
             return Results.NotFound();
+
+        var resourceUri = resource != null ? OidcCanonicalUri.ResourceFor(resource, baseUrl) : baseUrl;
+        if (resourceUri == null)
+        {
+            context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Grand.Oidc").LogWarning(
+                "Protected resource metadata for {Resource} on host {Host} is unavailable: the store serving the host has no URL and no Resource URI is configured",
+                resource?.Name ?? "the store", context.Request.Host.Host);
+            return Results.NotFound();
+        }
+
         var registry = context.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();
         return Results.Json(Build(config, registry.Resources, resource, baseUrl));
     }
