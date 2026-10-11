@@ -337,6 +337,49 @@ public class OidcSessionServiceTests
         _revocation.Verify(x => x.RevokeTokens(It.IsAny<string>()), Times.Never);
     }
 
+    //a request holding a cached record from before another request's refresh must not use the already rotated token
+    [TestMethod]
+    public async Task Validate_CachedRecordStale_StoredRecentlyValidated_NoRefresh()
+    {
+        _staff = true;
+        var session = await Session(sinceValidated: Interval + TimeSpan.FromMinutes(1));
+        var stale = Stored(session.Id);
+        await _sessions.UpdateField(session.Id, x => x.LastValidatedUtc, DateTime.UtcNow);
+        await _sessions.UpdateField(session.Id, x => x.ProtectedRefreshToken, Protect("rt-2"));
+        _cache.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<OidcSession>>>(), It.IsAny<int>()))
+            .ReturnsAsync(stale);
+
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        _refresher.Verify(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    //the token was replaced by another instance while this refresh ran: its token is never overwritten
+    [TestMethod]
+    public async Task Refreshed_AfterAnotherRefreshStoredNewToken_NewerTokenKept()
+    {
+        _staff = true;
+        var session = await Session(sinceValidated: Interval);
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).Returns(async () =>
+        {
+            await _sessions.UpdateField(session.Id, x => x.ProtectedRefreshToken, Protect("rt-X"));
+            return OidcRefreshResult.Refreshed("rt-2");
+        });
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual("rt-X", Unprotect(Stored(session.Id).ProtectedRefreshToken));
+    }
+
+    //no cancellation token is passed, so a cancellation is a provider timeout
+    [TestMethod]
+    public async Task Validate_RefresherCancelled_TreatedAsUnavailable()
+    {
+        _staff = true;
+        _refresher.Setup(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new TaskCanceledException());
+        var session = await Session(sinceValidated: Interval + TimeSpan.FromMinutes(5));
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.IsNull(Stored(session.Id).EndedUtc);
+    }
+
     //the login plugin was uninstalled: staff sessions end at the next check, customers are not affected
     [TestMethod]
     public async Task NoRefresher_CountsAsRefused()
@@ -346,6 +389,7 @@ public class OidcSessionServiceTests
         var session = await Session(sinceValidated: Interval);
         Assert.IsFalse(await Service().Validate(session.Id, _customer));
         Assert.AreEqual(OidcSessionEndReason.RevalidationRefused, Stored(session.Id).EndReason);
+        _revocation.Verify(x => x.RevokeTokens("sub-1"), Times.Once);
     }
 
     //a parallel request finds the refresh in progress and goes on while the last check is recent enough

@@ -135,28 +135,41 @@ public class OidcSessionService : IOidcSessionService
     ///     Confirms the account at the provider. A refusal ends the session and refuses the subject's older access tokens;
     ///     no answer keeps the session until two intervals passed since the last confirmation
     /// </summary>
-    private async Task<bool> Revalidate(OidcSession session, DateTime now)
+    private async Task<bool> Revalidate(OidcSession cached, DateTime now)
     {
         var grace = _config.StaffRevalidationInterval * 2;
-        if (!RefreshesInProgress.TryAdd(session.Id, 0))
-            return now - session.LastValidatedUtc < grace;
+        if (!RefreshesInProgress.TryAdd(cached.Id, 0))
+            return now - cached.LastValidatedUtc < grace;
 
         try
         {
+            //the cached record may predate a refresh that just finished: its token is already rotated
+            var session = await _sessionRepository.GetByIdAsync(cached.Id);
+            if (session == null || session.EndedUtc.HasValue)
+                return false;
+            if (now - session.LastValidatedUtc < _config.StaffRevalidationInterval)
+                return true;
+
             var refresher = _tokenRefreshers.FirstOrDefault();
             var refreshToken = Unprotect(session.ProtectedRefreshToken);
             OidcRefreshResult result;
+            var unreadable = refresher != null && refreshToken == null;
             if (refresher == null || refreshToken == null)
+            {
+                if (unreadable)
+                    _logger.LogWarning("The stored refresh token of session {SessionId} cannot be read (Data Protection keys changed)",
+                        session.Id);
                 result = OidcRefreshResult.Refused();
+            }
             else
             {
                 try
                 {
                     result = await refresher.Refresh(refreshToken);
                 }
-                catch (Exception ex) when (ex is not OperationCanceledException)
+                catch (Exception ex)
                 {
-                    //a failing refresher is no answer from the provider
+                    //no cancellation token is passed, so a cancellation is a provider timeout: no answer, like any failure
                     _logger.LogWarning("Refreshing session {SessionId} failed: {ExceptionType}", session.Id, ex.GetType().Name);
                     result = OidcRefreshResult.Unavailable();
                 }
@@ -171,7 +184,8 @@ public class OidcSessionService : IOidcSessionService
                         update.Set(x => x.ProtectedRefreshToken, _protector.Protect(result.RefreshToken));
                     //conditional on the token read: a newer token stored meanwhile by another instance is never overwritten
                     await _sessionRepository.UpdateOneAsync(
-                        x => x.Id == session.Id && x.ProtectedRefreshToken == session.ProtectedRefreshToken, update);
+                        x => x.Id == session.Id && x.EndedUtc == null && x.ProtectedRefreshToken == session.ProtectedRefreshToken,
+                        update);
                     await _cache.RemoveAsync(string.Format(CacheKey.OIDC_SESSION_BY_ID_KEY, session.Id));
                     return true;
                 }
@@ -185,8 +199,9 @@ public class OidcSessionService : IOidcSessionService
                         return true;
                     }
 
-                    _logger.LogWarning("The identity provider refused the session {SessionId} of customer {CustomerId}",
-                        session.Id, session.CustomerId);
+                    if (!unreadable)
+                        _logger.LogWarning("The identity provider refused the session {SessionId} of customer {CustomerId}",
+                            session.Id, session.CustomerId);
                     await End(session.Id, OidcSessionEndReason.RevalidationRefused);
                     await _tokenRevocationService.RevokeTokens(session.Subject);
                     return false;
@@ -202,7 +217,7 @@ public class OidcSessionService : IOidcSessionService
         }
         finally
         {
-            RefreshesInProgress.TryRemove(session.Id, out _);
+            RefreshesInProgress.TryRemove(cached.Id, out _);
         }
     }
 
