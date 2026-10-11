@@ -76,8 +76,8 @@ public class ExternalRegistrationContextTests
     {
         Cookie(ExternalRegistrationContext.CreatePrincipal(Identity));
         var customer = new Customer { Id = "c1" };
-        _resolver.Setup(x => x.LinkIdentity(customer, "sub-1", "john@example.com")).ReturnsAsync(OidcLinkResult.Linked);
-        Assert.AreEqual(OidcLinkResult.Linked, await Context().Complete(customer));
+        _resolver.Setup(x => x.LinkIdentity(customer, "sub-1", "john@example.com", "store1")).ReturnsAsync(OidcLinkResult.Linked);
+        Assert.AreEqual(OidcLinkResult.Linked, await Context().Complete(customer, "store1"));
         _auth.Verify(x => x.SignOutAsync(_http, Scheme, It.IsAny<AuthenticationProperties>()), Times.Once);
     }
 
@@ -85,8 +85,8 @@ public class ExternalRegistrationContextTests
     public async Task Complete_UnknownProvider_NotLinked_Cleared()
     {
         Cookie(ExternalRegistrationContext.CreatePrincipal(Identity with { ProviderSystemName = "Other" }));
-        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => Context().Complete(new Customer { Id = "c1" }));
-        _resolver.Verify(x => x.LinkIdentity(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => Context().Complete(new Customer { Id = "c1" }, "store1"));
+        _resolver.Verify(x => x.LinkIdentity(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _auth.Verify(x => x.SignOutAsync(_http, Scheme, It.IsAny<AuthenticationProperties>()), Times.Once);
     }
 }

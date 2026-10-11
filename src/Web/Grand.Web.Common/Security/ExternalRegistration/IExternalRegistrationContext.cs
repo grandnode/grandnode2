@@ -11,5 +11,7 @@ public interface IExternalRegistrationContext
     Task Clear();
 
     /// <summary>Connects the pending identity to the customer and clears it (also when connecting fails)</summary>
-    Task<OidcLinkResult> Complete(Customer customer);
+    /// <param name="customer">Customer to connect</param>
+    /// <param name="storeId">Current store</param>
+    Task<OidcLinkResult> Complete(Customer customer, string storeId);
 }

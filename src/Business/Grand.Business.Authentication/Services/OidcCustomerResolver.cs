@@ -165,25 +165,26 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (!emailVerified || await IsBackOfficeAccount(customer) || await HasTwoFactor(customer, storeId))
             return OidcLoginResult.LinkRequired(customer);
 
-        return await LinkIdentity(customer, sub, email) switch {
+        return await LinkIdentity(customer, sub, email, storeId) switch {
             OidcLinkResult.Linked => OidcLoginResult.SignIn(customer),
             _ => OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity)
         };
     }
 
-    public virtual async Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email)
+    public virtual async Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email, string storeId)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentException.ThrowIfNullOrEmpty(sub);
 
-        var existing = await GetLink(sub, customer.StoreId);
+        //the link this store would use - with per-store identity a link of another store does not block this one
+        var existing = await GetLink(sub, storeId);
         if (existing != null)
             return existing.CustomerId == customer.Id ? OidcLinkResult.Linked : OidcLinkResult.SubjectLinkedToOtherCustomer;
 
         if (await HasOtherLink(customer, sub))
             return OidcLinkResult.CustomerLinkedToOtherSubject;
 
-        var winner = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "", customer.StoreId);
+        var winner = await LinkOrGetWinner(customer, sub, email ?? customer.Email ?? "", storeId);
         if (winner?.Id != customer.Id)
             return OidcLinkResult.SubjectLinkedToOtherCustomer;
 
