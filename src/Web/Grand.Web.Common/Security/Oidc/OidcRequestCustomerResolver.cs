@@ -1,5 +1,4 @@
 using Grand.Domain.Customers;
-using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 
@@ -19,15 +18,12 @@ public class OidcRequestCustomerResolver : IRequestCustomerResolver
     private const int ResolverOrder = 100;
 
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IOidcProtectedResourceRegistry _registry;
-    private readonly OidcResourceServerConfig _config;
+    private readonly OidcSchemeSelector _selector;
 
-    public OidcRequestCustomerResolver(IHttpContextAccessor httpContextAccessor, IOidcProtectedResourceRegistry registry,
-        OidcResourceServerConfig config)
+    public OidcRequestCustomerResolver(IHttpContextAccessor httpContextAccessor, OidcSchemeSelector selector)
     {
         _httpContextAccessor = httpContextAccessor;
-        _registry = registry;
-        _config = config;
+        _selector = selector;
     }
 
     public int Order => ResolverOrder;
@@ -35,11 +31,9 @@ public class OidcRequestCustomerResolver : IRequestCustomerResolver
     public async Task<Customer> Resolve()
     {
         var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext == null || _registry.Match(httpContext.Request.Path) == null)
-            return null;
-
-        //an HMAC token (the SecretKey JWT of the Web API) belongs to its own scheme
-        if (!OidcSchemeSelector.IsOidcRequest(httpContext.Request))
+        //the decision the Bearer scheme forwards by: a protected path, and no token or one an identity provider signed
+        //(an HMAC token - the SecretKey JWT of the Web API - belongs to its own scheme)
+        if (httpContext == null || _selector.Select(httpContext) == null)
             return null;
 
         //for [Authorize] endpoints the authorization middleware already did this - the result is cached per request

@@ -2,6 +2,7 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -32,8 +33,11 @@ public static class OidcAuthenticationBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
         var enabled = config.Enabled;
+        //the work context asks the selector too; it forwards the Bearer scheme only while the resource server is enabled
+        builder.Services.TryAddSingleton<OidcSchemeSelector>();
         if (enabled)
-            builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, OidcSchemeSelector>();
+            builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>>(
+                services => services.GetRequiredService<OidcSchemeSelector>());
 
         builder.AddJwtBearer(OidcResourceServerDefaults.AuthenticationScheme, options =>
         {

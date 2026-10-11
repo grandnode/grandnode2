@@ -57,7 +57,7 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
     ///     True when the request carries no readable bearer JWT, or one signed with an asymmetric algorithm the Oidc
     ///     scheme accepts. The token is parsed once, unvalidated.
     /// </summary>
-    public static bool IsOidcRequest(HttpRequest request)
+    private static bool IsOidcRequest(HttpRequest request)
     {
         string authorization = request.Headers[HeaderNames.Authorization];
         if (string.IsNullOrEmpty(authorization) ||

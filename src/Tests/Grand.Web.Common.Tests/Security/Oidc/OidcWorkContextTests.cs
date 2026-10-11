@@ -87,7 +87,7 @@ public class OidcWorkContextTests
             new ApiUserCustomerResolver(_apiAuthentication.Object, _accessor.Object, _customerService.Object));
         services.AddSingleton<IRequestCustomerResolver>(new CookieCustomerResolver(_authentication.Object));
         services.AddSingleton<IRequestCustomerResolver>(
-            new OidcRequestCustomerResolver(_accessor.Object, _registry.Object, OidcTestHost.Config()));
+            new OidcRequestCustomerResolver(_accessor.Object, new OidcSchemeSelector(_registry.Object)));
         services.AddSingleton<IRequestCustomerResolver>(
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, Mock.Of<IGroupService>()));
         services.AddSingleton<IRequestCustomerResolver>(
@@ -102,8 +102,26 @@ public class OidcWorkContextTests
     [TestMethod]
     public void Order_BeforeEveryBuiltInResolver()
     {
-        var resolver = new OidcRequestCustomerResolver(_accessor.Object, _registry.Object, OidcTestHost.Config());
+        var resolver = new OidcRequestCustomerResolver(_accessor.Object, new OidcSchemeSelector(_registry.Object));
         Assert.IsTrue(resolver.Order < RequestCustomerResolverOrder.AllowAnonymous);
+    }
+
+    [TestMethod]
+    public async Task FollowsTheSchemeSelectorsDecisionForTheRequest()
+    {
+        //the authorization middleware already routed this request away from Oidc (a SecretKey token); the work
+        //context must not read the token again and route it differently
+        var selector = new OidcSchemeSelector(_registry.Object);
+        _httpContext.Request.Headers.Authorization = "Bearer " + OidcTestHost.Token(
+            key: new SymmetricSecurityKey(new byte[32]), algorithm: SecurityAlgorithms.HmacSha256);
+        Assert.IsNull(selector.Select(_httpContext));
+        _httpContext.Request.Headers.Authorization = "Bearer " + OidcTestHost.Token();
+        TokenValidatedFor(new Customer { Id = "token", Active = true });
+
+        var customer = await new OidcRequestCustomerResolver(_accessor.Object, selector).Resolve();
+
+        Assert.IsNull(customer);
+        _aspNetAuthentication.Verify(a => a.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
