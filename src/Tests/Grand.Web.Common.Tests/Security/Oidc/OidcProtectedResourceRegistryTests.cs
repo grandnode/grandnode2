@@ -19,6 +19,11 @@ public class OidcProtectedResourceRegistryTests
         public IEnumerable<OidcProtectedResource> GetResources() => throw new InvalidOperationException("boom");
     }
 
+    private class DisabledPaths(params string[] paths) : IOidcDisabledPathProvider
+    {
+        public IEnumerable<string> GetDisabledPaths() => paths;
+    }
+
     private static OidcResourceServerConfig Config(params OidcProtectedResource[] resources) =>
         new() { Enabled = true, Authority = "https://idp.example.com", Resources = [.. resources] };
 
@@ -44,6 +49,42 @@ public class OidcProtectedResourceRegistryTests
 
         Assert.AreSame(registry.Resources, registry.Resources);
         Assert.IsNotInstanceOfType(registry.Resources, typeof(List<OidcProtectedResource>));
+    }
+
+    [TestMethod]
+    public void DisabledPath_ResourcesOnOrUnderIt_Withdrawn()
+    {
+        var registry = new OidcProtectedResourceRegistry(
+            Config(new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api/" },
+                new OidcProtectedResource { Name = "ApiV2", PathPrefix = "/API/v2" },
+                new OidcProtectedResource { Name = "Apix", PathPrefix = "/apix" }),
+            [new Provider(new OidcProtectedResource { Name = "Tools", PathPrefix = "/tools" })],
+            [new DisabledPaths("/api")]);
+
+        CollectionAssert.AreEquivalent(new[] { "Apix", "Tools" }, registry.Resources.Select(r => r.Name).ToList());
+        CollectionAssert.AreEquivalent(new[] { "BackendApi", "ApiV2" }, registry.Withdrawn.Select(r => r.Name).ToList());
+        Assert.AreEqual(0, registry.Errors.Count);
+        Assert.IsNull(registry.Match(new PathString("/api/Product")));
+    }
+
+    [TestMethod]
+    public void DisabledPath_UnderAResource_WithdrawsIt()
+    {
+        var registry = new OidcProtectedResourceRegistry(
+            Config(new OidcProtectedResource { Name = "Wide", PathPrefix = "/x" }), [], [new DisabledPaths("/x/api")]);
+
+        Assert.AreEqual(0, registry.Resources.Count);
+        Assert.AreEqual("Wide", registry.Withdrawn.Single().Name);
+    }
+
+    [TestMethod]
+    public void NoDisabledPaths_NothingWithdrawn()
+    {
+        var registry = new OidcProtectedResourceRegistry(
+            Config(new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api" }), [], [new DisabledPaths()]);
+
+        Assert.AreEqual(1, registry.Resources.Count);
+        Assert.AreEqual(0, registry.Withdrawn.Count);
     }
 
     [TestMethod]

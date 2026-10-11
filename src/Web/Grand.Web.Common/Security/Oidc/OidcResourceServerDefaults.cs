@@ -10,4 +10,5 @@ public static class OidcResourceServerDefaults
     public const string CustomerItemKey = "Grand.Oidc.Customer";
     public const string FailureItemKey = "Grand.Oidc.Failure";
     public const string ResourceItemKey = "Grand.Oidc.Resource";
+    public const string RouteItemKey = "Grand.Oidc.Route";
 }
