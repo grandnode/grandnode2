@@ -85,6 +85,35 @@ public class OidcSchemeSelectorTests
     public void Unreadable_TreatedAsNoToken(string header) => Assert.AreEqual("Oidc", _selector.Select(Request("/api/x", header)));
 
     [TestMethod]
+    public void DecidedOncePerRequest()
+    {
+        var context = Request("/api/Product", "Bearer " + OidcTestHost.Token());
+        Assert.AreEqual("Oidc", _selector.Select(context));
+        Assert.IsTrue(context.Items.ContainsKey(OidcResourceServerDefaults.RouteItemKey));
+
+        //the token is not read again: the cached decision answers
+        context.Request.Headers.Authorization = "Bearer " + Token(null);
+        Assert.AreEqual("Oidc", _selector.Select(context));
+    }
+
+    [TestMethod]
+    public void PathChanged_DecidedAgain()
+    {
+        var context = Request("/api/Product", "Bearer " + OidcTestHost.Token());
+        Assert.AreEqual("Oidc", _selector.Select(context));
+
+        context.Request.Path = "/other";
+        Assert.IsNull(_selector.Select(context));
+    }
+
+    [TestMethod]
+    public void OversizedToken_TreatedAsNoToken()
+    {
+        var header = "Bearer " + WithAlgorithm("HS256") + new string('a', TokenValidationParameters.DefaultMaximumTokenSizeInBytes);
+        Assert.AreEqual("Oidc", _selector.Select(Request("/api/Product", header)));
+    }
+
+    [TestMethod]
     public void PostConfigure_Bearer_ChainsPreviousSelector()
     {
         var bearer = new JwtBearerOptions { ForwardDefaultSelector = _ => "Previous" };

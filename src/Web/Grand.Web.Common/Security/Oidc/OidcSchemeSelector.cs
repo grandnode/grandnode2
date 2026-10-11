@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 
 namespace Grand.Web.Common.Security.Oidc;
@@ -33,60 +34,56 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         options.ForwardDefaultSelector = context => Select(context) ?? previous?.Invoke(context);
     }
 
+    /// <summary>
+    ///     "Oidc" for a request on a protected resource that the Oidc scheme should authenticate, otherwise null.
+    ///     Decided once per request (the selector runs for every authenticate, challenge and forbid, and the work
+    ///     context asks too) and kept in HttpContext.Items with the path it was made for.
+    /// </summary>
     public string Select(HttpContext context)
     {
-        if (_registry.Match(context.Request.Path) == null)
-            return null;
+        var path = context.Request.Path;
+        if (context.Items.TryGetValue(OidcResourceServerDefaults.RouteItemKey, out var cached) &&
+            cached is Route route && route.Path == path)
+            return route.Scheme;
 
-        return IsOidcRequest(context.Request) ? OidcResourceServerDefaults.AuthenticationScheme : null;
+        var scheme = _registry.Match(path) != null && IsOidcRequest(context.Request)
+            ? OidcResourceServerDefaults.AuthenticationScheme
+            : null;
+        context.Items[OidcResourceServerDefaults.RouteItemKey] = new Route(path, scheme);
+        return scheme;
     }
 
     /// <summary>
-    ///     True when the request carries no readable bearer JWT, or one signed with an asymmetric algorithm
+    ///     True when the request carries no readable bearer JWT, or one signed with an asymmetric algorithm the Oidc
+    ///     scheme accepts. The token is parsed once, unvalidated.
     /// </summary>
     public static bool IsOidcRequest(HttpRequest request)
-    {
-        var token = ReadBearerToken(request);
-        if (token == null)
-            return true;
-
-        //identity providers sign asymmetrically; the tokens GrandNode issues itself are HMAC (HS*)
-        return IsAsymmetric(token);
-    }
-
-    private static bool IsAsymmetric(string token)
-    {
-        try
-        {
-            var algorithm = new JsonWebToken(token).Alg;
-            return algorithm != null && OidcAuthenticationBuilderExtensions.AsymmetricAlgorithms.Contains(algorithm);
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
-    public static string ReadBearerToken(HttpRequest request)
     {
         string authorization = request.Headers[HeaderNames.Authorization];
         if (string.IsNullOrEmpty(authorization) ||
             !authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-            return null;
+            return true;
 
         var token = authorization["Bearer ".Length..].Trim();
+        //the size limit JwtBearer applies itself
+        if (token.Length == 0 || token.Length > TokenValidationParameters.DefaultMaximumTokenSizeInBytes)
+            return true;
+
+        string algorithm;
         try
         {
-            //CanReadToken accepts any three segments ("x.y.z"); only a value that parses as a JWT counts as a token
-            if (token.Length == 0 || !new JsonWebTokenHandler().CanReadToken(token))
-                return null;
-            _ = new JsonWebToken(token);
-            return token;
+            algorithm = new JsonWebToken(token).Alg;
         }
-        catch (Exception)
+        catch (Exception ex) when (ex is ArgumentException or SecurityTokenMalformedException or FormatException)
         {
-            //attacker-controlled input read for routing only: never a 500
-            return null;
+            //attacker-controlled input read for routing only: what the parser reports for a malformed value
+            //(not a JWS/JWE, undecodable segments, invalid JSON) counts as no token - never a 500
+            return true;
         }
+
+        //identity providers sign asymmetrically; the tokens GrandNode issues itself are HMAC (HS*)
+        return algorithm != null && OidcAuthenticationBuilderExtensions.AsymmetricAlgorithms.Contains(algorithm);
     }
+
+    private sealed record Route(PathString Path, string Scheme);
 }
