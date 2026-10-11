@@ -11,7 +11,7 @@ public class OidcProtectedResource
     /// <summary>Path prefix, matched case-insensitively on a segment boundary ("/api" covers "/api/x", not "/apix")</summary>
     public string PathPrefix { get; set; }
 
-    /// <summary>Canonical resource URI (RFC 8707); empty = the request's base URL + PathPrefix</summary>
+    /// <summary>Canonical resource URI (RFC 8707); empty = the Store URL of the request's store + PathPrefix</summary>
     public string Resource { get; set; }
 
     /// <summary>Additional accepted "aud" values, for providers that do not put the resource URI there</summary>
