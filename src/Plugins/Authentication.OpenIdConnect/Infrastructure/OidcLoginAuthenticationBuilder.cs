@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Authentication;
@@ -40,7 +41,7 @@ public class OidcLoginAuthenticationBuilder : IAuthenticationBuilder
             options.MapInboundClaims = false;
             options.GetClaimsFromUserInfoEndpoint = true;
             options.Scope.Clear();
-            foreach (var scope in login.Scopes.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            foreach (var scope in OidcLoginIdentityMapper.Scopes(login.Scopes))
                 options.Scope.Add(scope);
             //user info answers are mapped only for the keys listed here
             foreach (var claim in new[] { resourceServer.Claims.Subject, resourceServer.Claims.Email,
@@ -48,31 +49,36 @@ public class OidcLoginAuthenticationBuilder : IAuthenticationBuilder
                 options.ClaimActions.MapUniqueJsonKey(claim, claim);
 
             options.Events = new OpenIdConnectEvents {
-                OnTicketReceived = ctx =>
+                OnTicketReceived = async ctx =>
                 {
                     var identity = OidcLoginIdentityMapper.Map(ctx.Principal, resourceServer.Claims);
                     if (identity == null)
                     {
                         ctx.HandleResponse();
                         Logger(ctx.HttpContext).LogWarning("OpenID Connect sign-in without a subject or an e-mail");
-                        ctx.Response.Redirect(ctx.Request.PathBase + OidcLoginDefaults.FailedPath);
-                        return Task.CompletedTask;
+                        await Fail(ctx.HttpContext);
+                        return;
                     }
 
                     //only what the sign-in needs, kept briefly in the external authentication cookie
                     ctx.Principal = ExternalRegistrationContext.CreatePrincipal(identity);
                     OidcLoginIdentityMapper.ApplyPendingLifetime(ctx.Properties!, DateTimeOffset.UtcNow);
-                    return Task.CompletedTask;
                 },
-                OnRemoteFailure = ctx =>
+                OnRemoteFailure = async ctx =>
                 {
                     ctx.HandleResponse();
                     Logger(ctx.HttpContext).LogWarning(ctx.Failure, "OpenID Connect sign-in failed");
-                    ctx.Response.Redirect(ctx.Request.PathBase + OidcLoginDefaults.FailedPath);
-                    return Task.CompletedTask;
+                    await Fail(ctx.HttpContext);
                 }
             };
         });
+    }
+
+    //a pending identity of an earlier attempt must not outlive a failed one: the next registration or link would use it
+    private static async Task Fail(Microsoft.AspNetCore.Http.HttpContext context)
+    {
+        await context.SignOutAsync(GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme);
+        context.Response.Redirect(context.Request.PathBase + OidcLoginDefaults.FailedPath);
     }
 
     private static ILogger Logger(Microsoft.AspNetCore.Http.HttpContext context) =>

@@ -3,8 +3,6 @@ using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Utilities.Authentication;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.Common.Controllers;
@@ -30,7 +28,6 @@ public class OidcLoginController : BasePluginController
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IGroupService groupService,
         IContextAccessor contextAccessor,
-        CustomerSettings customerSettings,
         ILogger<OidcLoginController> logger)
     {
         _externalRegistrationContext = externalRegistrationContext;
@@ -41,7 +38,6 @@ public class OidcLoginController : BasePluginController
         _authenticationSchemeProvider = authenticationSchemeProvider;
         _groupService = groupService;
         _contextAccessor = contextAccessor;
-        _customerSettings = customerSettings;
         _logger = logger;
     }
 
@@ -51,10 +47,6 @@ public class OidcLoginController : BasePluginController
 
     private const string LinkSubjectKey = "Grand.OidcLogin.LinkSubject";
 
-    //the session keys the storefront's two-factor page (AccountController.TwoFactorAuthorization) reads
-    private const string TwoFactorUserKey = "RequiresTwoFactor";
-    private const string TwoFactorReturnUrlKey = "RequiresTwoFactorReturnUrl";
-
     private readonly IExternalRegistrationContext _externalRegistrationContext;
     private readonly IOidcCustomerResolver _oidcCustomerResolver;
     private readonly IGrandAuthenticationService _authenticationService;
@@ -63,7 +55,6 @@ public class OidcLoginController : BasePluginController
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
     private readonly IGroupService _groupService;
     private readonly IContextAccessor _contextAccessor;
-    private readonly CustomerSettings _customerSettings;
     private readonly ILogger<OidcLoginController> _logger;
 
     #endregion
@@ -75,10 +66,11 @@ public class OidcLoginController : BasePluginController
         if (!IsAvailable())
             return RedirectToRoute("OidcLoginFailed");
 
-        //the scheme is registered only when both the provider and the client are configured
+        //the scheme is registered at startup, only when both the provider and the client are configured
         if (await _authenticationSchemeProvider.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
         {
-            _logger.LogWarning("OpenID Connect login is installed but OidcResourceServer:Authority or OidcLogin:ClientId is empty");
+            _logger.LogWarning("OpenID Connect login has no sign-in scheme: OidcResourceServer:Authority or " +
+                               "OidcLogin:ClientId is empty, or the application was not restarted after the plugin was installed");
             return RedirectToRoute("OidcLoginFailed");
         }
 
@@ -104,14 +96,26 @@ public class OidcLoginController : BasePluginController
         returnUrl = LocalOrNull(returnUrl);
         var result = await _oidcCustomerResolver.ResolveForLogin(pending.Subject, pending.Email, pending.EmailVerified,
             _contextAccessor.StoreContext.CurrentStore.Id);
+
+        //a store session is never replaced by another account, and a signed-in visitor does not register;
+        //connecting accounts (LinkRequired) asks for the password of the account itself
+        if (result.Outcome is OidcLoginOutcome.SignIn or OidcLoginOutcome.RegistrationRequired)
+        {
+            var current = _contextAccessor.WorkContext.CurrentCustomer;
+            if (await _groupService.IsRegistered(current))
+            {
+                await _externalRegistrationContext.Clear();
+                return result.Customer?.Id == current.Id
+                    ? RedirectLocal(returnUrl)
+                    : RedirectToRoute("OidcLoginFailed", new { signedIn = true });
+            }
+        }
+
         switch (result.Outcome)
         {
             case OidcLoginOutcome.SignIn:
                 await _externalRegistrationContext.Clear();
-                //the provider stands in for the password only: the store's second factor is still asked for
-                if (RequiresTwoFactor(result.Customer))
-                    return ToTwoFactor(result.Customer, returnUrl);
-
+                //the identity provider is the sign-in: its multi-factor policy applies, not the store's two-factor code
                 await _mediator.Publish(new CustomerLoggedInEvent(result.Customer));
                 await _authenticationService.SignIn(result.Customer, false);
                 return RedirectLocal(returnUrl);
@@ -195,8 +199,11 @@ public class OidcLoginController : BasePluginController
         };
     }
 
-    public IActionResult Failed(int? reason, bool mismatch = false, bool taken = false) =>
-        View(new FailedModel { Reason = (OidcLoginRefusal)(reason ?? 0), Mismatch = mismatch, IdentityTaken = taken });
+    public IActionResult Failed(int? reason, bool mismatch = false, bool taken = false, bool signedIn = false) =>
+        View(new FailedModel {
+            Reason = (OidcLoginRefusal)(reason ?? 0), Mismatch = mismatch, IdentityTaken = taken,
+            SignedInAsOtherAccount = signedIn
+        });
 
     #endregion
 
@@ -204,27 +211,6 @@ public class OidcLoginController : BasePluginController
 
     private bool IsAvailable() =>
         _externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName);
-
-    //the same rule as the password sign-in (ICustomerManagerService.LoginCustomer)
-    private bool RequiresTwoFactor(Customer customer) =>
-        _customerSettings.TwoFactorAuthenticationEnabled &&
-        customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled);
-
-    //hands the sign-in over to the storefront's two-factor page, which signs the customer in after the code
-    private IActionResult ToTwoFactor(Customer customer, string returnUrl)
-    {
-        var userName = _customerSettings.UsernamesEnabled ? customer.Username : customer.Email;
-        //the two-factor page could not find the account: the password sign-in asks for both factors instead
-        if (string.IsNullOrEmpty(userName))
-            return RedirectToRoute("Login", new { returnUrl });
-
-        HttpContext.Session.SetString(TwoFactorUserKey, userName);
-        if (returnUrl != null)
-            HttpContext.Session.SetString(TwoFactorReturnUrlKey, returnUrl);
-        else
-            HttpContext.Session.Remove(TwoFactorReturnUrlKey);
-        return RedirectToRoute("TwoFactorAuthorization");
-    }
 
     private static bool TryReadMarker(string marker, out long shown, out string subject)
     {
@@ -243,7 +229,8 @@ public class OidcLoginController : BasePluginController
     {
         var result = await HttpContext.AuthenticateAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme);
         var issued = result.Succeeded ? result.Properties?.IssuedUtc : null;
-        return issued.HasValue && issued.Value.ToUnixTimeSeconds() > shown;
+        //the same second counts: the link page ended any session it found, so a ticket from that second is a new sign-in
+        return issued.HasValue && issued.Value.ToUnixTimeSeconds() >= shown;
     }
 
     private string LocalOrNull(string returnUrl) =>
