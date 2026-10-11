@@ -23,7 +23,7 @@ public class AuthorizeApiAdminAttributeTests
     [TestInitialize]
     public void Init()
     {
-        DataSettingsManager.Initialize(Path.Combine(Path.GetTempPath(), "grand-api-tests-settings.json"));
+        DataSettingsManager.Initialize(Path.Join(Path.GetTempPath(), "grand-api-tests-settings.json"));
         DataSettingsManager.Instance.LoadDataSettings(new DataSettings { ConnectionString = "mongodb://localhost" });
         _permissionService = new Mock<IPermissionService>();
     }
