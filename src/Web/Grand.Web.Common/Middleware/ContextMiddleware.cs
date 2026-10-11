@@ -57,7 +57,8 @@ public class ContextMiddleware
         }
 
         var storeContext = context.RequestServices.GetRequiredService<IStoreContextSetter>();
-        contextAccessor.StoreContext = await storeContext.InitializeStoreContext();
+        //a store pinned by the authentication of the request (a token validated for one store) wins over the store cookie
+        contextAccessor.StoreContext = await storeContext.InitializeStoreContext(RequestStorePin.Get(context));
 
         var workContextSetter = context.RequestServices.GetRequiredService<IWorkContextSetter>();
         contextAccessor.WorkContext = await workContextSetter.InitializeWorkContext(contextAccessor.StoreContext.CurrentStore.Id);
