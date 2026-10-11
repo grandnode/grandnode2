@@ -225,8 +225,31 @@ public class OidcPipelineTests
 
         Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api"));
         Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource"));
-        Assert.IsTrue(logs.Messages.Any(m => m.Contains("BackendApi")), string.Join(" | ", logs.Messages));
+        Assert.IsTrue(logs.Messages.Any(m => m.StartsWith("Warning:") && m.Contains("BackendApi")), string.Join(" | ", logs.Messages));
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+    }
+
+    [TestMethod]
+    public async Task NoStoreForHost_Metadata404_DebugNotWarning()
+    {
+        //an anonymous request naming an unknown host is not a configuration problem: no warning it could flood
+        var logs = new ListLoggerProvider();
+        await _host.DisposeAsync();
+        _host = new OidcTestHost();
+        _client = await _host.Start(OidcTestHost.Config(), s =>
+        {
+            s.AddSingleton(OidcTestHost.StoreService(
+                new Store { Id = "A", Url = "http://a.test/", Domains = [new DomainHost { HostName = "a.test" }] },
+                new Store { Id = "B", Url = "http://b.test/", Domains = [new DomainHost { HostName = "b.test" }] }));
+            s.Configure<Microsoft.Extensions.Logging.LoggerFilterOptions>(o => o.MinLevel = Microsoft.Extensions.Logging.LogLevel.Trace);
+            s.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(logs);
+        });
+
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api", "evil.test"));
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource", "evil.test"));
+        var messages = string.Join(" | ", logs.Messages);
+        Assert.IsFalse(logs.Messages.Any(m => m.StartsWith("Warning:") && m.Contains("evil.test")), messages);
+        Assert.IsTrue(logs.Messages.Any(m => m.StartsWith("Debug:") && m.Contains("evil.test")), messages);
     }
 
     [TestMethod]
