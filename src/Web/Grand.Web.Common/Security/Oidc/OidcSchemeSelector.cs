@@ -15,21 +15,20 @@ namespace Grand.Web.Common.Security.Oidc;
 /// </summary>
 public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
 {
-    private readonly OidcResourceServerConfig _config;
     private readonly IOidcProtectedResourceRegistry _registry;
     private readonly string _issuer;
 
     public OidcSchemeSelector(OidcResourceServerConfig config, IOidcProtectedResourceRegistry registry)
     {
-        _config = config;
         _registry = registry;
         _issuer = config.Authority?.TrimEnd('/');
     }
 
     public void PostConfigure(string name, JwtBearerOptions options)
     {
-        //only the Web API's scheme: other JwtBearer schemes (FrontendAPI, plugins) keep their own validation and challenge
-        if (!_config.Enabled || name != JwtBearerDefaults.AuthenticationScheme)
+        //registered only while the resource server is enabled (OidcAuthenticationBuilderExtensions); only the Web
+        //API's scheme: other JwtBearer schemes (FrontendAPI, plugins) keep their own validation and challenge
+        if (name != JwtBearerDefaults.AuthenticationScheme)
             return;
 
         var previous = options.ForwardDefaultSelector;
