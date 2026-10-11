@@ -11,7 +11,10 @@ namespace Grand.Web.Common.Security.Oidc;
 
 public static class OidcAuthenticationBuilderExtensions
 {
-    private static readonly string[] AsymmetricAlgorithms = [
+    /// <summary>
+    ///     The signing algorithms the Oidc scheme accepts; the scheme selector routes a token here by the same list
+    /// </summary>
+    public static IReadOnlyList<string> AsymmetricAlgorithms { get; } = [
         SecurityAlgorithms.RsaSha256, SecurityAlgorithms.RsaSha384, SecurityAlgorithms.RsaSha512,
         SecurityAlgorithms.RsaSsaPssSha256, SecurityAlgorithms.RsaSsaPssSha384, SecurityAlgorithms.RsaSsaPssSha512,
         SecurityAlgorithms.EcdsaSha256, SecurityAlgorithms.EcdsaSha384, SecurityAlgorithms.EcdsaSha512

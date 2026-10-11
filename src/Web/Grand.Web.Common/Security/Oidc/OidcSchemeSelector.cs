@@ -59,9 +59,7 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         try
         {
             var algorithm = new JsonWebToken(token).Alg;
-            return algorithm != null && (algorithm.StartsWith("RS", StringComparison.Ordinal) ||
-                                         algorithm.StartsWith("PS", StringComparison.Ordinal) ||
-                                         algorithm.StartsWith("ES", StringComparison.Ordinal));
+            return algorithm != null && OidcAuthenticationBuilderExtensions.AsymmetricAlgorithms.Contains(algorithm);
         }
         catch (Exception)
         {

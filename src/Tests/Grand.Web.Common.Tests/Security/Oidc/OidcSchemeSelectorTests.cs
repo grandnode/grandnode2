@@ -55,6 +55,28 @@ public class OidcSchemeSelectorTests
     [TestMethod]
     public void HmacToken_ForeignIssuer_Null() => Assert.IsNull(_selector.Select(Request("/api/Product", "Bearer " + Token("https://other.example.com"))));
 
+    private static string WithAlgorithm(string algorithm)
+    {
+        static string B64(string json) => Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(json));
+        return B64("{\"alg\":\"" + algorithm + "\",\"typ\":\"JWT\"}") + "." + B64("{\"sub\":\"1\"}") + ".c2ln";
+    }
+
+    [TestMethod]
+    [DataRow("RS256")]
+    [DataRow("PS384")]
+    [DataRow("ES512")]
+    public void AcceptedAsymmetricAlgorithm_Oidc(string algorithm) =>
+        Assert.AreEqual("Oidc", _selector.Select(Request("/api/Product", "Bearer " + WithAlgorithm(algorithm))));
+
+    //the Oidc scheme's own list decides, not a prefix: these start with RS / ES but Oidc never accepts them
+    [TestMethod]
+    [DataRow("RSA-OAEP")]
+    [DataRow("ES256K")]
+    [DataRow("HS256")]
+    [DataRow("none")]
+    public void AlgorithmOutsideTheOidcList_Null(string algorithm) =>
+        Assert.IsNull(_selector.Select(Request("/api/Product", "Bearer " + WithAlgorithm(algorithm))));
+
     [TestMethod]
     [DataRow("Bearer not-a-jwt")]
     [DataRow("Bearer x.y.z")]
