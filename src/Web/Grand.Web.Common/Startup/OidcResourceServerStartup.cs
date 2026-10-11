@@ -34,15 +34,20 @@ public class OidcResourceServerStartup : IStartupApplication
             return;
 
         var registry = application.Services.GetRequiredService<IOidcProtectedResourceRegistry>();
+        var logger = application.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(OidcResourceServerStartup));
         var errors = OidcResourceServerConfigValidator.Validate(config, registry, webHostEnvironment.IsDevelopment());
         if (errors.Count > 0)
         {
             var message = string.Join(" ", errors);
             if (!webHostEnvironment.IsDevelopment())
                 throw new InvalidOperationException(message);
-            application.Services.GetRequiredService<ILoggerFactory>()
-                .CreateLogger(nameof(OidcResourceServerStartup)).LogWarning("{Message}", message);
+            logger.LogWarning("{Message}", message);
         }
+
+        foreach (var resource in registry.Withdrawn)
+            logger.LogInformation(
+                "Protected resource '{Name}' ({PathPrefix}) is withdrawn: the module serving its path is switched off",
+                resource.Name, resource.PathPrefix);
 
         OidcProtectedResourceMetadata.Map(application);
     }

@@ -2,6 +2,8 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.AdminShared.Models.Customers;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Web.AdminShared.Extensions.Mapping;
 
 public static class UserApiMappingExtensions

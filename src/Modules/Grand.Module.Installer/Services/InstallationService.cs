@@ -39,6 +39,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Cryptography;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Module.Installer.Services;
 
 public partial class InstallationService : IInstallationService

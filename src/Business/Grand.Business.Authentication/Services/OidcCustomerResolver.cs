@@ -159,7 +159,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             LastActivityDateUtc = DateTime.UtcNow
         });
 
-        //the provider verified the e-mail and access comes from permissions an admin grants, so the store's e-mail
+        //access comes from permissions an admin grants (and the provider's e-mail check is configurable), so the store's e-mail
         //validation / admin approval does not apply; the account gets the Registered group only
         await _customerManagerService.RegisterCustomer(new RegistrationRequest(customer, normalizedEmail,
             normalizedEmail, CommonHelper.GenerateRandomDigitCode(20), PasswordFormat.Hashed, storeId));

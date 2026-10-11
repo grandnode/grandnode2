@@ -8,6 +8,8 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Web.Admin.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.Maintenance)]

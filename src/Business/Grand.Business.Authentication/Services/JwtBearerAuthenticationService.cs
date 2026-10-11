@@ -2,6 +2,8 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Business.Authentication.Services;
 
 public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+	<Resource Name="Admin.System.APIUsers.Deprecated" Area="Admin">
+		<Value>API users signed with a shared secret key are deprecated. Configure the OIDC resource server (OidcResourceServer in appsettings) and use access tokens issued by your identity provider.</Value>
+	</Resource>
+</Language>

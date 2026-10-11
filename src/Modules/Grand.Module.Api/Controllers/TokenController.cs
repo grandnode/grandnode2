@@ -5,6 +5,8 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Module.Api.Controllers;
 
 [ApiController]

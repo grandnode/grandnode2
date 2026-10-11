@@ -2,6 +2,7 @@
 using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Security;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -31,7 +32,7 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
     ///     Represents a filter that confirms access to the admin panel
     /// </summary>
     private class AuthorizeApiAdminFilter(bool ignoreFilter, IPermissionService permissionService,
-        SecuritySettings securitySettings) : IAsyncAuthorizationFilter
+        SecuritySettings securitySettings, BackendAPIConfig backendApiConfig) : IAsyncAuthorizationFilter
     {
 
         #region Ctor
@@ -47,6 +48,14 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
         public async Task OnAuthorizationAsync(AuthorizationFilterContext filterContext)
         {
             ArgumentNullException.ThrowIfNull(filterContext);
+
+            //the kill switch also covers tokens forwarded to the OpenID Connect scheme, which skip the Bearer scheme's
+            //check; it applies to every action, including those that ignore the admin area checks below
+            if (!backendApiConfig.Enabled)
+            {
+                filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
+                return;
+            }
 
             //check whether this filter has been overridden for the action
             var actionFilter = filterContext.ActionDescriptor.FilterDescriptors

@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Business.Customers.Startup;
 
 public class StartupApplication : IStartupApplication

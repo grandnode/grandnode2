@@ -6,6 +6,8 @@ using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Business.Customers.Tests.Services;
 
 [TestClass]

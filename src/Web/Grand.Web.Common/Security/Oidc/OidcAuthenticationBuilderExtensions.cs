@@ -2,6 +2,7 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -11,7 +12,10 @@ namespace Grand.Web.Common.Security.Oidc;
 
 public static class OidcAuthenticationBuilderExtensions
 {
-    private static readonly string[] AsymmetricAlgorithms = [
+    /// <summary>
+    ///     The signing algorithms the Oidc scheme accepts; the scheme selector routes a token here by the same list
+    /// </summary>
+    public static IReadOnlyList<string> AsymmetricAlgorithms { get; } = [
         SecurityAlgorithms.RsaSha256, SecurityAlgorithms.RsaSha384, SecurityAlgorithms.RsaSha512,
         SecurityAlgorithms.RsaSsaPssSha256, SecurityAlgorithms.RsaSsaPssSha384, SecurityAlgorithms.RsaSsaPssSha512,
         SecurityAlgorithms.EcdsaSha256, SecurityAlgorithms.EcdsaSha384, SecurityAlgorithms.EcdsaSha512
@@ -29,6 +33,11 @@ public static class OidcAuthenticationBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
         var enabled = config.Enabled;
+        //the work context asks the selector too; it forwards the Bearer scheme only while the resource server is enabled
+        builder.Services.TryAddSingleton<OidcSchemeSelector>();
+        if (enabled)
+            builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>>(
+                services => services.GetRequiredService<OidcSchemeSelector>());
 
         builder.AddJwtBearer(OidcResourceServerDefaults.AuthenticationScheme, options =>
         {
