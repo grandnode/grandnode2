@@ -68,9 +68,9 @@ public static class OidcChallengeWriter
     private static string Escape(string value)
     {
         var builder = new StringBuilder(value.Length);
-        foreach (var c in value)
+        //printable ASCII only: control and non-ASCII characters are dropped
+        foreach (var c in value.Where(c => c is >= (char)0x20 and < (char)0x7f))
         {
-            if (c < 0x20 || c >= 0x7f) continue;
             if (c is '"' or '\\') builder.Append('\\');
             builder.Append(c);
         }
