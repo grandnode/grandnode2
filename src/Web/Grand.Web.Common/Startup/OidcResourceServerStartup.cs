@@ -1,6 +1,7 @@
 using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -22,6 +23,7 @@ public class OidcResourceServerStartup : IStartupApplication
         services.AddSingleton<IOidcProtectedResourceRegistry, OidcProtectedResourceRegistry>();
         services.AddScoped<OidcResourceAccess>();
         services.AddScoped<IRequestCustomerResolver, OidcRequestCustomerResolver>();
+        services.AddScoped<IExternalRegistrationContext, ExternalRegistrationContext>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

@@ -10,6 +10,7 @@ using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Common.Validators;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
@@ -29,7 +30,8 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ICustomerService customerService,
         IGroupService groupService, IContextAccessor contextAccessor,
-        CustomerConfig customerConfig
+        CustomerConfig customerConfig,
+        IExternalRegistrationContext externalRegistrationContext
     )
         : base(validators)
     {
@@ -52,17 +54,21 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
                 .WithMessage(translationService.GetResource("Account.Fields.LastName.Required"));
         }
 
-        RuleFor(x => x.Password).NotEmpty()
-            .WithMessage(translationService.GetResource("Account.Fields.Password.Required"));
+        //an account connected to a provider identity (verified e-mail) has no password the customer types
+        WhenAsync(async (_, _) => !ExternalRegistrationPolicy.ConnectsAtRegistration(await externalRegistrationContext.GetPending()), () =>
+        {
+            RuleFor(x => x.Password).NotEmpty()
+                .WithMessage(translationService.GetResource("Account.Fields.Password.Required"));
 
-        if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
-            RuleFor(x => x.Password).Matches(customerSettings.PasswordRegularExpression)
-                .WithMessage(string.Format(translationService.GetResource("Account.Fields.Password.Validation")));
+            if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
+                RuleFor(x => x.Password).Matches(customerSettings.PasswordRegularExpression)
+                    .WithMessage(string.Format(translationService.GetResource("Account.Fields.Password.Validation")));
 
-        RuleFor(x => x.ConfirmPassword).NotEmpty()
-            .WithMessage(translationService.GetResource("Account.Fields.ConfirmPassword.Required"));
-        RuleFor(x => x.ConfirmPassword).Equal(x => x.Password)
-            .WithMessage(translationService.GetResource("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
+            RuleFor(x => x.ConfirmPassword).NotEmpty()
+                .WithMessage(translationService.GetResource("Account.Fields.ConfirmPassword.Required"));
+            RuleFor(x => x.ConfirmPassword).Equal(x => x.Password)
+                .WithMessage(translationService.GetResource("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
+        });
 
         //form fields
         if (customerSettings.CountryEnabled && customerSettings.CountryRequired)
@@ -149,7 +155,9 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
 
 
             //validate unique user
-            if (await customerService.GetCustomerByEmail(x.Email, storeId) != null)
+            //with a pending provider identity the account gets the provider's e-mail, whatever the form says
+            var email = (await externalRegistrationContext.GetPending())?.Email ?? x.Email;
+            if (await customerService.GetCustomerByEmail(email, storeId) != null)
             {
                 context.AddFailure(translationService.GetResource("Account.Register.Errors.EmailAlreadyExists"));
                 return;

@@ -91,7 +91,8 @@ public class CustomerValidatorsStoreScopingTests
             Translation().Object, new Mock<ICountryService>().Object, new CustomerSettings(),
             new Grand.Domain.Common.CaptchaSettings(), new Mock<IHttpContextAccessor>().Object,
             new Mock<IGoogleReCaptchaValidator>().Object, mediator.Object, attrParser.Object,
-            customerService.Object, groupService.Object, Context(), PerStoreOn().Config);
+            customerService.Object, groupService.Object, Context(), PerStoreOn().Config,
+            new Mock<Grand.Web.Common.Security.ExternalRegistration.IExternalRegistrationContext>().Object);
 
         await validator.ValidateAsync(new RegisterModel { Email = "u@x.com" });
 

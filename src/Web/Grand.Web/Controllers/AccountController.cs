@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Customers;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -18,6 +19,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
@@ -25,6 +27,7 @@ using Grand.Web.Models.Common;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 
 namespace Grand.Web.Controllers;
 
@@ -217,6 +220,11 @@ public class AccountController : BasePublicController
                 {
                     var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
                     HttpContext.Session.SetString("RequiresTwoFactor", userName);
+                    //the sign-in that follows the code must still go where the login was asked to go
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        HttpContext.Session.SetString("RequiresTwoFactorReturnUrl", returnUrl);
+                    else
+                        HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
                     return RedirectToRoute("TwoFactorAuthorization");
                 }
             }
@@ -289,9 +297,11 @@ public class AccountController : BasePublicController
             {
                 //remove session
                 HttpContext.Session.Remove("RequiresTwoFactor");
+                var returnUrl = HttpContext.Session.GetString("RequiresTwoFactorReturnUrl");
+                HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
 
                 //sign in
-                return await SignInAction(customer);
+                return await SignInAction(customer, false, returnUrl);
             }
 
             ModelState.AddModelError("",
@@ -424,7 +434,9 @@ public class AccountController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [HttpGet]
-    public virtual async Task<ActionResult<RegisterModel>> Register()
+    public virtual async Task<ActionResult<RegisterModel>> Register(
+        [FromServices] IExternalRegistrationContext externalRegistrationContext,
+        [FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -440,13 +452,32 @@ public class AccountController : BasePublicController
             Store = _contextAccessor.StoreContext.CurrentStore
         });
 
+        PrepareExternalRegistration(model, await externalRegistrationContext.GetPending(), externalAuthenticationService);
         return View(model);
+    }
+
+    private static void PrepareExternalRegistration(RegisterModel model, ExternalRegistrationIdentity pending,
+        IExternalAuthenticationService externalAuthenticationService)
+    {
+        model.ExternalRegistration = pending != null;
+        model.ExternalConnects = ExternalRegistrationPolicy.ConnectsAtRegistration(pending);
+        if (pending == null)
+            return;
+
+        model.Email = pending.Email;
+        if (string.IsNullOrEmpty(model.FirstName)) model.FirstName = pending.FirstName;
+        if (string.IsNullOrEmpty(model.LastName)) model.LastName = pending.LastName;
+        model.ExternalProviderName =
+            externalAuthenticationService.LoadAuthenticationProviderBySystemName(pending.ProviderSystemName)?.FriendlyName
+            ?? pending.ProviderSystemName;
     }
 
     [HttpPost]
     //available even when navigation is not allowed
     [PublicStore(true)]
-    public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl)
+    public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl,
+        [FromServices] IExternalRegistrationContext externalRegistrationContext,
+        [FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -455,15 +486,38 @@ public class AccountController : BasePublicController
         //check if customer is registered. 
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("HomePage");
 
+        var pending = await externalRegistrationContext.GetPending();
+        if (pending != null)
+            model.Email = pending.Email;
+        var registrationType = pending == null
+            ? _customerSettings.UserRegistrationType
+            : ExternalRegistrationPolicy.EffectiveRegistrationType(_customerSettings.UserRegistrationType, pending.EmailVerified);
+        var connects = ExternalRegistrationPolicy.ConnectsAtRegistration(pending);
+
         if (ModelState.IsValid)
         {
             if (_customerSettings.UsernamesEnabled && model.Username != null) model.Username = model.Username.Trim();
 
-            var isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
+            var isApproved = registrationType == UserRegistrationType.Standard;
             var registrationRequest = new RegistrationRequest(_contextAccessor.WorkContext.CurrentCustomer, model.Email,
-                _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password,
+                _customerSettings.UsernamesEnabled ? model.Username : model.Email,
+                connects ? Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)) : model.Password,
                 _customerSettings.DefaultPasswordFormat, _contextAccessor.StoreContext.CurrentStore.Id, isApproved);
             await _customerManagerService.RegisterCustomer(registrationRequest);
+
+            //connect the provider identity before anything can sign the customer in
+            if (connects)
+            {
+                var linkResult = await externalRegistrationContext.Complete(_contextAccessor.WorkContext.CurrentCustomer,
+                    _contextAccessor.StoreContext.CurrentStore.Id);
+                //the account is still the customer's (verified e-mail), only signing in with the provider is not connected
+                if (linkResult != OidcLinkResult.Linked)
+                    Warning(_translationService.GetResource("Account.Register.External.NotConnected"));
+            }
+            else if (pending != null)
+            {
+                await externalRegistrationContext.Clear();
+            }
 
             var customerAttributes = await _mediator.Send(new GetParseCustomAttributes
                 { SelectedAttributes = model.SelectedAttributes });
@@ -482,7 +536,7 @@ public class AccountController : BasePublicController
             //raise event       
             await _mediator.Publish(new CustomerRegisteredEvent(_contextAccessor.WorkContext.CurrentCustomer));
 
-            switch (_customerSettings.UserRegistrationType)
+            switch (registrationType)
             {
                 case UserRegistrationType.EmailValidation:
                 {
@@ -533,7 +587,18 @@ public class AccountController : BasePublicController
                 { SelectedAttributes = model.SelectedAttributes })
         });
 
+        PrepareExternalRegistration(model, pending, externalAuthenticationService);
         return View(model);
+    }
+
+    //available even when navigation is not allowed
+    [PublicStore(true)]
+    [HttpGet]
+    public virtual async Task<IActionResult> RegisterExternalCancel(
+        [FromServices] IExternalRegistrationContext externalRegistrationContext)
+    {
+        await externalRegistrationContext.Clear();
+        return RedirectToRoute("Register");
     }
 
     //available even when navigation is not allowed

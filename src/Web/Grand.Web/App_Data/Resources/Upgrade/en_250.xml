@@ -3,4 +3,16 @@
 	<Resource Name="Admin.System.APIUsers.Deprecated" Area="Admin">
 		<Value>API users signed with a shared secret key are deprecated. Configure the OIDC resource server (OidcResourceServer in appsettings) and use access tokens issued by your identity provider.</Value>
 	</Resource>
+	<Resource Name="Account.Register.External.Notice" Area="Front">
+		<Value>You are signing up with your {0} account. No password is needed: you sign in with that account.</Value>
+	</Resource>
+	<Resource Name="Account.Register.External.Cancel" Area="Front">
+		<Value>Cancel</Value>
+	</Resource>
+	<Resource Name="Account.Register.External.NoticeUnverified" Area="Front">
+		<Value>Your {0} account did not confirm this e-mail address. Choose a password; after you activate the account, sign in with {0} again and connect it with this password.</Value>
+	</Resource>
+	<Resource Name="Account.Register.External.NotConnected" Area="Front">
+		<Value>The account was created, but signing in with your external account could not be connected to it. Sign in with your e-mail (use &quot;Forgot password&quot; to set a password).</Value>
+	</Resource>
 </Language>
