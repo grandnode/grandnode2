@@ -56,6 +56,15 @@ public class ContextMiddlewareTests
     }
 
     [TestMethod]
+    [DataRow(OidcProtectedResourceMetadata.WellKnownPath + "-x")]
+    [DataRow(OidcProtectedResourceMetadata.WellKnownPath + "x/{**path}")]
+    public async Task RouteOnlyPrefixedByMetadataPath_InitializesStoreAndWorkContext(string routePattern)
+    {
+        Assert.IsTrue(await Invoke(routePattern));
+        _workContextSetter.Verify(x => x.InitializeWorkContext("store1"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task OtherRoute_InitializesStoreAndWorkContext()
     {
         Assert.IsTrue(await Invoke("/api/{controller}"));
