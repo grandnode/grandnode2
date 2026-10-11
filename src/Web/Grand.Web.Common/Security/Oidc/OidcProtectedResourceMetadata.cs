@@ -23,14 +23,21 @@ public static class OidcProtectedResourceMetadata
         //typed as Func<..., Task<IResult>>: a lambda taking only HttpContext binds to RequestDelegate and its result
         //is discarded
         endpoints.MapGet(WellKnownPath, (Func<HttpContext, Task<IResult>>)(async context =>
-            Document(context, null, await OidcCanonicalUri.StoreBaseUrl(context)))).AllowAnonymous();
+        {
+            var baseUrl = await OidcCanonicalUri.StoreBaseUrl(context);
+            //RFC 9728 section 3.3: the root URL describes the bare host; a store under a path is served by {**path}
+            return HasPath(baseUrl) ? Results.NotFound() : await Document(context, null, baseUrl);
+        })).AllowAnonymous();
         endpoints.MapGet(WellKnownPath + "/{**path}", async (HttpContext context, string path) =>
         {
             var baseUrl = await OidcCanonicalUri.StoreBaseUrl(context);
             var (found, resource) = Find(context, "/" + path, baseUrl);
-            return found ? Document(context, resource, baseUrl) : Results.NotFound();
+            return found ? await Document(context, resource, baseUrl) : Results.NotFound();
         }).AllowAnonymous();
     }
+
+    private static bool HasPath(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.AbsolutePath.TrimEnd('/').Length > 0;
 
     /// <summary>
     ///     The resource whose canonical URI has the requested path: a protected resource, or the store base URL itself
@@ -68,18 +75,25 @@ public static class OidcProtectedResourceMetadata
     }
 
     /// <summary>
-    ///     404 with a warning when the resource has no URI: RFC 9728 requires "resource", and tokens for it are
-    ///     rejected anyway (no audience to match)
+    ///     404 when the resource has no URI: RFC 9728 requires "resource", and tokens for it are rejected anyway (no
+    ///     audience to match). A warning when a store serves the host but has no URL (a configuration to fix); only a
+    ///     debug message when no store serves the host, which any anonymous request can cause with its Host header.
     /// </summary>
-    private static IResult Document(HttpContext context, OidcProtectedResource resource, string baseUrl)
+    private static async Task<IResult> Document(HttpContext context, OidcProtectedResource resource, string baseUrl)
     {
         var config = context.RequestServices.GetRequiredService<OidcResourceServerConfig>();
         var resourceUri = resource != null ? OidcCanonicalUri.ResourceFor(resource, baseUrl) : baseUrl;
         if (resourceUri == null)
         {
-            context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Grand.Oidc").LogWarning(
-                "Protected resource metadata for {Resource} on host {Host} is unavailable: the store serving the host has no URL and no Resource URI is configured",
-                resource?.Name ?? "the store", context.Request.Host.Host);
+            var logger = context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Grand.Oidc");
+            if (await OidcCanonicalUri.RequestStore(context) == null)
+                logger.LogDebug(
+                    "Protected resource metadata for {Resource} on host {Host} is unavailable: no store serves the host",
+                    resource?.Name ?? "the store", context.Request.Host.Value);
+            else
+                logger.LogWarning(
+                    "Protected resource metadata for {Resource} on host {Host} is unavailable: the store serving the host has no URL and no Resource URI is configured",
+                    resource?.Name ?? "the store", context.Request.Host.Value);
             return Results.NotFound();
         }
 
