@@ -8,7 +8,7 @@ using Microsoft.Net.Http.Headers;
 namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
-///     Lets the other JwtBearer schemes (the Web API's "Bearer") hand requests on protected resources to the Oidc
+///     Lets the Web API's JwtBearer scheme ("Bearer") hand requests on protected resources to the Oidc
 ///     scheme: requests without a readable bearer JWT (so the 401 is the OIDC challenge) and requests whose token
 ///     names the identity provider as issuer or is signed asymmetrically. HMAC tokens of other issuers - those GrandNode signs with its SecretKey -
 ///     stay with the original scheme. The issuer is read unvalidated, for routing only; Oidc validates the token.
@@ -28,7 +28,8 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
 
     public void PostConfigure(string name, JwtBearerOptions options)
     {
-        if (!_config.Enabled || name == OidcResourceServerDefaults.AuthenticationScheme)
+        //only the Web API's scheme: other JwtBearer schemes (FrontendAPI, plugins) keep their own validation and challenge
+        if (!_config.Enabled || name != JwtBearerDefaults.AuthenticationScheme)
             return;
 
         var previous = options.ForwardDefaultSelector;

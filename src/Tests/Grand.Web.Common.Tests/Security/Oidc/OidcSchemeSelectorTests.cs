@@ -62,16 +62,28 @@ public class OidcSchemeSelectorTests
     public void Unreadable_TreatedAsNoToken(string header) => Assert.AreEqual("Oidc", _selector.Select(Request("/api/x", header)));
 
     [TestMethod]
-    public void PostConfigure_SkipsOidc_ChainsPreviousSelector()
+    public void PostConfigure_Bearer_ChainsPreviousSelector()
     {
-        var oidc = new JwtBearerOptions();
-        _selector.PostConfigure("Oidc", oidc);
-        Assert.IsNull(oidc.ForwardDefaultSelector);
-
         var bearer = new JwtBearerOptions { ForwardDefaultSelector = _ => "Previous" };
         _selector.PostConfigure("Bearer", bearer);
         Assert.AreEqual("Oidc", bearer.ForwardDefaultSelector(Request("/api/x")));
         Assert.AreEqual("Previous", bearer.ForwardDefaultSelector(Request("/other")));
+    }
+
+    [TestMethod]
+    [DataRow("Oidc")]
+    [DataRow("FrontAuthentication")]
+    [DataRow("PluginJwt")]
+    public void PostConfigure_OtherJwtBearerScheme_KeepsItsOwnSelector(string scheme)
+    {
+        Func<HttpContext, string> own = _ => null;
+        var options = new JwtBearerOptions { ForwardDefaultSelector = own };
+        _selector.PostConfigure(scheme, options);
+        Assert.AreSame(own, options.ForwardDefaultSelector);
+
+        var none = new JwtBearerOptions();
+        _selector.PostConfigure(scheme, none);
+        Assert.IsNull(none.ForwardDefaultSelector);
     }
 
     [TestMethod]
