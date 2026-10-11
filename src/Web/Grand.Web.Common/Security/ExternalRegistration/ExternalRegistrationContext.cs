@@ -67,7 +67,7 @@ public class ExternalRegistrationContext : IExternalRegistrationContext
 
     public Task Clear() => HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme);
 
-    public async Task<OidcLinkResult> Complete(Customer customer)
+    public async Task<OidcLinkResult> Complete(Customer customer, string storeId)
     {
         ArgumentNullException.ThrowIfNull(customer);
         var pending = await GetPending() ?? throw new InvalidOperationException("No pending external identity");
@@ -76,7 +76,7 @@ public class ExternalRegistrationContext : IExternalRegistrationContext
             if (pending.ProviderSystemName != OidcResourceServerDefaults.ProviderSystemName)
                 throw new InvalidOperationException($"Unsupported external provider {pending.ProviderSystemName}");
 
-            var result = await _oidcCustomerResolver.LinkIdentity(customer, pending.Subject, pending.Email);
+            var result = await _oidcCustomerResolver.LinkIdentity(customer, pending.Subject, pending.Email, storeId);
             if (result != OidcLinkResult.Linked)
                 _logger.LogWarning("Pending identity {Subject} not connected to customer {CustomerId}: {Result}",
                     pending.Subject, customer.Id, result);

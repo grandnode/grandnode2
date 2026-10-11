@@ -504,7 +504,8 @@ public class AccountController : BasePublicController
 
             //connect the provider identity before anything can sign the customer in
             if (pending != null)
-                await externalRegistrationContext.Complete(_contextAccessor.WorkContext.CurrentCustomer);
+                await externalRegistrationContext.Complete(_contextAccessor.WorkContext.CurrentCustomer,
+                    _contextAccessor.StoreContext.CurrentStore.Id);
 
             var customerAttributes = await _mediator.Send(new GetParseCustomAttributes
                 { SelectedAttributes = model.SelectedAttributes });

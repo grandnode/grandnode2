@@ -197,7 +197,7 @@ public class OidcLoginControllerTests
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         Marker("sub-1");
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
     }
 
@@ -210,7 +210,7 @@ public class OidcLoginControllerTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         var result = (RedirectToRouteResult)await _controller.LinkComplete("/");
         Assert.AreEqual("OidcLoginFailed", result.RouteName);
-        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
         _external.Verify(x => x.Clear(), Times.Once);
     }
 
@@ -220,7 +220,7 @@ public class OidcLoginControllerTests
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         Marker("sub-1");
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.SubjectLinkedToOtherCustomer);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.SubjectLinkedToOtherCustomer);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
     }
 
@@ -234,11 +234,11 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Marker("sub-1", DateTimeOffset.UtcNow);
         _ticketIssued = DateTimeOffset.UtcNow.AddMinutes(-5);
         Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
-        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -246,11 +246,11 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Marker("sub-1");
         _ticketIssued = null;
         Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
-        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -258,11 +258,11 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Marker("sub-1", DateTimeOffset.UtcNow.AddMinutes(-2));
         _ticketIssued = DateTimeOffset.UtcNow.AddMinutes(-1);
         Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
-        _external.Verify(x => x.Complete(_current), Times.Once);
+        _external.Verify(x => x.Complete(_current, "s1"), Times.Once);
     }
 
     [TestMethod]
@@ -280,7 +280,7 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Marker("sub-1");
         Assert.AreEqual("HomePage", ((RedirectToRouteResult)await _controller.LinkComplete("https://evil.example/")).RouteName);
     }
@@ -308,7 +308,7 @@ public class OidcLoginControllerTests
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
-        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -318,7 +318,7 @@ public class OidcLoginControllerTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         Marker("sub-other");
         Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
-        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -326,7 +326,7 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _external.Setup(x => x.Complete(_current)).ReturnsAsync(OidcLinkResult.Linked);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Marker("sub-1");
         await _controller.LinkComplete("/");
         Assert.IsNull(_controller.HttpContext.Session.GetString(MarkerKey));
@@ -339,7 +339,7 @@ public class OidcLoginControllerTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { ProviderSystemName = "Other" });
         Marker("sub-1");
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
-        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
         _external.Verify(x => x.Clear(), Times.Once);
     }
 }

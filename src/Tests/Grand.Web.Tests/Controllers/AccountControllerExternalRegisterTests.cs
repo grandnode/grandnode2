@@ -91,7 +91,7 @@ public class AccountControllerExternalRegisterTests
             _external.Object, _externalAuth.Object);
         Assert.AreEqual("john@example.com", request.Email);
         Assert.IsFalse(string.IsNullOrEmpty(request.Password));
-        _external.Verify(x => x.Complete(_guest), Times.Once);
+        _external.Verify(x => x.Complete(_guest, "s1"), Times.Once);
     }
 
     [TestMethod]
@@ -127,6 +127,6 @@ public class AccountControllerExternalRegisterTests
         _manager.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>())).Callback<RegistrationRequest>(r => request = r);
         await _controller.Register(new RegisterModel { Email = "a@b.c", Password = "Secret1!" }, null, _external.Object, _externalAuth.Object);
         Assert.AreEqual("Secret1!", request.Password);
-        _external.Verify(x => x.Complete(It.IsAny<Customer>()), Times.Never);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
     }
 }

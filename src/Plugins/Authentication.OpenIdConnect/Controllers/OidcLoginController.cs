@@ -161,7 +161,8 @@ public class OidcLoginController : BasePluginController
             return RedirectToRoute("OidcLoginFailed", new { mismatch = true });
         }
 
-        return await _externalRegistrationContext.Complete(customer) == OidcLinkResult.Linked
+        return await _externalRegistrationContext.Complete(customer, _contextAccessor.StoreContext.CurrentStore.Id) ==
+               OidcLinkResult.Linked
             ? RedirectLocal(returnUrl)
             : RedirectToRoute("OidcLoginFailed", new { reason = (int)OidcLoginRefusal.LinkedToOtherIdentity });
     }

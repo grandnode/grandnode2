@@ -58,8 +58,14 @@ public class OidcCustomerResolverLoginTests
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
             _groupService.Object, _permissionService.Object, _mediator.Object, _config, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
 
-    private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName) =>
-        _links.InsertAsync(new ExternalAuthentication { CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub });
+    private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
+        string storeId = null) =>
+        _links.InsertAsync(new ExternalAuthentication {
+            CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId
+        });
+
+    private List<ExternalAuthentication> LinksOf(string sub) =>
+        _links.Table.Where(x => x.ExternalIdentifier == sub).ToList();
 
 
     private const string Store = "store1";
@@ -227,7 +233,7 @@ public class OidcCustomerResolverLoginTests
     [TestMethod]
     public async Task LinkIdentity_StoresLink()
     {
-        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "A@B.c"));
+        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "A@B.c", Store));
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
         Assert.AreEqual("c1", link.CustomerId);
         Assert.AreEqual("a@b.c", link.Email);
@@ -237,7 +243,7 @@ public class OidcCustomerResolverLoginTests
     public async Task LinkIdentity_SameCustomerTwice_Linked()
     {
         await Link("c1");
-        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c"));
+        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
     }
 
     [TestMethod]
@@ -245,7 +251,7 @@ public class OidcCustomerResolverLoginTests
     {
         await Link("c2");
         Assert.AreEqual(OidcLinkResult.SubjectLinkedToOtherCustomer,
-            await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c"));
+            await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
     }
 
     [TestMethod]
@@ -253,7 +259,7 @@ public class OidcCustomerResolverLoginTests
     {
         await Link("c1", "other-sub");
         Assert.AreEqual(OidcLinkResult.CustomerLinkedToOtherSubject,
-            await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c"));
+            await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
     }
 
     [TestMethod]
@@ -266,6 +272,64 @@ public class OidcCustomerResolverLoginTests
             .ReturnsAsync(new ExternalAuthentication { CustomerId = "winner", ExternalIdentifier = "sub-1" });
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new InvalidOperationException("duplicate"));
         Assert.AreEqual(OidcLinkResult.SubjectLinkedToOtherCustomer,
-            await Resolver(links.Object).LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c"));
+            await Resolver(links.Object).LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
+    }
+
+    [TestMethod]
+    public async Task ResolveForLogin_PerStore_SubjectLinkedInAnotherStore_SignsInThisStoresCustomer()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c9", storeId: "store2");
+        var customer = new Customer { Id = "c1", Active = true, StoreId = Store };
+        _customerService.Setup(x => x.GetCustomerByEmail("a@b.c", Store)).ReturnsAsync(customer);
+
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+
+        Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.AreEqual("c1", result.Customer.Id);
+        Assert.AreEqual(Store, LinksOf("sub-1").Single(x => x.CustomerId == "c1").StoreId);
+        _customerService.Verify(x => x.GetCustomerById("c9"), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ResolveForLogin_PerStore_GlobalCustomerLink_SignsInInEveryStore()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c1", storeId: "");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "" });
+
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, "store2")).Outcome);
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_PerStore_SubjectLinkedInAnotherStore_LinksThisStore()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c9", storeId: "store2");
+
+        Assert.AreEqual(OidcLinkResult.Linked,
+            await Resolver().LinkIdentity(new Customer { Id = "c1", StoreId = Store }, "sub-1", "a@b.c", Store));
+        Assert.AreEqual(Store, LinksOf("sub-1").Single(x => x.CustomerId == "c1").StoreId);
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_PerStore_GlobalCustomer_SubjectLinkedInThisStore_Refused()
+    {
+        //the store's link takes precedence in this store, so a link of the global account would never be used here
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c9", storeId: Store);
+
+        Assert.AreEqual(OidcLinkResult.SubjectLinkedToOtherCustomer,
+            await Resolver().LinkIdentity(new Customer { Id = "c1", StoreId = "" }, "sub-1", "a@b.c", Store));
+        Assert.HasCount(1, LinksOf("sub-1"));
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_NotPerStore_LinkWithoutStore()
+    {
+        Assert.AreEqual(OidcLinkResult.Linked,
+            await Resolver().LinkIdentity(new Customer { Id = "c1", StoreId = Store }, "sub-1", "a@b.c", Store));
+        Assert.AreEqual("", LinksOf("sub-1").Single().StoreId);
     }
 }
