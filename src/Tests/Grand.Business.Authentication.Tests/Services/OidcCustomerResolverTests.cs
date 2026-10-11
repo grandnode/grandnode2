@@ -67,8 +67,14 @@ public class OidcCustomerResolverTests
         return new ClaimsPrincipal(new ClaimsIdentity(claims, "Oidc"));
     }
 
-    private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName) =>
-        _links.InsertAsync(new ExternalAuthentication { CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub });
+    private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
+        string storeId = null) =>
+        _links.InsertAsync(new ExternalAuthentication {
+            CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId
+        });
+
+    private List<ExternalAuthentication> LinksOf(string sub) =>
+        _links.Table.Where(x => x.ExternalIdentifier == sub).ToList();
 
     [TestMethod]
     public async Task NoSubject_InvalidToken() =>
@@ -426,5 +432,117 @@ public class OidcCustomerResolverTests
 
         Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
         _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PerStore_SameSubject_EachStoreLinksAndResolvesItsOwnCustomer()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c1", storeId: "store1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
+        _customerService.Setup(x => x.GetCustomerById("c2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+
+        var links = LinksOf("sub-1");
+        Assert.HasCount(2, links);
+        Assert.AreEqual("store2", links.Single(x => x.CustomerId == "c2").StoreId);
+    }
+
+    [TestMethod]
+    public async Task PerStore_Registration_LinkCarriesTheStore()
+    {
+        _config.AutoRegister = true;
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c1", storeId: "store1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
+
+        Assert.AreEqual("new1", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+
+        Assert.AreEqual("store2", LinksOf("sub-1").Single(x => x.CustomerId == "new1").StoreId);
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    public async Task PerStore_GlobalCustomer_ResolvesInEveryStore(string linkStoreId)
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c1", storeId: linkStoreId);
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "" });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        Assert.HasCount(1, LinksOf("sub-1"));
+    }
+
+    [TestMethod]
+    public async Task PerStore_GlobalCustomerLinked_WithEmptyStore()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "" });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+
+        Assert.AreEqual("", LinksOf("sub-1").Single().StoreId);
+    }
+
+    [TestMethod]
+    public async Task PerStore_StoreLinkPreferredOverGlobalLink()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("global", storeId: "");
+        await Link("c1", storeId: "store1");
+        _customerService.Setup(x => x.GetCustomerById("global")).ReturnsAsync(new Customer { Id = "global", Active = true });
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        Assert.AreEqual("global", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+    }
+
+    [TestMethod]
+    public async Task NotPerStore_LinkStoredWithoutStore_AndFoundInAnyStore()
+    {
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store3")).Customer.Id);
+
+        Assert.AreEqual("", LinksOf("sub-1").Single().StoreId);
+    }
+
+    [TestMethod]
+    public async Task NotPerStore_LinkWrittenPerStore_StillFoundInAnyStore()
+    {
+        await Link("c1", storeId: "store2");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(email: null), "store1")).Customer.Id);
+    }
+
+    [TestMethod]
+    public async Task PerStore_Race_RereadsTheWinnerOfTheSameStore()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        //another store's link exists; a concurrent request of this store stores its link first
+        var stored = new List<ExternalAuthentication> {
+            new() { CustomerId = "c1", ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "sub-1", StoreId = "store1" }
+        };
+        var links = new Mock<IRepository<ExternalAuthentication>>();
+        links.Setup(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>()))
+            .ReturnsAsync((Expression<Func<ExternalAuthentication, bool>> p) => stored.FirstOrDefault(p.Compile()));
+        links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>()))
+            .Callback(() => stored.Add(new ExternalAuthentication {
+                CustomerId = "winner", ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "sub-1", StoreId = "store2"
+            }))
+            .ThrowsAsync(new Exception("duplicate key"));
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
+        _customerService.Setup(x => x.GetCustomerById("winner")).ReturnsAsync(new Customer { Id = "winner", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual("winner", (await Resolver(links.Object).Resolve(Principal(), "store2")).Customer.Id);
     }
 }
