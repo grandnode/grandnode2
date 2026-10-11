@@ -34,7 +34,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
 {
     public const string ProviderSystemName = "ExternalAuth.OpenIdConnect";
 
-    public const string PasswordRequiredDescription =
+    public const string AccountConnectionRequiredDescription =
         "The account must be connected to the identity with its password first";
 
     private readonly IRepository<ExternalAuthentication> _externalAuthenticationRepository;
@@ -88,7 +88,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             //a link made by e-mail proves no more than the e-mail: it stops serving an account that has since
             //become one that connects only with its password
             if (linkedResult.Succeeded && link.LinkedByEmail && await RequiresPassword(linkedCustomer, storeId))
-                return PasswordRequired(linkedCustomer, sub);
+                return AccountConnectionRequired(linkedCustomer, sub);
             return linkedResult;
         }
 
@@ -119,7 +119,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         //a back-office account and an account protected by two-factor authentication are never linked by e-mail,
         //verified or not; they connect with the account's password (browser sign-in), and tokens then use that link
         if (await RequiresPassword(customer, storeId))
-            return PasswordRequired(customer, sub);
+            return AccountConnectionRequired(customer, sub);
 
         var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId, true);
         if (other != null)
@@ -328,11 +328,11 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         return OidcCustomerResult.Forbidden("The customer account is linked to another identity");
     }
 
-    private OidcCustomerResult PasswordRequired(Customer customer, string sub)
+    private OidcCustomerResult AccountConnectionRequired(Customer customer, string sub)
     {
         _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} must be connected with its password",
             sub, customer.Id);
-        return OidcCustomerResult.Forbidden(PasswordRequiredDescription);
+        return OidcCustomerResult.Forbidden(AccountConnectionRequiredDescription);
     }
 
     /// <summary>

@@ -375,7 +375,7 @@ public class OidcCustomerResolverTests
         var result = await Resolver().Resolve(Principal(emailVerified: emailVerified ? "true" : null), "store1");
 
         Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
-        Assert.AreEqual(OidcCustomerResolver.PasswordRequiredDescription, result.Description);
+        Assert.AreEqual(OidcCustomerResolver.AccountConnectionRequiredDescription, result.Description);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
 
@@ -443,7 +443,7 @@ public class OidcCustomerResolverTests
         var result = await Resolver().Resolve(Principal(), "store1");
 
         Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
-        Assert.AreEqual(OidcCustomerResolver.PasswordRequiredDescription, result.Description);
+        Assert.AreEqual(OidcCustomerResolver.AccountConnectionRequiredDescription, result.Description);
     }
 
     [TestMethod]
