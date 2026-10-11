@@ -57,22 +57,22 @@ Each entry of `Resources` (plugins register the same object, section 5):
 `offline_access` is never advertised in `scopes_supported` or in a challenge `scope`.
 
 Startup validation (outside Development the application refuses to start, in Development it warns): `Authority`
-absolute, https (an `http` Authority is accepted in Development only, with `RequireHttpsMetadata = false`); at least one resource (configuration or plugins); each resource has a name and a valid prefix;
-names and prefixes unique and not nested; `Resource` absolute without fragment; `ClockSkewSeconds` 0-300; claim names
-not empty.
+absolute, https (an `http` Authority is accepted in Development only, with `RequireHttpsMetadata = false`); at least one
+resource (configuration or plugins); each resource has a name and a valid prefix; names and prefixes unique and not
+nested; `Resource` absolute without fragment; `ClockSkewSeconds` 0-300; claim names not empty.
 
 ### Audience
 
 A token is accepted when its `aud` contains the resource URI or one of `Audiences`.
 
-* With an empty `Resource` the resource URI is the **URL of the GrandNode store serving the request host** (field
-  *Store URL* in the admin panel) plus `PathPrefix`, for example `https://shop.example.com/api`. The store is the one
-  whose *Hosts* list the request host, compared with its port first (`localhost:44350`, as the installer records the
-  host of the install request) and then without it (`shop.example.com`); the store cookie is never used. When no
-  store lists the host, a single-store installation uses its only store; with several stores the request has no
-  audience and every token is rejected (and the metadata endpoints answer 404). The URI itself always comes from the *Store URL*, never from the `Host`
-  header. A request whose token is accepted runs in that same store (prices, settings, per-store accounts), even when
-  it also carries another store's cookie; without an accepted token the store cookie keeps its usual priority.
+* With an empty `Resource` the resource URI is the **URL of the GrandNode store serving the request host** (field *Store
+  URL* in the admin panel) plus `PathPrefix`, for example `https://shop.example.com/api`. The store is the one whose
+  *Hosts* list the request host, compared with its port first (`localhost:44350`, as the installer records the host of
+  the install request) and then without it (`shop.example.com`); the store cookie is never used. When no store lists the
+  host, a single-store installation uses its only store; with several stores the request has no audience and every token
+  is rejected (and the metadata endpoints answer 404). The URI itself always comes from the *Store URL*, never from the
+  `Host` header. A request whose token is accepted runs in that same store (prices, settings, per-store accounts), even
+  when it also carries another store's cookie; without an accepted token the store cookie keeps its usual priority.
 * Behind a TLS-terminating proxy the *Store URL* must be the public `https://` URL, or the audience will not match.
   Also set `Security:UseForwardedHeaders = true` so that `X-Forwarded-Proto` makes the request scheme `https`
   (ASP.NET Core applies it only from a trusted proxy, loopback by default): the metadata endpoint picks between
@@ -123,8 +123,9 @@ customer in this order.
 ### 3.1 Linking rules
 
 1. No `sub` claim: 401.
-2. A stored link for `sub` (provider `ExternalAuth.OpenIdConnect`, exact, case-sensitive match) selects the customer. The customer must be
-   active, not deleted, registered, and not a system account; otherwise 403. An inactive customer is never reactivated.
+2. A stored link for `sub` (provider `ExternalAuth.OpenIdConnect`, exact, case-sensitive match) selects the customer.
+   The customer must be active, not deleted, registered, and not a system account; otherwise 403. An inactive customer
+   is never reactivated.
 3. Without a link the e-mail claim is needed (missing: 401). With `RequireEmailVerified = true` it must be verified
    (otherwise 401).
 4. A customer with the same e-mail address is linked on first use, and the link is stored.
@@ -150,9 +151,9 @@ store.
 
 ### 3.2 Automatic registration
 
-`AutoRegister` is `false` by default. When no customer matches, the answer is 403 "No customer account matches the token"; the
-customer has to exist already (it is then linked by the verified e-mail, section 3.1). Set `AutoRegister = true` to opt in to registering
-an unknown user on first use; then:
+`AutoRegister` is `false` by default. When no customer matches, the answer is 403 "No customer account matches the
+token"; the customer has to exist already (it is then linked by the verified e-mail, section 3.1). Set `AutoRegister =
+true` to opt in to registering an unknown user on first use; then:
 
 * the new customer gets the **Registered** group only, never an admin or vendor group;
 * store registration set to *Disabled* gives 403;
@@ -182,11 +183,11 @@ on unless every endpoint the resource covers scopes its data.
 * Access still requires the `ManageAccessAdminPanel` permission and passes the admin IP allow-list.
 * The per-user *API users* opt-in does **not** apply to OIDC tokens. Who may call the API is decided by which users
   the provider grants the `grandnode.api` scope, plus their GrandNode groups.
-* `BackendAPI:Enabled = false` switches the Web API off for both token kinds. For OIDC tokens this happens before
-  the token is looked at: the Web API module withdraws its paths (`IOidcDisabledPathProvider`), so every resource on
-  or under `/api` is left out of the registry (logged at startup), no metadata is published for it, and a provider
-  token there goes to the `SecretKey` scheme, which refuses it (401). No customer is registered, linked or looked up
-  and the store is not pinned. The setting is read at startup; changing it needs a restart. An OIDC-only setup still needs
+* `BackendAPI:Enabled = false` switches the Web API off for both token kinds. For OIDC tokens this happens before the
+  token is looked at: the Web API module withdraws its paths (`IOidcDisabledPathProvider`), so every resource on or
+  under `/api` is left out of the registry (logged at startup), no metadata is published for it, and a provider token
+  there goes to the `SecretKey` scheme, which refuses it (401). No customer is registered, linked or looked up and the
+  store is not pinned. The setting is read at startup; changing it needs a restart. An OIDC-only setup still needs
   `BackendAPI:Enabled = true` and a strong `BackendAPI:SecretKey` (at least 32 characters; startup check outside
   Development), although no SecretKey token has to be issued.
 * The Web API module itself is off by default: set `FeatureManagement:Grand.Module.Api = true` (environment variable
@@ -314,7 +315,7 @@ Tested version: Keycloak 26.8.0 (image `quay.io/keycloak/keycloak:26.8.0`). Docu
 
 1. **Realm.** Create a realm, for example `grandnode`. Issuer: `https://idp.example.com/realms/grandnode`; this is
    `OidcResourceServer:Authority`.
-2. **Client scope** *Clients scopes > Create client scope*: name `grandnode.api`, type **Optional**, protocol
+2. **Client scope** *Client scopes > Create client scope*: name `grandnode.api`, type **Optional**, protocol
    OpenID Connect, *Include in token scope* on.
 3. **Audience mapper** in that scope (*Mappers > Configure a new mapper > Audience*): *Included Custom Audience* =
    the resource URI, for example `https://shop.example.com/api` (store URL + prefix, or `Resource`); *Add to access
@@ -332,11 +333,12 @@ Tested version: Keycloak 26.8.0 (image `quay.io/keycloak/keycloak:26.8.0`). Docu
 Experimental features (Keycloak marks both as experimental; enable with `--features=resource-indicators,cimd`):
 
 * **Resource indicators (RFC 8707)**: Keycloak then processes the `resource` parameter and rejects unknown values with
-  `invalid_target` (at the token endpoint). A `resource` equal to the *Included Custom Audience* of the scope's
-  Audience mapper (steps 2-3) is accepted, so that setup works with the feature on or off. Alternatively create a client that represents the resource and set its client attribute `resource_url` to the
-  resource URI (Admin REST API or realm import); the application's client gets an Audience mapper with *Included
-  Client Audience* pointing at that client. Without the feature Keycloak ignores `resource` and the audience comes from
-  the scope's Audience mapper (steps 2-3), which is the setup used for GrandNode by default.
+  `invalid_target` (at the token endpoint). A `resource` equal to the *Included Custom Audience* of the scope's Audience
+  mapper (steps 2-3) is accepted, so that setup works with the feature on or off. Alternatively create a client that
+  represents the resource and set its client attribute `resource_url` to the resource URI (Admin REST API or realm
+  import); the application's client gets an Audience mapper with *Included Client Audience* pointing at that client.
+  Without the feature Keycloak ignores `resource` and the audience comes from the scope's Audience mapper (steps 2-3),
+  which is the setup used for GrandNode by default.
 * **Dynamic client registration (RFC 7591)**, for clients that register themselves: *Clients > Client registration >
   Anonymous access policies*: *Allowed Client Scopes* must include `grandnode.api`; *Trusted Hosts* the host names or
   addresses the registration requests come from; *Allowed Registration Web Origins* the web origin of browser based
@@ -421,18 +423,18 @@ Steps:
    ```
 
    `AuthorizedParties` is **mandatory** for Zitadel: the audience is a project id shared by every application of the
-   project, so only the authorized party (`azp`, for Zitadel the `client_id` claim) binds the token to your client. With `Audiences` set the store URL based audience is still
-   accepted next to it.
+   project, so only the authorized party (`azp`, for Zitadel the `client_id` claim) binds the token to your client. With
+   `Audiences` set the store URL based audience is still accepted next to it.
 
-   **What gates access with Zitadel**, from the outside in: (1) the token is a valid JWT of the instance's issuer;
-   (2) `aud` contains the project id (or the store resource URI); (3) `azp` is one of your clients; (4) the `scope`
-   claim contains `grandnode.api`, which the target adds only for users holding the project role; (5) the GrandNode
-   customer exists or is registered, is in a group with *Access admin panel* and the needed permissions. Step 4 is only
-   as strong as who may grant the project role or edit Zitadel Actions. If
-   you do not run the target, leave `RequiredScopes` **empty** for Zitadel (a required scope would reject every token)
-   and rely on (1)-(3) and (5); then any user of the instance who can log in to an allowed client reaches the
-   GrandNode permission check, and a user that is auto-registered holds the Registered group only, which has no
-   admin panel access. `AutoRegister` is off by default; turn it on only when every user of the provider may get a store account.
+   **What gates access with Zitadel**, from the outside in: (1) the token is a valid JWT of the instance's issuer; (2)
+   `aud` contains the project id (or the store resource URI); (3) `azp` is one of your clients; (4) the `scope` claim
+   contains `grandnode.api`, which the target adds only for users holding the project role; (5) the GrandNode customer
+   exists or is registered, is in a group with *Access admin panel* and the needed permissions. Step 4 is only as strong
+   as who may grant the project role or edit Zitadel Actions. If you do not run the target, leave `RequiredScopes`
+   **empty** for Zitadel (a required scope would reject every token) and rely on (1)-(3) and (5); then any user of the
+   instance who can log in to an allowed client reaches the GrandNode permission check, and a user that is
+   auto-registered holds the Registered group only, which has no admin panel access. `AutoRegister` is off by default;
+   turn it on only when every user of the provider may get a store account.
 5. **Dynamic client registration** (RFC 7591) is **off by default** in Zitadel. Two modes: with a token of a user
    holding the `project.app.register_dynamic` permission, or open (`dynamicClientRegistration.allowUnauthenticated =
    true`), which MCP-class clients need. See <https://zitadel.com/docs/guides/integrate/dynamic-client-registration>.
