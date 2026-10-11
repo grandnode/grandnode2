@@ -87,7 +87,8 @@ public sealed class OidcTestHost : IAsyncDisposable
         Action<IServiceCollection> services = null,
         Action<AuthenticationBuilder> auth = null,
         Action<IEndpointRouteBuilder> endpoints = null,
-        Action<JwtBearerOptions> jwtBearer = null)
+        Action<JwtBearerOptions> jwtBearer = null,
+        Action<IApplicationBuilder> afterAuthorization = null)
     {
         _host = await new HostBuilder().ConfigureWebHost(web => web
             .UseTestServer()
@@ -128,6 +129,8 @@ public sealed class OidcTestHost : IAsyncDisposable
                 app.UseRouting();
                 app.UseAuthentication();
                 app.UseAuthorization();
+                //what the app runs between authorization and the endpoints (the store and work context)
+                afterAuthorization?.Invoke(app);
                 app.UseEndpoints(e =>
                 {
                     OidcProtectedResourceMetadata.Map(e);
