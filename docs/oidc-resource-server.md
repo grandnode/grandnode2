@@ -527,7 +527,9 @@ Notes:
   provider reported as unverified. Administrators should check the address before approving such an account.
 * A customer who uses GrandNode two-factor authentication connects the provider identity **once** with the store
   password and the two-factor code, like staff; after that the provider sign-in alone signs the customer in.
-* With `RegisterCustomersPerStore` enabled all lookups are limited to the store of the request.
+* With `RegisterCustomersPerStore` enabled all lookups are limited to the store of the request, and a link belongs to
+  the store of the linked account (section 3.1): the same provider identity can be connected to a separate account in
+  each store, while an account of no store (such as staff) keeps one link that works in every store.
 * Provider tokens are **not stored**.
 * The Web API setting `OidcResourceServer:AutoRegister` is `false` by default (section 3.2); browser sign-in registers
   new users through the registration form instead.
