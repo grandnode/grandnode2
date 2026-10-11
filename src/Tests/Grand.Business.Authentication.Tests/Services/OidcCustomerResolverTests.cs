@@ -545,4 +545,25 @@ public class OidcCustomerResolverTests
 
         Assert.AreEqual("winner", (await Resolver(links.Object).Resolve(Principal(), "store2")).Customer.Id);
     }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    public async Task PerStore_LegacyGlobalLinkToStoreCustomer_OtherStoreLinksItsOwnCustomer(string legacyStoreId)
+    {
+        //a link written before customers were registered per store, to a customer of store1
+        _customerConfig.RegisterCustomersPerStore = true;
+        await Link("c1", storeId: legacyStoreId);
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
+        _customerService.Setup(x => x.GetCustomerById("c2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
+
+        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+
+        var links = LinksOf("sub-1");
+        Assert.HasCount(2, links);
+        Assert.AreEqual("store2", links.Single(x => x.CustomerId == "c2").StoreId);
+    }
 }
