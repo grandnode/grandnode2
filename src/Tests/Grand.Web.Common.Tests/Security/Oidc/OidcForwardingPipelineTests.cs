@@ -160,6 +160,19 @@ public class OidcForwardingPipelineTests
     }
 
     [TestMethod]
+    public async Task HmacToken_IdpIssuer_RejectedByBearer_ResolverNotCalled()
+    {
+        //HMAC-signed with a key that is not the SecretKey, claiming the provider as issuer: routed by its algorithm
+        var token = OidcTestHost.Token(key: new SymmetricSecurityKey(Encoding.ASCII.GetBytes(new string('k', 40))),
+            algorithm: SecurityAlgorithms.HmacSha256);
+        using var response = await Get("/api/legacy", token);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.IsFalse(response.Headers.WwwAuthenticate.ToString().Contains("resource_metadata"),
+            response.Headers.WwwAuthenticate.ToString());
+        _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
     [DataRow("garbage")]
     [DataRow("")]
     public async Task Malformed_401_Never500(string token)

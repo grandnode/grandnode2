@@ -38,8 +38,8 @@ public class OidcRequestCustomerResolver : IRequestCustomerResolver
         if (httpContext == null || _registry.Match(httpContext.Request.Path) == null)
             return null;
 
-        //a token of another issuer (the SecretKey JWT of the Web API) belongs to its own scheme
-        if (!OidcSchemeSelector.IsOidcRequest(httpContext.Request, _config.Authority))
+        //an HMAC token (the SecretKey JWT of the Web API) belongs to its own scheme
+        if (!OidcSchemeSelector.IsOidcRequest(httpContext.Request))
             return null;
 
         //for [Authorize] endpoints the authorization middleware already did this - the result is cached per request

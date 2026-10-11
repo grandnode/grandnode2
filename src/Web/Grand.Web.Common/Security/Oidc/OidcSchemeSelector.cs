@@ -1,4 +1,3 @@
-using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -9,19 +8,18 @@ namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
 ///     Lets the Web API's JwtBearer scheme ("Bearer") hand requests on protected resources to the Oidc
-///     scheme: requests without a readable bearer JWT (so the 401 is the OIDC challenge) and requests whose token
-///     names the identity provider as issuer or is signed asymmetrically. HMAC tokens of other issuers - those GrandNode signs with its SecretKey -
-///     stay with the original scheme. The issuer is read unvalidated, for routing only; Oidc validates the token.
+///     scheme: requests without a readable bearer JWT (so the 401 is the OIDC challenge) and requests whose token is
+///     signed asymmetrically, as identity providers sign. HMAC tokens - those GrandNode signs with its SecretKey - stay
+///     with the original scheme, whatever issuer they claim (Oidc accepts no HMAC algorithm). The algorithm is read
+///     unvalidated, for routing only; the scheme the request lands on validates the token.
 /// </summary>
 public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
 {
     private readonly IOidcProtectedResourceRegistry _registry;
-    private readonly string _issuer;
 
-    public OidcSchemeSelector(OidcResourceServerConfig config, IOidcProtectedResourceRegistry registry)
+    public OidcSchemeSelector(IOidcProtectedResourceRegistry registry)
     {
         _registry = registry;
-        _issuer = config.Authority?.TrimEnd('/');
     }
 
     public void PostConfigure(string name, JwtBearerOptions options)
@@ -40,22 +38,20 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         if (_registry.Match(context.Request.Path) == null)
             return null;
 
-        return IsOidcRequest(context.Request, _issuer) ? OidcResourceServerDefaults.AuthenticationScheme : null;
+        return IsOidcRequest(context.Request) ? OidcResourceServerDefaults.AuthenticationScheme : null;
     }
 
     /// <summary>
-    ///     True when the request carries no readable bearer JWT, or one signed with an asymmetric algorithm or whose
-    ///     (unvalidated) issuer is the identity provider
+    ///     True when the request carries no readable bearer JWT, or one signed with an asymmetric algorithm
     /// </summary>
-    public static bool IsOidcRequest(HttpRequest request, string issuer)
+    public static bool IsOidcRequest(HttpRequest request)
     {
         var token = ReadBearerToken(request);
         if (token == null)
             return true;
 
         //identity providers sign asymmetrically; the tokens GrandNode issues itself are HMAC (HS*)
-        return IsAsymmetric(token) ||
-               string.Equals(ReadIssuer(token)?.TrimEnd('/'), issuer?.TrimEnd('/'), StringComparison.Ordinal);
+        return IsAsymmetric(token);
     }
 
     private static bool IsAsymmetric(string token)
@@ -92,18 +88,6 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         catch (Exception)
         {
             //attacker-controlled input read for routing only: never a 500
-            return null;
-        }
-    }
-
-    private static string ReadIssuer(string token)
-    {
-        try
-        {
-            return new JsonWebToken(token).Issuer;
-        }
-        catch (Exception)
-        {
             return null;
         }
     }

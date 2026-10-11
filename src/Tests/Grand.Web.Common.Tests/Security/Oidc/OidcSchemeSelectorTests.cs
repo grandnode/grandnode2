@@ -22,7 +22,7 @@ public class OidcSchemeSelectorTests
             Enabled = true, Authority = Issuer + "/",
             Resources = [new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api" }]
         };
-        _selector = new OidcSchemeSelector(config, new OidcProtectedResourceRegistry(config, []));
+        _selector = new OidcSchemeSelector(new OidcProtectedResourceRegistry(config, []));
     }
 
     private static string Token(string issuer) => new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor {
@@ -39,10 +39,11 @@ public class OidcSchemeSelectorTests
     }
 
     [TestMethod] public void NoToken_Resource_Oidc() => Assert.AreEqual("Oidc", _selector.Select(Request("/api/Product")));
-    [TestMethod] public void IdpToken_Resource_Oidc() => Assert.AreEqual("Oidc", _selector.Select(Request("/api/Product", "Bearer " + Token(Issuer))));
+    //routing reads the algorithm only: an HMAC token stays with Bearer whatever issuer it claims (Oidc accepts no HMAC)
+    [TestMethod] public void HmacToken_IdpIssuer_Null() => Assert.IsNull(_selector.Select(Request("/api/Product", "Bearer " + Token(Issuer))));
     [TestMethod] public void LegacyToken_NoIssuer_Null() => Assert.IsNull(_selector.Select(Request("/api/Product", "Bearer " + Token(null))));
     [TestMethod] public void ForeignIssuer_Null() => Assert.IsNull(_selector.Select(Request("/api/Product", "Bearer " + Token("grandnode"))));
-    [TestMethod] public void IdpToken_OutsideResources_Null() => Assert.IsNull(_selector.Select(Request("/customer/info", "Bearer " + Token(Issuer))));
+    [TestMethod] public void IdpToken_OutsideResources_Null() => Assert.IsNull(_selector.Select(Request("/customer/info", "Bearer " + OidcTestHost.Token())));
 
     [TestMethod]
     public void AsymmetricToken_ForeignIssuer_Oidc()
@@ -84,18 +85,5 @@ public class OidcSchemeSelectorTests
         var none = new JwtBearerOptions();
         _selector.PostConfigure(scheme, none);
         Assert.IsNull(none.ForwardDefaultSelector);
-    }
-
-    [TestMethod]
-    [DataRow("https://idp.example.com/realms/shop", "https://idp.example.com/realms/shop/")]
-    [DataRow("https://idp.example.com/realms/shop/", "https://idp.example.com/realms/shop")]
-    public void TrailingSlash_Differences_StillOidc(string authority, string issuer)
-    {
-        var config = new OidcResourceServerConfig {
-            Enabled = true, Authority = authority,
-            Resources = [new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api" }]
-        };
-        var selector = new OidcSchemeSelector(config, new OidcProtectedResourceRegistry(config, []));
-        Assert.AreEqual("Oidc", selector.Select(Request("/api/Product", "Bearer " + Token(issuer))));
     }
 }
