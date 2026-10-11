@@ -39,4 +39,9 @@ public class ExternalAuthentication : BaseEntity
     ///     Gets or sets the store of the linked customer when customers are registered per store; empty otherwise
     /// </summary>
     public string StoreId { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the link was made by the e-mail address alone, without the account's password
+    /// </summary>
+    public bool LinkedByEmail { get; set; }
 }

@@ -19,8 +19,8 @@ public class OidcResourceServerConfig
 
     /// <summary>
     ///     True: a token whose e-mail is not verified never links to an account and never registers one. False: the
-    ///     e-mail in the token is trusted as is, except that back-office accounts (admin panel access, vendor, store
-    ///     staff) are never linked by it
+    ///     e-mail in the token is trusted as is. In both modes back-office accounts (admin panel access, vendor, store
+    ///     staff) and accounts with two-factor authentication are never linked by e-mail
     /// </summary>
     public bool RequireEmailVerified { get; set; } = true;
 

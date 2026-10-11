@@ -59,9 +59,10 @@ public class OidcCustomerResolverLoginTests
             _groupService.Object, _permissionService.Object, _mediator.Object, _config, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
 
     private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
-        string storeId = null) =>
+        string storeId = null, bool byEmail = false) =>
         _links.InsertAsync(new ExternalAuthentication {
-            CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId
+            CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId,
+            LinkedByEmail = byEmail
         });
 
     private List<ExternalAuthentication> LinksOf(string sub) =>
@@ -107,6 +108,7 @@ public class OidcCustomerResolverLoginTests
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
         Assert.AreEqual("c1", link.CustomerId);
         Assert.AreEqual(OidcCustomerResolver.ProviderSystemName, link.ProviderSystemName);
+        Assert.IsTrue(link.LinkedByEmail);
     }
 
     [TestMethod]
@@ -180,6 +182,50 @@ public class OidcCustomerResolverLoginTests
     }
 
     [TestMethod]
+    public async Task LinkMadeByEmail_PlainCustomer_Verified_SignIn()
+    {
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        await Link("c1", byEmail: true);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+    }
+
+    [TestMethod]
+    public async Task LinkMadeByEmail_Unverified_LinkRequired()
+    {
+        //an access token linked the account by an unverified e-mail (RequireEmailVerified off)
+        var customer = new Customer { Id = "c1", Active = true };
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
+        await Link("c1", byEmail: true);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, result.Outcome);
+        Assert.AreSame(customer, result.Customer);
+    }
+
+    [TestMethod]
+    public async Task LinkMadeByEmail_TwoFactorCustomer_LinkRequired()
+    {
+        _customerSettings.TwoFactorAuthenticationEnabled = true;
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(TwoFactorCustomer());
+        await Link("c1", byEmail: true);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+    }
+
+    [TestMethod]
+    [DataRow(null, null)]
+    [DataRow("vendor1", null)]
+    [DataRow(null, "store1")]
+    public async Task LinkMadeByEmail_BackOfficeAccount_LinkRequired(string vendorId, string staffStoreId)
+    {
+        //linked while it was an ordinary customer, given back-office access later
+        var customer = new Customer { Id = "c1", Active = true, VendorId = vendorId, StaffStoreId = staffStoreId };
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
+        if (vendorId == null && staffStoreId == null)
+            _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, customer)).ReturnsAsync(true);
+        await Link("c1", byEmail: true);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+    }
+
+    [TestMethod]
     public async Task LinkedAdmin_SignIn()
     {
         var customer = new Customer { Id = "c1", Active = true };
@@ -237,6 +283,22 @@ public class OidcCustomerResolverLoginTests
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
         Assert.AreEqual("c1", link.CustomerId);
         Assert.AreEqual("a@b.c", link.Email);
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_NotMadeByEmail()
+    {
+        await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store);
+        Assert.IsFalse((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_LinkMadeByEmail_NowMadeWithPassword()
+    {
+        //the password sign-in that LinkRequired asked for stands behind the existing link
+        await Link("c1", byEmail: true);
+        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
+        Assert.IsFalse((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
     }
 
     [TestMethod]

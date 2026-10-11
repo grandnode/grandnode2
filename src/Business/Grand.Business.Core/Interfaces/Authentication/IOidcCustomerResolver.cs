@@ -6,7 +6,8 @@ namespace Grand.Business.Core.Interfaces.Authentication;
 
 /// <summary>
 ///     Maps a validated access token or a browser sign-in of the identity provider to a customer: by the stored link to the token
-///     subject, on first use by the verified e-mail address, otherwise by registering one
+///     subject, on first use by the verified e-mail address (never a back-office account or an account with two-factor
+///     authentication: those are connected with their password), otherwise by registering one
 /// </summary>
 public interface IOidcCustomerResolver
 {
@@ -15,7 +16,8 @@ public interface IOidcCustomerResolver
     Task<OidcCustomerResult> Resolve(ClaimsPrincipal principal, string storeId);
 
     /// <summary>
-    ///     Browser sign-in: never registers and never links a back-office account or an unverified e-mail by itself
+    ///     Browser sign-in: never registers, and never links (or signs in through a link made by e-mail) a back-office
+    ///     account, an account with two-factor authentication or an unverified e-mail by itself
     /// </summary>
     /// <param name="sub">Subject of the provider identity</param>
     /// <param name="email">E-mail of the provider identity</param>
@@ -25,7 +27,8 @@ public interface IOidcCustomerResolver
 
     /// <summary>
     ///     Stores the link between the provider subject and the customer (one subject per customer, one customer per subject;
-    ///     with per-store identity one customer per subject and store)
+    ///     with per-store identity one customer per subject and store). Call it only once the account is proven (password
+    ///     sign-in, registration): the link counts as made with the password, also when it was first made by e-mail
     /// </summary>
     /// <param name="customer">Customer to link</param>
     /// <param name="sub">Subject of the provider identity</param>

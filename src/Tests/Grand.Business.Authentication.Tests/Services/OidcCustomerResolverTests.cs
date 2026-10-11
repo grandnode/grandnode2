@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
@@ -68,9 +69,10 @@ public class OidcCustomerResolverTests
     }
 
     private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
-        string storeId = null) =>
+        string storeId = null, bool byEmail = false) =>
         _links.InsertAsync(new ExternalAuthentication {
-            CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId
+            CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId,
+            LinkedByEmail = byEmail
         });
 
     private List<ExternalAuthentication> LinksOf(string sub) =>
@@ -334,50 +336,132 @@ public class OidcCustomerResolverTests
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
 
-    [TestMethod]
-    public async Task UnverifiedEmail_AdminPanelAccount_Forbidden_NotLinked()
+    private static Customer TwoFactorCustomer(string id = "c1")
     {
-        _config.RequireEmailVerified = false;
-        var admin = new Customer { Id = "c1", Active = true };
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(admin);
-        _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, admin)).ReturnsAsync(true);
+        var customer = new Customer { Id = id, Active = true };
+        customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
+        return customer;
+    }
 
-        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(emailVerified: null), "store1")).Failure);
+    //admin panel access, vendor, store staff, two-factor authentication
+    private Customer PasswordOnlyCustomer(string kind)
+    {
+        var customer = kind switch {
+            "vendor" => new Customer { Id = "c1", Active = true, VendorId = "vendor1" },
+            "staff" => new Customer { Id = "c1", Active = true, StaffStoreId = "store1" },
+            "twoFactor" => TwoFactorCustomer(),
+            _ => new Customer { Id = "c1", Active = true }
+        };
+        if (kind == "admin")
+            _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, customer)).ReturnsAsync(true);
+        _customerSettings.TwoFactorAuthenticationEnabled = true;
+        return customer;
+    }
+
+    [TestMethod]
+    [DataRow("admin", true)]
+    [DataRow("admin", false)]
+    [DataRow("vendor", true)]
+    [DataRow("vendor", false)]
+    [DataRow("staff", true)]
+    [DataRow("staff", false)]
+    [DataRow("twoFactor", true)]
+    [DataRow("twoFactor", false)]
+    public async Task PasswordOnlyAccount_NotLinkedByEmail(string kind, bool emailVerified)
+    {
+        _config.RequireEmailVerified = emailVerified;
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(PasswordOnlyCustomer(kind));
+
+        var result = await Resolver().Resolve(Principal(emailVerified: emailVerified ? "true" : null), "store1");
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
+        Assert.AreEqual(OidcCustomerResolver.AccountConnectionRequiredDescription, result.Description);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
 
     [TestMethod]
-    [DataRow("vendor1", null)]
-    [DataRow(null, "store1")]
-    public async Task UnverifiedEmail_VendorOrStaffAccount_Forbidden_NotLinked(string vendorId, string staffStoreId)
+    public async Task TwoFactorCustomer_StoreTwoFactorOff_LinkedByEmail()
     {
-        _config.RequireEmailVerified = false;
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer {
-            Id = "c1", Active = true, VendorId = vendorId, StaffStoreId = staffStoreId
-        });
-
-        Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(emailVerified: null), "store1")).Failure);
-        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
-    }
-
-    [TestMethod]
-    public async Task UnverifiedEmail_PlainRegisteredCustomer_Linked()
-    {
-        _config.RequireEmailVerified = false;
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
-
-        Assert.IsTrue((await Resolver().Resolve(Principal(emailVerified: null), "store1")).Succeeded);
-        Assert.AreEqual("c1", (await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).CustomerId);
-    }
-
-    [TestMethod]
-    public async Task VerifiedEmail_BackOfficeAccount_Linked()
-    {
-        var admin = new Customer { Id = "c1", Active = true, StaffStoreId = "store1" };
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(admin);
-        _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, admin)).ReturnsAsync(true);
+        _customerSettings.TwoFactorAuthenticationEnabled = false;
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(TwoFactorCustomer());
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+        Assert.IsTrue((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+    }
+
+    [TestMethod]
+    public async Task PasswordOnlyAccount_LinkedToOtherSubject_LinkedToOtherIdentity()
+    {
+        await Link("c1", sub: "other-sub");
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(PasswordOnlyCustomer("admin"));
+
+        var result = await Resolver().Resolve(Principal(), "store1");
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
+        Assert.AreEqual("The customer account is linked to another identity", result.Description);
+    }
+
+    [TestMethod]
+    [DataRow("true")]
+    [DataRow(null)]
+    public async Task PlainRegisteredCustomer_LinkedByEmail(string emailVerified)
+    {
+        _config.RequireEmailVerified = emailVerified != null;
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(emailVerified: emailVerified), "store1")).Succeeded);
+        var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.AreEqual("c1", link.CustomerId);
+        Assert.IsTrue(link.LinkedByEmail);
+    }
+
+    [TestMethod]
+    [DataRow("admin")]
+    [DataRow("vendor")]
+    [DataRow("staff")]
+    [DataRow("twoFactor")]
+    public async Task PasswordOnlyAccount_LinkMadeWithPassword_Succeeds(string kind)
+    {
+        //connected once with the account's password (browser sign-in); the link then serves tokens
+        await Link("c1");
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(PasswordOnlyCustomer(kind));
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+    }
+
+    [TestMethod]
+    [DataRow("admin")]
+    [DataRow("vendor")]
+    [DataRow("staff")]
+    [DataRow("twoFactor")]
+    public async Task LinkMadeByEmail_AccountNowPasswordOnly_Forbidden(string kind)
+    {
+        //linked by e-mail while it was an ordinary customer, given back-office access or two-factor later
+        await Link("c1", byEmail: true);
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(PasswordOnlyCustomer(kind));
+
+        var result = await Resolver().Resolve(Principal(), "store1");
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
+        Assert.AreEqual(OidcCustomerResolver.AccountConnectionRequiredDescription, result.Description);
+    }
+
+    [TestMethod]
+    public async Task LinkMadeByEmail_PlainCustomer_Succeeds()
+    {
+        await Link("c1", byEmail: true);
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+    }
+
+    [TestMethod]
+    public async Task Registration_LinkNotMadeByEmail()
+    {
+        _config.AutoRegister = true;
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+        Assert.IsFalse((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
     }
 
     [TestMethod]
