@@ -65,13 +65,18 @@ not empty.
 
 A token is accepted when its `aud` contains the resource URI or one of `Audiences`.
 
-* With an empty `Resource` the resource URI is the **URL of the GrandNode store resolved for the request** (field *Store
-  URL* in the admin panel) plus `PathPrefix`, for example `https://shop.example.com/api`. It is never taken from the
-  request `Host` header.
+* With an empty `Resource` the resource URI is the **URL of the GrandNode store serving the request host** (field
+  *Store URL* in the admin panel) plus `PathPrefix`, for example `https://shop.example.com/api`. The store is the one
+  whose *Hosts* list the request host; the store cookie is never used. When no store lists the host, a single-store
+  installation uses its only store; with several stores the request has no audience and every token is rejected
+  (and the metadata endpoints answer 404). The URI itself always comes from the *Store URL*, never from the `Host`
+  header.
 * Behind a TLS-terminating proxy the *Store URL* must be the public `https://` URL, or the audience will not match.
 * Multi-store: every store has its own audience (`https://shop-a.example.com/api`, `https://shop-b.example.com/api`),
-  and a request can select any configured store (host or cookie). To accept one audience only, set `Resource`
-  explicitly.
+  chosen by the host the request reached, so a token issued for store B is not accepted on store A's host. To accept
+  one audience only, set `Resource` explicitly.
+* A store without a *Store URL* and a resource without `Resource` have no resource URI: tokens are rejected and the
+  metadata endpoint answers 404, with a warning in the log naming the resource.
 * Comparison is canonical: scheme and host lower-case, default port dropped, no trailing slash, path exact.
 
 ### Example for the Web API
@@ -170,16 +175,31 @@ After the mapping the resource's conditions apply; a refusal is 403 without `WWW
 | Required scope missing | 403 | `Bearer error="insufficient_scope", error_description="...", scope="<all required scopes>", resource_metadata="..."` |
 | Customer inactive or deleted, registration off, link conflict, resource condition refused | 403 | none |
 | GrandNode permission check inside the endpoint | 403 | unchanged |
+| The provider's discovery document or signing keys cannot be obtained (provider down, wrong `Authority`) | 503 | none |
 
 The body is `application/problem+json` (ProblemDetails). `error_description` is a fixed text; a token is never logged
-or echoed.
+or echoed. The 503 is logged at Error level with the metadata address; clients keep their token and retry, instead of
+discarding a valid token as `invalid_token`.
 
 ### 4.2 Metadata URLs
 
 | URL | Document |
 |---|---|
-| `/.well-known/oauth-protected-resource{PathPrefix}` | Metadata of one resource, for example `/.well-known/oauth-protected-resource/api` |
+| `/.well-known/oauth-protected-resource{path of the resource URI}` | Metadata of one resource, for example `/.well-known/oauth-protected-resource/api` for `https://shop.example.com/api` |
 | `/.well-known/oauth-protected-resource` | Store root: `resource` is the store URL, scopes are the union of all `ScopesSupported` |
+
+As RFC 9728 section 3.1 requires, the well-known segment goes between the host and the path of the resource URI, at
+the host of that URI:
+
+| Resource URI | Metadata URL |
+|---|---|
+| `https://shop.example.com/api` (store URL + `PathPrefix`) | `https://shop.example.com/.well-known/oauth-protected-resource/api` |
+| `https://example.com/shop/api` (store under `/shop`) | `https://example.com/.well-known/oauth-protected-resource/shop/api` |
+| `https://api.example.com/v1` (explicit `Resource`) | `https://api.example.com/.well-known/oauth-protected-resource/v1` |
+
+The `resource_metadata` value of the challenge is this URL. A request is matched on the path of each resource URI;
+when two resources share a path, the one on the host the request reached wins. With an explicit `Resource` on another
+host, that host has to reach GrandNode for the document to be served.
 
 Anonymous, `application/json`:
 
@@ -197,11 +217,11 @@ Unknown paths and a disabled feature give 404.
 
 ### 4.3 PathBase
 
-The metadata URL in the challenge is `{Store URL}/.well-known/oauth-protected-resource{PathPrefix}`. When GrandNode is
-published under a path base (for example `https://example.com/shop`), RFC 9728 clients that build the URL themselves
-look at `https://example.com/.well-known/oauth-protected-resource/shop/api`. Clients that follow the
-`resource_metadata` value of the challenge work as is; for the others the reverse proxy has to route the root
-`/.well-known/oauth-protected-resource/...` path to the application.
+When GrandNode is published under a path base (for example `https://example.com/shop`), the metadata URL is at the
+host root: `https://example.com/.well-known/oauth-protected-resource/shop/api`, both in the challenge and for clients
+that build it themselves. The application cannot answer outside its path base, so the reverse proxy has to route
+`/.well-known/oauth-protected-resource/...` at the host root to the application (keeping the full path, here
+`/.well-known/oauth-protected-resource/shop/api`).
 
 ### 4.4 Endpoints without `[Authorize]`
 

@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,10 @@ public class ContextMiddleware
 
     private readonly RequestDelegate _next;
 
-    private readonly List<string> skipRoutePattern = ["/scalar/{documentName}", "/openapi/{documentName}.json", "install"];
+    //anonymous endpoints that need neither store nor customer: a cookieless request would otherwise insert a guest
+    private readonly List<string> skipRoutePattern = [
+        "/scalar/{documentName}", "/openapi/{documentName}.json", "install", OidcProtectedResourceMetadata.WellKnownPath
+    ];
 
     #endregion
 

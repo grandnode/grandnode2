@@ -9,5 +9,8 @@ public enum OidcFailureKind
     InsufficientScope,
 
     /// <summary>403 without a bearer error</summary>
-    Forbidden
+    Forbidden,
+
+    /// <summary>503 without a bearer error: the authorization server's metadata or signing keys cannot be obtained</summary>
+    ServiceUnavailable
 }
