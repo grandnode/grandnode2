@@ -70,7 +70,8 @@ A token is accepted when its `aud` contains the resource URI or one of `Audience
   whose *Hosts* list the request host; the store cookie is never used. When no store lists the host, a single-store
   installation uses its only store; with several stores the request has no audience and every token is rejected
   (and the metadata endpoints answer 404). The URI itself always comes from the *Store URL*, never from the `Host`
-  header.
+  header. A request whose token is accepted runs in that same store (prices, settings, per-store accounts), even when
+  it also carries another store's cookie; without an accepted token the store cookie keeps its usual priority.
 * Behind a TLS-terminating proxy the *Store URL* must be the public `https://` URL, or the audience will not match.
 * Multi-store: every store has its own audience (`https://shop-a.example.com/api`, `https://shop-b.example.com/api`),
   chosen by the host the request reached, so a token issued for store B is not accepted on store A's host. To accept
