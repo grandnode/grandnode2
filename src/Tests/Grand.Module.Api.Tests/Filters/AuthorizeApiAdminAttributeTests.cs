@@ -56,10 +56,19 @@ public class AuthorizeApiAdminAttributeTests
     }
 
     [TestMethod]
-    public async Task ApiDisabled_IgnoredAction_NotForbidden()
+    public async Task ApiDisabled_IgnoredAction_Forbid()
     {
-        var context = await Run(apiEnabled: false, ignore: true, permitted: false);
+        //ignore skips the admin panel checks, not the kill switch
+        var context = await Run(apiEnabled: false, ignore: true, permitted: true);
+        Assert.IsInstanceOfType<ForbidResult>(context.Result);
+    }
+
+    [TestMethod]
+    public async Task ApiEnabled_IgnoredAction_NoPermissionCheck()
+    {
+        var context = await Run(apiEnabled: true, ignore: true, permitted: false);
         Assert.IsNull(context.Result);
+        _permissionService.Verify(x => x.Authorize(It.IsAny<Permission>()), Times.Never);
     }
 
     [TestMethod]
