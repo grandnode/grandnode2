@@ -15,6 +15,9 @@ public static class OidcProtectedResourceMetadata
 {
     public const string WellKnownPath = "/.well-known/oauth-protected-resource";
 
+    /// <summary>
+    ///     Maps the metadata endpoints; called by OidcResourceServerStartup only when the resource server is enabled
+    /// </summary>
     public static void Map(IEndpointRouteBuilder endpoints)
     {
         //typed as Func<..., Task<IResult>>: a lambda taking only HttpContext binds to RequestDelegate and its result
@@ -71,9 +74,6 @@ public static class OidcProtectedResourceMetadata
     private static IResult Document(HttpContext context, OidcProtectedResource resource, string baseUrl)
     {
         var config = context.RequestServices.GetRequiredService<OidcResourceServerConfig>();
-        if (!config.Enabled)
-            return Results.NotFound();
-
         var resourceUri = resource != null ? OidcCanonicalUri.ResourceFor(resource, baseUrl) : baseUrl;
         if (resourceUri == null)
         {
