@@ -310,7 +310,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         ArgumentNullException.ThrowIfNull(parameters);
 
         var associationRecord = (from q in _externalAuthenticationRecordRepository.Table
-            where q.ExternalIdentifier.ToLowerInvariant() == parameters.Identifier
+            where q.ExternalIdentifier == parameters.Identifier
                   && q.ProviderSystemName.ToLowerInvariant() == parameters.ProviderSystemName.ToLowerInvariant()
             select q).FirstOrDefault();
 
