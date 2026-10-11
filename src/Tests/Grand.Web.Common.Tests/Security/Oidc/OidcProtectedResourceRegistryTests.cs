@@ -37,6 +37,16 @@ public class OidcProtectedResourceRegistryTests
     }
 
     [TestMethod]
+    public void Resources_BuiltOnce_ReadOnly()
+    {
+        var registry = new OidcProtectedResourceRegistry(
+            Config(new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api" }), []);
+
+        Assert.AreSame(registry.Resources, registry.Resources);
+        Assert.IsNotInstanceOfType(registry.Resources, typeof(List<OidcProtectedResource>));
+    }
+
+    [TestMethod]
     public void Disabled_NoResources()
     {
         var config = Config(new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api" });
