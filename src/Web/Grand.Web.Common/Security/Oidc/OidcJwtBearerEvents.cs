@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -60,16 +61,34 @@ public class OidcJwtBearerEvents : JwtBearerEvents
     }
 
     /// <summary>
-    ///     Runs after the resource, audience, party and scope checks; calls Reject and returns false to refuse.
-    ///     The base refuses resources with account conditions: checking them needs the customer an override resolves.
+    ///     Runs after the resource, audience, party and scope checks: maps the token to a customer, applies the
+    ///     resource's account conditions and hands the customer to the request. Calls Reject and returns false to refuse.
     /// </summary>
-    protected virtual Task<bool> AfterTokenChecks(TokenValidatedContext context, OidcProtectedResource resource)
+    protected virtual async Task<bool> AfterTokenChecks(TokenValidatedContext context, OidcProtectedResource resource)
     {
-        if (!resource.RequireAdminPanelAccess && !resource.DenyVendors && !resource.DenyStoreManagers)
-            return Task.FromResult(true);
+        var http = context.HttpContext;
+        var services = http.RequestServices;
+        //the store whose URL the audience was checked against (from the host, never the store cookie)
+        var storeId = (await OidcCanonicalUri.RequestStore(http))?.Id ?? "";
+        var result = await services.GetRequiredService<IOidcCustomerResolver>().Resolve(context.Principal!, storeId);
+        if (!result.Succeeded)
+        {
+            Reject(context, result.Failure ?? OidcFailureKind.InvalidToken, result.Description);
+            return false;
+        }
 
-        Reject(context, OidcFailureKind.Forbidden, "Account conditions for this resource are not available");
-        return Task.FromResult(false);
+        var refusal = await services.GetRequiredService<OidcResourceAccess>().Refusal(resource, result.Customer);
+        if (refusal != null)
+        {
+            Reject(context, OidcFailureKind.Forbidden, refusal);
+            return false;
+        }
+
+        http.Items[OidcResourceServerDefaults.CustomerItemKey] = result.Customer;
+        //the work context is built in the same store: prices, settings and per-store checks follow the token, not a
+        //store cookie the client also sends (authenticated before ContextMiddleware, see OidcAuthenticationMiddleware)
+        RequestStorePin.Set(http, storeId);
+        return true;
     }
 
     public override Task AuthenticationFailed(AuthenticationFailedContext context)

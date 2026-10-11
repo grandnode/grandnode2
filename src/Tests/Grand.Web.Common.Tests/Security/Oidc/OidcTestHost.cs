@@ -1,4 +1,10 @@
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Utilities.Authentication;
+using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
@@ -81,7 +87,8 @@ public sealed class OidcTestHost : IAsyncDisposable
         Action<IServiceCollection> services = null,
         Action<AuthenticationBuilder> auth = null,
         Action<IEndpointRouteBuilder> endpoints = null,
-        Action<JwtBearerOptions> jwtBearer = null)
+        Action<JwtBearerOptions> jwtBearer = null,
+        Action<IApplicationBuilder> afterAuthorization = null)
     {
         _host = await new HostBuilder().ConfigureWebHost(web => web
             .UseTestServer()
@@ -95,6 +102,18 @@ public sealed class OidcTestHost : IAsyncDisposable
                 services?.Invoke(s);
                 s.AddProblemDetails();
                 s.TryAddSingleton(StoreService(new Store { Id = "store1", Url = "http://localhost/" }));
+                //defaults for what the Oidc events need; a test registers its own mock before these to override
+                var defaultResolver = new Mock<IOidcCustomerResolver>();
+                defaultResolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
+                    .ReturnsAsync(OidcCustomerResult.Success(new Customer { Id = "c1", Active = true }));
+                s.TryAddSingleton(defaultResolver.Object);
+                var permissions = new Mock<IPermissionService>();
+                permissions.Setup(x => x.Authorize(It.IsAny<Permission>(), It.IsAny<Customer>())).ReturnsAsync(true);
+                s.TryAddSingleton(permissions.Object);
+                s.TryAddSingleton(new Mock<IGroupService>().Object);
+                s.TryAddScoped<OidcResourceAccess>();
+                s.AddHttpContextAccessor();
+                s.TryAddScoped<IRequestCustomerResolver, OidcRequestCustomerResolver>();
                 var builder = s.AddAuthentication();
                 auth?.Invoke(builder);
                 builder.AddOidcResourceServer(config, o =>
@@ -110,6 +129,8 @@ public sealed class OidcTestHost : IAsyncDisposable
                 app.UseRouting();
                 app.UseAuthentication();
                 app.UseAuthorization();
+                //what the app runs between authorization and the endpoints (the store and work context)
+                afterAuthorization?.Invoke(app);
                 app.UseEndpoints(e =>
                 {
                     OidcProtectedResourceMetadata.Map(e);

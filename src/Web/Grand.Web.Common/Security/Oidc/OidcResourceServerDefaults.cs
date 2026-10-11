@@ -4,8 +4,8 @@ public static class OidcResourceServerDefaults
 {
     public const string AuthenticationScheme = "Oidc";
 
-    /// <summary>ExternalAuthentication.ProviderSystemName of the link between token subject and customer</summary>
-    public const string ProviderSystemName = "Oidc";
+    /// <summary>ExternalAuthentication.ProviderSystemName of the link between token subject and customer; also the system name of the OpenID Connect login plugin</summary>
+    public const string ProviderSystemName = "ExternalAuth.OpenIdConnect";
 
     public const string CustomerItemKey = "Grand.Oidc.Customer";
     public const string FailureItemKey = "Grand.Oidc.Failure";

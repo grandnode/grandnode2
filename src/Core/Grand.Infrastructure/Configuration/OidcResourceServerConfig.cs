@@ -18,14 +18,17 @@ public class OidcResourceServerConfig
     public OidcClaimNames Claims { get; set; } = new();
 
     /// <summary>
-    ///     An unverified e-mail address never links to an account and never registers one
+    ///     True: a token whose e-mail is not verified never links to an account and never registers one. False: the
+    ///     e-mail in the token is trusted as is, except that back-office accounts (admin panel access, vendor, store
+    ///     staff) are never linked by it
     /// </summary>
     public bool RequireEmailVerified { get; set; } = true;
 
     /// <summary>
-    ///     Register an unknown user (customer group Registered only)
+    ///     Register an unknown user on first use (customer group Registered only). Off by default: an account should exist,
+    ///     or be created through the store's registration, before a token can use it
     /// </summary>
-    public bool AutoRegister { get; set; } = true;
+    public bool AutoRegister { get; set; }
 
     public List<OidcProtectedResource> Resources { get; set; } = [];
 }

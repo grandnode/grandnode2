@@ -18,6 +18,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IJwtBearerAuthenticationService, JwtBearerAuthenticationService>();
         services.AddScoped<ITwoFactorAuthenticationService, TwoFactorAuthenticationService>();
         services.AddScoped<IExternalAuthenticationService, ExternalAuthenticationService>();
+        services.AddScoped<IOidcCustomerResolver, OidcCustomerResolver>();
         services.AddScoped<IJwtBearerCustomerAuthenticationService, JwtBearerCustomerAuthenticationService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
     }

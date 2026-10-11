@@ -1,0 +1,319 @@
+using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Authentication;
+using Grand.Business.Core.Utilities.Customers;
+using Grand.Data;
+using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
+using Grand.Infrastructure.Configuration;
+using Grand.Mediator;
+using Grand.SharedKernel.Extensions;
+using Microsoft.Extensions.Logging;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace Grand.Business.Authentication.Services;
+
+/// <summary>
+///     Maps a validated access token to a customer: stored subject link; customer with the verified e-mail (link
+///     stored); registration with the Registered group only. Only active, registered, non-system accounts are used,
+///     and one customer holds at most one identity (enforced by the link's identifier, see <see cref="OidcLinkId" />).
+///     With per-store identity a subject has one link per store (plus the link of a customer of no store, valid in
+///     every store). A unique index on (provider, identifier, store) makes the first concurrent requests of one user
+///     converge on one account.
+/// </summary>
+public class OidcCustomerResolver : IOidcCustomerResolver
+{
+    public const string ProviderSystemName = "ExternalAuth.OpenIdConnect";
+
+    private readonly IRepository<ExternalAuthentication> _externalAuthenticationRepository;
+    private readonly ICustomerService _customerService;
+    private readonly ICustomerManagerService _customerManagerService;
+    private readonly ISettingService _settingService;
+    private readonly IGroupService _groupService;
+    private readonly IPermissionService _permissionService;
+    private readonly IMediator _mediator;
+    private readonly OidcResourceServerConfig _config;
+    private readonly CustomerConfig _customerConfig;
+    private readonly ILogger<OidcCustomerResolver> _logger;
+
+    public OidcCustomerResolver(
+        IRepository<ExternalAuthentication> externalAuthenticationRepository,
+        ICustomerService customerService,
+        ICustomerManagerService customerManagerService,
+        ISettingService settingService,
+        IGroupService groupService,
+        IPermissionService permissionService,
+        IMediator mediator,
+        OidcResourceServerConfig config,
+        CustomerConfig customerConfig,
+        ILogger<OidcCustomerResolver> logger)
+    {
+        _externalAuthenticationRepository = externalAuthenticationRepository;
+        _customerService = customerService;
+        _customerManagerService = customerManagerService;
+        _settingService = settingService;
+        _groupService = groupService;
+        _permissionService = permissionService;
+        _mediator = mediator;
+        _config = config;
+        _customerConfig = customerConfig;
+        _logger = logger;
+    }
+
+    public virtual async Task<OidcCustomerResult> Resolve(ClaimsPrincipal principal, string storeId)
+    {
+        ArgumentNullException.ThrowIfNull(principal);
+
+        var sub = principal.FindFirst(_config.Claims.Subject)?.Value;
+        if (string.IsNullOrEmpty(sub))
+            return OidcCustomerResult.InvalidToken("The token has no subject");
+
+        var link = await GetLink(sub, storeId);
+        if (link != null)
+            return await Usable(await _customerService.GetCustomerById(link.CustomerId), sub, storeId);
+
+        var email = principal.FindFirst(_config.Claims.Email)?.Value;
+        if (string.IsNullOrWhiteSpace(email))
+            return OidcCustomerResult.InvalidToken("The token has no e-mail address");
+
+        if (_config.RequireEmailVerified &&
+            !string.Equals(principal.FindFirst(_config.Claims.EmailVerified)?.Value, "true", StringComparison.OrdinalIgnoreCase))
+            return OidcCustomerResult.InvalidToken("The e-mail address in the token is not verified");
+
+        //without per-store identity the e-mail is unique across stores - a store-scoped lookup would miss customers
+        //of other stores and register a duplicate
+        var customer = await _customerService.GetCustomerByEmail(email,
+            _customerConfig.RegisterCustomersPerStore ? storeId : "");
+        if (customer == null)
+            return await Register(sub, email, storeId);
+
+        var result = await Usable(customer, sub, storeId);
+        if (!result.Succeeded)
+            return result;
+
+        //an e-mail nobody verified could take over a back-office account, so those are never linked by it
+        if (!_config.RequireEmailVerified && await IsBackOfficeAccount(customer))
+        {
+            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is a back-office account and the e-mail is not verified",
+                sub, customer.Id);
+            return OidcCustomerResult.Forbidden("Back-office accounts can only be linked with a verified e-mail");
+        }
+
+        //one identity per customer - a second subject with the same e-mail must not take over the account; the
+        //link's identifier enforces it against concurrent requests, this check gives the answer in the normal case
+        var otherLink = await _externalAuthenticationRepository.GetOneAsync(x =>
+            x.ProviderSystemName == ProviderSystemName && x.CustomerId == customer.Id && x.ExternalIdentifier != sub);
+        if (otherLink != null)
+            return LinkedToOtherIdentity(customer, sub, otherLink);
+
+        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId);
+        if (other != null)
+            return LinkedToOtherIdentity(customer, sub, other);
+        if (linked?.Id != customer.Id)
+            return await Usable(linked, sub, storeId);
+
+        _logger.LogInformation("Access token subject {Subject} linked to existing customer {CustomerId} (store {StoreId})",
+            sub, customer.Id, storeId);
+        return result;
+    }
+
+    private async Task<OidcCustomerResult> Register(string sub, string email, string storeId)
+    {
+        if (!_config.AutoRegister)
+        {
+            _logger.LogWarning("Access token subject {Subject}: no customer matches and automatic registration is off", sub);
+            return OidcCustomerResult.Forbidden("No customer account matches the token");
+        }
+
+        var customerSettings = await _settingService.LoadSetting<CustomerSettings>(storeId);
+        if (customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
+        {
+            _logger.LogWarning("Access token subject {Subject}: registration is disabled in store {StoreId}", sub, storeId);
+            return OidcCustomerResult.Forbidden("Registration is disabled");
+        }
+
+        //a concurrent request may have registered this subject since the first lookup
+        var existing = await GetLink(sub, storeId);
+        if (existing != null)
+            return await Usable(await _customerService.GetCustomerById(existing.CustomerId), sub, storeId);
+
+        //the e-mail becomes the user name - another account may hold it as its user name without that e-mail
+        var normalizedEmail = email.ToLowerInvariant();
+        if (await _customerService.GetCustomerByUsername(normalizedEmail,
+                _customerConfig.RegisterCustomersPerStore ? storeId : "") != null)
+        {
+            _logger.LogWarning("Access token subject {Subject}: the user name is already taken in store {StoreId}", sub, storeId);
+            return OidcCustomerResult.Forbidden("The user name is already taken");
+        }
+
+        var customer = await _customerService.InsertGuestCustomer(new Customer {
+            CustomerGuid = Guid.NewGuid(),
+            Active = true,
+            StoreId = storeId,
+            LastActivityDateUtc = DateTime.UtcNow
+        });
+
+        //the provider verified the e-mail and access comes from permissions an admin grants, so the store's e-mail
+        //validation / admin approval does not apply; the account gets the Registered group only
+        await _customerManagerService.RegisterCustomer(new RegistrationRequest(customer, normalizedEmail,
+            normalizedEmail, CommonHelper.GenerateRandomDigitCode(20), PasswordFormat.Hashed, storeId));
+
+        var (linked, other) = await LinkOrGetWinner(customer, sub, email, storeId);
+        if (other != null || linked?.Id != customer.Id)
+        {
+            //lost the race: drop the account just created and use the one the winner linked
+            await _customerService.DeleteCustomer(customer, true);
+            return other != null ? LinkedToOtherIdentity(customer, sub, other) : await Usable(linked, sub, storeId);
+        }
+
+        //only after the link is stored, so the loser of a race sends no welcome message
+        await _mediator.Publish(new CustomerRegisteredEvent(customer));
+        _logger.LogInformation("Access token subject {Subject} registered as customer {CustomerId} (store {StoreId})",
+            sub, customer.Id, storeId);
+        return OidcCustomerResult.Success(customer);
+    }
+
+    /// <summary>
+    ///     The link of the subject usable in the store. With per-store identity: the link of the store, otherwise
+    ///     the link without a store (empty or, for older records, missing) unless its customer belongs to another
+    ///     store - such a link was stored before customers were registered per store and must not keep the
+    ///     subject from linking this store's customer; without per-store identity: any link.
+    ///     Subjects are case-sensitive - exact comparison.
+    /// </summary>
+    private async Task<ExternalAuthentication> GetLink(string sub, string storeId)
+    {
+        if (!_customerConfig.RegisterCustomersPerStore)
+            return await _externalAuthenticationRepository.GetOneAsync(x =>
+                x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub);
+
+        if (!string.IsNullOrEmpty(storeId))
+        {
+            var storeLink = await _externalAuthenticationRepository.GetOneAsync(x =>
+                x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub && x.StoreId == storeId);
+            if (storeLink != null)
+                return storeLink;
+        }
+
+        var globalLink = await _externalAuthenticationRepository.GetOneAsync(x =>
+            x.ProviderSystemName == ProviderSystemName && x.ExternalIdentifier == sub &&
+            (x.StoreId == null || x.StoreId == ""));
+        if (globalLink == null)
+            return null;
+
+        var linkedCustomer = await _customerService.GetCustomerById(globalLink.CustomerId);
+        if (linkedCustomer != null && !string.IsNullOrEmpty(linkedCustomer.StoreId) && linkedCustomer.StoreId != storeId)
+            return null;
+
+        return globalLink;
+    }
+
+    /// <summary>
+    ///     Store part of the link key: the customer's store with per-store identity, empty otherwise - never null,
+    ///     so the unique index sees one value for "no store"
+    /// </summary>
+    private string LinkStoreId(Customer customer) =>
+        _customerConfig.RegisterCustomersPerStore ? customer.StoreId ?? "" : "";
+
+    private OidcCustomerResult LinkedToOtherIdentity(Customer customer, string sub, ExternalAuthentication otherLink)
+    {
+        _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is already linked to subject {LinkedSubject}",
+            sub, customer.Id, otherLink.ExternalIdentifier);
+        return OidcCustomerResult.Forbidden("The customer account is linked to another identity");
+    }
+
+    /// <summary>
+    ///     Stores the link under the customer's <see cref="OidcLinkId" />. When a concurrent request stored a link
+    ///     first: the link of another subject now holding this customer (OtherLink), or the customer the subject's
+    ///     winning link points to (Customer). Rethrows when the insert failed for another reason.
+    /// </summary>
+    private async Task<(Customer Customer, ExternalAuthentication OtherLink)> LinkOrGetWinner(Customer customer,
+        string sub, string email, string storeId)
+    {
+        var linkId = OidcLinkId(customer.Id);
+        try
+        {
+            await _externalAuthenticationRepository.InsertAsync(new ExternalAuthentication {
+                Id = linkId,
+                CustomerId = customer.Id,
+                Email = email.ToLowerInvariant(),
+                ExternalIdentifier = sub,
+                ExternalDisplayIdentifier = email,
+                ProviderSystemName = ProviderSystemName,
+                StoreId = LinkStoreId(customer)
+            });
+            return (customer, null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation("Storing the identity link for subject {Subject} failed ({ExceptionType}); re-reading",
+                sub, ex.GetType().Name);
+            var customerLink = await _externalAuthenticationRepository.GetByIdAsync(linkId);
+            if (customerLink != null && customerLink.ExternalIdentifier != sub)
+                return (null, customerLink);
+            var winner = await GetLink(sub, storeId);
+            if (winner == null)
+                throw;
+            return (await _customerService.GetCustomerById(winner.CustomerId), null);
+        }
+    }
+
+    /// <summary>
+    ///     Identifier of a customer's OIDC link: the first 12 bytes of SHA-256 over "ExternalAuth.OpenIdConnect:" +
+    ///     customer id, as 24 lower-case hex characters (shaped like an ObjectId). Every OIDC link gets it, so the
+    ///     primary key lets one customer hold one OIDC link - on MongoDB and LiteDB, without an extra index and
+    ///     without restricting other providers. Lookups go by subject or customer (only a failed insert reads by
+    ///     this value), so links stored with a random identifier keep working.
+    /// </summary>
+    public static string OidcLinkId(string customerId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(customerId);
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(ProviderSystemName + ":" + customerId));
+        return Convert.ToHexStringLower(hash, 0, 12);
+    }
+
+    /// <summary>
+    ///     The checks every other login path applies: an active, registered, non-system account, and with per-store
+    ///     identity one of the request's store (or of no store)
+    /// </summary>
+    private async Task<OidcCustomerResult> Usable(Customer customer, string sub, string storeId)
+    {
+        if (customer == null)
+        {
+            _logger.LogWarning("Access token subject {Subject} is linked to a customer that no longer exists", sub);
+            return OidcCustomerResult.Forbidden("The customer account no longer exists");
+        }
+
+        if (!customer.Active || customer.Deleted)
+        {
+            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is inactive or deleted", sub, customer.Id);
+            return OidcCustomerResult.Forbidden("The customer account is inactive");
+        }
+
+        if (customer.IsSystemAccount() || !await _groupService.IsRegistered(customer))
+        {
+            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} is a system or non-registered account",
+                sub, customer.Id);
+            return OidcCustomerResult.Forbidden("The customer account cannot be used");
+        }
+
+        if (_customerConfig.RegisterCustomersPerStore && !string.IsNullOrEmpty(customer.StoreId) &&
+            customer.StoreId != storeId)
+        {
+            _logger.LogWarning("Access token subject {Subject}: customer {CustomerId} belongs to store {CustomerStoreId}, not {StoreId}",
+                sub, customer.Id, customer.StoreId, storeId);
+            return OidcCustomerResult.Forbidden("The account belongs to another store");
+        }
+
+        return OidcCustomerResult.Success(customer);
+    }
+
+    private async Task<bool> IsBackOfficeAccount(Customer customer) =>
+        !string.IsNullOrEmpty(customer.VendorId) || !string.IsNullOrEmpty(customer.StaffStoreId) ||
+        await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer);
+}
