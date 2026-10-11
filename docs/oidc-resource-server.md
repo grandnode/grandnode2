@@ -142,7 +142,9 @@ customer in this order.
 store, so one `sub` gets one link per store: the link records the store of the linked customer, and a request uses the
 link of its own store. In a store where the subject has no link yet, the rules above link (or register) that store's
 customer. A customer of no store, such as a back-office account, has one link without a store, and it works in every
-store. Without per-store identity a link has no store and is used in every store, as before.
+store. A link without a store to a customer of another store (stored while per-store identity was off) is ignored, so
+the store's own customer is linked next to it. Without per-store identity a link has no store and is used in every
+store.
 
 ### 3.2 Automatic registration
 
