@@ -24,7 +24,12 @@ public interface IOidcCustomerResolver
     Task<OidcLoginResult> ResolveForLogin(string sub, string email, bool emailVerified, string storeId);
 
     /// <summary>
-    ///     Stores the link between the provider subject and the customer (one subject per customer, one customer per subject)
+    ///     Stores the link between the provider subject and the customer (one subject per customer, one customer per subject;
+    ///     with per-store identity one customer per subject and store)
     /// </summary>
-    Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email);
+    /// <param name="customer">Customer to link</param>
+    /// <param name="sub">Subject of the provider identity</param>
+    /// <param name="email">E-mail of the provider identity</param>
+    /// <param name="storeId">Current store</param>
+    Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email, string storeId);
 }

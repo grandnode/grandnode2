@@ -34,4 +34,9 @@ public class ExternalAuthentication : BaseEntity
     ///     Gets or sets the provider
     /// </summary>
     public string ProviderSystemName { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the store of the linked customer when customers are registered per store; empty otherwise
+    /// </summary>
+    public string StoreId { get; set; }
 }
