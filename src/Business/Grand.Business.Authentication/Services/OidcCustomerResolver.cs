@@ -1,4 +1,5 @@
 using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -451,7 +452,6 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     private async Task<bool> RequiresPassword(Customer customer, string storeId) =>
         await IsBackOfficeAccount(customer) || await HasTwoFactor(customer, storeId);
 
-    private async Task<bool> IsBackOfficeAccount(Customer customer) =>
-        !string.IsNullOrEmpty(customer.VendorId) || !string.IsNullOrEmpty(customer.StaffStoreId) ||
-        await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer);
+    private Task<bool> IsBackOfficeAccount(Customer customer) =>
+        _permissionService.IsBackOfficeAccount(customer);
 }

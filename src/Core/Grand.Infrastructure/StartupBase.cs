@@ -222,6 +222,7 @@ public static class StartupBase
         services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
         services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
         services.StartupConfig<OidcResourceServerConfig>(configuration.GetSection("OidcResourceServer"));
+        services.StartupConfig<OidcLoginConfig>(configuration.GetSection("OidcLogin"));
         services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
         services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
         services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
