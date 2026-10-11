@@ -13,11 +13,11 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Microsoft.AspNetCore.Authorization;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
-using Wangkanai.Detection.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Common;
 
@@ -32,7 +32,6 @@ public class WorkContextSetter : IWorkContextSetter
     private readonly IGrandAuthenticationService _authenticationService;
     private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
-    private readonly IGroupService _groupService;
     private readonly ILanguageService _languageService;
     private readonly IStoreService _storeService;
     private readonly IAclService _aclService;
@@ -40,6 +39,8 @@ public class WorkContextSetter : IWorkContextSetter
 
     private readonly TaxSettings _taxSettings;
     private readonly AppConfig _config;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<WorkContextSetter> _logger;
 
     private Customer _originalCustomerIfImpersonated;
 
@@ -51,25 +52,27 @@ public class WorkContextSetter : IWorkContextSetter
         IGrandAuthenticationService authenticationService,
         ICurrencyService currencyService,
         ICustomerService customerService,
-        IGroupService groupService,
         ILanguageService languageService,
         IStoreService storeService,
         IAclService aclService,
         IVendorService vendorService,
         TaxSettings taxSettings,
-        AppConfig config)
+        AppConfig config,
+        IServiceProvider serviceProvider,
+        ILogger<WorkContextSetter> logger)
     {
         _httpContextAccessor = httpContextAccessor;
         _authenticationService = authenticationService;
         _currencyService = currencyService;
         _customerService = customerService;
-        _groupService = groupService;
         _languageService = languageService;
         _storeService = storeService;
         _aclService = aclService;
         _vendorService = vendorService;
         _taxSettings = taxSettings;
         _config = config;
+        _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     #endregion
@@ -130,15 +133,6 @@ public class WorkContextSetter : IWorkContextSetter
         return requestLanguage;
     }
 
-    protected virtual async Task<Customer> OriginalCustomerIfImpersonated(Customer customer)
-    {
-        var impersonatedCustomerId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
-        if (string.IsNullOrEmpty(impersonatedCustomerId)) return null;
-        var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
-        if (impersonatedCustomer is not { Deleted: false, Active: true }) return null;
-        return impersonatedCustomer;
-    }
-
 
     #endregion
 
@@ -171,25 +165,48 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = await GetBackgroundTaskCustomer();
         if (customer != null) return customer;
 
-        customer = await GetAllowAnonymousCustomer();
-        if (customer != null) return customer;
+        //resolved here, not injected: a scope without a request (background task) must not build them
+        var resolvers = _serviceProvider.GetServices<IRequestCustomerResolver>().OrderBy(x => x.Order);
+        foreach (var resolver in resolvers)
+        {
+            customer = await ResolveCustomer(resolver);
+            if (customer == null) continue;
 
-        customer = await GetCookieAuthenticatedCustomer();
-        if (customer != null) return customer;
+            //resolvers come from plugins too: a deleted or deactivated account never becomes the current customer
+            if (!customer.IsSystemAccount && customer is not { Deleted: false, Active: true })
+            {
+                _logger.LogWarning("Request customer resolver {Resolver} returned an inactive or deleted customer {CustomerId}; the next resolver is asked",
+                    resolver.GetType().FullName, customer.Id);
+                continue;
+            }
 
-        customer = await GetGuestCustomer();
-        if (customer != null) return customer;
+            //impersonation belongs to the signed-in admin only, never to a plugin's identity
+            if (resolver is not CookieCustomerResolver) return customer;
 
-        customer = await GetSearchEngineCustomer();
-        if (customer != null) return customer;
+            var impersonatedCustomer = await ImpersonatedCustomer(customer);
+            if (impersonatedCustomer == null) return customer;
 
-        customer = await GetApiUserCustomer();
-        if (customer != null) return customer;
+            _originalCustomerIfImpersonated = customer;
+            return impersonatedCustomer;
+        }
 
         //create guest if not exists
-        customer = await CreateCustomerGuest(store);
+        return await CreateCustomerGuest(store);
+    }
 
-        return customer;
+    private async Task<Customer> ResolveCustomer(IRequestCustomerResolver resolver)
+    {
+        try
+        {
+            return await resolver.Resolve();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            //one failing resolver (a plugin's identity provider down) must not fail every request, admin login included
+            _logger.LogError(ex, "Request customer resolver {Resolver} failed; the next resolver is asked",
+                resolver.GetType().FullName);
+            return null;
+        }
     }
 
     private async Task<Customer> GetBackgroundTaskCustomer()
@@ -197,55 +214,6 @@ public class WorkContextSetter : IWorkContextSetter
         if (_httpContextAccessor.HttpContext != null) return null;
 
         return await _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
-    }
-
-    private async Task<Customer> GetAllowAnonymousCustomer()
-    {
-        var endpoint = _httpContextAccessor.HttpContext?.GetEndpoint();
-        if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() == null) return null;
-
-        return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
-    }
-
-    private async Task<Customer> GetCookieAuthenticatedCustomer()
-    {
-        var customer = await _authenticationService.GetAuthenticatedCustomer();
-        if (customer == null) return null;
-
-        var impersonatedCustomer = await ImpersonatedCustomer(customer);
-        if (impersonatedCustomer != null)
-        {
-            _originalCustomerIfImpersonated = customer;
-            return impersonatedCustomer;
-        }
-        return customer;
-    }
-
-    private async Task<Customer> GetApiUserCustomer()
-    {
-        var apiAuthenticationService = _httpContextAccessor.HttpContext.RequestServices.GetService<IApiAuthenticationService>();
-        return await apiAuthenticationService.GetAuthenticatedCustomer();
-    }
-
-    private async Task<Customer> GetSearchEngineCustomer()
-    {
-        var detectionService = _httpContextAccessor.HttpContext.RequestServices.GetService<IDetectionService>();
-        var isCrawler = detectionService.Crawler?.IsCrawler;
-        if (!isCrawler.GetValueOrDefault()) return null;
-
-        return await _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
-    }
-
-    private async Task<Customer> GetGuestCustomer()
-    {
-        var guid = await _authenticationService.GetCustomerGuid();
-        if (string.IsNullOrEmpty(guid) || !Guid.TryParse(guid, out var customerGuid)) return null;
-
-        var customerByGuid = await _customerService.GetCustomerByGuid(customerGuid);
-        if (customerByGuid is { Deleted: false, Active: true } && !await _groupService.IsRegistered(customerByGuid))
-            return customerByGuid;
-
-        return null;
     }
 
     private async Task<Customer> CreateCustomerGuest(Store store)

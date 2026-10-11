@@ -13,6 +13,7 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Menu;
 using Grand.Web.Common.Middleware;
 using Grand.Web.Common.Page;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Routing;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.TagHelpers;
@@ -85,6 +86,7 @@ public class StartupApplication : IStartupApplication
         //work context
         serviceCollection.AddSingleton<IContextAccessor, ContextAccessor>();
         serviceCollection.AddScoped<IWorkContextSetter, WorkContextSetter>();
+        serviceCollection.AddRequestCustomerResolvers();
         serviceCollection.AddScoped<IStoreContextSetter, StoreContextSetter>();
         serviceCollection.AddScoped<IAdminStoreService, AdminStoreService>();
         //View factory
