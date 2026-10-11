@@ -58,6 +58,11 @@ public class ApiAuthenticationService : IApiAuthenticationService
         if (!authenticateResult.Succeeded)
             return null;
 
+        //only a ticket of the Bearer scheme itself carries claims GrandNode signed with its SecretKey; a result the
+        //scheme forwarded (a provider token handed to the Oidc scheme) names its customer through the OIDC link
+        if (authenticateResult.Ticket?.AuthenticationScheme != JwtBearerDefaults.AuthenticationScheme)
+            return null;
+
         //prefer the stable customer id (unambiguous with per-store identity), fall back to e-mail for old tokens
         var customerIdClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "CustomerId");
         if (customerIdClaim != null)

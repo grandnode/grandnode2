@@ -237,6 +237,25 @@ public class ApiAuthenticationServiceTests
         Assert.AreSame(customer, result);
     }
 
+    [TestMethod]
+    public async Task GetAuthenticatedCustomer_BearerForwardedToOidc_ReturnsNull()
+    {
+        //a provider token the Bearer scheme forwards to the Oidc scheme: its CustomerId claim was not issued by GrandNode
+        var customer = new Customer { Id = "c1", Active = true };
+        _customerService.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(customer);
+        _groupService.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        var context = CreateHttpContext(b => b
+            .AddScheme<AuthenticationSchemeOptions, OkHandler>(JwtBearerDefaults.AuthenticationScheme,
+                o => o.ForwardDefault = "Oidc")
+            .AddScheme<AuthenticationSchemeOptions, OkHandler>("Oidc", null));
+
+        var result = await CreateService(context).GetAuthenticatedCustomer();
+
+        Assert.IsNull(result);
+        _customerService.Verify(c => c.GetCustomerById(It.IsAny<string>()), Times.Never);
+        _customerService.Verify(c => c.GetCustomerByEmail(It.IsAny<string>()), Times.Never);
+    }
+
     private class OkHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         public OkHandler(Microsoft.Extensions.Options.IOptionsMonitor<AuthenticationSchemeOptions> options,
