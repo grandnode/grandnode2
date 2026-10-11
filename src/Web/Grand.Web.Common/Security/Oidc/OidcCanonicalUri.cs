@@ -1,3 +1,4 @@
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
@@ -10,15 +11,15 @@ namespace Grand.Web.Common.Security.Oidc;
 /// </summary>
 public static class OidcCanonicalUri
 {
-    private const string StoreBaseUrlItemKey = "Grand.Oidc.StoreBaseUrl";
+    private const string StoreItemKey = "Grand.Oidc.Store";
 
     /// <summary>
-    ///     Normalized URL of the store resolved for the request; never taken from the client-controlled Host header
+    ///     The store resolved for the request, once per request; null when none can be resolved
     /// </summary>
-    public static async Task<string> StoreBaseUrl(HttpContext context)
+    public static async Task<Store> RequestStore(HttpContext context)
     {
-        if (context.Items.TryGetValue(StoreBaseUrlItemKey, out var cached))
-            return cached as string;
+        if (context.Items.TryGetValue(StoreItemKey, out var cached))
+            return cached as Store;
 
         var store = context.RequestServices.GetService<IContextAccessor>()?.StoreContext?.CurrentStore;
         if (store == null)
@@ -28,9 +29,17 @@ public static class OidcCanonicalUri
             store = storeContext?.CurrentStore;
         }
 
-        var baseUrl = string.IsNullOrWhiteSpace(store?.Url) ? null : Normalize(store.Url.Trim());
-        context.Items[StoreBaseUrlItemKey] = baseUrl;
-        return baseUrl;
+        context.Items[StoreItemKey] = store;
+        return store;
+    }
+
+    /// <summary>
+    ///     Normalized URL of the store resolved for the request; never taken from the client-controlled Host header
+    /// </summary>
+    public static async Task<string> StoreBaseUrl(HttpContext context)
+    {
+        var store = await RequestStore(context);
+        return string.IsNullOrWhiteSpace(store?.Url) ? null : Normalize(store.Url.Trim());
     }
 
     /// <param name="resource">Protected resource</param>

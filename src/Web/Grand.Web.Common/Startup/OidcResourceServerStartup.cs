@@ -20,6 +20,8 @@ public class OidcResourceServerStartup : IStartupApplication
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IOidcProtectedResourceRegistry, OidcProtectedResourceRegistry>();
+        services.AddScoped<OidcResourceAccess>();
+        services.AddScoped<IRequestCustomerResolver, OidcRequestCustomerResolver>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

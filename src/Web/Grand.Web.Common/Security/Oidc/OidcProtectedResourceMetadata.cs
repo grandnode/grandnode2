@@ -16,7 +16,8 @@ public static class OidcProtectedResourceMetadata
 
     public static void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet(WellKnownPath, (HttpContext context) => Document(context, null)).AllowAnonymous();
+        //typed as Func<..., Task<IResult>>: a lambda alone binds to RequestDelegate and the result is discarded
+        endpoints.MapGet(WellKnownPath, (Func<HttpContext, Task<IResult>>)(context => Document(context, null))).AllowAnonymous();
         endpoints.MapGet(WellKnownPath + "/{**path}", async (HttpContext context, string path) =>
         {
             var registry = context.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();

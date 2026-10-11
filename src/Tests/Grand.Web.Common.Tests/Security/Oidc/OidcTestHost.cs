@@ -1,3 +1,9 @@
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Authentication;
+using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -86,6 +92,18 @@ public sealed class OidcTestHost : IAsyncDisposable
                 services?.Invoke(s);
                 s.AddProblemDetails();
                 s.TryAddSingleton(StoreContextSetter("http://localhost/"));
+                //defaults for what the Oidc events need; a test registers its own mock before these to override
+                var defaultResolver = new Mock<IOidcCustomerResolver>();
+                defaultResolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
+                    .ReturnsAsync(OidcCustomerResult.Success(new Customer { Id = "c1", Active = true }));
+                s.TryAddSingleton(defaultResolver.Object);
+                var permissions = new Mock<IPermissionService>();
+                permissions.Setup(x => x.Authorize(It.IsAny<Permission>(), It.IsAny<Customer>())).ReturnsAsync(true);
+                s.TryAddSingleton(permissions.Object);
+                s.TryAddSingleton(new Mock<IGroupService>().Object);
+                s.TryAddScoped<OidcResourceAccess>();
+                s.AddHttpContextAccessor();
+                s.TryAddScoped<IRequestCustomerResolver, OidcRequestCustomerResolver>();
                 var builder = s.AddAuthentication();
                 auth?.Invoke(builder);
                 builder.AddOidcResourceServer(config, o =>

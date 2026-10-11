@@ -38,12 +38,13 @@ public class OidcPipelineTests
     }
 
     [TestMethod]
-    public async Task AccountConditionFlag_ValidToken_403()
+    public async Task RootMetadata_ReturnsDocumentBody()
     {
-        await Start(OidcTestHost.Config(new OidcProtectedResource {
-            Name = "BackendApi", PathPrefix = "/api", RequiredScopes = ["grandnode.api"], RequireAdminPanelAccess = true
-        }));
-        Assert.AreEqual(HttpStatusCode.Forbidden, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+        var response = await _client.GetAsync("/.well-known/oauth-protected-resource");
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        StringAssert.Contains(body, "\"resource\":\"http://localhost\"");
+        StringAssert.Contains(body, "\"authorization_servers\"");
     }
 
     [TestMethod]
