@@ -66,7 +66,7 @@ public class OidcCustomerPipelineTests
     [TestMethod]
     public async Task ValidToken_CustomerInItems_StoreFromHost()
     {
-        var response = await Get("/api/whoami", OidcTestHost.Token());
+        using var response = await Get("/api/whoami", OidcTestHost.Token());
         Assert.AreEqual("c1", await response.Content.ReadAsStringAsync());
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), "store1"), Times.Once);
     }
@@ -76,7 +76,7 @@ public class OidcCustomerPipelineTests
     {
         _resolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
             .ReturnsAsync(OidcCustomerResult.InvalidToken("The e-mail address in the token is not verified"));
-        var response = await Get("/api/whoami", OidcTestHost.Token());
+        using var response = await Get("/api/whoami", OidcTestHost.Token());
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "not verified");
     }
@@ -86,7 +86,7 @@ public class OidcCustomerPipelineTests
     {
         _resolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
             .ReturnsAsync(OidcCustomerResult.Forbidden("The customer account is inactive"));
-        var response = await Get("/api/whoami", OidcTestHost.Token());
+        using var response = await Get("/api/whoami", OidcTestHost.Token());
         Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.AreEqual(0, response.Headers.WwwAuthenticate.Count);
     }
@@ -94,7 +94,8 @@ public class OidcCustomerPipelineTests
     [TestMethod]
     public async Task MissingScope_ResolverNeverCalled()
     {
-        Assert.AreEqual(HttpStatusCode.Forbidden, (await Get("/api/whoami", OidcTestHost.Token(scope: "openid"))).StatusCode);
+        using var response = await Get("/api/whoami", OidcTestHost.Token(scope: "openid"));
+        Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -105,7 +106,8 @@ public class OidcCustomerPipelineTests
         await Start(OidcTestHost.Config(new OidcProtectedResource {
             Name = "BackendApi", PathPrefix = "/api", RequireAdminPanelAccess = true
         }));
-        Assert.AreEqual(HttpStatusCode.Forbidden, (await Get("/api/whoami", OidcTestHost.Token())).StatusCode);
+        using var response = await Get("/api/whoami", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [TestMethod]
@@ -114,13 +116,16 @@ public class OidcCustomerPipelineTests
         _resolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
             .ReturnsAsync(OidcCustomerResult.Success(new Customer { Id = "v", Active = true, VendorId = "vendor-1" }));
         await Start(OidcTestHost.Config(new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api", DenyVendors = true }));
-        Assert.AreEqual(HttpStatusCode.Forbidden, (await Get("/api/whoami", OidcTestHost.Token())).StatusCode);
+        using var response = await Get("/api/whoami", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [TestMethod]
     public async Task RequestCustomerResolver_WithAndWithoutToken()
     {
-        Assert.AreEqual("c1", await (await Get("/api/plain", OidcTestHost.Token())).Content.ReadAsStringAsync());
-        Assert.AreEqual("none", await (await Get("/api/plain")).Content.ReadAsStringAsync());
+        using var withToken = await Get("/api/plain", OidcTestHost.Token());
+        Assert.AreEqual("c1", await withToken.Content.ReadAsStringAsync());
+        using var withoutToken = await Get("/api/plain");
+        Assert.AreEqual("none", await withoutToken.Content.ReadAsStringAsync());
     }
 }

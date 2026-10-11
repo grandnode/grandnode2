@@ -14,7 +14,8 @@ public static class OidcCanonicalUri
     private const string StoreItemKey = "Grand.Oidc.Store";
 
     /// <summary>
-    ///     The store serving the request host (<see cref="IStoreService.GetStoreByHost" /> on Request.Host); when no
+    ///     The store serving the request host (<see cref="IStoreService.GetStoreByHost" /> on Request.Host with its
+    ///     port, then without it); when no
     ///     store lists the host, the only store of a single-store installation, otherwise null. Resolved once per
     ///     request. The store cookie and the ambient store context are never used: they can name another store than
     ///     the one whose host the request reached, and a token issued for that store would then pass the audience check.
@@ -25,8 +26,11 @@ public static class OidcCanonicalUri
             return cached as Store;
 
         var storeService = context.RequestServices.GetRequiredService<IStoreService>();
-        var host = context.Request.Host.Host;
-        var store = string.IsNullOrEmpty(host) ? null : await storeService.GetStoreByHost(host);
+        //host:port first (the installer seeds HostName with the port of the install request), then the host alone
+        var host = context.Request.Host;
+        var store = string.IsNullOrEmpty(host.Value) ? null : await storeService.GetStoreByHost(host.Value);
+        if (store == null && host.Port.HasValue && !string.IsNullOrEmpty(host.Host))
+            store = await storeService.GetStoreByHost(host.Host);
         if (store == null)
         {
             var stores = await storeService.GetAllStores();
