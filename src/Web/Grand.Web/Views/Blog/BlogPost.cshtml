@@ -22,7 +22,7 @@
 <div class="page blogpost-page" vue-island="blog">
     @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_top", additionalData = Model.Id })
     <div class="card mt-3">
-        <div class="card-header">
+        <div class="card-header" v-pre>
             @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
             {
                 <img class="img-fluid mb-3" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" loading="lazy">
