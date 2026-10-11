@@ -81,7 +81,8 @@ public class OidcChallengeWriterTests
         Assert.IsFalse(context.Response.Headers.ContainsKey("WWW-Authenticate"));
         StringAssert.StartsWith(context.Response.ContentType, "application/problem+json");
         context.Response.Body.Position = 0;
-        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        using var reader = new StreamReader(context.Response.Body);
+        var body = await reader.ReadToEndAsync();
         StringAssert.Contains(body, "\"status\":503");
         StringAssert.Contains(body, "\"title\":\"Service unavailable\"");
     }
