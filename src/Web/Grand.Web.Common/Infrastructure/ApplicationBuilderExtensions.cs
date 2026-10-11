@@ -4,6 +4,7 @@ using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Middleware;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -125,6 +126,8 @@ public static class ApplicationBuilderExtensions
     {
         application.UseAuthentication();
         application.UseAuthorization();
+        //before ContextMiddleware: a validated access token pins the store of the request
+        application.UseMiddleware<OidcAuthenticationMiddleware>();
     }
 
     /// <summary>
