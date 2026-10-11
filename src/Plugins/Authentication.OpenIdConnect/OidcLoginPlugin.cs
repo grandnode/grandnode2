@@ -29,6 +29,8 @@ public class OidcLoginPlugin(
             "Your account is not active yet. Use the activation link from the e-mail or wait for approval."),
         ("Failed.RegistrationDisabled", "New accounts cannot be registered in this store."),
         ("Failed.LinkedToOtherIdentity", "This account is already connected to another identity provider account."),
+        ("Failed.IdentityLinkedToOtherAccount",
+            "Your identity provider account is already connected to another account in this store. Nothing was connected."),
         ("DisplayOrder", "Display order"),
         ("ClientId", "Client ID"),
         ("ClientSecret", "Client secret"),
