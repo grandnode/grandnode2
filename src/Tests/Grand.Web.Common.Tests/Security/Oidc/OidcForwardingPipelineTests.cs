@@ -80,7 +80,7 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task IdpToken_OnBearerEndpoint_200()
     {
-        var response = await Get("/api/legacy", OidcTestHost.Token());
+        using var response = await Get("/api/legacy", OidcTestHost.Token());
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("sub-1", await response.Content.ReadAsStringAsync());
     }
@@ -88,7 +88,7 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task LegacySecretKeyToken_200()
     {
-        var response = await Get("/api/legacy", LegacyToken());
+        using var response = await Get("/api/legacy", LegacyToken());
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("admin@example.com", await response.Content.ReadAsStringAsync());
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
@@ -97,21 +97,21 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task IdpToken_OnBearerEndpoint_StorePinned()
     {
-        var response = await Get("/api/legacy/store", OidcTestHost.Token());
+        using var response = await Get("/api/legacy/store", OidcTestHost.Token());
         Assert.AreEqual("store1", await response.Content.ReadAsStringAsync());
     }
 
     [TestMethod]
     public async Task LegacySecretKeyToken_StoreNotPinned()
     {
-        var response = await Get("/api/legacy/store", LegacyToken());
+        using var response = await Get("/api/legacy/store", LegacyToken());
         Assert.AreEqual("none", await response.Content.ReadAsStringAsync());
     }
 
     [TestMethod]
     public async Task LegacySecretKeyToken_RequestCustomerResolver_NotOidc()
     {
-        var response = await Get("/api/plain", LegacyToken());
+        using var response = await Get("/api/plain", LegacyToken());
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("none", await response.Content.ReadAsStringAsync());
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
@@ -120,7 +120,7 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task NoToken_OnBearerEndpoint_401_OidcChallenge()
     {
-        var response = await Get("/api/legacy");
+        using var response = await Get("/api/legacy");
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "resource_metadata");
     }
@@ -128,7 +128,7 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task ThreeSegmentNonJwt_OnBearerEndpoint_401_OidcChallenge()
     {
-        var response = await Get("/api/legacy", "x.y.z");
+        using var response = await Get("/api/legacy", "x.y.z");
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "resource_metadata");
     }
@@ -136,14 +136,15 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task ForgedIssuer_WrongKey_401()
     {
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/legacy", OidcTestHost.Token(key: OidcTestHost.ForeignKey))).StatusCode);
+        using var response = await Get("/api/legacy", OidcTestHost.Token(key: OidcTestHost.ForeignKey));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
     public async Task IdpToken_ForbidResult_403_NoError_Never500()
     {
-        var response = await Get("/api/forbid", OidcTestHost.Token());
+        using var response = await Get("/api/forbid", OidcTestHost.Token());
         Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.IsFalse(response.Headers.WwwAuthenticate.ToString().Contains("error="), response.Headers.WwwAuthenticate.ToString());
     }
@@ -151,7 +152,7 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task IdpSignedToken_OtherIssuer_401_InvalidToken_ResolverNotCalled()
     {
-        var response = await Get("/api/legacy", OidcTestHost.Token(issuer: "https://other.example.com"));
+        using var response = await Get("/api/legacy", OidcTestHost.Token(issuer: "https://other.example.com"));
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "error=\"invalid_token\"");
         StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "issuer");
@@ -161,8 +162,11 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     [DataRow("garbage")]
     [DataRow("")]
-    public async Task Malformed_401_Never500(string token) =>
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/legacy", token)).StatusCode);
+    public async Task Malformed_401_Never500(string token)
+    {
+        using var response = await Get("/api/legacy", token);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 
     [TestMethod]
     public async Task Disabled_IdpTokenRejected_LegacyAccepted()
@@ -171,8 +175,10 @@ public class OidcForwardingPipelineTests
         config.Enabled = false;
         await Start(config);
 
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/legacy", OidcTestHost.Token())).StatusCode);
-        Assert.AreEqual(HttpStatusCode.OK, (await Get("/api/legacy", LegacyToken())).StatusCode);
+        using var idpToken = await Get("/api/legacy", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Unauthorized, idpToken.StatusCode);
+        using var legacyToken = await Get("/api/legacy", LegacyToken());
+        Assert.AreEqual(HttpStatusCode.OK, legacyToken.StatusCode);
     }
 
     private static string Unsigned(string payloadJson)
@@ -200,7 +206,7 @@ public class OidcForwardingPipelineTests
     [TestMethod]
     public async Task Anonymous_PlainEndpoint_NoChallenge_ResolverNotCalled()
     {
-        var response = await Get("/api/plain");
+        using var response = await Get("/api/plain");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("none", await response.Content.ReadAsStringAsync());
         _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
