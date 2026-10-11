@@ -15,7 +15,7 @@ public class ContextMiddleware
 
     //anonymous endpoints that need neither store nor customer: a cookieless request would otherwise insert a guest
     private readonly List<string> skipRoutePattern = [
-        "/scalar/{documentName}", "/openapi/{documentName}.json", "install", OidcProtectedResourceMetadata.WellKnownPath
+        "/scalar/{documentName}", "/openapi/{documentName}.json", "install"
     ];
 
     #endregion
@@ -49,7 +49,8 @@ public class ContextMiddleware
         if (endpoint != null)
         {
             var routePattern = (endpoint as RouteEndpoint)?.RoutePattern.RawText;
-            if (routePattern != null && skipRoutePattern.Any(pattern => routePattern.StartsWith(pattern, StringComparison.OrdinalIgnoreCase)))
+            if (routePattern != null && (skipRoutePattern.Any(pattern => routePattern.StartsWith(pattern, StringComparison.OrdinalIgnoreCase)) ||
+                                         IsProtectedResourceMetadata(routePattern)))
             {
                 await _next(context);
                 return;
@@ -66,6 +67,11 @@ public class ContextMiddleware
         //call the next middleware in the request pipeline
         await _next(context);
     }
+
+    //the metadata route and its sub-paths only, not a route that merely starts with the same characters
+    private static bool IsProtectedResourceMetadata(string routePattern) =>
+        routePattern.Equals(OidcProtectedResourceMetadata.WellKnownPath, StringComparison.OrdinalIgnoreCase) ||
+        routePattern.StartsWith(OidcProtectedResourceMetadata.WellKnownPath + "/", StringComparison.OrdinalIgnoreCase);
 
     #endregion
 }

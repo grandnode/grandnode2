@@ -43,7 +43,7 @@ public class OidcPipelineTests
     [TestMethod]
     public async Task RootMetadata_ReturnsDocumentBody()
     {
-        var response = await _client.GetAsync("/.well-known/oauth-protected-resource");
+        using var response = await _client.GetAsync("/.well-known/oauth-protected-resource");
         var body = await response.Content.ReadAsStringAsync();
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         StringAssert.Contains(body, "\"resource\":\"http://localhost\"");
@@ -56,8 +56,10 @@ public class OidcPipelineTests
         var config = OidcTestHost.Config();
         config.Enabled = false;
         await Start(config);
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping")).StatusCode);
+        using var withToken = await Get("/api/ping", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Unauthorized, withToken.StatusCode);
+        using var withoutToken = await Get("/api/ping");
+        Assert.AreEqual(HttpStatusCode.Unauthorized, withoutToken.StatusCode);
     }
 
     private Task<HttpResponseMessage> Get(string path, string token = null, string scheme = "Bearer") =>
@@ -66,7 +68,7 @@ public class OidcPipelineTests
     [TestMethod]
     public async Task ValidToken_200()
     {
-        var response = await Get("/api/ping", OidcTestHost.Token());
+        using var response = await Get("/api/ping", OidcTestHost.Token());
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("sub-1", await response.Content.ReadAsStringAsync());
     }
@@ -74,7 +76,7 @@ public class OidcPipelineTests
     [TestMethod]
     public async Task NoToken_401_AdvertisesMetadataAndScope()
     {
-        var response = await Get("/api/ping");
+        using var response = await Get("/api/ping");
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.AreEqual("Bearer resource_metadata=\"http://localhost/.well-known/oauth-protected-resource/api\", scope=\"grandnode.api\"",
             response.Headers.WwwAuthenticate.ToString());
@@ -83,7 +85,7 @@ public class OidcPipelineTests
     [TestMethod]
     public async Task WrongAudience_401()
     {
-        var response = await Get("/api/ping", OidcTestHost.Token(audience: "http://localhost/other"));
+        using var response = await Get("/api/ping", OidcTestHost.Token(audience: "http://localhost/other"));
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "another audience");
     }
@@ -92,21 +94,24 @@ public class OidcPipelineTests
     public async Task ConfiguredAudience_200()
     {
         await Start(OidcTestHost.Config(new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api", Audiences = ["318274561"] }));
-        Assert.AreEqual(HttpStatusCode.OK, (await Get("/api/ping", OidcTestHost.Token(audience: "318274561"))).StatusCode);
+        using var response = await Get("/api/ping", OidcTestHost.Token(audience: "318274561"));
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
     [TestMethod]
     public async Task AuthorizedParty_Enforced()
     {
         await Start(OidcTestHost.Config(new OidcProtectedResource { Name = "BackendApi", PathPrefix = "/api", AuthorizedParties = ["cli"] }));
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token(extra: new Claim("azp", "other")))).StatusCode);
-        Assert.AreEqual(HttpStatusCode.OK, (await Get("/api/ping", OidcTestHost.Token(extra: new Claim("azp", "cli")))).StatusCode);
+        using var otherParty = await Get("/api/ping", OidcTestHost.Token(extra: new Claim("azp", "other")));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, otherParty.StatusCode);
+        using var allowedParty = await Get("/api/ping", OidcTestHost.Token(extra: new Claim("azp", "cli")));
+        Assert.AreEqual(HttpStatusCode.OK, allowedParty.StatusCode);
     }
 
     [TestMethod]
     public async Task MissingScope_403_InsufficientScope()
     {
-        var response = await Get("/api/ping", OidcTestHost.Token(scope: "openid"));
+        using var response = await Get("/api/ping", OidcTestHost.Token(scope: "openid"));
         Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
         var header = response.Headers.WwwAuthenticate.ToString();
         StringAssert.Contains(header, "error=\"insufficient_scope\"");
@@ -115,21 +120,33 @@ public class OidcPipelineTests
     }
 
     [TestMethod]
-    public async Task ForgedSignature_401() =>
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token(key: OidcTestHost.ForeignKey))).StatusCode);
+    public async Task ForgedSignature_401()
+    {
+        using var response = await Get("/api/ping", OidcTestHost.Token(key: OidcTestHost.ForeignKey));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 
     [TestMethod]
-    public async Task OtherIssuer_401() =>
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token(issuer: "https://evil.test"))).StatusCode);
+    public async Task OtherIssuer_401()
+    {
+        using var response = await Get("/api/ping", OidcTestHost.Token(issuer: "https://evil.test"));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 
     [TestMethod]
-    public async Task Expired_401() =>
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token(expires: DateTime.UtcNow.AddMinutes(-5)))).StatusCode);
+    public async Task Expired_401()
+    {
+        using var response = await Get("/api/ping", OidcTestHost.Token(expires: DateTime.UtcNow.AddMinutes(-5)));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 
     [TestMethod]
-    public async Task Hmac_401() =>
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token(
-            key: new SymmetricSecurityKey(Encoding.ASCII.GetBytes(new string('k', 40))), algorithm: SecurityAlgorithms.HmacSha256))).StatusCode);
+    public async Task Hmac_401()
+    {
+        using var response = await Get("/api/ping", OidcTestHost.Token(
+            key: new SymmetricSecurityKey(Encoding.ASCII.GetBytes(new string('k', 40))), algorithm: SecurityAlgorithms.HmacSha256));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 
     [TestMethod]
     public async Task Unsigned_401()
@@ -137,27 +154,36 @@ public class OidcPipelineTests
         var header = Base64UrlEncoder.Encode("{\"alg\":\"none\",\"typ\":\"JWT\"}");
         var payload = Base64UrlEncoder.Encode(
             $"{{\"iss\":\"{OidcTestHost.Issuer}\",\"aud\":\"http://localhost/api\",\"sub\":\"sub-1\",\"scope\":\"grandnode.api\",\"exp\":{DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds()}}}");
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", $"{header}.{payload}.")).StatusCode);
+        using var response = await Get("/api/ping", $"{header}.{payload}.");
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow("garbage", "Bearer")]
     [DataRow("dXNlcjpwYXNz", "Basic")]
-    public async Task Malformed_401_Never500(string token, string scheme) =>
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", token, scheme)).StatusCode);
+    public async Task Malformed_401_Never500(string token, string scheme)
+    {
+        using var response = await Get("/api/ping", token, scheme);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 
     [TestMethod]
-    public async Task OidcEndpointOutsideAnyResource_401() =>
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/other/ping", OidcTestHost.Token(audience: "http://localhost/other"))).StatusCode);
+    public async Task OidcEndpointOutsideAnyResource_401()
+    {
+        using var response = await Get("/other/ping", OidcTestHost.Token(audience: "http://localhost/other"));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 
     [TestMethod]
     public async Task Metadata_ServedAnd404ForUnknown()
     {
-        var response = await _client.GetAsync("/.well-known/oauth-protected-resource/api");
+        using var response = await _client.GetAsync("/.well-known/oauth-protected-resource/api");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         StringAssert.Contains(await response.Content.ReadAsStringAsync(), "\"resource\":\"http://localhost/api\"");
-        Assert.AreEqual(HttpStatusCode.OK, (await _client.GetAsync("/.well-known/oauth-protected-resource")).StatusCode);
-        Assert.AreEqual(HttpStatusCode.NotFound, (await _client.GetAsync("/.well-known/oauth-protected-resource/other")).StatusCode);
+        using var root = await _client.GetAsync("/.well-known/oauth-protected-resource");
+        Assert.AreEqual(HttpStatusCode.OK, root.StatusCode);
+        using var unknown = await _client.GetAsync("/.well-known/oauth-protected-resource/other");
+        Assert.AreEqual(HttpStatusCode.NotFound, unknown.StatusCode);
     }
 
     private async Task<string> MetadataResource(string path, string host = null)
@@ -176,7 +202,8 @@ public class OidcPipelineTests
         await Start(OidcTestHost.Config(new OidcProtectedResource {
             Name = "BackendApi", PathPrefix = "/api", Resource = "https://api.x.test/v1", RequiredScopes = ["grandnode.api"]
         }));
-        StringAssert.Contains((await Get("/api/ping")).Headers.WwwAuthenticate.ToString(),
+        using var challenge = await Get("/api/ping");
+        StringAssert.Contains(challenge.Headers.WwwAuthenticate.ToString(),
             "resource_metadata=\"https://api.x.test/.well-known/oauth-protected-resource/v1\"");
         Assert.AreEqual("https://api.x.test/v1", await MetadataResource("/.well-known/oauth-protected-resource/v1"));
         Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api"));
@@ -186,11 +213,20 @@ public class OidcPipelineTests
     public async Task StoreUnderSubPath_MetadataPathCarriesStorePath()
     {
         await Start(null, new Store { Id = "store1", Url = "http://localhost/shop/" });
-        StringAssert.Contains((await Get("/api/ping")).Headers.WwwAuthenticate.ToString(),
+        using var challenge = await Get("/api/ping");
+        StringAssert.Contains(challenge.Headers.WwwAuthenticate.ToString(),
             "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource/shop/api\"");
         Assert.AreEqual("http://localhost/shop/api", await MetadataResource("/.well-known/oauth-protected-resource/shop/api"));
         Assert.AreEqual("http://localhost/shop", await MetadataResource("/.well-known/oauth-protected-resource/shop"));
         Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api"));
+    }
+
+    [TestMethod]
+    public async Task StoreUnderSubPath_RootMetadata404()
+    {
+        //RFC 9728 section 3.3: the root URL describes http://localhost, not the store at http://localhost/shop
+        await Start(null, new Store { Id = "store1", Url = "http://localhost/shop/" });
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource"));
     }
 
     [TestMethod]
@@ -217,8 +253,32 @@ public class OidcPipelineTests
 
         Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api"));
         Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource"));
-        Assert.IsTrue(logs.Messages.Any(m => m.Contains("BackendApi")), string.Join(" | ", logs.Messages));
-        Assert.AreEqual(HttpStatusCode.Unauthorized, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+        Assert.IsTrue(logs.Messages.Any(m => m.StartsWith("Warning:") && m.Contains("BackendApi")), string.Join(" | ", logs.Messages));
+        using var response = await Get("/api/ping", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task NoStoreForHost_Metadata404_DebugNotWarning()
+    {
+        //an anonymous request naming an unknown host is not a configuration problem: no warning it could flood
+        var logs = new ListLoggerProvider();
+        await _host.DisposeAsync();
+        _host = new OidcTestHost();
+        _client = await _host.Start(OidcTestHost.Config(), s =>
+        {
+            s.AddSingleton(OidcTestHost.StoreService(
+                new Store { Id = "A", Url = "http://a.test/", Domains = [new DomainHost { HostName = "a.test" }] },
+                new Store { Id = "B", Url = "http://b.test/", Domains = [new DomainHost { HostName = "b.test" }] }));
+            s.Configure<Microsoft.Extensions.Logging.LoggerFilterOptions>(o => o.MinLevel = Microsoft.Extensions.Logging.LogLevel.Trace);
+            s.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(logs);
+        });
+
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource/api", "evil.test"));
+        Assert.AreEqual("404", await MetadataResource("/.well-known/oauth-protected-resource", "evil.test"));
+        var messages = string.Join(" | ", logs.Messages);
+        Assert.IsFalse(logs.Messages.Any(m => m.StartsWith("Warning:") && m.Contains("evil.test")), messages);
+        Assert.IsTrue(logs.Messages.Any(m => m.StartsWith("Debug:") && m.Contains("evil.test")), messages);
     }
 
     [TestMethod]
@@ -227,7 +287,8 @@ public class OidcPipelineTests
         var config = OidcTestHost.Config();
         config.ClockSkewSeconds = -30;
         await Start(config);
-        Assert.AreEqual(HttpStatusCode.OK, (await Get("/api/ping", OidcTestHost.Token())).StatusCode);
+        using var response = await Get("/api/ping", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
     [TestMethod]
@@ -248,6 +309,7 @@ public class OidcPipelineTests
         var body = await response.Content.ReadAsStringAsync();
 
         Assert.AreEqual(HttpStatusCode.ServiceUnavailable, response.StatusCode, body);
+        Assert.AreEqual(TimeSpan.FromSeconds(30), response.Headers.RetryAfter?.Delta);
         Assert.IsFalse(response.Headers.WwwAuthenticate.ToString().Contains("invalid_token"));
         Assert.AreEqual("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         Assert.IsTrue(logs.Messages.Any(m => m.StartsWith("Error:")), string.Join(" | ", logs.Messages));
@@ -271,9 +333,51 @@ public class OidcPipelineTests
         Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
     }
 
+    [TestMethod]
+    public async Task AuthorizationServerBackAfterOutage_503Then200AndForged401()
+    {
+        var handler = new SwitchableHandler();
+        await _host.DisposeAsync();
+        _host = new OidcTestHost();
+        _client = await _host.Start(OidcTestHost.Config(), jwtBearer: o =>
+        {
+            o.Configuration = null;
+            o.Backchannel = new HttpClient(handler);
+        });
+
+        using (var outage = await Get("/api/ping", OidcTestHost.Token()))
+            Assert.AreEqual(HttpStatusCode.ServiceUnavailable, outage.StatusCode);
+
+        //the identity provider answers again: the unavailable flag clears, tokens are judged on their own merits
+        handler.Reachable = true;
+        using var valid = await Get("/api/ping", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
+        using var forged = await Get("/api/ping", OidcTestHost.Token(key: OidcTestHost.ForeignKey));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, forged.StatusCode);
+        StringAssert.Contains(forged.Headers.WwwAuthenticate.ToString(), "invalid_token");
+    }
+
+    private sealed class SwitchableHandler : HttpMessageHandler
+    {
+        private readonly HttpMessageInvoker _discovery = new(new DiscoveryHandler());
+        public volatile bool Reachable;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Reachable
+                ? _discovery.SendAsync(request, cancellationToken)
+                : throw new HttpRequestException("No such host is known.");
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _discovery.Dispose();
+            base.Dispose(disposing);
+        }
+    }
+
     private sealed class DiscoveryHandler : HttpMessageHandler
     {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        //the response is returned to the caller (HttpClient), which owns and disposes it
+        protected override HttpResponseMessage Send(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var body = request.RequestUri!.AbsolutePath.EndsWith("/jwks")
                 ? System.Text.Json.JsonSerializer.Serialize(new {
@@ -281,8 +385,11 @@ public class OidcPipelineTests
                         .Select(k => new { kty = k.Kty, kid = k.Kid, n = k.N, e = k.E, use = "sig" })
                 })
                 : $"{{\"issuer\":\"{OidcTestHost.Issuer}\",\"jwks_uri\":\"{OidcTestHost.Issuer}/jwks\"}}";
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(body, Encoding.UTF8, "application/json") });
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(body, Encoding.UTF8, "application/json") };
         }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Task.FromResult(Send(request, cancellationToken));
     }
 
     private sealed class UnreachableHandler : HttpMessageHandler
