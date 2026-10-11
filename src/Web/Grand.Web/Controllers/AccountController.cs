@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Customers;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -13,7 +14,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Attributes;
-using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -27,6 +27,7 @@ using Grand.Web.Models.Common;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 
 namespace Grand.Web.Controllers;
 
@@ -459,6 +460,7 @@ public class AccountController : BasePublicController
         IExternalAuthenticationService externalAuthenticationService)
     {
         model.ExternalRegistration = pending != null;
+        model.ExternalConnects = ExternalRegistrationPolicy.ConnectsAtRegistration(pending);
         if (pending == null)
             return;
 
@@ -490,6 +492,7 @@ public class AccountController : BasePublicController
         var registrationType = pending == null
             ? _customerSettings.UserRegistrationType
             : ExternalRegistrationPolicy.EffectiveRegistrationType(_customerSettings.UserRegistrationType, pending.EmailVerified);
+        var connects = ExternalRegistrationPolicy.ConnectsAtRegistration(pending);
 
         if (ModelState.IsValid)
         {
@@ -498,14 +501,23 @@ public class AccountController : BasePublicController
             var isApproved = registrationType == UserRegistrationType.Standard;
             var registrationRequest = new RegistrationRequest(_contextAccessor.WorkContext.CurrentCustomer, model.Email,
                 _customerSettings.UsernamesEnabled ? model.Username : model.Email,
-                pending == null ? model.Password : CommonHelper.GenerateRandomDigitCode(20),
+                connects ? Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)) : model.Password,
                 _customerSettings.DefaultPasswordFormat, _contextAccessor.StoreContext.CurrentStore.Id, isApproved);
             await _customerManagerService.RegisterCustomer(registrationRequest);
 
             //connect the provider identity before anything can sign the customer in
-            if (pending != null)
-                await externalRegistrationContext.Complete(_contextAccessor.WorkContext.CurrentCustomer,
+            if (connects)
+            {
+                var linkResult = await externalRegistrationContext.Complete(_contextAccessor.WorkContext.CurrentCustomer,
                     _contextAccessor.StoreContext.CurrentStore.Id);
+                //the account is still the customer's (verified e-mail), only signing in with the provider is not connected
+                if (linkResult != OidcLinkResult.Linked)
+                    Warning(_translationService.GetResource("Account.Register.External.NotConnected"));
+            }
+            else if (pending != null)
+            {
+                await externalRegistrationContext.Clear();
+            }
 
             var customerAttributes = await _mediator.Send(new GetParseCustomAttributes
                 { SelectedAttributes = model.SelectedAttributes });

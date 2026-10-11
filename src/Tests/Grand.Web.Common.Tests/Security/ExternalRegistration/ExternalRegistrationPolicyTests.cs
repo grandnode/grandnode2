@@ -17,4 +17,13 @@ public class ExternalRegistrationPolicyTests
     [DataRow(UserRegistrationType.Disabled, true, UserRegistrationType.Disabled)]
     public void EffectiveType(UserRegistrationType store, bool verified, UserRegistrationType expected) =>
         Assert.AreEqual(expected, ExternalRegistrationPolicy.EffectiveRegistrationType(store, verified));
+
+    [TestMethod]
+    public void ConnectsAtRegistration_OnlyVerifiedEmail()
+    {
+        var identity = new ExternalRegistrationIdentity("p", "sub", "a@b.c", true, null, null);
+        Assert.IsTrue(ExternalRegistrationPolicy.ConnectsAtRegistration(identity));
+        Assert.IsFalse(ExternalRegistrationPolicy.ConnectsAtRegistration(identity with { EmailVerified = false }));
+        Assert.IsFalse(ExternalRegistrationPolicy.ConnectsAtRegistration(null));
+    }
 }

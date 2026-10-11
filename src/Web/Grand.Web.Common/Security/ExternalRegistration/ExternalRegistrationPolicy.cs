@@ -14,4 +14,12 @@ public static class ExternalRegistrationPolicy
             UserRegistrationType.Standard when !emailVerified => UserRegistrationType.EmailValidation,
             _ => storeType
         };
+
+    /// <summary>
+    ///     Whether registering connects the provider identity to the new account and needs no password: only for a
+    ///     verified e-mail. An unverified one registers with a password like any other account and connects later with
+    ///     that password - otherwise whoever holds the identity would keep the account once the owner of the address
+    ///     activates it, even after a password reset.
+    /// </summary>
+    public static bool ConnectsAtRegistration(ExternalRegistrationIdentity pending) => pending is { EmailVerified: true };
 }

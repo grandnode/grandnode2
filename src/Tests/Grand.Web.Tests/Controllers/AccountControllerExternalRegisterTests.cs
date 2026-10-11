@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -17,6 +18,7 @@ using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -65,6 +67,7 @@ public class AccountControllerExternalRegisterTests
             groups.Object, _manager.Object, new Mock<ICountryService>().Object, mediator.Object, _messages.Object,
             new CaptchaSettings(), _settings, new CustomerConfig());
         _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        _controller.TempData = new TempDataDictionary(_controller.HttpContext, new Mock<ITempDataProvider>().Object);
         var url = new Mock<IUrlHelper>();
         url.Setup(x => x.RouteUrl(It.IsAny<UrlRouteContext>())).Returns("/registerresult/1");
         _controller.Url = url.Object;
@@ -79,6 +82,7 @@ public class AccountControllerExternalRegisterTests
         Assert.AreEqual("john@example.com", model.Email);
         Assert.AreEqual("John", model.FirstName);
         Assert.IsTrue(model.ExternalRegistration);
+        Assert.IsTrue(model.ExternalConnects);
     }
 
     [TestMethod]
@@ -117,6 +121,39 @@ public class AccountControllerExternalRegisterTests
         var result = await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
         _messages.Verify(x => x.SendCustomerEmailValidationMessage(_guest, It.IsAny<Grand.Domain.Stores.Store>(), "l1"), Times.Once);
         Assert.AreEqual((int)UserRegistrationType.EmailValidation, ((RedirectToRouteResult)result).RouteValues["resultId"]);
+    }
+
+    [TestMethod]
+    public async Task Post_Pending_Unverified_TypedPassword_NotConnected()
+    {
+        //whoever holds an identity with an unconfirmed address must not keep the account once its owner activates it
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
+        RegistrationRequest request = null;
+        _manager.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>())).Callback<RegistrationRequest>(r => request = r);
+        await _controller.Register(new RegisterModel { Password = "Secret1!" }, null, _external.Object, _externalAuth.Object);
+        Assert.AreEqual("john@example.com", request.Email);
+        Assert.AreEqual("Secret1!", request.Password);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
+        _external.Verify(x => x.Clear(), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Get_Pending_Unverified_AsksForPassword()
+    {
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
+        var view = (ViewResult)(await _controller.Register(_external.Object, _externalAuth.Object)).Result;
+        var model = (RegisterModel)view.Model;
+        Assert.IsTrue(model.ExternalRegistration);
+        Assert.IsFalse(model.ExternalConnects);
+    }
+
+    [TestMethod]
+    public async Task Post_Pending_LinkFails_WarnsCustomer()
+    {
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.SubjectLinkedToOtherCustomer);
+        await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
+        Assert.IsNotNull(_controller.TempData["grand.notifications.Warning"]);
     }
 
     [TestMethod]
