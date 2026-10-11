@@ -360,4 +360,73 @@ public class OidcCustomerResolverLoginTests
             await Resolver().LinkIdentity(new Customer { Id = "c1", StoreId = Store }, "sub-1", "a@b.c", Store));
         Assert.HasCount(2, LinksOf("sub-1"));
     }
+    /// <summary>
+    ///     Repository that lets a concurrent request store its record right before this one's insert
+    /// </summary>
+    private sealed class RacingLinks : MongoDBRepositoryTest<ExternalAuthentication>
+    {
+        public Func<Task> BeforeInsert { get; set; }
+
+        public override async Task<ExternalAuthentication> InsertAsync(ExternalAuthentication entity)
+        {
+            var before = BeforeInsert;
+            BeforeInsert = null;
+            if (before != null)
+                await before();
+            return await base.InsertAsync(entity);
+        }
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_StoresLinkWithCustomerDerivedId()
+    {
+        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
+        Assert.AreEqual(OidcCustomerResolver.OidcLinkId("c1"), LinksOf("sub-1").Single().Id);
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_LostRaceToOtherSubjectOfTheCustomer_CustomerLinkedToOtherSubject()
+    {
+        var links = new Mock<IRepository<ExternalAuthentication>>();
+        links.Setup(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>()))
+            .ReturnsAsync((ExternalAuthentication)null);
+        links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new InvalidOperationException("duplicate"));
+        links.Setup(x => x.GetByIdAsync(OidcCustomerResolver.OidcLinkId("c1"))).ReturnsAsync(new ExternalAuthentication {
+            Id = OidcCustomerResolver.OidcLinkId("c1"), CustomerId = "c1",
+            ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "other-sub"
+        });
+
+        Assert.AreEqual(OidcLinkResult.CustomerLinkedToOtherSubject,
+            await Resolver(links.Object).LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
+    }
+
+    [TestMethod]
+    public async Task ResolveForLogin_LostRaceToOtherSubjectOfTheCustomer_RefusedLinkedToOtherIdentity()
+    {
+        var links = new RacingLinks();
+        links.BeforeInsert = () => links.InsertAsync(new ExternalAuthentication {
+            Id = OidcCustomerResolver.OidcLinkId("c1"), CustomerId = "c1",
+            ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "other-sub", StoreId = ""
+        });
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Id = "c1", Active = true });
+
+        var result = await Resolver(links).ResolveForLogin("sub-1", "a@b.c", true, Store);
+
+        Assert.AreEqual(OidcLoginRefusal.LinkedToOtherIdentity, result.Refusal);
+        var stored = links.Table.Where(x => x.CustomerId == "c1").ToList();
+        Assert.HasCount(1, stored);
+        Assert.AreEqual("other-sub", stored.Single().ExternalIdentifier);
+    }
+
+    [TestMethod]
+    public async Task LinkIdentity_AfterUnlink_RelinksWithTheSameId()
+    {
+        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
+        var first = LinksOf("sub-1").Single();
+        await _links.DeleteAsync(first);
+
+        Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-2", "a@b.c", Store));
+        Assert.AreEqual(first.Id, LinksOf("sub-2").Single().Id);
+    }
 }

@@ -134,6 +134,8 @@ customer in this order.
    * With `RequireEmailVerified = false` back-office accounts are **never** linked by e-mail.
 5. System accounts and guests are never mapped.
 6. One identity per customer: when the customer is already linked to another `sub`, the new subject is refused (403).
+   One identity per customer is enforced by the link's identifier, which is derived from the customer, so two
+   concurrent requests with different subjects cannot both link the same customer.
    Links do not record the provider instance, so after switching `Authority` to another provider the customers
    linked by the previous one are refused until their link is removed.
 7. With `RegisterCustomersPerStore` enabled an account of another store is refused (403) and lookups are store-scoped.
