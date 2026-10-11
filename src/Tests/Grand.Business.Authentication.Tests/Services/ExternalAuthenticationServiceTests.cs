@@ -132,6 +132,51 @@ public class ExternalAuthenticationServiceTests
     }
 
     [TestMethod]
+    public async Task GetCustomer_IdentifierWithUpperCaseLetters_IsFound()
+    {
+        var expectedCustomer = new Customer { Username = "John", Active = true };
+        _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
+            .Returns(() => Task.FromResult(expectedCustomer));
+        await _externalAuthenticationService.AssociateCustomer(expectedCustomer,
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "AbC-123" });
+
+        var customer = await _externalAuthenticationService.GetCustomer(new ExternalAuthParam
+            { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "AbC-123" });
+
+        Assert.IsNotNull(customer);
+    }
+
+    [TestMethod]
+    public async Task GetCustomer_IdentifierInDifferentCase_IsNotFound()
+    {
+        var expectedCustomer = new Customer { Username = "John", Active = true };
+        _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
+            .Returns(() => Task.FromResult(expectedCustomer));
+        await _externalAuthenticationService.AssociateCustomer(expectedCustomer,
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "AbC-123" });
+
+        var customer = await _externalAuthenticationService.GetCustomer(new ExternalAuthParam
+            { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "abc-123" });
+
+        Assert.IsNull(customer);
+    }
+
+    [TestMethod]
+    public async Task GetCustomer_ProviderSystemNameInDifferentCase_IsFound()
+    {
+        var expectedCustomer = new Customer { Username = "John", Active = true };
+        _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
+            .Returns(() => Task.FromResult(expectedCustomer));
+        await _externalAuthenticationService.AssociateCustomer(expectedCustomer,
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "AbC-123" });
+
+        var customer = await _externalAuthenticationService.GetCustomer(new ExternalAuthParam
+            { ProviderSystemName = "externalauthenticationprovidertest", Identifier = "AbC-123" });
+
+        Assert.IsNotNull(customer);
+    }
+
+    [TestMethod]
     public async Task GetExternalIdentifiersTest()
     {
         //Arrange
