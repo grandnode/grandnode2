@@ -15,4 +15,7 @@
 	<Resource Name="Account.Register.External.NotConnected" Area="Front">
 		<Value>The account was created, but signing in with your external account could not be connected to it. Sign in with your e-mail (use &quot;Forgot password&quot; to set a password).</Value>
 	</Resource>
+	<Resource Name="Account.Login.WrongCredentials.ExternalSignInRequired" Area="Front">
+		<Value>This account signs in with {0}. Use the {0} button.</Value>
+	</Resource>
 </Language>

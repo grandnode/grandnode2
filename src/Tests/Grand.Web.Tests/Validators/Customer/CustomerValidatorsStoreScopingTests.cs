@@ -65,7 +65,7 @@ public class CustomerValidatorsStoreScopingTests
             customerService.Object, new Mock<IGroupService>().Object, new Mock<IEncryptionService>().Object,
             Translation().Object, new CustomerSettings(), new Grand.Domain.Common.CaptchaSettings(),
             new Mock<IHttpContextAccessor>().Object, new Mock<IGoogleReCaptchaValidator>().Object,
-            Context(), PerStoreOn().Config);
+            Context(), PerStoreOn().Config, new Mock<Grand.Business.Core.Interfaces.Authentication.IExternalSignInPolicy>().Object);
 
         await validator.ValidateAsync(new LoginModel { Email = "u@x.com", Password = "p" });
 

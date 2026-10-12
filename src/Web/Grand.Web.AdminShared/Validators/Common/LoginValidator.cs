@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -24,7 +25,8 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, IGroupService groupService, IEncryptionService encryptionService,
         ITranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator)
+        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
+        IExternalSignInPolicy externalSignInPolicy)
         : base(validators)
     {
         if (!customerSettings.UsernamesEnabled)
@@ -78,6 +80,12 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                             context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
                             await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
                                 .Publish(new CustomerLoginFailedEvent(customer), _);
+                        }
+                        else if (await externalSignInPolicy.RequiredProvider(customer) is { } provider)
+                        {
+                            context.AddFailure(string.Format(
+                                translationService.GetResource("Account.Login.WrongCredentials.ExternalSignInRequired"),
+                                provider.FriendlyName));
                         }
 
                         break;
