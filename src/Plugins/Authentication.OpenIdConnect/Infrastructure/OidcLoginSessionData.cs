@@ -31,13 +31,14 @@ public static class OidcLoginSessionData
     {
         if (string.IsNullOrEmpty(idToken))
             return null;
+        //sid is optional: whatever the token holds, the sign-in must go on
         try
         {
             return new JsonWebToken(idToken).TryGetPayloadValue<string>("sid", out var sid) && !string.IsNullOrEmpty(sid)
                 ? sid
                 : null;
         }
-        catch (ArgumentException)
+        catch (Exception)
         {
             return null;
         }

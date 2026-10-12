@@ -48,4 +48,9 @@ public class OidcLoginSessionDataTests
     [DataRow("")]
     [DataRow("not-a-jwt")]
     public void Sid_Unreadable_Null(string idToken) => Assert.IsNull(OidcLoginSessionData.Sid(idToken));
+
+    //sid is optional: a value of another type must never fail the sign-in callback
+    [TestMethod]
+    public void Sid_NonStringValue_NoThrow() =>
+        OidcLoginSessionData.Sid(IdToken(new Claim("sub", "s"), new Claim("sid", "5", ClaimValueTypes.Integer)));
 }
