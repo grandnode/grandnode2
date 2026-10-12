@@ -125,6 +125,19 @@ public class OidcLogoutTokenValidatorTests
     public async Task Invalid_Expired() =>
         Assert.IsFalse((await Validate(Token(new() { ["exp"] = EpochTime.GetIntDate(DateTime.UtcNow.AddMinutes(-3)) }))).IsValid);
 
+    //an extreme exp must not overflow the replay-cache expiry
+    [TestMethod]
+    public async Task Valid_ExtremeExp_NoOverflow() =>
+        Assert.IsTrue((await Validate(Token(new() { ["exp"] = 253402300799L }, jti: "jti-far"))).IsValid);
+
+    [TestMethod]
+    public async Task Invalid_ErrorNamesExceptionType_NotTokenContent()
+    {
+        var result = await Validate(Token(issuer: "https://evil.test"));
+        Assert.IsFalse(result.IsValid);
+        StringAssert.Contains(result.Error, "SecurityTokenInvalidIssuerException");
+    }
+
     [TestMethod]
     public async Task Invalid_Replay()
     {

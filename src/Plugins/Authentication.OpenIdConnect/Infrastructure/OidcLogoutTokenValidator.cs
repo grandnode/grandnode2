@@ -49,7 +49,8 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
 
         var result = await new JsonWebTokenHandler().ValidateTokenAsync(token, parameters);
         if (!result.IsValid || result.SecurityToken is not JsonWebToken jwt)
-            return OidcLogoutToken.Invalid("The logout token is invalid");
+            return OidcLogoutToken.Invalid(
+                $"The logout token is invalid ({result.Exception?.GetType().Name ?? "unknown"})");
 
         if (!HasBackChannelEvent(jwt))
             return OidcLogoutToken.Invalid("The logout token has no back-channel logout event");
@@ -70,7 +71,9 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
             var key = "Grand.OidcLogin.LogoutJti." + jwt.Issuer + "|" + jwt.Id;
             if (cache.TryGetValue(key, out _))
                 return OidcLogoutToken.Invalid("The logout token was already used");
-            var until = (jwt.ValidTo != DateTime.MinValue ? jwt.ValidTo : jwt.IssuedAt + MaxAge) + clockSkew;
+            //the iat check above already refuses the token after IssuedAt + MaxAge + skew, so that bound is replay-safe
+            var latest = jwt.IssuedAt + MaxAge;
+            var until = (jwt.ValidTo != DateTime.MinValue && jwt.ValidTo < latest ? jwt.ValidTo : latest) + clockSkew;
             cache.Set(key, true, new DateTimeOffset(DateTime.SpecifyKind(until, DateTimeKind.Utc)));
         }
 
