@@ -10,10 +10,10 @@ public class OidcLoginConfigTests
     public void Defaults()
     {
         var config = new OidcLoginConfig();
-        Assert.AreEqual("openid profile email", config.Scopes);
+        Assert.AreEqual("openid profile email offline_access", config.Scopes);
         Assert.AreEqual(TimeSpan.FromMinutes(30), config.StaffIdleTimeout);
         Assert.AreEqual(TimeSpan.FromHours(10), config.StaffMaxSession);
-        Assert.AreEqual(TimeSpan.FromMinutes(10), config.StaffRevalidationInterval);
+        Assert.AreEqual(TimeSpan.FromMinutes(10), config.RevalidationInterval);
         Assert.IsFalse(config.StaffSsoOnly);
     }
 
@@ -24,11 +24,11 @@ public class OidcLoginConfigTests
     public void NonPositiveValues_FallBackToDefaults(int value)
     {
         var config = new OidcLoginConfig {
-            StaffIdleTimeoutMinutes = value, StaffMaxSessionHours = value, StaffRevalidationMinutes = value
+            StaffIdleTimeoutMinutes = value, StaffMaxSessionHours = value, RevalidationMinutes = value
         };
         Assert.AreEqual(TimeSpan.FromMinutes(30), config.StaffIdleTimeout);
         Assert.AreEqual(TimeSpan.FromHours(10), config.StaffMaxSession);
-        Assert.AreEqual(TimeSpan.FromMinutes(10), config.StaffRevalidationInterval);
+        Assert.AreEqual(TimeSpan.FromMinutes(10), config.RevalidationInterval);
     }
 
     [TestMethod]

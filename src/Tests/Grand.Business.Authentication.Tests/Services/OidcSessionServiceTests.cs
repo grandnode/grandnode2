@@ -81,16 +81,12 @@ public class OidcSessionServiceTests
     private OidcSession Stored(string id) => _sessions.Table.First(x => x.Id == id);
 
     [TestMethod]
-    public async Task Start_Customer_NoRefreshTokenKept()
+    public async Task Start_Customer_RefreshTokenProtected()
     {
         var id = await Service().Start(_customer, "sub-1", "sid-1", "rt-1", "s1");
         var session = Stored(id);
-        Assert.AreEqual("c1", session.CustomerId);
-        Assert.AreEqual("sub-1", session.Subject);
+        Assert.AreEqual("rt-1", Unprotect(session.ProtectedRefreshToken));
         Assert.AreEqual("sid-1", session.Sid);
-        Assert.AreEqual("s1", session.StoreId);
-        Assert.IsNull(session.ProtectedRefreshToken);
-        Assert.IsNull(session.EndedUtc);
     }
 
     [TestMethod]
@@ -104,11 +100,13 @@ public class OidcSessionServiceTests
         Assert.AreEqual("", session.Sid);
     }
 
-    //a back-office sign-in without a refresh token could never be revalidated: no session, the sign-in fails
+    //any account: a session without a refresh token could never be revalidated
     [TestMethod]
-    public async Task Start_StaffWithoutRefreshToken_Null()
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Start_WithoutRefreshToken_Null(bool staff)
     {
-        _staff = true;
+        _staff = staff;
         Assert.IsNull(await Service().Start(_customer, "sub-1", "sid-1", null, "s1"));
         Assert.AreEqual(0, _sessions.Table.Count());
     }
@@ -164,22 +162,28 @@ public class OidcSessionServiceTests
     [TestMethod]
     public async Task DeleteExpired_KeepsRecentAndOpen()
     {
-        //the staff rule alone must remove the old staff session: the customer lifetime is longer than its age
-        _securityConfig.CookieAuthExpires = 100;
+        _securityConfig.CookieAuthExpires = 24;
         var endedLongAgo = await Session();
         await _sessions.UpdateField(endedLongAgo.Id, x => x.EndedUtc, DateTime.UtcNow.AddDays(-8));
         var endedRecently = await Session();
         await _sessions.UpdateField(endedRecently.Id, x => x.EndedUtc, DateTime.UtcNow.AddDays(-1));
-        //staff (refresh token kept) past the maximum lifetime + retention
-        var oldStaff = await Session(age: TimeSpan.FromHours(10) + TimeSpan.FromDays(8));
-        //customer (no refresh token) past the cookie lifetime (100 h here) + retention
-        var oldCustomer = await Session(age: TimeSpan.FromHours(100) + TimeSpan.FromDays(8), refreshToken: null);
-        var openCustomer = await Session(age: TimeSpan.FromHours(30), refreshToken: null);
+        //past the cookie lifetime (24 h here) + retention, whoever it belonged to
+        var expired = await Session(age: TimeSpan.FromHours(24) + TimeSpan.FromDays(8));
+        var open = await Session(age: TimeSpan.FromHours(30));
 
         await Service().DeleteExpired();
 
-        CollectionAssert.AreEquivalent(new[] { endedRecently.Id, openCustomer.Id },
-            _sessions.Table.Select(x => x.Id).ToArray());
+        CollectionAssert.AreEquivalent(new[] { endedRecently.Id, open.Id }, _sessions.Table.Select(x => x.Id).ToArray());
+    }
+
+    //every session keeps a refresh token now: the old staff rule (refresh token kept + past staff maximum) would delete live customers
+    [TestMethod]
+    public async Task DeleteExpired_KeepsActiveCustomerWithRefreshToken()
+    {
+        _securityConfig.CookieAuthExpires = 8760;
+        var customer = await Session(age: TimeSpan.FromDays(20));
+        await Service().DeleteExpired();
+        Assert.AreEqual(1, _sessions.Table.Count(x => x.Id == customer.Id));
     }
 
     private static readonly TimeSpan Interval = TimeSpan.FromMinutes(10);
@@ -207,14 +211,61 @@ public class OidcSessionServiceTests
         Assert.IsFalse(await Service().Validate(session.Id, _customer));
     }
 
-    //customers keep the long cookie: no idle, maximum or provider check
+    //customers keep the long session: no idle or maximum lifetime, only the provider check
     [TestMethod]
-    public async Task Validate_Customer_OldAndIdle_True_NoRefresh()
+    public async Task Validate_Customer_OldAndIdle_WithinInterval_True_NoRefresh()
     {
         var session = await Session(age: TimeSpan.FromDays(30), idle: TimeSpan.FromDays(20),
-            sinceValidated: TimeSpan.FromDays(30), refreshToken: null);
+            sinceValidated: TimeSpan.FromMinutes(5));
         Assert.IsTrue(await Service().Validate(session.Id, _customer));
         _refresher.Verify(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.IsNull(Stored(session.Id).EndedUtc);
+    }
+
+    [TestMethod]
+    public async Task Validate_CustomerRefused_EndsAndRevokesTokens()
+    {
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Refused());
+        var session = await Session(age: TimeSpan.FromDays(3), idle: TimeSpan.FromDays(2), sinceValidated: Interval);
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.RevalidationRefused, Stored(session.Id).EndReason);
+        _revocation.Verify(x => x.RevokeTokens("sub-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Validate_CustomerRefreshed_RotatedTokenStored()
+    {
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Refreshed("rt-2"));
+        var session = await Session(sinceValidated: Interval);
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual("rt-2", Unprotect(Stored(session.Id).ProtectedRefreshToken));
+    }
+
+    [TestMethod]
+    public async Task Validate_CustomerUnavailable_WithinGrace_Valid()
+    {
+        _refresher.Setup(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.Unavailable());
+        var session = await Session(sinceValidated: Interval + TimeSpan.FromMinutes(5));
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+    }
+
+    //a customer session started before every session kept a refresh token
+    [TestMethod]
+    public async Task Validate_CustomerWithoutRefreshToken_Ends()
+    {
+        var session = await Session(refreshToken: null);
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.NoRefreshToken, Stored(session.Id).EndReason);
+    }
+
+    //customers' activity is not written: only the staff idle rule needs it
+    [TestMethod]
+    public async Task Validate_Customer_ActivityNotWritten()
+    {
+        var session = await Session(idle: TimeSpan.FromMinutes(5));
+        var before = Stored(session.Id).LastActivityUtc;
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(before, Stored(session.Id).LastActivityUtc);
     }
 
     [TestMethod]
@@ -380,7 +431,7 @@ public class OidcSessionServiceTests
         Assert.IsNull(Stored(session.Id).EndedUtc);
     }
 
-    //the login plugin was uninstalled: staff sessions end at the next check, customers are not affected
+    //the login plugin was uninstalled: every session ends at the next check
     [TestMethod]
     public async Task NoRefresher_CountsAsRefused()
     {
