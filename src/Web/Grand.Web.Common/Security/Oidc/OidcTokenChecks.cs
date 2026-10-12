@@ -45,6 +45,18 @@ public static class OidcTokenChecks
     }
 
     /// <summary>
+    ///     The token is older than the resource accepts (or has no issue time while a limit is set)
+    /// </summary>
+    public static bool IsTooOld(DateTime issuedUtc, int? maxTokenAgeMinutes, int clockSkewSeconds, DateTime now)
+    {
+        if (maxTokenAgeMinutes is not > 0)
+            return false;
+        if (issuedUtc == DateTime.MinValue)
+            return true;
+        return now - issuedUtc > TimeSpan.FromMinutes(maxTokenAgeMinutes.Value) + TimeSpan.FromSeconds(clockSkewSeconds);
+    }
+
+    /// <summary>
     ///     Scopes that may be advertised or required: distinct, non-empty, never offline_access
     /// </summary>
     public static string[] PublicScopes(IEnumerable<string> scopes) =>

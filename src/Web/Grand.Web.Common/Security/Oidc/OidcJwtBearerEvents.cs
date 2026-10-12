@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Grand.Web.Common.Security.Oidc;
@@ -51,6 +52,22 @@ public class OidcJwtBearerEvents : JwtBearerEvents
         {
             Reject(context, OidcFailureKind.InsufficientScope, "The token lacks a required scope",
                 string.Join(' ', OidcTokenChecks.PublicScopes(resource.RequiredScopes)));
+            return;
+        }
+
+        //JsonWebTokenHandler is the default handler: IssuedAt is MinValue when the token has no iat
+        var issuedUtc = (context.SecurityToken as JsonWebToken)?.IssuedAt ?? DateTime.MinValue;
+        if (OidcTokenChecks.IsTooOld(issuedUtc, resource.MaxTokenAgeMinutes, _config.ClockSkewSeconds, DateTime.UtcNow))
+        {
+            Reject(context, OidcFailureKind.InvalidToken, "The token is too old");
+            return;
+        }
+
+        //the provider ended the subject's session (back-channel logout) or refused the account after this token was issued
+        var subject = principal.FindFirst(_config.Claims.Subject)?.Value;
+        if (await http.RequestServices.GetRequiredService<IOidcTokenRevocationService>().IsRevoked(subject, issuedUtc))
+        {
+            Reject(context, OidcFailureKind.InvalidToken, "The token was revoked");
             return;
         }
 

@@ -42,7 +42,7 @@ public sealed class OidcTestHost : IAsyncDisposable
 
     public static string Token(string audience = "http://localhost/api", string scope = "grandnode.api",
         SecurityKey key = null, string algorithm = SecurityAlgorithms.RsaSha256, DateTime? expires = null,
-        string issuer = Issuer, params Claim[] extra)
+        string issuer = Issuer, DateTime? issuedAt = null, params Claim[] extra)
     {
         var claims = new List<Claim> {
             new("sub", "sub-1"), new("email", "john@example.com"), new("email_verified", "true", ClaimValueTypes.Boolean)
@@ -55,7 +55,7 @@ public sealed class OidcTestHost : IAsyncDisposable
             Audience = audience,
             Subject = new ClaimsIdentity(claims),
             NotBefore = exp.AddMinutes(-20),
-            IssuedAt = exp.AddMinutes(-20),
+            IssuedAt = issuedAt ?? exp.AddMinutes(-20),
             Expires = exp,
             SigningCredentials = new SigningCredentials(key ?? IdpKey, algorithm)
         });
@@ -107,6 +107,7 @@ public sealed class OidcTestHost : IAsyncDisposable
                 defaultResolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
                     .ReturnsAsync(OidcCustomerResult.Success(new Customer { Id = "c1", Active = true }));
                 s.TryAddSingleton(defaultResolver.Object);
+                s.TryAddSingleton(new Mock<IOidcTokenRevocationService>().Object);
                 var permissions = new Mock<IPermissionService>();
                 permissions.Setup(x => x.Authorize(It.IsAny<Permission>(), It.IsAny<Customer>())).ReturnsAsync(true);
                 s.TryAddSingleton(permissions.Object);
