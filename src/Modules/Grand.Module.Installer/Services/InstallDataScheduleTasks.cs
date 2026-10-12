@@ -51,6 +51,12 @@ public partial class InstallationService
                 Enabled = false,
                 StopOnError = false,
                 TimeInterval = 1440
+            },
+            new() {
+                ScheduleTaskName = "Delete OpenID Connect sessions",
+                Enabled = true,
+                StopOnError = false,
+                TimeInterval = 1440
             }
         };
         tasks.ForEach(x => _scheduleTaskRepository.Insert(x));
