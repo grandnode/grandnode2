@@ -52,7 +52,7 @@ public class OidcBackChannelLogoutEndpointTests
         _schemeRegistered = true;
     }
 
-    private static string Token(string sub = "sub-1", string sid = "sid-1")
+    private static string Token(string sub = "sub-1", string sid = "sid-1", SecurityKey key = null)
     {
         var claims = new Dictionary<string, object> {
             ["iss"] = Issuer, ["aud"] = "shop", ["iat"] = EpochTime.GetIntDate(DateTime.UtcNow),
@@ -62,7 +62,7 @@ public class OidcBackChannelLogoutEndpointTests
         if (sub != null) claims["sub"] = sub;
         if (sid != null) claims["sid"] = sid;
         return new JsonWebTokenHandler { SetDefaultTimesOnTokenCreation = false }.CreateToken(new SecurityTokenDescriptor {
-            Claims = claims, SigningCredentials = new SigningCredentials(Key, SecurityAlgorithms.RsaSha256), TokenType = "logout+jwt"
+            Claims = claims, SigningCredentials = new SigningCredentials(key ?? Key, SecurityAlgorithms.RsaSha256), TokenType = "logout+jwt"
         });
     }
 
@@ -188,5 +188,79 @@ public class OidcBackChannelLogoutEndpointTests
         var context = await Post(Token());
         Assert.AreEqual(503, context.Response.StatusCode);
         Assert.AreEqual("no-store", context.Response.Headers.CacheControl.ToString());
+    }
+
+    private static RsaSecurityKey NewKey(string keyId)
+    {
+        using var rsa = RSA.Create(2048);
+        return new RsaSecurityKey(rsa.ExportParameters(true)) { KeyId = keyId };
+    }
+
+    //the configuration manager answers with the old keys until a refresh is requested
+    private Mock<IConfigurationManager<OpenIdConnectConfiguration>> RotatingManager(SecurityKey newKey, int staleAnswers = 0)
+    {
+        var before = new OpenIdConnectConfiguration { Issuer = Issuer };
+        before.SigningKeys.Add(Key);
+        var after = new OpenIdConnectConfiguration { Issuer = Issuer };
+        after.SigningKeys.Add(newKey);
+        var refreshed = false;
+        var manager = new Mock<IConfigurationManager<OpenIdConnectConfiguration>>();
+        manager.Setup(x => x.GetConfigurationAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => refreshed && staleAnswers-- <= 0 ? after : before);
+        manager.Setup(x => x.RequestRefresh()).Callback(() => refreshed = true);
+        return manager;
+    }
+
+    [TestMethod]
+    public async Task RotatedSigningKey_RefreshesMetadata_EndsSessions()
+    {
+        var newKey = NewKey("k2");
+        var manager = RotatingManager(newKey);
+        _options.ConfigurationManager = manager.Object;
+
+        var context = await Post(Token(key: newKey));
+
+        Assert.AreEqual(200, context.Response.StatusCode);
+        manager.Verify(x => x.RequestRefresh(), Times.Once);
+        _sessions.Verify(x => x.EndBySid("sub-1", "sid-1"), Times.Once);
+        _revocation.Verify(x => x.RevokeTokens("sub-1"), Times.Once);
+    }
+
+    //the real configuration manager refreshes in the background: the cached metadata is answered a while longer
+    [TestMethod]
+    public async Task RotatedSigningKey_BackgroundRefresh_WaitsForNewMetadata()
+    {
+        var newKey = NewKey("k2");
+        var manager = RotatingManager(newKey, staleAnswers: 2);
+        _options.ConfigurationManager = manager.Object;
+
+        var context = await Post(Token(key: newKey));
+
+        Assert.AreEqual(200, context.Response.StatusCode);
+        _sessions.Verify(x => x.EndBySid("sub-1", "sid-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UnknownSigningKeyAfterRefresh_400_NothingEnded()
+    {
+        var manager = RotatingManager(NewKey("k2"));
+        _options.ConfigurationManager = manager.Object;
+
+        var context = await Post(Token(key: NewKey("k3")));
+
+        Assert.AreEqual(400, context.Response.StatusCode);
+        manager.Verify(x => x.RequestRefresh(), Times.Once);
+        _sessions.VerifyNoOtherCalls();
+    }
+
+    //only an unknown key is worth a metadata refresh
+    [TestMethod]
+    public async Task InvalidToken_NoMetadataRefresh()
+    {
+        var manager = RotatingManager(NewKey("k2"));
+        _options.ConfigurationManager = manager.Object;
+
+        Assert.AreEqual(400, (await Post("not-a-token")).Response.StatusCode);
+        manager.Verify(x => x.RequestRefresh(), Times.Never);
     }
 }

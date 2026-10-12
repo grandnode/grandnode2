@@ -47,10 +47,12 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
                 TypeAccepted(type) ? type : throw new SecurityTokenInvalidTypeException("The token type is not accepted")
         };
 
-        var result = await new JsonWebTokenHandler().ValidateTokenAsync(token, parameters);
+        var handler = new JsonWebTokenHandler();
+        var result = await handler.ValidateTokenAsync(token, parameters);
         if (!result.IsValid || result.SecurityToken is not JsonWebToken jwt)
             return OidcLogoutToken.Invalid(
-                $"The logout token is invalid ({result.Exception?.GetType().Name ?? "unknown"})");
+                $"The logout token is invalid ({result.Exception?.GetType().Name ?? "unknown"})",
+                result.Exception is SecurityTokenSignatureKeyNotFoundException || HasUnknownKeyId(handler, token, configuration));
 
         if (!HasBackChannelEvent(jwt))
             return OidcLogoutToken.Invalid("The logout token has no back-channel logout event");
@@ -86,6 +88,23 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
     {
         if (replayKey != null)
             cache.Remove(replayKey);
+    }
+
+    //the handler reports a token without exp whose key is unknown as expired, so the key id is checked here too
+    private static bool HasUnknownKeyId(JsonWebTokenHandler handler, string token, OpenIdConnectConfiguration configuration)
+    {
+        if (!handler.CanReadToken(token))
+            return false;
+        try
+        {
+            var kid = handler.ReadJsonWebToken(token).Kid;
+            return !string.IsNullOrEmpty(kid) &&
+                   configuration.SigningKeys.All(key => !string.Equals(key.KeyId, kid, StringComparison.Ordinal));
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
     }
 
     private static bool HasBackChannelEvent(JsonWebToken jwt)

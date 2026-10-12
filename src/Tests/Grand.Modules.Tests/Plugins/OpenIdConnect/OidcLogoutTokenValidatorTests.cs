@@ -195,4 +195,29 @@ public class OidcLogoutTokenValidatorTests
     [DataRow("at+jwt", false)]
     public void TypeAccepted(string typ, bool expected) =>
         Assert.AreEqual(expected, OidcLogoutTokenValidator.TypeAccepted(typ));
+
+    //after a key rotation at the provider the endpoint refreshes the metadata and validates again
+    [TestMethod]
+    public async Task UnknownSigningKey_Flagged()
+    {
+        var result = await Validate(Token(key: OtherKey));
+        Assert.IsFalse(result.IsValid);
+        Assert.IsTrue(result.SigningKeyNotFound, result.Error);
+    }
+
+    [TestMethod]
+    public async Task UnknownSigningKey_WithExpiry_Flagged()
+    {
+        var result = await Validate(Token(new() { ["exp"] = EpochTime.GetIntDate(DateTime.UtcNow.AddMinutes(2)) }, key: OtherKey));
+        Assert.IsFalse(result.IsValid);
+        Assert.IsTrue(result.SigningKeyNotFound, result.Error);
+    }
+
+    [TestMethod]
+    public async Task OtherFailure_NotFlaggedAsUnknownKey()
+    {
+        var result = await Validate(Token(issuer: "https://other.test"));
+        Assert.IsFalse(result.IsValid);
+        Assert.IsFalse(result.SigningKeyNotFound);
+    }
 }
