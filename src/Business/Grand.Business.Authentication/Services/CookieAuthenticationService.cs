@@ -28,6 +28,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="httpContextAccessor">HTTP context accessor</param>
     /// <param name="securityConfig">SecurityConfig</param>
     /// <param name="oidcSessionService">Server-side sessions of provider sign-ins</param>
+    /// <param name="externalSignInPolicy">Accounts that must sign in through an external provider</param>
     /// <param name="logger">Logger</param>
     public CookieAuthenticationService(
         CustomerSettings customerSettings,
@@ -37,6 +38,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         ICookieOptionsFactory cookieOptionsFactory,
         SecurityConfig securityConfig,
         IOidcSessionService oidcSessionService,
+        IExternalSignInPolicy externalSignInPolicy,
         ILogger<CookieAuthenticationService> logger)
     {
         _customerSettings = customerSettings;
@@ -46,6 +48,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         _cookieOptionsFactory = cookieOptionsFactory;
         _securityConfig = securityConfig;
         _oidcSessionService = oidcSessionService;
+        _externalSignInPolicy = externalSignInPolicy;
         _logger = logger;
     }
 
@@ -71,6 +74,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
 
     private readonly SecurityConfig _securityConfig;
     private readonly IOidcSessionService _oidcSessionService;
+    private readonly IExternalSignInPolicy _externalSignInPolicy;
     private readonly ILogger<CookieAuthenticationService> _logger;
 
     #endregion
@@ -275,10 +279,12 @@ public class CookieAuthenticationService : IGrandAuthenticationService
 
         //a provider sign-in: the server-side session decides (ended, idle, refused by the provider)
         var oidcSessionId = OidcSessionId(principal);
-        if (!string.IsNullOrEmpty(oidcSessionId) && !await _oidcSessionService.Validate(oidcSessionId, customer))
-            return false;
+        if (!string.IsNullOrEmpty(oidcSessionId))
+            return await _oidcSessionService.Validate(oidcSessionId, customer);
 
-        return true;
+        //a cookie without a session (issued before the account was connected or before the provider became required)
+        //would escape revalidation and back-channel logout: an account that must use the provider signs in again there
+        return await _externalSignInPolicy.RequiredProvider(customer) == null;
     }
 
     private async Task EndOidcSession(string sessionId)
