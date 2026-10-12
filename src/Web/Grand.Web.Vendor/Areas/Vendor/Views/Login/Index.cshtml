@@ -63,6 +63,12 @@
                 }
             </div>
             <input class="btn btn-primary grand-login__submit login-button" type="submit" value="@Loc["Vendor.Login.LoginButton"]"/>
+            @foreach (var signIn in Model.ExternalSignIn)
+            {
+                <a class="btn btn-outline-secondary w-100 mt-2 grand-login__external" href="@signIn.Url">
+                    <i class="bi bi-person-badge" aria-hidden="true"></i> @Loc["Admin.Login.SignInWith", signIn.Name]
+                </a>
+            }
         </div>
     </div>
 </form>

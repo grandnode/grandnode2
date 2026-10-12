@@ -53,18 +53,20 @@ public abstract class BaseLoginController : BaseController
         return RouteData.Values["area"]?.ToString() ?? "Admin";
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index([FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         var model = new LoginModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
         };
+        await PrepareExternalSignIn(model, externalAuthenticationService);
         return View(model);
     }
 
     [HttpPost]
     [AutoValidateAntiforgeryToken]
-    public virtual async Task<IActionResult> Index(LoginModel model)
+    public virtual async Task<IActionResult> Index(LoginModel model,
+        [FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         if (ModelState.IsValid)
         {
@@ -93,8 +95,24 @@ public abstract class BaseLoginController : BaseController
         //If we got this far, something failed, redisplay form
         model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
         model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
+        await PrepareExternalSignIn(model, externalAuthenticationService);
 
         return View(model);
+    }
+
+    //the panel's home is where the provider sign-in returns; only providers made for the panels are offered
+    private async Task PrepareExternalSignIn(LoginModel model, IExternalAuthenticationService externalAuthenticationService)
+    {
+        var returnUrl = Url.RouteUrl($"{GetCurrentArea()}Index");
+        foreach (var provider in externalAuthenticationService.LoadActiveAuthenticationProviders()
+                     .OfType<IPanelExternalAuthenticationProvider>())
+        {
+            var path = await provider.GetPanelSignInPath(returnUrl);
+            if (!string.IsNullOrEmpty(path))
+                model.ExternalSignIn.Add(new LoginModel.ExternalSignInButton {
+                    Name = provider.FriendlyName, Url = Request.PathBase + path
+                });
+        }
     }
 
     #region Password recovery
