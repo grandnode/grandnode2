@@ -572,7 +572,8 @@ Notes:
 * With `RegisterCustomersPerStore` enabled all lookups are limited to the store of the request, and a link belongs to
   the store of the linked account (section 3.1): the same provider identity can be connected to a separate account in
   each store, while an account of no store (such as staff) keeps one link that works in every store.
-* Provider tokens are **not stored**.
+* Access and ID tokens are **not stored**; only back-office sessions keep the provider's refresh token, encrypted
+  (section 12).
 * The Web API setting `OidcResourceServer:AutoRegister` is `false` by default (section 3.2); browser sign-in registers
   new users through the registration form instead.
 
@@ -675,9 +676,11 @@ Use the project of section 7. Create a **separate** application for the browser 
   completes the password sign-in and holds the provider identity owns the link; keep the provider's e-mail
   verification and e-mail change policy strict.
 * **Logout is local.** Signing out of GrandNode does not end the provider session; the next click on the button signs
-  in again without a prompt while the provider session lasts.
-* Provider tokens are not stored. The only data kept from the provider is the `sub`/e-mail link, plus the pending
-  identity for at most 15 minutes.
+  in again without a prompt while the provider session lasts. The other direction works: a back-channel logout from the
+  provider ends the GrandNode sessions (section 12).
+* Access and ID tokens are not stored. The data kept from the provider is the `sub`/e-mail link, the pending identity
+  for at most 15 minutes, and, for back-office sessions only, the refresh token, encrypted with Data Protection
+  (section 12).
 * After sign-in only a **local** `returnUrl` is followed; anything else leads to the store home page.
 * New accounts created through this path get the Registered group only.
 * Keep `ClientSecret` out of source control: environment variable or secret store.
@@ -707,7 +710,7 @@ back-channel logout (OpenID Connect Back-Channel Logout 1.0).
 |---|---|
 | The provider sends a back-channel logout (the user signs out at the provider, or an administrator ends the provider session) | The GrandNode sessions of that provider session (or of that user, when the logout names no session) end **at once**, for every kind of account. Access tokens of that user issued before the logout are refused too (section 12.2). |
 | The user signs out of GrandNode | The session ends at once. The provider session is not touched (section 12.7). |
-| The provider disables or deletes the user | **Back-office** sessions end at the next revalidation (`StaffRevalidationMinutes`, section 12.2); when the provider is unreachable at that time, the session lasts until the last successful check is older than twice that interval. **Customers keep their session until they sign out**: GrandNode does not check ordinary customers at the provider after the sign-in. |
+| The provider disables or deletes the user | **Back-office** sessions end at the next revalidation (`StaffRevalidationMinutes`, section 12.2); when the provider is unreachable at that time, the session lasts until the last successful check is older than twice that interval. A refused revalidation also refuses the user's older access tokens. **Customers keep their session until they sign out or the cookie expires**: GrandNode does not check ordinary customers at the provider after the sign-in. |
 | Idle time or total lifetime is exceeded | **Back-office sessions only** (`StaffIdleTimeoutMinutes`, `StaffMaxSessionHours`). Storefront customers are not limited by these settings. |
 
 A back-office account is one with a vendor, a staff store, or the *Access admin panel* permission. It is evaluated on
@@ -783,7 +786,7 @@ Zitadel issues a refresh token only when the client requests the scope `offline_
 Without it, **back-office sign-in through Zitadel is refused**: the visitor sees the failure page "not set up
 completely" and the log has an error that names `offline_access`. Customers can still sign in. The failure text is a
 plugin resource: existing installations get it by reinstalling the plugin, or by adding the resource
-`Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Configuration > Languages*.
+`Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Admin → Languages*.
 
 If the ASP.NET Core Data Protection keys change (a new key ring, a different server without the shared ring), the stored
 refresh tokens cannot be read any more and back-office sessions end at the next revalidation; users sign in again.
