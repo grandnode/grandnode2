@@ -248,4 +248,91 @@ public class CookieAuthenticationServiceTests
         await _cookieAuthService.SignOut();
         _oidcSessionService.Verify(x => x.End("session-1", OidcSessionEndReason.SignOut), Times.Once);
     }
+
+    private (Customer customer, Func<ClaimsPrincipal> signedIn) PrepareSignIn(string customerId)
+    {
+        ClaimsPrincipal signedIn = null;
+        _authServiceMock.Setup(x => x.SignInAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<AuthenticationProperties>()))
+            .Callback((HttpContext _, string _, ClaimsPrincipal p, AuthenticationProperties _) => signedIn = p)
+            .Returns(Task.CompletedTask);
+        var customer = new Customer { Id = customerId, Email = "a@b.c" };
+        customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.PasswordToken, Value = "token", StoreId = "" });
+        return (customer, () => signedIn);
+    }
+
+    //re-sign-in (password, e-mail or username change) keeps the session of a provider sign-in
+    [TestMethod]
+    public async Task SignIn_WithoutSessionId_SameCustomerCookieWithSession_CarriesSessionOver()
+    {
+        var (customer, signedIn) = PrepareSignIn("c1");
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
+
+        await _cookieAuthService.SignIn(customer, false);
+
+        var claim = signedIn().FindFirst(OidcSessionDefaults.SessionIdClaimType);
+        Assert.IsNotNull(claim);
+        Assert.AreEqual("session-1", claim.Value);
+        Assert.AreEqual("grandnode", claim.Issuer);
+    }
+
+    [TestMethod]
+    public async Task SignIn_WithoutSessionId_OtherCustomerCookieWithSession_NoCarryOver()
+    {
+        var (customer, signedIn) = PrepareSignIn("c2");
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
+
+        await _cookieAuthService.SignIn(customer, false);
+
+        Assert.IsNull(signedIn().FindFirst(OidcSessionDefaults.SessionIdClaimType));
+    }
+
+    [TestMethod]
+    public async Task SignIn_WithoutSessionId_SessionClaimOfOtherIssuer_NoCarryOver()
+    {
+        var (customer, signedIn) = PrepareSignIn("c1");
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "other")));
+
+        await _cookieAuthService.SignIn(customer, false);
+
+        Assert.IsNull(signedIn().FindFirst(OidcSessionDefaults.SessionIdClaimType));
+    }
+
+    [TestMethod]
+    public async Task SignIn_WithoutSessionId_NoCurrentCookie_NoClaim()
+    {
+        var (customer, signedIn) = PrepareSignIn("c1");
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.NoResult());
+
+        await _cookieAuthService.SignIn(customer, false);
+
+        Assert.IsNull(signedIn().FindFirst(OidcSessionDefaults.SessionIdClaimType));
+    }
+
+    [TestMethod]
+    public async Task SignIn_WithoutSessionId_CurrentCookieWithoutSession_NoClaim()
+    {
+        var (customer, signedIn) = PrepareSignIn("c1");
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket());
+
+        await _cookieAuthService.SignIn(customer, false);
+
+        Assert.IsNull(signedIn().FindFirst(OidcSessionDefaults.SessionIdClaimType));
+    }
+
+    [TestMethod]
+    public async Task SignOut_NoSessionClaim_EndNeverCalled()
+    {
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket());
+        await _cookieAuthService.SignOut();
+        _oidcSessionService.Verify(x => x.End(It.IsAny<string>(), It.IsAny<OidcSessionEndReason>()), Times.Never);
+        _authServiceMock.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme,
+            It.IsAny<AuthenticationProperties>()), Times.Once);
+    }
 }

@@ -77,9 +77,30 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// </summary>
     /// <param name="customer">Customer</param>
     /// <param name="isPersistent">Whether the authentication session is persisted across multiple requests</param>
-    public virtual Task SignIn(Customer customer, bool isPersistent)
+    public virtual async Task SignIn(Customer customer, bool isPersistent)
     {
-        return SignIn(customer, isPersistent, null);
+        ArgumentNullException.ThrowIfNull(customer);
+
+        //a re-sign-in of the same customer (password, e-mail or username change) keeps the server-side
+        //session of a provider sign-in, so idle/max lifetime, revalidation and back-channel logout still apply
+        await SignIn(customer, isPersistent, await CurrentOidcSessionIdOf(customer));
+    }
+
+    private async Task<string> CurrentOidcSessionIdOf(Customer customer)
+    {
+        if (_httpContextAccessor.HttpContext == null || string.IsNullOrEmpty(customer.Id))
+            return null;
+
+        var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(
+            GrandCookieAuthenticationDefaults.AuthenticationScheme);
+        if (authenticateResult?.Succeeded != true)
+            return null;
+
+        var customerId = authenticateResult.Principal?.FindFirst(claim =>
+            claim.Type == CustomerIdClaimType &&
+            claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))?.Value;
+
+        return customerId == customer.Id ? OidcSessionId(authenticateResult.Principal) : null;
     }
 
     /// <summary>
