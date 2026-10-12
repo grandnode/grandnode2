@@ -123,6 +123,15 @@ public class OidcSessionServiceTests
         _cache.Verify(x => x.RemoveAsync(string.Format(CacheKey.OIDC_SESSION_BY_ID_KEY, session.Id), true), Times.AtLeastOnce);
     }
 
+    //an ended session is never confirmed again: its refresh token is not kept for the retention period
+    [TestMethod]
+    public async Task End_ClearsRefreshToken()
+    {
+        var session = await Session();
+        await Service().End(session.Id, OidcSessionEndReason.SignOut);
+        Assert.IsNull(Stored(session.Id).ProtectedRefreshToken);
+    }
+
     [TestMethod]
     public async Task EndBySid_MatchingSidAndSubject_Only()
     {

@@ -227,9 +227,11 @@ public class OidcSessionService : IOidcSessionService
     {
         if (string.IsNullOrEmpty(sessionId))
             return;
-        //the first end wins: its reason is the one that explains the sign-out
+        //the first end wins: its reason is the one that explains the sign-out; an ended session is never confirmed
+        //again, so its refresh token is not kept for the retention period
         await _sessionRepository.UpdateOneAsync(x => x.Id == sessionId && x.EndedUtc == null,
-            UpdateBuilder<OidcSession>.Create().Set(x => x.EndedUtc, DateTime.UtcNow).Set(x => x.EndReason, reason));
+            UpdateBuilder<OidcSession>.Create().Set(x => x.EndedUtc, DateTime.UtcNow).Set(x => x.EndReason, reason)
+                .Set(x => x.ProtectedRefreshToken, null));
         await _cache.RemoveAsync(string.Format(CacheKey.OIDC_SESSION_BY_ID_KEY, sessionId));
         _logger.LogInformation("OpenID Connect session {SessionId} ended: {Reason}", sessionId, reason);
     }

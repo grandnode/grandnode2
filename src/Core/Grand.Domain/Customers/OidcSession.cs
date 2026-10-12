@@ -23,7 +23,7 @@ public class OidcSession : BaseEntity
     /// <summary>Last successful check of the account at the provider</summary>
     public DateTime LastValidatedUtc { get; set; }
 
-    /// <summary>Refresh token protected with Data Protection; kept only for back-office accounts</summary>
+    /// <summary>Refresh token protected with Data Protection; cleared when the session ends</summary>
     public string ProtectedRefreshToken { get; set; }
 
     public DateTime? EndedUtc { get; set; }
