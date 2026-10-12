@@ -26,13 +26,15 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="groupService">Group service</param>
     /// <param name="httpContextAccessor">HTTP context accessor</param>
     /// <param name="securityConfig">SecurityConfig</param>
+    /// <param name="oidcSessionService">Server-side sessions of provider sign-ins</param>
     public CookieAuthenticationService(
         CustomerSettings customerSettings,
         ICustomerService customerService,
         IGroupService groupService,
         IHttpContextAccessor httpContextAccessor,
         ICookieOptionsFactory cookieOptionsFactory,
-        SecurityConfig securityConfig)
+        SecurityConfig securityConfig,
+        IOidcSessionService oidcSessionService)
     {
         _customerSettings = customerSettings;
         _customerService = customerService;
@@ -40,6 +42,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         _httpContextAccessor = httpContextAccessor;
         _cookieOptionsFactory = cookieOptionsFactory;
         _securityConfig = securityConfig;
+        _oidcSessionService = oidcSessionService;
     }
 
     #endregion
@@ -63,6 +66,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly ICookieOptionsFactory _cookieOptionsFactory;
 
     private readonly SecurityConfig _securityConfig;
+    private readonly IOidcSessionService _oidcSessionService;
 
     #endregion
 
@@ -73,7 +77,18 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// </summary>
     /// <param name="customer">Customer</param>
     /// <param name="isPersistent">Whether the authentication session is persisted across multiple requests</param>
-    public virtual async Task SignIn(Customer customer, bool isPersistent)
+    public virtual Task SignIn(Customer customer, bool isPersistent)
+    {
+        return SignIn(customer, isPersistent, null);
+    }
+
+    /// <summary>
+    ///     Sign in with a session started at the identity provider
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="isPersistent">Whether the authentication session is persisted across multiple requests</param>
+    /// <param name="oidcSessionId">Id of the OidcSession; null or empty = an ordinary sign-in</param>
+    public virtual async Task SignIn(Customer customer, bool isPersistent, string oidcSessionId)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -109,6 +124,11 @@ public class CookieAuthenticationService : IGrandAuthenticationService
                 _securityConfig.CookieClaimsIssuer));
         }
 
+        //the server-side session of a provider sign-in: ending it ends this cookie
+        if (!string.IsNullOrEmpty(oidcSessionId))
+            claims.Add(new Claim(OidcSessionDefaults.SessionIdClaimType, oidcSessionId, ClaimValueTypes.String,
+                _securityConfig.CookieClaimsIssuer));
+
         //create principal for the present scheme of authentication
         var userIdentity = new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme);
         var userPrincipal = new ClaimsPrincipal(userIdentity);
@@ -137,6 +157,12 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         //and then sign out customer from the present scheme of authentication
         if (_httpContextAccessor.HttpContext != null)
         {
+            var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(
+                GrandCookieAuthenticationDefaults.AuthenticationScheme);
+            var oidcSessionId = authenticateResult?.Succeeded == true ? OidcSessionId(authenticateResult.Principal) : null;
+            if (!string.IsNullOrEmpty(oidcSessionId))
+                await _oidcSessionService.End(oidcSessionId, OidcSessionEndReason.SignOut);
+
             await _httpContextAccessor.HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults
                 .AuthenticationScheme);
             //sign out also from other schema
@@ -215,8 +241,19 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         if (!customer.Active || customer.Deleted || !await _groupService.IsRegistered(customer))
             return false;
 
+        //a provider sign-in: the server-side session decides (ended, idle, refused by the provider)
+        var oidcSessionId = OidcSessionId(principal);
+        if (!string.IsNullOrEmpty(oidcSessionId) && !await _oidcSessionService.Validate(oidcSessionId, customer))
+            return false;
+
         return true;
     }
+
+    private string OidcSessionId(ClaimsPrincipal principal) =>
+        principal?.FindFirst(claim =>
+            claim.Type == OidcSessionDefaults.SessionIdClaimType &&
+            claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))?.Value;
+
     /// <summary>
     ///     Get customer cookie
     /// </summary>

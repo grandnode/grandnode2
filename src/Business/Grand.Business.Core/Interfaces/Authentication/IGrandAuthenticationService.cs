@@ -15,6 +15,15 @@ public interface IGrandAuthenticationService
     Task SignIn(Customer customer, bool createPersistentCookie);
 
     /// <summary>
+    ///     Sign in with a session started at the identity provider; the cookie references the session, so it can be ended
+    ///     on the server
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="createPersistentCookie">A value indicating whether to create a persistent cookie</param>
+    /// <param name="oidcSessionId">Id of the OidcSession; null or empty = an ordinary sign-in</param>
+    Task SignIn(Customer customer, bool createPersistentCookie, string oidcSessionId);
+
+    /// <summary>
     ///     Sign out
     /// </summary>
     Task SignOut();
