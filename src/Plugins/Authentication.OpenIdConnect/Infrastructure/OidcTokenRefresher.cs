@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace Authentication.OpenIdConnect.Infrastructure;
 
 /// <summary>
-///     Confirms a back-office session at the identity provider by exchanging its refresh token (RFC 6749, section 6)
+///     Confirms a session signed in through the provider at the identity provider by exchanging its refresh token (RFC 6749, section 6)
 /// </summary>
 public class OidcTokenRefresher(
     IHttpClientFactory httpClientFactory,
@@ -25,7 +25,7 @@ public class OidcTokenRefresher(
         var options = optionsMonitor.Get(OidcLoginDefaults.AuthenticationScheme);
         if (options.ConfigurationManager == null)
         {
-            logger.LogWarning("OpenID Connect login is not configured: back-office sessions cannot be confirmed");
+            logger.LogWarning("OpenID Connect login is not configured: sessions signed in through the provider cannot be confirmed");
             return OidcRefreshResult.Refused();
         }
 
