@@ -27,6 +27,7 @@ public class TokenWebController : ControllerBase
     private readonly ICustomerService _customerService;
     private readonly IMediator _mediator;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IExternalSignInPolicy _externalSignInPolicy;
     private readonly IContextAccessor _contextAccessor;
 
     public TokenWebController(
@@ -34,6 +35,7 @@ public class TokenWebController : ControllerBase
         IMediator mediator,
         IContextAccessor contextAccessor,
         IRefreshTokenService refreshTokenService,
+        IExternalSignInPolicy externalSignInPolicy,
         IAntiforgery antiforgery,
         FrontendAPIConfig apiConfig,
         CustomerConfig customerConfig)
@@ -42,6 +44,7 @@ public class TokenWebController : ControllerBase
         _mediator = mediator;
         _contextAccessor = contextAccessor;
         _refreshTokenService = refreshTokenService;
+        _externalSignInPolicy = externalSignInPolicy;
         _antiforgery = antiforgery;
         _apiConfig = apiConfig;
         _customerConfig = customerConfig;
@@ -142,6 +145,11 @@ public class TokenWebController : ControllerBase
 
         if (customer == null)
             return BadRequest("Invalid access token");
+
+        //tokens obtained with the password before the account had to sign in through the provider are not renewed:
+        //the provider could not stop them for a user it disabled
+        if (await _externalSignInPolicy.RequiredProvider(customer) != null)
+            return BadRequest("Invalid refresh token");
 
         //rebuild the claims from the resolved customer (registered carry id/email/token, guests carry the guid)
         if (!string.IsNullOrEmpty(customer.Email))

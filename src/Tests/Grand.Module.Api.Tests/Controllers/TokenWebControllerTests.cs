@@ -26,6 +26,7 @@ public class TokenWebControllerTests
     private Mock<ICustomerService> _customerServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IRefreshTokenService> _refreshTokenServiceMock;
+    private Mock<IExternalSignInPolicy> _signInPolicyMock;
     private GenerateTokenWebCommand _capturedCommand;
 
     [TestInitialize]
@@ -34,6 +35,7 @@ public class TokenWebControllerTests
         _customerServiceMock = new Mock<ICustomerService>();
         _mediatorMock = new Mock<IMediator>();
         _refreshTokenServiceMock = new Mock<IRefreshTokenService>();
+        _signInPolicyMock = new Mock<IExternalSignInPolicy>();
 
         _refreshTokenServiceMock.Setup(r => r.GenerateRefreshToken()).Returns("rt");
         _refreshTokenServiceMock.Setup(r => r.SaveRefreshTokenToCustomer(It.IsAny<Customer>(), It.IsAny<string>()))
@@ -52,7 +54,7 @@ public class TokenWebControllerTests
 
         return new TokenWebController(
             _customerServiceMock.Object, _mediatorMock.Object, contextAccessor.Object,
-            _refreshTokenServiceMock.Object, new Mock<IAntiforgery>().Object,
+            _refreshTokenServiceMock.Object, _signInPolicyMock.Object, new Mock<IAntiforgery>().Object,
             new FrontendAPIConfig { Enabled = true },
             new CustomerConfig { RegisterCustomersPerStore = perStore });
     }
@@ -101,5 +103,46 @@ public class TokenWebControllerTests
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         _customerServiceMock.Verify(c => c.GetCustomerById("c1"), Times.Once);
         _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    private Customer RefreshableCustomer()
+    {
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("CustomerId", "c1") }));
+        _refreshTokenServiceMock.Setup(r => r.GetPrincipalFromToken("access")).Returns(principal);
+        var customer = new Customer { Id = "c1", Email = "u@x.com" };
+        _customerServiceMock.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(customer);
+        _refreshTokenServiceMock.Setup(r => r.GetCustomerRefreshToken(customer))
+            .ReturnsAsync(new RefreshToken { Token = "rt", ValidTo = DateTime.UtcNow.AddDays(1), RefreshId = "rid" });
+        return customer;
+    }
+
+    //a token pair obtained with the password before the account had to use the provider is not renewed: a user
+    //disabled at the provider would otherwise keep the API
+    [TestMethod]
+    public async Task Refresh_ProviderRequired_InvalidRefreshToken()
+    {
+        var customer = RefreshableCustomer();
+        _signInPolicyMock.Setup(p => p.RequiredProvider(customer)).ReturnsAsync(Mock.Of<IExternalAuthenticationProvider>());
+        var controller = CreateController(perStore: false);
+
+        var result = await controller.Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
+
+        Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+        Assert.AreEqual("Invalid refresh token", ((BadRequestObjectResult)result).Value);
+        _refreshTokenServiceMock.Verify(r => r.SaveRefreshTokenToCustomer(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<GenerateTokenWebCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Refresh_PasswordAllowed_Ok()
+    {
+        var customer = RefreshableCustomer();
+        _signInPolicyMock.Setup(p => p.RequiredProvider(customer)).ReturnsAsync((IExternalAuthenticationProvider)null);
+        var controller = CreateController(perStore: false);
+
+        var result = await controller.Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
+
+        Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+        _signInPolicyMock.Verify(p => p.RequiredProvider(customer), Times.Once);
     }
 }
