@@ -7,6 +7,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace Grand.Business.Authentication.Services;
@@ -27,6 +28,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="httpContextAccessor">HTTP context accessor</param>
     /// <param name="securityConfig">SecurityConfig</param>
     /// <param name="oidcSessionService">Server-side sessions of provider sign-ins</param>
+    /// <param name="logger">Logger</param>
     public CookieAuthenticationService(
         CustomerSettings customerSettings,
         ICustomerService customerService,
@@ -34,7 +36,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         IHttpContextAccessor httpContextAccessor,
         ICookieOptionsFactory cookieOptionsFactory,
         SecurityConfig securityConfig,
-        IOidcSessionService oidcSessionService)
+        IOidcSessionService oidcSessionService,
+        ILogger<CookieAuthenticationService> logger)
     {
         _customerSettings = customerSettings;
         _customerService = customerService;
@@ -43,6 +46,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         _cookieOptionsFactory = cookieOptionsFactory;
         _securityConfig = securityConfig;
         _oidcSessionService = oidcSessionService;
+        _logger = logger;
     }
 
     #endregion
@@ -67,6 +71,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
 
     private readonly SecurityConfig _securityConfig;
     private readonly IOidcSessionService _oidcSessionService;
+    private readonly ILogger<CookieAuthenticationService> _logger;
 
     #endregion
 
@@ -182,7 +187,15 @@ public class CookieAuthenticationService : IGrandAuthenticationService
                 GrandCookieAuthenticationDefaults.AuthenticationScheme);
             var oidcSessionId = authenticateResult?.Succeeded == true ? OidcSessionId(authenticateResult.Principal) : null;
             if (!string.IsNullOrEmpty(oidcSessionId))
-                await _oidcSessionService.End(oidcSessionId, OidcSessionEndReason.SignOut);
+                try
+                {
+                    await _oidcSessionService.End(oidcSessionId, OidcSessionEndReason.SignOut);
+                }
+                catch (Exception ex)
+                {
+                    //the cookie is removed below anyway; the session ends by idle or maximum lifetime
+                    _logger.LogWarning(ex, "Could not end the OpenID Connect session {SessionId} on sign-out", oidcSessionId);
+                }
 
             await _httpContextAccessor.HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults
                 .AuthenticationScheme);

@@ -8,6 +8,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
@@ -45,7 +46,7 @@ public class CookieAuthenticationServiceTests
         _oidcSessionService = new Mock<IOidcSessionService>();
         _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object,
             _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config,
-            _oidcSessionService.Object);
+            _oidcSessionService.Object, NullLogger<CookieAuthenticationService>.Instance);
         //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
         _authServiceMock = new Mock<IAuthenticationService>();
         serviceProviderMock = new Mock<IServiceProvider>();
@@ -333,6 +334,23 @@ public class CookieAuthenticationServiceTests
         await _cookieAuthService.SignOut();
         _oidcSessionService.Verify(x => x.End(It.IsAny<string>(), It.IsAny<OidcSessionEndReason>()), Times.Never);
         _authServiceMock.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme,
+            It.IsAny<AuthenticationProperties>()), Times.Once);
+    }
+
+    //a failing session store must not keep the customer signed in
+    [TestMethod]
+    public async Task SignOut_EndThrows_StillSignsOut()
+    {
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
+        _oidcSessionService.Setup(x => x.End("session-1", OidcSessionEndReason.SignOut))
+            .ThrowsAsync(new InvalidOperationException("database down"));
+
+        await _cookieAuthService.SignOut();
+
+        _authServiceMock.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme,
+            It.IsAny<AuthenticationProperties>()), Times.Once);
+        _authServiceMock.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme,
             It.IsAny<AuthenticationProperties>()), Times.Once);
     }
 }
