@@ -784,7 +784,8 @@ never logged.
 2. *Backchannel logout session required*: **on**. The logout token then carries `sid`, and only the matching GrandNode
    session ends instead of every session of the user.
 3. *Revoke refresh token* (*Advanced > OpenID Connect Compatibility Modes*) is optional; refresh token rotation is
-   supported. 4. `offline_access` is a default optional client scope of a Keycloak client; keep it assigned to `grandnode-login`
+   supported.
+4. `offline_access` is a default optional client scope of a Keycloak client; keep it assigned to `grandnode-login`
    (section 11.4). The store requests it by default, and the refresh token then outlives the Keycloak SSO session
    (offline session: 30 days idle by default).
 
