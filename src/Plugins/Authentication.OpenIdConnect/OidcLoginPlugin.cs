@@ -33,6 +33,8 @@ public class OidcLoginPlugin(
             "Your identity provider account is already connected to another account in this store. Nothing was connected."),
         ("Failed.SignedInAsOtherAccount",
             "You are already signed in with another account. Sign out first, then sign in with your identity provider."),
+        ("Failed.SessionUnavailable",
+            "Signing in to the back office with the identity provider is not set up completely. Use your password, or ask the administrator."),
         ("DisplayOrder", "Display order"),
         ("ClientId", "Client ID"),
         ("ClientSecret", "Client secret"),

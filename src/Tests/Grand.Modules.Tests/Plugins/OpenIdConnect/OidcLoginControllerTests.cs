@@ -1,5 +1,6 @@
 using Authentication.OpenIdConnect;
 using Authentication.OpenIdConnect.Controllers;
+using Authentication.OpenIdConnect.Infrastructure;
 using Authentication.OpenIdConnect.Models;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
@@ -33,6 +34,8 @@ public class OidcLoginControllerTests
     private Mock<IExternalRegistrationContext> _external;
     private Mock<IOidcCustomerResolver> _resolver;
     private Mock<IGrandAuthenticationService> _auth;
+    private Mock<IOidcSessionService> _sessions;
+    private Dictionary<string, string> _externalItems;
     private Mock<IMediator> _mediator;
     private Mock<IExternalAuthenticationService> _externalAuth;
     private Mock<IAuthenticationSchemeProvider> _schemes;
@@ -66,6 +69,8 @@ public class OidcLoginControllerTests
         _external = new Mock<IExternalRegistrationContext>();
         _resolver = new Mock<IOidcCustomerResolver>();
         _auth = new Mock<IGrandAuthenticationService>();
+        _sessions = new Mock<IOidcSessionService>();
+        _sessions.Setup(x => x.Start(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("session-1");
         _mediator = new Mock<IMediator>();
         _externalAuth = new Mock<IExternalAuthenticationService>();
         _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName)).Returns(true);
@@ -87,12 +92,18 @@ public class OidcLoginControllerTests
         _httpAuth.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity("test")),
                 new AuthenticationProperties { IssuedUtc = _ticketIssued }, GrandCookieAuthenticationDefaults.AuthenticationScheme)));
+        _externalItems = new Dictionary<string, string> {
+            [OidcLoginSessionData.RefreshTokenItem] = "rt-1", [OidcLoginSessionData.SidItem] = "sid-1"
+        };
+        _httpAuth.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme))
+            .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity("ext")),
+                new AuthenticationProperties(_externalItems), GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme)));
         _logger = new Mock<ILogger<OidcLoginController>>();
         var http = new DefaultHttpContext {
             Session = new TestSession(),
             RequestServices = new ServiceCollection().AddSingleton(_httpAuth.Object).BuildServiceProvider()
         };
-        _controller = new OidcLoginController(_external.Object, _resolver.Object, _auth.Object, _mediator.Object,
+        _controller = new OidcLoginController(_external.Object, _resolver.Object, _auth.Object, _sessions.Object, _mediator.Object,
             _externalAuth.Object, _schemes.Object, _groups.Object, ctx.Object, _logger.Object) {
             ControllerContext = new ControllerContext { HttpContext = http }
         };
@@ -148,7 +159,7 @@ public class OidcLoginControllerTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _resolver.Setup(x => x.ResolveForLogin("sub-1", "john@example.com", true, "s1")).ReturnsAsync(OidcLoginResult.SignIn(customer));
         var result = await _controller.Callback("/cart");
-        _auth.Verify(x => x.SignIn(customer, false), Times.Once);
+        _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
         _mediator.Verify(x => x.Publish(It.Is<CustomerLoggedInEvent>(e => e.Customer == customer), It.IsAny<CancellationToken>()), Times.Once);
         _external.Verify(x => x.Clear(), Times.Once);
         Assert.AreEqual("/cart", ((RedirectResult)result).Url);
@@ -183,7 +194,7 @@ public class OidcLoginControllerTests
         Assert.AreEqual("OidcLoginFailed", result.RouteName);
         Assert.AreEqual((int)OidcLoginRefusal.AccountInactive, result.RouteValues!["reason"]);
         _external.Verify(x => x.Clear(), Times.Once);
-        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -301,7 +312,7 @@ public class OidcLoginControllerTests
         _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         Assert.AreEqual("/cart", ((RedirectResult)await _controller.Callback("/cart")).Url);
-        _auth.Verify(x => x.SignIn(customer, false), Times.Once);
+        _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
     }
 
     [TestMethod]
@@ -315,7 +326,7 @@ public class OidcLoginControllerTests
         Assert.AreEqual("OidcLoginFailed", result.RouteName);
         Assert.AreEqual(true, result.RouteValues!["signedIn"]);
         _external.Verify(x => x.Clear(), Times.Once);
-        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
         _mediator.Verify(x => x.Publish(It.IsAny<CustomerLoggedInEvent>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -328,7 +339,7 @@ public class OidcLoginControllerTests
             .ReturnsAsync(OidcLoginResult.SignIn(_current));
         Assert.AreEqual("/cart", ((RedirectResult)await _controller.Callback("/cart")).Url);
         _external.Verify(x => x.Clear(), Times.Once);
-        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -412,6 +423,57 @@ public class OidcLoginControllerTests
         _ticketIssued = DateTimeOffset.UtcNow.AddMinutes(-1);
         Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
         _external.Verify(x => x.Complete(_current, "s1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Callback_SignIn_StartsSessionWithTokensOfTheSignIn()
+    {
+        var customer = new Customer { Id = "c2" };
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin("sub-1", "john@example.com", true, "s1")).ReturnsAsync(OidcLoginResult.SignIn(customer));
+
+        await _controller.Callback("/");
+
+        _sessions.Verify(x => x.Start(customer, "sub-1", "sid-1", "rt-1", "s1"), Times.Once);
+        _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
+    }
+
+    //a back-office account whose provider sent no refresh token (offline_access missing): no session that dies at once
+    [TestMethod]
+    public async Task Callback_SessionNotStarted_FailedPage_NotSignedIn()
+    {
+        var customer = new Customer { Id = "c2" };
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(customer));
+        _sessions.Setup(x => x.Start(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((string)null);
+
+        var result = (RedirectToRouteResult)await _controller.Callback("/");
+
+        Assert.AreEqual("OidcLoginFailed", result.RouteName);
+        Assert.AreEqual(true, result.RouteValues!["session"]);
+        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+        _external.Verify(x => x.Clear(), Times.AtLeastOnce);
+    }
+
+    [TestMethod]
+    public void Failed_SessionUnavailable_Model()
+    {
+        var model = (FailedModel)((ViewResult)_controller.Failed(null, session: true)).Model!;
+        Assert.IsTrue(model.SessionUnavailable);
+    }
+
+    [TestMethod]
+    public async Task Callback_Signin_ExternalItemsMissing_StartsSessionWithoutTokens()
+    {
+        var customer = new Customer { Id = "c2" };
+        _externalItems.Clear();
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(customer));
+        await _controller.Callback("/");
+        _sessions.Verify(x => x.Start(customer, "sub-1", null, null, "s1"), Times.Once);
     }
 
     [TestMethod]

@@ -8,6 +8,8 @@
         ? "Plugins.ExternalAuth.OpenIdConnect.Failed.IdentityLinkedToOtherAccount"
         : Model.SignedInAsOtherAccount
         ? "Plugins.ExternalAuth.OpenIdConnect.Failed.SignedInAsOtherAccount"
+        : Model.SessionUnavailable
+        ? "Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable"
         : Model.Reason switch {
             OidcLoginRefusal.AccountInactive => "Plugins.ExternalAuth.OpenIdConnect.Failed.AccountInactive",
             OidcLoginRefusal.RegistrationDisabled => "Plugins.ExternalAuth.OpenIdConnect.Failed.RegistrationDisabled",

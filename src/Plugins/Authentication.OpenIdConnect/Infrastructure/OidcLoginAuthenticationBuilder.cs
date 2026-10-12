@@ -49,6 +49,12 @@ public class OidcLoginAuthenticationBuilder : IAuthenticationBuilder
                 options.ClaimActions.MapUniqueJsonKey(claim, claim);
 
             options.Events = new OpenIdConnectEvents {
+                //the refresh token stays out of the ticket's tokens (SaveTokens is off): only the server-side session keeps it
+                OnTokenValidated = ctx =>
+                {
+                    OidcLoginSessionData.Capture(ctx.Properties, ctx.TokenEndpointResponse);
+                    return Task.CompletedTask;
+                },
                 OnTicketReceived = async ctx =>
                 {
                     var identity = OidcLoginIdentityMapper.Map(ctx.Principal, resourceServer.Claims);

@@ -1,3 +1,4 @@
+using Authentication.OpenIdConnect.Infrastructure;
 using Authentication.OpenIdConnect.Models;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
@@ -23,6 +24,7 @@ public class OidcLoginController : BasePluginController
         IExternalRegistrationContext externalRegistrationContext,
         IOidcCustomerResolver oidcCustomerResolver,
         IGrandAuthenticationService authenticationService,
+        IOidcSessionService oidcSessionService,
         IMediator mediator,
         IExternalAuthenticationService externalAuthenticationService,
         IAuthenticationSchemeProvider authenticationSchemeProvider,
@@ -33,6 +35,7 @@ public class OidcLoginController : BasePluginController
         _externalRegistrationContext = externalRegistrationContext;
         _oidcCustomerResolver = oidcCustomerResolver;
         _authenticationService = authenticationService;
+        _oidcSessionService = oidcSessionService;
         _mediator = mediator;
         _externalAuthenticationService = externalAuthenticationService;
         _authenticationSchemeProvider = authenticationSchemeProvider;
@@ -50,6 +53,7 @@ public class OidcLoginController : BasePluginController
     private readonly IExternalRegistrationContext _externalRegistrationContext;
     private readonly IOidcCustomerResolver _oidcCustomerResolver;
     private readonly IGrandAuthenticationService _authenticationService;
+    private readonly IOidcSessionService _oidcSessionService;
     private readonly IMediator _mediator;
     private readonly IExternalAuthenticationService _externalAuthenticationService;
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
@@ -114,11 +118,20 @@ public class OidcLoginController : BasePluginController
         switch (result.Outcome)
         {
             case OidcLoginOutcome.SignIn:
+            {
+                //read before the pending identity is cleared: the same cookie carries them
+                var (refreshToken, sid) = await OidcLoginSessionData.Read(HttpContext);
                 await _externalRegistrationContext.Clear();
+                var sessionId = await _oidcSessionService.Start(result.Customer, pending.Subject, sid, refreshToken,
+                    _contextAccessor.StoreContext.CurrentStore.Id);
+                if (sessionId == null)
+                    return RedirectToRoute("OidcLoginFailed", new { session = true });
+
                 //the identity provider is the sign-in: its multi-factor policy applies, not the store's two-factor code
                 await _mediator.Publish(new CustomerLoggedInEvent(result.Customer));
-                await _authenticationService.SignIn(result.Customer, false);
+                await _authenticationService.SignIn(result.Customer, false, sessionId);
                 return RedirectLocal(returnUrl);
+            }
             case OidcLoginOutcome.RegistrationRequired:
                 return RedirectToRoute("Register", new { returnUrl });
             case OidcLoginOutcome.LinkRequired:
@@ -199,10 +212,11 @@ public class OidcLoginController : BasePluginController
         };
     }
 
-    public IActionResult Failed(int? reason, bool mismatch = false, bool taken = false, bool signedIn = false) =>
+    public IActionResult Failed(int? reason, bool mismatch = false, bool taken = false, bool signedIn = false,
+        bool session = false) =>
         View(new FailedModel {
             Reason = (OidcLoginRefusal)(reason ?? 0), Mismatch = mismatch, IdentityTaken = taken,
-            SignedInAsOtherAccount = signedIn
+            SignedInAsOtherAccount = signedIn, SessionUnavailable = session
         });
 
     #endregion
