@@ -1,5 +1,7 @@
+using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Infrastructure.Endpoints;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace Authentication.OpenIdConnect;
@@ -18,6 +20,9 @@ public class EndpointProvider : IEndpointProvider
             new { controller = "OidcLogin", action = "LinkComplete" });
         endpointRouteBuilder.MapControllerRoute("OidcLoginFailed", "oidc/failed",
             new { controller = "OidcLogin", action = "Failed" });
+        //called by the identity provider, server to server: no antiforgery, no store context, no MVC filters
+        endpointRouteBuilder.MapPost(OidcLoginDefaults.BackChannelLogoutPath,
+            (Func<HttpContext, Task<IResult>>)OidcBackChannelLogoutEndpoint.Handle);
     }
 
     public int Priority => 10;

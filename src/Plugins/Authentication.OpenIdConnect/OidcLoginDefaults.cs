@@ -11,6 +11,7 @@ public static class OidcLoginDefaults
     public const string CallbackPath = "/signin-oidc";
     public const string ConfigSection = "OidcLogin";
     public const string HttpClientName = "Grand.OidcLogin";
+    public const string BackChannelLogoutPath = "oidc/backchannel-logout";
     public const string FailedPath = "/oidc/failed";
     public const string ConfigurationUrl = "../OidcLoginSettings/Configure";
     public static readonly TimeSpan PendingLifetime = TimeSpan.FromMinutes(15);
