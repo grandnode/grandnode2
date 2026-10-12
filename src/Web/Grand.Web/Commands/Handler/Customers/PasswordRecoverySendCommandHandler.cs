@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;
@@ -10,17 +11,24 @@ public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecove
 {
     private readonly IMessageProviderService _messageProviderService;
     private readonly ICustomerService _customerService;
+    private readonly IExternalSignInPolicy _externalSignInPolicy;
 
     public PasswordRecoverySendCommandHandler(
         ICustomerService customerService,
-        IMessageProviderService messageProviderService)
+        IMessageProviderService messageProviderService,
+        IExternalSignInPolicy externalSignInPolicy)
     {
+        _externalSignInPolicy = externalSignInPolicy;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
     }
 
     public async Task<bool> Handle(PasswordRecoverySendCommand request, CancellationToken cancellationToken)
     {
+        //an account that signs in only with the identity provider has no password to recover; the page answers as usual
+        if (request.Customer == null || await _externalSignInPolicy.RequiredProvider(request.Customer) != null)
+            return true;
+
         //save token and current date
         var passwordRecoveryToken = Guid.NewGuid();
         await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryToken,

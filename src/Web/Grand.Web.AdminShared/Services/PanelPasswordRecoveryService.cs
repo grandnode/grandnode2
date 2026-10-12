@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -21,7 +22,8 @@ public class PanelPasswordRecoveryService(
     IMessageProviderService messageProviderService,
     ITranslationService translationService,
     IContextAccessor contextAccessor,
-    CustomerSettings customerSettings) : IPanelPasswordRecoveryService
+    CustomerSettings customerSettings,
+    IExternalSignInPolicy externalSignInPolicy) : IPanelPasswordRecoveryService
 {
     public const string AreaAdmin = "Admin";
     public const string AreaStore = "Store";
@@ -31,6 +33,10 @@ public class PanelPasswordRecoveryService(
     {
         var customer = await GetPanelCustomer(email, area);
         if (customer == null)
+            return;
+
+        //an account that signs in only with the identity provider has no password to recover
+        if (await externalSignInPolicy.RequiredProvider(customer) != null)
             return;
 
         await customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordRecoveryToken,
