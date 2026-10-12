@@ -54,6 +54,7 @@ Each entry of `Resources` (plugins register the same object, section 5):
 | `RequireAdminPanelAccess` | `false` | The customer needs the `ManageAccessAdminPanel` permission. |
 | `DenyVendors` | `false` | Refuse customers that belong to a vendor. The shipped `BackendApi` entry sets `true`. |
 | `DenyStoreManagers` | `false` | Refuse store manager accounts. The shipped `BackendApi` entry sets `true`. |
+| `MaxTokenAgeMinutes` | empty (off) | Refuse tokens issued longer ago than this (`iat`). The shipped `BackendApi` entry sets `10`. See [section 12](#12-sessions-sign-out-and-back-office-policy). |
 
 `offline_access` is never advertised in `scopes_supported` or in a challenge `scope`.
 
@@ -593,6 +594,9 @@ Section `OidcLogin` of `appsettings.json`:
 | `ClientSecret` | empty | Its secret. Prefer the environment variable `OidcLogin__ClientSecret`. |
 | `Scopes` | `openid profile email` | Space separated scopes requested at the provider. `openid` and `email` are needed. |
 
+The section has more keys for back-office sessions, sign-out and the sign-in policy; they are described in
+[section 12](#12-sessions-sign-out-and-back-office-policy).
+
 ```json
 "OidcResourceServer": {
   "Authority": "https://idp.example.com/realms/grandnode",
@@ -690,6 +694,141 @@ Use the project of section 7. Create a **separate** application for the browser 
 | Visitor is sent to the registration form although the account exists | The e-mail differs, or `RegisterCustomersPerStore` limits lookups to another store. |
 | Visitor is asked to connect accounts though the e-mail is verified | The account is staff or uses GrandNode two-factor authentication, or the provider sends `email_verified` as false or not at all (for Zitadel check the user info answer). |
 | After sign-in the visitor lands on the home page, not on the requested page | The `returnUrl` was not local. |
+
+## 12. Sessions, sign-out and back-office policy
+
+Signing in through the provider (section 11) starts a GrandNode session, and the provider can end it from its side. This
+section describes what ends a session, the settings that bound back-office sessions, and how to connect the provider's
+back-channel logout (OpenID Connect Back-Channel Logout 1.0).
+
+### 12.1 What ends a session
+
+| Event | Effect |
+|---|---|
+| The provider sends a back-channel logout (the user signs out at the provider, or an administrator ends the provider session) | The GrandNode sessions of that provider session (or of that user, when the logout names no session) end **at once**, for every kind of account. Access tokens of that user issued before the logout are refused too (section 12.2). |
+| The user signs out of GrandNode | The session ends at once. The provider session is not touched (section 12.7). |
+| The provider disables or deletes the user | **Back-office** sessions end at the next revalidation (`StaffRevalidationMinutes`, section 12.2); when the provider is unreachable at that time, the session lasts until the last successful check is older than twice that interval. **Customers keep their session until they sign out**: GrandNode does not check ordinary customers at the provider after the sign-in. |
+| Idle time or total lifetime is exceeded | **Back-office sessions only** (`StaffIdleTimeoutMinutes`, `StaffMaxSessionHours`). Storefront customers are not limited by these settings. |
+
+A back-office account is one with a vendor, a staff store, or the *Access admin panel* permission. It is evaluated on
+every request, never stored.
+
+### 12.2 Settings
+
+Section `OidcLogin` of `appsettings.json`, in addition to the keys of section 11.3. A zero or negative number means the
+default.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `StaffIdleTimeoutMinutes` | `30` | A back-office session ends after this much inactivity. |
+| `StaffMaxSessionHours` | `10` | A back-office session ends this long after the sign-in, whatever the activity. |
+| `StaffRevalidationMinutes` | `10` | How often a back-office session is checked at the provider (the stored refresh token is exchanged; a refusal ends the session). |
+| `StaffSsoOnly` | `false` | Back-office accounts connected to the provider with their password sign in only through it (section 12.5). |
+
+Access tokens: `MaxTokenAgeMinutes` of a resource (section 2) refuses a token issued longer ago than the given number
+of minutes. It is empty (off) by default and `10` for `BackendApi` in the shipped `appsettings.json`. A token without an
+`iat` claim is refused when the resource sets it. With it, a back-channel logout takes effect on the API within that
+time even for tokens that are still valid at the provider.
+
+The back-channel logout also records the time of the logout for the user: a token of that user issued **before** it is
+refused, whatever its remaining lifetime, and a token without `iat` of such a user is refused too (it fails closed).
+GrandNode compares the token's `iat` with the server time of the logout, so keep the clocks of GrandNode and the
+provider in sync (NTP).
+
+### 12.3 Back-channel logout URL
+
+`https://<store-url>/oidc/backchannel-logout`
+
+* Register one URL for **every store URL** the provider can reach (each store of a multi-store installation, each host
+  name), like the redirect URI of section 11.3.
+* The provider calls it server to server, so it must be reachable **from the provider** (from the provider's container
+  or network, not from the browser). A GrandNode behind a proxy, a firewall or a development host name that only the
+  browser resolves does not receive the call.
+* The request is a form post with a `logout_token` (a signed JWT). GrandNode accepts a logout token for a few minutes
+  after its `iat` (5 minutes plus the clock skew), and only once per instance (`jti`).
+
+Answers (always `Cache-Control: no-store`):
+
+| Status | Meaning |
+|---|---|
+| 200 | Sessions ended (also when there was nothing to end). |
+| 400 | JSON `{"error":"invalid_request", ...}`: no or invalid `logout_token`, the form could not be read, or browser sign-in is not configured. |
+| 503 | The provider's metadata could not be obtained; the provider may retry. |
+| 500 | Ending the sessions failed; the provider may retry, and the same logout token is accepted again. |
+
+A refusal is logged as a warning `Back-channel logout refused: <reason>` with the exception type; the token itself is
+never logged.
+
+### 12.4 Provider setup
+
+**Keycloak 26.8.** In the `grandnode-login` client of section 11.4, *Settings > Logout settings*:
+
+1. *Backchannel logout URL*: `https://<store-url>/oidc/backchannel-logout`.
+2. *Backchannel logout session required*: **on**. The logout token then carries `sid`, and only the matching GrandNode
+   session ends instead of every session of the user.
+3. *Revoke refresh token* (*Advanced > OpenID Connect Compatibility Modes*) is optional; refresh token rotation is
+   supported. Offline access is not needed: back-office sessions use the normal refresh token.
+
+**Zitadel v4.19.** In the application of section 11.5 set the *Back-Channel Logout URI* to
+`https://<store-url>/oidc/backchannel-logout` (the instance-wide `enableBackChannelLogout` is on by default).
+
+Zitadel issues a refresh token only when the client requests the scope `offline_access`. Add it to the scopes:
+
+```json
+"OidcLogin": {
+  "Scopes": "openid profile email offline_access"
+}
+```
+
+Without it, **back-office sign-in through Zitadel is refused**: the visitor sees the failure page "not set up
+completely" and the log has an error that names `offline_access`. Customers can still sign in. The failure text is a
+plugin resource: existing installations get it by reinstalling the plugin, or by adding the resource
+`Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Configuration > Languages*.
+
+If the ASP.NET Core Data Protection keys change (a new key ring, a different server without the shared ring), the stored
+refresh tokens cannot be read any more and back-office sessions end at the next revalidation; users sign in again.
+
+### 12.5 `StaffSsoOnly`
+
+With `OidcLogin:StaffSsoOnly = true`, a back-office account that is **connected to the provider with its password**
+(a link not made by e-mail, section 3.1) signs in only through the provider:
+
+* the password sign-in of the Admin, Store and Vendor panels and of the storefront is refused for it, and so is the
+  sign-in of the Frontend API;
+* no password recovery e-mail is sent to it (a new password would be of no use);
+* the policy applies only while the login plugin is installed, enabled and configured (`Authority` and `ClientId`);
+  otherwise passwords work as before.
+
+An account that is **not** connected keeps its password: a back-office account that has not signed in through the
+provider yet, and the **break-glass account**. Keep at least one administrator **without** a provider link, protect it
+with GrandNode two-factor authentication, and use it when the provider is down. Connect the other back-office accounts
+first (section 11.2), then turn the setting on.
+
+### 12.6 Panel login pages
+
+The login pages of the Admin, Store and Vendor panels show the provider button when the login plugin is configured.
+After the provider sign-in the visitor returns to the panel they came from (`/admin`, `/store` or `/vendor`). The account
+rules of section 11.2 and the session limits of section 12.2 apply.
+
+### 12.7 Limits
+
+* **No RP-initiated logout.** Signing out of GrandNode does not sign out of the provider (section 11.6). Only the
+  provider's back-channel logout reaches GrandNode.
+* Two instances that refresh the same session at the same moment, with a provider that invalidates a used refresh token,
+  can end that session early; the user signs in again.
+* Ended sessions are deleted by the scheduled task **Delete OpenID Connect sessions** (daily, enabled by default).
+  Records are kept for 7 days after they end.
+
+### 12.8 Troubleshooting
+
+| Symptom | Check |
+|---|---|
+| Back-office users are signed out of the panel every N minutes | The revalidation is refused. Check the client secret (`OidcLogin__ClientSecret`), that the user is still enabled at the provider, and for Zitadel that `offline_access` is in `OidcLogin:Scopes`. Also compare the interval with `StaffIdleTimeoutMinutes` and `StaffMaxSessionHours`. |
+| Back-office sign-in with Zitadel shows "not set up completely" | `offline_access` is missing from `OidcLogin:Scopes` (section 12.4); the error log names it. |
+| Back-channel logout has no effect | The URL must be reachable from the provider (its container or network), with the `https` URL of the store. Look for `Back-channel logout refused: ...` (warning) and the status the provider logs: 400 refused token, 503 metadata, 500 retry. For Keycloak check *Backchannel logout session required*. |
+| The provider reports repeated failures of the logout URL | 503 or 500 are retried by the provider; look for the error entry that precedes them. |
+| An API token is refused after the user signed out at the provider | Expected (section 12.2). A new token is issued after a new sign-in. |
+| Sessions end after a restart or a move to another server | The Data Protection keys changed (section 12.4). |
 
 Sources used for provider specifics (checked 2026-10-08): Keycloak 26.8 MCP guide and release notes, Zitadel v4.19.4
 claims, scopes, Actions v2 and dynamic client registration documentation; MCP authorization 2026-07-28; RFC 9728,
