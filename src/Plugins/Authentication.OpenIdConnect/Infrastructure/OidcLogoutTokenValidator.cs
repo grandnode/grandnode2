@@ -66,9 +66,10 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
         if (subject == null && sid == null)
             return OidcLogoutToken.Invalid("The logout token names no subject and no session");
 
+        string key = null;
         if (!string.IsNullOrEmpty(jwt.Id))
         {
-            var key = "Grand.OidcLogin.LogoutJti." + jwt.Issuer + "|" + jwt.Id;
+            key = "Grand.OidcLogin.LogoutJti." + jwt.Issuer + "|" + jwt.Id;
             if (cache.TryGetValue(key, out _))
                 return OidcLogoutToken.Invalid("The logout token was already used");
             //the iat check above already refuses the token after IssuedAt + MaxAge + skew, so that bound is replay-safe
@@ -77,7 +78,14 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
             cache.Set(key, true, new DateTimeOffset(DateTime.SpecifyKind(until, DateTimeKind.Utc)));
         }
 
-        return OidcLogoutToken.Valid(subject, sid);
+        return OidcLogoutToken.Valid(subject, sid, key);
+    }
+
+    /// <summary>Lets a token be validated again, when the work it asked for failed and the provider retries</summary>
+    public void Release(string replayKey)
+    {
+        if (replayKey != null)
+            cache.Remove(replayKey);
     }
 
     private static bool HasBackChannelEvent(JsonWebToken jwt)

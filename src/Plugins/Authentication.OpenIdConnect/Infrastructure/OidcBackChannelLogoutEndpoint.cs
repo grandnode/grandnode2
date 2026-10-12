@@ -23,7 +23,15 @@ public static class OidcBackChannelLogoutEndpoint
 
         if (!context.Request.HasFormContentType)
             return Error("The request must be a form post");
-        var form = await context.Request.ReadFormAsync(context.RequestAborted);
+        IFormCollection form;
+        try
+        {
+            form = await context.Request.ReadFormAsync(context.RequestAborted);
+        }
+        catch (Exception ex) when (ex is InvalidDataException or BadHttpRequestException or IOException)
+        {
+            return Error("The request body could not be read");
+        }
         var token = form["logout_token"].ToString();
         if (string.IsNullOrEmpty(token))
             return Error("The logout_token parameter is missing");
@@ -54,21 +62,32 @@ public static class OidcBackChannelLogoutEndpoint
             return Error(logout.Error);
         }
 
-        var sessionService = services.GetRequiredService<IOidcSessionService>();
-        var ended = logout.Sid != null
-            ? await sessionService.EndBySid(logout.Subject, logout.Sid)
-            : await sessionService.EndBySubject(logout.Subject);
+        try
+        {
+            var sessionService = services.GetRequiredService<IOidcSessionService>();
+            var ended = logout.Sid != null
+                ? await sessionService.EndBySid(logout.Subject, logout.Sid)
+                : await sessionService.EndBySubject(logout.Subject);
 
-        //a logout token with sid only names the subject through the sessions it ended
-        var subjects = logout.Subject != null
-            ? [logout.Subject]
-            : ended.Select(x => x.Subject).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
-        var revocation = services.GetRequiredService<IOidcTokenRevocationService>();
-        foreach (var subject in subjects)
-            await revocation.RevokeTokens(subject);
+            //a logout token with sid only names the subject through the sessions it ended
+            var subjects = logout.Subject != null
+                ? [logout.Subject]
+                : ended.Select(x => x.Subject).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
+            var revocation = services.GetRequiredService<IOidcTokenRevocationService>();
+            foreach (var subject in subjects)
+                await revocation.RevokeTokens(subject);
 
-        logger.LogInformation("Back-channel logout: {Count} session(s) ended for subject {Subject}, session {Sid}",
-            ended.Count, logout.Subject, logout.Sid);
+            logger.LogInformation("Back-channel logout: {Count} session(s) ended for subject {Subject}, session {Sid}",
+                ended.Count, logout.Subject, logout.Sid);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            //the provider retries a failed request: the same logout token must be accepted again
+            services.GetRequiredService<OidcLogoutTokenValidator>().Release(logout.ReplayKey);
+            logger.LogError(ex, "Back-channel logout: ending the sessions failed");
+            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
         return Results.Ok();
     }
 

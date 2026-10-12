@@ -139,6 +139,18 @@ public class OidcLogoutTokenValidatorTests
     }
 
     [TestMethod]
+    public async Task Release_AllowsTheSameTokenAgain()
+    {
+        var token = Token(jti: "jti-rel");
+        var first = await Validate(token);
+        Assert.IsTrue(first.IsValid);
+        Assert.IsFalse((await Validate(token)).IsValid);
+        _validator.Release(first.ReplayKey);
+        Assert.IsTrue((await Validate(token)).IsValid);
+        _validator.Release(null);
+    }
+
+    [TestMethod]
     public async Task Invalid_Replay()
     {
         var token = Token(jti: "jti-1");

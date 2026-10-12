@@ -66,7 +66,7 @@ public class OidcBackChannelLogoutEndpointTests
         });
     }
 
-    private async Task<HttpContext> Post(string logoutToken)
+    private IServiceProvider Services()
     {
         var schemes = new Mock<IAuthenticationSchemeProvider>();
         schemes.Setup(x => x.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme)).ReturnsAsync(() => _schemeRegistered
@@ -84,7 +84,12 @@ public class OidcBackChannelLogoutEndpointTests
             .AddSingleton(new OidcResourceServerConfig { ClockSkewSeconds = 60 })
             .AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance)
             .BuildServiceProvider();
-        var context = new DefaultHttpContext { RequestServices = services };
+        return services;
+    }
+
+    private async Task<HttpContext> Post(string logoutToken, IServiceProvider services = null)
+    {
+        var context = new DefaultHttpContext { RequestServices = services ?? Services() };
         context.Request.Method = "POST";
         context.Request.ContentType = "application/x-www-form-urlencoded";
         context.Request.Form = new FormCollection(logoutToken == null ? [] : new() { ["logout_token"] = logoutToken });
@@ -131,10 +136,40 @@ public class OidcBackChannelLogoutEndpointTests
     {
         var context = await Post(token);
         Assert.AreEqual(400, context.Response.StatusCode);
+        Assert.AreEqual("no-store", context.Response.Headers.CacheControl.ToString());
         context.Response.Body.Position = 0;
         StringAssert.Contains(await new StreamReader(context.Response.Body).ReadToEndAsync(), "invalid_request");
         _sessions.VerifyNoOtherCalls();
         _revocation.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task EndingFails_500_RetryOfSameTokenIsAccepted()
+    {
+        var token = Token();
+        _sessions.SetupSequence(x => x.EndBySid("sub-1", "sid-1"))
+            .ThrowsAsync(new InvalidOperationException("db"))
+            .ReturnsAsync([]);
+        var services = Services();
+        var first = await Post(token, services);
+        Assert.AreEqual(500, first.Response.StatusCode);
+        Assert.AreEqual("no-store", first.Response.Headers.CacheControl.ToString());
+        Assert.AreEqual(200, (await Post(token, services)).Response.StatusCode);
+        _sessions.Verify(x => x.EndBySid("sub-1", "sid-1"), Times.Exactly(2));
+    }
+
+    [TestMethod]
+    public async Task UnreadableBody_400()
+    {
+        var context = new DefaultHttpContext { RequestServices = Services() };
+        context.Request.Method = "POST";
+        context.Request.ContentType = "multipart/form-data";
+        context.Request.Body = new MemoryStream("x"u8.ToArray());
+        context.Response.Body = new MemoryStream();
+        var result = await OidcBackChannelLogoutEndpoint.Handle(context);
+        await result.ExecuteAsync(context);
+        Assert.AreEqual(400, context.Response.StatusCode);
+        Assert.AreEqual("no-store", context.Response.Headers.CacheControl.ToString());
     }
 
     [TestMethod]
@@ -150,6 +185,8 @@ public class OidcBackChannelLogoutEndpointTests
         var manager = new Mock<IConfigurationManager<OpenIdConnectConfiguration>>();
         manager.Setup(x => x.GetConfigurationAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("IDX20803"));
         _options.ConfigurationManager = manager.Object;
-        Assert.AreEqual(503, (await Post(Token())).Response.StatusCode);
+        var context = await Post(Token());
+        Assert.AreEqual(503, context.Response.StatusCode);
+        Assert.AreEqual("no-store", context.Response.Headers.CacheControl.ToString());
     }
 }
