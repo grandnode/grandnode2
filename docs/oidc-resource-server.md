@@ -717,14 +717,27 @@ Back-Channel Logout 1.0).
 | The provider sends a back-channel logout (the user signs out at the provider, or an administrator ends the provider session) | The GrandNode sessions of that provider session (or of that user, when the logout names no session) end **at once**, for every kind of account. Access tokens of that user issued before the logout are refused too (section 12.2). |
 | The user signs out of GrandNode | The session ends at once. The provider session is not touched (section 12.7). |
 | The provider disables or deletes the user | **Every** session started by a provider sign-in, of a customer or of staff, ends at the next revalidation (`RevalidationMinutes`, section 12.2). Providers send no logout for a disabled or deleted user, so GrandNode notices at the next check. When the provider is unreachable, the session lasts until the last successful check is older than twice that interval, then ends. A refused revalidation also refuses the user's older access tokens. To end the sessions **at once**, sign the user out at the provider first (a back-channel logout), then disable the user. |
-| The login plugin is uninstalled or deactivated | Every provider session (customers too) ends at the next revalidation: nothing can confirm it any more, and that counts as refused. |
+| The login plugin is uninstalled (and the application restarted), or `Authority` or `ClientId` is removed from the settings | Every provider session (customers too) ends at the next revalidation: nothing can confirm it any more, and that counts as refused. Only *deactivating* the authentication method does not end sessions: it hides the button and turns `SsoOnly` off (passwords work again), and existing provider sessions go on being revalidated. |
 | Idle time or total lifetime is exceeded | **Back-office sessions only** (`StaffIdleTimeoutMinutes`, `StaffMaxSessionHours`). Storefront customers are not limited by these settings. |
 
 After a registration through the provider or "Connect your account", the browser passes through the provider once more
 and receives a provider-controlled session: it is revalidated, a back-channel logout ends it, and the back-office limits
-apply to it. Not checked at the provider are sessions that are **not** provider sessions: password sign-ins, and
-sessions created before the upgrade that stored no refresh token (these end at the next request; the user signs in
-again). Deactivate such accounts in GrandNode as well.
+apply to it. Not checked at the provider are sign-ins that are **not** provider sessions: password sign-ins, and
+provider sign-ins made before this version, which are ordinary cookies without a server-side session. A session record
+stored without a refresh token ends at the next request; the user signs in again.
+
+**Locking a disabled user out completely needs `SsoOnly` (section 12.5).** Without it, a user disabled at the provider
+loses the provider sessions, but an account registered through the provider can still get a GrandNode password by
+password recovery and sign in with it. With `SsoOnly` on, for every account connected to the provider with a confirmed
+link:
+
+* the password sign-in and password recovery are refused;
+* a cookie without a provider session (a password sign-in from before the account was connected or before `SsoOnly`
+  was turned on, or a provider sign-in from before this version) is refused at the next request; the user signs in
+  again through the provider;
+* the Frontend API does not refresh a token pair obtained with the password; the client signs in again.
+
+Without `SsoOnly`, deactivate such accounts in GrandNode as well.
 
 A back-office account is one with a vendor, a staff store, or the *Access admin panel* permission. It is evaluated on
 every request, never stored.
@@ -738,9 +751,9 @@ default.
 |---|---|---|
 | `StaffIdleTimeoutMinutes` | `30` | Back-office accounts only. A back-office session ends after this much inactivity. |
 | `StaffMaxSessionHours` | `10` | Back-office accounts only. A back-office session ends this long after the sign-in, whatever the activity. |
-| `RevalidationMinutes` | `10` | How often **every** provider session (customer or staff) is checked at the provider (the stored refresh token is exchanged; a refusal ends the session). While the provider is unreachable the session stays valid up to twice this long since its last successful check. |
+| `RevalidationMinutes` | `10` | How often **every** provider session (customer or staff) is checked at the provider (the stored refresh token is exchanged; a refusal ends the session). While the provider is unreachable the session stays valid up to twice this long since its last successful check. Load: one refresh-token exchange per actively used session per interval, made synchronously on the request that finds the check due (10 s timeout); size the interval for large stores. |
 | `SsoOnly` | `false` | Every account connected to the provider with a confirmed link signs in only through it (section 12.5). |
-| `Scopes` | `openid profile email offline_access` | `offline_access` gives the refresh token that every session needs. It outlives the provider's ordinary session, so a customer stays signed in as long as the provider keeps that offline session (Keycloak: 30 days idle by default; Zitadel: 30 days idle, 90 days absolute). |
+| `Scopes` | `openid profile email offline_access` | `offline_access` gives the refresh token that every session needs. It outlives the provider's ordinary session, so a session is confirmed for as long as the provider keeps that offline session (Keycloak: 30 days idle by default; Zitadel: 30 days idle, 90 days absolute). The sign-in cookie of a provider sign-in lasts only for the browser session: after the browser is closed the user signs in again, without a prompt while the provider's own session lives. |
 
 Access tokens: `MaxTokenAgeMinutes` of a resource (section 2) refuses a token issued longer ago than the given number
 of minutes. It is empty (off) by default and `10` for `BackendApi` in the shipped `appsettings.json`. A token without an
@@ -808,7 +821,7 @@ Without either, **sign-in through Zitadel is refused for every account**: the vi
 completely" and the log has an error that names `offline_access`. The same happens with Keycloak when `offline_access` is not assigned to the client. The failure text is a
 plugin resource that existing installations do not have yet: add the resource
 `Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Admin → Languages* (English text: "Signing in with the
-identity provider is not set up completely. Use your password, or ask the administrator."). Do not
+identity provider is not set up completely. Use another sign-in method, or ask the administrator."). Do not
 reinstall the plugin for it: uninstalling deletes its settings and the resources edited in the admin panel.
 
 If the ASP.NET Core Data Protection keys change (a new key ring, a different server without the shared ring), the stored
@@ -851,7 +864,7 @@ rules of section 11.2 and the session limits of section 12.2 apply.
 |---|---|
 | Users are signed out every N minutes | The revalidation is refused. Check the client secret (`OidcLogin__ClientSecret`), that the user is still enabled at the provider, and that `offline_access` is in `OidcLogin:Scopes`. For back-office users also compare the interval with `StaffIdleTimeoutMinutes` and `StaffMaxSessionHours`. |
 | Sign-in shows "not set up completely" | No refresh token was issued: `offline_access` is missing from `OidcLogin:Scopes`, it is not assigned to the Keycloak client, or the Zitadel application lacks the Refresh Token grant (section 12.4); the error log names it. |
-| Everyone is signed out after the plugin was uninstalled or deactivated | Expected (section 12.1): no one can confirm the sessions at the provider. |
+| Everyone is signed out after the plugin was uninstalled or `Authority`/`ClientId` removed | Expected (section 12.1): no one can confirm the sessions at the provider. Deactivating the authentication method alone does not sign anyone out. |
 | Every provider session ended during a provider outage | The provider was unreachable for longer than twice `RevalidationMinutes` since the last successful check. |
 | Back-channel logout has no effect | The URL must be reachable from the provider (its container or network), with the `https` URL of the store. Look for `Back-channel logout refused: ...` (warning) and the status the provider logs: 400 refused token, 503 metadata, 500 retry. For Keycloak check *Backchannel logout session required*. |
 | The provider reports repeated failures of the logout URL | 503 or 500 are retried by the provider; look for the error entry that precedes them. |
