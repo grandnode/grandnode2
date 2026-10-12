@@ -3,6 +3,9 @@ using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
@@ -140,5 +143,37 @@ public class OidcTokenRefresherTests
     {
         _options.ConfigurationManager = null;
         Assert.AreEqual(OidcRefreshOutcome.Refused, (await Refresher().Refresh("rt-1")).Outcome);
+    }
+
+    //a redirect is not an answer of the token endpoint: the token is never re-posted elsewhere
+    [TestMethod]
+    [DataRow(HttpStatusCode.TemporaryRedirect)]
+    [DataRow(HttpStatusCode.PermanentRedirect)]
+    [DataRow(HttpStatusCode.Found)]
+    public async Task Redirect_Unavailable(HttpStatusCode status)
+    {
+        _handler = new StubHandler(_ => {
+            var response = new HttpResponseMessage(status);
+            response.Headers.Location = new Uri("https://elsewhere.test/collect");
+            return Task.FromResult(response);
+        });
+        Assert.AreEqual(OidcRefreshOutcome.Unavailable, (await Refresher().Refresh("rt-1")).Outcome);
+    }
+
+    [TestMethod]
+    public void HttpClient_DoesNotFollowRedirects()
+    {
+        var services = new ServiceCollection();
+        new StartupApplication().ConfigureServices(services, new ConfigurationBuilder().Build());
+        using var provider = services.BuildServiceProvider();
+
+        var builder = provider.GetRequiredService<HttpMessageHandlerBuilder>();
+        builder.Name = OidcLoginDefaults.HttpClientName;
+        var options = provider.GetRequiredService<IOptionsMonitor<HttpClientFactoryOptions>>().Get(OidcLoginDefaults.HttpClientName);
+        foreach (var action in options.HttpMessageHandlerBuilderActions)
+            action(builder);
+
+        Assert.IsInstanceOfType<HttpClientHandler>(builder.PrimaryHandler);
+        Assert.IsFalse(((HttpClientHandler)builder.PrimaryHandler).AllowAutoRedirect);
     }
 }
