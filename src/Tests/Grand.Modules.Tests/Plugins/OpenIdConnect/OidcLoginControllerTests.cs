@@ -211,7 +211,23 @@ public class OidcLoginControllerTests
         Marker("sub-1");
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
-        Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
+        var result = (RedirectToRouteResult)await _controller.LinkComplete("/account");
+        Assert.AreEqual("OidcLoginLogin", result.RouteName);
+        Assert.AreEqual("/account", result.RouteValues!["returnUrl"]);
+    }
+
+    //the password session of "Connect your account" is replaced at once: the provider session is still open, so the
+    //browser comes straight back and the callback starts a session-backed cookie
+    [TestMethod]
+    public async Task LinkComplete_Linked_GoesThroughProviderSignIn()
+    {
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        Marker("sub-1");
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
+        var result = (RedirectToRouteResult)await _controller.LinkComplete("/account");
+        Assert.AreEqual("OidcLoginLogin", result.RouteName);
+        Assert.AreEqual("/account", result.RouteValues!["returnUrl"]);
     }
 
     [TestMethod]
@@ -330,16 +346,20 @@ public class OidcLoginControllerTests
         _mediator.Verify(x => x.Publish(It.IsAny<CustomerLoggedInEvent>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    //the same account signing in again (right after "Connect your account") replaces its cookie with a session-backed one
     [TestMethod]
-    public async Task Callback_SignIn_SameAccountSignedIn_RedirectsWithoutNewSignIn()
+    public async Task Callback_SameCustomerSignedIn_ReplacesCookieWithSession()
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync(OidcLoginResult.SignIn(_current));
-        Assert.AreEqual("/cart", ((RedirectResult)await _controller.Callback("/cart")).Url);
-        _external.Verify(x => x.Clear(), Times.Once);
-        _auth.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+
+        var result = (RedirectResult)await _controller.Callback("/account");
+
+        Assert.AreEqual("/account", result.Url);
+        _sessions.Verify(x => x.Start(_current, "sub-1", "sid-1", "rt-1", "s1"), Times.Once);
+        _auth.Verify(x => x.SignIn(_current, false, "session-1"), Times.Once);
     }
 
     [TestMethod]
@@ -374,7 +394,9 @@ public class OidcLoginControllerTests
         var now = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         Marker("sub-1", now);
         _ticketIssued = now.AddMilliseconds(800);
-        Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
+        var result = (RedirectToRouteResult)await _controller.LinkComplete("/account");
+        Assert.AreEqual("OidcLoginLogin", result.RouteName);
+        Assert.AreEqual("/account", result.RouteValues!["returnUrl"]);
     }
 
     [TestMethod]
@@ -421,7 +443,9 @@ public class OidcLoginControllerTests
         _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Marker("sub-1", DateTimeOffset.UtcNow.AddMinutes(-2));
         _ticketIssued = DateTimeOffset.UtcNow.AddMinutes(-1);
-        Assert.AreEqual("/account", ((RedirectResult)await _controller.LinkComplete("/account")).Url);
+        var result = (RedirectToRouteResult)await _controller.LinkComplete("/account");
+        Assert.AreEqual("OidcLoginLogin", result.RouteName);
+        Assert.AreEqual("/account", result.RouteValues!["returnUrl"]);
         _external.Verify(x => x.Complete(_current, "s1"), Times.Once);
     }
 
@@ -493,7 +517,9 @@ public class OidcLoginControllerTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_current, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         Marker("sub-1");
-        Assert.AreEqual("HomePage", ((RedirectToRouteResult)await _controller.LinkComplete("https://evil.example/")).RouteName);
+        var result = (RedirectToRouteResult)await _controller.LinkComplete("https://evil.example/");
+        Assert.AreEqual("OidcLoginLogin", result.RouteName);
+        Assert.IsNull(result.RouteValues!["returnUrl"]);
     }
 
     [TestMethod]

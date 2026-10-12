@@ -101,17 +101,16 @@ public class OidcLoginController : BasePluginController
         var result = await _oidcCustomerResolver.ResolveForLogin(pending.Subject, pending.Email, pending.EmailVerified,
             _contextAccessor.StoreContext.CurrentStore.Id);
 
-        //a store session is never replaced by another account, and a signed-in visitor does not register;
-        //connecting accounts (LinkRequired) asks for the password of the account itself
+        //a store session is never replaced by another account, and a signed-in visitor does not register; the same
+        //account signing in again (for example right after "Connect your account") gets a session-backed cookie
         if (result.Outcome is OidcLoginOutcome.SignIn or OidcLoginOutcome.RegistrationRequired)
         {
             var current = _contextAccessor.WorkContext.CurrentCustomer;
-            if (await _groupService.IsRegistered(current))
+            if (await _groupService.IsRegistered(current) &&
+                (result.Outcome == OidcLoginOutcome.RegistrationRequired || result.Customer?.Id != current.Id))
             {
                 await _externalRegistrationContext.Clear();
-                return result.Customer?.Id == current.Id
-                    ? RedirectLocal(returnUrl)
-                    : RedirectToRoute("OidcLoginFailed", new { signedIn = true });
+                return RedirectToRoute("OidcLoginFailed", new { signedIn = true });
             }
         }
 
@@ -205,7 +204,9 @@ public class OidcLoginController : BasePluginController
         }
 
         return await _externalRegistrationContext.Complete(customer, _contextAccessor.StoreContext.CurrentStore.Id) switch {
-            OidcLinkResult.Linked => RedirectLocal(returnUrl),
+            //the password sign-in that connected the account is replaced at once: the provider session is still open,
+            //so the provider answers without a prompt and the callback starts a session-backed cookie
+            OidcLinkResult.Linked => RedirectToRoute("OidcLoginLogin", new { returnUrl }),
             //the provider identity, not this account, is the one already connected elsewhere
             OidcLinkResult.SubjectLinkedToOtherCustomer => RedirectToRoute("OidcLoginFailed", new { taken = true }),
             _ => RedirectToRoute("OidcLoginFailed", new { reason = (int)OidcLoginRefusal.LinkedToOtherIdentity })
