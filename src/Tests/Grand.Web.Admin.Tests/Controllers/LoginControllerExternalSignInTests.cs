@@ -46,9 +46,9 @@ public class LoginControllerExternalSignInTests
     [TestMethod]
     public async Task Index_ListsPanelProvidersOnly()
     {
-        var panel = new Mock<IPanelExternalAuthenticationProvider>();
+        var panel = new Mock<IExternalSignInPathProvider>();
         panel.Setup(x => x.FriendlyName).Returns("OpenID Connect");
-        panel.Setup(x => x.GetPanelSignInPath("/shop/admin")).ReturnsAsync("/oidc/login?returnUrl=%2Fshop%2Fadmin");
+        panel.Setup(x => x.GetSignInPath("/shop/admin")).ReturnsAsync("/oidc/login?returnUrl=%2Fshop%2Fadmin");
         var storefrontOnly = new Mock<IExternalAuthenticationProvider>();
         _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null))
             .Returns([panel.Object, storefrontOnly.Object]);
@@ -63,8 +63,8 @@ public class LoginControllerExternalSignInTests
     [TestMethod]
     public async Task Index_ProviderWithoutPath_Hidden()
     {
-        var panel = new Mock<IPanelExternalAuthenticationProvider>();
-        panel.Setup(x => x.GetPanelSignInPath(It.IsAny<string>())).ReturnsAsync((string)null!);
+        var panel = new Mock<IExternalSignInPathProvider>();
+        panel.Setup(x => x.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null!);
         _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null)).Returns([panel.Object]);
         var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object)).Model!;
         Assert.AreEqual(0, model.ExternalSignIn.Count);

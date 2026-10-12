@@ -105,9 +105,9 @@ public abstract class BaseLoginController : BaseController
     {
         var returnUrl = Url.RouteUrl($"{GetCurrentArea()}Index");
         foreach (var provider in externalAuthenticationService.LoadActiveAuthenticationProviders()
-                     .OfType<IPanelExternalAuthenticationProvider>())
+                     .OfType<IExternalSignInPathProvider>())
         {
-            var path = await provider.GetPanelSignInPath(returnUrl);
+            var path = await provider.GetSignInPath(returnUrl);
             if (!string.IsNullOrEmpty(path))
                 model.ExternalSignIn.Add(new LoginModel.ExternalSignInButton {
                     Name = provider.FriendlyName, Url = Request.PathBase + path

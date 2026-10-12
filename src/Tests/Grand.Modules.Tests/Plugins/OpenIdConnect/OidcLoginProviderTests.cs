@@ -17,14 +17,14 @@ public class OidcLoginProviderTests
         schemes.Setup(x => x.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme)).ReturnsAsync(
             new AuthenticationScheme(OidcLoginDefaults.AuthenticationScheme, null, typeof(IAuthenticationHandler)));
         var provider = new OidcLoginProvider(new OidcLoginSettings(), schemes.Object);
-        Assert.AreEqual("/oidc/login?returnUrl=%2Fadmin", await provider.GetPanelSignInPath("/admin"));
+        Assert.AreEqual("/oidc/login?returnUrl=%2Fadmin", await provider.GetSignInPath("/admin"));
     }
 
     [TestMethod]
     public async Task PanelSignInPath_NoScheme_Null()
     {
         var provider = new OidcLoginProvider(new OidcLoginSettings(), new Mock<IAuthenticationSchemeProvider>().Object);
-        Assert.IsNull(await provider.GetPanelSignInPath("/admin"));
+        Assert.IsNull(await provider.GetSignInPath("/admin"));
     }
 
     [TestMethod]
