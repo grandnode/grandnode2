@@ -713,6 +713,10 @@ back-channel logout (OpenID Connect Back-Channel Logout 1.0).
 | The provider disables or deletes the user | **Back-office** sessions end at the next revalidation (`StaffRevalidationMinutes`, section 12.2); when the provider is unreachable at that time, the session lasts until the last successful check is older than twice that interval. A refused revalidation also refuses the user's older access tokens. **Customers keep their session until they sign out or the cookie expires**: GrandNode does not check ordinary customers at the provider after the sign-in. |
 | Idle time or total lifetime is exceeded | **Back-office sessions only** (`StaffIdleTimeoutMinutes`, `StaffMaxSessionHours`). Storefront customers are not limited by these settings. |
 
+The first session after a registration through the provider, or after "Connect your account", is an ordinary
+password-style session without a server-side OpenID Connect session: a back-channel logout does not end it, and the
+back-office limits do not apply to it. Everything above applies from the next sign-in through the provider.
+
 A back-office account is one with a vendor, a staff store, or the *Access admin panel* permission. It is evaluated on
 every request, never stored.
 
@@ -785,8 +789,10 @@ Zitadel issues a refresh token only when the client requests the scope `offline_
 
 Without it, **back-office sign-in through Zitadel is refused**: the visitor sees the failure page "not set up
 completely" and the log has an error that names `offline_access`. Customers can still sign in. The failure text is a
-plugin resource: existing installations get it by reinstalling the plugin, or by adding the resource
-`Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Admin → Languages*.
+plugin resource that existing installations do not have yet: add the resource
+`Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Admin → Languages* (English text: "Signing in to the
+back office with the identity provider is not set up completely. Use your password, or ask the administrator."). Do not
+reinstall the plugin for it: uninstalling deletes its settings and the resources edited in the admin panel.
 
 If the ASP.NET Core Data Protection keys change (a new key ring, a different server without the shared ring), the stored
 refresh tokens cannot be read any more and back-office sessions end at the next revalidation; users sign in again.
