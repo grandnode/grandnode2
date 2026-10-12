@@ -14,6 +14,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IExternalAuthenticationProvider, OidcLoginProvider>();
         services.AddHttpClient(OidcLoginDefaults.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(10));
         services.AddScoped<IOidcTokenRefresher, OidcTokenRefresher>();
+        services.AddSingleton<OidcLogoutTokenValidator>();
     }
 
     public int Priority => 10;
