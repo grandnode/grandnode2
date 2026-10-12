@@ -135,6 +135,7 @@ public class ScheduleTask : BaseEntity
 | `GenerateSitemapXmlTask` | `"Generate sitemap XML file"` | 10080 min | false |
 | `EndAuctionsTask` | `"End of the auctions"` | 60 min | false |
 | `CancelOrderScheduledTask` | `"Cancel unpaid and pending orders"` | 1440 min | false |
+| `DeleteOidcSessionsScheduleTask` | `"Delete OpenID Connect sessions"` | 1440 min | true |
 
 ## Expected Output
 Produce one of these results:
