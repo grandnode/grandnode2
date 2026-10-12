@@ -1,4 +1,4 @@
-using Grand.Web.Common.Security.Oidc;
+﻿using Grand.Web.Common.Security.Oidc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security.Claims;
 
@@ -57,4 +57,22 @@ public class OidcTokenChecksTests
     [TestMethod]
     public void PublicScopes_DropsOfflineAccessBlanksDuplicates() =>
         CollectionAssert.AreEqual(new[] { "a", "b" }, OidcTokenChecks.PublicScopes(["a", "offline_access", " ", "b", "a"]));
+
+    [TestMethod]
+    public void IsTooOld_NoLimit_False() =>
+        Assert.IsFalse(OidcTokenChecks.IsTooOld(DateTime.UtcNow.AddDays(-1), null, 60, DateTime.UtcNow));
+
+    [TestMethod]
+    public void IsTooOld_NoIat_True() =>
+        Assert.IsTrue(OidcTokenChecks.IsTooOld(DateTime.MinValue, 10, 60, DateTime.UtcNow));
+
+    [TestMethod]
+    [DataRow(10, false)]
+    [DataRow(11, false)]
+    [DataRow(12, true)]
+    public void IsTooOld_LimitPlusSkew(int ageMinutes, bool expected)
+    {
+        var now = DateTime.UtcNow;
+        Assert.AreEqual(expected, OidcTokenChecks.IsTooOld(now.AddMinutes(-ageMinutes), 10, 60, now));
+    }
 }

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
@@ -24,7 +24,7 @@ public class OidcCustomerPipelineTests
     private Mock<IOidcCustomerResolver> _resolver;
     private Mock<IPermissionService> _permissions;
 
-    private async Task Start(OidcResourceServerConfig config = null)
+    private async Task Start(OidcResourceServerConfig config = null, Action<IServiceCollection> extra = null)
     {
         if (_host != null) await _host.DisposeAsync();
         _host = new OidcTestHost();
@@ -33,6 +33,7 @@ public class OidcCustomerPipelineTests
             {
                 s.AddSingleton(_resolver.Object);
                 s.AddSingleton(_permissions.Object);
+                extra?.Invoke(s);
             },
             endpoints: e =>
             {
@@ -127,5 +128,40 @@ public class OidcCustomerPipelineTests
         Assert.AreEqual("c1", await withToken.Content.ReadAsStringAsync());
         using var withoutToken = await Get("/api/plain");
         Assert.AreEqual("none", await withoutToken.Content.ReadAsStringAsync());
+    }
+
+    private static OidcResourceServerConfig ConfigWithMaxAge(int? minutes) => OidcTestHost.Config(new OidcProtectedResource {
+        Name = "BackendApi", PathPrefix = "/api", ScopesSupported = ["grandnode.api"], RequiredScopes = ["grandnode.api"],
+        MaxTokenAgeMinutes = minutes
+    });
+
+    [TestMethod]
+    public async Task TokenOlderThanMaxAge_401_ResolverNeverCalled()
+    {
+        await Start(ConfigWithMaxAge(10));
+        using var response = await Get("/api/whoami", OidcTestHost.Token(issuedAt: DateTime.UtcNow.AddMinutes(-15)));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "The token is too old");
+        _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TokenWithinMaxAge_200()
+    {
+        await Start(ConfigWithMaxAge(10));
+        using var response = await Get("/api/whoami", OidcTestHost.Token(issuedAt: DateTime.UtcNow.AddMinutes(-2)));
+        Assert.AreEqual("c1", await response.Content.ReadAsStringAsync());
+    }
+
+    [TestMethod]
+    public async Task RevokedSubject_401_ResolverNeverCalled()
+    {
+        var revocation = new Mock<IOidcTokenRevocationService>();
+        revocation.Setup(x => x.IsRevoked("sub-1", It.IsAny<DateTime>())).ReturnsAsync(true);
+        await Start(extra: s => s.AddSingleton(revocation.Object));
+        using var response = await Get("/api/whoami", OidcTestHost.Token());
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        StringAssert.Contains(response.Headers.WwwAuthenticate.ToString(), "The token was revoked");
+        _resolver.Verify(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()), Times.Never);
     }
 }
