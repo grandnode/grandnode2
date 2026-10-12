@@ -166,4 +166,50 @@ public class AccountControllerExternalRegisterTests
         Assert.AreEqual("Secret1!", request.Password);
         _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
     }
+
+    private Mock<IExternalSignInPathProvider> PathProvider(string path = "/oidc/login?returnUrl=%2Fregisterresult%2F1")
+    {
+        var provider = new Mock<IExternalSignInPathProvider>();
+        provider.Setup(x => x.GetSignInPath(It.IsAny<string>())).ReturnsAsync(path);
+        _externalAuth.Setup(x => x.LoadAuthenticationProviderBySystemName("ExternalAuth.OpenIdConnect")).Returns(provider.Object);
+        return provider;
+    }
+
+    [TestMethod]
+    public async Task Post_Pending_LinkedAndSignedIn_GoesThroughProviderSignIn()
+    {
+        _settings.UserRegistrationType = UserRegistrationType.Standard;
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
+        var provider = PathProvider();
+
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
+
+        Assert.AreEqual("/oidc/login?returnUrl=%2Fregisterresult%2F1", result.Url);
+        provider.Verify(x => x.GetSignInPath(It.Is<string>(u => u.Contains("/registerresult/1"))), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Post_Pending_NotApproved_NoProviderRedirect()
+    {
+        _settings.UserRegistrationType = UserRegistrationType.AdminApproval;
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
+        var provider = PathProvider();
+        var result = await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
+        Assert.IsInstanceOfType(result, typeof(RedirectToRouteResult));
+        provider.Verify(x => x.GetSignInPath(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Post_Pending_NotLinked_NoProviderRedirect()
+    {
+        _settings.UserRegistrationType = UserRegistrationType.Standard;
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.SubjectLinkedToOtherCustomer);
+        var provider = PathProvider();
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
+        Assert.IsFalse(result.Url.Contains("/oidc/login"));
+        provider.Verify(x => x.GetSignInPath(It.IsAny<string>()), Times.Never);
+    }
 }
