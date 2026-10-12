@@ -69,7 +69,9 @@ public class AccountControllerExternalRegisterTests
         _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         _controller.TempData = new TempDataDictionary(_controller.HttpContext, new Mock<ITempDataProvider>().Object);
         var url = new Mock<IUrlHelper>();
-        url.Setup(x => x.RouteUrl(It.IsAny<UrlRouteContext>())).Returns("/registerresult/1");
+        url.Setup(x => x.RouteUrl(It.IsAny<UrlRouteContext>())).Returns("https://localhost/registerresult/1");
+        url.Setup(x => x.IsLocalUrl(It.IsAny<string>())).Returns((string u) =>
+            !string.IsNullOrEmpty(u) && u.StartsWith('/') && !u.StartsWith("//"));
         _controller.Url = url.Object;
     }
 
@@ -183,10 +185,11 @@ public class AccountControllerExternalRegisterTests
         _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         var provider = PathProvider();
 
-        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), "/cart", _external.Object, _externalAuth.Object);
 
         Assert.AreEqual("/oidc/login?returnUrl=%2Fregisterresult%2F1", result.Url);
-        provider.Verify(x => x.GetSignInPath(It.Is<string>(u => u.Contains("/registerresult/1"))), Times.Once);
+        provider.Verify(x => x.GetSignInPath(It.Is<string>(u =>
+            u.StartsWith("/") && u.Contains("/registerresult/1") && u.Contains("returnurl=%2Fcart"))), Times.Once);
     }
 
     [TestMethod]
@@ -211,5 +214,28 @@ public class AccountControllerExternalRegisterTests
         var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
         Assert.IsFalse(result.Url.Contains("/oidc/login"));
         provider.Verify(x => x.GetSignInPath(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Post_Pending_ProviderWithoutSignInPath_NoProviderRedirect()
+    {
+        _settings.UserRegistrationType = UserRegistrationType.Standard;
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
+        _externalAuth.Setup(x => x.LoadAuthenticationProviderBySystemName("ExternalAuth.OpenIdConnect"))
+            .Returns(new Mock<IExternalAuthenticationProvider>().Object);
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
+        Assert.AreEqual("https://localhost/registerresult/1", result.Url);
+    }
+
+    [TestMethod]
+    public async Task Post_Pending_NullSignInPath_NoProviderRedirect()
+    {
+        _settings.UserRegistrationType = UserRegistrationType.Standard;
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
+        PathProvider(null);
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object);
+        Assert.AreEqual("https://localhost/registerresult/1", result.Url);
     }
 }

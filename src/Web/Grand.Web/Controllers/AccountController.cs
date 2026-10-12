@@ -588,11 +588,12 @@ public class AccountController : BasePublicController
                 externalAuthenticationService.LoadAuthenticationProviderBySystemName(pending.ProviderSystemName)
                     is IExternalSignInPathProvider signInPathProvider)
             {
-                var target = result switch {
-                    RedirectResult redirect => redirect.Url,
-                    RedirectToRouteResult route => Url.RouteUrl(route.RouteName, route.RouteValues),
-                    _ => null
-                };
+                //only the Standard arm approves, and it redirects to an absolute url; the provider accepts local urls only
+                var target = (result as RedirectResult)?.Url;
+                if (Uri.TryCreate(target, UriKind.Absolute, out var absolute))
+                    target = absolute.PathAndQuery;
+                if (!Url.IsLocalUrl(target))
+                    target = null;
                 var path = await signInPathProvider.GetSignInPath(target);
                 if (!string.IsNullOrEmpty(path))
                     return Redirect(HttpContext.Request.PathBase + path);
