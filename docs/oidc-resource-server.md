@@ -646,7 +646,8 @@ Use the project of section 7. Create a **separate** application for the browser 
 
 1. In the project add an application of type **Web** with authentication method **Code** (authorization code with a
    client secret). PKCE is sent by the plugin. Copy the client id and the generated client secret
-   (`OidcLogin__ClientSecret`; the secret is shown once).
+   (`OidcLogin__ClientSecret`; the secret is shown once). In the grant types of the application also tick
+   **Refresh Token** (needed for back-office sessions, section 12.4).
 2. Redirect URIs: `https://<store-url>/signin-oidc` (an `http` redirect needs *Development Mode*). Post logout URIs
    are not used (logout is local).
 3. The plugin reads the claims from the ID token or, when they are absent there, from the user info endpoint (the
@@ -776,8 +777,12 @@ never logged.
 3. *Revoke refresh token* (*Advanced > OpenID Connect Compatibility Modes*) is optional; refresh token rotation is
    supported. Offline access is not needed: back-office sessions use the normal refresh token.
 
-**Zitadel v4.19.** In the application of section 11.5 set the *Back-Channel Logout URI* to
-`https://<store-url>/oidc/backchannel-logout` (the instance-wide `enableBackChannelLogout` is on by default).
+**Zitadel v4.19.** In the application of section 11.5 set:
+
+1. *Grant types*: **Authorization Code** and **Refresh Token** (without *Refresh Token* Zitadel issues no refresh token,
+   even with `offline_access`).
+2. *Back-Channel Logout URI*: `https://<store-url>/oidc/backchannel-logout` (the instance-wide `enableBackChannelLogout`
+   is on by default).
 
 Zitadel issues a refresh token only when the client requests the scope `offline_access`. Add it to the scopes:
 
@@ -787,7 +792,7 @@ Zitadel issues a refresh token only when the client requests the scope `offline_
 }
 ```
 
-Without it, **back-office sign-in through Zitadel is refused**: the visitor sees the failure page "not set up
+Without either, **back-office sign-in through Zitadel is refused**: the visitor sees the failure page "not set up
 completely" and the log has an error that names `offline_access`. Customers can still sign in. The failure text is a
 plugin resource that existing installations do not have yet: add the resource
 `Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Admin → Languages* (English text: "Signing in to the
