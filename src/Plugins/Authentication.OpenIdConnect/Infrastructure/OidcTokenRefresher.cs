@@ -26,7 +26,7 @@ public class OidcTokenRefresher(
         if (options.ConfigurationManager == null)
         {
             logger.LogWarning("OpenID Connect login is not configured: sessions signed in through the provider cannot be confirmed");
-            return OidcRefreshResult.Refused();
+            return OidcRefreshResult.NotAsked();
         }
 
         try

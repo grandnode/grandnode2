@@ -17,7 +17,7 @@ public class ContextMiddlewareTests
     private Mock<IStoreContextSetter> _storeContextSetter;
     private Mock<IWorkContextSetter> _workContextSetter;
 
-    private async Task<bool> Invoke(string routePattern, Action<HttpContext> request = null)
+    private async Task<bool> Invoke(string routePattern, Action<HttpContext> request = null, params object[] metadata)
     {
         _storeContextSetter = new Mock<IStoreContextSetter>();
         var storeContext = new Mock<IStoreContext>();
@@ -30,7 +30,7 @@ public class ContextMiddlewareTests
         services.AddSingleton(_workContextSetter.Object);
         var http = new DefaultHttpContext { RequestServices = services.BuildServiceProvider() };
         http.SetEndpoint(new RouteEndpoint(_ => Task.CompletedTask, RoutePatternFactory.Parse(routePattern), 0,
-            EndpointMetadataCollection.Empty, null));
+            new EndpointMetadataCollection(metadata), null));
         request?.Invoke(http);
 
         var nextCalled = false;
@@ -62,6 +62,15 @@ public class ContextMiddlewareTests
     {
         Assert.IsTrue(await Invoke(routePattern));
         _workContextSetter.Verify(x => x.InitializeWorkContext("store1"), Times.Once);
+    }
+
+    //a server-to-server endpoint (for example the back-channel logout of the login plugin) creates no guest
+    [TestMethod]
+    public async Task NoRequestContextMetadata_NoStoreOrWorkContext()
+    {
+        Assert.IsTrue(await Invoke("oidc/backchannel-logout", null, NoRequestContextMetadata.Instance));
+        _storeContextSetter.Verify(x => x.InitializeStoreContext(It.IsAny<string>()), Times.Never);
+        _workContextSetter.Verify(x => x.InitializeWorkContext(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]

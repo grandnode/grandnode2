@@ -139,10 +139,10 @@ public class OidcTokenRefresherTests
 
     //no sign-in scheme (not configured): nothing can ever confirm the session
     [TestMethod]
-    public async Task NotConfigured_Refused()
+    public async Task NotConfigured_NotAsked()
     {
         _options.ConfigurationManager = null;
-        Assert.AreEqual(OidcRefreshOutcome.Refused, (await Refresher().Refresh("rt-1")).Outcome);
+        Assert.AreEqual(OidcRefreshOutcome.NotAsked, (await Refresher().Refresh("rt-1")).Outcome);
     }
 
     //a redirect is not an answer of the token endpoint: the token is never re-posted elsewhere
