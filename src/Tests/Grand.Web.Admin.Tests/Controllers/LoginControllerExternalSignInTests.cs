@@ -53,7 +53,7 @@ public class LoginControllerExternalSignInTests
         _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null))
             .Returns([panel.Object, storefrontOnly.Object]);
 
-        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object)).Model!;
+        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object, new Grand.Infrastructure.Configuration.OidcLoginConfig())).Model!;
 
         Assert.AreEqual(1, model.ExternalSignIn.Count);
         Assert.AreEqual("OpenID Connect", model.ExternalSignIn[0].Name);
@@ -66,7 +66,7 @@ public class LoginControllerExternalSignInTests
         var panel = new Mock<IExternalSignInPathProvider>();
         panel.Setup(x => x.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null!);
         _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null)).Returns([panel.Object]);
-        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object)).Model!;
+        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object, new Grand.Infrastructure.Configuration.OidcLoginConfig())).Model!;
         Assert.AreEqual(0, model.ExternalSignIn.Count);
     }
 }

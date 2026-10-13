@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
@@ -54,20 +55,37 @@ public abstract class BaseLoginController : BaseController
         return RouteData.Values["area"]?.ToString() ?? "Admin";
     }
 
-    public async Task<IActionResult> Index([FromServices] IExternalAuthenticationService externalAuthenticationService)
+    public async Task<IActionResult> Index([FromServices] IExternalAuthenticationService externalAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig, bool password = false)
     {
         var model = new LoginModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
         };
         await PrepareExternalSignIn(model, externalAuthenticationService);
+        if (!oidcLoginConfig.ProviderOnly)
+        {
+            model.PasswordFormShown = true;
+            return View(model);
+        }
+
+        //the identity provider is the only sign-in: go there, or say it cannot be reached (never redirect back here);
+        //only the Admin panel keeps the password form, for break-glass accounts, behind ?password=1
+        var keepsPasswordForm = KeepsPasswordForm();
+        if (model.ExternalSignIn.Count > 0 && !(keepsPasswordForm && password))
+            return Redirect(model.ExternalSignIn[0].Url);
+        model.PasswordFormShown = keepsPasswordForm;
+        model.ExternalSignInUnavailable = model.ExternalSignIn.Count == 0;
         return View(model);
     }
+
+    private bool KeepsPasswordForm() => PanelSignInSurface.FromArea(GetCurrentArea()) == SignInSurface.AdminPanel;
 
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     public virtual async Task<IActionResult> Index(LoginModel model,
-        [FromServices] IExternalAuthenticationService externalAuthenticationService)
+        [FromServices] IExternalAuthenticationService externalAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         if (ModelState.IsValid)
         {
@@ -98,6 +116,9 @@ public abstract class BaseLoginController : BaseController
         model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
         model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
         await PrepareExternalSignIn(model, externalAuthenticationService);
+        //a failed break-glass attempt stays on the form; the other panels never show it in ProviderOnly
+        model.PasswordFormShown = !oidcLoginConfig.ProviderOnly || KeepsPasswordForm();
+        model.ExternalSignInUnavailable = oidcLoginConfig.ProviderOnly && model.ExternalSignIn.Count == 0;
 
         return View(model);
     }
