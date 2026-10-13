@@ -36,7 +36,7 @@ public class LoginValidatorExternalSignInTests
     public void Init()
     {
         _policy = new Mock<IExternalSignInPolicy>();
-        _policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
+        _policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
             .ReturnsAsync(PasswordSignInDecision.Password);
         _provider = new Mock<IExternalAuthenticationProvider>();
         _provider.Setup(x => x.FriendlyName).Returns("OpenID Connect");
@@ -77,7 +77,7 @@ public class LoginValidatorExternalSignInTests
     [TestMethod]
     public async Task CorrectPassword_ExternalSignInRequired_Failure()
     {
-        _policy.Setup(x => x.PasswordSignIn(_customer, It.IsAny<SignInSurface>())).ReturnsAsync(new PasswordSignInDecision(false, _provider.Object));
+        _policy.Setup(x => x.PasswordSignIn(_customer, SignInSurface.Storefront)).ReturnsAsync(new PasswordSignInDecision(false, _provider.Object));
         var result = await Validator().ValidateAsync(new LoginModel { Email = "a@b.c", Password = "pw" });
         Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Sign in with OpenID Connect"));
     }
@@ -94,6 +94,6 @@ public class LoginValidatorExternalSignInTests
     {
         var result = await Validator().ValidateAsync(new LoginModel { Email = "a@b.c", Password = "wrong" });
         Assert.IsFalse(result.IsValid);
-        _policy.Verify(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()), Times.Never);
+        _policy.Verify(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront), Times.Never);
     }
 }

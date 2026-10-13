@@ -21,7 +21,7 @@ public class LoginValidatorProviderOnlyTests
     private static LoginValidator CreateValidator(OidcSignInMode mode)
     {
         var customerService = new Mock<ICustomerService>();
-        customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+        customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>()))
             .ReturnsAsync(new Customer { Active = true });
         var userApiService = new Mock<IUserApiService>();
         userApiService.Setup(x => x.GetUserByEmail(It.IsAny<string>()))
@@ -44,6 +44,15 @@ public class LoginValidatorProviderOnlyTests
     {
         var result = await CreateValidator(OidcSignInMode.ProviderOnly).ValidateAsync(ValidModel());
         Assert.IsFalse(result.IsValid);
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == Message));
+    }
+
+    //nothing else runs: a password that is not base64 does not throw
+    [TestMethod]
+    public async Task ProviderOnly_PasswordNotBase64_RefusedWithoutThrowing()
+    {
+        var result = await CreateValidator(OidcSignInMode.ProviderOnly)
+            .ValidateAsync(new LoginModel { Email = "user@x.com", Password = "not base64!" });
         Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == Message));
     }
 

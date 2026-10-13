@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Domain.Customers;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,6 +26,7 @@ public class CustomerManagerServiceTests
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IExternalSignInPolicy> _signInPolicy;
+    private Mock<ILogger<CustomerManagerService>> _logger;
 
     [TestInitialize]
     public void Init()
@@ -39,6 +41,7 @@ public class CustomerManagerServiceTests
                 entered == stored);
         _mediatorMock = new Mock<IMediator>();
         _customerHistoryPasswordServiceMock = new Mock<ICustomerHistoryPasswordService>();
+        _logger = new Mock<ILogger<CustomerManagerService>>();
         _signInPolicy = new Mock<IExternalSignInPolicy>();
         _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(PasswordSignInDecision.Password);
@@ -48,7 +51,7 @@ public class CustomerManagerServiceTests
 
         _customerManagerService = new CustomerManagerService(_customerServiceMock.Object, _groupServiceMock.Object,
             _encryptionServiceMock.Object, _mediatorMock.Object, _customerHistoryPasswordServiceMock.Object, _customerSettings,
-            _signInPolicy.Object, NullLogger<CustomerManagerService>.Instance);
+            _signInPolicy.Object, _logger.Object);
     }
 
     [TestMethod]
@@ -69,6 +72,22 @@ public class CustomerManagerServiceTests
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
         await _customerManagerService.LoginCustomer("admin@admin.com", "123456", "", SignInSurface.AdminPanel);
         _signInPolicy.Verify(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.AdminPanel), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task LoginCustomer_BreakGlass_SuccessfulAndWarningLogged()
+    {
+        var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
+        _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+        _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
+            .ReturnsAsync(new PasswordSignInDecision(true, null, true));
+
+        var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456", "", SignInSurface.AdminPanel);
+
+        Assert.AreEqual(CustomerLoginResults.Successful, result);
+        _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), null,
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
     [TestMethod]

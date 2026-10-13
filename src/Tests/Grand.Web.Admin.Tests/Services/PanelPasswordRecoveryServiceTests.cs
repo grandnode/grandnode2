@@ -170,6 +170,16 @@ public class PanelPasswordRecoveryServiceTests
     }
 
     [TestMethod]
+    public async Task SendRecoveryMessage_StorePanel_AsksPolicyWithStorePanelSurface()
+    {
+        GrantStorePanel();
+
+        await _service.SendRecoveryMessage(Email, "Store");
+
+        _signInPolicy.Verify(x => x.PasswordSignIn(_customer, SignInSurface.StorePanel), Times.Once);
+    }
+
+    [TestMethod]
     public async Task SendRecoveryMessage_StoreManagerOnStorePanel_SendsWithStoreArea()
     {
         GrantStorePanel();

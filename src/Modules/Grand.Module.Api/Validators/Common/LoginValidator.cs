@@ -21,10 +21,14 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         if (!apiConfig.Enabled)
             RuleFor(x => x).Must(_ => false).WithMessage("API is disabled");
 
-        //provider-only: no password sign-in outside the Admin login page, API users included
+        //provider-only: no password sign-in outside the Admin login page, API users included; the other rules
+        //(password decoding and check) do not run
         if (oidcLoginConfig.ProviderOnly)
+        {
             RuleFor(x => x).Must(_ => false)
                 .WithMessage("Sign-in with API users is disabled: use access tokens from the identity provider");
+            return;
+        }
 
         RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required");
         RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required");

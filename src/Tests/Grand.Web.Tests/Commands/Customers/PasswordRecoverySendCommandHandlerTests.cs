@@ -36,11 +36,8 @@ public class PasswordRecoverySendCommandHandlerTests
     public async Task NullCustomer_NoMessage()
     {
         var messages = new Mock<IMessageProviderService>();
-        var policy = new Mock<IExternalSignInPolicy>();
-        policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
-            .ReturnsAsync(PasswordSignInDecision.Password);
         var handler = new PasswordRecoverySendCommandHandler(new Mock<ICustomerService>().Object, messages.Object,
-            policy.Object);
+            new Mock<IExternalSignInPolicy>().Object);
 
         Assert.IsTrue(await handler.Handle(new PasswordRecoverySendCommand {
             Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }

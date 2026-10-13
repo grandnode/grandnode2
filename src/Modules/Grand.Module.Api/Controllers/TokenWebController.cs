@@ -147,8 +147,9 @@ public class TokenWebController : ControllerBase
             return BadRequest("Invalid access token");
 
         //tokens obtained with the password before the account had to sign in through the provider are not renewed:
-        //the provider could not stop them for a user it disabled
-        if (!(await _externalSignInPolicy.PasswordSignIn(customer, SignInSurface.FrontendApi)).Allowed)
+        //the provider could not stop them for a user it disabled. Guests never had a password: their tokens stay
+        if (!string.IsNullOrEmpty(customer.Email) &&
+            !(await _externalSignInPolicy.PasswordSignIn(customer, SignInSurface.FrontendApi)).Allowed)
             return BadRequest("Invalid refresh token");
 
         //rebuild the claims from the resolved customer (registered carry id/email/token, guests carry the guid)
