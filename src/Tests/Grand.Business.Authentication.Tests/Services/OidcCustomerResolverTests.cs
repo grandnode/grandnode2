@@ -32,6 +32,7 @@ public class OidcCustomerResolverTests
     private Mock<IPermissionService> _permissionService;
     private Mock<IMediator> _mediator;
     private OidcResourceServerConfig _config;
+    private OidcLoginConfig _loginConfig;
     private CustomerConfig _customerConfig;
     private CustomerSettings _customerSettings;
 
@@ -48,6 +49,7 @@ public class OidcCustomerResolverTests
         _mediator = new Mock<IMediator>();
         _config = new OidcResourceServerConfig { Enabled = true, AutoRegister = false };
         _customerConfig = new CustomerConfig();
+        _loginConfig = new OidcLoginConfig();
         _customerSettings = new CustomerSettings { UserRegistrationType = UserRegistrationType.Standard };
         _settingService.Setup(x => x.LoadSetting<CustomerSettings>(It.IsAny<string>())).ReturnsAsync(_customerSettings);
         _customerService.Setup(x => x.InsertGuestCustomer(It.IsAny<Customer>()))
@@ -56,7 +58,7 @@ public class OidcCustomerResolverTests
 
     private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication> links = null) =>
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
-            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
+            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
 
     private static ClaimsPrincipal Principal(string sub = "sub-1", string email = "John@Example.com",
         string emailVerified = "true")
@@ -444,6 +446,19 @@ public class OidcCustomerResolverTests
 
         Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
         Assert.AreEqual(OidcCustomerResolver.AccountConnectionRequiredDescription, result.Description);
+    }
+
+    [TestMethod]
+    [DataRow("admin")]
+    [DataRow("staff")]
+    [DataRow("twoFactor")]
+    public async Task ProviderOnly_LinkMadeByEmail_PasswordOnlyAccount_Served(string kind)
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        await Link("c1", byEmail: true);
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(PasswordOnlyCustomer(kind));
+
+        Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
     }
 
     [TestMethod]

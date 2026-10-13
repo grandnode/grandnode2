@@ -20,7 +20,8 @@ public enum OidcLoginRefusal
     AccountInactive,
     AccountUnusable,
     LinkedToOtherIdentity,
-    RegistrationDisabled
+    RegistrationDisabled,
+    EmailNotVerified
 }
 
 public enum OidcLinkResult

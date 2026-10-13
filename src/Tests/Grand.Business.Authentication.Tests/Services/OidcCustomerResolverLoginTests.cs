@@ -32,6 +32,7 @@ public class OidcCustomerResolverLoginTests
     private Mock<IPermissionService> _permissionService;
     private Mock<IMediator> _mediator;
     private OidcResourceServerConfig _config;
+    private OidcLoginConfig _loginConfig;
     private CustomerConfig _customerConfig;
     private CustomerSettings _customerSettings;
 
@@ -48,6 +49,7 @@ public class OidcCustomerResolverLoginTests
         _mediator = new Mock<IMediator>();
         _config = new OidcResourceServerConfig { Enabled = true };
         _customerConfig = new CustomerConfig();
+        _loginConfig = new OidcLoginConfig();
         _customerSettings = new CustomerSettings { UserRegistrationType = UserRegistrationType.Standard };
         _settingService.Setup(x => x.LoadSetting<CustomerSettings>(It.IsAny<string>())).ReturnsAsync(_customerSettings);
         _customerService.Setup(x => x.InsertGuestCustomer(It.IsAny<Customer>()))
@@ -56,7 +58,7 @@ public class OidcCustomerResolverLoginTests
 
     private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication> links = null) =>
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
-            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
+            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
 
     private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
         string storeId = null, bool byEmail = false) =>
@@ -233,6 +235,95 @@ public class OidcCustomerResolverLoginTests
         _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, customer)).ReturnsAsync(true);
         await Link("c1");
         Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_Staff_LinkedByVerifiedEmail()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        var staff = new Customer { Id = "c1", Active = true, StaffStoreId = "s1" };
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(staff);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.AreEqual("c1", result.Customer.Id);
+        Assert.IsTrue((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_TwoFactor_LinkedByVerifiedEmail()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _customerSettings.TwoFactorAuthenticationEnabled = true;
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(TwoFactorCustomer());
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.IsNotNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_UnverifiedEmail_ExistingAccount_Refused()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Id = "c1", Active = true });
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store);
+        Assert.AreEqual(OidcLoginRefusal.EmailNotVerified, result.Refusal);
+        Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_UnverifiedEmail_Unknown_RefusedNotRegistered()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        var result = await Resolver().ResolveForLogin("sub-new", "new@shop.com", false, Store);
+        Assert.AreEqual(OidcLoginOutcome.Refused, result.Outcome);
+        Assert.AreEqual(OidcLoginRefusal.EmailNotVerified, result.Refusal);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_VerifiedEmail_Unknown_RegistrationRequired()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        Assert.AreEqual(OidcLoginOutcome.RegistrationRequired,
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store)).Outcome);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_LinkMadeByEmail_StaffSignsIn()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _customerService.Setup(x => x.GetCustomerById("c1"))
+            .ReturnsAsync(new Customer { Id = "c1", Active = true, StaffStoreId = "s1" });
+        await Link("c1", byEmail: true);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_LinkMadeByEmail_Unverified_SignsIn()
+    {
+        //the link exists; the provider's later claims do not re-open the first-link rules
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        await Link("c1", byEmail: true);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store)).Outcome);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_ExistingAccount_LinkedToOtherSubject_Refused()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Id = "c1", Active = true });
+        await Link("c1", "other-sub");
+        Assert.AreEqual(OidcLoginRefusal.LinkedToOtherIdentity, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+    }
+
+    [TestMethod]
+    public async Task Mixed_Staff_LinkRequired()
+    {
+        var staff = new Customer { Id = "c1", Active = true, StaffStoreId = "s1" };
+        _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(staff);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
     }
 
     [TestMethod]
