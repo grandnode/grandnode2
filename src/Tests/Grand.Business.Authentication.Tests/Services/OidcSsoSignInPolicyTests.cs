@@ -4,6 +4,7 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -32,7 +33,8 @@ public class OidcSsoSignInPolicyTests
     }
 
     private OidcSsoSignInPolicy Policy(params IExternalAuthenticationProvider[] providers) =>
-        new(_links, providers.Length > 0 ? providers : [_provider.Object], _settings, _config, _resourceServer);
+        new(_links, providers.Length > 0 ? providers : [_provider.Object], _settings, _config, _resourceServer,
+            NullLogger<OidcSsoSignInPolicy>.Instance);
 
     private Task Link(bool byEmail) => _links.InsertAsync(new ExternalAuthentication {
         CustomerId = "c1", ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "sub-1",
@@ -81,8 +83,8 @@ public class OidcSsoSignInPolicyTests
     public async Task PluginNotInstalled_PasswordAllowed()
     {
         await Link(byEmail: false);
-        Assert.IsNull(await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer)
-            .RequiredProvider(_customer));
+        Assert.IsNull(await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
+            NullLogger<OidcSsoSignInPolicy>.Instance).RequiredProvider(_customer));
     }
 
     [TestMethod]
@@ -92,4 +94,97 @@ public class OidcSsoSignInPolicyTests
         await Link(byEmail: false);
         Assert.IsNull(await Policy().RequiredProvider(_customer));
     }
+
+    private void ProviderOnly(params string[] breakGlass)
+    {
+        _config.SignInMode = OidcSignInMode.ProviderOnly;
+        _config.BreakGlassAccounts = breakGlass;
+    }
+
+    //Mixed keeps the stage B answer whatever the surface
+    [TestMethod]
+    [DataRow(SignInSurface.Storefront)]
+    [DataRow(SignInSurface.AdminPanel)]
+    public async Task Mixed_PasswordSignIn_MatchesStageB(SignInSurface surface)
+    {
+        Assert.IsTrue((await Policy().PasswordSignIn(_customer, surface)).Allowed);
+        await Link(byEmail: false);
+        var decision = await Policy().PasswordSignIn(_customer, surface);
+        Assert.IsFalse(decision.Allowed);
+        Assert.AreSame(_provider.Object, decision.Provider);
+    }
+
+    //every account, connected or not
+    [TestMethod]
+    [DataRow(SignInSurface.Storefront)]
+    [DataRow(SignInSurface.AdminPanel)]
+    [DataRow(SignInSurface.StorePanel)]
+    [DataRow(SignInSurface.VendorPanel)]
+    [DataRow(SignInSurface.FrontendApi)]
+    public async Task ProviderOnly_NoLink_ProviderRequired(SignInSurface surface)
+    {
+        ProviderOnly();
+        _customer.Email = "user@shop.com";
+        var decision = await Policy().PasswordSignIn(_customer, surface);
+        Assert.IsFalse(decision.Allowed);
+        Assert.AreSame(_provider.Object, decision.Provider);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_BreakGlass_AdminPanel_PasswordAllowed()
+    {
+        ProviderOnly("admin@shop.com");
+        _customer.Email = "Admin@Shop.com";
+        var decision = await Policy().PasswordSignIn(_customer, SignInSurface.AdminPanel);
+        Assert.IsTrue(decision.Allowed);
+        Assert.IsTrue(decision.BreakGlass);
+    }
+
+    [TestMethod]
+    [DataRow(SignInSurface.Storefront)]
+    [DataRow(SignInSurface.StorePanel)]
+    [DataRow(SignInSurface.VendorPanel)]
+    [DataRow(SignInSurface.FrontendApi)]
+    public async Task ProviderOnly_BreakGlass_OtherSurface_ProviderRequired(SignInSurface surface)
+    {
+        ProviderOnly("admin@shop.com");
+        _customer.Email = "admin@shop.com";
+        Assert.IsFalse((await Policy().PasswordSignIn(_customer, surface)).Allowed);
+    }
+
+    //fail closed: no working provider never re-opens the password
+    [TestMethod]
+    public async Task ProviderOnly_PluginMissing_RefusedWithoutProvider()
+    {
+        ProviderOnly();
+        var decision = await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
+            NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront);
+        Assert.IsFalse(decision.Allowed);
+        Assert.IsNull(decision.Provider);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_MethodInactive_RefusedWithoutProvider()
+    {
+        ProviderOnly();
+        _settings.ActiveAuthenticationMethodSystemNames = [];
+        var decision = await Policy().PasswordSignIn(_customer, SignInSurface.Storefront);
+        Assert.IsFalse(decision.Allowed);
+        Assert.IsNull(decision.Provider);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_NotConfigured_BreakGlassStillAllowedOnAdmin()
+    {
+        ProviderOnly("admin@shop.com");
+        _config.ClientId = "";
+        _customer.Email = "admin@shop.com";
+        Assert.IsTrue((await Policy().PasswordSignIn(_customer, SignInSurface.AdminPanel)).Allowed);
+        _customer.Email = "user@shop.com";
+        Assert.IsFalse((await Policy().PasswordSignIn(_customer, SignInSurface.AdminPanel)).Allowed);
+    }
+
+    [TestMethod]
+    public async Task NullCustomer_PasswordAllowed() =>
+        Assert.IsTrue((await Policy().PasswordSignIn(null, SignInSurface.Storefront)).Allowed);
 }
