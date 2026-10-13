@@ -185,6 +185,19 @@ public class OidcSessionServiceTests
         CollectionAssert.AreEquivalent(new[] { endedRecently.Id, open.Id }, _sessions.Table.Select(x => x.Id).ToArray());
     }
 
+    //most sessions end with the browser: one not confirmed for the abandonment period is deleted with its refresh token
+    [TestMethod]
+    public async Task DeleteExpired_OpenSessionNotConfirmedForLong_Deleted()
+    {
+        _securityConfig.CookieAuthExpires = 8760;
+        var abandoned = await Session(age: TimeSpan.FromDays(40), sinceValidated: OidcSessionDefaults.AbandonedAfter + TimeSpan.FromHours(1));
+        var inUse = await Session(age: TimeSpan.FromDays(40), sinceValidated: TimeSpan.FromMinutes(5));
+
+        await Service().DeleteExpired();
+
+        CollectionAssert.AreEquivalent(new[] { inUse.Id }, _sessions.Table.Select(x => x.Id).ToArray());
+    }
+
     //every session keeps a refresh token now: the old staff rule (refresh token kept + past staff maximum) would delete live customers
     [TestMethod]
     public async Task DeleteExpired_KeepsActiveCustomerWithRefreshToken()
@@ -449,7 +462,73 @@ public class OidcSessionServiceTests
         var session = await Session(sinceValidated: Interval);
         Assert.IsFalse(await Service().Validate(session.Id, _customer));
         Assert.AreEqual(OidcSessionEndReason.RevalidationRefused, Stored(session.Id).EndReason);
-        _revocation.Verify(x => x.RevokeTokens("sub-1"), Times.Once);
+        //the provider refused nothing: the subject's access tokens stay valid
+        _revocation.Verify(x => x.RevokeTokens(It.IsAny<string>()), Times.Never);
+    }
+
+    //the Data Protection keys changed: the stored token cannot be used, but the provider was never asked
+    [TestMethod]
+    public async Task UnreadableRefreshToken_Ends_TokensNotRevoked()
+    {
+        var session = await Session(sinceValidated: Interval);
+        await _sessions.UpdateField(session.Id, x => x.ProtectedRefreshToken,
+            new EphemeralDataProtectionProvider().CreateProtector(OidcSessionDefaults.RefreshTokenPurpose).Protect("rt-1"));
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.AreEqual(OidcSessionEndReason.RevalidationRefused, Stored(session.Id).EndReason);
+        _refresher.Verify(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _revocation.Verify(x => x.RevokeTokens(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task NotAsked_Ends_TokensNotRevoked()
+    {
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>())).ReturnsAsync(OidcRefreshResult.NotAsked());
+        var session = await Session(sinceValidated: Interval);
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        Assert.IsNotNull(Stored(session.Id).EndedUtc);
+        _revocation.Verify(x => x.RevokeTokens(It.IsAny<string>()), Times.Never);
+    }
+
+    //another instance holds the refresh: this one does not use the same refresh token
+    [TestMethod]
+    public async Task LeaseHeldElsewhere_RecentCheck_Valid_NoRefresh()
+    {
+        var session = await Session(sinceValidated: Interval);
+        await _sessions.UpdateField(session.Id, x => x.RefreshLeaseId, "other");
+        await _sessions.UpdateField<DateTime?>(session.Id, x => x.RefreshLeaseUntilUtc, DateTime.UtcNow.AddSeconds(20));
+
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        _refresher.Verify(x => x.Refresh(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.AreEqual("other", Stored(session.Id).RefreshLeaseId);
+    }
+
+    [TestMethod]
+    public async Task LeaseHeldElsewhere_PastGrace_False_NotEnded()
+    {
+        var session = await Session(sinceValidated: Interval * 2);
+        await _sessions.UpdateField(session.Id, x => x.RefreshLeaseId, "other");
+        await _sessions.UpdateField<DateTime?>(session.Id, x => x.RefreshLeaseUntilUtc, DateTime.UtcNow.AddSeconds(20));
+
+        Assert.IsFalse(await Service().Validate(session.Id, _customer));
+        //the holder decides the outcome
+        Assert.IsNull(Stored(session.Id).EndedUtc);
+    }
+
+    //the holder died: its lease lapses and the next request refreshes
+    [TestMethod]
+    public async Task LeaseLapsed_Taken_RefreshedAndReleased()
+    {
+        _refresher.Setup(x => x.Refresh("rt-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OidcRefreshResult.Refreshed("rt-2"));
+        var session = await Session(sinceValidated: Interval);
+        await _sessions.UpdateField(session.Id, x => x.RefreshLeaseId, "dead");
+        await _sessions.UpdateField<DateTime?>(session.Id, x => x.RefreshLeaseUntilUtc, DateTime.UtcNow.AddSeconds(-1));
+
+        Assert.IsTrue(await Service().Validate(session.Id, _customer));
+        var stored = Stored(session.Id);
+        Assert.AreEqual("rt-2", Unprotect(stored.ProtectedRefreshToken));
+        Assert.IsNull(stored.RefreshLeaseId);
+        Assert.IsNull(stored.RefreshLeaseUntilUtc);
     }
 
     //a parallel request finds the refresh in progress and goes on while the last check is recent enough
@@ -476,7 +555,7 @@ public class OidcSessionServiceTests
         }
         finally
         {
-            //always released: the in-progress marker is process-wide and must not outlive the test
+            //always released, so the first request completes
             release.TrySetResult(OidcRefreshResult.Refreshed("rt-2"));
         }
 

@@ -9,7 +9,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 using System.Security.Cryptography;
 
 namespace Grand.Business.Authentication.Services;
@@ -28,8 +27,9 @@ public class OidcSessionService : IOidcSessionService
     //minutes; ended sessions are removed from the cache, so only the activity time may be this stale
     private const int CacheTimeMinutes = 1;
 
-    //one refresh at a time per session in this process: refresh tokens rotate
-    private static readonly ConcurrentDictionary<string, byte> RefreshesInProgress = new();
+    //one refresh at a time per session on every instance (refresh tokens rotate): a lease stored on the session;
+    //longer than the refresh request may take, so it lapses only when its holder died
+    private static readonly TimeSpan RefreshLeaseTime = TimeSpan.FromSeconds(30);
 
     private readonly IRepository<OidcSession> _sessionRepository;
     private readonly ICacheBase _cache;
@@ -140,28 +140,38 @@ public class OidcSessionService : IOidcSessionService
     private async Task<bool> Revalidate(OidcSession cached, DateTime now)
     {
         var grace = _config.RevalidationInterval * 2;
-        if (!RefreshesInProgress.TryAdd(cached.Id, 0))
-            return now - cached.LastValidatedUtc < grace;
+
+        //atomic on MongoDB: of the requests that find the check due, on any instance, one takes the lease
+        var leaseId = Guid.NewGuid().ToString("N");
+        await _sessionRepository.UpdateOneAsync(
+            x => x.Id == cached.Id && x.EndedUtc == null &&
+                 (x.RefreshLeaseUntilUtc == null || x.RefreshLeaseUntilUtc < now),
+            UpdateBuilder<OidcSession>.Create().Set(x => x.RefreshLeaseId, leaseId)
+                .Set(x => x.RefreshLeaseUntilUtc, now + RefreshLeaseTime));
+
+        //the cached record may predate a refresh that just finished: its token is already rotated
+        var session = await _sessionRepository.GetByIdAsync(cached.Id);
+        if (session == null || session.EndedUtc.HasValue)
+            return false;
+        //another request is refreshing: go on while the last confirmation is recent enough
+        if (session.RefreshLeaseId != leaseId)
+            return now - session.LastValidatedUtc < grace;
 
         try
         {
-            //the cached record may predate a refresh that just finished: its token is already rotated
-            var session = await _sessionRepository.GetByIdAsync(cached.Id);
-            if (session == null || session.EndedUtc.HasValue)
-                return false;
             if (now - session.LastValidatedUtc < _config.RevalidationInterval)
                 return true;
 
             var refresher = _tokenRefreshers.FirstOrDefault();
             var refreshToken = Unprotect(session.ProtectedRefreshToken);
             OidcRefreshResult result;
-            var unreadable = refresher != null && refreshToken == null;
-            if (refresher == null || refreshToken == null)
+            if (refresher == null)
+                result = OidcRefreshResult.NotAsked();
+            else if (refreshToken == null)
             {
-                if (unreadable)
-                    _logger.LogWarning("The stored refresh token of session {SessionId} cannot be read (Data Protection keys changed)",
-                        session.Id);
-                result = OidcRefreshResult.Refused();
+                _logger.LogWarning("The stored refresh token of session {SessionId} cannot be read (Data Protection keys changed)",
+                    session.Id);
+                result = OidcRefreshResult.NotAsked();
             }
             else
             {
@@ -201,13 +211,17 @@ public class OidcSessionService : IOidcSessionService
                         return true;
                     }
 
-                    if (!unreadable)
-                        _logger.LogWarning("The identity provider refused the session {SessionId} of customer {CustomerId}",
-                            session.Id, session.CustomerId);
+                    _logger.LogWarning("The identity provider refused the session {SessionId} of customer {CustomerId}",
+                        session.Id, session.CustomerId);
                     await End(session.Id, OidcSessionEndReason.RevalidationRefused);
                     await _tokenRevocationService.RevokeTokens(session.Subject);
                     return false;
                 }
+                case OidcRefreshOutcome.NotAsked:
+                    //nothing can confirm the session any more; the provider refused nothing, so the subject's access
+                    //tokens stay valid
+                    await End(session.Id, OidcSessionEndReason.RevalidationRefused);
+                    return false;
                 default:
                     _logger.LogWarning("The identity provider could not confirm session {SessionId}; last confirmed {LastValidatedUtc}",
                         session.Id, session.LastValidatedUtc);
@@ -219,7 +233,9 @@ public class OidcSessionService : IOidcSessionService
         }
         finally
         {
-            RefreshesInProgress.TryRemove(cached.Id, out _);
+            await _sessionRepository.UpdateOneAsync(x => x.Id == session.Id && x.RefreshLeaseId == leaseId,
+                UpdateBuilder<OidcSession>.Create().Set(x => x.RefreshLeaseId, null)
+                    .Set(x => x.RefreshLeaseUntilUtc, null));
         }
     }
 
@@ -261,6 +277,11 @@ public class OidcSessionService : IOidcSessionService
         //sessions nobody used again end lazily, at the next request: these will never get one
         var created = now - TimeSpan.FromHours(_securityConfig.CookieAuthExpires) - OidcSessionDefaults.Retention;
         await _sessionRepository.DeleteManyAsync(x => x.CreatedUtc < created);
+
+        //a session in use is confirmed every RevalidationMinutes: one not confirmed for this long was left (most end with
+        //the browser, without a sign-out) and must not keep its refresh token any longer
+        var abandoned = now - OidcSessionDefaults.AbandonedAfter;
+        await _sessionRepository.DeleteManyAsync(x => x.EndedUtc == null && x.LastValidatedUtc < abandoned);
     }
 
     private async Task<IList<OidcSession>> EndAll(IList<OidcSession> sessions)

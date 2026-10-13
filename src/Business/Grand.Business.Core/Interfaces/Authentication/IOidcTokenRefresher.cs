@@ -4,7 +4,7 @@ namespace Grand.Business.Core.Interfaces.Authentication;
 
 /// <summary>
 ///     Exchanges a refresh token at the identity provider (implemented by the OpenID Connect login plugin; with no
-///     implementation registered a revalidation counts as refused)
+///     implementation registered a session cannot be confirmed and ends)
 /// </summary>
 public interface IOidcTokenRefresher
 {

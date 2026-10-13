@@ -26,6 +26,12 @@ public class OidcSession : BaseEntity
     /// <summary>Refresh token protected with Data Protection; cleared when the session ends</summary>
     public string ProtectedRefreshToken { get; set; }
 
+    /// <summary>Holder of the refresh in progress (one at a time on every instance); empty when none</summary>
+    public string RefreshLeaseId { get; set; }
+
+    /// <summary>The lease lapses at this time, so a holder that died does not block the next refresh</summary>
+    public DateTime? RefreshLeaseUntilUtc { get; set; }
+
     public DateTime? EndedUtc { get; set; }
     public OidcSessionEndReason? EndReason { get; set; }
 }

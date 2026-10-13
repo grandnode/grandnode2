@@ -9,7 +9,13 @@ public enum OidcRefreshOutcome
     Refused,
 
     /// <summary>No answer: network error, timeout, 5xx</summary>
-    Unavailable
+    Unavailable,
+
+    /// <summary>
+    ///     The provider was not asked: this installation cannot (sign-in not configured, stored token unreadable). The
+    ///     session cannot be confirmed any more, but the provider refused nothing
+    /// </summary>
+    NotAsked
 }
 
 /// <param name="Outcome">The answer of the provider</param>
@@ -19,4 +25,5 @@ public sealed record OidcRefreshResult(OidcRefreshOutcome Outcome, string Refres
     public static OidcRefreshResult Refreshed(string refreshToken) => new(OidcRefreshOutcome.Refreshed, refreshToken);
     public static OidcRefreshResult Refused() => new(OidcRefreshOutcome.Refused);
     public static OidcRefreshResult Unavailable() => new(OidcRefreshOutcome.Unavailable);
+    public static OidcRefreshResult NotAsked() => new(OidcRefreshOutcome.NotAsked);
 }
