@@ -302,6 +302,32 @@ public class CookieAuthenticationServiceTests
         Assert.IsNull(signedIn().FindFirst(OidcSessionDefaults.SessionIdClaimType));
     }
 
+    //signing in through the provider again: the replaced session is ended, not left open with its refresh token
+    [TestMethod]
+    public async Task SignIn_NewSession_SameCustomerCookieWithOtherSession_EndsPrevious()
+    {
+        var (customer, signedIn) = PrepareSignIn("c1");
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
+
+        await _cookieAuthService.SignIn(customer, false, "session-2");
+
+        _oidcSessionService.Verify(x => x.End("session-1", OidcSessionEndReason.SignOut), Times.Once);
+        Assert.AreEqual("session-2", signedIn().FindFirst(OidcSessionDefaults.SessionIdClaimType)!.Value);
+    }
+
+    [TestMethod]
+    public async Task SignIn_NewSession_OtherCustomerCookie_PreviousNotEnded()
+    {
+        var (customer, _) = PrepareSignIn("c2");
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
+
+        await _cookieAuthService.SignIn(customer, false, "session-2");
+
+        _oidcSessionService.Verify(x => x.End(It.IsAny<string>(), It.IsAny<OidcSessionEndReason>()), Times.Never);
+    }
+
     [TestMethod]
     public async Task SignIn_WithoutSessionId_NoCurrentCookie_NoClaim()
     {

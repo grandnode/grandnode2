@@ -118,6 +118,12 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(customer);
 
+        //the same customer signing in through the provider again: the cookie that referenced the previous session is
+        //replaced, so that session would never be used or ended again
+        if (!string.IsNullOrEmpty(oidcSessionId) &&
+            await CurrentOidcSessionIdOf(customer) is { Length: > 0 } previous && previous != oidcSessionId)
+            await EndOidcSession(previous);
+
         //create claims for customer's username and email
         var claims = new List<Claim>();
 
@@ -187,15 +193,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
                 GrandCookieAuthenticationDefaults.AuthenticationScheme);
             var oidcSessionId = authenticateResult?.Succeeded == true ? OidcSessionId(authenticateResult.Principal) : null;
             if (!string.IsNullOrEmpty(oidcSessionId))
-                try
-                {
-                    await _oidcSessionService.End(oidcSessionId, OidcSessionEndReason.SignOut);
-                }
-                catch (Exception ex)
-                {
-                    //the cookie is removed below anyway; the session ends by idle or maximum lifetime
-                    _logger.LogWarning(ex, "Could not end the OpenID Connect session {SessionId} on sign-out", oidcSessionId);
-                }
+                await EndOidcSession(oidcSessionId);
 
             await _httpContextAccessor.HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults
                 .AuthenticationScheme);
@@ -281,6 +279,19 @@ public class CookieAuthenticationService : IGrandAuthenticationService
             return false;
 
         return true;
+    }
+
+    private async Task EndOidcSession(string sessionId)
+    {
+        try
+        {
+            await _oidcSessionService.End(sessionId, OidcSessionEndReason.SignOut);
+        }
+        catch (Exception ex)
+        {
+            //the cookie that referenced it is replaced anyway; the record goes with the cleanup task
+            _logger.LogWarning(ex, "Could not end the OpenID Connect session {SessionId}", sessionId);
+        }
     }
 
     private string OidcSessionId(ClaimsPrincipal principal) =>
