@@ -87,6 +87,20 @@ public class LoginWebValidatorTests
     }
 
     [TestMethod]
+    public async Task ExternalSignInRequired_Fails()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Active = true });
+        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(CustomerLoginResults.ExternalSignInRequired);
+
+        var validator = CreateValidator(apiEnabled: true, perStore: true);
+        var result = await validator.ValidateAsync(ValidModel());
+
+        Assert.IsFalse(result.IsValid);
+    }
+
+    [TestMethod]
     public async Task WrongCredentials_Fails()
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))

@@ -1,8 +1,10 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Authentication.OpenIdConnect;
 
-public class OidcLoginProvider(OidcLoginSettings settings) : IExternalAuthenticationProvider
+public class OidcLoginProvider(OidcLoginSettings settings, IAuthenticationSchemeProvider authenticationSchemeProvider)
+    : IExternalSignInPathProvider
 {
     public string ConfigurationUrl => OidcLoginDefaults.ConfigurationUrl;
 
@@ -20,4 +22,9 @@ public class OidcLoginProvider(OidcLoginSettings settings) : IExternalAuthentica
     ///     Gets a view component for displaying plugin in public store
     /// </summary>
     public Task<string> GetPublicViewComponentName() => Task.FromResult("OidcLogin");
+
+    public async Task<string> GetSignInPath(string returnUrl) =>
+        await authenticationSchemeProvider.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null
+            ? null
+            : OidcLoginDefaults.LoginPath + "?returnUrl=" + Uri.EscapeDataString(returnUrl ?? "/");
 }

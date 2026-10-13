@@ -24,4 +24,12 @@ public class LoginModel : BaseModel
 
     public bool DisplayCaptcha { get; set; }
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+
+    public IList<ExternalSignInButton> ExternalSignIn { get; set; } = new List<ExternalSignInButton>();
+
+    public class ExternalSignInButton
+    {
+        public string Name { get; set; }
+        public string Url { get; set; }
+    }
 }

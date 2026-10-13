@@ -506,12 +506,14 @@ public class AccountController : BasePublicController
             await _customerManagerService.RegisterCustomer(registrationRequest);
 
             //connect the provider identity before anything can sign the customer in
+            var connected = false;
             if (connects)
             {
                 var linkResult = await externalRegistrationContext.Complete(_contextAccessor.WorkContext.CurrentCustomer,
                     _contextAccessor.StoreContext.CurrentStore.Id);
                 //the account is still the customer's (verified e-mail), only signing in with the provider is not connected
-                if (linkResult != OidcLinkResult.Linked)
+                connected = linkResult == OidcLinkResult.Linked;
+                if (!connected)
                     Warning(_translationService.GetResource("Account.Register.External.NotConnected"));
             }
             else if (pending != null)
@@ -536,6 +538,7 @@ public class AccountController : BasePublicController
             //raise event       
             await _mediator.Publish(new CustomerRegisteredEvent(_contextAccessor.WorkContext.CurrentCustomer));
 
+            IActionResult result;
             switch (registrationType)
             {
                 case UserRegistrationType.EmailValidation:
@@ -548,13 +551,15 @@ public class AccountController : BasePublicController
                         _contextAccessor.WorkContext.WorkingLanguage.Id);
 
                     //result
-                    return RedirectToRoute("RegisterResult",
+                    result = RedirectToRoute("RegisterResult",
                         new { resultId = (int)UserRegistrationType.EmailValidation });
+                    break;
                 }
                 case UserRegistrationType.AdminApproval:
                 {
-                    return RedirectToRoute("RegisterResult",
+                    result = RedirectToRoute("RegisterResult",
                         new { resultId = (int)UserRegistrationType.AdminApproval });
+                    break;
                 }
                 case UserRegistrationType.Standard:
                 {
@@ -567,13 +572,37 @@ public class AccountController : BasePublicController
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         redirectUrl = CommonExtensions.ModifyQueryString(redirectUrl, "returnurl", returnUrl);
 
-                    return Redirect(redirectUrl);
+                    result = Redirect(redirectUrl);
+                    break;
                 }
                 default:
                 {
-                    return RedirectToRoute("HomePage");
+                    result = RedirectToRoute("HomePage");
+                    break;
                 }
             }
+
+            //a registration that connected the provider identity signs in once more through the provider: its session is
+            //still open, so it answers without a prompt and the callback starts a session-backed cookie the provider controls
+            if (connected && isApproved &&
+                externalAuthenticationService.LoadAuthenticationProviderBySystemName(pending.ProviderSystemName)
+                    is IExternalSignInPathProvider signInPathProvider)
+            {
+                //only the Standard arm approves, and it redirects to an absolute url; the provider accepts local urls only
+                var target = (result as RedirectResult)?.Url;
+                //http(s) only: on Linux a path starting with "/" also parses as an absolute file:// URI, whose
+                //PathAndQuery escapes the query ("?" becomes "%3F")
+                if (Uri.TryCreate(target, UriKind.Absolute, out var absolute) &&
+                    (absolute.Scheme == Uri.UriSchemeHttps || absolute.Scheme == Uri.UriSchemeHttp))
+                    target = absolute.PathAndQuery;
+                if (!Url.IsLocalUrl(target))
+                    target = null;
+                var path = await signInPathProvider.GetSignInPath(target);
+                if (!string.IsNullOrEmpty(path))
+                    return Redirect(HttpContext.Request.PathBase + path);
+            }
+
+            return result;
         }
 
         //If we got this far, something failed, redisplay form

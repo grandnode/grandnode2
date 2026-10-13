@@ -1,4 +1,5 @@
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
@@ -27,14 +28,17 @@ public class CustomerManagerService : ICustomerManagerService
     /// <param name="mediator">Mediator</param>
     /// <param name="customerHistoryPasswordService">History password</param>
     /// <param name="customerSettings">Customer settings</param>
+    /// <param name="externalSignInPolicy">Accounts that must sign in with an external provider</param>
     public CustomerManagerService(
         ICustomerService customerService,
         IGroupService groupService,
         IEncryptionService encryptionService,
         IMediator mediator,
         ICustomerHistoryPasswordService customerHistoryPasswordService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IExternalSignInPolicy externalSignInPolicy)
     {
+        _externalSignInPolicy = externalSignInPolicy;
         _customerService = customerService;
         _groupService = groupService;
         _encryptionService = encryptionService;
@@ -53,6 +57,7 @@ public class CustomerManagerService : ICustomerManagerService
     private readonly IMediator _mediator;
     private readonly ICustomerHistoryPasswordService _customerHistoryPasswordService;
     private readonly CustomerSettings _customerSettings;
+    private readonly IExternalSignInPolicy _externalSignInPolicy;
 
     #endregion
 
@@ -83,6 +88,10 @@ public class CustomerManagerService : ICustomerManagerService
             customer.PasswordSalt, _customerSettings.HashedPasswordFormat);
         if (!isValid)
             return CustomerLoginResults.WrongPassword;
+
+        //checked after the password, so the answer tells nothing to someone who does not know it
+        if (await _externalSignInPolicy.RequiredProvider(customer) != null)
+            return CustomerLoginResults.ExternalSignInRequired;
 
         //transparently migrate weak/legacy hashes (SHA-x, Clear, Encrypted) to the modern PBKDF2 format
         if (_encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))

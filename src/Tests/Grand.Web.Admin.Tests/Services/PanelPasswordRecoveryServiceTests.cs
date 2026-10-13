@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -30,6 +31,7 @@ public class PanelPasswordRecoveryServiceTests
     private Mock<IPermissionService> _permissionService;
     private Mock<IVendorService> _vendorService;
     private Mock<IMessageProviderService> _messageProviderService;
+    private Mock<IExternalSignInPolicy> _signInPolicy;
     private CustomerSettings _customerSettings;
     private Customer _customer;
     private PanelPasswordRecoveryService _service;
@@ -47,6 +49,7 @@ public class PanelPasswordRecoveryServiceTests
         _permissionService = new Mock<IPermissionService>();
         _vendorService = new Mock<IVendorService>();
         _messageProviderService = new Mock<IMessageProviderService>();
+        _signInPolicy = new Mock<IExternalSignInPolicy>();
 
         var translationService = new Mock<ITranslationService>();
         translationService.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => key);
@@ -63,7 +66,8 @@ public class PanelPasswordRecoveryServiceTests
 
         _service = new PanelPasswordRecoveryService(_customerService.Object, _customerManagerService.Object,
             _historyService.Object, _groupService.Object, _permissionService.Object, _vendorService.Object,
-            _messageProviderService.Object, translationService.Object, contextAccessor.Object, _customerSettings);
+            _messageProviderService.Object, translationService.Object, contextAccessor.Object, _customerSettings,
+            _signInPolicy.Object);
     }
 
     private void GrantAdminPanel()
@@ -118,6 +122,20 @@ public class PanelPasswordRecoveryServiceTests
             "admin", ""), Times.Once);
         _messageProviderService.Verify(x => x.SendCustomerPasswordRecoveryMessage(_customer,
             It.Is<Store>(s => s.Id == "store"), "lang"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SendRecoveryMessage_ExternalSignInRequired_NoMessage()
+    {
+        GrantAdminPanel();
+        _signInPolicy.Setup(x => x.RequiredProvider(_customer))
+            .ReturnsAsync(new Mock<IExternalAuthenticationProvider>().Object);
+
+        await _service.SendRecoveryMessage(Email, "Admin");
+
+        VerifyMessageSent(Times.Never());
+        _customerService.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), SystemCustomerFieldNames.PasswordRecoveryToken,
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -254,6 +272,23 @@ public class PanelPasswordRecoveryServiceTests
         GiveToken(DateTime.UtcNow);
 
         var result = await _service.ResetPassword(Email, "other", "Admin", "N3w-password");
+
+        Assert.AreEqual("Account.PasswordRecovery.WrongToken", result);
+        _customerManagerService.Verify(x => x.ChangePassword(It.IsAny<ChangePasswordRequest>(),
+            It.IsAny<string>()), Times.Never);
+    }
+
+    //a link sent before the account had to sign in through the provider sets no password any more
+    [TestMethod]
+    public async Task ResetPassword_ExternalSignInRequired_WrongToken_DoesNotChangePassword()
+    {
+        GrantAdminPanel();
+        GiveToken(DateTime.UtcNow);
+        _signInPolicy.Setup(x => x.RequiredProvider(_customer))
+            .ReturnsAsync(new Mock<IExternalAuthenticationProvider>().Object);
+
+        Assert.AreEqual("Account.PasswordRecovery.WrongToken", await _service.ValidateToken(Email, Token, "Admin"));
+        var result = await _service.ResetPassword(Email, Token, "Admin", "N3w-password");
 
         Assert.AreEqual("Account.PasswordRecovery.WrongToken", result);
         _customerManagerService.Verify(x => x.ChangePassword(It.IsAny<ChangePasswordRequest>(),
