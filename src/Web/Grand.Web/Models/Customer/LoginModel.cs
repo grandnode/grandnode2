@@ -27,6 +27,8 @@ public class LoginModel : BaseModel
     [GrandResourceDisplayName("Account.Login.Fields.RememberMe")]
     public bool RememberMe { get; set; }
 
+    public bool ExternalSignInUnavailable { get; set; }
+
     public bool DisplayCaptcha { get; set; }
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
 }

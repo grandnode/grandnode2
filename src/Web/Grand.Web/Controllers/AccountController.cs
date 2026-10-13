@@ -184,14 +184,40 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     [ClosedStore(true)]
     [IgnoreApi]
-    public virtual IActionResult Login(bool? checkoutAsGuest)
+    public virtual async Task<IActionResult> Login(bool? checkoutAsGuest, string returnUrl,
+        [FromServices] OidcLoginConfig oidcLoginConfig,
+        [FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         var model = new LoginModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
             CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
         };
+        if (!oidcLoginConfig.ProviderOnly)
+            return View(model);
+
+        //the identity provider is the only sign-in: go there, or say it cannot be reached (never redirect back here)
+        var signInUrl = await ProviderSignInUrl(externalAuthenticationService, returnUrl);
+        if (signInUrl != null)
+            return Redirect(signInUrl);
+        model.ExternalSignInUnavailable = true;
         return View(model);
+    }
+
+    /// <summary>
+    ///     The sign-in address of the first active provider that can sign in, or null. Only a local return url is passed on.
+    /// </summary>
+    private async Task<string> ProviderSignInUrl(IExternalAuthenticationService externalAuthenticationService,
+        string returnUrl)
+    {
+        var local = !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+        var providers = externalAuthenticationService.LoadActiveAuthenticationProviders(
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+        var provider = providers.OfType<IExternalSignInPathProvider>().FirstOrDefault();
+        if (provider == null)
+            return null;
+        var path = await provider.GetSignInPath(local);
+        return string.IsNullOrEmpty(path) ? null : HttpContext.Request.PathBase + path;
     }
 
     [HttpPost]
@@ -368,8 +394,11 @@ public class AccountController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [HttpGet]
-    public virtual IActionResult PasswordRecovery()
+    public virtual IActionResult PasswordRecovery([FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         var model = new PasswordRecoveryModel {
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage
         };
@@ -378,8 +407,12 @@ public class AccountController : BasePublicController
 
     [HttpPost]
     [PublicStore(true)]
-    public virtual async Task<ActionResult<PasswordRecoveryModel>> PasswordRecovery(PasswordRecoveryModel model)
+    public virtual async Task<ActionResult<PasswordRecoveryModel>> PasswordRecovery(PasswordRecoveryModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         if (!ModelState.IsValid) return View(model);
 
         var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
@@ -397,8 +430,12 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [PublicStore(true)]
-    public virtual async Task<ActionResult<PasswordRecoveryConfirmModel>> PasswordRecoveryConfirm(string token, string email)
+    public virtual async Task<ActionResult<PasswordRecoveryConfirmModel>> PasswordRecoveryConfirm(string token, string email,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         var customer = await _customerService.GetCustomerByEmail(email, CustomerStoreId);
         if (customer == null)
             return RedirectToRoute("HomePage");
@@ -411,8 +448,12 @@ public class AccountController : BasePublicController
     [HttpPost]
     //available even when navigation is not allowed
     [PublicStore(true)]
-    public virtual async Task<IActionResult> PasswordRecoveryConfirm(PasswordRecoveryConfirmModel model)
+    public virtual async Task<IActionResult> PasswordRecoveryConfirm(PasswordRecoveryConfirmModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         if (!ModelState.IsValid) return View(model);
 
         var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
@@ -437,7 +478,9 @@ public class AccountController : BasePublicController
     [HttpGet]
     public virtual async Task<ActionResult<RegisterModel>> Register(
         [FromServices] IExternalRegistrationContext externalRegistrationContext,
-        [FromServices] IExternalAuthenticationService externalAuthenticationService)
+        [FromServices] IExternalAuthenticationService externalAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig,
+        string returnUrl = null)
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -446,6 +489,19 @@ public class AccountController : BasePublicController
         //check if customer is registered.
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("HomePage");
 
+        var pendingIdentity = await externalRegistrationContext.GetPending();
+        if (oidcLoginConfig.ProviderOnly && pendingIdentity == null)
+        {
+            //accounts come from the identity provider: send the visitor there, or say it cannot be reached
+            var signInUrl = await ProviderSignInUrl(externalAuthenticationService, returnUrl);
+            if (signInUrl != null)
+                return Redirect(signInUrl);
+            return View("Login", new LoginModel {
+                UsernamesEnabled = _customerSettings.UsernamesEnabled,
+                ExternalSignInUnavailable = true
+            });
+        }
+
         var model = await _mediator.Send(new GetRegister {
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             ExcludeProperties = false,
@@ -453,7 +509,7 @@ public class AccountController : BasePublicController
             Store = _contextAccessor.StoreContext.CurrentStore
         });
 
-        PrepareExternalRegistration(model, await externalRegistrationContext.GetPending(), externalAuthenticationService);
+        PrepareExternalRegistration(model, pendingIdentity, externalAuthenticationService);
         return View(model);
     }
 
@@ -478,7 +534,8 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl,
         [FromServices] IExternalRegistrationContext externalRegistrationContext,
-        [FromServices] IExternalAuthenticationService externalAuthenticationService)
+        [FromServices] IExternalAuthenticationService externalAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -488,6 +545,9 @@ public class AccountController : BasePublicController
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("HomePage");
 
         var pending = await externalRegistrationContext.GetPending();
+        //the identity provider is the only way to an account, and only through its verified e-mail
+        if (oidcLoginConfig.ProviderOnly && pending is not { EmailVerified: true })
+            return RedirectToRoute("Login");
         if (pending != null)
             model.Email = pending.Email;
         var registrationType = pending == null
