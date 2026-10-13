@@ -34,6 +34,10 @@ public class LoginModel : BaseModel
     [BindNever]
     public bool ExternalSignInUnavailable { get; set; }
 
+    /// <summary>Set by the server only: a registered account is signed in but has no access to this panel</summary>
+    [BindNever]
+    public bool SignedInWithoutAccess { get; set; }
+
     public IList<ExternalSignInButton> ExternalSignIn { get; set; } = new List<ExternalSignInButton>();
 
     public class ExternalSignInButton

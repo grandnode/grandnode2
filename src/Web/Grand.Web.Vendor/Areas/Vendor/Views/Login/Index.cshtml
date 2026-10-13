@@ -66,6 +66,13 @@
                 </div>
                 <input class="btn btn-primary grand-login__submit login-button" type="submit" value="@Loc["Vendor.Login.LoginButton"]"/>
             }
+            @if (Model.SignedInWithoutAccess)
+            {
+                <div class="alert alert-warning">@Loc["Admin.Login.SignedInWithoutAccess"]</div>
+                <a class="btn btn-outline-secondary w-100 mt-2" href="@Url.Action("Logout", "Home", new { area = Grand.Web.Vendor.Extensions.Constants.AreaVendor }, null)">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i> @Loc["Vendor.Header.Logout"]
+                </a>
+            }
             @if (Model.ExternalSignInUnavailable)
             {
                 <div class="alert alert-warning">@Loc["Account.Login.ExternalSignInUnavailable"]</div>

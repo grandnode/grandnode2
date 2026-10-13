@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -22,11 +23,20 @@ namespace Grand.Web.Admin.Tests.Controllers;
 public class LoginControllerProviderOnlyTests
 {
     private Mock<IExternalAuthenticationService> _externalAuthenticationService = null!;
+    private Mock<IContextAccessor> _contextAccessor = null!;
+    private Mock<IGroupService> _groupService = null!;
+    private Mock<ICustomerManagerService> _customerManagerService = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _externalAuthenticationService = new Mock<IExternalAuthenticationService>();
+        _groupService = new Mock<IGroupService>();
+        var workContext = new Mock<IWorkContext>();
+        workContext.Setup(x => x.CurrentCustomer).Returns(new Customer());
+        _contextAccessor = new Mock<IContextAccessor>();
+        _contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
+        _customerManagerService = new Mock<ICustomerManagerService>();
     }
 
     private LoginController CreateController(string area)
@@ -34,7 +44,7 @@ public class LoginControllerProviderOnlyTests
         var controller = new LoginController(new CustomerSettings(), new CaptchaSettings(),
             new Mock<ITranslationService>().Object, new Mock<ICustomerManagerService>().Object,
             new Mock<ICustomerService>().Object, new Mock<IGrandAuthenticationService>().Object,
-            new Mock<IMessageProviderService>().Object, new Mock<IContextAccessor>().Object,
+            new Mock<IMessageProviderService>().Object, _contextAccessor.Object,
             new Mock<IMediator>().Object);
         var httpContext = new DefaultHttpContext();
         httpContext.Request.PathBase = "/shop";
@@ -65,7 +75,7 @@ public class LoginControllerProviderOnlyTests
         WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fstore");
         var controller = CreateController("Store");
 
-        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly());
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object);
 
         var redirect = result as RedirectResult;
         Assert.IsNotNull(redirect);
@@ -78,7 +88,7 @@ public class LoginControllerProviderOnlyTests
         WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fadmin");
         var controller = CreateController("Admin");
 
-        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly());
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object);
 
         var redirect = result as RedirectResult;
         Assert.IsNotNull(redirect);
@@ -91,7 +101,7 @@ public class LoginControllerProviderOnlyTests
         WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fadmin");
         var controller = CreateController("Admin");
 
-        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), true);
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object, true);
 
         var model = (LoginModel)((ViewResult)result).Model!;
         Assert.IsTrue(model.PasswordFormShown);
@@ -105,7 +115,7 @@ public class LoginControllerProviderOnlyTests
         WithSignInPath(null);
         var controller = CreateController("Store");
 
-        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly());
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object);
 
         var model = (LoginModel)((ViewResult)result).Model!;
         Assert.IsTrue(model.ExternalSignInUnavailable);
@@ -118,7 +128,7 @@ public class LoginControllerProviderOnlyTests
         WithSignInPath(null);
         var controller = CreateController("Admin");
 
-        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly());
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object);
 
         var model = (LoginModel)((ViewResult)result).Model!;
         Assert.IsTrue(model.ExternalSignInUnavailable);
@@ -131,7 +141,7 @@ public class LoginControllerProviderOnlyTests
         WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fadmin");
         var controller = CreateController("Admin");
 
-        var result = await controller.Index(_externalAuthenticationService.Object, new OidcLoginConfig());
+        var result = await controller.Index(_externalAuthenticationService.Object, new OidcLoginConfig(), _groupService.Object);
 
         var model = (LoginModel)((ViewResult)result).Model!;
         Assert.IsTrue(model.PasswordFormShown);
@@ -142,6 +152,9 @@ public class LoginControllerProviderOnlyTests
     public async Task IndexPost_ProviderOnly_Admin_FailedAttempt_KeepsForm()
     {
         WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fadmin");
+        _customerManagerService.Setup(x => x.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<SignInSurface>()))
+            .ReturnsAsync(CustomerLoginResults.WrongPassword);
         var controller = CreateController("Admin");
 
         var result = await controller.Index(new LoginModel { Email = "a@b.c", Password = "x" },
@@ -163,5 +176,35 @@ public class LoginControllerProviderOnlyTests
         var model = (LoginModel)((ViewResult)result).Model!;
         Assert.IsFalse(model.PasswordFormShown);
         Assert.IsTrue(model.ExternalSignInUnavailable);
+    }
+
+    [TestMethod]
+    [DataRow("Store")]
+    [DataRow("Admin")]
+    public async Task Index_ProviderOnly_SignedInWithoutAccess_NoRedirect(string area)
+    {
+        WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fpanel");
+        _groupService.Setup(x => x.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+        var controller = CreateController(area);
+
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object);
+
+        var model = (LoginModel)((ViewResult)result).Model!;
+        Assert.IsTrue(model.SignedInWithoutAccess);
+        Assert.AreEqual(area == "Admin", model.PasswordFormShown);
+    }
+
+    [TestMethod]
+    public async Task Index_Mixed_SignedIn_ShowsForm()
+    {
+        WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fadmin");
+        _groupService.Setup(x => x.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+        var controller = CreateController("Admin");
+
+        var result = await controller.Index(_externalAuthenticationService.Object, new OidcLoginConfig(), _groupService.Object);
+
+        var model = (LoginModel)((ViewResult)result).Model!;
+        Assert.IsFalse(model.SignedInWithoutAccess);
+        Assert.IsTrue(model.PasswordFormShown);
     }
 }
