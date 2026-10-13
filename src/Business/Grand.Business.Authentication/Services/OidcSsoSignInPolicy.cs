@@ -4,6 +4,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Authentication.Services;
@@ -23,9 +24,10 @@ public class OidcSsoSignInPolicy(
     ExternalAuthenticationSettings externalAuthenticationSettings,
     OidcLoginConfig config,
     OidcResourceServerConfig resourceServerConfig,
+    IMemoryCache memoryCache,
     ILogger<OidcSsoSignInPolicy> logger) : IExternalSignInPolicy
 {
-    private static long _lastUnavailableLogTicks;
+    private const string UnavailableLogKey = "Grand.OidcSignInMode.Unavailable";
 
     public async Task<IExternalAuthenticationProvider> RequiredProvider(Customer customer)
     {
@@ -74,11 +76,9 @@ public class OidcSsoSignInPolicy(
     //every refused request would log it otherwise (plain cookies are checked on each request)
     private void LogUnavailable()
     {
-        var now = DateTime.UtcNow.Ticks;
-        var last = Interlocked.Read(ref _lastUnavailableLogTicks);
-        if (now - last < TimeSpan.TicksPerMinute * 5 ||
-            Interlocked.CompareExchange(ref _lastUnavailableLogTicks, now, last) != last)
+        if (memoryCache.TryGetValue(UnavailableLogKey, out _))
             return;
+        memoryCache.Set(UnavailableLogKey, true, TimeSpan.FromMinutes(5));
         logger.LogError("ProviderOnly sign-in mode without a working OpenID Connect login (plugin not installed, " +
                         "not active or not configured): only break-glass accounts can sign in");
     }

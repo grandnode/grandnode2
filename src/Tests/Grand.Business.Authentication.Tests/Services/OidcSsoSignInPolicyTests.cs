@@ -4,6 +4,8 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,12 +20,14 @@ public class OidcSsoSignInPolicyTests
     private ExternalAuthenticationSettings _settings;
     private OidcLoginConfig _config;
     private OidcResourceServerConfig _resourceServer;
+    private IMemoryCache _cache;
     private readonly Customer _customer = new() { Id = "c1" };
 
     [TestInitialize]
     public void Init()
     {
         _links = new MongoDBRepositoryTest<ExternalAuthentication>();
+        _cache = new MemoryCache(new MemoryCacheOptions());
         _provider = new Mock<IExternalAuthenticationProvider>();
         _provider.Setup(x => x.SystemName).Returns(OidcCustomerResolver.ProviderSystemName);
         _provider.Setup(x => x.FriendlyName).Returns("OpenID Connect");
@@ -34,7 +38,7 @@ public class OidcSsoSignInPolicyTests
 
     private OidcSsoSignInPolicy Policy(params IExternalAuthenticationProvider[] providers) =>
         new(_links, providers.Length > 0 ? providers : [_provider.Object], _settings, _config, _resourceServer,
-            NullLogger<OidcSsoSignInPolicy>.Instance);
+            _cache, NullLogger<OidcSsoSignInPolicy>.Instance);
 
     private Task Link(bool byEmail) => _links.InsertAsync(new ExternalAuthentication {
         CustomerId = "c1", ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "sub-1",
@@ -84,7 +88,7 @@ public class OidcSsoSignInPolicyTests
     {
         await Link(byEmail: false);
         Assert.IsNull(await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
-            NullLogger<OidcSsoSignInPolicy>.Instance).RequiredProvider(_customer));
+            _cache, NullLogger<OidcSsoSignInPolicy>.Instance).RequiredProvider(_customer));
     }
 
     [TestMethod]
@@ -149,7 +153,9 @@ public class OidcSsoSignInPolicyTests
     {
         ProviderOnly("admin@shop.com");
         _customer.Email = "admin@shop.com";
-        Assert.IsFalse((await Policy().PasswordSignIn(_customer, surface)).Allowed);
+        var decision = await Policy().PasswordSignIn(_customer, surface);
+        Assert.IsFalse(decision.Allowed);
+        Assert.AreSame(_provider.Object, decision.Provider);
     }
 
     //fail closed: no working provider never re-opens the password
@@ -158,9 +164,22 @@ public class OidcSsoSignInPolicyTests
     {
         ProviderOnly();
         var decision = await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
-            NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront);
+            _cache, NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront);
         Assert.IsFalse(decision.Allowed);
         Assert.IsNull(decision.Provider);
+    }
+
+    //every refused request would log it otherwise
+    [TestMethod]
+    public async Task ProviderOnly_PluginMissing_LoggedOncePerWindow()
+    {
+        ProviderOnly();
+        var logger = new Mock<ILogger<OidcSsoSignInPolicy>>();
+        var policy = new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer, _cache, logger.Object);
+        await policy.PasswordSignIn(_customer, SignInSurface.Storefront);
+        await policy.PasswordSignIn(_customer, SignInSurface.Storefront);
+        logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), null,
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
     [TestMethod]
