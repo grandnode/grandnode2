@@ -508,6 +508,33 @@ public class LiteDbRepositoryTests
         Assert.AreEqual("user", pUpdated.FirstOrDefault()!.UpdatedBy);
     }
 
+    //like MongoDB: a filter that matches nothing updates nothing
+    [TestMethod]
+    public async Task UpdateOneAsync_NoMatch_UpdatesNothing()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        myRepository.Insert(new SampleCollection { Id = "1", Name = "Test" });
+
+        await myRepository.UpdateOneAsync(x => x.Name == "Missing",
+            UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
+
+        Assert.AreEqual(1, myRepository.Table.Count());
+        Assert.AreEqual("Test", myRepository.GetById("1").Name);
+        Assert.IsFalse(myRepository.GetById("1").UpdatedOnUtc.HasValue);
+    }
+
+    [TestMethod]
+    public async Task UpdateManyAsync_NoMatch_UpdatesNothing()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        myRepository.Insert(new SampleCollection { Id = "1", Name = "Test" });
+
+        await myRepository.UpdateManyAsync(x => x.Name == "Missing",
+            UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
+
+        Assert.AreEqual("Test", myRepository.GetById("1").Name);
+    }
+
     [TestMethod]
     public async Task UpdateToSet_LiteRepository_Success()
     {

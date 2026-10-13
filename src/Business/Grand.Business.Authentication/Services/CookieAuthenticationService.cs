@@ -7,6 +7,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace Grand.Business.Authentication.Services;
@@ -26,13 +27,17 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="groupService">Group service</param>
     /// <param name="httpContextAccessor">HTTP context accessor</param>
     /// <param name="securityConfig">SecurityConfig</param>
+    /// <param name="oidcSessionService">Server-side sessions of provider sign-ins</param>
+    /// <param name="logger">Logger</param>
     public CookieAuthenticationService(
         CustomerSettings customerSettings,
         ICustomerService customerService,
         IGroupService groupService,
         IHttpContextAccessor httpContextAccessor,
         ICookieOptionsFactory cookieOptionsFactory,
-        SecurityConfig securityConfig)
+        SecurityConfig securityConfig,
+        IOidcSessionService oidcSessionService,
+        ILogger<CookieAuthenticationService> logger)
     {
         _customerSettings = customerSettings;
         _customerService = customerService;
@@ -40,6 +45,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         _httpContextAccessor = httpContextAccessor;
         _cookieOptionsFactory = cookieOptionsFactory;
         _securityConfig = securityConfig;
+        _oidcSessionService = oidcSessionService;
+        _logger = logger;
     }
 
     #endregion
@@ -63,6 +70,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly ICookieOptionsFactory _cookieOptionsFactory;
 
     private readonly SecurityConfig _securityConfig;
+    private readonly IOidcSessionService _oidcSessionService;
+    private readonly ILogger<CookieAuthenticationService> _logger;
 
     #endregion
 
@@ -76,6 +85,44 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     public virtual async Task SignIn(Customer customer, bool isPersistent)
     {
         ArgumentNullException.ThrowIfNull(customer);
+
+        //a re-sign-in of the same customer (password, e-mail or username change) keeps the server-side
+        //session of a provider sign-in, so idle/max lifetime, revalidation and back-channel logout still apply
+        await SignIn(customer, isPersistent, await CurrentOidcSessionIdOf(customer));
+    }
+
+    private async Task<string> CurrentOidcSessionIdOf(Customer customer)
+    {
+        if (_httpContextAccessor.HttpContext == null || string.IsNullOrEmpty(customer.Id))
+            return null;
+
+        var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(
+            GrandCookieAuthenticationDefaults.AuthenticationScheme);
+        if (authenticateResult?.Succeeded != true)
+            return null;
+
+        var customerId = authenticateResult.Principal?.FindFirst(claim =>
+            claim.Type == CustomerIdClaimType &&
+            claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))?.Value;
+
+        return customerId == customer.Id ? OidcSessionId(authenticateResult.Principal) : null;
+    }
+
+    /// <summary>
+    ///     Sign in with a session started at the identity provider
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="isPersistent">Whether the authentication session is persisted across multiple requests</param>
+    /// <param name="oidcSessionId">Id of the OidcSession; null or empty = an ordinary sign-in</param>
+    public virtual async Task SignIn(Customer customer, bool isPersistent, string oidcSessionId)
+    {
+        ArgumentNullException.ThrowIfNull(customer);
+
+        //the same customer signing in through the provider again: the cookie that referenced the previous session is
+        //replaced, so that session would never be used or ended again
+        if (!string.IsNullOrEmpty(oidcSessionId) &&
+            await CurrentOidcSessionIdOf(customer) is { Length: > 0 } previous && previous != oidcSessionId)
+            await EndOidcSession(previous);
 
         //create claims for customer's username and email
         var claims = new List<Claim>();
@@ -109,6 +156,11 @@ public class CookieAuthenticationService : IGrandAuthenticationService
                 _securityConfig.CookieClaimsIssuer));
         }
 
+        //the server-side session of a provider sign-in: ending it ends this cookie
+        if (!string.IsNullOrEmpty(oidcSessionId))
+            claims.Add(new Claim(OidcSessionDefaults.SessionIdClaimType, oidcSessionId, ClaimValueTypes.String,
+                _securityConfig.CookieClaimsIssuer));
+
         //create principal for the present scheme of authentication
         var userIdentity = new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme);
         var userPrincipal = new ClaimsPrincipal(userIdentity);
@@ -137,6 +189,12 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         //and then sign out customer from the present scheme of authentication
         if (_httpContextAccessor.HttpContext != null)
         {
+            var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(
+                GrandCookieAuthenticationDefaults.AuthenticationScheme);
+            var oidcSessionId = authenticateResult?.Succeeded == true ? OidcSessionId(authenticateResult.Principal) : null;
+            if (!string.IsNullOrEmpty(oidcSessionId))
+                await EndOidcSession(oidcSessionId);
+
             await _httpContextAccessor.HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults
                 .AuthenticationScheme);
             //sign out also from other schema
@@ -215,8 +273,32 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         if (!customer.Active || customer.Deleted || !await _groupService.IsRegistered(customer))
             return false;
 
+        //a provider sign-in: the server-side session decides (ended, idle, refused by the provider)
+        var oidcSessionId = OidcSessionId(principal);
+        if (!string.IsNullOrEmpty(oidcSessionId) && !await _oidcSessionService.Validate(oidcSessionId, customer))
+            return false;
+
         return true;
     }
+
+    private async Task EndOidcSession(string sessionId)
+    {
+        try
+        {
+            await _oidcSessionService.End(sessionId, OidcSessionEndReason.SignOut);
+        }
+        catch (Exception ex)
+        {
+            //the cookie that referenced it is replaced anyway; the record goes with the cleanup task
+            _logger.LogWarning(ex, "Could not end the OpenID Connect session {SessionId}", sessionId);
+        }
+    }
+
+    private string OidcSessionId(ClaimsPrincipal principal) =>
+        principal?.FindFirst(claim =>
+            claim.Type == OidcSessionDefaults.SessionIdClaimType &&
+            claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))?.Value;
+
     /// <summary>
     ///     Get customer cookie
     /// </summary>

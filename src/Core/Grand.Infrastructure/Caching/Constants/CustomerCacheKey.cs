@@ -113,5 +113,18 @@ public static partial class CacheKey
     /// </summary>
     public static string SALESEMPLOYEE_PATTERN_KEY => "Grand.salesemployee.";
 
+    /// <summary>
+    ///     Key for an OpenID Connect session
+    /// </summary>
+    /// <remarks>
+    ///     {0} : session ID
+    /// </remarks>
+    public static string OIDC_SESSION_BY_ID_KEY => "Grand.oidcsession.id-{0}";
+
+    /// <summary>
+    ///     Key pattern to clear cache
+    /// </summary>
+    public static string OIDC_SESSION_PATTERN_KEY => "Grand.oidcsession.";
+
     #endregion
 }

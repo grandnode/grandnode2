@@ -122,6 +122,7 @@ public partial class InstallationService : IInstallationService
         IRepository<Permission> permissionRepository,
         IRepository<PermissionAction> permissionAction,
         IRepository<ExternalAuthentication> externalAuthenticationRepository,
+        IRepository<OidcSession> oidcSessionRepository,
         IRepository<MerchandiseReturnReason> merchandiseReturnReasonRepository,
         IRepository<MerchandiseReturnAction> merchandiseReturnActionRepository,
         IRepository<ContactUs> contactUsRepository,
@@ -218,6 +219,7 @@ public partial class InstallationService : IInstallationService
         _permissionAction = permissionAction;
         _vendorRepository = vendorRepository;
         _externalAuthenticationRepository = externalAuthenticationRepository;
+        _oidcSessionRepository = oidcSessionRepository;
         _discountusageRepository = discountusageRepository;
         _merchandiseReturnReasonRepository = merchandiseReturnReasonRepository;
         _contactUsRepository = contactUsRepository;
@@ -384,6 +386,7 @@ public partial class InstallationService : IInstallationService
     private readonly IRepository<Permission> _permissionRepository;
     private readonly IRepository<PermissionAction> _permissionAction;
     private readonly IRepository<ExternalAuthentication> _externalAuthenticationRepository;
+    private readonly IRepository<OidcSession> _oidcSessionRepository;
     private readonly IRepository<MerchandiseReturnReason> _merchandiseReturnReasonRepository;
     private readonly IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
     private readonly IRepository<ContactUs> _contactUsRepository;
@@ -917,6 +920,16 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.ProviderSystemName)
                 .Ascending(x => x.ExternalIdentifier).Ascending(x => x.StoreId),
             "ProviderSystemName_ExternalIdentifier_StoreId", true);
+
+        //OpenID Connect sessions: back-channel logout looks up by sid and subject, the cleanup by end time
+        await dbContext.CreateIndex(_oidcSessionRepository,
+            OrderBuilder<OidcSession>.Create().Ascending(x => x.Sid), "Sid");
+        await dbContext.CreateIndex(_oidcSessionRepository,
+            OrderBuilder<OidcSession>.Create().Ascending(x => x.Subject), "Subject");
+        await dbContext.CreateIndex(_oidcSessionRepository,
+            OrderBuilder<OidcSession>.Create().Ascending(x => x.CustomerId), "CustomerId");
+        await dbContext.CreateIndex(_oidcSessionRepository,
+            OrderBuilder<OidcSession>.Create().Ascending(x => x.EndedUtc), "EndedUtc");
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,

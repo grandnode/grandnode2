@@ -210,7 +210,9 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     public virtual Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
     {
         var entity = Collection.FindOne(filterexpression);
-        Update(entity, updateBuilder);
+        //like MongoDB: a filter that matches nothing updates nothing
+        if (entity != null)
+            Update(entity, updateBuilder);
         return Task.CompletedTask;
     }
 

@@ -11,10 +11,6 @@ public class StartupApplication : IStartupApplication
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        var config = new OidcLoginConfig();
-        configuration.GetSection(OidcLoginDefaults.ConfigSection).Bind(config);
-        services.AddSingleton(config);
-
         services.AddScoped<IExternalAuthenticationProvider, OidcLoginProvider>();
     }
 
