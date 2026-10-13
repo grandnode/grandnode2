@@ -12,6 +12,11 @@ public class StartupApplication : IStartupApplication
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IExternalAuthenticationProvider, OidcLoginProvider>();
+        //no redirects: a 307/308 from the token endpoint would re-post the refresh token and client secret elsewhere
+        services.AddHttpClient(OidcLoginDefaults.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(10))
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+        services.AddScoped<IOidcTokenRefresher, OidcTokenRefresher>();
+        services.AddSingleton<OidcLogoutTokenValidator>();
     }
 
     public int Priority => 10;

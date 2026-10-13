@@ -12,4 +12,7 @@ public class FailedModel
 
     /// <summary>Another account is signed in to the store</summary>
     public bool SignedInAsOtherAccount { get; set; }
+
+    /// <summary>A back-office sign-in without a refresh token from the provider: the session could not be checked later</summary>
+    public bool SessionUnavailable { get; set; }
 }

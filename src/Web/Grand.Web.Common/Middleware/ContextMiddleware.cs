@@ -48,6 +48,12 @@ public class ContextMiddleware
         var endpoint = context.GetEndpoint();
         if (endpoint != null)
         {
+            if (endpoint.Metadata.GetMetadata<NoRequestContextMetadata>() != null)
+            {
+                await _next(context);
+                return;
+            }
+
             var routePattern = (endpoint as RouteEndpoint)?.RoutePattern.RawText;
             if (routePattern != null && (skipRoutePattern.Any(pattern => routePattern.StartsWith(pattern, StringComparison.OrdinalIgnoreCase)) ||
                                          IsProtectedResourceMetadata(routePattern)))
