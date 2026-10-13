@@ -717,7 +717,7 @@ Back-Channel Logout 1.0).
 | The provider sends a back-channel logout (the user signs out at the provider, or an administrator ends the provider session) | The GrandNode sessions of that provider session (or of that user, when the logout names no session) end **at once**, for every kind of account. Access tokens of that user issued before the logout are refused too (section 12.2). |
 | The user signs out of GrandNode | The session ends at once. The provider session is not touched (section 12.7). |
 | The provider disables or deletes the user | **Every** session started by a provider sign-in, of a customer or of staff, ends at the next revalidation (`RevalidationMinutes`, section 12.2). Providers send no logout for a disabled or deleted user, so GrandNode notices at the next check. When the provider is unreachable, the session lasts until the last successful check is older than twice that interval, then ends. A refused revalidation also refuses the user's older access tokens. To end the sessions **at once**, sign the user out at the provider first (a back-channel logout), then disable the user. |
-| The login plugin is uninstalled (and the application restarted), or `Authority` or `ClientId` is removed from the settings | Every provider session (customers too) ends at the next revalidation: nothing can confirm it any more, and that counts as refused. Only *deactivating* the authentication method does not end sessions: it hides the button and turns `SsoOnly` off (passwords work again), and existing provider sessions go on being revalidated. |
+| The login plugin is uninstalled (and the application restarted), or `Authority` or `ClientId` is removed from the settings | Every provider session (customers too) ends at the next revalidation: nothing can confirm it any more. The user's access tokens stay valid: the provider refused nothing. Only *deactivating* the authentication method does not end sessions: it hides the button and turns `SsoOnly` off (passwords work again), and existing provider sessions go on being revalidated. |
 | Idle time or total lifetime is exceeded | **Back-office sessions only** (`StaffIdleTimeoutMinutes`, `StaffMaxSessionHours`). Storefront customers are not limited by these settings. |
 
 After a registration through the provider or "Connect your account", the browser passes through the provider once more
@@ -826,6 +826,7 @@ reinstall the plugin for it: uninstalling deletes its settings and the resources
 
 If the ASP.NET Core Data Protection keys change (a new key ring, a different server without the shared ring), the stored
 refresh tokens cannot be read any more and all provider sessions end at the next revalidation; users sign in again.
+Their access tokens are not refused: the provider was not asked.
 
 ### 12.5 `SsoOnly`
 
@@ -834,7 +835,8 @@ made by e-mail, section 3.1), customers included, signs in only through the prov
 
 * the password sign-in of the Admin, Store and Vendor panels and of the storefront is refused for it, and so is the
   sign-in of the Frontend API;
-* no password recovery e-mail is sent to it (a new password would be of no use);
+* no password recovery e-mail is sent to it (a new password would be of no use), and a recovery link sent before reads
+  as a wrong link;
 * the policy applies only while the login plugin is installed, enabled and configured (`Authority` and `ClientId`);
   otherwise passwords work as before.
 
@@ -853,10 +855,12 @@ rules of section 11.2 and the session limits of section 12.2 apply.
 
 * **No RP-initiated logout.** Signing out of GrandNode does not sign out of the provider (section 11.6). Only the
   provider's back-channel logout reaches GrandNode.
-* Two instances that refresh the same session at the same moment, with a provider that invalidates a used refresh token,
-  can end that session early; the user signs in again.
 * Ended sessions are deleted by the scheduled task **Delete OpenID Connect sessions** (daily, enabled by default).
-  Records are kept for 7 days after they end.
+  Records are kept for 7 days after they end. Most sessions end with the browser, without a sign-out: a session not
+  confirmed at the provider for 30 days is deleted with its refresh token. A new provider sign-in of the same account in
+  the same browser ends the session it replaces.
+* With several instances, one refresh of a session runs at a time on all of them (a lease on the session record), so a
+  provider that invalidates a used refresh token does not end the session early.
 
 ### 12.8 Troubleshooting
 
