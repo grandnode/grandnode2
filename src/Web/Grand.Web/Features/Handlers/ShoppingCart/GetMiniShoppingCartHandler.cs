@@ -13,6 +13,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -29,6 +30,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;
+    private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly IOrderCalculationService _orderTotalCalculationService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
@@ -57,6 +59,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         LinkGenerator linkGenerator,
         ShoppingCartSettings shoppingCartSettings,
         OrderSettings orderSettings,
+        OidcLoginConfig oidcLoginConfig,
         TaxSettings taxSettings,
         MediaSettings mediaSettings)
     {
@@ -75,6 +78,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         _linkGenerator = linkGenerator;
         _shoppingCartSettings = shoppingCartSettings;
         _orderSettings = orderSettings;
+        _oidcLoginConfig = oidcLoginConfig;
         _taxSettings = taxSettings;
         _mediaSettings = mediaSettings;
     }
@@ -86,7 +90,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
             ShowProductImages = _shoppingCartSettings.ShowImagesInsidebarCart,
             DisplayShoppingCartButton = true,
             CurrentCustomerIsGuest = await _groupService.IsGuest(request.Customer),
-            AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed
+            AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig)
         };
 
         if (!request.Customer.ShoppingCartItems.Any()) return model;
