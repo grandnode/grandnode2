@@ -26,7 +26,7 @@ public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecove
     public async Task<bool> Handle(PasswordRecoverySendCommand request, CancellationToken cancellationToken)
     {
         //an account that signs in only with the identity provider has no password to recover; the page answers as usual
-        if (request.Customer == null || await _externalSignInPolicy.RequiredProvider(request.Customer) != null)
+        if (request.Customer == null || !(await _externalSignInPolicy.PasswordSignIn(request.Customer, SignInSurface.Storefront)).Allowed)
             return true;
 
         //save token and current date

@@ -205,7 +205,8 @@ public class AccountController : BasePublicController
         {
             var loginResult =
                 await _customerManagerService.LoginCustomer(
-                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, CustomerStoreId);
+                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, CustomerStoreId,
+                    SignInSurface.Storefront);
             switch (loginResult)
             {
                 case CustomerLoginResults.Successful:

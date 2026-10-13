@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
@@ -72,7 +73,8 @@ public abstract class BaseLoginController : BaseController
         {
             var loginResult =
                 await _customerManagerService.LoginCustomer(
-                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, "",
+                    PanelSignInSurface.FromArea(GetCurrentArea()));
             switch (loginResult)
             {
                 case CustomerLoginResults.Successful:

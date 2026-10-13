@@ -283,8 +283,9 @@ public class CookieAuthenticationService : IGrandAuthenticationService
             return await _oidcSessionService.Validate(oidcSessionId, customer);
 
         //a cookie without a session (issued before the account was connected or before the provider became required)
-        //would escape revalidation and back-channel logout: an account that must use the provider signs in again there
-        return await _externalSignInPolicy.RequiredProvider(customer) == null;
+        //would escape revalidation and back-channel logout: an account that must use the provider signs in again there;
+        //in ProviderOnly only a break-glass account (password on the Admin panel) keeps a plain cookie
+        return (await _externalSignInPolicy.PasswordSignIn(customer, SignInSurface.AdminPanel)).Allowed;
     }
 
     private async Task EndOidcSession(string sessionId)

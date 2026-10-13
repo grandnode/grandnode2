@@ -148,7 +148,7 @@ public class TokenWebController : ControllerBase
 
         //tokens obtained with the password before the account had to sign in through the provider are not renewed:
         //the provider could not stop them for a user it disabled
-        if (await _externalSignInPolicy.RequiredProvider(customer) != null)
+        if (!(await _externalSignInPolicy.PasswordSignIn(customer, SignInSurface.FrontendApi)).Allowed)
             return BadRequest("Invalid refresh token");
 
         //rebuild the claims from the resolved customer (registered carry id/email/token, guests carry the guid)

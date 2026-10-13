@@ -13,7 +13,9 @@ using Grand.SharedKernel.Captcha;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Validators;
 using Grand.Mediator;
+using Grand.Web.AdminShared.Extensions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.AdminShared.Validators.Common;
@@ -81,11 +83,14 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                             await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
                                 .Publish(new CustomerLoginFailedEvent(customer), _);
                         }
-                        else if (await externalSignInPolicy.RequiredProvider(customer) is { } provider)
+                        else if (await externalSignInPolicy.PasswordSignIn(customer, PanelSignInSurface.FromArea(
+                            contextAccessor.HttpContext?.GetRouteValue("area") as string)) is { Allowed: false } decision)
                         {
-                            context.AddFailure(string.Format(
-                                translationService.GetResource("Account.Login.WrongCredentials.ExternalSignInRequired"),
-                                provider.FriendlyName));
+                            context.AddFailure(decision.Provider != null
+                                ? string.Format(
+                                    translationService.GetResource("Account.Login.WrongCredentials.ExternalSignInRequired"),
+                                    decision.Provider.FriendlyName)
+                                : translationService.GetResource("Account.Login.ExternalSignInUnavailable"));
                         }
 
                         break;

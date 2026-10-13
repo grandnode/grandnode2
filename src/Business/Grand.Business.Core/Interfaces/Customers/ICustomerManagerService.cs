@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 
@@ -14,8 +15,10 @@ public interface ICustomerManagerService
     /// <param name="usernameOrEmail">Username or email</param>
     /// <param name="password">Password</param>
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
+    /// <param name="surface">Where the password is used: the sign-in policy decides per surface</param>
     /// <returns>Result</returns>
-    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "");
+    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "",
+        SignInSurface surface = SignInSurface.Storefront);
 
     /// <summary>
     ///     Register customer

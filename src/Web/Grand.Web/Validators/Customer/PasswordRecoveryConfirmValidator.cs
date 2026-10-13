@@ -66,7 +66,7 @@ public class PasswordRecoveryConfirmValidator : BaseGrandValidator<PasswordRecov
 
             //a link sent before the account had to sign in through the provider reads as a wrong link
             if (customer is not null && (!customer.IsPasswordRecoveryTokenValid(x.Token) ||
-                                         await externalSignInPolicy.RequiredProvider(customer) != null))
+                                         !(await externalSignInPolicy.PasswordSignIn(customer, SignInSurface.Storefront)).Allowed))
                 context.AddFailure(translationService.GetResource("Account.PasswordRecovery.WrongToken"));
 
             if (customer is not null && customer.IsPasswordRecoveryLinkExpired(customerSettings))

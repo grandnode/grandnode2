@@ -52,19 +52,21 @@ public class OidcSsoSignInPolicyTests
     public async Task ConfirmedLink_ProviderRequired_WhateverTheAccount(bool staff)
     {
         await Link(byEmail: false);
-        Assert.AreSame(_provider.Object, await Policy().RequiredProvider(_customer));
+        var decision = await Policy().PasswordSignIn(_customer, SignInSurface.Storefront);
+        Assert.IsFalse(decision.Allowed);
+        Assert.AreSame(_provider.Object, decision.Provider);
     }
 
     //break-glass: an account never connected to the provider keeps its password
     [TestMethod]
-    public async Task WithoutLink_PasswordAllowed() => Assert.IsNull(await Policy().RequiredProvider(_customer));
+    public async Task WithoutLink_PasswordAllowed() => Assert.IsTrue((await Policy().PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
 
     //"connect your account" needs the password
     [TestMethod]
     public async Task LinkedByEmail_PasswordAllowed()
     {
         await Link(byEmail: true);
-        Assert.IsNull(await Policy().RequiredProvider(_customer));
+        Assert.IsTrue((await Policy().PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
     }
 
     [TestMethod]
@@ -72,7 +74,7 @@ public class OidcSsoSignInPolicyTests
     {
         _config.SsoOnly = false;
         await Link(byEmail: false);
-        Assert.IsNull(await Policy().RequiredProvider(_customer));
+        Assert.IsTrue((await Policy().PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
     }
 
     [TestMethod]
@@ -80,15 +82,15 @@ public class OidcSsoSignInPolicyTests
     {
         _settings.ActiveAuthenticationMethodSystemNames = [];
         await Link(byEmail: false);
-        Assert.IsNull(await Policy().RequiredProvider(_customer));
+        Assert.IsTrue((await Policy().PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
     }
 
     [TestMethod]
     public async Task PluginNotInstalled_PasswordAllowed()
     {
         await Link(byEmail: false);
-        Assert.IsNull(await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
-            _cache, NullLogger<OidcSsoSignInPolicy>.Instance).RequiredProvider(_customer));
+        Assert.IsTrue((await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
+            _cache, NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
     }
 
     [TestMethod]
@@ -96,7 +98,7 @@ public class OidcSsoSignInPolicyTests
     {
         _config.ClientId = "";
         await Link(byEmail: false);
-        Assert.IsNull(await Policy().RequiredProvider(_customer));
+        Assert.IsTrue((await Policy().PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
     }
 
     private void ProviderOnly(params string[] breakGlass)

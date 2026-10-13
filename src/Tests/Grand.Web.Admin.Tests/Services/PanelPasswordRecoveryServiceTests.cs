@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -50,6 +51,8 @@ public class PanelPasswordRecoveryServiceTests
         _vendorService = new Mock<IVendorService>();
         _messageProviderService = new Mock<IMessageProviderService>();
         _signInPolicy = new Mock<IExternalSignInPolicy>();
+        _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
+            .ReturnsAsync(PasswordSignInDecision.Password);
 
         var translationService = new Mock<ITranslationService>();
         translationService.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => key);
@@ -128,8 +131,7 @@ public class PanelPasswordRecoveryServiceTests
     public async Task SendRecoveryMessage_ExternalSignInRequired_NoMessage()
     {
         GrantAdminPanel();
-        _signInPolicy.Setup(x => x.RequiredProvider(_customer))
-            .ReturnsAsync(new Mock<IExternalAuthenticationProvider>().Object);
+        _signInPolicy.Setup(x => x.PasswordSignIn(_customer, It.IsAny<SignInSurface>())).ReturnsAsync(new PasswordSignInDecision(false, new Mock<IExternalAuthenticationProvider>().Object));
 
         await _service.SendRecoveryMessage(Email, "Admin");
 
@@ -284,8 +286,7 @@ public class PanelPasswordRecoveryServiceTests
     {
         GrantAdminPanel();
         GiveToken(DateTime.UtcNow);
-        _signInPolicy.Setup(x => x.RequiredProvider(_customer))
-            .ReturnsAsync(new Mock<IExternalAuthenticationProvider>().Object);
+        _signInPolicy.Setup(x => x.PasswordSignIn(_customer, It.IsAny<SignInSurface>())).ReturnsAsync(new PasswordSignInDecision(false, new Mock<IExternalAuthenticationProvider>().Object));
 
         Assert.AreEqual("Account.PasswordRecovery.WrongToken", await _service.ValidateToken(Email, Token, "Admin"));
         var result = await _service.ResetPassword(Email, Token, "Admin", "N3w-password");

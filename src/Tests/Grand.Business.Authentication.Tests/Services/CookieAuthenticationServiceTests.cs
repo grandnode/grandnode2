@@ -46,9 +46,9 @@ public class CookieAuthenticationServiceTests
         _cookieOptionsFactory = new CookieOptionsFactory(_config);
         _oidcSessionService = new Mock<IOidcSessionService>();
         _signInPolicy = new Mock<IExternalSignInPolicy>();
-        _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object,
-            _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config,
-            _oidcSessionService.Object, _signInPolicy.Object, NullLogger<CookieAuthenticationService>.Instance);
+        _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
+            .ReturnsAsync(PasswordSignInDecision.Password);
+        _cookieAuthService = NewService();
         //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
         _authServiceMock = new Mock<IAuthenticationService>();
         serviceProviderMock = new Mock<IServiceProvider>();
@@ -203,6 +203,10 @@ public class CookieAuthenticationServiceTests
         Assert.AreEqual("grandnode", claim.Issuer);
     }
 
+    private CookieAuthenticationService NewService() => new(_customerSettings, _customerServiceMock.Object,
+        _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config,
+        _oidcSessionService.Object, _signInPolicy.Object, NullLogger<CookieAuthenticationService>.Instance);
+
     [TestMethod]
     public async Task GetAuthenticatedCustomer_NoSessionClaim_SessionServiceNotAsked()
     {
@@ -219,7 +223,7 @@ public class CookieAuthenticationServiceTests
     {
         var customer = RegisteredCustomer();
         _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>())).ReturnsAsync(Ticket());
-        _signInPolicy.Setup(x => x.RequiredProvider(customer)).ReturnsAsync(Mock.Of<IExternalAuthenticationProvider>());
+        _signInPolicy.Setup(x => x.PasswordSignIn(customer, It.IsAny<SignInSurface>())).ReturnsAsync(new PasswordSignInDecision(false, Mock.Of<IExternalAuthenticationProvider>()));
         Assert.IsNull(await _cookieAuthService.GetAuthenticatedCustomer());
     }
 
@@ -228,9 +232,25 @@ public class CookieAuthenticationServiceTests
     {
         var customer = RegisteredCustomer();
         _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>())).ReturnsAsync(Ticket());
-        _signInPolicy.Setup(x => x.RequiredProvider(customer)).ReturnsAsync((IExternalAuthenticationProvider)null);
+        _signInPolicy.Setup(x => x.PasswordSignIn(customer, It.IsAny<SignInSurface>())).ReturnsAsync(PasswordSignInDecision.Password);
         Assert.AreSame(customer, await _cookieAuthService.GetAuthenticatedCustomer());
-        _signInPolicy.Verify(x => x.RequiredProvider(customer), Times.Once);
+        _signInPolicy.Verify(x => x.PasswordSignIn(customer, It.IsAny<SignInSurface>()), Times.Once);
+    }
+
+    //a password cookie from before the switch stops at the next request; break-glass keeps its cookie everywhere
+    [TestMethod]
+    public async Task ProviderOnly_PlainCookie_RefusedUnlessPolicyAllowsAdminPanel()
+    {
+        RegisteredCustomer();
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>())).ReturnsAsync(Ticket());
+        _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.AdminPanel))
+            .ReturnsAsync(new PasswordSignInDecision(false, null));
+        Assert.IsNull(await _cookieAuthService.GetAuthenticatedCustomer());
+
+        _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.AdminPanel))
+            .ReturnsAsync(new PasswordSignInDecision(true, null, true));
+        //a new service instance: the authenticated customer is cached per instance
+        Assert.IsNotNull(await NewService().GetAuthenticatedCustomer());
     }
 
     //a session cookie is decided by its session; the policy is not asked
@@ -242,7 +262,7 @@ public class CookieAuthenticationServiceTests
             .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
         _oidcSessionService.Setup(x => x.Validate("session-1", customer)).ReturnsAsync(true);
         Assert.AreSame(customer, await _cookieAuthService.GetAuthenticatedCustomer());
-        _signInPolicy.Verify(x => x.RequiredProvider(It.IsAny<Customer>()), Times.Never);
+        _signInPolicy.Verify(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()), Times.Never);
     }
 
     [TestMethod]

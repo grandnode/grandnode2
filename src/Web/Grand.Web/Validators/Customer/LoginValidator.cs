@@ -85,11 +85,13 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                             await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
                                 .Publish(new CustomerLoginFailedEvent(customer), _);
                         }
-                        else if (await externalSignInPolicy.RequiredProvider(customer) is { } provider)
+                        else if (await externalSignInPolicy.PasswordSignIn(customer, SignInSurface.Storefront) is { Allowed: false } decision)
                         {
-                            context.AddFailure(string.Format(
-                                translationService.GetResource("Account.Login.WrongCredentials.ExternalSignInRequired"),
-                                provider.FriendlyName));
+                            context.AddFailure(decision.Provider != null
+                                ? string.Format(
+                                    translationService.GetResource("Account.Login.WrongCredentials.ExternalSignInRequired"),
+                                    decision.Provider.FriendlyName)
+                                : translationService.GetResource("Account.Login.ExternalSignInUnavailable"));
                         }
 
                         break;

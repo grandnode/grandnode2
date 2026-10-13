@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Module.Api.Models.Common;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -40,7 +41,8 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
                     {
                         var base64EncodedBytes = Convert.FromBase64String(x.Password);
                         var password = Encoding.UTF8.GetString(base64EncodedBytes);
-                        var result = await customerManagerService.LoginCustomer(x.Email, password, storeId);
+                        var result = await customerManagerService.LoginCustomer(x.Email, password, storeId,
+                            SignInSurface.FrontendApi);
                         return result == CustomerLoginResults.Successful;
                     }
                 }
