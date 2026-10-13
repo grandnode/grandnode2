@@ -14,7 +14,7 @@ public class OidcLoginConfigTests
         Assert.AreEqual(TimeSpan.FromMinutes(30), config.StaffIdleTimeout);
         Assert.AreEqual(TimeSpan.FromHours(10), config.StaffMaxSession);
         Assert.AreEqual(TimeSpan.FromMinutes(10), config.RevalidationInterval);
-        Assert.IsFalse(config.StaffSsoOnly);
+        Assert.IsFalse(config.SsoOnly);
     }
 
     //a zero in appsettings must not mean "refresh at the provider on every request" or "end every session at once"

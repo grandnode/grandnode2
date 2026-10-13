@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
@@ -21,6 +22,7 @@ public class CustomerManagerServiceTests
     private Mock<IEncryptionService> _encryptionServiceMock;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IMediator> _mediatorMock;
+    private Mock<IExternalSignInPolicy> _signInPolicy;
 
     [TestInitialize]
     public void Init()
@@ -35,12 +37,34 @@ public class CustomerManagerServiceTests
                 entered == stored);
         _mediatorMock = new Mock<IMediator>();
         _customerHistoryPasswordServiceMock = new Mock<ICustomerHistoryPasswordService>();
+        _signInPolicy = new Mock<IExternalSignInPolicy>();
         _customerSettings = new CustomerSettings {
             AllowUsersToChangeUsernames = true
         };
 
         _customerManagerService = new CustomerManagerService(_customerServiceMock.Object, _groupServiceMock.Object,
-            _encryptionServiceMock.Object, _mediatorMock.Object, _customerHistoryPasswordServiceMock.Object, _customerSettings);
+            _encryptionServiceMock.Object, _mediatorMock.Object, _customerHistoryPasswordServiceMock.Object, _customerSettings,
+            _signInPolicy.Object);
+    }
+
+    [TestMethod]
+    public async Task LoginCustomer_ExternalSignInRequired_AfterCorrectPassword()
+    {
+        var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
+        _signInPolicy.Setup(x => x.RequiredProvider(customer)).ReturnsAsync(new Mock<IExternalAuthenticationProvider>().Object);
+        Assert.AreEqual(CustomerLoginResults.ExternalSignInRequired,
+            await _customerManagerService.LoginCustomer("admin@admin.com", "123456"));
+    }
+
+    //a wrong password says nothing about how the account signs in
+    [TestMethod]
+    public async Task LoginCustomer_WrongPassword_PolicyNotAsked()
+    {
+        var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
+        Assert.AreEqual(CustomerLoginResults.WrongPassword, await _customerManagerService.LoginCustomer("a@b.c", "bad"));
+        _signInPolicy.Verify(x => x.RequiredProvider(It.IsAny<Customer>()), Times.Never);
     }
 
     [TestMethod]

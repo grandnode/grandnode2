@@ -25,6 +25,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IOidcTokenRevocationService, OidcTokenRevocationService>();
         services.AddScoped<IOidcSessionService, OidcSessionService>();
+        services.AddScoped<IExternalSignInPolicy, OidcSsoSignInPolicy>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

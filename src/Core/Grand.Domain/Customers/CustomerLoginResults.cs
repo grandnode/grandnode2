@@ -43,5 +43,10 @@ public enum CustomerLoginResults
     /// <summary>
     ///     Requires 2fa
     /// </summary>
-    RequiresTwoFactor = 8
+    RequiresTwoFactor = 8,
+
+    /// <summary>
+    ///     The account signs in only with an external authentication provider
+    /// </summary>
+    ExternalSignInRequired = 9
 }

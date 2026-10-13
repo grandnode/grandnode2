@@ -28,4 +28,10 @@ public class OidcProtectedResource
 
     public bool DenyVendors { get; set; }
     public bool DenyStoreManagers { get; set; }
+
+    /// <summary>
+    ///     A token is accepted at most this many minutes after it was issued (iat), whatever its expiry; empty = no limit.
+    ///     Bounds how long a token outlives the user's removal at the identity provider
+    /// </summary>
+    public int? MaxTokenAgeMinutes { get; set; }
 }

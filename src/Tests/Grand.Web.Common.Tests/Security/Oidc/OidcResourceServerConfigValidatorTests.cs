@@ -1,4 +1,4 @@
-using Grand.Infrastructure.Configuration;
+﻿using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -111,5 +111,15 @@ public class OidcResourceServerConfigValidatorTests
         var config = Valid();
         config.Claims.Subject = "";
         Assert.AreEqual(1, Validate(config).Count);
+    }
+
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(-1)]
+    public void MaxTokenAgeMinutes_NotPositive_Error(int minutes)
+    {
+        var config = Valid();
+        config.Resources[0].MaxTokenAgeMinutes = minutes;
+        Assert.IsTrue(Validate(config).Any(e => e.Contains("MaxTokenAgeMinutes")));
     }
 }

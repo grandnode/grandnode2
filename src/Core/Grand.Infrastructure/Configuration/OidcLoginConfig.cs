@@ -27,10 +27,11 @@ public class OidcLoginConfig
     public int RevalidationMinutes { get; set; } = DefaultRevalidationMinutes;
 
     /// <summary>
-    ///     Back-office accounts connected to the identity provider with their password sign in only through the provider;
-    ///     an account without such a connection keeps its password (break-glass)
+    ///     Accounts connected to the identity provider with their password sign in only through the provider (storefront,
+    ///     panels, Frontend API) and get no password recovery e-mail; an account without such a connection keeps its
+    ///     password (break-glass)
     /// </summary>
-    public bool StaffSsoOnly { get; set; }
+    public bool SsoOnly { get; set; }
 
     //zero or less is a configuration mistake, never "check on every request" or "end every session at once"
     public TimeSpan StaffIdleTimeout =>

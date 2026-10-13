@@ -41,6 +41,10 @@ public static class OidcResourceServerConfigValidator
             .Where(r => !string.IsNullOrWhiteSpace(r.Resource) && !IsResourceUri(r.Resource))
             .Select(r => $"Protected resource '{r.Name}': Resource must be an absolute http(s) URI without a fragment."));
 
+        errors.AddRange(registry.Resources
+            .Where(r => r.MaxTokenAgeMinutes is <= 0)
+            .Select(r => $"Resource {r.Name}: MaxTokenAgeMinutes must be greater than 0 or empty"));
+
         return errors;
     }
 
