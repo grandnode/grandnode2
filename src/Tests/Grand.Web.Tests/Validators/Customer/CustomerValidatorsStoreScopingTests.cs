@@ -123,7 +123,8 @@ public class CustomerValidatorsStoreScopingTests
             new List<IValidatorConsumer<PasswordRecoveryConfirmModel>>(),
             customerService.Object, new Mock<IGroupService>().Object,
             new Mock<ICustomerManagerService>().Object, new Mock<ICustomerHistoryPasswordService>().Object,
-            Translation().Object, new CustomerSettings(), Context(), PerStoreOn().Config);
+            Translation().Object, new CustomerSettings(), Context(), PerStoreOn().Config,
+            new Mock<Grand.Business.Core.Interfaces.Authentication.IExternalSignInPolicy>().Object);
 
         await validator.ValidateAsync(new PasswordRecoveryConfirmModel {
             Email = "u@x.com", NewPassword = "abc", ConfirmNewPassword = "abc"

@@ -590,7 +590,10 @@ public class AccountController : BasePublicController
             {
                 //only the Standard arm approves, and it redirects to an absolute url; the provider accepts local urls only
                 var target = (result as RedirectResult)?.Url;
-                if (Uri.TryCreate(target, UriKind.Absolute, out var absolute))
+                //http(s) only: on Linux a path starting with "/" also parses as an absolute file:// URI, whose
+                //PathAndQuery escapes the query ("?" becomes "%3F")
+                if (Uri.TryCreate(target, UriKind.Absolute, out var absolute) &&
+                    (absolute.Scheme == Uri.UriSchemeHttps || absolute.Scheme == Uri.UriSchemeHttp))
                     target = absolute.PathAndQuery;
                 if (!Url.IsLocalUrl(target))
                     target = null;

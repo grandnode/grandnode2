@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -18,7 +19,8 @@ public class PasswordRecoveryConfirmValidator : BaseGrandValidator<PasswordRecov
         ICustomerManagerService customerManagerService,
         ICustomerHistoryPasswordService customerHistoryPasswordService,
         ITranslationService translationService, CustomerSettings customerSettings,
-        IContextAccessor contextAccessor, CustomerConfig customerConfig)
+        IContextAccessor contextAccessor, CustomerConfig customerConfig,
+        IExternalSignInPolicy externalSignInPolicy)
         : base(validators)
     {
         var storeId = customerConfig.RegisterCustomersPerStore
@@ -62,7 +64,9 @@ public class PasswordRecoveryConfirmValidator : BaseGrandValidator<PasswordRecov
                     break;
             }
 
-            if (customer is not null && !customer.IsPasswordRecoveryTokenValid(x.Token))
+            //a link sent before the account had to sign in through the provider reads as a wrong link
+            if (customer is not null && (!customer.IsPasswordRecoveryTokenValid(x.Token) ||
+                                         await externalSignInPolicy.RequiredProvider(customer) != null))
                 context.AddFailure(translationService.GetResource("Account.PasswordRecovery.WrongToken"));
 
             if (customer is not null && customer.IsPasswordRecoveryLinkExpired(customerSettings))

@@ -35,10 +35,6 @@ public class PanelPasswordRecoveryService(
         if (customer == null)
             return;
 
-        //an account that signs in only with the identity provider has no password to recover
-        if (await externalSignInPolicy.RequiredProvider(customer) != null)
-            return;
-
         await customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordRecoveryToken,
             Guid.NewGuid().ToString());
         await customerService.UpdateUserField<DateTime?>(customer,
@@ -109,6 +105,10 @@ public class PanelPasswordRecoveryService(
         if (customer.CannotLoginUntilDateUtc.HasValue && customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow)
             return null;
         if (!await groupService.IsRegistered(customer))
+            return null;
+        //an account that signs in only with the identity provider has no password to recover: no message is sent, and
+        //a link sent before reads as a wrong link
+        if (await externalSignInPolicy.RequiredProvider(customer) != null)
             return null;
 
         return await HasPanelAccess(customer, area) ? customer : null;
