@@ -132,6 +132,9 @@ public class CustomerInfoModel : BaseModel
     //2factory
     public bool Is2faEnabled { get; set; }
 
+    /// <summary>False when two-factor authentication is off or the identity provider owns it</summary>
+    public bool TwoFactorAvailable { get; set; }
+
     //EU VAT
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.VatNumber")]
@@ -177,6 +180,7 @@ public class CustomerInfoModel : BaseModel
         public string Email { get; set; }
         public string ExternalIdentifier { get; set; }
         public string AuthMethodName { get; set; }
+        public bool CanRemove { get; set; } = true;
     }
 
     public class TwoFactorAuthenticationModel : BaseModel

@@ -20,6 +20,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Security.ExternalRegistration;
+using Grand.Web.Common.Security.Oidc;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
@@ -834,13 +835,16 @@ public class AccountController : BasePublicController
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> RemoveExternalAssociation(string id,
-        [FromServices] IExternalAuthenticationService openAuthenticationService)
+        [FromServices] IExternalAuthenticationService openAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         //ensure it's our record
         var ear = (await openAuthenticationService.GetExternalIdentifiers(_contextAccessor.WorkContext.CurrentCustomer))
             .FirstOrDefault(x => x.Id == id);
 
-        if (ear == null)
+        //the identity provider owns the OpenID Connect connection in provider-only mode
+        if (ear == null || (oidcLoginConfig.ProviderOnly &&
+                            ear.ProviderSystemName == OidcResourceServerDefaults.ProviderSystemName))
             return Json(new {
                 redirect = Url.Action("Info")
             });
@@ -1063,8 +1067,11 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> ChangePassword()
+    public virtual async Task<IActionResult> ChangePassword([FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("CustomerInfo");
+
         var model = new ChangePasswordModel {
             PasswordIsExpired = await _mediator.Send(new GetPasswordIsExpiredQuery
                 { Customer = _contextAccessor.WorkContext.CurrentCustomer })
@@ -1075,8 +1082,12 @@ public class AccountController : BasePublicController
 
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+    public virtual async Task<IActionResult> ChangePassword(ChangePasswordModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("CustomerInfo");
+
         if (!ModelState.IsValid) return View(model);
 
         var changePasswordRequest = new ChangePasswordRequest(_contextAccessor.WorkContext.CurrentCustomer.Email,
@@ -1098,23 +1109,26 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual IActionResult DeleteAccount()
+    public virtual IActionResult DeleteAccount([FromServices] OidcLoginConfig oidcLoginConfig)
     {
         if (!_customerSettings.AllowUsersToDeleteAccount)
             return RedirectToRoute("CustomerInfo");
 
-        var model = new DeleteAccountModel();
+        var model = new DeleteAccountModel { PasswordRequired = !oidcLoginConfig.ProviderOnly };
 
         return View(model);
     }
 
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> DeleteAccount(DeleteAccountModel model)
+    public virtual async Task<IActionResult> DeleteAccount(DeleteAccountModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         if (!_customerSettings.AllowUsersToDeleteAccount)
             return RedirectToRoute("CustomerInfo");
 
+        //the password field is not offered (nor required) in provider-only mode
+        model.PasswordRequired = !oidcLoginConfig.ProviderOnly;
         if (!ModelState.IsValid) return View(model);
 
         //delete account 
@@ -1140,9 +1154,9 @@ public class AccountController : BasePublicController
     [IgnoreApi]
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public async Task<IActionResult> EnableTwoFactorAuthenticator()
+    public async Task<IActionResult> EnableTwoFactorAuthenticator([FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
@@ -1161,9 +1175,10 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public async Task<IActionResult> EnableTwoFactorAuthenticator(
         CustomerInfoModel.TwoFactorAuthenticationModel model,
-        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
@@ -1199,9 +1214,9 @@ public class AccountController : BasePublicController
     [IgnoreApi]
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public async Task<IActionResult> DisableTwoFactorAuthenticator()
+    public async Task<IActionResult> DisableTwoFactorAuthenticator([FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (!_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
@@ -1224,9 +1239,10 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public async Task<IActionResult> DisableTwoFactorAuthenticator(
         CustomerInfoModel.TwoFactorAuthorizationModel model,
-        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (!_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))

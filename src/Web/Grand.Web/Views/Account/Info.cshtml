@@ -506,7 +506,10 @@
                                     @CommonHelper.EnsureMaximumLength(item.ExternalIdentifier, 40, "...")
                                 </td>
                                 <td class="remove">
-                                    <button type="button" class="btn btn-link p-0 remove-external-association-button" data-delete-id="@item.Id">@Loc["Account.AssociatedExternalAuth.Remove"]</button>
+                                    @if (item.CanRemove)
+                                    {
+                                        <button type="button" class="btn btn-link p-0 remove-external-association-button" data-delete-id="@item.Id">@Loc["Account.AssociatedExternalAuth.Remove"]</button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -525,7 +528,7 @@
     </div>
 }
 
-@if (customerSettings.TwoFactorAuthenticationEnabled)
+@if (Model.TwoFactorAvailable)
 {
     <div class="card mb-3">
         <h3 class="card-header">@Loc["Account.TwoFactorAuth"]</h3>

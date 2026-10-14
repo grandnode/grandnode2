@@ -1,6 +1,7 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
@@ -11,6 +12,7 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
 {
     private readonly CustomerSettings _customerSettings;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
+    private readonly OidcLoginConfig _loginConfig;
     private readonly OrderSettings _orderSettings;
     private readonly VendorSettings _vendorSettings;
 
@@ -18,17 +20,20 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
         CustomerSettings customerSettings,
         LoyaltyPointsSettings loyaltyPointsSettings,
         OrderSettings orderSettings,
-        VendorSettings vendorSettings)
+        VendorSettings vendorSettings,
+        OidcLoginConfig loginConfig)
     {
         _customerSettings = customerSettings;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _orderSettings = orderSettings;
         _vendorSettings = vendorSettings;
+        _loginConfig = loginConfig;
     }
 
     public async Task<CustomerNavigationModel> Handle(GetNavigation request, CancellationToken cancellationToken)
     {
         var model = new CustomerNavigationModel {
+            HideChangePassword = _loginConfig.ProviderOnly,
             HideLoyaltyPoints = !_loyaltyPointsSettings.Enabled,
             HideDeleteAccount = !_customerSettings.AllowUsersToDeleteAccount,
             HideMerchandiseReturns = !_orderSettings.MerchandiseReturnsEnabled,
