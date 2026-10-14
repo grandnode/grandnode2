@@ -46,6 +46,15 @@ public class OidcProfileSynchronizer(
         if (string.Equals(newEmail, customer.Email, StringComparison.OrdinalIgnoreCase))
             return;
 
+        //a break-glass account is listed by its e-mail in OidcLogin:BreakGlassAccounts: renaming it would lose the
+        //emergency access
+        if (loginConfig.IsBreakGlass(customer.Email))
+        {
+            logger.LogWarning("OpenID Connect profile sync: break-glass customer {CustomerId} keeps {OldEmail} " +
+                              "(the identity provider has {NewEmail})", customer.Id, customer.Email, newEmail);
+            return;
+        }
+
         var owner = await customerService.GetCustomerByEmail(newEmail, customerConfig.RegisterCustomersPerStore ? storeId : "");
         if (owner != null && owner.Id != customer.Id)
         {
