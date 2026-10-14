@@ -889,7 +889,7 @@ startup; restart the application after changing it.
 
 | Where | In `ProviderOnly` |
 |---|---|
-| Storefront `/login`, `/register` | The browser is sent straight to the provider and back to the requested page. Without a working provider sign-in the page shows a short notice instead of redirecting. `/register` opens only for a visitor who just returned from the provider with a verified e-mail (section 13.4). |
+| Storefront `/login`, `/register` | The browser is sent straight to the provider and back to the requested page. Without a working provider sign-in the page shows a short notice instead of redirecting. `/register` opens only for a visitor who just returned from the provider with a verified e-mail (section 13.4); with `AutoProvision` it always leads to the provider, whatever the store's registration type. |
 | Password recovery (storefront) | The pages lead to `/login`; no recovery e-mail is sent. |
 | Store and Vendor panel login | Redirect to the provider. |
 | Admin panel login | Redirect to the provider, except `/admin/login?password=1`, which shows the password form for break-glass accounts. |
