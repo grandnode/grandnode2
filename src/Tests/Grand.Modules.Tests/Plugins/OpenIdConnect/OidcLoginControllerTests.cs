@@ -2,6 +2,8 @@ using Authentication.OpenIdConnect;
 using Authentication.OpenIdConnect.Controllers;
 using Authentication.OpenIdConnect.Infrastructure;
 using Authentication.OpenIdConnect.Models;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Infrastructure.Configuration;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -44,6 +46,8 @@ public class OidcLoginControllerTests
     private OidcLoginController _controller;
     private Mock<IAuthenticationService> _httpAuth;
     private Mock<ILogger<OidcLoginController>> _logger;
+    private Mock<ICustomerService> _customers;
+    private OidcLoginConfig _loginConfig;
     private DateTimeOffset? _ticketIssued;
     private readonly List<UrlRouteContext> _routes = [];
 
@@ -99,11 +103,15 @@ public class OidcLoginControllerTests
             .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity("ext")),
                 new AuthenticationProperties(_externalItems), GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme)));
         _logger = new Mock<ILogger<OidcLoginController>>();
+        _customers = new Mock<ICustomerService>();
+        _loginConfig = new OidcLoginConfig();
+        var sync = new OidcProfileSynchronizer(_customers.Object, new CustomerSettings(), new CustomerConfig(), _loginConfig,
+            new Mock<ILogger<OidcProfileSynchronizer>>().Object);
         var http = new DefaultHttpContext {
             Session = new TestSession(),
             RequestServices = new ServiceCollection().AddSingleton(_httpAuth.Object).BuildServiceProvider()
         };
-        _controller = new OidcLoginController(_external.Object, _resolver.Object, _auth.Object, _sessions.Object, _mediator.Object,
+        _controller = new OidcLoginController(_external.Object, _resolver.Object, sync, _loginConfig, _auth.Object, _sessions.Object, _mediator.Object,
             _externalAuth.Object, _schemes.Object, _groups.Object, ctx.Object, _logger.Object) {
             ControllerContext = new ControllerContext { HttpContext = http }
         };
@@ -578,5 +586,71 @@ public class OidcLoginControllerTests
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
         _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
         _external.Verify(x => x.Clear(), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Callback_ProviderOnly_SignIn_SyncsProfile()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        var customer = new Customer { Id = "c9", Email = "john@example.com" };
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(customer));
+        await _controller.Callback("/");
+        _customers.Verify(x => x.UpdateUserField(customer, SystemCustomerFieldNames.FirstName, "John", ""), Times.Once);
+        _customers.Verify(x => x.UpdateUserField(customer, SystemCustomerFieldNames.LastName, "Doe", ""), Times.Once);
+        _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Callback_SyncThrows_StillSignsIn()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        var customer = new Customer { Id = "c9", Email = "john@example.com" };
+        _customers.Setup(x => x.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException());
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(customer));
+        await _controller.Callback("/");
+        _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Callback_Mixed_SignIn_NoSync()
+    {
+        var customer = new Customer { Id = "c9", Email = "john@example.com" };
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(OidcLoginResult.SignIn(customer));
+        await _controller.Callback("/");
+        _customers.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Link_ProviderOnly_Failed()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Link("/")).RouteName);
+        _external.Verify(x => x.Clear(), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task LinkComplete_ProviderOnly_Failed()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        Marker("sub-1");
+        Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
+        _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void Failed_EmailNotVerified_ShowsText()
+    {
+        var model = (FailedModel)((ViewResult)_controller.Failed((int)OidcLoginRefusal.EmailNotVerified)).Model!;
+        Assert.AreEqual(OidcLoginRefusal.EmailNotVerified, model.Reason);
     }
 }

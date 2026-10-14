@@ -16,7 +16,9 @@ public class StartupApplication : IStartupApplication
         services.AddHttpClient(OidcLoginDefaults.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(10))
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.AddScoped<IOidcTokenRefresher, OidcTokenRefresher>();
+        services.AddScoped<IExternalSignOutProvider, OidcSignOutProvider>();
         services.AddSingleton<OidcLogoutTokenValidator>();
+        services.AddScoped<OidcProfileSynchronizer>();
     }
 
     public int Priority => 10;
