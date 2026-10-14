@@ -207,6 +207,40 @@ public class RequestCustomerResolversTests
         Assert.AreEqual("api", (await resolver.Resolve()).Id);
     }
 
+    [TestMethod]
+    public async Task GuestCookie_SystemAccountGuid_ReturnsNull()
+    {
+        //Anonymous and SearchEngine belong to the Guests group
+        var guid = Guid.NewGuid();
+        var authentication = new Mock<IGrandAuthenticationService>();
+        authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
+        var customers = new Mock<ICustomerService>();
+        customers.Setup(c => c.GetCustomerByGuid(guid))
+            .ReturnsAsync(new Customer { Id = "anonymous", Active = true, IsSystemAccount = true });
+
+        var resolver = new GuestCookieCustomerResolver(authentication.Object, customers.Object,
+            Mock.Of<IGroupService>());
+
+        Assert.IsNull(await resolver.Resolve());
+    }
+
+    [TestMethod]
+    [DataRow("00000000-0000-0000-0000-000000000000")]
+    [DataRow("0f8fad5bd9cb469fa16570867728950e")]
+    [DataRow("{0f8fad5b-d9cb-469f-a165-70867728950e}")]
+    public async Task GuestCookie_EmptyOrNonCanonicalGuid_NotLookedUp(string cookie)
+    {
+        var authentication = new Mock<IGrandAuthenticationService>();
+        authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(cookie);
+        var customers = new Mock<ICustomerService>();
+
+        var resolver = new GuestCookieCustomerResolver(authentication.Object, customers.Object,
+            Mock.Of<IGroupService>());
+
+        Assert.IsNull(await resolver.Resolve());
+        customers.Verify(c => c.GetCustomerByGuid(It.IsAny<Guid>()), Times.Never);
+    }
+
     private static IHttpContextAccessor AccessorWith(HttpContext context)
     {
         var accessor = new Mock<IHttpContextAccessor>();
