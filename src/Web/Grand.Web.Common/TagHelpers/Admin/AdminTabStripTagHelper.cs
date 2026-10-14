@@ -1,12 +1,11 @@
 ﻿using Grand.Mediator;
 using Grand.Web.Common.Events;
+using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Text.Json;
-using Wangkanai.Detection.Models;
-using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common.TagHelpers.Admin;
 
@@ -19,13 +18,13 @@ namespace Grand.Web.Common.TagHelpers.Admin;
 [HtmlTargetElement("admin-tabstrip")]
 public class AdminTabStripTagHelper : TagHelper
 {
-    private readonly IDetectionService _detectionService;
+    private readonly IUserAgentClassifier _userAgentClassifier;
     private readonly IMediator _mediator;
 
-    public AdminTabStripTagHelper(IMediator mediator, IDetectionService detectionService)
+    public AdminTabStripTagHelper(IMediator mediator, IUserAgentClassifier userAgentClassifier)
     {
         _mediator = mediator;
-        _detectionService = detectionService;
+        _userAgentClassifier = userAgentClassifier;
     }
 
     [HtmlAttributeName("SetTabPos")] public bool SetTabPos { get; set; } = false;
@@ -41,7 +40,7 @@ public class AdminTabStripTagHelper : TagHelper
         ViewContext.ViewData[typeof(AdminTabContentTagHelper).FullName] = new List<string>();
         _ = await output.GetChildContentAsync();
         var list = (List<string>)ViewContext.ViewData[typeof(AdminTabContentTagHelper).FullName];
-        if (_detectionService.Device.Type == Device.Mobile || _detectionService.Device.Type == Device.Tablet)
+        if (_userAgentClassifier.IsMobileOrTablet)
             SetTabPos = false;
 
         var selectedTabIndex = GetSelectedTabIndex();

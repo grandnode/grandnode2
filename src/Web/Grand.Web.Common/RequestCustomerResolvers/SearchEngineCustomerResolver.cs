@@ -1,6 +1,6 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Wangkanai.Detection.Services;
+using Grand.Web.Common.UserAgent;
 
 namespace Grand.Web.Common.RequestCustomerResolvers;
 
@@ -8,15 +8,14 @@ namespace Grand.Web.Common.RequestCustomerResolvers;
 ///     Crawlers run as the SearchEngine system customer
 /// </summary>
 public class SearchEngineCustomerResolver(
-    IDetectionService detectionService,
+    IUserAgentClassifier userAgentClassifier,
     ICustomerService customerService) : IRequestCustomerResolver
 {
     public int Order => RequestCustomerResolverOrder.SearchEngine;
 
     public async Task<Customer> Resolve()
     {
-        var isCrawler = detectionService.Crawler?.IsCrawler;
-        if (!isCrawler.GetValueOrDefault()) return null;
+        if (!userAgentClassifier.IsCrawler) return null;
 
         return await customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
     }

@@ -11,13 +11,13 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.RequestCustomerResolvers;
+using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common.Tests;
 
@@ -29,7 +29,7 @@ public class WorkContextSetterRequestResolverTests
     private DefaultHttpContext _httpContext;
     private Mock<IGrandAuthenticationService> _authentication;
     private Mock<IApiAuthenticationService> _apiAuthentication;
-    private Mock<IDetectionService> _detection;
+    private Mock<IUserAgentClassifier> _userAgent;
     private Mock<IHttpContextAccessor> _accessor;
 
     [TestInitialize]
@@ -39,7 +39,7 @@ public class WorkContextSetterRequestResolverTests
         _groupService = new Mock<IGroupService>();
         _authentication = new Mock<IGrandAuthenticationService>();
         _apiAuthentication = new Mock<IApiAuthenticationService>();
-        _detection = new Mock<IDetectionService>();
+        _userAgent = new Mock<IUserAgentClassifier>();
         _httpContext = new DefaultHttpContext();
         _accessor = new Mock<IHttpContextAccessor>();
         _accessor.Setup(a => a.HttpContext).Returns(_httpContext);
@@ -69,7 +69,7 @@ public class WorkContextSetterRequestResolverTests
     {
         return [
             new ApiUserCustomerResolver(_apiAuthentication.Object, _accessor.Object, _customerService.Object),
-            new SearchEngineCustomerResolver(_detection.Object, _customerService.Object),
+            new SearchEngineCustomerResolver(_userAgent.Object, _customerService.Object),
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, _groupService.Object),
             new CookieCustomerResolver(_authentication.Object),
             new AllowAnonymousCustomerResolver(_accessor.Object, _customerService.Object)
@@ -87,9 +87,7 @@ public class WorkContextSetterRequestResolverTests
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
         _customerService.Setup(c => c.GetCustomerByGuid(guid))
             .ReturnsAsync(new Customer { Id = "guest", Active = true });
-        var crawler = new Mock<ICrawlerService>();
-        crawler.SetupGet(c => c.IsCrawler).Returns(true);
-        _detection.SetupGet(d => d.Crawler).Returns(crawler.Object);
+        _userAgent.SetupGet(u => u.IsCrawler).Returns(true);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.SearchEngine))
             .ReturnsAsync(new Customer { Id = "crawler", IsSystemAccount = true });
         _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api", Active = true });
@@ -140,7 +138,7 @@ public class WorkContextSetterRequestResolverTests
         _httpContext.SetEndpoint(null);
         _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string)null);
-        _detection.SetupGet(d => d.Crawler).Returns((ICrawlerService)null);
+        _userAgent.SetupGet(u => u.IsCrawler).Returns(false);
         var customer = await CreateSetter(BuiltIns()).CurrentCustomerForTest(new Store());
         Assert.AreEqual("api", customer.Id);
     }
@@ -150,7 +148,7 @@ public class WorkContextSetterRequestResolverTests
     {
         _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string)null);
-        _detection.SetupGet(d => d.Crawler).Returns((ICrawlerService)null);
+        _userAgent.SetupGet(u => u.IsCrawler).Returns(false);
         _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         _customerService.Setup(c => c.InsertGuestCustomer(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);

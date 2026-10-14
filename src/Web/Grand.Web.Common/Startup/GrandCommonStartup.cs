@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Infrastructure;
 using Grand.Web.Common.Routing;
+using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -68,8 +69,8 @@ public class GrandCommonStartup : IStartupApplication
         //add WebEncoderOptions
         services.AddWebEncoder();
 
-        //add detection device
-        services.AddDetectionDevice();
+        //classify the request's user agent (crawler, mobile)
+        services.AddScoped<IUserAgentClassifier, UserAgentClassifier>();
 
         //add routing
         services.AddRouting(options =>
@@ -121,9 +122,6 @@ public class GrandCommonStartup : IStartupApplication
         //use powered by
         if (!performanceConfig.IgnoreUsePoweredByMiddleware)
             application.UsePoweredBy();
-
-        //add responsive middleware (for detection)
-        application.UseDetection();
 
         //use routing
         application.UseRouting();
