@@ -37,6 +37,7 @@ public class AccountControllerProviderOnlyTests
     private OidcLoginConfig _providerOnly;
     private Mock<IGroupService> _groups;
     private Customer _currentCustomer;
+    private CustomerSettings _customerSettings;
     private AccountController _controller;
 
     [TestInitialize]
@@ -72,7 +73,7 @@ public class AccountControllerProviderOnlyTests
             new Mock<ITranslationService>().Object, context.Object, _customers.Object,
             _groups.Object, _customerManager.Object, new Mock<ICountryService>().Object,
             mediator.Object, new Mock<IMessageProviderService>().Object, new CaptchaSettings(),
-            new CustomerSettings {
+            _customerSettings = new CustomerSettings {
                 UserRegistrationType = UserRegistrationType.Standard, TwoFactorAuthenticationEnabled = true,
                 AllowUsersToDeleteAccount = true
             }, new CustomerConfig());
@@ -176,6 +177,35 @@ public class AccountControllerProviderOnlyTests
         _provider.Setup(p => p.GetSignInPath("/cart")).ReturnsAsync("/oidc/login?returnUrl=%2Fcart");
         var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly, "/cart")).Result;
         Assert.AreEqual("/oidc/login?returnUrl=%2Fcart", ((RedirectResult)result).Url);
+    }
+
+    [TestMethod]
+    public async Task Register_AutoProvision_RegistrationDisabled_RedirectsToProvider()
+    {
+        _customerSettings.UserRegistrationType = UserRegistrationType.Disabled;
+        _providerOnly.AutoProvision = true;
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
+        _provider.Setup(p => p.GetSignInPath("/cart")).ReturnsAsync("/oidc/login?returnUrl=%2Fcart");
+        var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly, "/cart")).Result;
+        Assert.AreEqual("/oidc/login?returnUrl=%2Fcart", ((RedirectResult)result).Url);
+    }
+
+    [TestMethod]
+    public async Task Register_AutoProvision_Pending_RedirectsToProvider_NoForm()
+    {
+        _providerOnly.AutoProvision = true;
+        _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
+        _provider.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync("/oidc/login");
+        var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result;
+        Assert.AreEqual("/oidc/login", ((RedirectResult)result).Url);
+    }
+
+    [TestMethod]
+    public async Task Register_ProviderOnly_RegistrationDisabled_WithoutAutoProvision_RegisterResult()
+    {
+        _customerSettings.UserRegistrationType = UserRegistrationType.Disabled;
+        var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result;
+        Assert.AreEqual("RegisterResult", ((RedirectToRouteResult)result).RouteName);
     }
 
     [TestMethod]

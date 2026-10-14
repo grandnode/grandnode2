@@ -495,15 +495,17 @@ public class AccountController : BasePublicController
         [FromServices] OidcLoginConfig oidcLoginConfig,
         string returnUrl = null)
     {
-        //check whether registration is allowed
-        if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
+        //check whether registration is allowed; with AutoProvision the provider creates accounts whatever the store's type
+        if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled &&
+            oidcLoginConfig is not { ProviderOnly: true, AutoProvision: true })
             return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.Disabled });
 
         //check if customer is registered.
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("HomePage");
 
         var pendingIdentity = await externalRegistrationContext.GetPending();
-        if (oidcLoginConfig.ProviderOnly && pendingIdentity == null)
+        //AutoProvision never leaves a pending identity for the form: every visitor goes to the provider
+        if (oidcLoginConfig.ProviderOnly && (pendingIdentity == null || oidcLoginConfig.AutoProvision))
         {
             //accounts come from the identity provider: send the visitor there, or say it cannot be reached
             var signInUrl = await ProviderSignInUrl(externalAuthenticationService, returnUrl);
