@@ -1,10 +1,12 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Models.Common;
@@ -21,12 +23,14 @@ namespace Grand.Web.Admin.Tests.Controllers;
 public class LoginControllerExternalSignInTests
 {
     private Mock<IExternalAuthenticationService> _externalAuthenticationService = null!;
+    private Mock<IGroupService> _groupService = null!;
     private LoginController _controller = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _externalAuthenticationService = new Mock<IExternalAuthenticationService>();
+        _groupService = new Mock<IGroupService>();
         _controller = new LoginController(new CustomerSettings(), new CaptchaSettings(),
             new Mock<ITranslationService>().Object, new Mock<ICustomerManagerService>().Object,
             new Mock<ICustomerService>().Object, new Mock<IGrandAuthenticationService>().Object,
@@ -53,7 +57,7 @@ public class LoginControllerExternalSignInTests
         _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null))
             .Returns([panel.Object, storefrontOnly.Object]);
 
-        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object)).Model!;
+        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object, new OidcLoginConfig(), _groupService.Object)).Model!;
 
         Assert.AreEqual(1, model.ExternalSignIn.Count);
         Assert.AreEqual("OpenID Connect", model.ExternalSignIn[0].Name);
@@ -66,7 +70,7 @@ public class LoginControllerExternalSignInTests
         var panel = new Mock<IExternalSignInPathProvider>();
         panel.Setup(x => x.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null!);
         _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null)).Returns([panel.Object]);
-        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object)).Model!;
+        var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object, new OidcLoginConfig(), _groupService.Object)).Model!;
         Assert.AreEqual(0, model.ExternalSignIn.Count);
     }
 }

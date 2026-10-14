@@ -208,6 +208,19 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     }
 
     /// <summary>
+    ///     Whether the current sign-in cookie references a session started at the identity provider
+    /// </summary>
+    public virtual async Task<bool> HasOidcSession()
+    {
+        if (_httpContextAccessor.HttpContext == null)
+            return false;
+
+        var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(
+            GrandCookieAuthenticationDefaults.AuthenticationScheme);
+        return authenticateResult?.Succeeded == true && !string.IsNullOrEmpty(OidcSessionId(authenticateResult.Principal));
+    }
+
+    /// <summary>
     ///     Get an authenticated customer
     /// </summary>
     /// <returns>Customer</returns>

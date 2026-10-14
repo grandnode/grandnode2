@@ -20,6 +20,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Security.ExternalRegistration;
+using Grand.Web.Common.Security.Oidc;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
@@ -184,14 +185,51 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     [ClosedStore(true)]
     [IgnoreApi]
-    public virtual IActionResult Login(bool? checkoutAsGuest)
+    public virtual async Task<IActionResult> Login(bool? checkoutAsGuest, string returnUrl,
+        [FromServices] OidcLoginConfig oidcLoginConfig,
+        [FromServices] IExternalAuthenticationService externalAuthenticationService)
     {
         var model = new LoginModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
             CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
         };
+        if (!oidcLoginConfig.ProviderOnly)
+            return View(model);
+
+        //a signed-in account the store does not let through (e.g. no "Public store. Allow navigation") is sent here:
+        //the provider would sign it in again and return to the same page (a loop), so offer the sign-out instead
+        if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
+        {
+            model.SignedInWithoutAccess = true;
+            return View(model);
+        }
+
+        //the identity provider is the only sign-in: go there, or say it cannot be reached (never redirect back here)
+        var signInUrl = await ProviderSignInUrl(externalAuthenticationService, returnUrl);
+        if (signInUrl != null)
+            return Redirect(signInUrl);
+        model.ExternalSignInUnavailable = true;
         return View(model);
+    }
+
+    /// <summary>
+    ///     The sign-in address of the first active provider that can sign in, or null. Only a local return url is passed on.
+    /// </summary>
+    private async Task<string> ProviderSignInUrl(IExternalAuthenticationService externalAuthenticationService,
+        string returnUrl)
+    {
+        var local = !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+        var providers = externalAuthenticationService.LoadActiveAuthenticationProviders(
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+        foreach (var provider in providers.OfType<IExternalSignInPathProvider>())
+        {
+            var path = await provider.GetSignInPath(local);
+            if (!string.IsNullOrEmpty(path))
+                return HttpContext.Request.PathBase + path;
+        }
+
+        return null;
     }
 
     [HttpPost]
@@ -336,7 +374,8 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     [IgnoreApi]
     public virtual async Task<IActionResult> Logout(
-        [FromServices] StoreInformationSettings storeInformationSettings)
+        [FromServices] StoreInformationSettings storeInformationSettings,
+        [FromServices] IProviderSignOut providerSignOut)
     {
         if (_contextAccessor.WorkContext.OriginalCustomerIfImpersonated != null)
         {
@@ -352,13 +391,13 @@ public class AccountController : BasePublicController
         //raise event       
         await _mediator.Publish(new CustomerLoggedOutEvent(_contextAccessor.WorkContext.CurrentCustomer));
 
-        //standard logout 
-        await _authenticationService.SignOut();
+        //standard logout, and the provider's end-session URL when the sign-in came from the identity provider
+        var providerUrl = await providerSignOut.SignOut();
 
         //Cookie
         if (storeInformationSettings.DisplayCookieInformation) TempData["Grand.IgnoreCookieInformation"] = true;
 
-        return RedirectToRoute("HomePage");
+        return providerUrl != null ? Redirect(providerUrl) : RedirectToRoute("HomePage");
     }
 
     #endregion
@@ -368,8 +407,11 @@ public class AccountController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [HttpGet]
-    public virtual IActionResult PasswordRecovery()
+    public virtual IActionResult PasswordRecovery([FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         var model = new PasswordRecoveryModel {
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage
         };
@@ -378,8 +420,12 @@ public class AccountController : BasePublicController
 
     [HttpPost]
     [PublicStore(true)]
-    public virtual async Task<ActionResult<PasswordRecoveryModel>> PasswordRecovery(PasswordRecoveryModel model)
+    public virtual async Task<ActionResult<PasswordRecoveryModel>> PasswordRecovery(PasswordRecoveryModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         if (!ModelState.IsValid) return View(model);
 
         var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
@@ -397,8 +443,12 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [PublicStore(true)]
-    public virtual async Task<ActionResult<PasswordRecoveryConfirmModel>> PasswordRecoveryConfirm(string token, string email)
+    public virtual async Task<ActionResult<PasswordRecoveryConfirmModel>> PasswordRecoveryConfirm(string token, string email,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         var customer = await _customerService.GetCustomerByEmail(email, CustomerStoreId);
         if (customer == null)
             return RedirectToRoute("HomePage");
@@ -411,8 +461,12 @@ public class AccountController : BasePublicController
     [HttpPost]
     //available even when navigation is not allowed
     [PublicStore(true)]
-    public virtual async Task<IActionResult> PasswordRecoveryConfirm(PasswordRecoveryConfirmModel model)
+    public virtual async Task<IActionResult> PasswordRecoveryConfirm(PasswordRecoveryConfirmModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("Login");
+
         if (!ModelState.IsValid) return View(model);
 
         var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
@@ -437,14 +491,31 @@ public class AccountController : BasePublicController
     [HttpGet]
     public virtual async Task<ActionResult<RegisterModel>> Register(
         [FromServices] IExternalRegistrationContext externalRegistrationContext,
-        [FromServices] IExternalAuthenticationService externalAuthenticationService)
+        [FromServices] IExternalAuthenticationService externalAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig,
+        string returnUrl = null)
     {
-        //check whether registration is allowed
-        if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
+        //check whether registration is allowed; with AutoProvision the provider creates accounts whatever the store's type
+        if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled &&
+            oidcLoginConfig is not { ProviderOnly: true, AutoProvision: true })
             return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.Disabled });
 
         //check if customer is registered.
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("HomePage");
+
+        var pendingIdentity = await externalRegistrationContext.GetPending();
+        //AutoProvision never leaves a pending identity for the form: every visitor goes to the provider
+        if (oidcLoginConfig.ProviderOnly && (pendingIdentity == null || oidcLoginConfig.AutoProvision))
+        {
+            //accounts come from the identity provider: send the visitor there, or say it cannot be reached
+            var signInUrl = await ProviderSignInUrl(externalAuthenticationService, returnUrl);
+            if (signInUrl != null)
+                return Redirect(signInUrl);
+            return View("Login", new LoginModel {
+                UsernamesEnabled = _customerSettings.UsernamesEnabled,
+                ExternalSignInUnavailable = true
+            });
+        }
 
         var model = await _mediator.Send(new GetRegister {
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
@@ -453,7 +524,7 @@ public class AccountController : BasePublicController
             Store = _contextAccessor.StoreContext.CurrentStore
         });
 
-        PrepareExternalRegistration(model, await externalRegistrationContext.GetPending(), externalAuthenticationService);
+        PrepareExternalRegistration(model, pendingIdentity, externalAuthenticationService);
         return View(model);
     }
 
@@ -478,7 +549,8 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl,
         [FromServices] IExternalRegistrationContext externalRegistrationContext,
-        [FromServices] IExternalAuthenticationService externalAuthenticationService)
+        [FromServices] IExternalAuthenticationService externalAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -488,6 +560,9 @@ public class AccountController : BasePublicController
         if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("HomePage");
 
         var pending = await externalRegistrationContext.GetPending();
+        //the identity provider is the only way to an account, and only through its verified e-mail
+        if (oidcLoginConfig.ProviderOnly && pending is not { EmailVerified: true })
+            return RedirectToRoute("Login");
         if (pending != null)
             model.Email = pending.Email;
         var registrationType = pending == null
@@ -625,10 +700,12 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     [HttpGet]
     public virtual async Task<IActionResult> RegisterExternalCancel(
-        [FromServices] IExternalRegistrationContext externalRegistrationContext)
+        [FromServices] IExternalRegistrationContext externalRegistrationContext,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         await externalRegistrationContext.Clear();
-        return RedirectToRoute("Register");
+        //in provider-only mode Register goes back to the provider, which returns to the form at once: cancel goes home
+        return RedirectToRoute(oidcLoginConfig.ProviderOnly ? "HomePage" : "Register");
     }
 
     //available even when navigation is not allowed
@@ -774,13 +851,16 @@ public class AccountController : BasePublicController
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> RemoveExternalAssociation(string id,
-        [FromServices] IExternalAuthenticationService openAuthenticationService)
+        [FromServices] IExternalAuthenticationService openAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         //ensure it's our record
         var ear = (await openAuthenticationService.GetExternalIdentifiers(_contextAccessor.WorkContext.CurrentCustomer))
             .FirstOrDefault(x => x.Id == id);
 
-        if (ear == null)
+        //the identity provider owns the OpenID Connect connection in provider-only mode
+        if (ear == null || (oidcLoginConfig.ProviderOnly &&
+                            ear.ProviderSystemName == OidcResourceServerDefaults.ProviderSystemName))
             return Json(new {
                 redirect = Url.Action("Info")
             });
@@ -1003,8 +1083,11 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> ChangePassword()
+    public virtual async Task<IActionResult> ChangePassword([FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("CustomerInfo");
+
         var model = new ChangePasswordModel {
             PasswordIsExpired = await _mediator.Send(new GetPasswordIsExpiredQuery
                 { Customer = _contextAccessor.WorkContext.CurrentCustomer })
@@ -1015,8 +1098,12 @@ public class AccountController : BasePublicController
 
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+    public virtual async Task<IActionResult> ChangePassword(ChangePasswordModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
+        if (oidcLoginConfig.ProviderOnly)
+            return RedirectToRoute("CustomerInfo");
+
         if (!ModelState.IsValid) return View(model);
 
         var changePasswordRequest = new ChangePasswordRequest(_contextAccessor.WorkContext.CurrentCustomer.Email,
@@ -1038,23 +1125,26 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual IActionResult DeleteAccount()
+    public virtual IActionResult DeleteAccount([FromServices] OidcLoginConfig oidcLoginConfig)
     {
         if (!_customerSettings.AllowUsersToDeleteAccount)
             return RedirectToRoute("CustomerInfo");
 
-        var model = new DeleteAccountModel();
+        var model = new DeleteAccountModel { PasswordRequired = !oidcLoginConfig.ProviderOnly };
 
         return View(model);
     }
 
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> DeleteAccount(DeleteAccountModel model)
+    public virtual async Task<IActionResult> DeleteAccount(DeleteAccountModel model,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         if (!_customerSettings.AllowUsersToDeleteAccount)
             return RedirectToRoute("CustomerInfo");
 
+        //the password field is not offered (nor required) in provider-only mode
+        model.PasswordRequired = !oidcLoginConfig.ProviderOnly;
         if (!ModelState.IsValid) return View(model);
 
         //delete account 
@@ -1080,9 +1170,9 @@ public class AccountController : BasePublicController
     [IgnoreApi]
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public async Task<IActionResult> EnableTwoFactorAuthenticator()
+    public async Task<IActionResult> EnableTwoFactorAuthenticator([FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
@@ -1101,9 +1191,10 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public async Task<IActionResult> EnableTwoFactorAuthenticator(
         CustomerInfoModel.TwoFactorAuthenticationModel model,
-        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
@@ -1139,9 +1230,9 @@ public class AccountController : BasePublicController
     [IgnoreApi]
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public async Task<IActionResult> DisableTwoFactorAuthenticator()
+    public async Task<IActionResult> DisableTwoFactorAuthenticator([FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (!_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
@@ -1164,9 +1255,10 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public async Task<IActionResult> DisableTwoFactorAuthenticator(
         CustomerInfoModel.TwoFactorAuthorizationModel model,
-        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
-        if (!_customerSettings.TwoFactorAuthenticationEnabled)
+        if (oidcLoginConfig.ProviderOnly || !_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("CustomerInfo");
 
         if (!_contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))

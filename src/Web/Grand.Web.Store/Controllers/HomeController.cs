@@ -20,10 +20,9 @@ public class HomeController : BaseHomeControllerWithSetLanguage
     public HomeController(
         ICountryService countryService,
         ITranslationService translationService,
-        IGrandAuthenticationService authenticationService,
         IContextAccessor contextAccessor,
         ILogger<HomeController> logger)
-        : base(countryService, translationService, authenticationService, contextAccessor)
+        : base(countryService, translationService, contextAccessor)
     {
         _logger = logger;
     }

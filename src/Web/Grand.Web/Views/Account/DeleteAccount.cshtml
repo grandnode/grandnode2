@@ -22,6 +22,8 @@
             <div class="alert alert-danger" role="alert">
                 @Loc["Account.DeleteAccount.DangerAlert"]
             </div>
+            @if (Model.PasswordRequired)
+            {
             <fieldset>
                 <div class="form-fields">
                     <fieldset class="form-group">
@@ -34,6 +36,7 @@
                     </fieldset>
                 </div>
             </fieldset>
+            }
             <div class="text-xs-center">
                 <input type="submit" class="btn btn-danger change-password-button" value="@Loc["Account.DeleteAccount.Button"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
             </div>

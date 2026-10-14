@@ -6,6 +6,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Mediator;
 
@@ -19,6 +20,7 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly CustomerSettings _customerSettings;
     private readonly TaxSettings _taxSettings;
+    private readonly OidcLoginConfig _loginConfig;
 
     public UpdateCustomerInfoCommandHandler(
         IGrandAuthenticationService authenticationService,
@@ -26,7 +28,8 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         ICustomerService customerService,
         CustomerSettings customerSettings,
-        TaxSettings taxSettings)
+        TaxSettings taxSettings,
+        OidcLoginConfig loginConfig)
     {
         _authenticationService = authenticationService;
         _checkVatService = checkVatService;
@@ -34,6 +37,7 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
         _customerService = customerService;
         _customerSettings = customerSettings;
         _taxSettings = taxSettings;
+        _loginConfig = loginConfig;
     }
 
     public async Task<bool> Handle(UpdateCustomerInfoCommand request, CancellationToken cancellationToken)
@@ -53,7 +57,7 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
 
         //email
         if (!request.Customer.Email.Equals(request.Model.Email.Trim(), StringComparison.OrdinalIgnoreCase) &&
-            _customerSettings.AllowUsersToChangeEmail)
+            _customerSettings.AllowUsersToChangeEmail && !_loginConfig.ProviderOnly)
         {
             //change email
             request.Customer.Email = request.Model.Email.Trim();

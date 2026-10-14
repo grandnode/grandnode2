@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -11,9 +10,8 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseHomeControllerWithSetLanguage(
     ICountryService countryService,
     ITranslationService translationService,
-    IGrandAuthenticationService authenticationService,
     IContextAccessor contextAccessor)
-    : BaseHomeController(countryService, translationService, authenticationService)
+    : BaseHomeController(countryService, translationService)
 {
     /// <summary>The area name this host's own Home/Index route resolves under.</summary>
     protected abstract string AreaName { get; }

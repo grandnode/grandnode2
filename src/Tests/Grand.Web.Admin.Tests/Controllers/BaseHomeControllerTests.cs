@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -8,6 +7,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -24,10 +24,9 @@ public class BaseHomeControllerTests
     private class TestHomeController(
         ICountryService countryService,
         ITranslationService translationService,
-        IGrandAuthenticationService authenticationService,
         string selectStateKey,
         string logoutRoute)
-        : BaseHomeController(countryService, translationService, authenticationService)
+        : BaseHomeController(countryService, translationService)
     {
         protected override string SelectStateResourceKey => selectStateKey;
         protected override string LogoutRouteName => logoutRoute;
@@ -36,12 +35,11 @@ public class BaseHomeControllerTests
     private class TestHomeControllerWithSetLanguage(
         ICountryService countryService,
         ITranslationService translationService,
-        IGrandAuthenticationService authenticationService,
         IContextAccessor contextAccessor,
         string selectStateKey,
         string logoutRoute,
         string areaName)
-        : BaseHomeControllerWithSetLanguage(countryService, translationService, authenticationService, contextAccessor)
+        : BaseHomeControllerWithSetLanguage(countryService, translationService, contextAccessor)
     {
         protected override string SelectStateResourceKey => selectStateKey;
         protected override string LogoutRouteName => logoutRoute;
@@ -50,7 +48,6 @@ public class BaseHomeControllerTests
 
     private Mock<ICountryService> _countryServiceMock = null!;
     private Mock<ITranslationService> _translationServiceMock = null!;
-    private Mock<IGrandAuthenticationService> _authenticationServiceMock = null!;
 
     [TestInitialize]
     public void Setup()
@@ -58,7 +55,6 @@ public class BaseHomeControllerTests
         _countryServiceMock = new Mock<ICountryService>();
         _translationServiceMock = new Mock<ITranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string key) => key);
-        _authenticationServiceMock = new Mock<IGrandAuthenticationService>();
     }
 
     private static void WireControllerInfrastructure(Controller controller)
@@ -79,7 +75,7 @@ public class BaseHomeControllerTests
     private TestHomeController CreateController(string selectStateKey, string logoutRoute)
     {
         var controller = new TestHomeController(_countryServiceMock.Object, _translationServiceMock.Object,
-            _authenticationServiceMock.Object, selectStateKey, logoutRoute);
+            selectStateKey, logoutRoute);
         WireControllerInfrastructure(controller);
         return controller;
     }
@@ -150,10 +146,24 @@ public class BaseHomeControllerTests
     {
         var controller = CreateController("Admin.Address.SelectState", "VendorLogin");
 
-        var result = (RedirectToRouteResult)await controller.Logout();
+        var providerSignOut = new Mock<IProviderSignOut>();
 
-        _authenticationServiceMock.Verify(a => a.SignOut(), Times.Once);
+        var result = (RedirectToRouteResult)await controller.Logout(providerSignOut.Object);
+
+        providerSignOut.Verify(a => a.SignOut(), Times.Once);
         Assert.AreEqual("VendorLogin", result.RouteName);
+    }
+
+    [TestMethod]
+    public async Task Logout_ProviderUrl_RedirectsToProvider()
+    {
+        var controller = CreateController("Admin.Address.SelectState", "VendorLogin");
+        var providerSignOut = new Mock<IProviderSignOut>();
+        providerSignOut.Setup(a => a.SignOut()).ReturnsAsync("https://idp.example/logout");
+
+        var result = (RedirectResult)await controller.Logout(providerSignOut.Object);
+
+        Assert.AreEqual("https://idp.example/logout", result.Url);
     }
 
     [TestMethod]
@@ -173,7 +183,7 @@ public class BaseHomeControllerTests
         languageServiceMock.Setup(l => l.GetLanguageById("lang-1")).ReturnsAsync(new Language { Id = "lang-1" });
 
         var controller = new TestHomeControllerWithSetLanguage(_countryServiceMock.Object,
-            _translationServiceMock.Object, _authenticationServiceMock.Object, contextAccessorMock.Object,
+            _translationServiceMock.Object, contextAccessorMock.Object,
             "Store.Address.SelectState", "StoreLogin", "Store");
         WireControllerInfrastructure(controller);
         var urlHelperMock = new Mock<IUrlHelper>();
@@ -207,7 +217,7 @@ public class BaseHomeControllerTests
         languageServiceMock.Setup(l => l.GetLanguageById(It.IsAny<string>())).ReturnsAsync((Language)null!);
 
         var controller = new TestHomeControllerWithSetLanguage(_countryServiceMock.Object,
-            _translationServiceMock.Object, _authenticationServiceMock.Object, contextAccessorMock.Object,
+            _translationServiceMock.Object, contextAccessorMock.Object,
             "Store.Address.SelectState", "StoreLogin", "Store");
         WireControllerInfrastructure(controller);
         var urlHelperMock = new Mock<IUrlHelper>();

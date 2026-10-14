@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.AdminShared.Controllers;
@@ -19,9 +18,8 @@ public class HomeController : BaseHomeController
     public HomeController(
         ICountryService countryService,
         ITranslationService translationService,
-        IGrandAuthenticationService authenticationService,
         ILogger<HomeController> logger)
-        : base(countryService, translationService, authenticationService)
+        : base(countryService, translationService)
     {
         _logger = logger;
     }

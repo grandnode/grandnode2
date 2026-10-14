@@ -1,15 +1,14 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
 public abstract class BaseHomeController(
     ICountryService countryService,
-    ITranslationService translationService,
-    IGrandAuthenticationService authenticationService)
+    ITranslationService translationService)
     : BaseController
 {
     /// <summary>
@@ -61,9 +60,9 @@ public abstract class BaseHomeController(
         return Json(result);
     }
 
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout([FromServices] IProviderSignOut providerSignOut)
     {
-        await authenticationService.SignOut();
-        return RedirectToRoute(LogoutRouteName);
+        var providerUrl = await providerSignOut.SignOut();
+        return providerUrl != null ? Redirect(providerUrl) : RedirectToRoute(LogoutRouteName);
     }
 }

@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Customer;
 
@@ -13,9 +14,12 @@ public class DeleteAccountValidator : BaseGrandValidator<DeleteAccountModel>
     public DeleteAccountValidator(
         IEnumerable<IValidatorConsumer<DeleteAccountModel>> validators,
         IEncryptionService encryptionService, CustomerSettings customerSettings, IContextAccessor contextAccessor,
-        ITranslationService translationService)
+        ITranslationService translationService, OidcLoginConfig loginConfig)
         : base(validators)
     {
+        //no password is asked for when the identity provider is the only sign-in
+        if (loginConfig.ProviderOnly) return;
+
         RuleFor(x => x.Password).NotEmpty()
             .WithMessage(translationService.GetResource("Account.DeleteAccount.Fields.Password.Required"));
         RuleFor(x => x).Custom((x, context) =>

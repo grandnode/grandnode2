@@ -24,6 +24,7 @@ public class OidcResourceServerStartup : IStartupApplication
         services.AddScoped<OidcResourceAccess>();
         services.AddScoped<IRequestCustomerResolver, OidcRequestCustomerResolver>();
         services.AddScoped<IExternalRegistrationContext, ExternalRegistrationContext>();
+        services.AddScoped<IProviderSignOut, ProviderSignOut>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

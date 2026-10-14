@@ -17,52 +17,66 @@
                 <h1 class="grand-login__title">@Loc["Admin.Login.Title"]</h1>
             </div>
             <div asp-validation-summary="All"></div>
-            <div class="grand-fields">
-                @if (Model.UsernamesEnabled)
-                {
+            @if (Model.PasswordFormShown)
+            {
+                <div class="grand-fields">
+                    @if (Model.UsernamesEnabled)
+                    {
+                        <div class="grand-field">
+                            <label asp-for="Username" class="grand-field__label">@Loc["Admin.Login.UserName"]</label>
+                            <div class="grand-field__control">
+                                <input asp-for="Username" class="form-control username" autocomplete="username" autofocus="autofocus"/>
+                            </div>
+                            <span asp-validation-for="Username"></span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="grand-field">
+                            <label asp-for="Email" class="grand-field__label">@Loc["Admin.Login.Email"]</label>
+                            <div class="grand-field__control">
+                                <input asp-for="Email" class="form-control email" autocomplete="email" autofocus="autofocus"/>
+                            </div>
+                            <span asp-validation-for="Email"></span>
+                        </div>
+                    }
                     <div class="grand-field">
-                        <label asp-for="Username" class="grand-field__label">@Loc["Admin.Login.UserName"]</label>
+                        <label asp-for="Password" class="grand-field__label">@Loc["Admin.Login.Password"]</label>
                         <div class="grand-field__control">
-                            <input asp-for="Username" class="form-control username" autocomplete="username" autofocus="autofocus"/>
+                            <input asp-for="Password" class="form-control password" autocomplete="off"/>
                         </div>
-                        <span asp-validation-for="Username"></span>
+                        <span asp-validation-for="Password"></span>
                     </div>
-                }
-                else
-                {
-                    <div class="grand-field">
-                        <label asp-for="Email" class="grand-field__label">@Loc["Admin.Login.Email"]</label>
-                        <div class="grand-field__control">
-                            <input asp-for="Email" class="form-control email" autocomplete="email" autofocus="autofocus"/>
+                    <div class="grand-login__options">
+                        <div class="grand-field grand-field--check">
+                            <div class="grand-field__control">
+                                <input class="form-check-input" asp-for="RememberMe"/>
+                                <input name="RememberMe" type="hidden" value="false">
+                            </div>
+                            <label class="grand-field__label" asp-for="RememberMe">@Loc["Admin.Login.RememberMe"]</label>
                         </div>
-                        <span asp-validation-for="Email"></span>
+                        <a class="grand-login__link forgot-password" asp-route="AdminPasswordRecovery">@Loc["Admin.Login.ForgotPassword"]</a>
                     </div>
-                }
-                <div class="grand-field">
-                    <label asp-for="Password" class="grand-field__label">@Loc["Admin.Login.Password"]</label>
-                    <div class="grand-field__control">
-                        <input asp-for="Password" class="form-control password" autocomplete="off"/>
-                    </div>
-                    <span asp-validation-for="Password"></span>
+                    @if (Model.DisplayCaptcha)
+                    {
+                        <div class="captcha-box">
+                            <captcha/>
+                        </div>
+                    }
                 </div>
-                <div class="grand-login__options">
-                    <div class="grand-field grand-field--check">
-                        <div class="grand-field__control">
-                            <input class="form-check-input" asp-for="RememberMe"/>
-                            <input name="RememberMe" type="hidden" value="false">
-                        </div>
-                        <label class="grand-field__label" asp-for="RememberMe">@Loc["Admin.Login.RememberMe"]</label>
-                    </div>
-                    <a class="grand-login__link forgot-password" asp-route="AdminPasswordRecovery">@Loc["Admin.Login.ForgotPassword"]</a>
-                </div>
-                @if (Model.DisplayCaptcha)
-                {
-                    <div class="captcha-box">
-                        <captcha/>
-                    </div>
-                }
-            </div>
-            <input class="btn btn-primary grand-login__submit login-button" type="submit" value="@Loc["Admin.Login.LoginButton"]"/>
+                <input class="btn btn-primary grand-login__submit login-button" type="submit" value="@Loc["Admin.Login.LoginButton"]"/>
+            }
+            @if (Model.SignedInWithoutAccess)
+            {
+                <div class="alert alert-warning">@Loc["Admin.Login.SignedInWithoutAccess"]</div>
+                <a class="btn btn-outline-secondary w-100 mt-2" href="@Url.RouteUrl("Logout", new { area = "" })">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i> @Loc["Admin.Header.Logout"]
+                </a>
+            }
+            @if (Model.ExternalSignInUnavailable)
+            {
+                <div class="alert alert-warning">@Loc["Account.Login.ExternalSignInUnavailable"]</div>
+            }
             @foreach (var signIn in Model.ExternalSignIn)
             {
                 <a class="btn btn-outline-secondary w-100 mt-2 grand-login__external" href="@signIn.Url">

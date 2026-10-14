@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Common;
@@ -24,6 +25,18 @@ public class LoginModel : BaseModel
 
     public bool DisplayCaptcha { get; set; }
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+
+    /// <summary>Set by the server only: the password fields are shown (not in ProviderOnly, except for the Admin break-glass)</summary>
+    [BindNever]
+    public bool PasswordFormShown { get; set; }
+
+    /// <summary>Set by the server only: ProviderOnly and no provider can sign in</summary>
+    [BindNever]
+    public bool ExternalSignInUnavailable { get; set; }
+
+    /// <summary>Set by the server only: a registered account is signed in but has no access to this panel</summary>
+    [BindNever]
+    public bool SignedInWithoutAccess { get; set; }
 
     public IList<ExternalSignInButton> ExternalSignIn { get; set; } = new List<ExternalSignInButton>();
 

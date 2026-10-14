@@ -6,7 +6,9 @@ using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Oidc;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Web.Models.Newsletter;
@@ -18,6 +20,7 @@ namespace Grand.Web.Features.Handlers.Customers;
 public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
 {
     private readonly ICountryService _countryService;
+    private readonly OidcLoginConfig _loginConfig;
     private readonly CustomerSettings _customerSettings;
     private readonly IExternalAuthenticationService _externalAuthenticationService;
     private readonly IMediator _mediator;
@@ -36,7 +39,8 @@ public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
         IMediator mediator,
         CustomerSettings customerSettings,
         TaxSettings taxSettings, 
-        IEnumTranslationService enumTranslationService)
+        IEnumTranslationService enumTranslationService,
+        OidcLoginConfig loginConfig)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _newsletterCategoryService = newsletterCategoryService;
@@ -47,6 +51,7 @@ public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
         _customerSettings = customerSettings;
         _taxSettings = taxSettings;
         _enumTranslationService = enumTranslationService;
+        _loginConfig = loginConfig;
     }
 
     public async Task<CustomerInfoModel> Handle(GetInfo request, CancellationToken cancellationToken)
@@ -191,7 +196,9 @@ public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
         model.NewsletterEnabled = _customerSettings.NewsletterEnabled;
         model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
         model.AllowUsersToChangeUsernames = _customerSettings.AllowUsersToChangeUsernames;
-        model.AllowUsersToChangeEmail = _customerSettings.AllowUsersToChangeEmail;
+        //the identity provider owns the e-mail address and multi-factor authentication in provider-only mode
+        model.AllowUsersToChangeEmail = _customerSettings.AllowUsersToChangeEmail && !_loginConfig.ProviderOnly;
+        model.TwoFactorAvailable = _customerSettings.TwoFactorAuthenticationEnabled && !_loginConfig.ProviderOnly;
         model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
         model.Is2faEnabled = request.Customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled);
     }
@@ -212,7 +219,9 @@ public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
                 Id = ear.Id,
                 Email = ear.Email,
                 ExternalIdentifier = ear.ExternalDisplayIdentifier,
-                AuthMethodName = authMethod.FriendlyName
+                AuthMethodName = authMethod.FriendlyName,
+                CanRemove = !(_loginConfig.ProviderOnly &&
+                              ear.ProviderSystemName == OidcResourceServerDefaults.ProviderSystemName)
             });
         }
     }
