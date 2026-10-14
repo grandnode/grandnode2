@@ -652,7 +652,7 @@ Use the project of section 7. Create a **separate** application for the browser 
    (`OidcLogin__ClientSecret`; the secret is shown once). In the grant types of the application also tick
    **Refresh Token** (needed for every session, section 12.4).
 2. Redirect URIs: `https://<store-url>/signin-oidc` (an `http` redirect needs *Development Mode*). Post logout URIs
-   are not used (logout is local).
+   are used only in `ProviderOnly` mode (section 13.7); otherwise logout is local.
 3. The plugin reads the claims from the ID token or, when they are absent there, from the user info endpoint (the
    handler merges both); Zitadel answers the user info endpoint for the scope `email`. To have the ID token carry the
    user information as well, enable the application's option to put user information into the ID token (token
@@ -853,8 +853,8 @@ rules of section 11.2 and the session limits of section 12.2 apply.
 
 ### 12.7 Limits
 
-* **No RP-initiated logout.** Signing out of GrandNode does not sign out of the provider (section 11.6). Only the
-  provider's back-channel logout reaches GrandNode.
+* **No RP-initiated logout in `Mixed` mode.** Signing out of GrandNode does not sign out of the provider (section 11.6).
+  Only the provider's back-channel logout reaches GrandNode. `ProviderOnly` also ends the provider session (section 13.7).
 * Ended sessions are deleted by the scheduled task **Delete OpenID Connect sessions** (daily, enabled by default).
   Records are kept for 7 days after they end. Most sessions end with the browser, without a sign-out: a session not
   confirmed at the provider for 30 days is deleted with its refresh token. A new provider sign-in of the same account in
@@ -874,6 +874,122 @@ rules of section 11.2 and the session limits of section 12.2 apply.
 | The provider reports repeated failures of the logout URL | 503 or 500 are retried by the provider; look for the error entry that precedes them. |
 | An API token is refused after the user signed out at the provider | Expected (section 12.2). A new token is issued after a new sign-in. |
 | Sessions end after a restart or a move to another server | The Data Protection keys changed (section 12.4). |
+
+## 13. Provider-only sign-in (enterprise single sign-on)
+
+With `OidcLogin:SignInMode = ProviderOnly` GrandNode runs as an application behind a company single sign-on: the identity
+provider is the only way to get an account and to sign in. GrandNode keeps no usable passwords, except for a short list
+of break-glass administrator accounts (section 13.2). It builds on sections 11 and 12 and needs the same provider
+client and `offline_access`. Whether guests may browse the catalog stays the store owner's choice (section 13.3).
+
+`SignInMode` is `Mixed` by default, and `Mixed` behaves as described in sections 11 and 12. The setting is read at
+startup; restart the application after changing it.
+
+### 13.1 What changes
+
+| Where | In `ProviderOnly` |
+|---|---|
+| Storefront `/login`, `/register` | The browser is sent straight to the provider and back to the requested page. Without a working provider sign-in the page shows a short notice instead of redirecting. `/register` opens only for a visitor who just returned from the provider with a verified e-mail (section 13.4). |
+| Password recovery (storefront) | The pages lead to `/login`; no recovery e-mail is sent. |
+| Store and Vendor panel login | Redirect to the provider. |
+| Admin panel login | Redirect to the provider, except `/admin/login?password=1`, which shows the password form for break-glass accounts. |
+| A signed-in account without access to a panel | The login page shows a notice and a sign-out link, so the provider does not sign it in again in a loop. |
+| "My account" | The e-mail is read-only; change password and two-factor authentication are hidden and refused; the OpenID Connect connection cannot be removed. "Delete account" asks for no password. |
+| Frontend API | Password sign-in is refused. A token pair obtained with a password is not refreshed; a guest token still is. |
+| Legacy Web API users (`/api/token`, section 9) | Refused for every account, break-glass included. Clients (APIs, integrations, applications, MCP servers) use access tokens from the provider (sections 3 to 5). |
+| Checkout | Guest checkout is off whatever the order setting says; the stored setting is not changed. |
+| Other password sign-ins | A password cookie issued before the switch stops at the next request, except for break-glass accounts; the user signs in again through the provider. |
+
+### 13.2 Break-glass accounts
+
+`OidcLogin:BreakGlassAccounts` is a list of e-mail addresses (compared without regard to case). Those accounts keep the
+password on the **Admin panel login page only**, for the case that the provider is down or misconfigured. List one or
+two administrators, protect them with GrandNode two-factor authentication, and keep their passwords out of daily use.
+
+```jsonc
+"OidcLogin": {
+  "SignInMode": "ProviderOnly",
+  "BreakGlassAccounts": [ "admin@example.com" ]
+}
+```
+
+* The form is at `/admin/login?password=1`. The same account is refused on the storefront, the Store and Vendor panels
+  and the Frontend API, and as a legacy Web API user.
+* Every accepted break-glass password sign-in writes a warning to the log
+  (`Break-glass password sign-in of customer <id> on the Admin panel`). Alert on it.
+* Password recovery for these accounts works from the Admin login page only.
+* Break-glass works even when the provider is unavailable.
+
+### 13.3 Guests
+
+Whether a guest sees the catalog is decided by the **Allow Navigation** permission (area *Public store*) of the
+**Guests** customer group: in *Customers > Customer groups* edit *Guests* and open its permissions. With the permission
+granted the catalog is open and only the account pages lead to the provider; with it removed every page leads to the
+provider sign-in. There is no separate setting for `ProviderOnly`. Guest checkout is always off (section 13.1).
+
+### 13.4 First sign-in
+
+The provider's e-mail must be **verified**. An unverified one is refused with its own message on the failure page (the
+reason is also logged), and no account is created or linked.
+
+* **Unknown user.** The regular registration form opens with the e-mail from the provider (read-only) and **no password
+  fields**; the new account is connected to the provider identity (section 11.2).
+* **Existing account.** An account with the same e-mail is linked by the verified e-mail and signed in at once, whatever
+  its kind: customers, staff, and accounts with GrandNode two-factor authentication. Neither the password nor the second
+  factor is asked for. This is the difference from `Mixed` (section 11.2). The security of the sign-in, including the
+  provider's e-mail verification and e-mail change policy, is then the provider's; enforce MFA there (section 11.6).
+* The password-based "Connect your account" step does not exist in this mode.
+
+New accounts get the **Registered** group only. Mapping provider roles or groups to GrandNode customer groups is not part
+of this mode; grant staff access in GrandNode as usual.
+
+### 13.5 Profile data
+
+On every provider sign-in GrandNode copies from the provider the first and last name (`given_name`, `family_name`, when
+sent) and the e-mail, when the provider verified it and no other account uses it (`RegisterCustomersPerStore` decides
+the scope of that check). When another account owns the e-mail, a warning is logged and the old e-mail stays. The
+username follows the e-mail only when usernames are disabled in the store.
+
+### 13.6 Misconfiguration
+
+`ProviderOnly` without a working login (plugin not installed, not active for the store, or `Authority` or `ClientId`
+empty) never opens password sign-in. At startup, and again (at most once in five minutes) when a sign-in is refused for
+that reason, the log gets an error:
+
+`ProviderOnly sign-in mode without a working OpenID Connect login (...): only break-glass accounts can sign in`
+
+Only break-glass accounts can then sign in, on the Admin login page. The other login pages show a short notice instead
+of redirecting into a failure loop.
+
+### 13.7 Sign-out at the provider
+
+When the session came from the provider, signing out of GrandNode (storefront or any panel) redirects the browser to the
+provider's `end_session_endpoint` (OpenID Connect RP-Initiated Logout 1.0) with `client_id` and
+`post_logout_redirect_uri` set to the store's URL (the `Url` of the store) plus `/`, that is the storefront home page.
+Panel sign-out ends at the storefront home page too. No `id_token_hint` is sent, because ID tokens are not stored. When
+the provider's metadata has no end-session endpoint or cannot be read, the sign-out finishes locally (a warning is
+logged).
+
+Register `https://<store-url>/` as a post-logout redirect URI at the provider (one entry per store URL):
+
+* **Keycloak 26.8.** Client `grandnode-login` > *Settings* > *Valid post logout redirect URIs*.
+* **Zitadel v4.19.** The application of section 11.5 > *Redirect settings* > *Post Logout URIs*.
+
+### 13.8 Access tokens
+
+In `Mixed` mode a link made by e-mail is re-checked every time an access token uses it (section 3.1). While
+`ProviderOnly` is on, the provider is trusted for every account and that check is not made. Switching back to `Mixed`
+applies the rules of section 3.1 again, because the stored link still says it was made by e-mail.
+
+### 13.9 Troubleshooting
+
+| Symptom | Check |
+|---|---|
+| Nobody can sign in, the log has the error of section 13.6 | The plugin is installed, enabled in *External authentication* for the store, and `Authority` and `ClientId` are set. Use a break-glass account meanwhile. |
+| The Admin login page redirects and the password form does not show | Open `/admin/login?password=1` and sign in with an account listed in `BreakGlassAccounts` (the e-mail must match). |
+| Failure page about an unverified e-mail | The provider did not report `email_verified` as true; verify the e-mail at the provider (sections 11.4 and 11.5). |
+| The provider shows an error after sign-out | The store URL plus `/` is not registered as a post-logout redirect URI (section 13.7). |
+| A user keeps the old name or e-mail | Names are copied at the next provider sign-in; for the e-mail see section 13.5. |
 
 Sources used for provider specifics (checked 2026-10-08): Keycloak 26.8 MCP guide and release notes, Zitadel v4.19.4
 claims, scopes, Actions v2 and dynamic client registration documentation; MCP authorization 2026-07-28; RFC 9728,
