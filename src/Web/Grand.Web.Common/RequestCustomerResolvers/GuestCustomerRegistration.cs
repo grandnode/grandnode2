@@ -14,11 +14,13 @@ public static class GuestCustomerRegistration
     public static IServiceCollection AddTransientGuestCustomers(this IServiceCollection services)
     {
         var registered = services.LastOrDefault(d => d.ServiceType == typeof(ICustomerService));
-        if (registered?.ImplementationType == null) return services;
+        if (registered?.ImplementationType == null)
+            throw new InvalidOperationException(
+                "The guest customer decorator needs a type-based ICustomerService registration made before it.");
 
         var innerType = registered.ImplementationType;
         services.Remove(registered);
-        services.Add(new ServiceDescriptor(innerType, innerType, registered.Lifetime));
+        services.Add(new ServiceDescriptor(innerType, innerType, ServiceLifetime.Scoped));
 
         services.AddScoped<IGuestCustomerPersistence>(sp => new GuestCustomerPersistence(
             (ICustomerService)sp.GetRequiredService(innerType),
@@ -26,7 +28,7 @@ public static class GuestCustomerRegistration
             sp.GetRequiredService<ILogger<GuestCustomerPersistence>>()));
         services.Add(new ServiceDescriptor(typeof(ICustomerService), sp => new TransientGuestCustomerService(
             (ICustomerService)sp.GetRequiredService(innerType),
-            sp.GetRequiredService<IGuestCustomerPersistence>()), registered.Lifetime));
+            sp.GetRequiredService<IGuestCustomerPersistence>()), ServiceLifetime.Scoped));
         return services;
     }
 }

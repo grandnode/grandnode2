@@ -21,8 +21,8 @@ public class GuestCustomerStartup : IStartupApplication
     {
     }
 
-    //after Grand.Business.Customers (100) registers ICustomerService
+    //second pass (BeforeConfigure false), after Grand.Business.Customers (100) registers ICustomerService
     public int Priority => 1100;
 
-    public bool BeforeConfigure => true;
+    public bool BeforeConfigure => false;
 }

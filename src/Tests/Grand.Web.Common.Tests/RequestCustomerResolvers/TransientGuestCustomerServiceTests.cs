@@ -109,11 +109,24 @@ public class TransientGuestCustomerServiceTests
 
         using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
         using var scope = provider.CreateScope();
-        Assert.IsInstanceOfType(scope.ServiceProvider.GetRequiredService<ICustomerService>(),
-            typeof(TransientGuestCustomerService));
+        Assert.AreEqual(typeof(TransientGuestCustomerService),
+            scope.ServiceProvider.GetRequiredService<ICustomerService>().GetType());
         Assert.AreSame(scope.ServiceProvider.GetRequiredService<IGuestCustomerPersistence>(),
             scope.ServiceProvider.GetRequiredService<IGuestCustomerPersistence>());
         Assert.AreEqual(1, services.Count(d => d.ServiceType == typeof(ICustomerService)));
+    }
+
+    [TestMethod]
+    public void Registration_NoCustomerService_Throws()
+    {
+        Assert.ThrowsExactly<InvalidOperationException>(() => new ServiceCollection().AddTransientGuestCustomers());
+    }
+
+    [TestMethod]
+    public void Startup_RunsInSecondPass()
+    {
+        //second pass, after Grand.Business.Customers registers ICustomerService
+        Assert.IsFalse(new Grand.Web.Common.Startup.GuestCustomerStartup().BeforeConfigure);
     }
 
     //any concrete ICustomerService with a parameterless constructor, as the business layer registers one
