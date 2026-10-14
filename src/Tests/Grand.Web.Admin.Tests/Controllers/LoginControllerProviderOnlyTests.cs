@@ -42,7 +42,7 @@ public class LoginControllerProviderOnlyTests
     private LoginController CreateController(string area)
     {
         var controller = new LoginController(new CustomerSettings(), new CaptchaSettings(),
-            new Mock<ITranslationService>().Object, new Mock<ICustomerManagerService>().Object,
+            new Mock<ITranslationService>().Object, _customerManagerService.Object,
             new Mock<ICustomerService>().Object, new Mock<IGrandAuthenticationService>().Object,
             new Mock<IMessageProviderService>().Object, _contextAccessor.Object,
             new Mock<IMediator>().Object);

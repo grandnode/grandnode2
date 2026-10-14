@@ -69,7 +69,7 @@
             @if (Model.SignedInWithoutAccess)
             {
                 <div class="alert alert-warning">@Loc["Admin.Login.SignedInWithoutAccess"]</div>
-                <a class="btn btn-outline-secondary w-100 mt-2" href="@Url.Action("Logout", "Home", new { area = Grand.Web.Vendor.Extensions.Constants.AreaVendor }, null)">
+                <a class="btn btn-outline-secondary w-100 mt-2" href="@Url.RouteUrl("Logout", new { area = "" })">
                     <i class="bi bi-box-arrow-right" aria-hidden="true"></i> @Loc["Vendor.Header.Logout"]
                 </a>
             }

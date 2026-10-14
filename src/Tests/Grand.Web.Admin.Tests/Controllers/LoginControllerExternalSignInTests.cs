@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -6,7 +7,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Mediator;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Models.Common;
