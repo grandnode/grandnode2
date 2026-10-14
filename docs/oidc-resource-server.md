@@ -893,18 +893,21 @@ startup; restart the application after changing it.
 | Password recovery (storefront) | The pages lead to `/login`; no recovery e-mail is sent. |
 | Store and Vendor panel login | Redirect to the provider. |
 | Admin panel login | Redirect to the provider, except `/admin/login?password=1`, which shows the password form for break-glass accounts. |
-| A signed-in account without access to a panel | The login page shows a notice and a sign-out link, so the provider does not sign it in again in a loop. |
+| A signed-in account without access to a panel, or to the storefront (no *Allow Navigation*) | The login page shows a notice and a sign-out link, so the provider does not sign it in again in a loop. |
 | "My account" | The e-mail is read-only; change password and two-factor authentication are hidden and refused; the OpenID Connect connection cannot be removed. "Delete account" asks for no password. |
-| Frontend API | Password sign-in is refused. A token pair obtained with a password is not refreshed; a guest token still is. |
-| Legacy Web API users (`/api/token`, section 9) | Refused for every account, break-glass included. Clients (APIs, integrations, applications, MCP servers) use access tokens from the provider (sections 3 to 5). |
+| Frontend API | Password sign-in is refused. A token obtained with a password before the switch stops working at once and is not refreshed; a guest token still works. |
+| Legacy Web API users (`/api/token`, section 9) | Refused for every account, break-glass included; tokens issued before the switch stop working at once. Clients (APIs, integrations, applications, MCP servers) use access tokens from the provider (sections 3 to 5). |
 | Checkout | Guest checkout is off whatever the order setting says; the stored setting is not changed. |
 | Other password sign-ins | A password cookie issued before the switch stops at the next request, except for break-glass accounts; the user signs in again through the provider. |
+| Password lifetime | GrandNode passwords never expire, so nobody is sent to a change-password page. |
 
 ### 13.2 Break-glass accounts
 
 `OidcLogin:BreakGlassAccounts` is a list of e-mail addresses (compared without regard to case). Those accounts keep the
 password on the **Admin panel login page only**, for the case that the provider is down or misconfigured. List one or
-two administrators, protect them with GrandNode two-factor authentication, and keep their passwords out of daily use.
+two administrators and keep their passwords out of daily use. Enable GrandNode two-factor authentication on these
+accounts **before** switching to `ProviderOnly`: the mode refuses new two-factor enrolment, while two-factor
+authentication that is already on keeps being asked at the Admin password sign-in.
 
 ```jsonc
 "OidcLogin": {
@@ -923,9 +926,9 @@ two administrators, protect them with GrandNode two-factor authentication, and k
 ### 13.3 Guests
 
 Whether a guest sees the catalog is decided by the **Allow Navigation** permission (area *Public store*) of the
-**Guests** customer group: in *Customers > Customer groups* edit *Guests* and open its permissions. With the permission
-granted the catalog is open and only the account pages lead to the provider; with it removed every page leads to the
-provider sign-in. There is no separate setting for `ProviderOnly`. Guest checkout is always off (section 13.1).
+**Guests** customer group: in *Customers > Customer groups* edit *Guests* and open its *Access control list* tab.
+With the permission granted the catalog is open and only the account pages lead to the provider; with it removed every
+page leads to the provider sign-in. There is no separate setting for `ProviderOnly`. Guest checkout is always off (section 13.1).
 
 ### 13.4 First sign-in
 
@@ -948,6 +951,7 @@ of this mode; grant staff access in GrandNode as usual.
 On every provider sign-in GrandNode copies from the provider the first and last name (`given_name`, `family_name`, when
 sent) and the e-mail, when the provider verified it and no other account uses it (`RegisterCustomersPerStore` decides
 the scope of that check). When another account owns the e-mail, a warning is logged and the old e-mail stays. The
+e-mail of a break-glass account is never changed (a warning is logged), so it keeps matching `BreakGlassAccounts`. The
 username follows the e-mail only when usernames are disabled in the store.
 
 ### 13.6 Misconfiguration
@@ -981,6 +985,10 @@ In `Mixed` mode a link made by e-mail is re-checked every time an access token u
 `ProviderOnly` is on, the provider is trusted for every account and that check is not made. Switching back to `Mixed`
 applies the rules of section 3.1 again, because the stored link still says it was made by e-mail.
 
+A back-office account (or one with GrandNode two-factor authentication) whose first contact is an access token is
+refused (403, "The account must be connected to the identity with its password first"). `ProviderOnly` has no password
+step for that: sign in once in the browser first; the access token then uses that link.
+
 ### 13.9 Troubleshooting
 
 | Symptom | Check |
@@ -990,6 +998,7 @@ applies the rules of section 3.1 again, because the stored link still says it wa
 | Failure page about an unverified e-mail | The provider did not report `email_verified` as true; verify the e-mail at the provider (sections 11.4 and 11.5). |
 | The provider shows an error after sign-out | The store URL plus `/` is not registered as a post-logout redirect URI (section 13.7). |
 | A user keeps the old name or e-mail | Names are copied at the next provider sign-in; for the e-mail see section 13.5. |
+| Failure page "already connected to another identity provider account" (the user was deleted and created again at the provider) | The account is still linked to the old provider identity and the user cannot remove the connection in this mode. The Admin panel only lists the link (customer > *Info*), so an administrator deletes it in the database: the document in the `ExternalAuthentication` collection with the customer's `CustomerId` and `ProviderSystemName` `ExternalAuth.OpenIdConnect`. The user then signs in again and the account is linked to the new identity. |
 
 Sources used for provider specifics (checked 2026-10-08): Keycloak 26.8 MCP guide and release notes, Zitadel v4.19.4
 claims, scopes, Actions v2 and dynamic client registration documentation; MCP authorization 2026-07-28; RFC 9728,
