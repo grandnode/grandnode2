@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -96,17 +96,36 @@ public class LoginControllerProviderOnlyTests
     }
 
     [TestMethod]
-    public async Task Index_ProviderOnly_Admin_PasswordParam_ShowsForm()
+    [DataRow("1")]
+    [DataRow("true")]
+    [DataRow("True")]
+    public async Task Index_ProviderOnly_Admin_PasswordParam_ShowsForm(string password)
     {
         WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fadmin");
         var controller = CreateController("Admin");
 
-        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object, true);
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object,
+            password);
 
         var model = (LoginModel)((ViewResult)result).Model!;
         Assert.IsTrue(model.PasswordFormShown);
         Assert.IsFalse(model.ExternalSignInUnavailable);
         Assert.AreEqual(1, model.ExternalSignIn.Count);
+    }
+
+    [TestMethod]
+    [DataRow("0")]
+    [DataRow("")]
+    [DataRow(null)]
+    public async Task Index_ProviderOnly_Admin_PasswordParamNotSet_Redirects(string? password)
+    {
+        WithSignInPath("/oidc/login?returnUrl=%2Fshop%2Fadmin");
+        var controller = CreateController("Admin");
+
+        var result = await controller.Index(_externalAuthenticationService.Object, ProviderOnly(), _groupService.Object,
+            password);
+
+        Assert.IsInstanceOfType<RedirectResult>(result);
     }
 
     [TestMethod]

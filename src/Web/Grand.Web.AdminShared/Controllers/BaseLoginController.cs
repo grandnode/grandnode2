@@ -58,7 +58,7 @@ public abstract class BaseLoginController : BaseController
 
     public async Task<IActionResult> Index([FromServices] IExternalAuthenticationService externalAuthenticationService,
         [FromServices] OidcLoginConfig oidcLoginConfig, [FromServices] IGroupService groupService,
-        bool password = false)
+        string password = null)
     {
         var model = new LoginModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
@@ -77,12 +77,17 @@ public abstract class BaseLoginController : BaseController
         //a signed-in account without access to the panel is sent here: the provider would sign it in again and return
         //to the panel (a loop), so offer the sign-out instead
         model.SignedInWithoutAccess = await groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer);
-        if (model.ExternalSignIn.Count > 0 && !model.SignedInWithoutAccess && !(keepsPasswordForm && password))
+        if (model.ExternalSignIn.Count > 0 && !model.SignedInWithoutAccess &&
+            !(keepsPasswordForm && PasswordRequested(password)))
             return Redirect(model.ExternalSignIn[0].Url);
         model.PasswordFormShown = keepsPasswordForm;
         model.ExternalSignInUnavailable = model.ExternalSignIn.Count == 0;
         return View(model);
     }
+
+    //?password=1 (as documented) or ?password=true; a bool parameter would not bind "1"
+    private static bool PasswordRequested(string password) =>
+        password == "1" || string.Equals(password, "true", StringComparison.OrdinalIgnoreCase);
 
     private bool KeepsPasswordForm() => PanelSignInSurface.FromArea(GetCurrentArea()) == SignInSurface.AdminPanel;
 
