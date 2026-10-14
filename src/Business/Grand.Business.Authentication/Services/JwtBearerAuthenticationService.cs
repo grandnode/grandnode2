@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 #pragma warning disable CS0618 //API users stay supported until removed
@@ -10,15 +11,17 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
 {
     private readonly ICustomerService _customerService;
     private readonly IUserApiService _userApiService;
+    private readonly OidcLoginConfig _oidcLoginConfig;
     private string _email;
 
     private string _errorMessage;
 
     public JwtBearerAuthenticationService(
-        ICustomerService customerService, IUserApiService userApiService)
+        ICustomerService customerService, IUserApiService userApiService, OidcLoginConfig oidcLoginConfig)
     {
         _customerService = customerService;
         _userApiService = userApiService;
+        _oidcLoginConfig = oidcLoginConfig;
     }
 
     /// <summary>
@@ -28,6 +31,13 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
     public virtual async Task<bool> Valid(TokenValidatedContext context)
     {
         if (context.Principal == null) return await Task.FromResult(false);
+
+        //provider-only: API users are refused, tokens issued before the switch included
+        if (_oidcLoginConfig.ProviderOnly)
+        {
+            _errorMessage = "Sign-in with API users is disabled: use access tokens from the identity provider";
+            return false;
+        }
 
         _email = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
         var token = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;

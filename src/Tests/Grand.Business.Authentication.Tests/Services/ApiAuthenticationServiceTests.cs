@@ -27,6 +27,7 @@ public class ApiAuthenticationServiceTests
     private Mock<IHttpContextAccessor> _httpContextAccessorMoc;
     private IJwtBearerAuthenticationService _jwtBearerAuthenticationService;
     private Mock<IUserApiService> _userApiServiceMock;
+    private OidcLoginConfig _oidcLoginConfig;
 
     [TestInitialize]
     public void Init()
@@ -37,8 +38,9 @@ public class ApiAuthenticationServiceTests
         _groupService = new Mock<IGroupService>();
         _authService = new ApiAuthenticationService(_customerService.Object, _groupService.Object,
             _httpContextAccessorMoc.Object, new Mock<IAuthenticationSchemeProvider>().Object);
+        _oidcLoginConfig = new OidcLoginConfig();
         _jwtBearerAuthenticationService =
-            new JwtBearerAuthenticationService(_customerService.Object, _userApiServiceMock.Object);
+            new JwtBearerAuthenticationService(_customerService.Object, _userApiServiceMock.Object, _oidcLoginConfig);
     }
 
     [TestMethod]
@@ -170,6 +172,29 @@ public class ApiAuthenticationServiceTests
         Assert.IsTrue(result);
     }
 
+
+    [TestMethod]
+    public async Task Valid_ProviderOnly_ActiveUserApi_ReturnFalse()
+    {
+        _oidcLoginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        var context = new TokenValidatedContext(new Mock<HttpContext>().Object,
+            new AuthenticationScheme("", "", typeof(AuthSchemaMock)), new JwtBearerOptions());
+        IList<Claim> claims = new List<Claim> {
+            new("Email", "johny@gmail.com"),
+            new("Token", "123")
+        };
+        context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
+        _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
+            .Returns(() => Task.FromResult(new Customer { Active = true }));
+        _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
+            .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "123" }));
+
+        var result = await _jwtBearerAuthenticationService.Valid(context);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual("Sign-in with API users is disabled: use access tokens from the identity provider",
+            await _jwtBearerAuthenticationService.ErrorMessage());
+    }
 
     [TestMethod]
     public async Task GetAuthenticatedCustomer_NullAuthHeader_GetNull()

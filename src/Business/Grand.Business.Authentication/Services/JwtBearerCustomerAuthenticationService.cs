@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grand.Business.Authentication.Services;
@@ -15,15 +16,20 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
     private readonly IGroupService _groupService;
     private readonly IPermissionService _permissionService;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IExternalSignInPolicy _externalSignInPolicy;
+    private readonly OidcLoginConfig _oidcLoginConfig;
     private string _errorMessage;
 
     public JwtBearerCustomerAuthenticationService(ICustomerService customerService,
-        IPermissionService permissionService, IGroupService groupService, IRefreshTokenService refreshTokenService)
+        IPermissionService permissionService, IGroupService groupService, IRefreshTokenService refreshTokenService,
+        IExternalSignInPolicy externalSignInPolicy, OidcLoginConfig oidcLoginConfig)
     {
         _customerService = customerService;
         _permissionService = permissionService;
         _groupService = groupService;
         _refreshTokenService = refreshTokenService;
+        _externalSignInPolicy = externalSignInPolicy;
+        _oidcLoginConfig = oidcLoginConfig;
     }
 
     public async Task<bool> Valid(TokenValidatedContext context)
@@ -60,6 +66,15 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
         if (!customer.Active || customer.Deleted)
         {
             _errorMessage = "Customer not exists/or not active in the customer table";
+            return false;
+        }
+
+        //provider-only: a token obtained with the password before the switch stops working at once, not at its
+        //expiry. Guests never had a password: their tokens stay
+        if (_oidcLoginConfig.ProviderOnly && !string.IsNullOrEmpty(customer.Email) &&
+            !(await _externalSignInPolicy.PasswordSignIn(customer, SignInSurface.FrontendApi)).Allowed)
+        {
+            _errorMessage = "Sign in through the identity provider: tokens obtained with the password are not accepted";
             return false;
         }
 
