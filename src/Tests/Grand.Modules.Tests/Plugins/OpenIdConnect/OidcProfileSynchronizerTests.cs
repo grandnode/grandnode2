@@ -87,6 +87,19 @@ public class OidcProfileSynchronizerTests
     }
 
     [TestMethod]
+    public async Task Email_NewAddressIsBreakGlass_Kept()
+    {
+        _login.BreakGlassAccounts = ["Emergency@Shop.com"];
+
+        await Sync("emergency@shop.com");
+
+        VerifyEmail("emergency@shop.com", Times.Never());
+        Assert.AreEqual("old@shop.com", _customer.Email);
+        _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Email_Verified_Changed_WrittenWithUsername()
     {
         await Sync("New@Shop.com");

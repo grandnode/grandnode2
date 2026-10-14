@@ -55,6 +55,15 @@ public class OidcProfileSynchronizer(
             return;
         }
 
+        //nor may an account take an address listed there: the password it still has would open the Admin login page
+        //and keep it signed in past the provider
+        if (loginConfig.IsBreakGlass(newEmail))
+        {
+            logger.LogWarning("OpenID Connect profile sync: customer {CustomerId} keeps {OldEmail}: {NewEmail} is a " +
+                              "break-glass address", customer.Id, customer.Email, newEmail);
+            return;
+        }
+
         var owner = await customerService.GetCustomerByEmail(newEmail, customerConfig.RegisterCustomersPerStore ? storeId : "");
         if (owner != null && owner.Id != customer.Id)
         {
