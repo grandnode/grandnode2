@@ -76,6 +76,51 @@ public class BackgroundServiceTaskTests
     }
 
     [TestMethod]
+    public async Task ExecuteAsync_ClaimWon_TaskSeesBackgroundWorkAndStoreContext()
+    {
+        _task.StoreId = "store-1";
+        _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
+                It.IsAny<DateTime>(), It.IsAny<string>()))
+            .ReturnsAsync(true);
+
+        var storeContext = Mock.Of<IStoreContext>();
+        var workContext = Mock.Of<IWorkContext>();
+        var storeContextSetter = new Mock<IStoreContextSetter>();
+        storeContextSetter.Setup(s => s.InitializeStoreContext("store-1")).ReturnsAsync(storeContext);
+        var workContextSetter = new Mock<IWorkContextSetter>();
+        workContextSetter.Setup(s => s.InitializeWorkContext("store-1")).ReturnsAsync(workContext);
+
+        //the real AsyncLocal-backed accessor - a mock cannot show whether the values flow into Execute
+        var contextAccessor = new ContextAccessor();
+        IWorkContext seenWorkContext = null;
+        IStoreContext seenStoreContext = null;
+        _scheduleTaskMock.Setup(t => t.Execute()).Returns(async () => {
+            await Task.Yield();
+            seenWorkContext = contextAccessor.WorkContext;
+            seenStoreContext = contextAccessor.StoreContext;
+        });
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(_scheduleTaskServiceMock.Object);
+        services.AddKeyedSingleton(TaskName, _scheduleTaskMock.Object);
+        services.AddSingleton<IContextAccessor>(contextAccessor);
+        services.AddSingleton(storeContextSetter.Object);
+        services.AddSingleton(workContextSetter.Object);
+
+        var service = new BackgroundServiceTask(TaskName, services.BuildServiceProvider());
+        using var cts = new CancellationTokenSource();
+        await service.StartAsync(cts.Token);
+
+        await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
+            i.Method.Name == nameof(IScheduleTaskService.UpdateTask)));
+        cts.Cancel();
+
+        Assert.AreSame(workContext, seenWorkContext);
+        Assert.AreSame(storeContext, seenStoreContext);
+    }
+
+    [TestMethod]
     public async Task ExecuteAsync_ClaimLost_DoesNotExecuteAndDoesNotPersist()
     {
         _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
