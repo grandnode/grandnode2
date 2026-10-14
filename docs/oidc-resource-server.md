@@ -912,6 +912,7 @@ authentication that is already on keeps being asked at the Admin password sign-i
 ```jsonc
 "OidcLogin": {
   "SignInMode": "ProviderOnly",
+  "AutoProvision": true,
   "BreakGlassAccounts": [ "admin@example.com" ]
 }
 ```
@@ -935,8 +936,18 @@ page leads to the provider sign-in. There is no separate setting for `ProviderOn
 The provider's e-mail must be **verified**. An unverified one is refused with its own message on the failure page (the
 reason is also logged), and no account is created or linked.
 
-* **Unknown user.** The regular registration form opens with the e-mail from the provider (read-only) and **no password
-  fields**; the new account is connected to the provider identity (section 11.2).
+* **Unknown user**, by `OidcLogin:AutoProvision`:
+  * `false` (default): the regular registration form opens with the e-mail from the provider (read-only) and **no
+    password fields**; the new account is connected to the provider identity (section 11.2). A store whose registration
+    type is *Disabled* refuses instead ("New accounts cannot be registered in this store."), so only people who already
+    have an account in GrandNode get in.
+  * `true`: the account is created at once and the user is signed in, with no form: active, the e-mail as the user name,
+    a random password nobody knows, connected to the provider identity. The store's registration type does not apply
+    (not even *Disabled*, *E-mail validation* or *Admin approval*): who gets an account is decided at the provider, by
+    who may sign in to this client there. Fields the registration form would ask for (terms of service, consents,
+    customer attributes) are not collected, and no welcome e-mail is sent. Names come from the
+    provider (section 13.5). If another account already uses the e-mail as its user name, the sign-in is refused and a
+    warning is logged.
 * **Existing account.** An account with the same e-mail is linked by the verified e-mail and signed in at once, whatever
   its kind: customers, staff, and accounts with GrandNode two-factor authentication. Neither the password nor the second
   factor is asked for. This is the difference from `Mixed` (section 11.2). The security of the sign-in, including the
@@ -1004,6 +1015,7 @@ step for that: sign in once in the browser first; the access token then uses tha
 | Symptom | Check |
 |---|---|
 | Nobody can sign in, the log has the error of section 13.6 | The plugin is installed, enabled in *External authentication* for the store, and `Authority` and `ClientId` are set. Use a break-glass account meanwhile. |
+| A new user sees the registration form, or "New accounts cannot be registered" | `OidcLogin:AutoProvision` is `false` (section 13.4); set it to `true` to create accounts without the form. |
 | The Admin login page redirects and the password form does not show | Open `/admin/login?password=1` and sign in with an account listed in `BreakGlassAccounts` (the e-mail must match). |
 | Failure page about an unverified e-mail | The provider did not report `email_verified` as true; verify the e-mail at the provider (sections 11.4 and 11.5). |
 | The provider shows an error after sign-out | The store URL plus `/` is not registered as a post-logout redirect URI (section 13.7). |
