@@ -25,7 +25,7 @@
 		<Value>You are signed in, but this account cannot open this page. Sign out to use another account.</Value>
 	</Resource>
 	<Resource Name="Admin.Login.SignedInWithoutAccess" Area="Admin">
-		<Value>You are signed in with an account that has no access to this panel. Sign out to use another account.</Value>
+		<Value>You are already signed in. If this account cannot open this panel, sign out to use another account.</Value>
 	</Resource>
 	<Resource Name="Admin.Login.SignInWith" Area="Admin">
 		<Value>Sign in with {0}</Value>
