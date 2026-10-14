@@ -289,6 +289,63 @@ public class OidcCustomerResolverLoginTests
     }
 
     [TestMethod]
+    [DataRow(UserRegistrationType.Standard)]
+    [DataRow(UserRegistrationType.Disabled)]
+    [DataRow(UserRegistrationType.AdminApproval)]
+    public async Task ProviderOnly_AutoProvision_Unknown_AccountCreatedLinkedAndSignIn(UserRegistrationType type)
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _loginConfig.AutoProvision = true;
+        _customerSettings.UserRegistrationType = type;
+
+        var result = await Resolver().ResolveForLogin("sub-new", "New@Shop.com", true, Store);
+
+        Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.AreEqual("new1", result.Customer.Id);
+        Assert.IsTrue(result.Customer.Active);
+        _customerManagerService.Verify(x => x.RegisterCustomer(It.Is<RegistrationRequest>(r =>
+            r.Email == "new@shop.com" && r.Username == "new@shop.com")), Times.Once);
+        var link = LinksOf("sub-new").Single();
+        Assert.AreEqual("new1", link.CustomerId);
+        Assert.IsFalse(link.LinkedByEmail);
+        _mediator.Verify(x => x.Publish(It.IsAny<CustomerRegisteredEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_AutoProvision_UnverifiedEmail_RefusedNothingCreated()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _loginConfig.AutoProvision = true;
+
+        Assert.AreEqual(OidcLoginRefusal.EmailNotVerified,
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", false, Store)).Refusal);
+        _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProviderOnly_AutoProvision_UserNameTaken_RefusedNothingCreated()
+    {
+        _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        _loginConfig.AutoProvision = true;
+        _customerService.Setup(x => x.GetCustomerByUsername("new@shop.com", It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Id = "other" });
+
+        Assert.AreEqual(OidcLoginRefusal.AccountUnusable,
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store)).Refusal);
+        _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Mixed_AutoProvisionIgnored_RegistrationRequired()
+    {
+        _loginConfig.AutoProvision = true;
+
+        Assert.AreEqual(OidcLoginOutcome.RegistrationRequired,
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store)).Outcome);
+        _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task ProviderOnly_LinkMadeByEmail_StaffSignsIn()
     {
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;

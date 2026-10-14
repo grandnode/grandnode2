@@ -174,6 +174,10 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             _customerConfig.RegisterCustomersPerStore ? storeId : "");
         if (customer == null)
         {
+            //provider-only with automatic accounts: the provider decides who gets in, no form and no registration type
+            if (_loginConfig is { ProviderOnly: true, AutoProvision: true })
+                return await ProvisionForLogin(sub, email, emailVerified, storeId);
+
             var customerSettings = await _settingService.LoadSetting<CustomerSettings>(storeId);
             if (customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
             {
@@ -259,13 +263,53 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (existing != null)
             return await Usable(await _customerService.GetCustomerById(existing.CustomerId), sub, storeId);
 
+        var (outcome, customer, winner) = await CreateLinkedAccount(sub, email, storeId);
+        return outcome switch {
+            Provisioning.UserNameTaken => OidcCustomerResult.Forbidden("The user name is already taken"),
+            Provisioning.LinkedToOtherIdentity => LinkedToOtherIdentity(customer, sub),
+            Provisioning.LostRace => await Usable(winner, sub, storeId),
+            _ => OidcCustomerResult.Success(customer)
+        };
+    }
+
+    /// <summary>
+    ///     ProviderOnly + AutoProvision: the account of an unknown, provider-verified e-mail, created and linked at its first
+    ///     browser sign-in (the profile sync of the sign-in fills in the names)
+    /// </summary>
+    private async Task<OidcLoginResult> ProvisionForLogin(string sub, string email, bool emailVerified, string storeId)
+    {
+        var (outcome, customer, _) = await CreateLinkedAccount(sub, email, storeId);
+        return outcome switch {
+            Provisioning.UserNameTaken => OidcLoginResult.Refused(OidcLoginRefusal.AccountUnusable),
+            Provisioning.LinkedToOtherIdentity => OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity),
+            //another request of the same user created the account first: its link answers now
+            Provisioning.LostRace => await ResolveForLogin(sub, email, emailVerified, storeId),
+            _ => OidcLoginResult.SignIn(customer)
+        };
+    }
+
+    private enum Provisioning
+    {
+        Created,
+        UserNameTaken,
+        LinkedToOtherIdentity,
+        LostRace
+    }
+
+    /// <summary>
+    ///     Creates an active account with the Registered group for the subject and links it (not by e-mail). The store's
+    ///     e-mail validation / admin approval does not apply: access comes from the provider and from permissions an admin grants
+    /// </summary>
+    private async Task<(Provisioning Outcome, Customer Customer, Customer Winner)> CreateLinkedAccount(string sub,
+        string email, string storeId)
+    {
         //the e-mail becomes the user name - another account may hold it as its user name without that e-mail
         var normalizedEmail = email.ToLowerInvariant();
         if (await _customerService.GetCustomerByUsername(normalizedEmail,
                 _customerConfig.RegisterCustomersPerStore ? storeId : "") != null)
         {
-            _logger.LogWarning("Access token subject {Subject}: the user name is already taken in store {StoreId}", sub, storeId);
-            return OidcCustomerResult.Forbidden("The user name is already taken");
+            _logger.LogWarning("Subject {Subject}: the user name is already taken in store {StoreId}", sub, storeId);
+            return (Provisioning.UserNameTaken, null, null);
         }
 
         var customer = await _customerService.InsertGuestCustomer(new Customer {
@@ -275,8 +319,6 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             LastActivityDateUtc = DateTime.UtcNow
         });
 
-        //access comes from permissions an admin grants (and the provider's e-mail check is configurable), so the store's e-mail
-        //validation / admin approval does not apply; the account gets the Registered group only
         await _customerManagerService.RegisterCustomer(new RegistrationRequest(customer, normalizedEmail,
             normalizedEmail, CommonHelper.GenerateRandomDigitCode(20), PasswordFormat.Hashed, storeId));
 
@@ -285,14 +327,16 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         {
             //lost the race: drop the account just created and use the one the winner linked
             await _customerService.DeleteCustomer(customer, true);
-            return other != null ? LinkedToOtherIdentity(customer, sub) : await Usable(linked, sub, storeId);
+            return other != null
+                ? (Provisioning.LinkedToOtherIdentity, customer, null)
+                : (Provisioning.LostRace, null, linked);
         }
 
         //only after the link is stored, so the loser of a race sends no welcome message
         await _mediator.Publish(new CustomerRegisteredEvent(customer));
-        _logger.LogInformation("Access token subject {Subject} registered as customer {CustomerId} (store {StoreId})",
+        _logger.LogInformation("Subject {Subject} registered as customer {CustomerId} (store {StoreId})",
             sub, customer.Id, storeId);
-        return OidcCustomerResult.Success(customer);
+        return (Provisioning.Created, customer, null);
     }
 
     /// <summary>

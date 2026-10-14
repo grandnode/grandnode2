@@ -46,6 +46,13 @@ public class OidcLoginConfig
     /// </summary>
     public OidcSignInMode SignInMode { get; set; } = OidcSignInMode.Mixed;
 
+    /// <summary>
+    ///     ProviderOnly: the first provider sign-in of an unknown (provider-verified) e-mail creates the account at once, with the
+    ///     Registered group and no registration form, whatever the store's registration type: the provider decides who gets in.
+    ///     False: the registration form opens (and a store with registration disabled refuses)
+    /// </summary>
+    public bool AutoProvision { get; set; }
+
     /// <summary>E-mails of accounts that keep password sign-in and recovery on the Admin login page in ProviderOnly</summary>
     public string[] BreakGlassAccounts { get; set; } = [];
 
