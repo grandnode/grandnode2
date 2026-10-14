@@ -6,6 +6,7 @@ using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Models.Common;
@@ -45,7 +46,7 @@ public class LoginControllerTwoFactorTests
     {
         _customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
         _manager = new Mock<ICustomerManagerService>();
-        _manager.Setup(x => x.LoginCustomer("admin@shop.com", "pwd", It.IsAny<string>()))
+        _manager.Setup(x => x.LoginCustomer("admin@shop.com", "pwd", It.IsAny<string>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(CustomerLoginResults.RequiresTwoFactor);
         var customers = new Mock<ICustomerService>();
         customers.Setup(x => x.GetCustomerByEmail("admin@shop.com", It.IsAny<string>())).ReturnsAsync(_customer);
@@ -68,7 +69,7 @@ public class LoginControllerTwoFactorTests
 
     private Task<IActionResult> PasswordStep() =>
         _controller.Index(new LoginModel { Email = "admin@shop.com", Password = "pwd" },
-            new Mock<IExternalAuthenticationService>().Object);
+            new Mock<IExternalAuthenticationService>().Object, new OidcLoginConfig());
 
     [TestMethod]
     public async Task Password_RequiresTwoFactor_GoesToThePanelsOwnSecondStep()
