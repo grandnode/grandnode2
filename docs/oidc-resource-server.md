@@ -895,7 +895,7 @@ startup; restart the application after changing it.
 | Admin panel login | Redirect to the provider, except `/admin/login?password=1`, which shows the password form for break-glass accounts. |
 | A signed-in account without access to a panel, or to the storefront (no *Allow Navigation*) | The login page shows a notice and a sign-out link, so the provider does not sign it in again in a loop. |
 | "My account" | The e-mail is read-only; change password and two-factor authentication are hidden and refused; the OpenID Connect connection cannot be removed. "Delete account" asks for no password. |
-| Frontend API | Password sign-in is refused. A token obtained with a password before the switch stops working at once and is not refreshed; a guest token still works. |
+| Frontend API | Password sign-in is refused. A token obtained with a password before the switch stops working at once and is not refreshed; a guest token still works. The Frontend API does not accept access tokens from the provider, so in this mode it serves guests only: a headless storefront has no signed-in customers. |
 | Legacy Web API users (`/api/token`, section 9) | Refused for every account, break-glass included; tokens issued before the switch stop working at once. Clients (APIs, integrations, applications, MCP servers) use access tokens from the provider (sections 3 to 5). |
 | Checkout | Guest checkout is off whatever the order setting says; the stored setting is not changed. |
 | Other password sign-ins | A password cookie issued before the switch stops at the next request, except for break-glass accounts; the user signs in again through the provider. |
@@ -951,7 +951,8 @@ of this mode; grant staff access in GrandNode as usual.
 On every provider sign-in GrandNode copies from the provider the first and last name (`given_name`, `family_name`, when
 sent) and the e-mail, when the provider verified it and no other account uses it (`RegisterCustomersPerStore` decides
 the scope of that check). When another account owns the e-mail, a warning is logged and the old e-mail stays. The
-e-mail of a break-glass account is never changed (a warning is logged), so it keeps matching `BreakGlassAccounts`. The
+e-mail of a break-glass account is never changed (a warning is logged), so it keeps matching `BreakGlassAccounts`, and
+no account takes an address listed there (a warning is logged): its old password would open the Admin login page. The
 username follows the e-mail only when usernames are disabled in the store.
 
 ### 13.6 Misconfiguration
@@ -973,6 +974,10 @@ provider's `end_session_endpoint` (OpenID Connect RP-Initiated Logout 1.0) with 
 Panel sign-out ends at the storefront home page too. No `id_token_hint` is sent, because ID tokens are not stored. When
 the provider's metadata has no end-session endpoint or cannot be read, the sign-out finishes locally (a warning is
 logged).
+
+The provider is asked only when the browser reports a navigation from the store itself or a typed address
+(`Sec-Fetch-Site` `same-origin` or `none`). A link on another site that opens the logout URL signs the user out of
+GrandNode only, never out of the single sign-on session of every application at the provider.
 
 Register `https://<store-url>/` as a post-logout redirect URI at the provider (one entry per store URL):
 
