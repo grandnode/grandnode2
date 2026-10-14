@@ -3,6 +3,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.ExternalRegistration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,6 +20,7 @@ public class ProviderSignOutTests
     private Mock<IContextAccessor> _contextAccessor;
     private OidcLoginConfig _config;
     private List<IExternalSignOutProvider> _providers;
+    private DefaultHttpContext _httpContext;
 
     [TestInitialize]
     public void Init()
@@ -33,10 +35,35 @@ public class ProviderSignOutTests
         _contextAccessor = new Mock<IContextAccessor>();
         _contextAccessor.Setup(x => x.StoreContext).Returns(storeContext.Object);
         _auth.Setup(x => x.HasOidcSession()).ReturnsAsync(true);
+        _httpContext = new DefaultHttpContext();
     }
 
     private ProviderSignOut Service() =>
-        new(_auth.Object, _providers, _config, _contextAccessor.Object, NullLogger<ProviderSignOut>.Instance);
+        new(_auth.Object, _providers, _config, _contextAccessor.Object,
+            new HttpContextAccessor { HttpContext = _httpContext }, NullLogger<ProviderSignOut>.Instance);
+
+    [TestMethod]
+    [DataRow("same-origin")]
+    [DataRow("none")]
+    public async Task SameOriginOrTypedNavigation_ReturnsProviderUrl(string site)
+    {
+        _httpContext.Request.Headers["Sec-Fetch-Site"] = site;
+
+        Assert.AreEqual(ProviderUrl, await Service().SignOut());
+    }
+
+    [TestMethod]
+    [DataRow("cross-site")]
+    [DataRow("same-site")]
+    public async Task CrossSiteNavigation_SignsOutLocallyOnly(string site)
+    {
+        _httpContext.Request.Headers["Sec-Fetch-Site"] = site;
+
+        Assert.IsNull(await Service().SignOut());
+
+        _provider.Verify(x => x.GetSignOutUrl(It.IsAny<string>()), Times.Never);
+        _auth.Verify(x => x.SignOut(), Times.Once);
+    }
 
     [TestMethod]
     public async Task ProviderOnly_SessionCookie_ReturnsProviderUrl()

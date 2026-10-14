@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Common.Security.ExternalRegistration;
@@ -20,6 +21,7 @@ public class ProviderSignOut(
     IEnumerable<IExternalSignOutProvider> signOutProviders,
     OidcLoginConfig oidcLoginConfig,
     IContextAccessor contextAccessor,
+    IHttpContextAccessor httpContextAccessor,
     ILogger<ProviderSignOut> logger) : IProviderSignOut
 {
     public async Task<string> SignOut()
@@ -28,7 +30,7 @@ public class ProviderSignOut(
         try
         {
             //the cookie is what tells whether the sign-in came from the provider: look before it is removed
-            if (oidcLoginConfig.ProviderOnly && await authenticationService.HasOidcSession())
+            if (oidcLoginConfig.ProviderOnly && !IsCrossSite() && await authenticationService.HasOidcSession())
                 providerUrl = await GetProviderUrl();
         }
         catch (Exception ex)
@@ -39,6 +41,14 @@ public class ProviderSignOut(
 
         await authenticationService.SignOut();
         return providerUrl;
+    }
+
+    //the logout URL takes a plain GET: a link on another site may end the session here, never the single sign-on
+    //session at the provider (every application of the user). Browsers without Fetch Metadata send no header
+    private bool IsCrossSite()
+    {
+        var site = httpContextAccessor.HttpContext?.Request.Headers["Sec-Fetch-Site"].ToString();
+        return !string.IsNullOrEmpty(site) && site != "same-origin" && site != "none";
     }
 
     private async Task<string> GetProviderUrl()
