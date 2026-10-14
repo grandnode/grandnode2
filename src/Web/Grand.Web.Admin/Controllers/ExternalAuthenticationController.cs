@@ -3,6 +3,8 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Permissions;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Configuration;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Models.ExternalAuthentication;
@@ -41,9 +43,43 @@ public class ExternalAuthenticationController : BaseAdminController
 
     #region Methods
 
-    public IActionResult Methods()
+    public async Task<IActionResult> Methods([FromServices] OidcResourceServerConfig resourceServerConfig,
+        [FromServices] IOidcLinkService linkService)
     {
-        return View();
+        //the account links of the OpenID Connect provider, only while it is configured
+        if (!resourceServerConfig.Enabled || string.IsNullOrWhiteSpace(resourceServerConfig.Authority))
+            return View();
+
+        var state = await linkService.GetState();
+        return View(new OidcLinksModel {
+            ConfiguredAuthority = state.ConfiguredAuthority,
+            LinkedAuthority = state.LinkedAuthority,
+            LinkCount = state.LinkCount,
+            ProviderChanged = state.ProviderChanged
+        });
+    }
+
+    /// <summary>Another identity provider: every OpenID Connect link is removed, people connect again at their next sign-in</summary>
+    [HttpPost]
+    [AutoValidateAntiforgeryToken]
+    public async Task<IActionResult> RemoveOidcLinks([FromServices] IOidcLinkService linkService,
+        [FromServices] ITranslationService translationService)
+    {
+        var count = await linkService.RemoveAll();
+        Success(string.Format(translationService.GetResource("Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Removed"),
+            count));
+        return RedirectToAction("Methods");
+    }
+
+    /// <summary>The same identity provider at a new address: the links are kept for it</summary>
+    [HttpPost]
+    [AutoValidateAntiforgeryToken]
+    public async Task<IActionResult> KeepOidcLinks([FromServices] IOidcLinkService linkService,
+        [FromServices] ITranslationService translationService)
+    {
+        await linkService.KeepAll();
+        Success(translationService.GetResource("Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Kept"));
+        return RedirectToAction("Methods");
     }
 
     [HttpPost]

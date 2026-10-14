@@ -74,11 +74,15 @@
     {
         <div class="grand-fields mt-3">
             <admin-field asp-for="AssociatedExternalAuthRecords">
+                @* removing a link lets the person connect again, e.g. after being created anew at the identity provider *@
                 <admin-grid id="externalauthrecords-grid" pager="Compact"
-                            data="Model.AssociatedExternalAuthRecords.Select(x => new { x.AuthMethodName, x.Email, x.ExternalIdentifier })">
+                            data="Model.AssociatedExternalAuthRecords.Select(x => new { x.Id, x.AuthMethodName, x.Email, x.ExternalIdentifier })"
+                            destroy-url="@Url.Action("ExternalAuthenticationDelete", "Customer", new { customerId = Model.Id, area = ViewContext.RouteData.Values["area"] })"
+                            confirm-destroy="true">
                     <grid-column field="AuthMethodName" title="@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.AuthMethodName"]" width="100"/>
                     <grid-column field="Email" title="@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.Email"]" width="100"/>
                     <grid-column field="ExternalIdentifier" title="@Loc["Admin.Customers.Customers.AssociatedExternalAuth.Fields.ExternalIdentifier"]" width="300"/>
+                    <grid-commands destroy="true" width="120"/>
                 </admin-grid>
             </admin-field>
         </div>

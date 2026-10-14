@@ -28,6 +28,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IOidcTokenRevocationService, OidcTokenRevocationService>();
         services.AddScoped<IOidcSessionService, OidcSessionService>();
+        services.AddScoped<IOidcLinkService, OidcLinkService>();
         services.AddScoped<IExternalSignInPolicy, OidcSsoSignInPolicy>();
     }
 

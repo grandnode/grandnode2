@@ -1,4 +1,5 @@
-﻿@{
+﻿@model OidcLinksModel
+@{
     //page title
     ViewBag.Title = Loc["Admin.Plugins.ExternalAuthenticationMethods"];
 }
@@ -36,4 +37,39 @@
             <grid-commands edit="true" title="@Loc["Admin.Common.Edit"]" width="150"/>
         </admin-grid>
     </admin-card>
+
+    @* the OpenID Connect account links belong to one identity provider: a subject is unique only there *@
+    @if (Model != null)
+    {
+        <admin-card title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks"]">
+            @if (Model.ProviderChanged)
+            {
+                <div class="alert alert-danger">
+                    @string.Format(Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.ProviderChanged"].Value,
+                        Model.LinkedAuthority, Model.ConfiguredAuthority)
+                </div>
+            }
+            <p>
+                @string.Format(Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Info"].Value,
+                    Model.ConfiguredAuthority, Model.LinkCount)
+            </p>
+            <form method="post" class="d-flex flex-wrap gap-2">
+                <button type="submit" class="btn btn-outline-danger"
+                        formaction="@Url.Action("RemoveOidcLinks", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
+                        data-grand-confirm="@Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Remove.Confirm"]"
+                        data-confirm-title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Remove"]">
+                    <i class="bi bi-trash" aria-hidden="true"></i> @Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Remove"]
+                </button>
+                @if (Model.ProviderChanged)
+                {
+                    <button type="submit" class="btn btn-outline-secondary"
+                            formaction="@Url.Action("KeepOidcLinks", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
+                            data-grand-confirm="@Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Keep.Confirm"]"
+                            data-confirm-title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Keep"]">
+                        @Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Keep"]
+                    </button>
+                }
+            </form>
+        </admin-card>
+    }
 </admin-page>

@@ -37,6 +37,8 @@ public class OidcLoginPlugin(
             "Signing in with the identity provider is not set up completely. Use another sign-in method, or ask the administrator."),
         ("Failed.EmailNotVerified",
             "Your identity provider has not verified your e-mail address. Verify it there, then sign in again."),
+        ("Failed.ProviderChanged",
+            "Signing in with the identity provider is paused while the administrator updates the store's connection to it. Try again later."),
         ("DisplayOrder", "Display order"),
         ("ClientId", "Client ID"),
         ("ClientSecret", "Client secret"),

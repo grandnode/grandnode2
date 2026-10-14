@@ -268,6 +268,21 @@ public class OidcSessionService : IOidcSessionService
             _sessionRepository.Table.Where(x => x.Subject == subject && x.EndedUtc == null)));
     }
 
+    public virtual async Task<IList<OidcSession>> EndByCustomer(string customerId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(customerId);
+        return await EndAll(await _sessionRepository.ToListAsync(
+            _sessionRepository.Table.Where(x => x.CustomerId == customerId && x.EndedUtc == null)),
+            OidcSessionEndReason.LinkRemoved);
+    }
+
+    public virtual async Task<int> EndAllOpen()
+    {
+        var open = await EndAll(await _sessionRepository.ToListAsync(
+            _sessionRepository.Table.Where(x => x.EndedUtc == null)), OidcSessionEndReason.LinkRemoved);
+        return open.Count;
+    }
+
     public virtual async Task DeleteExpired()
     {
         var now = DateTime.UtcNow;
@@ -284,10 +299,11 @@ public class OidcSessionService : IOidcSessionService
         await _sessionRepository.DeleteManyAsync(x => x.EndedUtc == null && x.LastValidatedUtc < abandoned);
     }
 
-    private async Task<IList<OidcSession>> EndAll(IList<OidcSession> sessions)
+    private async Task<IList<OidcSession>> EndAll(IList<OidcSession> sessions,
+        OidcSessionEndReason reason = OidcSessionEndReason.BackChannel)
     {
         foreach (var session in sessions)
-            await End(session.Id, OidcSessionEndReason.BackChannel);
+            await End(session.Id, reason);
         return sessions;
     }
 

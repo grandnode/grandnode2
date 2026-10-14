@@ -1,5 +1,6 @@
 #nullable enable
 
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -463,6 +464,23 @@ public abstract class BaseCustomerController(
         var addresses = (await customerViewModelService.PrepareAddressModel(customer)).ToList();
         var gridModel = new DataSourceResult { Data = addresses, Total = addresses.Count };
         return Json(gridModel);
+    }
+
+    /// <summary>
+    ///     Removes a link to an external sign-in (e.g. after the person was deleted and created again at the identity
+    ///     provider); the next provider sign-in connects the account again by the rules of a first sign-in
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ExternalAuthenticationDelete(string id, string customerId,
+        [FromServices] IOidcLinkService linkService)
+    {
+        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
+
+        if (!await linkService.Remove(customer, id))
+            return ErrorForKendoGridJson("No external sign-in found with the specified id");
+        return new JsonResult("");
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
