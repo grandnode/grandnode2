@@ -35,6 +35,8 @@ public class OidcLoginPlugin(
             "You are already signed in with another account. Sign out first, then sign in with your identity provider."),
         ("Failed.SessionUnavailable",
             "Signing in with the identity provider is not set up completely. Use another sign-in method, or ask the administrator."),
+        ("Failed.EmailNotVerified",
+            "Your identity provider has not verified your e-mail address. Verify it there, then sign in again."),
         ("DisplayOrder", "Display order"),
         ("ClientId", "Client ID"),
         ("ClientSecret", "Client secret"),

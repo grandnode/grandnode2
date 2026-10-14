@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.ExternalRegistration;
@@ -23,6 +24,8 @@ public class OidcLoginController : BasePluginController
     public OidcLoginController(
         IExternalRegistrationContext externalRegistrationContext,
         IOidcCustomerResolver oidcCustomerResolver,
+        OidcProfileSynchronizer profileSynchronizer,
+        OidcLoginConfig loginConfig,
         IGrandAuthenticationService authenticationService,
         IOidcSessionService oidcSessionService,
         IMediator mediator,
@@ -34,6 +37,8 @@ public class OidcLoginController : BasePluginController
     {
         _externalRegistrationContext = externalRegistrationContext;
         _oidcCustomerResolver = oidcCustomerResolver;
+        _profileSynchronizer = profileSynchronizer;
+        _loginConfig = loginConfig;
         _authenticationService = authenticationService;
         _oidcSessionService = oidcSessionService;
         _mediator = mediator;
@@ -52,6 +57,8 @@ public class OidcLoginController : BasePluginController
 
     private readonly IExternalRegistrationContext _externalRegistrationContext;
     private readonly IOidcCustomerResolver _oidcCustomerResolver;
+    private readonly OidcProfileSynchronizer _profileSynchronizer;
+    private readonly OidcLoginConfig _loginConfig;
     private readonly IGrandAuthenticationService _authenticationService;
     private readonly IOidcSessionService _oidcSessionService;
     private readonly IMediator _mediator;
@@ -118,6 +125,16 @@ public class OidcLoginController : BasePluginController
         {
             case OidcLoginOutcome.SignIn:
             {
+                //the profile never blocks the sign-in; the pending identity is still needed here
+                try
+                {
+                    await _profileSynchronizer.Sync(result.Customer, pending, _contextAccessor.StoreContext.CurrentStore.Id);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "OpenID Connect profile sync failed for customer {CustomerId}", result.Customer.Id);
+                }
+
                 //read before the pending identity is cleared: the same cookie carries them
                 var (refreshToken, sid) = await OidcLoginSessionData.Read(HttpContext);
                 await _externalRegistrationContext.Clear();
@@ -143,6 +160,9 @@ public class OidcLoginController : BasePluginController
 
     public async Task<IActionResult> Link(string returnUrl)
     {
+        if (await RefuseLinkInProviderOnly() is { } refused)
+            return refused;
+
         var pending = await _externalRegistrationContext.GetPending();
         if (pending == null)
             return RedirectToRoute("OidcLoginFailed");
@@ -173,6 +193,9 @@ public class OidcLoginController : BasePluginController
 
     public async Task<IActionResult> LinkComplete(string returnUrl)
     {
+        if (await RefuseLinkInProviderOnly() is { } refused)
+            return refused;
+
         returnUrl = LocalOrNull(returnUrl);
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         if (!await _groupService.IsRegistered(customer))
@@ -223,6 +246,15 @@ public class OidcLoginController : BasePluginController
     #endregion
 
     #region Utilities
+
+    //ProviderOnly has no password path: a stale link URL must not open one
+    private async Task<IActionResult> RefuseLinkInProviderOnly()
+    {
+        if (!_loginConfig.ProviderOnly)
+            return null;
+        await _externalRegistrationContext.Clear();
+        return RedirectToRoute("OidcLoginFailed");
+    }
 
     private bool IsAvailable() =>
         _externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName);

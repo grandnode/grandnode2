@@ -17,6 +17,7 @@ public class StartupApplication : IStartupApplication
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.AddScoped<IOidcTokenRefresher, OidcTokenRefresher>();
         services.AddSingleton<OidcLogoutTokenValidator>();
+        services.AddScoped<OidcProfileSynchronizer>();
     }
 
     public int Priority => 10;
