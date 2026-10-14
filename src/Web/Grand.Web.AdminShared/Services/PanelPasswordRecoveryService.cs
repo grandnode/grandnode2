@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
@@ -108,7 +109,7 @@ public class PanelPasswordRecoveryService(
             return null;
         //an account that signs in only with the identity provider has no password to recover: no message is sent, and
         //a link sent before reads as a wrong link
-        if (await externalSignInPolicy.RequiredProvider(customer) != null)
+        if (!(await externalSignInPolicy.PasswordSignIn(customer, PanelSignInSurface.FromArea(area))).Allowed)
             return null;
 
         return await HasPanelAccess(customer, area) ? customer : null;

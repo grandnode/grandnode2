@@ -24,6 +24,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
@@ -50,6 +51,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IMessageProviderService _messageProviderService;
     private readonly IOrderService _orderService;
     private readonly OrderSettings _orderSettings;
+    private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly IOrderCalculationService _orderTotalCalculationService;
     private readonly IPaymentService _paymentService;
     private readonly PaymentSettings _paymentSettings;
@@ -99,6 +101,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         ShoppingCartSettings shoppingCartSettings,
         PaymentSettings paymentSettings,
         OrderSettings orderSettings,
+        OidcLoginConfig oidcLoginConfig,
         TaxSettings taxSettings)
     {
         _orderService = orderService;
@@ -132,6 +135,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _shoppingCartSettings = shoppingCartSettings;
         _paymentSettings = paymentSettings;
         _orderSettings = orderSettings;
+        _oidcLoginConfig = oidcLoginConfig;
         _taxSettings = taxSettings;
     }
 
@@ -383,7 +387,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             throw new ArgumentException("Customer is not set");
 
         //check whether customer is guest
-        if (await _groupService.IsGuest(details.Customer) && !_orderSettings.AnonymousCheckoutAllowed)
+        if (await _groupService.IsGuest(details.Customer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
             throw new GrandException("Anonymous checkout is not allowed");
 
         //billing address

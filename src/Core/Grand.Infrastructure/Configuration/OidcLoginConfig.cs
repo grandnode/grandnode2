@@ -1,5 +1,12 @@
 namespace Grand.Infrastructure.Configuration;
 
+/// <summary>How accounts sign in: Mixed (passwords and providers, stage B rules) or ProviderOnly (the identity provider only)</summary>
+public enum OidcSignInMode
+{
+    Mixed,
+    ProviderOnly
+}
+
 /// <summary>
 ///     appsettings section OidcLogin: the client of this store at the identity provider configured in OidcResourceServer,
 ///     and the policy for sessions started by a provider sign-in
@@ -32,6 +39,33 @@ public class OidcLoginConfig
     ///     password (break-glass)
     /// </summary>
     public bool SsoOnly { get; set; }
+
+    /// <summary>
+    ///     ProviderOnly: the identity provider is the only way to get an account and to sign in; GrandNode passwords work only for
+    ///     <see cref="BreakGlassAccounts" /> on the Admin login page. Implies <see cref="SsoOnly" /> for every account
+    /// </summary>
+    public OidcSignInMode SignInMode { get; set; } = OidcSignInMode.Mixed;
+
+    /// <summary>
+    ///     ProviderOnly: the first provider sign-in of an unknown (provider-verified) e-mail creates the account at once, with the
+    ///     Registered group and no registration form, whatever the store's registration type: the provider decides who gets in.
+    ///     False: the registration form opens (and a store with registration disabled refuses)
+    /// </summary>
+    public bool AutoProvision { get; set; }
+
+    /// <summary>E-mails of accounts that keep password sign-in and recovery on the Admin login page in ProviderOnly</summary>
+    public string[] BreakGlassAccounts { get; set; } = [];
+
+    public bool ProviderOnly => SignInMode == OidcSignInMode.ProviderOnly;
+
+    public bool IsBreakGlass(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email) || BreakGlassAccounts == null)
+            return false;
+        var trimmed = email.Trim();
+        return BreakGlassAccounts.Any(x =>
+            !string.IsNullOrWhiteSpace(x) && string.Equals(x.Trim(), trimmed, StringComparison.OrdinalIgnoreCase));
+    }
 
     //zero or less is a configuration mistake, never "check on every request" or "end every session at once"
     public TimeSpan StaffIdleTimeout =>

@@ -19,6 +19,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
@@ -46,6 +47,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;
+    private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly IPermissionService _permissionService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
@@ -84,6 +86,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         LinkGenerator linkGenerator,
         MediaSettings mediaSettings,
         OrderSettings orderSettings,
+        OidcLoginConfig oidcLoginConfig,
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
         CommonSettings commonSettings,
@@ -113,6 +116,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         _linkGenerator = linkGenerator;
         _mediaSettings = mediaSettings;
         _orderSettings = orderSettings;
+        _oidcLoginConfig = oidcLoginConfig;
         _shoppingCartSettings = shoppingCartSettings;
         _catalogSettings = catalogSettings;
         _commonSettings = commonSettings;
@@ -145,7 +149,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         model.ShowProductImages = _shoppingCartSettings.ShowProductImagesOnShoppingCart;
         model.ShowSku = _catalogSettings.ShowSkuOnProductDetailsPage;
         model.IsGuest = await _groupService.IsGuest(request.Customer);
-        model.ShowCheckoutAsGuestButton = model.IsGuest && _orderSettings.AnonymousCheckoutAllowed;
+        model.ShowCheckoutAsGuestButton = model.IsGuest && _orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig);
         var checkoutAttributes =
             request.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 request.Store.Id);

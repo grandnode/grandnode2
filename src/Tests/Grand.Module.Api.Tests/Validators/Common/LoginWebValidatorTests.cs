@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
@@ -60,7 +61,7 @@ public class LoginWebValidatorTests
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId))
             .ReturnsAsync(new Customer { Active = true });
-        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), StoreId))
+        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), StoreId, It.IsAny<SignInSurface>()))
             .ReturnsAsync(CustomerLoginResults.Successful);
 
         var validator = CreateValidator(apiEnabled: true, perStore: true);
@@ -68,7 +69,7 @@ public class LoginWebValidatorTests
 
         Assert.IsTrue(result.IsValid);
         _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId), Times.Once);
-        _customerManagerServiceMock.Verify(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), StoreId), Times.Once);
+        _customerManagerServiceMock.Verify(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), StoreId, SignInSurface.FrontendApi), Times.Once);
     }
 
     [TestMethod]
@@ -76,14 +77,14 @@ public class LoginWebValidatorTests
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), ""))
             .ReturnsAsync(new Customer { Active = true });
-        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), ""))
+        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), "", It.IsAny<SignInSurface>()))
             .ReturnsAsync(CustomerLoginResults.Successful);
 
         var validator = CreateValidator(apiEnabled: true, perStore: false);
         var result = await validator.ValidateAsync(ValidModel());
 
         Assert.IsTrue(result.IsValid);
-        _customerManagerServiceMock.Verify(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), ""), Times.Once);
+        _customerManagerServiceMock.Verify(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), "", It.IsAny<SignInSurface>()), Times.Once);
     }
 
     [TestMethod]
@@ -91,7 +92,7 @@ public class LoginWebValidatorTests
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new Customer { Active = true });
-        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(CustomerLoginResults.ExternalSignInRequired);
 
         var validator = CreateValidator(apiEnabled: true, perStore: true);

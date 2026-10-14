@@ -7,6 +7,8 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Security;
+using Grand.Business.Core.Utilities.Authentication;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +28,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
     private IJwtBearerCustomerAuthenticationService _jwtBearerCustomerAuthenticationService;
     private Mock<IPermissionService> _permissionServiceMock;
     private Mock<IRefreshTokenService> _refreshTokenServiceMock;
+    private Mock<IExternalSignInPolicy> _externalSignInPolicyMock;
+    private OidcLoginConfig _oidcLoginConfig;
 
     [TestInitialize]
     public void Init()
@@ -35,9 +39,11 @@ public class JwtBearerCustomerAuthenticationServiceTests
         _permissionServiceMock = new Mock<IPermissionService>();
         _httpContextMock = new Mock<HttpContext>();
         _refreshTokenServiceMock = new Mock<IRefreshTokenService>();
+        _externalSignInPolicyMock = new Mock<IExternalSignInPolicy>();
+        _oidcLoginConfig = new OidcLoginConfig();
         _jwtBearerCustomerAuthenticationService = new JwtBearerCustomerAuthenticationService(
             _customerServiceMock.Object, _permissionServiceMock.Object, _groupService.Object,
-            _refreshTokenServiceMock.Object);
+            _refreshTokenServiceMock.Object, _externalSignInPolicyMock.Object, _oidcLoginConfig);
     }
 
     [TestMethod]
@@ -180,6 +186,83 @@ public class JwtBearerCustomerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
 
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        Assert.IsTrue(result);
+    }
+
+    private TokenValidatedContext RegisteredCustomerContext(Customer customer)
+    {
+        customer.UserFields.Add(new UserField
+            { Key = SystemCustomerFieldNames.PasswordToken, Value = "123", StoreId = "" });
+        _customerServiceMock.Setup(c => c.GetCustomerById(customer.Id)).ReturnsAsync(customer);
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
+            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+        _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, customer)).ReturnsAsync(true);
+        var context = new TokenValidatedContext(new Mock<HttpContext>().Object,
+            new AuthenticationScheme("", "", typeof(AuthSchemaMock)), new JwtBearerOptions());
+        IList<Claim> claims = new List<Claim> {
+            new("CustomerId", customer.Id),
+            new("Email", customer.Email),
+            new("Token", "123"),
+            new("RefreshId", "567")
+        };
+        context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
+        return context;
+    }
+
+    [TestMethod]
+    public async Task Valid_ProviderOnly_RegisteredCustomer_PasswordNotAllowed_ReturnFalse()
+    {
+        _oidcLoginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        var customer = new Customer { Id = "cust-1", Email = "johny@gmail.com", Active = true };
+        var context = RegisteredCustomerContext(customer);
+        _externalSignInPolicyMock.Setup(c => c.PasswordSignIn(customer, SignInSurface.FrontendApi))
+            .ReturnsAsync(new PasswordSignInDecision(false, null));
+
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual("Sign in through the identity provider: tokens obtained with the password are not accepted",
+            await _jwtBearerCustomerAuthenticationService.ErrorMessage());
+    }
+
+    [TestMethod]
+    public async Task Valid_Mixed_RegisteredCustomer_PolicyNotAsked_ReturnTrue()
+    {
+        var customer = new Customer { Id = "cust-1", Email = "johny@gmail.com", Active = true };
+        var context = RegisteredCustomerContext(customer);
+        _externalSignInPolicyMock.Setup(c => c.PasswordSignIn(customer, SignInSurface.FrontendApi))
+            .ReturnsAsync(new PasswordSignInDecision(false, null));
+
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+
+        Assert.IsTrue(result);
+        _externalSignInPolicyMock.Verify(c => c.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Valid_ProviderOnly_Guest_ReturnTrue()
+    {
+        _oidcLoginConfig.SignInMode = OidcSignInMode.ProviderOnly;
+        var guid = Guid.NewGuid();
+        var guest = new Customer { CustomerGuid = guid, Active = true };
+        _customerServiceMock.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync(guest);
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(guest)).Returns(() =>
+            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+        _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, guest)).ReturnsAsync(true);
+        _groupService.Setup(c => c.IsGuest(guest)).ReturnsAsync(true);
+        _externalSignInPolicyMock.Setup(c => c.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
+            .ReturnsAsync(new PasswordSignInDecision(false, null));
+        var context = new TokenValidatedContext(new Mock<HttpContext>().Object,
+            new AuthenticationScheme("", "", typeof(AuthSchemaMock)), new JwtBearerOptions());
+        IList<Claim> claims = new List<Claim> {
+            new("Guid", guid.ToString()),
+            new("RefreshId", "567")
+        };
+        context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
+
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+
         Assert.IsTrue(result);
     }
 }

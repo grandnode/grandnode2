@@ -9,6 +9,7 @@ using Grand.Domain.Customers;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Customers.Services;
 
@@ -29,6 +30,7 @@ public class CustomerManagerService : ICustomerManagerService
     /// <param name="customerHistoryPasswordService">History password</param>
     /// <param name="customerSettings">Customer settings</param>
     /// <param name="externalSignInPolicy">Accounts that must sign in with an external provider</param>
+    /// <param name="logger">Logger</param>
     public CustomerManagerService(
         ICustomerService customerService,
         IGroupService groupService,
@@ -36,8 +38,10 @@ public class CustomerManagerService : ICustomerManagerService
         IMediator mediator,
         ICustomerHistoryPasswordService customerHistoryPasswordService,
         CustomerSettings customerSettings,
-        IExternalSignInPolicy externalSignInPolicy)
+        IExternalSignInPolicy externalSignInPolicy,
+        ILogger<CustomerManagerService> logger)
     {
+        _logger = logger;
         _externalSignInPolicy = externalSignInPolicy;
         _customerService = customerService;
         _groupService = groupService;
@@ -58,6 +62,7 @@ public class CustomerManagerService : ICustomerManagerService
     private readonly ICustomerHistoryPasswordService _customerHistoryPasswordService;
     private readonly CustomerSettings _customerSettings;
     private readonly IExternalSignInPolicy _externalSignInPolicy;
+    private readonly ILogger<CustomerManagerService> _logger;
 
     #endregion
 
@@ -77,8 +82,11 @@ public class CustomerManagerService : ICustomerManagerService
     /// </summary>
     /// <param name="usernameOrEmail">Username or email</param>
     /// <param name="password">Password</param>
+    /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
+    /// <param name="surface">Where the password is used: the sign-in policy decides per surface</param>
     /// <returns>Result</returns>
-    public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "")
+    public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password,
+        string storeId = "", SignInSurface surface = SignInSurface.Storefront)
     {
         var customer = _customerSettings.UsernamesEnabled
             ? await _customerService.GetCustomerByUsername(usernameOrEmail, storeId)
@@ -90,8 +98,11 @@ public class CustomerManagerService : ICustomerManagerService
             return CustomerLoginResults.WrongPassword;
 
         //checked after the password, so the answer tells nothing to someone who does not know it
-        if (await _externalSignInPolicy.RequiredProvider(customer) != null)
+        var decision = await _externalSignInPolicy.PasswordSignIn(customer, surface);
+        if (!decision.Allowed)
             return CustomerLoginResults.ExternalSignInRequired;
+        if (decision.BreakGlass)
+            _logger.LogWarning("Break-glass password sign-in of customer {CustomerId} on the Admin panel", customer.Id);
 
         //transparently migrate weak/legacy hashes (SHA-x, Clear, Encrypted) to the modern PBKDF2 format
         if (_encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))

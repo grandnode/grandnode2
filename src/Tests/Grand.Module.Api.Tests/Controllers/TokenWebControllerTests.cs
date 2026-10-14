@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
@@ -36,6 +37,8 @@ public class TokenWebControllerTests
         _mediatorMock = new Mock<IMediator>();
         _refreshTokenServiceMock = new Mock<IRefreshTokenService>();
         _signInPolicyMock = new Mock<IExternalSignInPolicy>();
+        _signInPolicyMock.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.FrontendApi))
+            .ReturnsAsync(PasswordSignInDecision.Password);
 
         _refreshTokenServiceMock.Setup(r => r.GenerateRefreshToken()).Returns("rt");
         _refreshTokenServiceMock.Setup(r => r.SaveRefreshTokenToCustomer(It.IsAny<Customer>(), It.IsAny<string>()))
@@ -122,7 +125,7 @@ public class TokenWebControllerTests
     public async Task Refresh_ProviderRequired_InvalidRefreshToken()
     {
         var customer = RefreshableCustomer();
-        _signInPolicyMock.Setup(p => p.RequiredProvider(customer)).ReturnsAsync(Mock.Of<IExternalAuthenticationProvider>());
+        _signInPolicyMock.Setup(p => p.PasswordSignIn(customer, SignInSurface.FrontendApi)).ReturnsAsync(new PasswordSignInDecision(false, Mock.Of<IExternalAuthenticationProvider>()));
         var controller = CreateController(perStore: false);
 
         var result = await controller.Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
@@ -133,16 +136,36 @@ public class TokenWebControllerTests
         _mediatorMock.Verify(m => m.Send(It.IsAny<GenerateTokenWebCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    //guests never had a password: their tokens are renewed even when every password sign-in is refused
+    [TestMethod]
+    public async Task Refresh_Guest_PolicyRefuses_StillOk()
+    {
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("Guid", Guid.NewGuid().ToString()) }));
+        _refreshTokenServiceMock.Setup(r => r.GetPrincipalFromToken("access")).Returns(principal);
+        var guest = new Customer { Id = "g1", CustomerGuid = Guid.NewGuid() };
+        _customerServiceMock.Setup(c => c.GetCustomerByGuid(It.IsAny<Guid>())).ReturnsAsync(guest);
+        _refreshTokenServiceMock.Setup(r => r.GetCustomerRefreshToken(guest))
+            .ReturnsAsync(new RefreshToken { Token = "rt", ValidTo = DateTime.UtcNow.AddDays(1), RefreshId = "rid" });
+        _signInPolicyMock.Setup(p => p.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
+            .ReturnsAsync(new PasswordSignInDecision(false, null));
+
+        var result = await CreateController(perStore: false)
+            .Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
+
+        Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+        Assert.IsTrue(_capturedCommand.Claims.ContainsKey("Guid"));
+    }
+
     [TestMethod]
     public async Task Refresh_PasswordAllowed_Ok()
     {
         var customer = RefreshableCustomer();
-        _signInPolicyMock.Setup(p => p.RequiredProvider(customer)).ReturnsAsync((IExternalAuthenticationProvider)null);
+        _signInPolicyMock.Setup(p => p.PasswordSignIn(customer, SignInSurface.FrontendApi)).ReturnsAsync(PasswordSignInDecision.Password);
         var controller = CreateController(perStore: false);
 
         var result = await controller.Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
 
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-        _signInPolicyMock.Verify(p => p.RequiredProvider(customer), Times.Once);
+        _signInPolicyMock.Verify(p => p.PasswordSignIn(customer, SignInSurface.FrontendApi), Times.Once);
     }
 }

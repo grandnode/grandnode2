@@ -25,7 +25,9 @@ namespace Grand.Business.Authentication.Services;
 ///     Maps a validated access token or a browser sign-in to a customer: stored subject link; customer with the verified e-mail (link
 ///     stored and marked as made by e-mail; never a back-office account or an account with two-factor authentication, which connect
 ///     only with their password); registration with the Registered group only. A link made by e-mail is re-checked on every use
-///     against the rules of a first link. Only active, registered, non-system accounts are used,
+///     against the rules of a first link.
+///     In ProviderOnly (OidcLogin:SignInMode) a browser sign-in links any account by a provider-verified e-mail and refuses an
+///     unverified one. Only active, registered, non-system accounts are used,
 ///     and one customer holds at most one identity (enforced by the link's identifier, see <see cref="OidcLinkId" />).
 ///     With per-store identity a subject has one link per store (plus the link of a customer of no store, valid in
 ///     every store). A unique index on (provider, identifier, store) makes the first concurrent requests of one user
@@ -46,6 +48,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     private readonly IPermissionService _permissionService;
     private readonly IMediator _mediator;
     private readonly OidcResourceServerConfig _config;
+    private readonly OidcLoginConfig _loginConfig;
     private readonly CustomerConfig _customerConfig;
     private readonly ILogger<OidcCustomerResolver> _logger;
 
@@ -58,6 +61,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         IPermissionService permissionService,
         IMediator mediator,
         OidcResourceServerConfig config,
+        OidcLoginConfig loginConfig,
         CustomerConfig customerConfig,
         ILogger<OidcCustomerResolver> logger)
     {
@@ -69,6 +73,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         _permissionService = permissionService;
         _mediator = mediator;
         _config = config;
+        _loginConfig = loginConfig;
         _customerConfig = customerConfig;
         _logger = logger;
     }
@@ -88,7 +93,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             var linkedResult = await Usable(linkedCustomer, sub, storeId);
             //a link made by e-mail proves no more than the e-mail: it stops serving an account that has since
             //become one that connects only with its password
-            if (linkedResult.Succeeded && link.LinkedByEmail && await RequiresPassword(linkedCustomer, storeId))
+            if (linkedResult.Succeeded && link.LinkedByEmail && !_loginConfig.ProviderOnly &&
+                await RequiresPassword(linkedCustomer, storeId))
                 return AccountConnectionRequired(linkedCustomer, sub);
             return linkedResult;
         }
@@ -146,8 +152,9 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             if (reason != Unusable.None)
                 return OidcLoginResult.Refused(ToRefusal(reason));
 
-            //a link made by e-mail (by an access token or an earlier sign-in) is held to the rules of a first link
-            if (link.LinkedByEmail && (!emailVerified || await RequiresPassword(linked, storeId)))
+            //a link made by e-mail (by an access token or an earlier sign-in) is held to the rules of a first link;
+            //provider-only installations trust the provider for every account
+            if (!_loginConfig.ProviderOnly && link.LinkedByEmail && (!emailVerified || await RequiresPassword(linked, storeId)))
                 return OidcLoginResult.LinkRequired(linked);
 
             return OidcLoginResult.SignIn(linked);
@@ -156,10 +163,21 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (string.IsNullOrWhiteSpace(email))
             return OidcLoginResult.Refused(OidcLoginRefusal.InvalidIdentity);
 
+        //provider-only: an account (new or existing) is given only to an e-mail the provider verified
+        if (_loginConfig.ProviderOnly && !emailVerified)
+        {
+            _logger.LogWarning("Sign-in subject {Subject}: the provider did not verify the e-mail", sub);
+            return OidcLoginResult.Refused(OidcLoginRefusal.EmailNotVerified);
+        }
+
         var customer = await _customerService.GetCustomerByEmail(email,
             _customerConfig.RegisterCustomersPerStore ? storeId : "");
         if (customer == null)
         {
+            //provider-only with automatic accounts: the provider decides who gets in, no form and no registration type
+            if (_loginConfig is { ProviderOnly: true, AutoProvision: true })
+                return await ProvisionForLogin(sub, email, emailVerified, storeId);
+
             var customerSettings = await _settingService.LoadSetting<CustomerSettings>(storeId);
             if (customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
             {
@@ -182,7 +200,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
 
         //the first link of a back-office account, of an account protected by two-factor authentication, and of any account
         //whose e-mail nobody verified, needs the account's password (and its second factor)
-        if (!emailVerified || await RequiresPassword(customer, storeId))
+        if (!_loginConfig.ProviderOnly && (!emailVerified || await RequiresPassword(customer, storeId)))
             return OidcLoginResult.LinkRequired(customer);
 
         return await Link(customer, sub, email, storeId, true) switch {
@@ -245,13 +263,53 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (existing != null)
             return await Usable(await _customerService.GetCustomerById(existing.CustomerId), sub, storeId);
 
+        var (outcome, customer, winner) = await CreateLinkedAccount(sub, email, storeId);
+        return outcome switch {
+            Provisioning.UserNameTaken => OidcCustomerResult.Forbidden("The user name is already taken"),
+            Provisioning.LinkedToOtherIdentity => LinkedToOtherIdentity(customer, sub),
+            Provisioning.LostRace => await Usable(winner, sub, storeId),
+            _ => OidcCustomerResult.Success(customer)
+        };
+    }
+
+    /// <summary>
+    ///     ProviderOnly + AutoProvision: the account of an unknown, provider-verified e-mail, created and linked at its first
+    ///     browser sign-in (the profile sync of the sign-in fills in the names)
+    /// </summary>
+    private async Task<OidcLoginResult> ProvisionForLogin(string sub, string email, bool emailVerified, string storeId)
+    {
+        var (outcome, customer, _) = await CreateLinkedAccount(sub, email, storeId);
+        return outcome switch {
+            Provisioning.UserNameTaken => OidcLoginResult.Refused(OidcLoginRefusal.AccountUnusable),
+            Provisioning.LinkedToOtherIdentity => OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity),
+            //another request of the same user created the account first: its link answers now
+            Provisioning.LostRace => await ResolveForLogin(sub, email, emailVerified, storeId),
+            _ => OidcLoginResult.SignIn(customer)
+        };
+    }
+
+    private enum Provisioning
+    {
+        Created,
+        UserNameTaken,
+        LinkedToOtherIdentity,
+        LostRace
+    }
+
+    /// <summary>
+    ///     Creates an active account with the Registered group for the subject and links it (not by e-mail). The store's
+    ///     e-mail validation / admin approval does not apply: access comes from the provider and from permissions an admin grants
+    /// </summary>
+    private async Task<(Provisioning Outcome, Customer Customer, Customer Winner)> CreateLinkedAccount(string sub,
+        string email, string storeId)
+    {
         //the e-mail becomes the user name - another account may hold it as its user name without that e-mail
         var normalizedEmail = email.ToLowerInvariant();
         if (await _customerService.GetCustomerByUsername(normalizedEmail,
                 _customerConfig.RegisterCustomersPerStore ? storeId : "") != null)
         {
-            _logger.LogWarning("Access token subject {Subject}: the user name is already taken in store {StoreId}", sub, storeId);
-            return OidcCustomerResult.Forbidden("The user name is already taken");
+            _logger.LogWarning("Subject {Subject}: the user name is already taken in store {StoreId}", sub, storeId);
+            return (Provisioning.UserNameTaken, null, null);
         }
 
         var customer = await _customerService.InsertGuestCustomer(new Customer {
@@ -261,8 +319,6 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             LastActivityDateUtc = DateTime.UtcNow
         });
 
-        //access comes from permissions an admin grants (and the provider's e-mail check is configurable), so the store's e-mail
-        //validation / admin approval does not apply; the account gets the Registered group only
         await _customerManagerService.RegisterCustomer(new RegistrationRequest(customer, normalizedEmail,
             normalizedEmail, CommonHelper.GenerateRandomDigitCode(20), PasswordFormat.Hashed, storeId));
 
@@ -271,14 +327,16 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         {
             //lost the race: drop the account just created and use the one the winner linked
             await _customerService.DeleteCustomer(customer, true);
-            return other != null ? LinkedToOtherIdentity(customer, sub) : await Usable(linked, sub, storeId);
+            return other != null
+                ? (Provisioning.LinkedToOtherIdentity, customer, null)
+                : (Provisioning.LostRace, null, linked);
         }
 
         //only after the link is stored, so the loser of a race sends no welcome message
         await _mediator.Publish(new CustomerRegisteredEvent(customer));
-        _logger.LogInformation("Access token subject {Subject} registered as customer {CustomerId} (store {StoreId})",
+        _logger.LogInformation("Subject {Subject} registered as customer {CustomerId} (store {StoreId})",
             sub, customer.Id, storeId);
-        return OidcCustomerResult.Success(customer);
+        return (Provisioning.Created, customer, null);
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -41,6 +42,8 @@ public class PasswordRecoveryConfirmValidatorExternalSignInTests
         var translation = new Mock<ITranslationService>();
         translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
         _signInPolicy = new Mock<IExternalSignInPolicy>();
+        _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
+            .ReturnsAsync(PasswordSignInDecision.Password);
 
         _validator = new PasswordRecoveryConfirmValidator(
             new List<IValidatorConsumer<PasswordRecoveryConfirmModel>>(),
@@ -65,8 +68,7 @@ public class PasswordRecoveryConfirmValidatorExternalSignInTests
     [TestMethod]
     public async Task ExternalSignInRequired_WrongToken()
     {
-        _signInPolicy.Setup(x => x.RequiredProvider(_customer))
-            .ReturnsAsync(new Mock<IExternalAuthenticationProvider>().Object);
+        _signInPolicy.Setup(x => x.PasswordSignIn(_customer, SignInSurface.Storefront)).ReturnsAsync(new PasswordSignInDecision(false, new Mock<IExternalAuthenticationProvider>().Object));
 
         var result = await Validate();
 

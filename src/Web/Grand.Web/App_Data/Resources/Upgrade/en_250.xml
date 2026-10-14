@@ -18,6 +18,9 @@
 	<Resource Name="Account.Login.WrongCredentials.ExternalSignInRequired" Area="Front">
 		<Value>This account signs in with {0}. Use the {0} button.</Value>
 	</Resource>
+	<Resource Name="Account.Login.ExternalSignInUnavailable" Area="Front">
+		<Value>Signing in is possible only through the identity provider, which cannot be reached now. Try again later or contact the store.</Value>
+	</Resource>
 	<Resource Name="Admin.Login.SignInWith" Area="Admin">
 		<Value>Sign in with {0}</Value>
 	</Resource>

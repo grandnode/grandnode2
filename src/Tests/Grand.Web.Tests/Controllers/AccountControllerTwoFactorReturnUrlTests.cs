@@ -63,7 +63,7 @@ public class AccountControllerTwoFactorReturnUrlTests
 
     private async Task<IActionResult> PassTwoFactor(string returnUrl)
     {
-        _manager.Setup(x => x.LoginCustomer("a@b.c", "p", It.IsAny<string>())).ReturnsAsync(CustomerLoginResults.RequiresTwoFactor);
+        _manager.Setup(x => x.LoginCustomer("a@b.c", "p", It.IsAny<string>(), SignInSurface.Storefront)).ReturnsAsync(CustomerLoginResults.RequiresTwoFactor);
         await _controller.Login(new LoginModel { Email = "a@b.c", Password = "p" }, returnUrl);
         var twoFactor = new Mock<ITwoFactorAuthenticationService>();
         twoFactor.Setup(x => x.AuthenticateTwoFactor(It.IsAny<string>(), "123", _customer, It.IsAny<TwoFactorAuthenticationType>()))

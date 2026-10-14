@@ -14,6 +14,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Attributes;
@@ -51,6 +52,7 @@ public class CheckoutController : BasePublicController
         IProductService productService,
         IShoppingCartValidator shoppingCartValidator,
         OrderSettings orderSettings,
+        OidcLoginConfig oidcLoginConfig,
         LoyaltyPointsSettings loyaltyPointsSettings,
         PaymentSettings paymentSettings,
         ShippingSettings shippingSettings,
@@ -71,6 +73,7 @@ public class CheckoutController : BasePublicController
         _productService = productService;
         _shoppingCartValidator = shoppingCartValidator;
         _orderSettings = orderSettings;
+        _oidcLoginConfig = oidcLoginConfig;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _paymentSettings = paymentSettings;
         _shippingSettings = shippingSettings;
@@ -90,7 +93,7 @@ public class CheckoutController : BasePublicController
         if (!cart.Any())
             return RedirectToRoute("ShoppingCart");
 
-        if (await _groupService.IsGuest(customer) && !_orderSettings.AnonymousCheckoutAllowed)
+        if (await _groupService.IsGuest(customer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
             return Challenge();
 
         //reset checkout data
@@ -126,7 +129,7 @@ public class CheckoutController : BasePublicController
         if (!cart.Any())
             return RedirectToRoute("ShoppingCart");
 
-        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
             return Challenge();
 
         //validation (checkout attributes)
@@ -668,7 +671,7 @@ public class CheckoutController : BasePublicController
     public virtual async Task<IActionResult> Completed(string orderId)
     {
         //validation
-        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
             return Challenge();
 
         Order order = null;
@@ -770,7 +773,7 @@ public class CheckoutController : BasePublicController
         try
         {
             if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) &&
-                !_orderSettings.AnonymousCheckoutAllowed)
+                !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
                 return Challenge();
 
             var paymentTransaction = await _paymentTransactionService.GetById(paymentTransactionId);
@@ -826,6 +829,7 @@ public class CheckoutController : BasePublicController
     private readonly IProductService _productService;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly OrderSettings _orderSettings;
+    private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly PaymentSettings _paymentSettings;
     private readonly ShippingSettings _shippingSettings;
@@ -871,7 +875,7 @@ public class CheckoutController : BasePublicController
         if (!cart.Any())
             throw new Exception("Your cart is empty");
 
-        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
             throw new Exception("Anonymous checkout is not allowed");
     }
 

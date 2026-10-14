@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -20,7 +21,7 @@ public class PasswordRecoverySendCommandHandlerTests
         var messages = new Mock<IMessageProviderService>();
         var policy = new Mock<IExternalSignInPolicy>();
         var customer = new Customer { Id = "c1" };
-        policy.Setup(x => x.RequiredProvider(customer)).ReturnsAsync(new Mock<IExternalAuthenticationProvider>().Object);
+        policy.Setup(x => x.PasswordSignIn(customer, It.IsAny<SignInSurface>())).ReturnsAsync(new PasswordSignInDecision(false, new Mock<IExternalAuthenticationProvider>().Object));
         var handler = new PasswordRecoverySendCommandHandler(customerService.Object, messages.Object, policy.Object);
 
         Assert.IsTrue(await handler.Handle(new PasswordRecoverySendCommand {
@@ -49,8 +50,11 @@ public class PasswordRecoverySendCommandHandlerTests
     public async Task PasswordAllowed_MessageSent()
     {
         var messages = new Mock<IMessageProviderService>();
+        var policy = new Mock<IExternalSignInPolicy>();
+        policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
+            .ReturnsAsync(PasswordSignInDecision.Password);
         var handler = new PasswordRecoverySendCommandHandler(new Mock<ICustomerService>().Object, messages.Object,
-            new Mock<IExternalSignInPolicy>().Object);
+            policy.Object);
         await handler.Handle(new PasswordRecoverySendCommand {
             Customer = new Customer { Id = "c1" }, Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }
         }, CancellationToken.None);

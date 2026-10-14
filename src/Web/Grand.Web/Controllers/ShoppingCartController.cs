@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -13,6 +14,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Commands.Models.ShoppingCart;
@@ -44,7 +46,8 @@ public class ShoppingCartController : BasePublicController
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
         ShoppingCartSettings shoppingCartSettings,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings,
+        OidcLoginConfig oidcLoginConfig)
     {
         _contextAccessor = contextAccessor;
         _shoppingCartService = shoppingCartService;
@@ -58,6 +61,7 @@ public class ShoppingCartController : BasePublicController
         _shoppingCartValidator = shoppingCartValidator;
         _shoppingCartSettings = shoppingCartSettings;
         _orderSettings = orderSettings;
+        _oidcLoginConfig = oidcLoginConfig;
     }
 
     #endregion
@@ -92,6 +96,7 @@ public class ShoppingCartController : BasePublicController
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly OrderSettings _orderSettings;
+    private readonly OidcLoginConfig _oidcLoginConfig;
 
     #endregion
 
@@ -489,7 +494,7 @@ public class ShoppingCartController : BasePublicController
 
         //everything is OK
         if (!await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer)) return RedirectToRoute("Checkout");
-        if (!_orderSettings.AnonymousCheckoutAllowed)
+        if (!_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
             return Challenge();
 
         return RedirectToRoute("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
