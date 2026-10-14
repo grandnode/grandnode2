@@ -46,4 +46,12 @@ public class AppConfig
     ///     instance at the same shared volume. A relative path is resolved against the content root.
     /// </summary>
     public string MediaPath { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the name this instance answers to when a scheduled task is pinned to a machine
+    ///     ("Leased by machine name"). Empty uses only the machine name, which in a container is the
+    ///     hostname and changes on every deployment. Several instances may share the name - one of them
+    ///     runs each due task.
+    /// </summary>
+    public string InstanceName { get; set; }
 }
