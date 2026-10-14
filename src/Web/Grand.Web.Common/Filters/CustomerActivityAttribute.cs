@@ -26,7 +26,7 @@ public class CustomerActivityAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that saves last customer activity date
     /// </summary>
-    private class CustomerActivityFilter(
+    internal class CustomerActivityFilter(
         ICustomerService customerService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings) : IAsyncActionFilter
@@ -51,6 +51,10 @@ public class CustomerActivityAttribute : TypeFilterAttribute
 
             //whether is need to store last visited page URL
             if (!customerSettings.StoreLastVisitedPage)
+                return;
+
+            //system accounts (SearchEngine, Anonymous) are shared by every request they serve
+            if (contextAccessor.WorkContext.CurrentCustomer.IsSystemAccount)
                 return;
 
             //update last activity date
