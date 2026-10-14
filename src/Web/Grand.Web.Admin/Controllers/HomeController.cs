@@ -29,7 +29,6 @@ public class HomeController : BaseHomeControllerWithSetLanguage
     public HomeController(
         ICountryService countryService,
         ITranslationService translationService,
-        IGrandAuthenticationService authenticationService,
         IContextAccessor contextAccessor,
         IStoreService storeService,
         ICustomerService customerService,
@@ -38,7 +37,7 @@ public class HomeController : BaseHomeControllerWithSetLanguage
         IProductsReportService productsReportService,
         ILogger<HomeController> logger,
         IMediator mediator)
-        : base(countryService, translationService, authenticationService, contextAccessor)
+        : base(countryService, translationService, contextAccessor)
     {
         _contextAccessor = contextAccessor;
         _storeService = storeService;

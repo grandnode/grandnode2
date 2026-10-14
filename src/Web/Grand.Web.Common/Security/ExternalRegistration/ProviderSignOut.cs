@@ -48,8 +48,15 @@ public class ProviderSignOut(
         foreach (var provider in signOutProviders)
         {
             var url = await provider.GetSignOutUrl(postLogoutRedirectUri);
-            if (!string.IsNullOrEmpty(url))
+            if (string.IsNullOrEmpty(url))
+                continue;
+
+            //the URL ends up in a redirect: only an absolute http(s) address is accepted
+            if (Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+                (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp))
                 return url;
+
+            logger.LogWarning("An identity provider returned a sign-out URL that is not an absolute http(s) address");
         }
 
         return null;

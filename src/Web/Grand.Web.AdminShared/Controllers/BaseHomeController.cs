@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Common.Controllers;
@@ -9,8 +8,7 @@ namespace Grand.Web.AdminShared.Controllers;
 
 public abstract class BaseHomeController(
     ICountryService countryService,
-    ITranslationService translationService,
-    IGrandAuthenticationService authenticationService)
+    ITranslationService translationService)
     : BaseController
 {
     /// <summary>

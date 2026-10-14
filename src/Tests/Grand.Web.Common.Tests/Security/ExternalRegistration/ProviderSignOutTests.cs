@@ -116,6 +116,19 @@ public class ProviderSignOutTests
     }
 
     [TestMethod]
+    [DataRow("javascript:alert(1)")]
+    [DataRow("/relative/logout")]
+    [DataRow("ftp://idp.example/logout")]
+    public async Task UrlNotAbsoluteHttp_ReturnsNull_StillSignsOut(string url)
+    {
+        _provider.Setup(x => x.GetSignOutUrl(It.IsAny<string>())).ReturnsAsync(url);
+
+        Assert.IsNull(await Service().SignOut());
+
+        _auth.Verify(x => x.SignOut(), Times.Once);
+    }
+
+    [TestMethod]
     public async Task FirstProviderWithUrlWins()
     {
         var empty = new Mock<IExternalSignOutProvider>();
