@@ -1,6 +1,7 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.SharedKernel;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer;
@@ -28,6 +29,10 @@ public class LoginModel : BaseModel
     public bool RememberMe { get; set; }
 
     public bool ExternalSignInUnavailable { get; set; }
+
+    /// <summary>Set by the server only: a registered account is signed in but cannot open the page it was sent from</summary>
+    [BindNever]
+    public bool SignedInWithoutAccess { get; set; }
 
     public bool DisplayCaptcha { get; set; }
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();

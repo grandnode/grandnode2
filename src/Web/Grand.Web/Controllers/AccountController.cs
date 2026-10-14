@@ -197,6 +197,14 @@ public class AccountController : BasePublicController
         if (!oidcLoginConfig.ProviderOnly)
             return View(model);
 
+        //a signed-in account the store does not let through (e.g. no "Public store. Allow navigation") is sent here:
+        //the provider would sign it in again and return to the same page (a loop), so offer the sign-out instead
+        if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
+        {
+            model.SignedInWithoutAccess = true;
+            return View(model);
+        }
+
         //the identity provider is the only sign-in: go there, or say it cannot be reached (never redirect back here)
         var signInUrl = await ProviderSignInUrl(externalAuthenticationService, returnUrl);
         if (signInUrl != null)
@@ -214,11 +222,14 @@ public class AccountController : BasePublicController
         var local = !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : null;
         var providers = externalAuthenticationService.LoadActiveAuthenticationProviders(
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
-        var provider = providers.OfType<IExternalSignInPathProvider>().FirstOrDefault();
-        if (provider == null)
-            return null;
-        var path = await provider.GetSignInPath(local);
-        return string.IsNullOrEmpty(path) ? null : HttpContext.Request.PathBase + path;
+        foreach (var provider in providers.OfType<IExternalSignInPathProvider>())
+        {
+            var path = await provider.GetSignInPath(local);
+            if (!string.IsNullOrEmpty(path))
+                return HttpContext.Request.PathBase + path;
+        }
+
+        return null;
     }
 
     [HttpPost]
@@ -687,10 +698,12 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     [HttpGet]
     public virtual async Task<IActionResult> RegisterExternalCancel(
-        [FromServices] IExternalRegistrationContext externalRegistrationContext)
+        [FromServices] IExternalRegistrationContext externalRegistrationContext,
+        [FromServices] OidcLoginConfig oidcLoginConfig)
     {
         await externalRegistrationContext.Clear();
-        return RedirectToRoute("Register");
+        //in provider-only mode Register goes back to the provider, which returns to the form at once: cancel goes home
+        return RedirectToRoute(oidcLoginConfig.ProviderOnly ? "HomePage" : "Register");
     }
 
     //available even when navigation is not allowed

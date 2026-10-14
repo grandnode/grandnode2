@@ -9,7 +9,16 @@
     //register URL with return URL (if specified)
     var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
 }
-@if (Model.ExternalSignInUnavailable)
+@if (Model.SignedInWithoutAccess)
+{
+    <div class="page login-page">
+        <div class="alert alert-warning my-3">@Loc["Account.Login.SignedInWithoutAccess"]</div>
+        <a class="btn btn-outline-secondary" href="@Url.RouteUrl("Logout")">
+            <i class="bi bi-lock" aria-hidden="true"></i> @Loc["Account.Logout"]
+        </a>
+    </div>
+}
+else if (Model.ExternalSignInUnavailable)
 {
     <div class="page login-page">
         <div class="alert alert-warning my-3">@Loc["Account.Login.ExternalSignInUnavailable"]</div>

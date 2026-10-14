@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -35,6 +35,8 @@ public class AccountControllerProviderOnlyTests
     private Mock<ICustomerManagerService> _customerManager;
     private Mock<ICustomerService> _customers;
     private OidcLoginConfig _providerOnly;
+    private Mock<IGroupService> _groups;
+    private Customer _currentCustomer;
     private AccountController _controller;
 
     [TestInitialize]
@@ -49,7 +51,8 @@ public class AccountControllerProviderOnlyTests
         _providerOnly = new OidcLoginConfig { SignInMode = OidcSignInMode.ProviderOnly };
 
         var work = new Mock<IWorkContext>();
-        work.Setup(w => w.CurrentCustomer).Returns(new Customer { Id = "g1" });
+        _currentCustomer = new Customer { Id = "g1" };
+        work.Setup(w => w.CurrentCustomer).Returns(_currentCustomer);
         work.Setup(w => w.WorkingLanguage).Returns(new Language { Id = "l1" });
         var store = new Mock<IStoreContext>();
         store.Setup(s => s.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = "s1" });
@@ -60,14 +63,14 @@ public class AccountControllerProviderOnlyTests
         var mediator = new Mock<IMediator>();
         mediator.Setup(m => m.Send(It.IsAny<GetRegister>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RegisterModel());
-        var groups = new Mock<IGroupService>();
-        groups.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(false);
+        _groups = new Mock<IGroupService>();
+        _groups.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(false);
 
         _customerManager = new Mock<ICustomerManagerService>();
         _customers = new Mock<ICustomerService>();
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object,
             new Mock<ITranslationService>().Object, context.Object, _customers.Object,
-            groups.Object, _customerManager.Object, new Mock<ICountryService>().Object,
+            _groups.Object, _customerManager.Object, new Mock<ICountryService>().Object,
             mediator.Object, new Mock<IMessageProviderService>().Object, new CaptchaSettings(),
             new CustomerSettings {
                 UserRegistrationType = UserRegistrationType.Standard, TwoFactorAuthenticationEnabled = true,
@@ -116,6 +119,45 @@ public class AccountControllerProviderOnlyTests
         var result = await _controller.Login(null, "/cart", _providerOnly, _externalAuth.Object);
         var model = (LoginModel)((ViewResult)result).Model;
         Assert.IsTrue(model.ExternalSignInUnavailable);
+    }
+
+    [TestMethod]
+    public async Task Login_ProviderOnly_SignedIn_ShowsSignOutNotice_ProviderNotAsked()
+    {
+        _groups.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+        _provider.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync("/oidc/login");
+
+        var result = await _controller.Login(null, "/cart", _providerOnly, _externalAuth.Object);
+
+        var model = (LoginModel)((ViewResult)result).Model;
+        Assert.IsTrue(model.SignedInWithoutAccess);
+        _provider.Verify(p => p.GetSignInPath(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Login_Mixed_SignedIn_ShowsForm()
+    {
+        _groups.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+
+        var result = await _controller.Login(null, "/cart", new OidcLoginConfig(), _externalAuth.Object);
+
+        var model = (LoginModel)((ViewResult)result).Model;
+        Assert.IsFalse(model.SignedInWithoutAccess);
+        Assert.IsFalse(model.ExternalSignInUnavailable);
+    }
+
+    [TestMethod]
+    public async Task Login_ProviderOnly_FirstProviderWithoutPath_UsesNextProvider()
+    {
+        var first = new Mock<IExternalSignInPathProvider>();
+        first.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null);
+        _provider.Setup(p => p.GetSignInPath("/cart")).ReturnsAsync("/oidc/login?returnUrl=%2Fcart");
+        _externalAuth.Setup(x => x.LoadActiveAuthenticationProviders(It.IsAny<Customer>(), It.IsAny<Grand.Domain.Stores.Store>()))
+            .Returns(new List<IExternalAuthenticationProvider> { first.Object, _provider.Object });
+
+        var result = await _controller.Login(null, "/cart", _providerOnly, _externalAuth.Object);
+
+        Assert.AreEqual("/oidc/login?returnUrl=%2Fcart", ((RedirectResult)result).Url);
     }
 
     [TestMethod]
@@ -171,6 +213,24 @@ public class AccountControllerProviderOnlyTests
         _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
         var result = await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, _providerOnly);
         Assert.AreEqual("Login", ((RedirectToRouteResult)result).RouteName);
+    }
+
+    [TestMethod]
+    public async Task RegisterExternalCancel_ProviderOnly_ClearsPendingAndGoesHome()
+    {
+        var result = await _controller.RegisterExternalCancel(_external.Object, _providerOnly);
+
+        Assert.AreEqual("HomePage", ((RedirectToRouteResult)result).RouteName);
+        _external.Verify(x => x.Clear(), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task RegisterExternalCancel_Mixed_BackToRegister()
+    {
+        var result = await _controller.RegisterExternalCancel(_external.Object, new OidcLoginConfig());
+
+        Assert.AreEqual("Register", ((RedirectToRouteResult)result).RouteName);
+        _external.Verify(x => x.Clear(), Times.Once);
     }
 
     [TestMethod]
@@ -238,9 +298,15 @@ public class AccountControllerProviderOnlyTests
         Assert.IsInstanceOfType<ViewResult>(get);
     }
 
+    private void TwoFactorEnabled() =>
+        _currentCustomer.UserFields.Add(new UserField
+            { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
+
     [TestMethod]
     public async Task DisableTwoFactor_ProviderOnly_Redirects()
     {
+        //two-factor is on: only the provider-only guard can send the customer away
+        TwoFactorEnabled();
         var get = await _controller.DisableTwoFactorAuthenticator(_providerOnly);
         Assert.AreEqual("CustomerInfo", ((RedirectToRouteResult)get).RouteName);
         var post = await _controller.DisableTwoFactorAuthenticator(
@@ -248,6 +314,14 @@ public class AccountControllerProviderOnlyTests
             new Mock<ITwoFactorAuthenticationService>().Object, _providerOnly);
         Assert.AreEqual("CustomerInfo", ((RedirectToRouteResult)post).RouteName);
         _customers.Verify(c => c.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DisableTwoFactor_Mixed_ShowsForm()
+    {
+        TwoFactorEnabled();
+        var get = await _controller.DisableTwoFactorAuthenticator(new OidcLoginConfig());
+        Assert.IsInstanceOfType<ViewResult>(get);
     }
 
     private void ExistingLinks(params string[] providers)

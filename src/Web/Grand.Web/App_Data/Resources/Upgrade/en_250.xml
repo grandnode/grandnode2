@@ -21,6 +21,9 @@
 	<Resource Name="Account.Login.ExternalSignInUnavailable" Area="Front">
 		<Value>Signing in is possible only through the identity provider, which cannot be reached now. Try again later or contact the store.</Value>
 	</Resource>
+	<Resource Name="Account.Login.SignedInWithoutAccess" Area="Front">
+		<Value>You are signed in, but this account cannot open this page. Sign out to use another account.</Value>
+	</Resource>
 	<Resource Name="Admin.Login.SignedInWithoutAccess" Area="Admin">
 		<Value>You are signed in with an account that has no access to this panel. Sign out to use another account.</Value>
 	</Resource>
