@@ -979,6 +979,11 @@ Register `https://<store-url>/` as a post-logout redirect URI at the provider (o
 * **Keycloak 26.8.** Client `grandnode-login` > *Settings* > *Valid post logout redirect URIs*.
 * **Zitadel v4.19.** The application of section 11.5 > *Redirect settings* > *Post Logout URIs*.
 
+Verified end to end: Keycloak 26.8 shows its own "Do you want to log out?" page before it ends the session, because
+GrandNode sends `client_id` and `post_logout_redirect_uri` but no `id_token_hint`. After the user confirms, Keycloak
+returns to the store's home page. Zitadel v4.19 ends the session without a confirmation page and returns to the store's
+home page.
+
 ### 13.8 Access tokens
 
 In `Mixed` mode a link made by e-mail is re-checked every time an access token uses it (section 3.1). While
