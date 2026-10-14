@@ -29,6 +29,11 @@ public interface IGrandAuthenticationService
     Task SignOut();
 
     /// <summary>
+    ///     Whether the current sign-in cookie references a session started at the identity provider
+    /// </summary>
+    Task<bool> HasOidcSession();
+
+    /// <summary>
     ///     Get authenticated customer
     /// </summary>
     /// <returns>Customer</returns>

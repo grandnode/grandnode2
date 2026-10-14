@@ -305,6 +305,22 @@ public class CookieAuthenticationServiceTests
         _oidcSessionService.Verify(x => x.End("session-1", OidcSessionEndReason.SignOut), Times.Once);
     }
 
+    [TestMethod]
+    public async Task HasOidcSession_SessionCookie_True()
+    {
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
+        Assert.IsTrue(await _cookieAuthService.HasOidcSession());
+    }
+
+    [TestMethod]
+    public async Task HasOidcSession_PlainCookie_False()
+    {
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket(new Claim(ClaimTypes.Email, "a@b.c", ClaimValueTypes.Email, "grandnode")));
+        Assert.IsFalse(await _cookieAuthService.HasOidcSession());
+    }
+
     private (Customer customer, Func<ClaimsPrincipal> signedIn) PrepareSignIn(string customerId)
     {
         ClaimsPrincipal signedIn = null;

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Grand.Web.Common.Security.ExternalRegistration;
 using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
@@ -150,10 +151,24 @@ public class BaseHomeControllerTests
     {
         var controller = CreateController("Admin.Address.SelectState", "VendorLogin");
 
-        var result = (RedirectToRouteResult)await controller.Logout();
+        var providerSignOut = new Mock<IProviderSignOut>();
 
-        _authenticationServiceMock.Verify(a => a.SignOut(), Times.Once);
+        var result = (RedirectToRouteResult)await controller.Logout(providerSignOut.Object);
+
+        providerSignOut.Verify(a => a.SignOut(), Times.Once);
         Assert.AreEqual("VendorLogin", result.RouteName);
+    }
+
+    [TestMethod]
+    public async Task Logout_ProviderUrl_RedirectsToProvider()
+    {
+        var controller = CreateController("Admin.Address.SelectState", "VendorLogin");
+        var providerSignOut = new Mock<IProviderSignOut>();
+        providerSignOut.Setup(a => a.SignOut()).ReturnsAsync("https://idp.example/logout");
+
+        var result = (RedirectResult)await controller.Logout(providerSignOut.Object);
+
+        Assert.AreEqual("https://idp.example/logout", result.Url);
     }
 
     [TestMethod]

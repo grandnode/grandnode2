@@ -363,7 +363,8 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     [IgnoreApi]
     public virtual async Task<IActionResult> Logout(
-        [FromServices] StoreInformationSettings storeInformationSettings)
+        [FromServices] StoreInformationSettings storeInformationSettings,
+        [FromServices] IProviderSignOut providerSignOut)
     {
         if (_contextAccessor.WorkContext.OriginalCustomerIfImpersonated != null)
         {
@@ -379,13 +380,13 @@ public class AccountController : BasePublicController
         //raise event       
         await _mediator.Publish(new CustomerLoggedOutEvent(_contextAccessor.WorkContext.CurrentCustomer));
 
-        //standard logout 
-        await _authenticationService.SignOut();
+        //standard logout, and the provider's end-session URL when the sign-in came from the identity provider
+        var providerUrl = await providerSignOut.SignOut();
 
         //Cookie
         if (storeInformationSettings.DisplayCookieInformation) TempData["Grand.IgnoreCookieInformation"] = true;
 
-        return RedirectToRoute("HomePage");
+        return providerUrl != null ? Redirect(providerUrl) : RedirectToRoute("HomePage");
     }
 
     #endregion
