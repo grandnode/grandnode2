@@ -79,26 +79,68 @@ public class ScheduleTaskService : IScheduleTaskService
     }
 
     /// <summary>
-    ///     Atomically claims a single run of the task (compare-and-set on LastStartUtc)
+    ///     Atomically claims a single run of the task (compare-and-set on LastStartUtc,
+    ///     refused while the lease of a previous run has not run out)
     /// </summary>
     public virtual async Task<bool> TryClaimTaskRun(string taskId, DateTime? expectedLastStartUtc,
-        DateTime runStartUtc, string instanceId)
+        DateTime runStartUtc, DateTime leasedUntilUtc, string instanceId)
     {
         //truncate to milliseconds so the value survives the database round-trip unchanged
-        runStartUtc = new DateTime(runStartUtc.Ticks - runStartUtc.Ticks % TimeSpan.TicksPerMillisecond,
-            DateTimeKind.Utc);
+        runStartUtc = TruncateToMilliseconds(runStartUtc);
 
         //conditional update - matches only when no other instance has claimed the run
         //in the meantime; on MongoDB a single update is atomic, so exactly one instance wins
         await _taskRepository.UpdateOneAsync(
-            x => x.Id == taskId && x.LastStartUtc == expectedLastStartUtc,
+            x => x.Id == taskId && x.LastStartUtc == expectedLastStartUtc &&
+                 (x.LeasedUntilUtc == null || x.LeasedUntilUtc < runStartUtc),
             UpdateBuilder<ScheduleTask>.Create()
                 .Set(x => x.LastStartUtc, runStartUtc)
+                .Set(x => x.LeasedUntilUtc, TruncateToMilliseconds(leasedUntilUtc))
                 .Set(x => x.LeasedByInstance, instanceId));
 
-        //UpdateOneAsync does not report whether the filter matched - read back the winner
+        //UpdateOneAsync does not report whether the filter matched - read back the winner.
+        //LiteDB returns dates as local time, so compare in UTC - otherwise no claim ever
+        //succeeds on a host outside the UTC time zone
         var task = await GetTaskById(taskId);
-        return task != null && task.LeasedByInstance == instanceId && task.LastStartUtc == runStartUtc;
+        return task != null && task.LeasedByInstance == instanceId &&
+               task.LastStartUtc?.ToUniversalTime() == runStartUtc;
+    }
+
+    /// <summary>
+    ///     Extends the lease of a run, only while the given instance still holds it
+    /// </summary>
+    public virtual async Task RenewTaskLease(string taskId, string instanceId, DateTime leasedUntilUtc)
+    {
+        await _taskRepository.UpdateOneAsync(
+            x => x.Id == taskId && x.LeasedByInstance == instanceId && x.LeasedUntilUtc != null,
+            UpdateBuilder<ScheduleTask>.Create()
+                .Set(x => x.LeasedUntilUtc, TruncateToMilliseconds(leasedUntilUtc)));
+    }
+
+    /// <summary>
+    ///     Records the result of a claimed run and releases its lease, only while the given instance still holds it
+    /// </summary>
+    public virtual async Task CompleteTaskRun(string taskId, string instanceId, bool succeeded, DateTime endUtc,
+        bool disableTask)
+    {
+        var update = UpdateBuilder<ScheduleTask>.Create()
+            .Set(x => x.LeasedUntilUtc, null);
+        if (succeeded)
+            update.Set(x => x.LastSuccessUtc, TruncateToMilliseconds(endUtc))
+                .Set(x => x.LastNonSuccessEndUtc, null);
+        else
+            update.Set(x => x.LastNonSuccessEndUtc, TruncateToMilliseconds(endUtc));
+        if (disableTask)
+            update.Set(x => x.Enabled, false);
+
+        //LeasedByInstance changes only with a new claim, so a match means no other instance has
+        //taken the task over - runs of one task on one instance never overlap
+        await _taskRepository.UpdateOneAsync(x => x.Id == taskId && x.LeasedByInstance == instanceId, update);
+    }
+
+    private static DateTime TruncateToMilliseconds(DateTime value)
+    {
+        return new DateTime(value.Ticks - value.Ticks % TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
     }
 
     /// <summary>
