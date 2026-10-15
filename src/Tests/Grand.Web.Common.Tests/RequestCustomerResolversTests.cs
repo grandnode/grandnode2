@@ -134,7 +134,8 @@ public class RequestCustomerResolversTests
     {
         var classifier = new Mock<IUserAgentClassifier>();
         classifier.SetupGet(c => c.IsCrawler).Returns(false);
-        var resolver = new SearchEngineCustomerResolver(classifier.Object, Mock.Of<ICustomerService>());
+        var resolver = new SearchEngineCustomerResolver(classifier.Object, Mock.Of<ICustomerService>(),
+            AccessorWith(new DefaultHttpContext()));
 
         Assert.IsNull(await resolver.Resolve());
         Assert.AreEqual(RequestCustomerResolverOrder.SearchEngine, resolver.Order);
@@ -149,9 +150,24 @@ public class RequestCustomerResolversTests
         customers.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.SearchEngine))
             .ReturnsAsync(new Customer { Id = "crawler" });
 
-        var resolver = new SearchEngineCustomerResolver(classifier.Object, customers.Object);
+        var resolver = new SearchEngineCustomerResolver(classifier.Object, customers.Object,
+            AccessorWith(new DefaultHttpContext()));
 
         Assert.AreEqual("crawler", (await resolver.Resolve()).Id);
+    }
+
+    [TestMethod]
+    public async Task SearchEngine_AuthorizationHeader_ReturnsNull()
+    {
+        var classifier = new Mock<IUserAgentClassifier>();
+        classifier.SetupGet(c => c.IsCrawler).Returns(true);
+        var customers = new Mock<ICustomerService>();
+        var context = new DefaultHttpContext();
+        context.Request.Headers.Authorization = "Bearer token";
+        var resolver = new SearchEngineCustomerResolver(classifier.Object, customers.Object, AccessorWith(context));
+
+        Assert.IsNull(await resolver.Resolve());
+        customers.Verify(c => c.GetCustomerBySystemName(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]

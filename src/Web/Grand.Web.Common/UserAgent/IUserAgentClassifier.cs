@@ -6,7 +6,7 @@ namespace Grand.Web.Common.UserAgent;
 public interface IUserAgentClassifier
 {
     /// <summary>
-    ///     A crawler, a scraper or a plain HTTP client - including a missing User-Agent
+    ///     A crawler identified by its User-Agent. A missing User-Agent or a plain HTTP client is not a crawler
     /// </summary>
     bool IsCrawler { get; }
 

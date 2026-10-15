@@ -29,9 +29,20 @@ public class UserAgentClassifierTests
     [DataRow("Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)")]
     [DataRow("facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)")]
     [DataRow("meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)")]
-    [DataRow("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0.0.0 Safari/537.36")]
     [DataRow("Mozilla/5.0 (compatible; crawler)")]
     [DataRow("Mozilla/5.0 (compatible; SomeSpider/1.0)")]
+    public void IsCrawler_NamedCrawlers_True(string userAgent)
+    {
+        Assert.IsTrue(ClassifierFor(userAgent).IsCrawler);
+    }
+
+    [TestMethod]
+    [DataRow("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")]
+    [DataRow("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15")]
+    [DataRow("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1")]
+    [DataRow("Mozilla/5.0 (Linux; Android 10; CUBOT X30) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36")]
+    [DataRow("Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0")]
+    [DataRow("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0.0.0 Safari/537.36")]
     [DataRow("Scrapy/2.11.0 (+https://scrapy.org)")]
     [DataRow("curl/8.4.0")]
     [DataRow("Wget/1.21")]
@@ -44,18 +55,7 @@ public class UserAgentClassifierTests
     [DataRow("node-fetch/1.0 (+https://github.com/bitinn/node-fetch)")]
     [DataRow("")]
     [DataRow(null)]
-    public void IsCrawler_BotsAndHttpClients_True(string userAgent)
-    {
-        Assert.IsTrue(ClassifierFor(userAgent).IsCrawler);
-    }
-
-    [TestMethod]
-    [DataRow("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")]
-    [DataRow("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15")]
-    [DataRow("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1")]
-    [DataRow("Mozilla/5.0 (Linux; Android 10; CUBOT X30) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36")]
-    [DataRow("Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0")]
-    public void IsCrawler_Browsers_False(string userAgent)
+    public void IsCrawler_BrowsersAndHttpClients_False(string userAgent)
     {
         Assert.IsFalse(ClassifierFor(userAgent).IsCrawler);
     }

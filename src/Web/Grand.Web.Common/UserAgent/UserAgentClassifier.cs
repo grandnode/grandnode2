@@ -13,8 +13,7 @@ public class UserAgentClassifier(IHttpContextAccessor httpContextAccessor) : IUs
 
     //"bot" not preceded by "cu": CUBOT is an Android phone brand
     private static readonly Regex CrawlerPattern = new(
-        "(?<!cu)bot|crawl|spider|slurp|headless|facebookexternalhit|meta-externalagent|scrapy|curl/|wget/|python-|" +
-        "go-http-client|okhttp|java/|httpclient|libwww|axios/|node-fetch",
+        "(?<!cu)bot|crawl|spider|slurp|bytespider|facebookexternalhit|meta-externalagent",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     private static readonly Regex MobileOrTabletPattern = new(
@@ -25,7 +24,7 @@ public class UserAgentClassifier(IHttpContextAccessor httpContextAccessor) : IUs
     private bool? _isMobileOrTablet;
 
     public bool IsCrawler => _isCrawler ??= Classify(userAgent =>
-        string.IsNullOrWhiteSpace(userAgent) || CrawlerPattern.IsMatch(userAgent));
+        !string.IsNullOrWhiteSpace(userAgent) && CrawlerPattern.IsMatch(userAgent));
 
     public bool IsMobileOrTablet => _isMobileOrTablet ??= Classify(userAgent =>
         !string.IsNullOrWhiteSpace(userAgent) && MobileOrTabletPattern.IsMatch(userAgent));

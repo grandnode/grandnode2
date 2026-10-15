@@ -78,11 +78,11 @@ public class WorkContextSetterRequestResolverTests
     }
 
     //registered in a scrambled order on purpose: the setter must sort by Order
-    private IRequestCustomerResolver[] BuiltIns()
+    private IRequestCustomerResolver[] BuiltIns(IUserAgentClassifier classifier = null)
     {
         return [
             new ApiUserCustomerResolver(_apiAuthentication.Object, _accessor.Object, _customerService.Object),
-            new SearchEngineCustomerResolver(_userAgent.Object, _customerService.Object),
+            new SearchEngineCustomerResolver(classifier ?? _userAgent.Object, _customerService.Object, _accessor.Object),
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, _groupService.Object),
             new CookieCustomerResolver(_authentication.Object),
             new AllowAnonymousCustomerResolver(_accessor.Object, _customerService.Object)
@@ -131,6 +131,23 @@ public class WorkContextSetterRequestResolverTests
         _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         var customer = await CreateSetter(BuiltIns()).CurrentCustomerForTest(new Store());
         Assert.AreEqual("guest", customer.Id);
+    }
+
+    [TestMethod]
+    [DataRow("python-requests/2.31.0")]
+    [DataRow("")]
+    public async Task BuiltIns_ApiClientWithRealClassifier_ResolvesToApiCustomer(string userAgent)
+    {
+        _httpContext.Request.Headers.UserAgent = userAgent;
+        _httpContext.Request.Headers.Authorization = "Bearer token";
+        _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.SearchEngine))
+            .ReturnsAsync(new Customer { Id = "crawler", IsSystemAccount = true });
+        _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api", Active = true });
+
+        var customer = await CreateSetter(BuiltIns(new UserAgentClassifier(_accessor.Object)))
+            .CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("api", customer.Id);
     }
 
     [TestMethod]

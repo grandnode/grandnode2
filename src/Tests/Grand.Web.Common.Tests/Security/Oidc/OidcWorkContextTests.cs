@@ -91,7 +91,7 @@ public class OidcWorkContextTests
         services.AddSingleton<IRequestCustomerResolver>(
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, Mock.Of<IGroupService>()));
         services.AddSingleton<IRequestCustomerResolver>(
-            new SearchEngineCustomerResolver(Mock.Of<IUserAgentClassifier>(), _customerService.Object));
+            new SearchEngineCustomerResolver(Mock.Of<IUserAgentClassifier>(), _customerService.Object, _accessor.Object));
         services.AddSingleton<IRequestCustomerResolver>(
             new AllowAnonymousCustomerResolver(_accessor.Object, _customerService.Object));
         return new TestableSetter(_accessor.Object, _authentication.Object, Mock.Of<ICurrencyService>(),
