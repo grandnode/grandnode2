@@ -126,9 +126,8 @@ public class StartupApplication : IStartupApplication
         }
         else
         {
-            var provider = serviceCollection.BuildServiceProvider();
-            var tmp = provider.GetRequiredService<IStringLocalizerFactory>();
-            serviceCollection.AddScoped(_ => new LocService(tmp));
+            serviceCollection.AddScoped<LocService>(sp =>
+                new LocService(sp.GetRequiredService<IStringLocalizerFactory>()));
         }
 
         //powered by
