@@ -16,9 +16,9 @@ public class CategorySchemaProperty : ISchemaProperty<Category>
 
     public virtual async Task<PropertyByName<Category>[]> GetProperties(IEnumerable<Category> items)
     {
-        var pictures = new Dictionary<Category, string>(ReferenceEqualityComparer.Instance);
-        foreach (var item in items)
-            pictures[item] = await GetPictures(item.PictureId);
+        var pictures = new Dictionary<string, string>();
+        foreach (var pictureId in items.Select(x => x.PictureId ?? "").Distinct())
+            pictures[pictureId] = await GetPictures(pictureId);
 
         var properties = new[] {
             new PropertyByName<Category>("Id", p => p.Id),
@@ -30,7 +30,7 @@ public class CategorySchemaProperty : ISchemaProperty<Category>
             new PropertyByName<Category>("MetaTitle", p => p.MetaTitle),
             new PropertyByName<Category>("SeName", p => p.SeName),
             new PropertyByName<Category>("ParentCategoryId", p => p.ParentCategoryId),
-            new PropertyByName<Category>("Picture", p => pictures.GetValueOrDefault(p)),
+            new PropertyByName<Category>("Picture", p => pictures.GetValueOrDefault(p.PictureId ?? "")),
             new PropertyByName<Category>("PageSize", p => p.PageSize),
             new PropertyByName<Category>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
             new PropertyByName<Category>("PageSizeOptions", p => p.PageSizeOptions),

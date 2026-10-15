@@ -47,6 +47,23 @@ public class SchemaPropertyTests
     }
 
     [TestMethod]
+    public async Task Product_PictureColumns_DoNotDependOnRowInstances()
+    {
+        var product = new Product();
+        product.ProductPictures.Add(new ProductPicture { PictureId = "p1" });
+        var sameProduct = new Product();
+        sameProduct.ProductPictures.Add(new ProductPicture { PictureId = "p1" });
+
+        var properties = await new ProductSchemaProperty(_pictureService.Object).GetProperties([product, sameProduct]);
+
+        Assert.AreEqual("/thumbs/p1.jpg", Value(properties, "Picture1", new Product {
+            ProductPictures = { new ProductPicture { PictureId = "p1" } }
+        }));
+        //a picture shared by several rows is loaded once
+        _pictureService.Verify(x => x.GetPictureById("p1"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Brand_PictureColumn_ReadsPreloadedPicture()
     {
         var brand = new Brand { PictureId = "b1" };
@@ -54,6 +71,21 @@ public class SchemaPropertyTests
         var properties = await new BrandSchemaProperty(_pictureService.Object).GetProperties([brand]);
 
         Assert.AreEqual("/thumbs/b1.jpg", Value(properties, "Picture", brand));
+        Assert.AreEqual("/thumbs/b1.jpg", Value(properties, "Picture", new Brand { PictureId = "b1" }));
+    }
+
+    [TestMethod]
+    public async Task Brand_PictureColumn_WithoutPicture_UsesPictureServiceResult()
+    {
+        _pictureService.Setup(x => x.GetPictureById(""))
+            .ReturnsAsync((Picture)null);
+        _pictureService.Setup(x => x.GetThumbPhysicalPath(null, It.IsAny<int>(), It.IsAny<bool>()))
+            .ReturnsAsync("/thumbs/default.jpg");
+        var brand = new Brand { PictureId = null };
+
+        var properties = await new BrandSchemaProperty(_pictureService.Object).GetProperties([brand]);
+
+        Assert.AreEqual("/thumbs/default.jpg", Value(properties, "Picture", brand));
     }
 
     [TestMethod]

@@ -16,9 +16,9 @@ public class CollectionSchemaProperty : ISchemaProperty<Collection>
 
     public virtual async Task<PropertyByName<Collection>[]> GetProperties(IEnumerable<Collection> items)
     {
-        var pictures = new Dictionary<Collection, string>(ReferenceEqualityComparer.Instance);
-        foreach (var item in items)
-            pictures[item] = await GetPictures(item.PictureId);
+        var pictures = new Dictionary<string, string>();
+        foreach (var pictureId in items.Select(x => x.PictureId ?? "").Distinct())
+            pictures[pictureId] = await GetPictures(pictureId);
 
         var properties = new[] {
             new PropertyByName<Collection>("Id", p => p.Id),
@@ -29,7 +29,7 @@ public class CollectionSchemaProperty : ISchemaProperty<Collection>
             new PropertyByName<Collection>("MetaDescription", p => p.MetaDescription),
             new PropertyByName<Collection>("MetaTitle", p => p.MetaTitle),
             new PropertyByName<Collection>("SeName", p => p.SeName),
-            new PropertyByName<Collection>("Picture", p => pictures.GetValueOrDefault(p)),
+            new PropertyByName<Collection>("Picture", p => pictures.GetValueOrDefault(p.PictureId ?? "")),
             new PropertyByName<Collection>("PageSize", p => p.PageSize),
             new PropertyByName<Collection>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
             new PropertyByName<Collection>("PageSizeOptions", p => p.PageSizeOptions),

@@ -17,9 +17,10 @@ public class ProductSchemaProperty : ISchemaProperty<Product>
 
     public virtual async Task<PropertyByName<Product>[]> GetProperties(IEnumerable<Product> items)
     {
-        var pictures = new Dictionary<Product, string[]>(ReferenceEqualityComparer.Instance);
-        foreach (var item in items)
-            pictures[item] = await GetPictures(item);
+        var pictures = new Dictionary<string, string>();
+        var pictureIds = items.SelectMany(x => x.ProductPictures.Take(3)).Select(x => x.PictureId ?? "").Distinct();
+        foreach (var pictureId in pictureIds)
+            pictures[pictureId] = await GetPicture(pictureId);
 
         var properties = new[] {
             new PropertyByName<Product>("Id", p => p.Id),
@@ -122,39 +123,22 @@ public class ProductSchemaProperty : ISchemaProperty<Product>
                 p => string.Join(";", p.ProductCategories.Select(n => n.CategoryId).ToArray())),
             new PropertyByName<Product>("CollectionIds",
                 p => string.Join(";", p.ProductCollections.Select(n => n.CollectionId).ToArray())),
-            new PropertyByName<Product>("Picture1", p => pictures.GetValueOrDefault(p)?[0]),
-            new PropertyByName<Product>("Picture2", p => pictures.GetValueOrDefault(p)?[1]),
-            new PropertyByName<Product>("Picture3", p => pictures.GetValueOrDefault(p)?[2])
+            new PropertyByName<Product>("Picture1", p => GetPicturePath(pictures, p, 0)),
+            new PropertyByName<Product>("Picture2", p => GetPicturePath(pictures, p, 1)),
+            new PropertyByName<Product>("Picture3", p => GetPicturePath(pictures, p, 2))
         };
         return properties;
     }
 
-    private async Task<string[]> GetPictures(Product product)
+    private async Task<string> GetPicture(string pictureId)
     {
-        string picture1 = null;
-        string picture2 = null;
-        string picture3 = null;
-        var i = 0;
-        foreach (var picture in product.ProductPictures.Take(3))
-        {
-            var pic = await _pictureService.GetPictureById(picture.PictureId);
-            var pictureLocalPath = await _pictureService.GetThumbPhysicalPath(pic);
-            switch (i)
-            {
-                case 0:
-                    picture1 = pictureLocalPath;
-                    break;
-                case 1:
-                    picture2 = pictureLocalPath;
-                    break;
-                case 2:
-                    picture3 = pictureLocalPath;
-                    break;
-            }
+        var picture = await _pictureService.GetPictureById(pictureId);
+        return await _pictureService.GetThumbPhysicalPath(picture);
+    }
 
-            i++;
-        }
-
-        return [picture1, picture2, picture3];
+    private static string GetPicturePath(Dictionary<string, string> pictures, Product product, int index)
+    {
+        var productPicture = product.ProductPictures.ElementAtOrDefault(index);
+        return productPicture != null ? pictures.GetValueOrDefault(productPicture.PictureId ?? "") : null;
     }
 }

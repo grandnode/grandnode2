@@ -16,9 +16,9 @@ public class BrandSchemaProperty : ISchemaProperty<Brand>
 
     public virtual async Task<PropertyByName<Brand>[]> GetProperties(IEnumerable<Brand> items)
     {
-        var pictures = new Dictionary<Brand, string>(ReferenceEqualityComparer.Instance);
-        foreach (var item in items)
-            pictures[item] = await GetPictures(item.PictureId);
+        var pictures = new Dictionary<string, string>();
+        foreach (var pictureId in items.Select(x => x.PictureId ?? "").Distinct())
+            pictures[pictureId] = await GetPictures(pictureId);
 
         var properties = new[] {
             new PropertyByName<Brand>("Id", p => p.Id),
@@ -29,7 +29,7 @@ public class BrandSchemaProperty : ISchemaProperty<Brand>
             new PropertyByName<Brand>("MetaDescription", p => p.MetaDescription),
             new PropertyByName<Brand>("MetaTitle", p => p.MetaTitle),
             new PropertyByName<Brand>("SeName", p => p.SeName),
-            new PropertyByName<Brand>("Picture", p => pictures.GetValueOrDefault(p)),
+            new PropertyByName<Brand>("Picture", p => pictures.GetValueOrDefault(p.PictureId ?? "")),
             new PropertyByName<Brand>("PageSize", p => p.PageSize),
             new PropertyByName<Brand>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
             new PropertyByName<Brand>("PageSizeOptions", p => p.PageSizeOptions),
