@@ -18,7 +18,7 @@ public class MigrationManagerTests
     [TestMethod]
     public void GetCurrentMigrationsTest()
     {
-        var result = migrationManager.GetCurrentMigrations(new DbVersion(2,4));
+        var result = migrationManager.GetCurrentMigrations(new DbVersion(2,5));
         Assert.AreEqual(1, result.Count());
     }
 }
