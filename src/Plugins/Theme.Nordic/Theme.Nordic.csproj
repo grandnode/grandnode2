@@ -17,7 +17,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj">
+		<!-- the storefront view models; the host already loads this assembly -->
+		<ProjectReference Include="..\..\Web\Grand.Web.Models\Grand.Web.Models.csproj">
 			<Private>false</Private>
 			<ExcludeAssets>all</ExcludeAssets>
 		</ProjectReference>
