@@ -33,6 +33,7 @@
 [![Tests on Linux, macOS and Windows](https://github.com/grandnode/grandnode2/actions/workflows/aspnetcore.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/aspnetcore.yml)
 [![Docker Image CI](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml)
 [![CodeQL Advanced](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml)
+[![Trivy](https://github.com/grandnode/grandnode2/actions/workflows/trivy.yml/badge.svg?branch=develop)](https://github.com/grandnode/grandnode2/actions/workflows/trivy.yml)
 
 </div>
 
