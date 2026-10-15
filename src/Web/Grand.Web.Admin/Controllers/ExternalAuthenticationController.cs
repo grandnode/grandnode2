@@ -47,7 +47,7 @@ public class ExternalAuthenticationController : BaseAdminController
         [FromServices] IOidcLinkService linkService)
     {
         //the account links of the OpenID Connect provider, only while it is configured
-        if (!resourceServerConfig.Enabled || string.IsNullOrWhiteSpace(resourceServerConfig.Authority))
+        if (!ResourceServerConfigured(resourceServerConfig))
             return View();
 
         var state = await linkService.GetState();
@@ -55,7 +55,8 @@ public class ExternalAuthenticationController : BaseAdminController
             ConfiguredAuthority = state.ConfiguredAuthority,
             LinkedAuthority = state.LinkedAuthority,
             LinkCount = state.LinkCount,
-            ProviderChanged = state.ProviderChanged
+            ProviderChanged = state.ProviderChanged,
+            ProviderUnknown = state.ProviderUnknown
         });
     }
 
@@ -63,8 +64,12 @@ public class ExternalAuthenticationController : BaseAdminController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> RemoveOidcLinks([FromServices] IOidcLinkService linkService,
-        [FromServices] ITranslationService translationService)
+        [FromServices] ITranslationService translationService, [FromServices] OidcResourceServerConfig resourceServerConfig)
     {
+        //the links are recorded for the configured provider: without one there is nothing to record them for
+        if (!ResourceServerConfigured(resourceServerConfig))
+            return RedirectToAction("Methods");
+
         var count = await linkService.RemoveAll();
         Success(string.Format(translationService.GetResource("Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Removed"),
             count));
@@ -75,12 +80,18 @@ public class ExternalAuthenticationController : BaseAdminController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> KeepOidcLinks([FromServices] IOidcLinkService linkService,
-        [FromServices] ITranslationService translationService)
+        [FromServices] ITranslationService translationService, [FromServices] OidcResourceServerConfig resourceServerConfig)
     {
+        if (!ResourceServerConfigured(resourceServerConfig))
+            return RedirectToAction("Methods");
+
         await linkService.KeepAll();
         Success(translationService.GetResource("Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Kept"));
         return RedirectToAction("Methods");
     }
+
+    private static bool ResourceServerConfigured(OidcResourceServerConfig config) =>
+        config.Enabled && !string.IsNullOrWhiteSpace(config.Authority);
 
     [HttpPost]
     public IActionResult Methods(DataSourceRequest command)

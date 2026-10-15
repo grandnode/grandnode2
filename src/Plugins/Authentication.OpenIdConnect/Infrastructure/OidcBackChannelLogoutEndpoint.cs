@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -69,10 +70,20 @@ public static class OidcBackChannelLogoutEndpoint
 
         try
         {
-            var sessionService = services.GetRequiredService<IOidcSessionService>();
-            var ended = logout.Sid != null
-                ? await sessionService.EndBySid(logout.Subject, logout.Sid)
-                : await sessionService.EndBySubject(logout.Subject);
+            //the sessions were started at the provider the links belong to: while that is not the configured one, a
+            //subject or sid of the configured provider may name another person's session - the subject's tokens are
+            //still refused (a token is checked against the subject of its own issuer)
+            IList<OidcSession> ended = [];
+            if (await services.GetRequiredService<IOidcLinkService>().LinksMatchProvider())
+            {
+                var sessionService = services.GetRequiredService<IOidcSessionService>();
+                ended = logout.Sid != null
+                    ? await sessionService.EndBySid(logout.Subject, logout.Sid)
+                    : await sessionService.EndBySubject(logout.Subject);
+            }
+            else
+                logger.LogWarning("Back-channel logout: no session ended, the identity provider changed and the account " +
+                                  "links are not reviewed yet");
 
             //a logout token with sid only names the subject through the sessions it ended
             var subjects = logout.Subject != null

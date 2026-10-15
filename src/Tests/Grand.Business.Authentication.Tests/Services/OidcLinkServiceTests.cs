@@ -67,8 +67,53 @@ public class OidcLinkServiceTests
     public async Task OtherProvider_DoesNotMatch_NothingAdopted()
     {
         _stored.Authority = "https://old-idp.example";
+        await Link("c1");
         Assert.IsFalse(await Service().LinksMatchProvider());
         Assert.AreEqual("https://old-idp.example", _stored.Authority);
+    }
+
+    //nobody connected yet: no subject could select another person's account
+    [TestMethod]
+    public async Task OtherProvider_NoLinks_AdoptsTheConfiguredProvider()
+    {
+        _stored.Authority = "https://old-idp.example";
+        await Link("c1", "ExternalAuth.Google", "g-1");
+        Assert.IsTrue(await Service().LinksMatchProvider());
+        Assert.AreEqual("https://idp.example/realms/shop", _stored.Authority);
+    }
+
+    //links made before the provider was recorded: the provider may have changed with the same upgrade
+    [TestMethod]
+    public async Task LinksOfAnUnrecordedProvider_DoNotMatch_NothingAdopted()
+    {
+        await Link("c1");
+        Assert.IsFalse(await Service().LinksMatchProvider());
+        Assert.IsTrue(string.IsNullOrEmpty(_stored.Authority));
+
+        var state = await Service().GetState();
+        Assert.IsTrue(state.ProviderUnknown);
+        Assert.IsTrue(state.ProviderChanged);
+    }
+
+    //concurrent first requests record the provider once (each save clears the whole cache)
+    [TestMethod]
+    public async Task FirstUse_ConcurrentRequests_RecordTheProviderOnce()
+    {
+        _settings.Setup(x => x.SaveSetting(It.IsAny<OidcLinkSettings>(), It.IsAny<string>()))
+            .Callback((OidcLinkSettings s, string _) => _stored = s).Returns(() => Task.Delay(50));
+
+        var results = await Task.WhenAll(Enumerable.Range(0, 5).Select(_ => Service().LinksMatchProvider()));
+
+        Assert.IsTrue(results.All(x => x));
+        _settings.Verify(x => x.SaveSetting(It.IsAny<OidcLinkSettings>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task NoConfiguredProvider_NothingRecorded()
+    {
+        _config.Authority = "";
+        await Service().KeepAll();
+        _settings.Verify(x => x.SaveSetting(It.IsAny<OidcLinkSettings>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -89,6 +134,13 @@ public class OidcLinkServiceTests
     [TestMethod]
     public async Task GetState_BeforeFirstUse_NotChanged()
     {
+        Assert.IsFalse((await Service().GetState()).ProviderChanged);
+    }
+
+    [TestMethod]
+    public async Task GetState_OtherProviderWithoutLinks_NotChanged()
+    {
+        _stored.Authority = "https://old-idp.example";
         Assert.IsFalse((await Service().GetState()).ProviderChanged);
     }
 

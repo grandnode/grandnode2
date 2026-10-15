@@ -21,6 +21,7 @@ public class OidcSsoSignInPolicyTests
     private OidcLoginConfig _config;
     private OidcResourceServerConfig _resourceServer;
     private IMemoryCache _cache;
+    private Mock<IOidcLinkService> _linkService;
     private readonly Customer _customer = new() { Id = "c1" };
 
     [TestInitialize]
@@ -28,6 +29,8 @@ public class OidcSsoSignInPolicyTests
     {
         _links = new MongoDBRepositoryTest<ExternalAuthentication>();
         _cache = new MemoryCache(new MemoryCacheOptions());
+        _linkService = new Mock<IOidcLinkService>();
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
         _provider = new Mock<IExternalAuthenticationProvider>();
         _provider.Setup(x => x.SystemName).Returns(OidcCustomerResolver.ProviderSystemName);
         _provider.Setup(x => x.FriendlyName).Returns("OpenID Connect");
@@ -38,7 +41,7 @@ public class OidcSsoSignInPolicyTests
 
     private OidcSsoSignInPolicy Policy(params IExternalAuthenticationProvider[] providers) =>
         new(_links, providers.Length > 0 ? providers : [_provider.Object], _settings, _config, _resourceServer,
-            _cache, NullLogger<OidcSsoSignInPolicy>.Instance);
+            _cache, _linkService.Object, NullLogger<OidcSsoSignInPolicy>.Instance);
 
     private Task Link(bool byEmail) => _links.InsertAsync(new ExternalAuthentication {
         CustomerId = "c1", ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "sub-1",
@@ -55,6 +58,15 @@ public class OidcSsoSignInPolicyTests
         var decision = await Policy().PasswordSignIn(_customer, SignInSurface.Storefront);
         Assert.IsFalse(decision.Allowed);
         Assert.AreSame(_provider.Object, decision.Provider);
+    }
+
+    //the provider sign-in is refused until the links are reviewed: requiring it would lock the account out
+    [TestMethod]
+    public async Task ConfirmedLink_ProviderChanged_PasswordAllowed()
+    {
+        await Link(byEmail: false);
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(false);
+        Assert.IsTrue((await Policy().PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
     }
 
     //break-glass: an account never connected to the provider keeps its password
@@ -90,7 +102,7 @@ public class OidcSsoSignInPolicyTests
     {
         await Link(byEmail: false);
         Assert.IsTrue((await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
-            _cache, NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
+            _cache, _linkService.Object, NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront)).Allowed);
     }
 
     [TestMethod]
@@ -166,7 +178,7 @@ public class OidcSsoSignInPolicyTests
     {
         ProviderOnly();
         var decision = await new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer,
-            _cache, NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront);
+            _cache, _linkService.Object, NullLogger<OidcSsoSignInPolicy>.Instance).PasswordSignIn(_customer, SignInSurface.Storefront);
         Assert.IsFalse(decision.Allowed);
         Assert.IsNull(decision.Provider);
     }
@@ -177,7 +189,7 @@ public class OidcSsoSignInPolicyTests
     {
         ProviderOnly();
         var logger = new Mock<ILogger<OidcSsoSignInPolicy>>();
-        var policy = new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer, _cache, logger.Object);
+        var policy = new OidcSsoSignInPolicy(_links, [], _settings, _config, _resourceServer, _cache, _linkService.Object, logger.Object);
         await policy.PasswordSignIn(_customer, SignInSurface.Storefront);
         await policy.PasswordSignIn(_customer, SignInSurface.Storefront);
         logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), null,

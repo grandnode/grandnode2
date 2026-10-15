@@ -7,4 +7,5 @@ public class OidcLinksModel
     public string LinkedAuthority { get; set; }
     public long LinkCount { get; set; }
     public bool ProviderChanged { get; set; }
+    public bool ProviderUnknown { get; set; }
 }

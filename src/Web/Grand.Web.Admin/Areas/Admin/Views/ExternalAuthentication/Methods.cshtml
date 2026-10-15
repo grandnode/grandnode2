@@ -42,7 +42,14 @@
     @if (Model != null)
     {
         <admin-card title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks"]">
-            @if (Model.ProviderChanged)
+            @if (Model.ProviderUnknown)
+            {
+                <div class="alert alert-danger">
+                    @string.Format(Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.ProviderUnknown"].Value,
+                        Model.ConfiguredAuthority)
+                </div>
+            }
+            else if (Model.ProviderChanged)
             {
                 <div class="alert alert-danger">
                     @string.Format(Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.ProviderChanged"].Value,

@@ -30,6 +30,7 @@ public class CookieAuthenticationServiceTests
     private CookieOptionsFactory _cookieOptionsFactory;
     private Mock<IOidcSessionService> _oidcSessionService;
     private Mock<IExternalSignInPolicy> _signInPolicy;
+    private Mock<IOidcLinkService> _linkService;
 
     [TestInitialize]
     public void Init()
@@ -46,6 +47,8 @@ public class CookieAuthenticationServiceTests
         _cookieOptionsFactory = new CookieOptionsFactory(_config);
         _oidcSessionService = new Mock<IOidcSessionService>();
         _signInPolicy = new Mock<IExternalSignInPolicy>();
+        _linkService = new Mock<IOidcLinkService>();
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
         _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(PasswordSignInDecision.Password);
         _cookieAuthService = NewService();
@@ -205,7 +208,8 @@ public class CookieAuthenticationServiceTests
 
     private CookieAuthenticationService NewService() => new(_customerSettings, _customerServiceMock.Object,
         _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config,
-        _oidcSessionService.Object, _signInPolicy.Object, NullLogger<CookieAuthenticationService>.Instance);
+        _oidcSessionService.Object, _signInPolicy.Object, _linkService.Object,
+        NullLogger<CookieAuthenticationService>.Instance);
 
     [TestMethod]
     public async Task GetAuthenticatedCustomer_NoSessionClaim_SessionServiceNotAsked()
@@ -283,6 +287,19 @@ public class CookieAuthenticationServiceTests
             .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
         _oidcSessionService.Setup(x => x.Validate("session-1", customer)).ReturnsAsync(true);
         Assert.AreSame(customer, await _cookieAuthService.GetAuthenticatedCustomer());
+    }
+
+    //the session was started at the provider the links belong to, not at the configured one: never confirmed there
+    [TestMethod]
+    public async Task GetAuthenticatedCustomer_ProviderChanged_SessionNotUsed()
+    {
+        var customer = RegisteredCustomer();
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
+            .ReturnsAsync(Ticket(new Claim(OidcSessionDefaults.SessionIdClaimType, "session-1", ClaimValueTypes.String, "grandnode")));
+        _oidcSessionService.Setup(x => x.Validate("session-1", customer)).ReturnsAsync(true);
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(false);
+        Assert.IsNull(await _cookieAuthService.GetAuthenticatedCustomer());
+        _oidcSessionService.Verify(x => x.Validate(It.IsAny<string>(), It.IsAny<Customer>()), Times.Never);
     }
 
     //a claim not issued by the cookie (another issuer) is not a session reference

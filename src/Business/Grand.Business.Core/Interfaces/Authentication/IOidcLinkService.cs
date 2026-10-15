@@ -9,8 +9,9 @@ namespace Grand.Business.Core.Interfaces.Authentication;
 public interface IOidcLinkService
 {
     /// <summary>
-    ///     False when OidcResourceServer:Authority differs from the provider the links were made with: no link may then be
-    ///     used or made until an administrator removes or keeps them. The first call adopts the configured provider
+    ///     False when OidcResourceServer:Authority differs from the provider the links were made with, or links exist and
+    ///     their provider was never recorded: no link may then be used or made until an administrator removes or keeps
+    ///     them. Without any link the configured provider is adopted
     /// </summary>
     Task<bool> LinksMatchProvider();
 
@@ -32,8 +33,12 @@ public interface IOidcLinkService
 /// <param name="LinkCount">Stored OpenID Connect links</param>
 public sealed record OidcLinkState(string ConfiguredAuthority, string LinkedAuthority, long LinkCount)
 {
-    public bool ProviderChanged => !string.IsNullOrEmpty(LinkedAuthority) &&
-                                   !OidcAuthority.SameProvider(LinkedAuthority, ConfiguredAuthority);
+    /// <summary>Links exist and their provider differs from the configured one, or was never recorded</summary>
+    public bool ProviderChanged => LinkCount > 0 &&
+                                   (ProviderUnknown || !OidcAuthority.SameProvider(LinkedAuthority, ConfiguredAuthority));
+
+    /// <summary>Links exist that were made before their provider was recorded</summary>
+    public bool ProviderUnknown => LinkCount > 0 && string.IsNullOrEmpty(LinkedAuthority);
 }
 
 public static class OidcAuthority

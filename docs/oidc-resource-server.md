@@ -217,14 +217,22 @@ on unless every endpoint the resource covers scopes its data.
 **One link.** *Customers > Customers >* a customer *> Info* lists the customer's external sign-ins (Admin and Store
 panels, within the panel's scope). Deleting the OpenID Connect row removes the link and ends the customer's sessions
 started at the provider; the next provider sign-in connects the account again by the rules above. Use it when a person
-was deleted and created again at the provider ("already connected to another identity provider account").
+was deleted and created again at the provider ("already connected to another identity provider account"). The row is
+listed even when only the resource server is used, without the sign-in plugin. Removing a link does not bring back
+tokens refused by a back-channel logout: revocations are kept apart from the links.
 
-**Changing `Authority`.** The store records the provider the links were made with (`OidcLinkSettings`, the first use
-adopts the configured `Authority`; trailing slash and case do not matter). After `Authority` changes, a subject of the
-new provider equal to a stored one would select another person's account, so until an administrator decides:
+**Changing `Authority`.** The store records the provider the links were made with (`OidcLinkSettings`; trailing slash
+and case do not matter). While no OpenID Connect link exists, the configured `Authority` is adopted at once, so a fresh
+installation, or a provider changed before anyone connected, needs nothing. When links exist and `Authority` differs
+from the recorded provider, or links exist and no provider was recorded yet (links made before this version: the
+provider may have changed with the same upgrade), a subject of the configured provider equal to a stored one could
+select another person's account, so until an administrator decides:
 
 * provider sign-in is refused ("Signing in with the identity provider is paused…"), access tokens get 403, and no link
   is made;
+* sessions started at the previous provider are not used (the browser signs in again) and are not confirmed at the new
+  one; a back-channel logout ends no session, it only refuses the subject's older tokens. With `SsoOnly`, accounts
+  keep their password meanwhile;
 * the log gets an error (at most once in five minutes) naming both addresses;
 * *Configuration > External authentication* shows the change in the *OpenID Connect account links* card.
 
@@ -881,7 +889,8 @@ rules of section 11.2 and the session limits of section 12.2 apply.
 * **No RP-initiated logout in `Mixed` mode.** Signing out of GrandNode does not sign out of the provider (section 11.6).
   Only the provider's back-channel logout reaches GrandNode. `ProviderOnly` also ends the provider session (section 13.7).
 * Ended sessions are deleted by the scheduled task **Delete OpenID Connect sessions** (daily, enabled by default).
-  Records are kept for 7 days after they end. Most sessions end with the browser, without a sign-out: a session not
+  Records are kept for 7 days after they end. The same task deletes token revocations (back-channel logout, a refusal
+  at the provider) older than 7 days, longer than an access token lives. Most sessions end with the browser, without a sign-out: a session not
   confirmed at the provider for 30 days is deleted with its refresh token. A new provider sign-in of the same account in
   the same browser ends the session it replaces.
 * With several instances, one refresh of a session runs at a time on all of them (a lease on the session record), so a

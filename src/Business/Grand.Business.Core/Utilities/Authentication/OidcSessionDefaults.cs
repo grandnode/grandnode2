@@ -16,4 +16,10 @@ public static class OidcSessionDefaults
     ///     providers drop an unused offline session after about as long)
     /// </summary>
     public static readonly TimeSpan AbandonedAfter = TimeSpan.FromDays(30);
+
+    /// <summary>
+    ///     How long a token revocation is kept: longer than an identity provider's access token lives, so no token it
+    ///     refused becomes valid again
+    /// </summary>
+    public static readonly TimeSpan RevocationRetention = TimeSpan.FromDays(7);
 }

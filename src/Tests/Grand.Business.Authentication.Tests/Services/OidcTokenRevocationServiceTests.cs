@@ -1,4 +1,5 @@
 using Grand.Business.Authentication.Services;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
@@ -9,55 +10,75 @@ namespace Grand.Business.Authentication.Tests.Services;
 [TestClass]
 public class OidcTokenRevocationServiceTests
 {
-    private IRepository<ExternalAuthentication> _links;
+    private IRepository<OidcTokenRevocation> _revocations;
     private OidcTokenRevocationService _service;
 
     [TestInitialize]
     public void Init()
     {
-        _links = new MongoDBRepositoryTest<ExternalAuthentication>();
-        _service = new OidcTokenRevocationService(_links);
+        _revocations = new MongoDBRepositoryTest<OidcTokenRevocation>();
+        _service = new OidcTokenRevocationService(_revocations);
     }
-
-    private Task Link(string customerId, string sub, string provider = OidcCustomerResolver.ProviderSystemName, string storeId = "") =>
-        _links.InsertAsync(new ExternalAuthentication {
-            CustomerId = customerId, ExternalIdentifier = sub, ProviderSystemName = provider, StoreId = storeId
-        });
 
     [TestMethod]
     public async Task NeverRevoked_NotRevoked()
     {
-        await Link("c1", "sub-1");
         Assert.IsFalse(await _service.IsRevoked("sub-1", DateTime.UtcNow.AddHours(-1)));
     }
 
     [TestMethod]
     public async Task Revoke_OlderTokenRevoked_NewerAccepted()
     {
-        await Link("c1", "sub-1");
         await _service.RevokeTokens("sub-1");
         Assert.IsTrue(await _service.IsRevoked("sub-1", DateTime.UtcNow.AddMinutes(-1)));
         Assert.IsFalse(await _service.IsRevoked("sub-1", DateTime.UtcNow.AddMinutes(1)));
+        Assert.IsFalse(await _service.IsRevoked("sub-2", DateTime.UtcNow.AddMinutes(-1)));
     }
 
-    //with per-store identity a subject has one link per store: all of them stop the old tokens
+    //a subject without a link yet (API tokens only) is revoked as well: a link made later does not bring the tokens back
     [TestMethod]
-    public async Task Revoke_EveryLinkOfTheSubject_OnlyOpenIdConnect()
+    public async Task Revoke_KeptApartFromLinks_OneRecordPerSubject()
     {
-        await Link("c1", "sub-1", storeId: "s1");
-        await Link("c2", "sub-1", storeId: "s2");
-        await Link("c3", "sub-1", provider: "ExternalAuth.Google");
-        await Link("c4", "sub-2");
+        await _service.RevokeTokens("sub-1");
         await _service.RevokeTokens("sub-1");
 
-        var revoked = _links.Table.Where(x => x.TokensRevokedBeforeUtc != null).Select(x => x.CustomerId).ToList();
-        CollectionAssert.AreEquivalent(new[] { "c1", "c2" }, revoked);
+        Assert.AreEqual(1, _revocations.Table.Count(x => x.Subject == "sub-1"));
+        Assert.AreEqual(OidcTokenRevocationService.RevocationId("sub-1"), _revocations.Table.Single().Id);
     }
 
     [TestMethod]
-    public async Task UnknownSubject_NotRevoked_RevokeDoesNothing()
+    public async Task RevokeAgain_MovesTheTimeForward()
     {
-        await _service.RevokeTokens("nobody");
-        Assert.IsFalse(await _service.IsRevoked("nobody", DateTime.UtcNow.AddHours(-1)));
+        var id = OidcTokenRevocationService.RevocationId("sub-1");
+        await _revocations.InsertAsync(new OidcTokenRevocation {
+            Id = id, Subject = "sub-1", RevokedBeforeUtc = DateTime.UtcNow.AddHours(-2)
+        });
+        Assert.IsFalse(await _service.IsRevoked("sub-1", DateTime.UtcNow.AddHours(-1)));
+
+        await _service.RevokeTokens("sub-1");
+
+        Assert.IsTrue(await _service.IsRevoked("sub-1", DateTime.UtcNow.AddHours(-1)));
+    }
+
+    //subjects are case-sensitive
+    [TestMethod]
+    public async Task Revoke_SubjectCaseMatters()
+    {
+        await _service.RevokeTokens("Sub-1");
+        Assert.IsFalse(await _service.IsRevoked("sub-1", DateTime.UtcNow.AddMinutes(-1)));
+    }
+
+    [TestMethod]
+    public async Task DeleteExpired_KeepsRecentRevocations()
+    {
+        await _revocations.InsertAsync(new OidcTokenRevocation {
+            Id = OidcTokenRevocationService.RevocationId("old"), Subject = "old",
+            RevokedBeforeUtc = DateTime.UtcNow - OidcSessionDefaults.RevocationRetention - TimeSpan.FromHours(1)
+        });
+        await _service.RevokeTokens("recent");
+
+        await _service.DeleteExpired();
+
+        CollectionAssert.AreEqual(new[] { "recent" }, _revocations.Table.Select(x => x.Subject).ToList());
     }
 }

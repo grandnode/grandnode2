@@ -9,10 +9,12 @@ namespace Grand.Modules.Tests.Services.BackgroundService;
 public class DeleteOidcSessionsScheduleTaskTests
 {
     [TestMethod]
-    public async Task Execute_DeletesExpiredSessions()
+    public async Task Execute_DeletesExpiredSessionsAndRevocations()
     {
         var sessions = new Mock<IOidcSessionService>();
-        await new DeleteOidcSessionsScheduleTask(sessions.Object).Execute();
+        var revocations = new Mock<IOidcTokenRevocationService>();
+        await new DeleteOidcSessionsScheduleTask(sessions.Object, revocations.Object).Execute();
         sessions.Verify(x => x.DeleteExpired(), Times.Once);
+        revocations.Verify(x => x.DeleteExpired(), Times.Once);
     }
 }

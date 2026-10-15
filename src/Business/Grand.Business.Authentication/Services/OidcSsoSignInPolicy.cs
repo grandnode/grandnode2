@@ -25,6 +25,7 @@ public class OidcSsoSignInPolicy(
     OidcLoginConfig config,
     OidcResourceServerConfig resourceServerConfig,
     IMemoryCache memoryCache,
+    IOidcLinkService linkService,
     ILogger<OidcSsoSignInPolicy> logger) : IExternalSignInPolicy
 {
     private const string UnavailableLogKey = "Grand.OidcSignInMode.Unavailable";
@@ -40,7 +41,8 @@ public class OidcSsoSignInPolicy(
         var confirmed = await externalAuthenticationRepository.GetOneAsync(x =>
             x.ProviderSystemName == OidcCustomerResolver.ProviderSystemName && x.CustomerId == customer.Id &&
             !x.LinkedByEmail);
-        return confirmed != null ? provider : null;
+        //while the links belong to another provider the provider sign-in is refused: the account keeps its password
+        return confirmed != null && await linkService.LinksMatchProvider() ? provider : null;
     }
 
     public async Task<PasswordSignInDecision> PasswordSignIn(Customer customer, SignInSurface surface)

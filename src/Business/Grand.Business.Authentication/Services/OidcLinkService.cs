@@ -23,35 +23,38 @@ public class OidcLinkService(
     //every refused request would log it otherwise (access tokens are checked on each request)
     private static long _lastMismatchLogTicks;
 
+    //concurrent first requests of one instance record the provider once (each save also clears the cache)
+    private static readonly SemaphoreSlim AdoptLock = new(1, 1);
+
     public async Task<bool> LinksMatchProvider()
     {
         var settings = await settingService.LoadSetting<OidcLinkSettings>();
-        if (string.IsNullOrWhiteSpace(settings?.Authority))
+        if (!string.IsNullOrWhiteSpace(settings?.Authority) && OidcAuthority.SameProvider(settings.Authority, config.Authority))
+            return true;
+
+        //no link a subject could select: the configured provider is adopted (first use, or a provider changed before
+        //anyone connected). Links of an unrecorded provider are not adopted - the provider may have changed together
+        //with the upgrade that started recording it
+        if (!await HasLinks())
         {
-            //first use (or links made before the provider was recorded): they belong to the configured provider
             await Adopt();
             return true;
         }
 
-        if (OidcAuthority.SameProvider(settings.Authority, config.Authority))
-            return true;
-
-        LogMismatch(settings.Authority);
+        LogMismatch(settings?.Authority);
         return false;
     }
 
     public async Task<OidcLinkState> GetState()
     {
         var settings = await settingService.LoadSetting<OidcLinkSettings>();
-        var count = externalAuthenticationRepository.Table.LongCount(x =>
-            x.ProviderSystemName == OidcCustomerResolver.ProviderSystemName);
+        var count = await externalAuthenticationRepository.CountAsync(OidcLinks());
         return new OidcLinkState(config.Authority, settings?.Authority, count);
     }
 
     public async Task<long> RemoveAll()
     {
-        var count = externalAuthenticationRepository.Table.LongCount(x =>
-            x.ProviderSystemName == OidcCustomerResolver.ProviderSystemName);
+        var count = await externalAuthenticationRepository.CountAsync(OidcLinks());
         await externalAuthenticationRepository.DeleteManyAsync(x =>
             x.ProviderSystemName == OidcCustomerResolver.ProviderSystemName);
         //their refresh tokens belong to the previous provider
@@ -88,8 +91,30 @@ public class OidcLinkService(
 
     private async Task Adopt()
     {
-        await settingService.SaveSetting(new OidcLinkSettings { Authority = OidcAuthority.Normalize(config.Authority) });
+        var authority = OidcAuthority.Normalize(config.Authority);
+        //nothing to record while the resource server has no provider
+        if (string.IsNullOrEmpty(authority))
+            return;
+
+        await AdoptLock.WaitAsync();
+        try
+        {
+            //another request may have recorded it while this one waited
+            var settings = await settingService.LoadSetting<OidcLinkSettings>();
+            if (OidcAuthority.SameProvider(settings?.Authority, authority) && !string.IsNullOrEmpty(settings?.Authority))
+                return;
+            await settingService.SaveSetting(new OidcLinkSettings { Authority = authority });
+        }
+        finally
+        {
+            AdoptLock.Release();
+        }
     }
+
+    private IQueryable<ExternalAuthentication> OidcLinks() =>
+        externalAuthenticationRepository.Table.Where(x => x.ProviderSystemName == OidcCustomerResolver.ProviderSystemName);
+
+    private Task<bool> HasLinks() => externalAuthenticationRepository.AnyAsync(OidcLinks());
 
     private void LogMismatch(string linkedAuthority)
     {
@@ -98,8 +123,9 @@ public class OidcLinkService(
         if (now - last < TimeSpan.FromMinutes(5).Ticks ||
             Interlocked.CompareExchange(ref _lastMismatchLogTicks, now, last) != last)
             return;
-        logger.LogError("OidcResourceServer:Authority changed from {Linked} to {Configured}: OpenID Connect sign-in and access " +
-                        "tokens are refused until the links are removed or kept (Admin > Configuration > External " +
-                        "authentication)", linkedAuthority, config.Authority);
+        logger.LogError("The OpenID Connect links belong to {Linked}, not to OidcResourceServer:Authority {Configured}: " +
+                        "OpenID Connect sign-in and access tokens are refused until the links are removed or kept (Admin > " +
+                        "Configuration > External authentication)",
+            string.IsNullOrEmpty(linkedAuthority) ? "a provider that was not recorded" : linkedAuthority, config.Authority);
     }
 }

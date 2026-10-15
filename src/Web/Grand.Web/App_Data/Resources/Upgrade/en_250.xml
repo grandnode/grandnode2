@@ -39,6 +39,9 @@
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.ProviderChanged" Area="Admin">
 		<Value>The identity provider changed from {0} to {1}. Sign-in through the provider and its access tokens are refused until you decide: remove the links when this is another provider (people connect again at their next sign-in), or keep them when it is the same provider at a new address.</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.ProviderUnknown" Area="Admin">
+		<Value>The OpenID Connect links were made before the store recorded their identity provider, so it cannot tell whether {0} is the same provider. Sign-in through the provider and its access tokens are refused until you decide: keep the links when they were made with {0}, or remove them (people connect again at their next sign-in).</Value>
+	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Remove" Area="Admin">
 		<Value>Remove all links</Value>
 	</Resource>
