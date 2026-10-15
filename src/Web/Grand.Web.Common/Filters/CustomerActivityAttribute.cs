@@ -2,6 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,8 @@ public class CustomerActivityAttribute : TypeFilterAttribute
     internal class CustomerActivityFilter(
         ICustomerService customerService,
         IContextAccessor contextAccessor,
-        CustomerSettings customerSettings) : IAsyncActionFilter
+        CustomerSettings customerSettings,
+        IGuestCustomerPersistence guestCustomerPersistence) : IAsyncActionFilter
     {
         #region Methods
 
@@ -53,13 +55,15 @@ public class CustomerActivityAttribute : TypeFilterAttribute
             if (!customerSettings.StoreLastVisitedPage)
                 return;
 
-            //system accounts (SearchEngine, Anonymous) are shared by every request they serve
-            if (contextAccessor.WorkContext.CurrentCustomer.IsSystemAccount)
+            //system accounts are shared by every request they serve; an unsaved guest is saved by a write,
+            //which activity tracking must not trigger
+            var customer = contextAccessor.WorkContext.CurrentCustomer;
+            if (customer.IsSystemAccount || guestCustomerPersistence.IsTransient(customer.Id))
                 return;
 
             //update last activity date
-            if (contextAccessor.WorkContext.CurrentCustomer.LastActivityDateUtc.AddMinutes(3.0) < DateTime.UtcNow)
-                await customerService.UpdateCustomerField(contextAccessor.WorkContext.CurrentCustomer, x => x.LastActivityDateUtc,
+            if (customer.LastActivityDateUtc.AddMinutes(3.0) < DateTime.UtcNow)
+                await customerService.UpdateCustomerField(customer, x => x.LastActivityDateUtc,
                     DateTime.UtcNow);
 
             //get current IP address
@@ -67,11 +71,11 @@ public class CustomerActivityAttribute : TypeFilterAttribute
 
             //update customer's IP address
             if (!string.IsNullOrEmpty(currentIpAddress) &&
-                !currentIpAddress.Equals(contextAccessor.WorkContext.CurrentCustomer.LastIpAddress,
+                !currentIpAddress.Equals(customer.LastIpAddress,
                     StringComparison.OrdinalIgnoreCase))
             {
-                contextAccessor.WorkContext.CurrentCustomer.LastIpAddress = currentIpAddress;
-                await customerService.UpdateCustomerField(contextAccessor.WorkContext.CurrentCustomer, x => x.LastIpAddress,
+                customer.LastIpAddress = currentIpAddress;
+                await customerService.UpdateCustomerField(customer, x => x.LastIpAddress,
                     currentIpAddress);
             }
 
@@ -81,10 +85,10 @@ public class CustomerActivityAttribute : TypeFilterAttribute
                 return;
 
             //save new one if don't match
-            if (!pageUrl.Equals(contextAccessor.WorkContext.CurrentCustomer.LastVisitedPage, StringComparison.OrdinalIgnoreCase))
+            if (!pageUrl.Equals(customer.LastVisitedPage, StringComparison.OrdinalIgnoreCase))
             {
-                contextAccessor.WorkContext.CurrentCustomer.LastVisitedPage = pageUrl;
-                await customerService.UpdateCustomerField(contextAccessor.WorkContext.CurrentCustomer, x => x.LastVisitedPage, pageUrl);
+                customer.LastVisitedPage = pageUrl;
+                await customerService.UpdateCustomerField(customer, x => x.LastVisitedPage, pageUrl);
             }
         }
 

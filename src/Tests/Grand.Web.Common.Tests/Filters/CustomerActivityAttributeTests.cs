@@ -4,6 +4,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -22,6 +23,7 @@ public class CustomerActivityAttributeTests
     private Mock<ICustomerService> _customerService;
     private Mock<IContextAccessor> _contextAccessor;
     private Mock<IWorkContext> _workContext;
+    private Mock<IGuestCustomerPersistence> _persistence;
 
     [TestInitialize]
     public void Setup()
@@ -30,6 +32,7 @@ public class CustomerActivityAttributeTests
         DataSettingsManager.Initialize(Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile));
         _customerService = new Mock<ICustomerService>();
         _workContext = new Mock<IWorkContext>();
+        _persistence = new Mock<IGuestCustomerPersistence>();
         _contextAccessor = new Mock<IContextAccessor>();
         _contextAccessor.SetupGet(c => c.WorkContext).Returns(_workContext.Object);
     }
@@ -47,7 +50,7 @@ public class CustomerActivityAttributeTests
         var executing = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
             new Dictionary<string, object>(), null);
         var filter = new CustomerActivityAttribute.CustomerActivityFilter(_customerService.Object,
-            _contextAccessor.Object, new CustomerSettings { StoreLastVisitedPage = true });
+            _contextAccessor.Object, new CustomerSettings { StoreLastVisitedPage = true }, _persistence.Object);
 
         await filter.OnActionExecutionAsync(executing,
             () => Task.FromResult(new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), null)));
@@ -71,5 +74,16 @@ public class CustomerActivityAttributeTests
 
         _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
             It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.AtLeastOnce);
+    }
+
+    [TestMethod]
+    public async Task TransientGuest_NothingWritten()
+    {
+        _persistence.Setup(p => p.IsTransient("unsaved")).Returns(true);
+
+        await RunGet(new Customer { Id = "unsaved", Active = true });
+
+        _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
+            It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.Never);
     }
 }
