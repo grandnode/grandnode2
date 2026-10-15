@@ -44,7 +44,7 @@ public class ProductEmailAFriendValidator : BaseGrandValidator<ProductEmailAFrie
         {
             var product = await productService.GetProductById(x.ProductId);
             if (product is not { Published: true } || !catalogSettings.EmailAFriendEnabled)
-                context.AddFailure("Product is disabled");
+                context.AddFailure(translationService.GetResource("Products.EmailAFriend.ProductIsDisabled"));
 
             if (await groupService.IsGuest(contextAccessor.WorkContext.CurrentCustomer) &&
                 !catalogSettings.AllowAnonymousUsersToEmailAFriend)

@@ -382,11 +382,11 @@ public class SettingController(
             var storeId = GetStoreScope();
             if (!string.IsNullOrEmpty(storeId))
                 model.Stores = [storeId];
-            var rrr = model.ToEntity();
-            await merchandiseReturnService.InsertMerchandiseReturnReason(rrr);
+            var returnReason = model.ToEntity();
+            await merchandiseReturnService.InsertMerchandiseReturnReason(returnReason);
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Added"));
             return continueEditing
-                ? RedirectToAction("MerchandiseReturnReasonEdit", new { id = rrr.Id })
+                ? RedirectToAction("MerchandiseReturnReasonEdit", new { id = returnReason.Id })
                 : RedirectToAction("MerchandiseReturnReasonList");
         }
 
@@ -395,16 +395,16 @@ public class SettingController(
 
     public async Task<IActionResult> MerchandiseReturnReasonEdit(string id)
     {
-        var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
-        if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
+        var returnReason = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
+        if (returnReason == null) return RedirectToAction("MerchandiseReturnReasonList");
 
         var storeId = GetStoreScope();
-        if (!IsStoreOwnerAccessAllowed(storeId, rrr.LimitedToStores, rrr.Stores))
+        if (!IsStoreOwnerAccessAllowed(storeId, returnReason.LimitedToStores, returnReason.Stores))
             return RedirectToAction("MerchandiseReturnReasonList");
 
-        var model = rrr.ToModel();
+        var model = returnReason.ToModel();
         await AddLocales(languageService, model.Locales, (locale, languageId) => {
-            locale.Name = rrr.GetTranslation(x => x.Name, languageId, false);
+            locale.Name = returnReason.GetTranslation(x => x.Name, languageId, false);
         });
         return View(model);
     }
@@ -414,26 +414,26 @@ public class SettingController(
     public async Task<IActionResult> MerchandiseReturnReasonEdit(MerchandiseReturnReasonModel model,
         bool continueEditing)
     {
-        var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(model.Id);
-        if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
+        var returnReason = await merchandiseReturnService.GetMerchandiseReturnReasonById(model.Id);
+        if (returnReason == null) return RedirectToAction("MerchandiseReturnReasonList");
 
         var storeId = GetStoreScope();
-        if (!IsStoreOwnerAccessAllowed(storeId, rrr.LimitedToStores, rrr.Stores))
+        if (!IsStoreOwnerAccessAllowed(storeId, returnReason.LimitedToStores, returnReason.Stores))
             return RedirectToAction("MerchandiseReturnReasonList");
 
         if (ModelState.IsValid)
         {
-            var existingStores = rrr.Stores;
-            var existingLimitedToStores = rrr.LimitedToStores;
-            rrr = model.ToEntity(rrr);
-            rrr.Stores = existingStores;
-            rrr.LimitedToStores = existingLimitedToStores;
-            await merchandiseReturnService.UpdateMerchandiseReturnReason(rrr);
+            var existingStores = returnReason.Stores;
+            var existingLimitedToStores = returnReason.LimitedToStores;
+            returnReason = model.ToEntity(returnReason);
+            returnReason.Stores = existingStores;
+            returnReason.LimitedToStores = existingLimitedToStores;
+            await merchandiseReturnService.UpdateMerchandiseReturnReason(returnReason);
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Updated"));
             if (continueEditing)
             {
                 await SaveSelectedTabIndex();
-                return RedirectToAction("MerchandiseReturnReasonEdit", new { id = rrr.Id });
+                return RedirectToAction("MerchandiseReturnReasonEdit", new { id = returnReason.Id });
             }
 
             return RedirectToAction("MerchandiseReturnReasonList");
@@ -445,14 +445,14 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnReasonDelete(string id)
     {
-        var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
-        if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
+        var returnReason = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
+        if (returnReason == null) return RedirectToAction("MerchandiseReturnReasonList");
 
         var storeId = GetStoreScope();
-        if (!IsStoreOwnerAccessAllowed(storeId, rrr.LimitedToStores, rrr.Stores))
+        if (!IsStoreOwnerAccessAllowed(storeId, returnReason.LimitedToStores, returnReason.Stores))
             return RedirectToAction("MerchandiseReturnReasonList");
 
-        await merchandiseReturnService.DeleteMerchandiseReturnReason(rrr);
+        await merchandiseReturnService.DeleteMerchandiseReturnReason(returnReason);
         Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Deleted"));
         return RedirectToAction("MerchandiseReturnReasonList");
     }
@@ -500,12 +500,12 @@ public class SettingController(
             var storeId = GetStoreScope();
             if (!string.IsNullOrEmpty(storeId))
                 model.Stores = [storeId];
-            var rra = model.ToEntity();
-            await merchandiseReturnService.InsertMerchandiseReturnAction(rra);
+            var returnAction = model.ToEntity();
+            await merchandiseReturnService.InsertMerchandiseReturnAction(returnAction);
             await ClearCache();
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Added"));
             return continueEditing
-                ? RedirectToAction("MerchandiseReturnActionEdit", new { id = rra.Id })
+                ? RedirectToAction("MerchandiseReturnActionEdit", new { id = returnAction.Id })
                 : RedirectToAction("MerchandiseReturnActionList");
         }
 
@@ -514,16 +514,16 @@ public class SettingController(
 
     public async Task<IActionResult> MerchandiseReturnActionEdit(string id)
     {
-        var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
-        if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
+        var returnAction = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
+        if (returnAction == null) return RedirectToAction("MerchandiseReturnActionList");
 
         var storeId = GetStoreScope();
-        if (!IsStoreOwnerAccessAllowed(storeId, rra.LimitedToStores, rra.Stores))
+        if (!IsStoreOwnerAccessAllowed(storeId, returnAction.LimitedToStores, returnAction.Stores))
             return RedirectToAction("MerchandiseReturnActionList");
 
-        var model = rra.ToModel();
+        var model = returnAction.ToModel();
         await AddLocales(languageService, model.Locales, (locale, languageId) => {
-            locale.Name = rra.GetTranslation(x => x.Name, languageId, false);
+            locale.Name = returnAction.GetTranslation(x => x.Name, languageId, false);
         });
         return View(model);
     }
@@ -533,26 +533,26 @@ public class SettingController(
     public async Task<IActionResult> MerchandiseReturnActionEdit(MerchandiseReturnActionModel model,
         bool continueEditing)
     {
-        var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(model.Id);
-        if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
+        var returnAction = await merchandiseReturnService.GetMerchandiseReturnActionById(model.Id);
+        if (returnAction == null) return RedirectToAction("MerchandiseReturnActionList");
 
         var storeId = GetStoreScope();
-        if (!IsStoreOwnerAccessAllowed(storeId, rra.LimitedToStores, rra.Stores))
+        if (!IsStoreOwnerAccessAllowed(storeId, returnAction.LimitedToStores, returnAction.Stores))
             return RedirectToAction("MerchandiseReturnActionList");
 
         if (ModelState.IsValid)
         {
-            var existingStores = rra.Stores;
-            var existingLimitedToStores = rra.LimitedToStores;
-            rra = model.ToEntity(rra);
-            rra.Stores = existingStores;
-            rra.LimitedToStores = existingLimitedToStores;
-            await merchandiseReturnService.UpdateMerchandiseReturnAction(rra);
+            var existingStores = returnAction.Stores;
+            var existingLimitedToStores = returnAction.LimitedToStores;
+            returnAction = model.ToEntity(returnAction);
+            returnAction.Stores = existingStores;
+            returnAction.LimitedToStores = existingLimitedToStores;
+            await merchandiseReturnService.UpdateMerchandiseReturnAction(returnAction);
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Updated"));
             if (continueEditing)
             {
                 await SaveSelectedTabIndex();
-                return RedirectToAction("MerchandiseReturnActionEdit", new { id = rra.Id });
+                return RedirectToAction("MerchandiseReturnActionEdit", new { id = returnAction.Id });
             }
 
             return RedirectToAction("MerchandiseReturnActionList");
@@ -564,14 +564,14 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnActionDelete(string id)
     {
-        var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
-        if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
+        var returnAction = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
+        if (returnAction == null) return RedirectToAction("MerchandiseReturnActionList");
 
         var storeId = GetStoreScope();
-        if (!IsStoreOwnerAccessAllowed(storeId, rra.LimitedToStores, rra.Stores))
+        if (!IsStoreOwnerAccessAllowed(storeId, returnAction.LimitedToStores, returnAction.Stores))
             return RedirectToAction("MerchandiseReturnActionList");
 
-        await merchandiseReturnService.DeleteMerchandiseReturnAction(rra);
+        await merchandiseReturnService.DeleteMerchandiseReturnAction(returnAction);
         Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Deleted"));
         return RedirectToAction("MerchandiseReturnActionList");
     }
