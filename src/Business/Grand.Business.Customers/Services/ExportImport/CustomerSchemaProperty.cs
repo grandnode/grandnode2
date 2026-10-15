@@ -7,7 +7,7 @@ namespace Grand.Business.Customers.Services.ExportImport;
 
 public class CustomerSchemaProperty : ISchemaProperty<Customer>
 {
-    public virtual async Task<PropertyByName<Customer>[]> GetProperties()
+    public virtual async Task<PropertyByName<Customer>[]> GetProperties(IEnumerable<Customer> items)
     {
         var properties = new[] {
             new PropertyByName<Customer>("CustomerId", p => p.Id),

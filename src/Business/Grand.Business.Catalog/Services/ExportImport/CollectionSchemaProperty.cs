@@ -14,8 +14,12 @@ public class CollectionSchemaProperty : ISchemaProperty<Collection>
         _pictureService = pictureService;
     }
 
-    public virtual async Task<PropertyByName<Collection>[]> GetProperties()
+    public virtual async Task<PropertyByName<Collection>[]> GetProperties(IEnumerable<Collection> items)
     {
+        var pictures = new Dictionary<Collection, string>(ReferenceEqualityComparer.Instance);
+        foreach (var item in items)
+            pictures[item] = await GetPictures(item.PictureId);
+
         var properties = new[] {
             new PropertyByName<Collection>("Id", p => p.Id),
             new PropertyByName<Collection>("Name", p => p.Name),
@@ -25,7 +29,7 @@ public class CollectionSchemaProperty : ISchemaProperty<Collection>
             new PropertyByName<Collection>("MetaDescription", p => p.MetaDescription),
             new PropertyByName<Collection>("MetaTitle", p => p.MetaTitle),
             new PropertyByName<Collection>("SeName", p => p.SeName),
-            new PropertyByName<Collection>("Picture", p => GetPictures(p.PictureId).Result),
+            new PropertyByName<Collection>("Picture", p => pictures.GetValueOrDefault(p)),
             new PropertyByName<Collection>("PageSize", p => p.PageSize),
             new PropertyByName<Collection>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
             new PropertyByName<Collection>("PageSizeOptions", p => p.PageSizeOptions),
@@ -33,7 +37,7 @@ public class CollectionSchemaProperty : ISchemaProperty<Collection>
             new PropertyByName<Collection>("DisplayOrder", p => p.DisplayOrder),
             new PropertyByName<Collection>("ExternalId", p => p.ExternalId)
         };
-        return await Task.FromResult(properties);
+        return properties;
     }
 
     protected virtual async Task<string> GetPictures(string pictureId)

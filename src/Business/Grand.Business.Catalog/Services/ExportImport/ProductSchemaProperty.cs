@@ -15,8 +15,12 @@ public class ProductSchemaProperty : ISchemaProperty<Product>
         _pictureService = pictureService;
     }
 
-    public virtual async Task<PropertyByName<Product>[]> GetProperties()
+    public virtual async Task<PropertyByName<Product>[]> GetProperties(IEnumerable<Product> items)
     {
+        var pictures = new Dictionary<Product, string[]>(ReferenceEqualityComparer.Instance);
+        foreach (var item in items)
+            pictures[item] = await GetPictures(item);
+
         var properties = new[] {
             new PropertyByName<Product>("Id", p => p.Id),
             new PropertyByName<Product>("ProductTypeId", p => (int)p.ProductTypeId),
@@ -118,11 +122,11 @@ public class ProductSchemaProperty : ISchemaProperty<Product>
                 p => string.Join(";", p.ProductCategories.Select(n => n.CategoryId).ToArray())),
             new PropertyByName<Product>("CollectionIds",
                 p => string.Join(";", p.ProductCollections.Select(n => n.CollectionId).ToArray())),
-            new PropertyByName<Product>("Picture1", p => GetPictures(p).Result[0]),
-            new PropertyByName<Product>("Picture2", p => GetPictures(p).Result[1]),
-            new PropertyByName<Product>("Picture3", p => GetPictures(p).Result[2])
+            new PropertyByName<Product>("Picture1", p => pictures.GetValueOrDefault(p)?[0]),
+            new PropertyByName<Product>("Picture2", p => pictures.GetValueOrDefault(p)?[1]),
+            new PropertyByName<Product>("Picture3", p => pictures.GetValueOrDefault(p)?[2])
         };
-        return await Task.FromResult(properties);
+        return properties;
     }
 
     private async Task<string[]> GetPictures(Product product)

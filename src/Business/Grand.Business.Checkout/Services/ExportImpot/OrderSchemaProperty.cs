@@ -14,8 +14,11 @@ public class OrderSchemaProperty : ISchemaProperty<Order>
         _countryService = countryService;
     }
 
-    public virtual async Task<PropertyByName<Order>[]> GetProperties()
+    public virtual async Task<PropertyByName<Order>[]> GetProperties(IEnumerable<Order> items)
     {
+        var countries = (await _countryService.GetAllCountries(showHidden: true))
+            .ToDictionary(c => c.Id, c => c.Name);
+
         var properties = new[] {
             new PropertyByName<Order>("OrderNumber", p => p.OrderNumber),
             new PropertyByName<Order>("OrderCode", p => p.Code),
@@ -54,7 +57,7 @@ public class OrderSchemaProperty : ISchemaProperty<Order>
             new PropertyByName<Order>("BillingVatNumber", p => p.BillingAddress?.VatNumber),
             new PropertyByName<Order>("BillingCountry",
                 p => p.BillingAddress != null
-                    ? _countryService.GetCountryById(p.BillingAddress.CountryId).Result?.Name
+                    ? countries.GetValueOrDefault(p.BillingAddress.CountryId ?? "")
                     : ""),
             new PropertyByName<Order>("BillingCity", p => p.BillingAddress?.City),
             new PropertyByName<Order>("BillingAddress1", p => p.BillingAddress?.Address1),
@@ -69,7 +72,7 @@ public class OrderSchemaProperty : ISchemaProperty<Order>
             new PropertyByName<Order>("ShippingVatNumber", p => p.ShippingAddress?.VatNumber),
             new PropertyByName<Order>("ShippingCountry",
                 p => p.ShippingAddress != null
-                    ? _countryService.GetCountryById(p.ShippingAddress.CountryId).Result?.Name
+                    ? countries.GetValueOrDefault(p.ShippingAddress.CountryId ?? "")
                     : ""),
             new PropertyByName<Order>("ShippingCity", p => p.ShippingAddress?.City),
             new PropertyByName<Order>("ShippingAddress1", p => p.ShippingAddress?.Address1),
@@ -78,6 +81,6 @@ public class OrderSchemaProperty : ISchemaProperty<Order>
             new PropertyByName<Order>("ShippingPhoneNumber", p => p.ShippingAddress?.PhoneNumber),
             new PropertyByName<Order>("ShippingFaxNumber", p => p.ShippingAddress?.FaxNumber)
         };
-        return await Task.FromResult(properties);
+        return properties;
     }
 }

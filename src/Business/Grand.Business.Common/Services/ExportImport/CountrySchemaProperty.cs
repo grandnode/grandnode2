@@ -6,7 +6,7 @@ namespace Grand.Business.Common.Services.ExportImport;
 
 public class CountrySchemaProperty : ISchemaProperty<CountryStatesDto>
 {
-    public virtual async Task<PropertyByName<CountryStatesDto>[]> GetProperties()
+    public virtual async Task<PropertyByName<CountryStatesDto>[]> GetProperties(IEnumerable<CountryStatesDto> items)
     {
         var properties = new[] {
             new PropertyByName<CountryStatesDto>("Country", p => p.Country),
