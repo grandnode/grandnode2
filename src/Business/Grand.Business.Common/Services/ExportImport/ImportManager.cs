@@ -13,9 +13,9 @@ public class ImportManager<T> : IImportManager<T> where T : class
         _importDataObject = importDataObject;
     }
 
-    public async Task Import(Stream stream)
+    public async Task Import(Stream stream, CancellationToken cancellationToken = default)
     {
-        var data = await _importDataProvider.Convert<T>(stream);
-        await _importDataObject.Execute(data);
+        var data = await _importDataProvider.Convert<T>(stream, cancellationToken);
+        await _importDataObject.Execute(data, cancellationToken);
     }
 }

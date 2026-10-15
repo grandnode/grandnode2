@@ -14,17 +14,17 @@ public class PowerExcelMapper : ExcelMapper
     private Dictionary<string, Dictionary<int, object>> Objects { get; } = new();
     private IWorkbook Workbook { get; set; }
 
-    private static async Task<Stream> ReadAsync(Stream stream)
+    private static async Task<Stream> ReadAsync(Stream stream, CancellationToken cancellationToken)
     {
         var ms = new MemoryStream();
-        await stream.CopyToAsync(ms);
+        await stream.CopyToAsync(ms, cancellationToken);
         return ms;
     }
 
     public async Task<IEnumerable<T>> FetchAsync<T>(Stream stream, int sheetIndex = 0,
-        Func<string, object, object> valueParser = null)
+        Func<string, object, object> valueParser = null, CancellationToken cancellationToken = default)
     {
-        using var ms = await ReadAsync(stream);
+        using var ms = await ReadAsync(stream, cancellationToken);
         ms.Position = 0;
         return Fetch(ms, typeof(T), sheetIndex, valueParser).OfType<T>();
     }

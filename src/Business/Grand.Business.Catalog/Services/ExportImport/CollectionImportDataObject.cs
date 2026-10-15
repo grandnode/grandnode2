@@ -44,9 +44,9 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         _logger = logger;
     }
 
-    public async Task Execute(IEnumerable<CollectionDto> data)
+    public async Task Execute(IEnumerable<CollectionDto> data, CancellationToken cancellationToken = default)
     {
-        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        var result = await Import(data.ToList(), false, ImportMode.Panel, cancellationToken);
         ImportRows.LogRejected(_logger, "collection", result);
     }
 
@@ -61,11 +61,13 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
     private Task<ImportBatchResult> Import(IReadOnlyList<CollectionDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
-        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, mode),
-            mode == ImportMode.Row, _logger, cancellationToken);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
+            (row, dto) => ImportRow(row, dto, dryRun, mode, cancellationToken), mode == ImportMode.Row, _logger,
+            cancellationToken);
     }
 
-    private async Task<ImportRowResult> ImportRow(int row, CollectionDto dto, bool dryRun, ImportMode mode)
+    private async Task<ImportRowResult> ImportRow(int row, CollectionDto dto, bool dryRun, ImportMode mode,
+        CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -112,7 +114,7 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         if (isNew) await _collectionService.InsertCollection(collection);
         else await _collectionService.UpdateCollection(collection);
 
-        await UpdateCollectionData(dto, collection);
+        await UpdateCollectionData(dto, collection, cancellationToken);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, collection.Id, key,
             errors, warnings);
     }
@@ -147,7 +149,8 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         return (found, found != null, error);
     }
 
-    private async Task UpdateCollectionData(CollectionDto collectionDto, Collection collection)
+    private async Task UpdateCollectionData(CollectionDto collectionDto, Collection collection,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(collection.CollectionLayoutId))
         {
@@ -164,7 +167,8 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
 
         if (!string.IsNullOrEmpty(collectionDto.Picture))
         {
-            var picture = await LoadPicture(collectionDto.Picture, collection.Name, collection.PictureId);
+            var picture = await LoadPicture(collectionDto.Picture, collection.Name, collection.PictureId,
+                cancellationToken);
             if (picture != null)
                 collection.PictureId = picture.Id;
         }
@@ -189,14 +193,16 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
     /// <param name="name">The name of the object</param>
     /// <param name="picId">Image identifier, may be null</param>
     /// <returns>The image or null if the image has not changed</returns>
-    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId = "")
+    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(pictureUrl))
             return null;
 
         //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
         //import read any file on the server
-        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts);
+        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts,
+            cancellationToken);
         if (image == null)
             return null;
 

@@ -44,9 +44,9 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         _logger = logger;
     }
 
-    public async Task Execute(IEnumerable<BrandDto> data)
+    public async Task Execute(IEnumerable<BrandDto> data, CancellationToken cancellationToken = default)
     {
-        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        var result = await Import(data.ToList(), false, ImportMode.Panel, cancellationToken);
         ImportRows.LogRejected(_logger, "brand", result);
     }
 
@@ -61,11 +61,13 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
     private Task<ImportBatchResult> Import(IReadOnlyList<BrandDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
-        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, mode),
-            mode == ImportMode.Row, _logger, cancellationToken);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
+            (row, dto) => ImportRow(row, dto, dryRun, mode, cancellationToken), mode == ImportMode.Row, _logger,
+            cancellationToken);
     }
 
-    private async Task<ImportRowResult> ImportRow(int row, BrandDto dto, bool dryRun, ImportMode mode)
+    private async Task<ImportRowResult> ImportRow(int row, BrandDto dto, bool dryRun, ImportMode mode,
+        CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -112,7 +114,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         if (isNew) await _brandService.InsertBrand(brand);
         else await _brandService.UpdateBrand(brand);
 
-        await UpdateBrandData(dto, brand);
+        await UpdateBrandData(dto, brand, cancellationToken);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, brand.Id, key,
             errors, warnings);
     }
@@ -146,7 +148,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         return (found, found != null, error);
     }
 
-    private async Task UpdateBrandData(BrandDto brandDto, Brand brand)
+    private async Task UpdateBrandData(BrandDto brandDto, Brand brand, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(brand.BrandLayoutId))
         {
@@ -161,7 +163,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
 
         if (!string.IsNullOrEmpty(brandDto.Picture))
         {
-            var picture = await LoadPicture(brandDto.Picture, brand.Name, brand.PictureId);
+            var picture = await LoadPicture(brandDto.Picture, brand.Name, brand.PictureId, cancellationToken);
             if (picture != null)
                 brand.PictureId = picture.Id;
         }
@@ -186,14 +188,16 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
     /// <param name="name">The name of the object</param>
     /// <param name="picId">Image identifier, may be null</param>
     /// <returns>The image or null if the image has not changed</returns>
-    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId = "")
+    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(pictureUrl))
             return null;
 
         //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
         //import read any file on the server
-        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts);
+        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts,
+            cancellationToken);
         if (image == null)
             return null;
 

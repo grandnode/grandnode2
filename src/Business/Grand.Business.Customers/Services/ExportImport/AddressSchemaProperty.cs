@@ -14,7 +14,8 @@ public class AddressSchemaProperty : ISchemaProperty<Address>
         _countryService = countryService;
     }
 
-    public virtual async Task<PropertyByName<Address>[]> GetProperties(IEnumerable<Address> items)
+    public virtual async Task<PropertyByName<Address>[]> GetProperties(IEnumerable<Address> items,
+        CancellationToken cancellationToken = default)
     {
         var countries = (await _countryService.GetAllCountries(showHidden: true))
             .ToDictionary(c => c.Id, c => c.Name);

@@ -14,7 +14,8 @@ public class OrderSchemaProperty : ISchemaProperty<Order>
         _countryService = countryService;
     }
 
-    public virtual async Task<PropertyByName<Order>[]> GetProperties(IEnumerable<Order> items)
+    public virtual async Task<PropertyByName<Order>[]> GetProperties(IEnumerable<Order> items,
+        CancellationToken cancellationToken = default)
     {
         var countries = (await _countryService.GetAllCountries(showHidden: true))
             .ToDictionary(c => c.Id, c => c.Name);

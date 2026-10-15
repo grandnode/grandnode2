@@ -1813,7 +1813,7 @@ public abstract class BaseProductController(
         var products = await productViewModelService.PrepareProducts(model);
         try
         {
-            var bytes = await exportManager.Export(products);
+            var bytes = await exportManager.Export(products, HttpContext.RequestAborted);
             return File(bytes, "text/xls", "products.xlsx");
         }
         catch (Exception exc)
@@ -1849,7 +1849,7 @@ public abstract class BaseProductController(
             if (await scope.HasAccess(product))
                 scoped.Add(product);
 
-        var bytes = await exportManager.Export(scoped);
+        var bytes = await exportManager.Export(scoped, HttpContext.RequestAborted);
         return File(bytes, "text/xls", "products.xlsx");
     }
 
@@ -1878,7 +1878,7 @@ public abstract class BaseProductController(
 
             if (importexcelfile is { Length: > 0 })
             {
-                await importManager.Import(importexcelfile.OpenReadStream());
+                await importManager.Import(importexcelfile.OpenReadStream(), HttpContext.RequestAborted);
             }
             else
             {

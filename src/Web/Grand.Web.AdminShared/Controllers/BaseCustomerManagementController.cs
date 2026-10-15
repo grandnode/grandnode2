@@ -178,7 +178,7 @@ public abstract class BaseCustomerManagementController(
 
         try
         {
-            var bytes = await exportManager.Export(customers);
+            var bytes = await exportManager.Export(customers, HttpContext.RequestAborted);
             return File(bytes, "text/xls", "customers.xlsx");
         }
         catch (Exception exc)
@@ -199,7 +199,7 @@ public abstract class BaseCustomerManagementController(
             customers.AddRange(await CustomerService.GetCustomersByIds(ids));
         }
 
-        var bytes = await exportManager.Export(customers);
+        var bytes = await exportManager.Export(customers, HttpContext.RequestAborted);
         return File(bytes, "text/xls", "customers.xlsx");
     }
 

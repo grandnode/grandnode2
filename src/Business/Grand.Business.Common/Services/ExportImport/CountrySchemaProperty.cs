@@ -6,7 +6,8 @@ namespace Grand.Business.Common.Services.ExportImport;
 
 public class CountrySchemaProperty : ISchemaProperty<CountryStatesDto>
 {
-    public virtual Task<PropertyByName<CountryStatesDto>[]> GetProperties(IEnumerable<CountryStatesDto> items)
+    public virtual Task<PropertyByName<CountryStatesDto>[]> GetProperties(IEnumerable<CountryStatesDto> items,
+        CancellationToken cancellationToken = default)
     {
         var properties = new[] {
             new PropertyByName<CountryStatesDto>("Country", p => p.Country),

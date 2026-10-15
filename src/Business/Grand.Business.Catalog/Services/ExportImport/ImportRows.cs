@@ -18,9 +18,10 @@ internal static class ImportRows
 {
     /// <summary>
     ///     Runs the rows one by one. A cancelled token stops the batch at a row boundary: what was saved is reported, the
-    ///     rest is not touched. With <paramref name="isolateFailures" /> a row that throws is logged and reported rejected
-    ///     instead of losing the results of the rows saved before it; the panel's spreadsheet import leaves it off, so its
-    ///     error still reaches the panel.
+    ///     rest is not touched. A row the token interrupts (a picture download) may be partly written, so it is
+    ///     reported failed whatever <paramref name="isolateFailures" /> says. With <paramref name="isolateFailures" />
+    ///     a row that throws is logged and reported rejected instead of losing the results of the rows saved before it;
+    ///     the panel's spreadsheet import leaves it off, so its error still reaches the panel.
     /// </summary>
     public static async Task<ImportBatchResult> RunBatch<TDto>(IReadOnlyList<TDto> rows, bool dryRun,
         Func<TDto, string> id, Func<TDto, string> key, Func<int, TDto, Task<ImportRowResult>> importRow,
@@ -38,6 +39,12 @@ internal static class ImportRows
             try
             {
                 results.Add(await importRow(i + 1, rows[i]));
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogWarning("Import of row {Row} ({Key}) was cancelled while it was being saved", i + 1,
+                    key(rows[i]));
+                results.Add(ImportRowResult.Failed(i + 1, id(rows[i]), key(rows[i])));
             }
             catch (Exception ex) when (isolateFailures)
             {

@@ -14,9 +14,13 @@ public class CountryImportDataObject : IImportDataObject<CountryStatesDto>
         _countryService = countryService;
     }
 
-    public async Task Execute(IEnumerable<CountryStatesDto> data)
+    public async Task Execute(IEnumerable<CountryStatesDto> data, CancellationToken cancellationToken = default)
     {
-        foreach (var item in data) await Import(item);
+        foreach (var item in data)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await Import(item);
+        }
     }
 
     private async Task Import(CountryStatesDto countryStatesDtoDto)

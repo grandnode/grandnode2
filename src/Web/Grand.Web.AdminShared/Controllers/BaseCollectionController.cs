@@ -252,7 +252,8 @@ public abstract class BaseCollectionController(
     {
         try
         {
-            var bytes = await exportManager.Export(await collectionService.GetAllCollections(collectionName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true));
+            var bytes = await exportManager.Export(await collectionService.GetAllCollections(collectionName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true),
+                HttpContext.RequestAborted);
             return File(bytes, "text/xls", "collections.xlsx");
         }
         catch (Exception exc)
@@ -282,7 +283,7 @@ public abstract class BaseCollectionController(
 
             if (importexcelfile is { Length: > 0 })
             {
-                await importManager.Import(importexcelfile.OpenReadStream());
+                await importManager.Import(importexcelfile.OpenReadStream(), HttpContext.RequestAborted);
             }
             else
             {

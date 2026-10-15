@@ -5,11 +5,11 @@ namespace Grand.Business.Common.Services.ExportImport;
 
 public class ExcelImportProvider : IImportDataProvider
 {
-    public async Task<IEnumerable<T>> Convert<T>(Stream stream)
+    public async Task<IEnumerable<T>> Convert<T>(Stream stream, CancellationToken cancellationToken = default)
     {
         var excel = new PowerExcelMapper {
             SkipBlankCells = false
         };
-        return await excel.FetchAsync<T>(stream);
+        return await excel.FetchAsync<T>(stream, cancellationToken: cancellationToken);
     }
 }

@@ -42,7 +42,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     private readonly TaxSettings _taxSettings;
     private readonly ImportHtmlGuard _htmlGuard;
     private readonly ILogger<ProductImportDataObject> _logger;
-    private readonly Func<string, Task<DownloadedImage>> _downloadImage;
+    private readonly Func<string, CancellationToken, Task<DownloadedImage>> _downloadImage;
 
     /// <param name="downloadImage">Test seam; the default downloads through <see cref="DownloadUrl.DownloadImage" /></param>
     public ProductImportDataObject(
@@ -64,7 +64,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         TaxSettings taxSettings,
         ImportHtmlGuard htmlGuard,
         ILogger<ProductImportDataObject> logger,
-        Func<string, Task<DownloadedImage>> downloadImage = null)
+        Func<string, CancellationToken, Task<DownloadedImage>> downloadImage = null)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -87,12 +87,13 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
         //import read any file on the server
         _downloadImage = downloadImage ??
-                         (url => DownloadUrl.DownloadImage(url, _securityConfig.PictureImportAllowedPrivateHosts));
+                         ((url, cancellationToken) => DownloadUrl.DownloadImage(url,
+                             _securityConfig.PictureImportAllowedPrivateHosts, cancellationToken));
     }
 
-    public async Task Execute(IEnumerable<ProductDto> data)
+    public async Task Execute(IEnumerable<ProductDto> data, CancellationToken cancellationToken = default)
     {
-        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        var result = await Import(data.ToList(), false, ImportMode.Panel, cancellationToken);
         ImportRows.LogRejected(_logger, "product", result);
     }
 
@@ -121,12 +122,12 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         //the cap protects the row API; the panel's spreadsheet import downloads every picture
         var budget = mode == ImportMode.Row ? new PictureBudget() : null;
         return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
-            (row, dto) => ImportRow(row, dto, dryRun, mode, budget), mode == ImportMode.Row, _logger,
-            cancellationToken);
+            (row, dto) => ImportRow(row, dto, dryRun, mode, budget, cancellationToken), mode == ImportMode.Row,
+            _logger, cancellationToken);
     }
 
     private async Task<ImportRowResult> ImportRow(int row, ProductDto dto, bool dryRun, ImportMode mode,
-        PictureBudget budget)
+        PictureBudget budget, CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -191,7 +192,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         if (isNew) await _productService.InsertProduct(product);
         else await _productService.UpdateProduct(product);
 
-        await UpdateProductData(dto, product, isNew, references, budget, warnings);
+        await UpdateProductData(dto, product, isNew, references, budget, warnings, cancellationToken);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, product.Id, key,
             errors, warnings);
     }
@@ -254,7 +255,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     }
 
     private async Task UpdateProductData(ProductDto productDto, Product product, bool isNew,
-        References references, PictureBudget budget, List<string> warnings)
+        References references, PictureBudget budget, List<string> warnings, CancellationToken cancellationToken)
     {
         await UpdateProductDataLayout(product);
         await UpdateProductDataDeliveryDate(product);
@@ -275,7 +276,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         await PrepareProductCollections(product, references.CollectionIds);
 
         //pictures
-        await PrepareProductPictures(productDto, product, isNew, budget, warnings);
+        await PrepareProductPictures(productDto, product, isNew, budget, warnings, cancellationToken);
     }
 
     private async Task UpdateProductDataLayout(Product product)
@@ -366,7 +367,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     }
 
     private async Task PrepareProductPictures(ProductDto productDto, Product product, bool isNew,
-        PictureBudget budget, List<string> warnings)
+        PictureBudget budget, List<string> warnings, CancellationToken cancellationToken)
     {
         //PictureUrls, when sent, replaces Picture1..3
         IEnumerable<string> urls = productDto.PictureUrls is { Count: > 0 }
@@ -385,7 +386,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             }
 
             if (budget != null) budget.Downloads++;
-            var image = await _downloadImage(pictureUrl);
+            var image = await _downloadImage(pictureUrl, cancellationToken);
             if (image == null)
             {
                 warnings.Add($"Picture '{pictureUrl}' could not be downloaded.");

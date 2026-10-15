@@ -47,6 +47,23 @@ public class SchemaPropertyTests
     }
 
     [TestMethod]
+    public async Task Product_CancelledDuringPicturePreload_StopsBeforeNextPicture()
+    {
+        using var cts = new CancellationTokenSource();
+        _pictureService.Setup(x => x.GetPictureById(It.IsAny<string>()))
+            .Callback(() => cts.Cancel())
+            .ReturnsAsync((string id) => new Picture { Id = id });
+        var product = new Product();
+        product.ProductPictures.Add(new ProductPicture { PictureId = "p1" });
+        product.ProductPictures.Add(new ProductPicture { PictureId = "p2" });
+
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() =>
+            new ProductSchemaProperty(_pictureService.Object).GetProperties([product], cts.Token));
+
+        _pictureService.Verify(x => x.GetPictureById(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Product_PictureColumns_DoNotDependOnRowInstances()
     {
         var product = new Product();

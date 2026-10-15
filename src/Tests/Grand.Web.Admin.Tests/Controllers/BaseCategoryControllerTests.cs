@@ -520,7 +520,7 @@ public class BaseCategoryControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>()), Times.Never);
+        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -537,6 +537,6 @@ public class BaseCategoryControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>()), Times.Once);
+        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

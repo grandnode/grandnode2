@@ -6,5 +6,6 @@ public interface IExportManager<T>
     ///     Export list of entity to XLSX
     /// </summary>
     /// <param name="entity">list of entity</param>
-    Task<byte[]> Export(IEnumerable<T> entity);
+    /// <param name="cancellationToken">Stops loading the data the columns need; the workbook is not built</param>
+    Task<byte[]> Export(IEnumerable<T> entity, CancellationToken cancellationToken = default);
 }

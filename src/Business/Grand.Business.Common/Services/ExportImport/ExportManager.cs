@@ -13,10 +13,12 @@ public class ExportManager<T> : IExportManager<T> where T : class
         _schemaProperty = schemaProperty;
     }
 
-    public virtual async Task<byte[]> Export(IEnumerable<T> entity)
+    public virtual async Task<byte[]> Export(IEnumerable<T> entity, CancellationToken cancellationToken = default)
     {
         //the rows are enumerated twice: by the schema to preload data, then by the provider
         var items = entity.ToList();
-        return _exportProvider.ExportToByte(await _schemaProperty.GetProperties(items), items);
+        var properties = await _schemaProperty.GetProperties(items, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        return _exportProvider.ExportToByte(properties, items);
     }
 }

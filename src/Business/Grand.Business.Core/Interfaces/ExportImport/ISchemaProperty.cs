@@ -9,5 +9,8 @@ public interface ISchemaProperty<T>
     ///     is loaded here, so the column getters never block on a task.
     /// </summary>
     /// <param name="items">Rows that will be exported</param>
-    Task<PropertyByName<T>[]> GetProperties(IEnumerable<T> items);
+    /// <param name="cancellationToken">
+    ///     Stops loading that data; the call throws <see cref="OperationCanceledException" />
+    /// </param>
+    Task<PropertyByName<T>[]> GetProperties(IEnumerable<T> items, CancellationToken cancellationToken = default);
 }

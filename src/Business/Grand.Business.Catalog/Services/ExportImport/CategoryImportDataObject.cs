@@ -44,9 +44,9 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         _logger = logger;
     }
 
-    public async Task Execute(IEnumerable<CategoryDto> data)
+    public async Task Execute(IEnumerable<CategoryDto> data, CancellationToken cancellationToken = default)
     {
-        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        var result = await Import(data.ToList(), false, ImportMode.Panel, cancellationToken);
         ImportRows.LogRejected(_logger, "category", result);
     }
 
@@ -61,11 +61,13 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     private Task<ImportBatchResult> Import(IReadOnlyList<CategoryDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
-        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, mode),
-            mode == ImportMode.Row, _logger, cancellationToken);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
+            (row, dto) => ImportRow(row, dto, dryRun, mode, cancellationToken), mode == ImportMode.Row, _logger,
+            cancellationToken);
     }
 
-    private async Task<ImportRowResult> ImportRow(int row, CategoryDto dto, bool dryRun, ImportMode mode)
+    private async Task<ImportRowResult> ImportRow(int row, CategoryDto dto, bool dryRun, ImportMode mode,
+        CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -117,7 +119,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         if (isNew) await _categoryService.InsertCategory(category);
         else await _categoryService.UpdateCategory(category);
 
-        await UpdateCategoryData(dto, category, parentMissing);
+        await UpdateCategoryData(dto, category, parentMissing, cancellationToken);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, category.Id, key,
             errors, warnings);
     }
@@ -153,7 +155,8 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
         return (found, found != null, error);
     }
 
-    private async Task UpdateCategoryData(CategoryDto categoryDto, Category category, bool parentMissing)
+    private async Task UpdateCategoryData(CategoryDto categoryDto, Category category, bool parentMissing,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(category.CategoryLayoutId))
         {
@@ -176,7 +179,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
 
         if (!string.IsNullOrEmpty(categoryDto.Picture))
         {
-            var picture = await LoadPicture(categoryDto.Picture, category.Name, category.PictureId);
+            var picture = await LoadPicture(categoryDto.Picture, category.Name, category.PictureId, cancellationToken);
             if (picture != null)
                 category.PictureId = picture.Id;
         }
@@ -200,14 +203,16 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     /// <param name="name">The name of the object</param>
     /// <param name="picId">Image identifier, may be null</param>
     /// <returns>The image or null if the image has not changed</returns>
-    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId = "")
+    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(pictureUrl))
             return null;
 
         //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
         //import read any file on the server
-        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts);
+        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts,
+            cancellationToken);
         if (image == null)
             return null;
 
