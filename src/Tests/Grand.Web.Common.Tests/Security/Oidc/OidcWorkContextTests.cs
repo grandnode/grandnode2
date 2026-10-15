@@ -11,6 +11,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Security.Oidc;
+using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
-using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common.Tests.Security.Oidc;
 
@@ -91,7 +91,7 @@ public class OidcWorkContextTests
         services.AddSingleton<IRequestCustomerResolver>(
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, Mock.Of<IGroupService>()));
         services.AddSingleton<IRequestCustomerResolver>(
-            new SearchEngineCustomerResolver(Mock.Of<IDetectionService>(), _customerService.Object));
+            new SearchEngineCustomerResolver(Mock.Of<IUserAgentClassifier>(), _customerService.Object, _accessor.Object));
         services.AddSingleton<IRequestCustomerResolver>(
             new AllowAnonymousCustomerResolver(_accessor.Object, _customerService.Object));
         return new TestableSetter(_accessor.Object, _authentication.Object, Mock.Of<ICurrencyService>(),

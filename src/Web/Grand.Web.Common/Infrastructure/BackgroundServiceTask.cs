@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Domain.Tasks;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -25,17 +26,23 @@ public class BackgroundServiceTask : BackgroundService
         _serviceProvider = serviceProvider;
     }
 
+    //how long a claimed run blocks other instances; the running instance renews it while the
+    //task executes, so it only runs out when that instance dies without finishing the run
+    internal static readonly TimeSpan LeaseDuration = TimeSpan.FromMinutes(5);
+    internal static readonly TimeSpan LeaseRenewInterval = TimeSpan.FromMinutes(1);
+
     internal enum ScheduleAction
     {
-        //task missing, disabled, or leased to another instance - all reversible, poll again later
+        //task missing, disabled, pinned to another instance, or still running elsewhere -
+        //all reversible, poll again later
         Retry,
-        //own lease (or none), enabled, and due - claim and execute
+        //enabled, due, and not running elsewhere - claim and execute
         RunNow,
-        //own lease, enabled, but not due yet - sleep until it is
+        //enabled, but not due yet - sleep until it is
         WaitForNextRun
     }
 
-    internal readonly record struct ScheduleDecision(ScheduleAction Action, int DelayMinutes);
+    internal readonly record struct ScheduleDecision(ScheduleAction Action, TimeSpan Delay);
 
     /// <summary>
     /// Pure decision of what the loop should do this iteration and how long to sleep
@@ -43,26 +50,52 @@ public class BackgroundServiceTask : BackgroundService
     /// resolves to a delay-and-retry, never to "stop the loop" - so the reversible states
     /// (task not seeded yet, disabled, leased elsewhere) can never end the loop for good.
     /// </summary>
-    internal static ScheduleDecision Decide(ScheduleTask task, string machineName, DateTime utcNow)
+    /// <param name="task">Task as read from the database</param>
+    /// <param name="machineName">Name of the machine (container hostname, pod name)</param>
+    /// <param name="instanceName">Configured Application:InstanceName, empty when not set</param>
+    /// <param name="utcNow">Current time</param>
+    internal static ScheduleDecision Decide(ScheduleTask task, string machineName, string instanceName,
+        DateTime utcNow)
     {
         if (task == null)
-            return new ScheduleDecision(ScheduleAction.Retry, 1);
+            return new ScheduleDecision(ScheduleAction.Retry, TimeSpan.FromMinutes(1));
 
-        var timeInterval = task.TimeInterval > 0 ? task.TimeInterval : 1;
+        var timeInterval = TimeSpan.FromMinutes(task.TimeInterval > 0 ? task.TimeInterval : 1);
 
-        var eligible = task.Enabled &&
-                       (string.IsNullOrEmpty(task.LeasedByMachineName) || machineName == task.LeasedByMachineName);
-        if (!eligible)
+        if (!task.Enabled || !IsPinnedToThisInstance(task.LeasedByMachineName, machineName, instanceName))
             return new ScheduleDecision(ScheduleAction.Retry, timeInterval);
 
+        //LiteDB returns dates as local time - compared with utcNow, they must be UTC
         if (task.LastStartUtc.HasValue)
         {
-            var nextRunUtc = task.LastStartUtc.Value.AddMinutes(task.TimeInterval);
+            var nextRunUtc = task.LastStartUtc.Value.ToUniversalTime().AddMinutes(task.TimeInterval);
+            //the exact remaining time, not whole minutes - truncating it turned the last
+            //minute before every run into a delay-free loop of database reads
             if (utcNow < nextRunUtc)
-                return new ScheduleDecision(ScheduleAction.WaitForNextRun, (int)(nextRunUtc - utcNow).TotalMinutes);
+                return new ScheduleDecision(ScheduleAction.WaitForNextRun, nextRunUtc - utcNow);
         }
 
+        //the previous run is still executing on another instance - come back when its lease runs out
+        var leasedUntilUtc = task.LeasedUntilUtc?.ToUniversalTime();
+        if (leasedUntilUtc > utcNow)
+            return new ScheduleDecision(ScheduleAction.Retry, leasedUntilUtc.Value - utcNow);
+
         return new ScheduleDecision(ScheduleAction.RunNow, timeInterval);
+    }
+
+    /// <summary>
+    /// A task pinned to a machine runs only on the instance with that name. Container hostnames
+    /// change on every deployment, so the configured instance name is accepted too - and it can be
+    /// shared by several instances, which then compete for the run like unpinned ones.
+    /// </summary>
+    private static bool IsPinnedToThisInstance(string leasedByMachineName, string machineName, string instanceName)
+    {
+        if (string.IsNullOrEmpty(leasedByMachineName))
+            return true;
+
+        return string.Equals(leasedByMachineName, machineName, StringComparison.OrdinalIgnoreCase) ||
+               (!string.IsNullOrEmpty(instanceName) &&
+                string.Equals(leasedByMachineName, instanceName, StringComparison.OrdinalIgnoreCase));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,6 +103,7 @@ public class BackgroundServiceTask : BackgroundService
         //resolved once from the root provider (not the per-iteration scope) so it also
         //survives to log failures raised before/around a scope, e.g. in the outer catch
         var logger = _serviceProvider.GetService<ILogger<BackgroundServiceTask>>();
+        var instanceName = _serviceProvider.GetService<AppConfig>()?.InstanceName;
 
         while (!stoppingToken.IsCancellationRequested)
             try
@@ -78,7 +112,7 @@ public class BackgroundServiceTask : BackgroundService
                 var serviceProvider = scope.ServiceProvider;
                 var scheduleTaskService = serviceProvider.GetService<IScheduleTaskService>();
                 var task = await scheduleTaskService.GetTaskByName(Name);
-                var decision = Decide(task, Environment.MachineName, DateTime.UtcNow);
+                var decision = Decide(task, Environment.MachineName, instanceName, DateTime.UtcNow);
 
                 if (task == null)
                     logger.LogInformation("Task {TaskName} is not exists in the database", Name);
@@ -88,7 +122,7 @@ public class BackgroundServiceTask : BackgroundService
 
                 //every branch above falls through to here - the loop always sleeps and
                 //retries, it never exits on its own (only cancellation ends it)
-                await Task.Delay(TimeSpan.FromMinutes(decision.DelayMinutes), stoppingToken);
+                await Task.Delay(decision.Delay, stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -104,7 +138,6 @@ public class BackgroundServiceTask : BackgroundService
     private async Task RunTask(IServiceProvider serviceProvider, IScheduleTaskService scheduleTaskService,
         ScheduleTask task, bool due, ILogger logger, CancellationToken stoppingToken)
     {
-        var updateTask = false;
         var scheduleTask = serviceProvider.GetRequiredKeyedService<IScheduleTask>(task.ScheduleTaskName);
         if (scheduleTask != null)
         {
@@ -115,12 +148,14 @@ public class BackgroundServiceTask : BackgroundService
             //only one wins and executes the task (no duplicated e-mails etc.)
             var runStartUtc = DateTime.UtcNow;
             var claimed = await scheduleTaskService.TryClaimTaskRun(task.Id, task.LastStartUtc,
-                runStartUtc, InstanceId);
+                runStartUtc, runStartUtc.Add(LeaseDuration), InstanceId);
             if (claimed)
             {
-                updateTask = true;
-                task.LastStartUtc = runStartUtc;
-                task.LeasedByInstance = InstanceId;
+                var succeeded = false;
+
+                //keeps other instances off the task while it runs, even past its next due time
+                using var leaseCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+                var leaseRenewal = RenewLease(task.Id, logger, leaseCts.Token);
                 try
                 {
                     //assign current customer (background task) / current store (from task).
@@ -133,8 +168,7 @@ public class BackgroundServiceTask : BackgroundService
 
                     logger.LogInformation("Task {TaskName} execute", Name);
                     await scheduleTask.Execute();
-                    task.LastSuccessUtc = DateTime.UtcNow;
-                    task.LastNonSuccessEndUtc = null;
+                    succeeded = true;
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
@@ -143,12 +177,22 @@ public class BackgroundServiceTask : BackgroundService
                 }
                 catch (Exception exc)
                 {
-                    task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                    task.Enabled = !task.StopOnError;
                     logger.LogError(exc,
                         "Error while running the \'{TaskScheduleTaskName}\' schedule task",
                         task.ScheduleTaskName);
                 }
+                finally
+                {
+                    await leaseCts.CancelAsync();
+                    await leaseRenewal;
+                }
+
+                //the run is over - record its result and release the lease for the next one.
+                //Not a write of the whole entity: that would revert changes saved in the admin
+                //during the run, and - if the lease ran out and another instance took the task
+                //over - overwrite that instance's claim, letting a third one start
+                await scheduleTaskService.CompleteTaskRun(task.Id, InstanceId, succeeded, DateTime.UtcNow,
+                    !succeeded && task.StopOnError);
             }
             else
             {
@@ -159,16 +203,37 @@ public class BackgroundServiceTask : BackgroundService
         }
         else
         {
-            updateTask = true;
             task.Enabled = !task.StopOnError;
             task.LastNonSuccessEndUtc = DateTime.UtcNow;
             logger.LogError("Type {TaskName} is not registered", Name);
-        }
-
-        //persist only when this instance actually ran the task - an unconditional
-        //write would overwrite the claim/results of the winning instance with stale data
-        if (updateTask)
             await scheduleTaskService.UpdateTask(task);
+        }
+    }
+
+    /// <summary>
+    /// Extends the lease of the claimed run until cancelled. Uses its own scope: it runs alongside
+    /// the task, which keeps using the iteration's scope. A failed renewal is only logged - the
+    /// lease is several renewals long, and the run itself must not fail because of it.
+    /// </summary>
+    private async Task RenewLease(string taskId, ILogger logger, CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+            try
+            {
+                await Task.Delay(LeaseRenewInterval, cancellationToken);
+
+                using var scope = _serviceProvider.CreateScope();
+                var scheduleTaskService = scope.ServiceProvider.GetRequiredService<IScheduleTaskService>();
+                await scheduleTaskService.RenewTaskLease(taskId, InstanceId, DateTime.UtcNow.Add(LeaseDuration));
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                //the run has ended
+            }
+            catch (Exception exc)
+            {
+                logger.LogWarning(exc, "Could not renew the lease of task {TaskName}", Name);
+            }
     }
 
     private static async Task<(IStoreContext storeContext, IWorkContext workContext)> InitializeContext(

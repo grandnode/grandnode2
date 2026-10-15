@@ -482,7 +482,7 @@ public partial class InstallationService : IInstallationService
         await dbContext.CreateIndex(_customerRepository,
             OrderBuilder<Customer>.Create().Ascending(x => x.LastActivityDateUtc), "LastActivityDateUtc_1");
         await dbContext.CreateIndex(_customerRepository, OrderBuilder<Customer>.Create().Ascending(x => x.CustomerGuid),
-            "CustomerGuid_1");
+            "CustomerGuid_1", true);
         await dbContext.CreateIndex(_customerRepository, OrderBuilder<Customer>.Create().Ascending(x => x.Email),
             "Email_1");
         //compound lookup indexes supporting per-store customer identity (uniqueness of Email/Username + StoreId

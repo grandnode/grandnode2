@@ -30,4 +30,34 @@
 	<Resource Name="Admin.Login.SignInWith" Area="Admin">
 		<Value>Sign in with {0}</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks" Area="Admin">
+		<Value>OpenID Connect account links</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Info" Area="Admin">
+		<Value>Identity provider: {0}. Accounts connected to it: {1}.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.ProviderChanged" Area="Admin">
+		<Value>The identity provider changed from {0} to {1}. Sign-in through the provider and its access tokens are refused until you decide: remove the links when this is another provider (people connect again at their next sign-in), or keep them when it is the same provider at a new address.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.ProviderUnknown" Area="Admin">
+		<Value>The OpenID Connect links were made before the store recorded their identity provider, so it cannot tell whether {0} is the same provider. Sign-in through the provider and its access tokens are refused until you decide: keep the links when they were made with {0}, or remove them (people connect again at their next sign-in).</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Remove" Area="Admin">
+		<Value>Remove all links</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Remove.Confirm" Area="Admin">
+		<Value>Every account loses its connection to the identity provider and every session started there ends. People connect again at their next sign-in, by the rules of a first sign-in. Continue?</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Removed" Area="Admin">
+		<Value>{0} account links removed.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Keep" Area="Admin">
+		<Value>Keep the links (same provider)</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Keep.Confirm" Area="Admin">
+		<Value>Keep the links only when the new address belongs to the same provider, with the same users. A user of another provider could otherwise sign in to someone else's account. Continue?</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Kept" Area="Admin">
+		<Value>The account links now belong to the configured identity provider.</Value>
+	</Resource>
 </Language>

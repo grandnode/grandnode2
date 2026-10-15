@@ -1,4 +1,5 @@
 using Grand.Business.Authentication.Services;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -36,9 +37,13 @@ public class OidcCustomerResolverTests
     private CustomerConfig _customerConfig;
     private CustomerSettings _customerSettings;
 
+    private Mock<IOidcLinkService> _linkService;
+
     [TestInitialize]
     public void Init()
     {
+        _linkService = new Mock<IOidcLinkService>();
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
         _links = new MongoDBRepositoryTest<ExternalAuthentication>();
         _customerService = new Mock<ICustomerService>();
         _customerManagerService = new Mock<ICustomerManagerService>();
@@ -58,7 +63,7 @@ public class OidcCustomerResolverTests
 
     private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication> links = null) =>
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
-            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
+            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance, _linkService.Object);
 
     private static ClaimsPrincipal Principal(string sub = "sub-1", string email = "John@Example.com",
         string emailVerified = "true")
@@ -83,6 +88,18 @@ public class OidcCustomerResolverTests
     [TestMethod]
     public async Task NoSubject_InvalidToken() =>
         Assert.AreEqual(OidcFailureKind.InvalidToken, (await Resolver().Resolve(Principal(sub: null), "store1")).Failure);
+
+    [TestMethod]
+    public async Task ProviderChanged_LinkedSubject_Forbidden_CustomerNotLoaded()
+    {
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(false);
+        await Link("c1");
+
+        var result = await Resolver().Resolve(Principal(), "store1");
+
+        Assert.AreEqual(OidcFailureKind.Forbidden, result.Failure);
+        _customerService.Verify(x => x.GetCustomerById(It.IsAny<string>()), Times.Never);
+    }
 
     [TestMethod]
     public async Task CustomSubjectClaim_IsUsed()

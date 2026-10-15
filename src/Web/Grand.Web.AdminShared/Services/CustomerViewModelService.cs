@@ -33,6 +33,7 @@ using Grand.Web.AdminShared.Models.ShoppingCart;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Models;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
@@ -1262,14 +1263,17 @@ public class CustomerViewModelService : ICustomerViewModelService
         foreach (var record in await openAuthenticationService.GetExternalIdentifiers(customer))
         {
             var method = openAuthenticationService.LoadAuthenticationProviderBySystemName(record.ProviderSystemName);
-            if (method == null)
+            //the resource server makes OpenID Connect links without the sign-in plugin: they are listed (and can be
+            //removed) all the same
+            var isOidcLink = record.ProviderSystemName == OidcResourceServerDefaults.ProviderSystemName;
+            if (method == null && !isOidcLink)
                 continue;
 
             result.Add(new CustomerModel.AssociatedExternalAuthModel {
                 Id = record.Id,
                 Email = record.Email,
                 ExternalIdentifier = record.ExternalIdentifier,
-                AuthMethodName = method.FriendlyName
+                AuthMethodName = method?.FriendlyName ?? "OpenID Connect"
             });
         }
 

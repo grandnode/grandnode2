@@ -669,4 +669,31 @@ public class BaseCustomerControllerTests
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task ExternalAuthenticationDelete_CustomerInScope_RemovesTheLink()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+        var links = new Mock<Grand.Business.Core.Interfaces.Authentication.IOidcLinkService>();
+        links.Setup(l => l.Remove(customer, "link-1")).ReturnsAsync(true);
+
+        var result = await Controller.ExternalAuthenticationDelete("link-1", "c1", links.Object);
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        links.Verify(l => l.Remove(customer, "link-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ExternalAuthenticationDelete_CustomerOutOfScope_Throws_NothingRemoved()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(false);
+        var links = new Mock<Grand.Business.Core.Interfaces.Authentication.IOidcLinkService>();
+
+        await Assert.ThrowsAsync<ArgumentException>(() => Controller.ExternalAuthenticationDelete("link-1", "c1", links.Object));
+        links.Verify(l => l.Remove(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
+    }
 }

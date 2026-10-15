@@ -44,10 +44,4 @@ public class ExternalAuthentication : BaseEntity
     ///     Gets or sets a value indicating whether the link was made by the e-mail address alone, without the account's password
     /// </summary>
     public bool LinkedByEmail { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the time before which the identity provider's access tokens of this subject are refused (provider
-    ///     sign-out, or the provider refused the account); empty = never
-    /// </summary>
-    public DateTime? TokensRevokedBeforeUtc { get; set; }
 }

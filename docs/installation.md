@@ -47,6 +47,21 @@ instance serves its own copy of the sitemap until the sitemap task runs again, a
 the push notification settings are saved again. A file left behind in `wwwroot` keeps being served after it is
 deleted in the admin, because the shop only deletes on the media path. Thumbnails are regenerated on the media path.
 
+Scheduled tasks need no setup: every instance runs the scheduler, and each due run is claimed in the database by
+exactly one of them. The claiming instance holds a lease on the task while it runs (renewed every minute, five
+minutes long), so a run that takes longer than the task's interval is not started again elsewhere, and a run whose
+instance died is picked up once the lease runs out.
+
+To keep a task on particular instances, set **Leased by machine name** on the task in the admin. In a container the
+machine name is the hostname, which changes on every deployment, so give those instances a stable name with
+`Application:InstanceName` and enter that name instead. Several instances may share it; one of them runs each due
+task:
+
+```bash
+docker run -d --name grandnode2-worker --link mongodb:mongo \
+  -e Application__InstanceName=worker grandnode/grandnode2
+```
+
 ## Open locally in an IDE
 
 Extract the source code package downloaded from the Releases tab to a folder (or clone the repository), and open

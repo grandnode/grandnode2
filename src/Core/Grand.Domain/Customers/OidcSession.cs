@@ -44,5 +44,6 @@ public enum OidcSessionEndReason
     MaxLifetime = 4,
     RevalidationRefused = 5,
     RevalidationUnavailable = 6,
-    NoRefreshToken = 7
+    NoRefreshToken = 7,
+    LinkRemoved = 8
 }

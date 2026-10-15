@@ -1,4 +1,5 @@
 using Grand.Business.Authentication.Services;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -36,9 +37,13 @@ public class OidcCustomerResolverLoginTests
     private CustomerConfig _customerConfig;
     private CustomerSettings _customerSettings;
 
+    private Mock<IOidcLinkService> _linkService;
+
     [TestInitialize]
     public void Init()
     {
+        _linkService = new Mock<IOidcLinkService>();
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
         _links = new MongoDBRepositoryTest<ExternalAuthentication>();
         _customerService = new Mock<ICustomerService>();
         _customerManagerService = new Mock<ICustomerManagerService>();
@@ -58,7 +63,7 @@ public class OidcCustomerResolverLoginTests
 
     private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication> links = null) =>
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
-            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance);
+            _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance, _linkService.Object);
 
     private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
         string storeId = null, bool byEmail = false) =>
@@ -76,6 +81,27 @@ public class OidcCustomerResolverLoginTests
     [TestMethod]
     public async Task NoSubject_Refused_InvalidIdentity() =>
         Assert.AreEqual(OidcLoginRefusal.InvalidIdentity, (await Resolver().ResolveForLogin(null, "a@b.c", true, Store)).Refusal);
+
+    [TestMethod]
+    public async Task ProviderChanged_Linked_RefusedNothingLoaded()
+    {
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(false);
+        await Link("c1");
+
+        Assert.AreEqual(OidcLoginRefusal.ProviderChanged,
+            (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+        _customerService.Verify(x => x.GetCustomerById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProviderChanged_LinkIdentity_NothingStored()
+    {
+        _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(false);
+
+        Assert.AreEqual(OidcLinkResult.ProviderChanged,
+            await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
+        Assert.AreEqual(0, LinksOf("sub-1").Count);
+    }
 
     [TestMethod]
     public async Task Linked_SignIn_WithoutEmail()

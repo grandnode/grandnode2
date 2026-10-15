@@ -9,6 +9,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Mediator;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Controllers;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
@@ -33,6 +34,8 @@ public class ProductControllerPreviewTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IPermissionService> _permissionServiceMock;
     private Mock<IProductService> _productServiceMock;
+    private Mock<IGuestCustomerPersistence> _guestPersistenceMock;
+    private Mock<IRecentlyViewedProductsService> _recentlyViewedMock;
 
     [TestInitialize]
     public void Init()
@@ -45,6 +48,8 @@ public class ProductControllerPreviewTests
         _aclServiceMock = new Mock<IAclService>();
         _permissionServiceMock = new Mock<IPermissionService>();
         _mediatorMock = new Mock<IMediator>();
+        _guestPersistenceMock = new Mock<IGuestCustomerPersistence>();
+        _recentlyViewedMock = new Mock<IRecentlyViewedProductsService>();
 
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(x => x.CurrentCustomer).Returns(_customer);
@@ -67,13 +72,14 @@ public class ProductControllerPreviewTests
             _productServiceMock.Object,
             contextAccessorMock.Object,
             new Mock<ITranslationService>().Object,
-            new Mock<IRecentlyViewedProductsService>().Object,
+            _recentlyViewedMock.Object,
             new Mock<IShoppingCartService>().Object,
             _aclServiceMock.Object,
             _permissionServiceMock.Object,
             _mediatorMock.Object,
             new CatalogSettings { AllowViewUnpublishedProductPage = false },
-            new CaptchaSettings()) {
+            new CaptchaSettings(),
+            _guestPersistenceMock.Object) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext { Request = { Method = "GET" } }
             }
@@ -136,5 +142,28 @@ public class ProductControllerPreviewTests
         var result = await _controller.ProductDetails("p1");
 
         Assert.IsInstanceOfType<ViewResult>(result.Result);
+    }
+
+    [TestMethod]
+    public async Task ProductDetails_UnsavedGuest_DoesNotRecordRecentlyViewed()
+    {
+        GivenProduct(new Product { Id = "p1", Published = true, VisibleIndividually = true });
+        _guestPersistenceMock.Setup(x => x.IsTransient(_customer.Id)).Returns(true);
+
+        await _controller.ProductDetails("p1");
+
+        _recentlyViewedMock.Verify(x => x.AddProductToRecentlyViewedList(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductDetails_SavedCustomer_RecordsRecentlyViewed()
+    {
+        GivenProduct(new Product { Id = "p1", Published = true, VisibleIndividually = true });
+        _guestPersistenceMock.Setup(x => x.IsTransient(_customer.Id)).Returns(false);
+
+        await _controller.ProductDetails("p1");
+
+        _recentlyViewedMock.Verify(x => x.AddProductToRecentlyViewedList(_customer.Id, "p1"), Times.Once);
     }
 }

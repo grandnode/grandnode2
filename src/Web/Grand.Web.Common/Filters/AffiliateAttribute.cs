@@ -2,6 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Affiliates;
 using Grand.Infrastructure;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -24,9 +25,10 @@ public class AffiliateAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that checks and updates affiliate of customer
     /// </summary>
-    private class AffiliateFilter(IAffiliateService affiliateService,
+    internal class AffiliateFilter(IAffiliateService affiliateService,
         ICustomerService customerService,
-        IContextAccessor contextAccessor) : IAsyncActionFilter
+        IContextAccessor contextAccessor,
+        IGuestCustomerPersistence guestCustomerPersistence) : IAsyncActionFilter
     {
         #region Methods
 
@@ -83,6 +85,9 @@ public class AffiliateAttribute : TypeFilterAttribute
 
             if (affiliate.Id == contextAccessor.WorkContext.CurrentCustomer.AffiliateId)
                 return;
+
+            //a landing page with ?affiliateid= is usually the guest's first, unsaved request
+            await guestCustomerPersistence.EnsurePersisted();
 
             //update affiliate identifier
             contextAccessor.WorkContext.CurrentCustomer.AffiliateId = affiliate.Id;
