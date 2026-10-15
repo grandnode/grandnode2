@@ -240,7 +240,12 @@ public class OrderCalculationService : IOrderCalculationService
     /// </summary>
     /// <param name="cart">Cart</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
-    public virtual Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts,
+    /// <remarks>
+    ///     Not virtual: payment providers read the subtotal from <see cref="IShoppingCartSubTotalService" />,
+    ///     so an override here would make the order total and the payment fee disagree.
+    ///     Customize the subtotal (and its discount) in <see cref="ShoppingCartSubTotalService" /> instead.
+    /// </remarks>
+    public Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts,
             double subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>
         GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, bool includingTax)
     {

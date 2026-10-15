@@ -143,9 +143,9 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
             {
                 var product = await _productService.GetProductById(item.ProductId);
                 var analyticsEcommerceDetailScript = _googleAnalyticsEcommerceSettings.EcommerceDetailScript;
-                //get category
+                //get category; the product may have been deleted since the order was placed
                 var category = "";
-                if (product.ProductCategories.Any())
+                if (product != null && product.ProductCategories.Any())
                 {
                     var defaultProductCategory =
                         await _categoryService.GetCategoryById(product.ProductCategories.MinBy(x => x.DisplayOrder)
@@ -161,7 +161,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
                 analyticsEcommerceDetailScript =
                     analyticsEcommerceDetailScript.Replace("{PRODUCTID}", FixIllegalJavaScriptChars(item.ProductId));
                 analyticsEcommerceDetailScript =
-                    analyticsEcommerceDetailScript.Replace("{PRODUCTNAME}", FixIllegalJavaScriptChars(product.Name));
+                    analyticsEcommerceDetailScript.Replace("{PRODUCTNAME}", FixIllegalJavaScriptChars(product?.Name ?? ""));
                 analyticsEcommerceDetailScript =
                     analyticsEcommerceDetailScript.Replace("{CATEGORYNAME}", FixIllegalJavaScriptChars(category));
                 var unitPrice = _googleAnalyticsEcommerceSettings.IncludingTax

@@ -1,7 +1,8 @@
-using Grand.Business.Catalog.Services.Discounts;
+﻿using Grand.Business.Catalog.Services.Discounts;
 using Grand.Business.Catalog.Services.Prices;
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Checkout.Services.Payments;
+using Grand.Business.Checkout.Services.Shipping;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
@@ -31,10 +32,13 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Payments.BrainTree;
 using Payments.CashOnDelivery;
+using Shipping.ByWeight;
+using Shipping.ByWeight.Services;
 
 namespace Grand.Modules.Tests.Plugins;
 
@@ -110,5 +114,36 @@ public class PluginDependencyCycleTests
         using var scope = root.CreateScope();
 
         Assert.IsNotNull(scope.ServiceProvider.GetRequiredService<IPricingService>());
+    }
+
+    [TestMethod]
+    public void ShippingProviders_DoNotDependBackOnShipping()
+    {
+        //ShippingService builds every provider eagerly; ByWeight pulls in pricing, and pricing every discount rule
+        var services = new ServiceCollection();
+        services.AddScoped<IShippingService, ShippingService>();
+        services.AddScoped<IShippingRateCalculationProvider, ByWeightShippingCalcPlugin>();
+        services.AddScoped<IPricingService, PricingService>();
+        services.AddScoped<IDiscountHandlerService, DiscountHandlerService>();
+        services.AddScoped<IDiscountValidationService, DiscountValidationService>();
+        services.AddScoped<IDiscountProviderLoader, DiscountProviderLoader>();
+        new global::DiscountRules.Standard.StartupApplication().ConfigureServices(services,
+            new ConfigurationBuilder().Build());
+        AddMocks(services, typeof(ILogger<ShippingService>), typeof(ICountryService),
+            typeof(IShippingMethodService), typeof(IShippingByWeightService), typeof(ICheckoutAttributeParser),
+            typeof(IContextAccessor), typeof(IProductService), typeof(IMediator), typeof(ICurrencyService),
+            typeof(IDiscountService), typeof(ICategoryService), typeof(IBrandService), typeof(ICollectionService),
+            typeof(IVendorService), typeof(IRepository<DiscountCoupon>), typeof(IOrderService),
+            typeof(ITranslationService));
+        services.AddSingleton(new ShippingProviderSettings());
+        services.AddSingleton(new ShippingSettings());
+        services.AddSingleton(new ByWeightShippingSettings());
+        services.AddSingleton(new ShoppingCartSettings());
+        services.AddSingleton(new CatalogSettings());
+
+        using var root = Build(services);
+        using var scope = root.CreateScope();
+
+        Assert.IsNotNull(scope.ServiceProvider.GetRequiredService<IShippingService>());
     }
 }

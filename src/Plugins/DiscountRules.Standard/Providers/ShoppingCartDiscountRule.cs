@@ -54,7 +54,11 @@ public class ShoppingCartDiscountRule : IDiscountRule
             return result;
         }
 
-        var spentAmount = await _mediator.Send(new GetShoppingCartItemsSubTotalQuery { Items = cart });
+        var spentAmount = await _mediator.Send(new GetShoppingCartItemsSubTotalQuery {
+            Customer = request.Customer,
+            Store = request.Store,
+            Items = cart
+        });
 
         result.IsValid = spentAmount > spentAmountRequirement;
         return result;

@@ -1,4 +1,4 @@
-using DiscountRules.Standard.Providers;
+﻿using DiscountRules.Standard.Providers;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
@@ -49,7 +49,8 @@ public class ShoppingCartDiscountRuleTests
 
         Assert.IsTrue(result.IsValid);
         _mediator.Verify(m => m.Send(
-            It.Is<GetShoppingCartItemsSubTotalQuery>(q => q.Items.Count == 1 && q.Items[0] == inStore),
+            It.Is<GetShoppingCartItemsSubTotalQuery>(q =>
+                q.Customer == customer && q.Store.Id == "store1" && q.Items.Count == 1 && q.Items[0] == inStore),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
