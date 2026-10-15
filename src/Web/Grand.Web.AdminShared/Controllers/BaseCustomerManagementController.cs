@@ -181,7 +181,7 @@ public abstract class BaseCustomerManagementController(
             var bytes = await exportManager.Export(customers, HttpContext.RequestAborted);
             return File(bytes, "text/xls", "customers.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

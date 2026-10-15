@@ -50,7 +50,7 @@ public class OrderController(
             var bytes = await exportManager.Export(orders, HttpContext.RequestAborted);
             return File(bytes, "text/xls", "orders.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

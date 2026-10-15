@@ -384,7 +384,7 @@ public class CountryController : BaseAdminController
             Error(_translationService.GetResource("Admin.Common.UploadFile"));
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

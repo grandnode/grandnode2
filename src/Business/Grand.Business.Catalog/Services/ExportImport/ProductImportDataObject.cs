@@ -95,6 +95,8 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     {
         var result = await Import(data.ToList(), false, ImportMode.Panel, cancellationToken);
         ImportRows.LogRejected(_logger, "product", result);
+        //what was saved stays saved; the panel must not report a cancelled import as done
+        cancellationToken.ThrowIfCancellationRequested();
     }
 
     /// <summary>Row API: an unknown Id is rejected, a row without Id is matched by Sku</summary>
@@ -189,10 +191,13 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             return new ImportRowResult(row, ImportRowStatus.Rejected, "", key, errors, warnings);
         }
 
+        //downloaded before anything is written, so a cancelled download leaves the row untouched
+        var images = await DownloadProductPictures(dto, budget, warnings, cancellationToken);
+
         if (isNew) await _productService.InsertProduct(product);
         else await _productService.UpdateProduct(product);
 
-        await UpdateProductData(dto, product, isNew, references, budget, warnings, cancellationToken);
+        await UpdateProductData(dto, product, isNew, references, images);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, product.Id, key,
             errors, warnings);
     }
@@ -255,7 +260,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     }
 
     private async Task UpdateProductData(ProductDto productDto, Product product, bool isNew,
-        References references, PictureBudget budget, List<string> warnings, CancellationToken cancellationToken)
+        References references, List<DownloadedImage> images)
     {
         await UpdateProductDataLayout(product);
         await UpdateProductDataDeliveryDate(product);
@@ -276,7 +281,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         await PrepareProductCollections(product, references.CollectionIds);
 
         //pictures
-        await PrepareProductPictures(productDto, product, isNew, budget, warnings, cancellationToken);
+        await PrepareProductPictures(product, isNew, images);
     }
 
     private async Task UpdateProductDataLayout(Product product)
@@ -366,14 +371,15 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         }
     }
 
-    private async Task PrepareProductPictures(ProductDto productDto, Product product, bool isNew,
-        PictureBudget budget, List<string> warnings, CancellationToken cancellationToken)
+    private async Task<List<DownloadedImage>> DownloadProductPictures(ProductDto productDto, PictureBudget budget,
+        List<string> warnings, CancellationToken cancellationToken)
     {
         //PictureUrls, when sent, replaces Picture1..3
         IEnumerable<string> urls = productDto.PictureUrls is { Count: > 0 }
             ? productDto.PictureUrls
             : new[] { productDto.Picture1, productDto.Picture2, productDto.Picture3 };
 
+        var images = new List<DownloadedImage>();
         foreach (var pictureUrl in urls)
         {
             if (string.IsNullOrEmpty(pictureUrl))
@@ -388,31 +394,22 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             if (budget != null) budget.Downloads++;
             var image = await _downloadImage(pictureUrl, cancellationToken);
             if (image == null)
-            {
                 warnings.Add($"Picture '{pictureUrl}' could not be downloaded.");
+            else
+                images.Add(image);
+        }
+
+        return images;
+    }
+
+    private async Task PrepareProductPictures(Product product, bool isNew, List<DownloadedImage> images)
+    {
+        foreach (var image in images)
+        {
+            //the same content as one of the product's pictures
+            if (!isNew && await AnyStored(product.ProductPictures, image))
                 continue;
-            }
 
-            var pictureAlreadyExists = false;
-            if (!isNew)
-            {
-                //compare with existing product pictures
-                var existingPictures = product.ProductPictures;
-                foreach (var existingPicture in existingPictures)
-                {
-                    var pp = await _pictureService.GetPictureById(existingPicture.PictureId);
-                    var existingBinary = await _pictureService.LoadPictureBinary(pp);
-                    //picture binary after validation (like in database)
-                    var validatedPictureBinary = _pictureService.ValidatePicture(image.Binary, image.MimeType);
-                    if (!existingBinary.SequenceEqual(validatedPictureBinary) &&
-                        !existingBinary.SequenceEqual(image.Binary)) continue;
-                    //the same picture content
-                    pictureAlreadyExists = true;
-                    break;
-                }
-            }
-
-            if (pictureAlreadyExists) continue;
             var picture = await _pictureService.InsertPicture(image.Binary, image.MimeType,
                 _pictureService.GetPictureSeName(product.Name), "", "", false,
                 Reference.Product, product.Id);
@@ -422,6 +419,14 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             };
             await _productService.InsertProductPicture(productPicture, product.Id);
         }
+    }
+
+    private async Task<bool> AnyStored(IEnumerable<ProductPicture> productPictures, DownloadedImage image)
+    {
+        foreach (var productPicture in productPictures)
+            if (await ImportPictures.IsStored(_pictureService, productPicture.PictureId, image))
+                return true;
+        return false;
     }
 
     private static bool ValidProduct(Product product)

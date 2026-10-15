@@ -10,7 +10,9 @@ public interface ISchemaProperty<T>
     /// </summary>
     /// <param name="items">Rows that will be exported</param>
     /// <param name="cancellationToken">
-    ///     Stops loading that data; the call throws <see cref="OperationCanceledException" />
+    ///     Stops loading that data where an implementation loads it in steps (pictures); the call then throws
+    ///     <see cref="OperationCanceledException" />. <see cref="IExportManager{T}" /> checks the token again before it
+    ///     builds the workbook
     /// </param>
     Task<PropertyByName<T>[]> GetProperties(IEnumerable<T> items, CancellationToken cancellationToken = default);
 }

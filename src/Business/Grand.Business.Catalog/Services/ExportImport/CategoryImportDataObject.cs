@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
-using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
@@ -48,6 +47,8 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     {
         var result = await Import(data.ToList(), false, ImportMode.Panel, cancellationToken);
         ImportRows.LogRejected(_logger, "category", result);
+        //what was saved stays saved; the panel must not report a cancelled import as done
+        cancellationToken.ThrowIfCancellationRequested();
     }
 
     /// <summary>Row API: an unknown Id is rejected, a row without Id is matched by SeName, else (best effort) by Name</summary>
@@ -116,10 +117,14 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
             return new ImportRowResult(row, ImportRowStatus.Rejected, "", key, errors, warnings);
         }
 
+        //downloaded before anything is written, so a cancelled download leaves the row untouched
+        var image = await ImportPictures.Download(dto.Picture, _securityConfig.PictureImportAllowedPrivateHosts,
+            cancellationToken);
+
         if (isNew) await _categoryService.InsertCategory(category);
         else await _categoryService.UpdateCategory(category);
 
-        await UpdateCategoryData(dto, category, parentMissing, cancellationToken);
+        await UpdateCategoryData(dto, category, parentMissing, image);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, category.Id, key,
             errors, warnings);
     }
@@ -156,7 +161,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     }
 
     private async Task UpdateCategoryData(CategoryDto categoryDto, Category category, bool parentMissing,
-        CancellationToken cancellationToken)
+        DownloadedImage image)
     {
         if (string.IsNullOrEmpty(category.CategoryLayoutId))
         {
@@ -177,12 +182,9 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
                  await _categoryService.GetCategoryById(category.ParentCategoryId) == null)
             category.ParentCategoryId = string.Empty;
 
-        if (!string.IsNullOrEmpty(categoryDto.Picture))
-        {
-            var picture = await LoadPicture(categoryDto.Picture, category.Name, category.PictureId, cancellationToken);
-            if (picture != null)
-                category.PictureId = picture.Id;
-        }
+        var picture = await ImportPictures.Save(_pictureService, image, category.Name, category.PictureId);
+        if (picture != null)
+            category.PictureId = picture.Id;
 
         var seName = category.SeName ?? category.Name;
         seName = await _seNameService.ValidateSeName(category, seName, category.Name, true);
@@ -194,48 +196,5 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     private static bool ValidCategory(Category category)
     {
         return !string.IsNullOrEmpty(category.Name);
-    }
-
-    /// <summary>
-    ///     Creates or loads the image
-    /// </summary>
-    /// <param name="pictureUrl">The URL of the image</param>
-    /// <param name="name">The name of the object</param>
-    /// <param name="picId">Image identifier, may be null</param>
-    /// <returns>The image or null if the image has not changed</returns>
-    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrEmpty(pictureUrl))
-            return null;
-
-        //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
-        //import read any file on the server
-        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts,
-            cancellationToken);
-        if (image == null)
-            return null;
-
-        var mimeType = image.MimeType;
-        var newPictureBinary = image.Binary;
-        var pictureAlreadyExists = false;
-        if (!string.IsNullOrEmpty(picId))
-        {
-            //compare with existing product pictures
-            var existingPicture = await _pictureService.GetPictureById(picId);
-
-            var existingBinary = await _pictureService.LoadPictureBinary(existingPicture);
-            //picture binary after validation (like in database)
-            var validatedPictureBinary = _pictureService.ValidatePicture(newPictureBinary, mimeType);
-            if (existingBinary.SequenceEqual(validatedPictureBinary) ||
-                existingBinary.SequenceEqual(newPictureBinary))
-                pictureAlreadyExists = true;
-        }
-
-        if (pictureAlreadyExists) return null;
-
-        var newPicture = await _pictureService.InsertPicture(newPictureBinary, mimeType,
-            _pictureService.GetPictureSeName(name));
-        return newPicture;
     }
 }

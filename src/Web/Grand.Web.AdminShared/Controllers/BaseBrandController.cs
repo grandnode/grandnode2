@@ -255,7 +255,7 @@ public abstract class BaseBrandController(
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "brands.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
@@ -293,7 +293,7 @@ public abstract class BaseBrandController(
             Success(translationService.GetResource("Admin.Catalog.Brands.Imported"));
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

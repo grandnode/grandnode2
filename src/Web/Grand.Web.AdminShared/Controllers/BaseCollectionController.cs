@@ -256,7 +256,7 @@ public abstract class BaseCollectionController(
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "collections.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
@@ -294,7 +294,7 @@ public abstract class BaseCollectionController(
             Success(translationService.GetResource("Admin.Catalog.Collection.Imported"));
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

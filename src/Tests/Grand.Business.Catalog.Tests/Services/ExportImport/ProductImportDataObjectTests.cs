@@ -645,7 +645,7 @@ public class ProductImportDataObjectTests
     }
 
     [TestMethod]
-    public async Task Import_CancelledDuringPictureDownload_RowFailedRestNotProcessed()
+    public async Task Import_CancelledDuringPictureDownload_RowNotWrittenAndNotProcessed()
     {
         SetupLookups();
         using var cts = new CancellationTokenSource();
@@ -661,15 +661,15 @@ public class ProductImportDataObjectTests
             new() { Name = "two", Sku = "S2" }
         }, false, cts.Token);
 
-        //the product was saved before its picture, so the row may be partly written
+        //the pictures are downloaded before the product is written, so the interrupted row is untouched
         Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
-        Assert.AreEqual(ImportRowResult.FailedError, result.Rows[0].Errors.Single());
+        Assert.AreEqual(ImportRowResult.NotProcessedError, result.Rows[0].Errors.Single());
         Assert.AreEqual(ImportRowResult.NotProcessedError, result.Rows[1].Errors.Single());
-        Assert.AreEqual("one", _repository.Table.Single().Name);
+        Assert.IsFalse(_repository.Table.Any());
     }
 
     [TestMethod]
-    public async Task Execute_CancelledMidBatch_RemainingRowsLoggedAsNotProcessed()
+    public async Task Execute_CancelledMidBatch_RemainingRowsLoggedAsNotProcessedAndThrows()
     {
         SetupLookups();
         using var cts = new CancellationTokenSource();
@@ -678,9 +678,11 @@ public class ProductImportDataObjectTests
             .Callback(() => cts.Cancel())
             .Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new() }));
 
-        await _productImportDataObject.Execute(new List<ProductDto> {
-            new() { Name = "one", Sku = "S1" }, new() { Name = "two", Sku = "S2" }, new() { Name = "three", Sku = "S3" }
-        }, cts.Token);
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => _productImportDataObject.Execute(
+            new List<ProductDto> {
+                new() { Name = "one", Sku = "S1" }, new() { Name = "two", Sku = "S2" },
+                new() { Name = "three", Sku = "S3" }
+            }, cts.Token));
 
         Assert.AreEqual("one", _repository.Table.Single().Name);
         _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(),

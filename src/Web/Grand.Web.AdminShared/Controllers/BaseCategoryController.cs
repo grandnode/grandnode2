@@ -223,7 +223,7 @@ public abstract class BaseCategoryController(
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "categories.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
@@ -261,7 +261,7 @@ public abstract class BaseCategoryController(
             Success(translationService.GetResource("Admin.Catalog.Category.Imported"));
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
