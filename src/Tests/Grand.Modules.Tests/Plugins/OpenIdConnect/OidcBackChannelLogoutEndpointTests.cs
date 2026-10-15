@@ -28,6 +28,7 @@ public class OidcBackChannelLogoutEndpointTests
     private static readonly RsaSecurityKey Key = NewKey();
     private Mock<IOidcSessionService> _sessions;
     private Mock<IOidcTokenRevocationService> _revocation;
+    private Mock<IOidcLinkService> _links;
     private OpenIdConnectOptions _options;
     private bool _schemeRegistered;
 
@@ -44,6 +45,8 @@ public class OidcBackChannelLogoutEndpointTests
         _sessions.Setup(x => x.EndBySid(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
         _sessions.Setup(x => x.EndBySubject(It.IsAny<string>())).ReturnsAsync([]);
         _revocation = new Mock<IOidcTokenRevocationService>();
+        _links = new Mock<IOidcLinkService>();
+        _links.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
         var configuration = new OpenIdConnectConfiguration { Issuer = Issuer };
         configuration.SigningKeys.Add(Key);
         _options = new OpenIdConnectOptions {
@@ -80,6 +83,7 @@ public class OidcBackChannelLogoutEndpointTests
             .AddSingleton(new OidcLogoutTokenValidator(new MemoryCache(new MemoryCacheOptions())))
             .AddSingleton(_sessions.Object)
             .AddSingleton(_revocation.Object)
+            .AddSingleton(_links.Object)
             .AddSingleton(new OidcLoginConfig { ClientId = "shop" })
             .AddSingleton(new OidcResourceServerConfig { ClockSkewSeconds = 60 })
             .AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance)
@@ -119,6 +123,19 @@ public class OidcBackChannelLogoutEndpointTests
         await Post(Token(sub: null));
         _revocation.Verify(x => x.RevokeTokens("sub-1"), Times.Once);
         _revocation.Verify(x => x.RevokeTokens("sub-2"), Times.Once);
+    }
+
+    //the sessions belong to the previous provider: its subject may be another person - the tokens of this subject (of
+    //the configured provider) are still refused
+    [TestMethod]
+    public async Task ProviderChanged_EndsNoSession_RevokesSubject()
+    {
+        _links.Setup(x => x.LinksMatchProvider()).ReturnsAsync(false);
+        var context = await Post(Token());
+        Assert.AreEqual(200, context.Response.StatusCode);
+        _sessions.Verify(x => x.EndBySid(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _sessions.Verify(x => x.EndBySubject(It.IsAny<string>()), Times.Never);
+        _revocation.Verify(x => x.RevokeTokens("sub-1"), Times.Once);
     }
 
     [TestMethod]

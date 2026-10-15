@@ -27,6 +27,12 @@ public interface IOidcSessionService
     /// <summary>Ends every open session of the subject; returns them</summary>
     Task<IList<OidcSession>> EndBySubject(string subject);
 
+    /// <summary>Ends every open session of the customer (its provider link was removed); returns them</summary>
+    Task<IList<OidcSession>> EndByCustomer(string customerId);
+
+    /// <summary>Ends every open session (the links to the provider were removed); returns how many ended</summary>
+    Task<int> EndAllOpen();
+
     /// <summary>Deletes ended sessions and sessions past their lifetime, after the retention period</summary>
     Task DeleteExpired();
 }

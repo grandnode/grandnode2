@@ -147,10 +147,7 @@ customer in this order.
 6. One identity per customer: when the customer is already linked to another `sub`, the new subject is refused (403).
    One identity per customer is enforced by the link's identifier, which is derived from the customer, so two
    concurrent requests with different subjects cannot both link the same customer.
-   Links do not record the provider instance, and a `sub` is unique only within one provider. Before switching
-   `Authority` to another provider (or realm), remove the `ExternalAuth.OpenIdConnect` links: a subject of the new
-   provider equal to a stored one would select the old customer, and customers linked by the previous provider would be
-   refused as linked to another identity.
+   A `sub` is unique only within one provider, so the links belong to the provider they were made with (section 3.6).
 7. With `RegisterCustomersPerStore` enabled an account of another store is refused (403) and lookups are store-scoped.
 
 **Per-store identity.** With `RegisterCustomersPerStore` enabled the same person can have a separate customer in each
@@ -214,6 +211,42 @@ on unless every endpoint the resource covers scopes its data.
   Development), although no SecretKey token has to be issued.
 * The Web API module itself is off by default: set `FeatureManagement:Grand.Module.Api = true` (environment variable
   `FeatureManagement__Grand.Module.Api`). Without it `/api/...` answers with the storefront's 404 page.
+
+### 3.6 Managing links, and changing the provider
+
+**One link.** *Customers > Customers >* a customer *> Info* lists the customer's external sign-ins (Admin and Store
+panels, within the panel's scope). Deleting the OpenID Connect row removes the link and ends the customer's sessions
+started at the provider; the next provider sign-in connects the account again by the rules above. Use it when a person
+was deleted and created again at the provider ("already connected to another identity provider account"). The row is
+listed even when only the resource server is used, without the sign-in plugin. Removing a link does not bring back
+tokens refused by a back-channel logout: revocations are kept apart from the links.
+
+**Changing `Authority`.** The store records the provider the links were made with (`OidcLinkSettings`; trailing slash
+and case do not matter). While no OpenID Connect link exists, the configured `Authority` is adopted at once, so a fresh
+installation, or a provider changed before anyone connected, needs nothing. When links exist and `Authority` differs
+from the recorded provider, or links exist and no provider was recorded yet (links made before this version: the
+provider may have changed with the same upgrade), a subject of the configured provider equal to a stored one could
+select another person's account, so until an administrator decides:
+
+* provider sign-in is refused ("Signing in with the identity provider is paused…"), access tokens get 403, and no link
+  is made;
+* sessions started at the previous provider are not used (the browser signs in again) and are not confirmed at the new
+  one; a back-channel logout ends no session, it only refuses the subject's older tokens. With `SsoOnly`, accounts
+  keep their password meanwhile;
+* the log gets an error (at most once in five minutes) naming both addresses;
+* *Configuration > External authentication* shows the change in the *OpenID Connect account links* card.
+
+Decide in that card (Admin panel):
+
+* **Remove all links** when it is another provider or realm: every OpenID Connect link is removed and every session
+  started at the provider ends. Accounts, orders and permissions stay; people connect again at their next sign-in, by
+  the rules of a first sign-in (in `ProviderOnly` by the verified e-mail, so the e-mails must match; with
+  `AutoProvision` an unknown e-mail gets a new account). The same button removes all links at any time.
+* **Keep the links** only when the new address belongs to the same provider with the same users (a new host name for
+  the same Keycloak realm, for example). A user of another provider could otherwise sign in to someone else's account.
+
+A copy of the production database connected to a test provider stops the same way, instead of matching test users to
+production accounts.
 
 ## 4. Errors, metadata, routing
 
@@ -856,7 +889,8 @@ rules of section 11.2 and the session limits of section 12.2 apply.
 * **No RP-initiated logout in `Mixed` mode.** Signing out of GrandNode does not sign out of the provider (section 11.6).
   Only the provider's back-channel logout reaches GrandNode. `ProviderOnly` also ends the provider session (section 13.7).
 * Ended sessions are deleted by the scheduled task **Delete OpenID Connect sessions** (daily, enabled by default).
-  Records are kept for 7 days after they end. Most sessions end with the browser, without a sign-out: a session not
+  Records are kept for 7 days after they end. The same task deletes token revocations (back-channel logout, a refusal
+  at the provider) older than 7 days, longer than an access token lives. Most sessions end with the browser, without a sign-out: a session not
   confirmed at the provider for 30 days is deleted with its refresh token. A new provider sign-in of the same account in
   the same browser ends the session it replaces.
 * With several instances, one refresh of a session runs at a time on all of them (a lease on the session record), so a
@@ -1020,7 +1054,8 @@ step for that: sign in once in the browser first; the access token then uses tha
 | Failure page about an unverified e-mail | The provider did not report `email_verified` as true; verify the e-mail at the provider (sections 11.4 and 11.5). |
 | The provider shows an error after sign-out | The store URL plus `/` is not registered as a post-logout redirect URI (section 13.7). |
 | A user keeps the old name or e-mail | Names are copied at the next provider sign-in; for the e-mail see section 13.5. |
-| Failure page "already connected to another identity provider account" (the user was deleted and created again at the provider) | The account is still linked to the old provider identity and the user cannot remove the connection in this mode. The Admin panel only lists the link (customer > *Info*), so an administrator deletes it in the database: the document in the `ExternalAuthentication` collection with the customer's `CustomerId` and `ProviderSystemName` `ExternalAuth.OpenIdConnect`. The user then signs in again and the account is linked to the new identity. |
+| Failure page "already connected to another identity provider account" (the user was deleted and created again at the provider) | The account is still linked to the old provider identity and the user cannot remove the connection in this mode. An administrator deletes the OpenID Connect row in *Customers > Customers >* the customer *> Info* (section 3.6). The user then signs in again and the account is linked to the new identity. |
+| Failure page "Signing in with the identity provider is paused…", access tokens get 403 | `Authority` changed since the links were made: remove or keep the links in *Configuration > External authentication* (section 3.6). |
 
 Sources used for provider specifics (checked 2026-10-08): Keycloak 26.8 MCP guide and release notes, Zitadel v4.19.4
 claims, scopes, Actions v2 and dynamic client registration documentation; MCP authorization 2026-07-28; RFC 9728,

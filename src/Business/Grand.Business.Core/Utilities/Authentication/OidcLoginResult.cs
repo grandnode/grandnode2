@@ -21,14 +21,16 @@ public enum OidcLoginRefusal
     AccountUnusable,
     LinkedToOtherIdentity,
     RegistrationDisabled,
-    EmailNotVerified
+    EmailNotVerified,
+    ProviderChanged
 }
 
 public enum OidcLinkResult
 {
     Linked,
     SubjectLinkedToOtherCustomer,
-    CustomerLinkedToOtherSubject
+    CustomerLinkedToOtherSubject,
+    ProviderChanged
 }
 
 /// <summary>

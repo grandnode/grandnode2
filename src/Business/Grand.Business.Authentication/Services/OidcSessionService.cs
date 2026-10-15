@@ -268,6 +268,28 @@ public class OidcSessionService : IOidcSessionService
             _sessionRepository.Table.Where(x => x.Subject == subject && x.EndedUtc == null)));
     }
 
+    public virtual async Task<IList<OidcSession>> EndByCustomer(string customerId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(customerId);
+        return await EndAll(await _sessionRepository.ToListAsync(
+            _sessionRepository.Table.Where(x => x.CustomerId == customerId && x.EndedUtc == null)),
+            OidcSessionEndReason.LinkRemoved);
+    }
+
+    public virtual async Task<int> EndAllOpen()
+    {
+        //one update for every session (there may be many): the count is read first, a session started meanwhile
+        //is ended as well
+        var count = await _sessionRepository.CountAsync(_sessionRepository.Table.Where(x => x.EndedUtc == null));
+        await _sessionRepository.UpdateManyAsync(x => x.EndedUtc == null,
+            UpdateBuilder<OidcSession>.Create().Set(x => x.EndedUtc, DateTime.UtcNow)
+                .Set(x => x.EndReason, OidcSessionEndReason.LinkRemoved).Set(x => x.ProtectedRefreshToken, null));
+        await _cache.RemoveByPrefix(CacheKey.OIDC_SESSION_PATTERN_KEY);
+        _logger.LogInformation("All {Count} open OpenID Connect sessions ended: {Reason}", count,
+            OidcSessionEndReason.LinkRemoved);
+        return count;
+    }
+
     public virtual async Task DeleteExpired()
     {
         var now = DateTime.UtcNow;
@@ -284,10 +306,11 @@ public class OidcSessionService : IOidcSessionService
         await _sessionRepository.DeleteManyAsync(x => x.EndedUtc == null && x.LastValidatedUtc < abandoned);
     }
 
-    private async Task<IList<OidcSession>> EndAll(IList<OidcSession> sessions)
+    private async Task<IList<OidcSession>> EndAll(IList<OidcSession> sessions,
+        OidcSessionEndReason reason = OidcSessionEndReason.BackChannel)
     {
         foreach (var session in sessions)
-            await End(session.Id, OidcSessionEndReason.BackChannel);
+            await End(session.Id, reason);
         return sessions;
     }
 

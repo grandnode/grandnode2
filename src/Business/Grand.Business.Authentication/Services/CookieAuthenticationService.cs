@@ -29,6 +29,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="securityConfig">SecurityConfig</param>
     /// <param name="oidcSessionService">Server-side sessions of provider sign-ins</param>
     /// <param name="externalSignInPolicy">Accounts that must sign in through an external provider</param>
+    /// <param name="oidcLinkService">Whether the provider sessions belong to the configured identity provider</param>
     /// <param name="logger">Logger</param>
     public CookieAuthenticationService(
         CustomerSettings customerSettings,
@@ -39,6 +40,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         SecurityConfig securityConfig,
         IOidcSessionService oidcSessionService,
         IExternalSignInPolicy externalSignInPolicy,
+        IOidcLinkService oidcLinkService,
         ILogger<CookieAuthenticationService> logger)
     {
         _customerSettings = customerSettings;
@@ -49,6 +51,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         _securityConfig = securityConfig;
         _oidcSessionService = oidcSessionService;
         _externalSignInPolicy = externalSignInPolicy;
+        _oidcLinkService = oidcLinkService;
         _logger = logger;
     }
 
@@ -75,6 +78,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly SecurityConfig _securityConfig;
     private readonly IOidcSessionService _oidcSessionService;
     private readonly IExternalSignInPolicy _externalSignInPolicy;
+    private readonly IOidcLinkService _oidcLinkService;
     private readonly ILogger<CookieAuthenticationService> _logger;
 
     #endregion
@@ -293,7 +297,10 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         //a provider sign-in: the server-side session decides (ended, idle, refused by the provider)
         var oidcSessionId = OidcSessionId(principal);
         if (!string.IsNullOrEmpty(oidcSessionId))
-            return await _oidcSessionService.Validate(oidcSessionId, customer);
+            //a session of the previous provider is not confirmed at the configured one (its refresh token would go
+            //there, and a refusal would revoke a subject of another provider): it is not used until the links are reviewed
+            return await _oidcLinkService.LinksMatchProvider() &&
+                   await _oidcSessionService.Validate(oidcSessionId, customer);
 
         //a cookie without a session (issued before the account was connected or before the provider became required)
         //would escape revalidation and back-channel logout: an account that must use the provider signs in again there;

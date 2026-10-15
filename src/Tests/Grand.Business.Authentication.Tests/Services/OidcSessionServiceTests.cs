@@ -1,4 +1,4 @@
-using Grand.Business.Authentication.Services;
+﻿using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Authentication;
@@ -166,6 +166,33 @@ public class OidcSessionServiceTests
         var ended = await Service().EndBySubject("sub-1");
         CollectionAssert.AreEquivalent(new[] { a.Id, b.Id }, ended.Select(x => x.Id).ToArray());
         Assert.IsNull(Stored(other.Id).EndedUtc);
+    }
+
+    [TestMethod]
+    public async Task EndByCustomer_OnlyOpenSessionsOfTheCustomer()
+    {
+        var a = await Session(sid: "sid-1");
+        var b = await Session(sid: "sid-2", subject: "sub-2");
+        var other = await Session(customerId: "c2");
+        var ended = await Service().EndByCustomer("c1");
+        CollectionAssert.AreEquivalent(new[] { a.Id, b.Id }, ended.Select(x => x.Id).ToArray());
+        Assert.AreEqual(OidcSessionEndReason.LinkRemoved, Stored(a.Id).EndReason);
+        Assert.IsNull(Stored(other.Id).EndedUtc);
+    }
+
+    [TestMethod]
+    public async Task EndAllOpen_EndsEveryOpenSession()
+    {
+        await Session();
+        await Session(customerId: "c2");
+        var alreadyEnded = await Session();
+        await _sessions.UpdateField(alreadyEnded.Id, x => x.EndedUtc, DateTime.UtcNow.AddMinutes(-5));
+        Assert.AreEqual(2, await Service().EndAllOpen());
+        Assert.IsFalse(_sessions.Table.Any(x => x.EndedUtc == null));
+        //one update, not one per session: every ended session drops its refresh token, the cached sessions go at once
+        Assert.AreEqual(2, _sessions.Table.Count(x => x.EndReason == OidcSessionEndReason.LinkRemoved));
+        Assert.IsFalse(_sessions.Table.Any(x => x.EndReason == OidcSessionEndReason.LinkRemoved && x.ProtectedRefreshToken != null));
+        _cache.Verify(x => x.RemoveByPrefix(CacheKey.OIDC_SESSION_PATTERN_KEY, true), Times.Once);
     }
 
     [TestMethod]

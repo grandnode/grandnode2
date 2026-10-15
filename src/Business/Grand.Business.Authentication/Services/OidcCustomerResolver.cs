@@ -51,6 +51,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     private readonly OidcLoginConfig _loginConfig;
     private readonly CustomerConfig _customerConfig;
     private readonly ILogger<OidcCustomerResolver> _logger;
+    private readonly IOidcLinkService _linkService;
 
     public OidcCustomerResolver(
         IRepository<ExternalAuthentication> externalAuthenticationRepository,
@@ -63,8 +64,10 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         OidcResourceServerConfig config,
         OidcLoginConfig loginConfig,
         CustomerConfig customerConfig,
-        ILogger<OidcCustomerResolver> logger)
+        ILogger<OidcCustomerResolver> logger,
+        IOidcLinkService linkService)
     {
+        _linkService = linkService;
         _externalAuthenticationRepository = externalAuthenticationRepository;
         _customerService = customerService;
         _customerManagerService = customerManagerService;
@@ -85,6 +88,10 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         var sub = principal.FindFirst(_config.Claims.Subject)?.Value;
         if (string.IsNullOrEmpty(sub))
             return OidcCustomerResult.InvalidToken("The token has no subject");
+
+        //the links belong to another provider: one of its subjects could equal a stored one
+        if (!await _linkService.LinksMatchProvider())
+            return OidcCustomerResult.Forbidden("The identity provider changed; the administrator must review the account links");
 
         var link = await GetLink(sub, storeId);
         if (link != null)
@@ -143,6 +150,9 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     {
         if (string.IsNullOrEmpty(sub))
             return OidcLoginResult.Refused(OidcLoginRefusal.InvalidIdentity);
+
+        if (!await _linkService.LinksMatchProvider())
+            return OidcLoginResult.Refused(OidcLoginRefusal.ProviderChanged);
 
         var link = await GetLink(sub, storeId);
         if (link != null)
@@ -209,8 +219,12 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         };
     }
 
-    public virtual Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email, string storeId) =>
-        Link(customer, sub, email, storeId, false);
+    public virtual async Task<OidcLinkResult> LinkIdentity(Customer customer, string sub, string email, string storeId)
+    {
+        if (!await _linkService.LinksMatchProvider())
+            return OidcLinkResult.ProviderChanged;
+        return await Link(customer, sub, email, storeId, false);
+    }
 
     private async Task<OidcLinkResult> Link(Customer customer, string sub, string email, string storeId, bool byEmail)
     {

@@ -232,6 +232,7 @@ public class OidcLoginController : BasePluginController
             OidcLinkResult.Linked => RedirectToRoute("OidcLoginLogin", new { returnUrl }),
             //the provider identity, not this account, is the one already connected elsewhere
             OidcLinkResult.SubjectLinkedToOtherCustomer => RedirectToRoute("OidcLoginFailed", new { taken = true }),
+            OidcLinkResult.ProviderChanged => RedirectToRoute("OidcLoginFailed", new { reason = (int)OidcLoginRefusal.ProviderChanged }),
             _ => RedirectToRoute("OidcLoginFailed", new { reason = (int)OidcLoginRefusal.LinkedToOtherIdentity })
         };
     }
