@@ -21,6 +21,16 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
         var databaseContext = serviceProvider.GetRequiredService<IDatabaseContext>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationCustomerGuidUniqueIndex>>();
 
+        //LiteDB names indexes by field, so the named drop and recreate below do not apply to it
+        //and EnsureIndex never alters an existing index - new installs create the index unique
+        if (DataSettingsManager.Instance.LoadSettings().DbProvider != DbProvider.MongoDB)
+        {
+            logService.LogInformation(
+                "The index {IndexName} stays non-unique on this database provider (new installs create it unique)",
+                IndexName);
+            return true;
+        }
+
         try
         {
             var duplicates = repository.Table
@@ -42,6 +52,12 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
             databaseContext.DeleteIndex(repository, IndexName).GetAwaiter().GetResult();
             databaseContext.CreateIndex(repository,
                     OrderBuilder<Customer>.Create().Ascending(x => x.CustomerGuid), IndexName, true)
+                .GetAwaiter().GetResult();
+
+            //when the unique index exists this is a rejected, swallowed no-op; when the unique create failed
+            //it restores the lookup index
+            databaseContext.CreateIndex(repository,
+                    OrderBuilder<Customer>.Create().Ascending(x => x.CustomerGuid), IndexName)
                 .GetAwaiter().GetResult();
         }
         catch (Exception ex)
