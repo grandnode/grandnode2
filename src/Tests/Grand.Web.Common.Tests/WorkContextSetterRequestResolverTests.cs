@@ -44,6 +44,7 @@ public class WorkContextSetterRequestResolverTests
         _httpContext = new DefaultHttpContext();
         _accessor = new Mock<IHttpContextAccessor>();
         _persistence = new Mock<IGuestCustomerPersistence>();
+        _persistence.Setup(p => p.SetTransient(It.IsAny<Customer>())).Returns(Task.CompletedTask);
         _accessor.Setup(a => a.HttpContext).Returns(_httpContext);
     }
 

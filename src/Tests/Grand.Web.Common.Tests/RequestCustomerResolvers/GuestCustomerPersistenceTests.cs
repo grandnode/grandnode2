@@ -26,11 +26,11 @@ public class GuestCustomerPersistenceTests
     }
 
     [TestMethod]
-    public void IsTransient_OnlyForTheTransientId()
+    public async Task IsTransient_OnlyForTheTransientId()
     {
         Assert.IsFalse(_persistence.IsTransient("g1"));
 
-        _persistence.SetTransient(new Customer { Id = "g1" });
+        await _persistence.SetTransient(new Customer { Id = "g1" });
 
         Assert.IsTrue(_persistence.IsTransient("g1"));
         Assert.IsFalse(_persistence.IsTransient("other"));
@@ -39,10 +39,26 @@ public class GuestCustomerPersistenceTests
     }
 
     [TestMethod]
+    public async Task SetTransient_AddsGuestsGroup()
+    {
+        _groups.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests))
+            .ReturnsAsync(new CustomerGroup { Id = "guests" });
+        var fresh = new Customer { Id = "g1" };
+        var already = new Customer { Id = "g2" };
+        already.Groups.Add("guests");
+
+        await _persistence.SetTransient(fresh);
+        await _persistence.SetTransient(already);
+
+        CollectionAssert.AreEqual(new[] { "guests" }, fresh.Groups.ToArray());
+        CollectionAssert.AreEqual(new[] { "guests" }, already.Groups.ToArray());
+    }
+
+    [TestMethod]
     public async Task EnsurePersisted_InsertsOnceAndClearsTransient()
     {
         var guest = new Customer { Id = "g1" };
-        _persistence.SetTransient(guest);
+        await _persistence.SetTransient(guest);
 
         await _persistence.EnsurePersisted();
         await _persistence.EnsurePersisted();
@@ -65,7 +81,7 @@ public class GuestCustomerPersistenceTests
     {
         var gate = new TaskCompletionSource<Customer>();
         _customers.Setup(c => c.InsertGuestCustomer(It.IsAny<Customer>())).Returns(gate.Task);
-        _persistence.SetTransient(new Customer { Id = "g1" });
+        await _persistence.SetTransient(new Customer { Id = "g1" });
 
         var first = _persistence.EnsurePersisted();
         var second = _persistence.EnsurePersisted();

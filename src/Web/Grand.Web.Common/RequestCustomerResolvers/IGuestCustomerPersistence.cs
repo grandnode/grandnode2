@@ -13,7 +13,7 @@ public interface IGuestCustomerPersistence
     /// </summary>
     Customer Transient { get; }
 
-    void SetTransient(Customer customer);
+    Task SetTransient(Customer customer);
 
     bool IsTransient(string customerId);
 

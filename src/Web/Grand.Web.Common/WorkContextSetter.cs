@@ -232,7 +232,7 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = BuildGuest(store, Guid.NewGuid());
         if (persistence != null && IsSafeRequest())
             //saved on its first write, or by the next request that returns the cookie
-            persistence.SetTransient(customer);
+            await persistence.SetTransient(customer);
         else
             customer = await _customerService.InsertGuestCustomer(customer);
 

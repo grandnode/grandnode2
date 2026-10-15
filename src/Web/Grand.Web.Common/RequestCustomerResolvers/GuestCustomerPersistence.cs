@@ -17,8 +17,13 @@ public class GuestCustomerPersistence(
 
     public Customer Transient { get; private set; }
 
-    public void SetTransient(Customer customer)
+    public async Task SetTransient(Customer customer)
     {
+        //the Guests group is normally added on insert; permission checks read it from the unsaved customer
+        var guestsGroup = await groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
+        if (guestsGroup != null && !customer.Groups.Contains(guestsGroup.Id))
+            customer.Groups.Add(guestsGroup.Id);
+
         Transient = customer;
         _persisting = null;
     }
