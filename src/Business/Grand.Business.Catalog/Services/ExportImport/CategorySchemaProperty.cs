@@ -16,9 +16,7 @@ public class CategorySchemaProperty : ISchemaProperty<Category>
 
     public virtual async Task<PropertyByName<Category>[]> GetProperties(IEnumerable<Category> items)
     {
-        var pictures = new Dictionary<string, string>();
-        foreach (var pictureId in items.Select(x => x.PictureId ?? "").Distinct())
-            pictures[pictureId] = await GetPictures(pictureId);
+        var pictures = await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures);
 
         var properties = new[] {
             new PropertyByName<Category>("Id", p => p.Id),

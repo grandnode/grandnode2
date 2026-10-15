@@ -16,9 +16,7 @@ public class CollectionSchemaProperty : ISchemaProperty<Collection>
 
     public virtual async Task<PropertyByName<Collection>[]> GetProperties(IEnumerable<Collection> items)
     {
-        var pictures = new Dictionary<string, string>();
-        foreach (var pictureId in items.Select(x => x.PictureId ?? "").Distinct())
-            pictures[pictureId] = await GetPictures(pictureId);
+        var pictures = await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures);
 
         var properties = new[] {
             new PropertyByName<Collection>("Id", p => p.Id),

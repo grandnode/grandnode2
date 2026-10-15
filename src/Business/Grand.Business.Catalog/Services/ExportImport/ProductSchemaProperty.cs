@@ -17,10 +17,8 @@ public class ProductSchemaProperty : ISchemaProperty<Product>
 
     public virtual async Task<PropertyByName<Product>[]> GetProperties(IEnumerable<Product> items)
     {
-        var pictures = new Dictionary<string, string>();
-        var pictureIds = items.SelectMany(x => x.ProductPictures.Take(3)).Select(x => x.PictureId ?? "").Distinct();
-        foreach (var pictureId in pictureIds)
-            pictures[pictureId] = await GetPicture(pictureId);
+        var pictures = await ExportPictures.Preload(
+            items.SelectMany(x => x.ProductPictures.Take(3)).Select(x => x.PictureId), GetPicture);
 
         var properties = new[] {
             new PropertyByName<Product>("Id", p => p.Id),

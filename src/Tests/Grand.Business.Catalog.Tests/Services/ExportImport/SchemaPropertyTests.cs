@@ -42,7 +42,7 @@ public class SchemaPropertyTests
         Assert.AreEqual("/thumbs/p2.jpg", Value(properties, "Picture2", product));
         Assert.IsNull(Value(properties, "Picture3", product));
         Assert.IsNull(Value(properties, "Picture1", noPictures));
-        //pictures are loaded once per product, not once per picture column
+        //each distinct picture is loaded once, before the rows are read
         _pictureService.Verify(x => x.GetPictureById(It.IsAny<string>()), Times.Exactly(2));
     }
 
@@ -75,17 +75,29 @@ public class SchemaPropertyTests
     }
 
     [TestMethod]
-    public async Task Brand_PictureColumn_WithoutPicture_UsesPictureServiceResult()
+    public async Task Brand_PictureColumn_WithoutPicture_IsEmpty()
     {
-        _pictureService.Setup(x => x.GetPictureById(""))
-            .ReturnsAsync((Picture)null);
-        _pictureService.Setup(x => x.GetThumbPhysicalPath(null, It.IsAny<int>(), It.IsAny<bool>()))
-            .ReturnsAsync("/thumbs/default.jpg");
         var brand = new Brand { PictureId = null };
+        var emptyId = new Brand { PictureId = "" };
 
-        var properties = await new BrandSchemaProperty(_pictureService.Object).GetProperties([brand]);
+        var properties = await new BrandSchemaProperty(_pictureService.Object).GetProperties([brand, emptyId]);
 
-        Assert.AreEqual("/thumbs/default.jpg", Value(properties, "Picture", brand));
+        //the default picture's path would be read back by the import as a picture to download
+        Assert.IsNull(Value(properties, "Picture", brand));
+        Assert.IsNull(Value(properties, "Picture", emptyId));
+        _pictureService.Verify(x => x.GetPictureById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Product_PictureColumn_WithEmptyPictureId_IsEmpty()
+    {
+        var product = new Product();
+        product.ProductPictures.Add(new ProductPicture { PictureId = "" });
+
+        var properties = await new ProductSchemaProperty(_pictureService.Object).GetProperties([product]);
+
+        Assert.IsNull(Value(properties, "Picture1", product));
+        _pictureService.Verify(x => x.GetPictureById(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
