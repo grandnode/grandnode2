@@ -22,6 +22,7 @@ public class MigrationOidcSessions : IMigration
         var taskRepository = serviceProvider.GetRequiredService<IRepository<ScheduleTask>>();
         var databaseContext = serviceProvider.GetRequiredService<IDatabaseContext>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationOidcSessions>>();
+        var success = true;
 
         try
         {
@@ -37,6 +38,7 @@ public class MigrationOidcSessions : IMigration
         catch (Exception ex)
         {
             logService.LogError(ex, "UpgradeProcess - OidcSessions indexes (2.5)");
+            success = false;
         }
 
         try
@@ -51,6 +53,6 @@ public class MigrationOidcSessions : IMigration
             logService.LogError(ex, "UpgradeProcess - OidcSessions schedule task (2.5)");
         }
 
-        return true;
+        return success;
     }
 }

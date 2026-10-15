@@ -6,6 +6,10 @@ namespace Grand.Data.Mongo;
 
 public class MongoDBContext : IDatabaseContext
 {
+    //server error codes
+    private const int NamespaceNotFound = 26;
+    private const int IndexNotFound = 27;
+
     private readonly IMongoDatabase _database;
 
     public MongoDBContext(IMongoDatabase mongodatabase)
@@ -59,13 +63,11 @@ public class MongoDBContext : IDatabaseContext
                     ? Builders<T>.IndexKeys.Ascending(item.fieldName)
                     : Builders<T>.IndexKeys.Descending(item.fieldName));
 
-        try
-        {
-            await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
-                Builders<T>.IndexKeys.Combine(keys),
-                new CreateIndexOptions { Name = indexName, Unique = unique }));
-        }
-        catch { }
+        //an index of the same name and spec is a no-op for the server; anything else - duplicates on a unique
+        //index, the same name with another spec - must reach the caller
+        await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
+            Builders<T>.IndexKeys.Combine(keys),
+            new CreateIndexOptions { Name = indexName, Unique = unique }));
     }
 
     public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
@@ -75,6 +77,9 @@ public class MongoDBContext : IDatabaseContext
         {
             await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);
         }
-        catch { }
+        catch (MongoCommandException ex) when (ex.Code is IndexNotFound or NamespaceNotFound)
+        {
+            //nothing to drop
+        }
     }
 }

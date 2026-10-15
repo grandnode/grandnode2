@@ -4,7 +4,6 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 
 namespace Grand.Module.Migration.Migrations._2._5;
 
@@ -33,13 +32,15 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
         catch (Exception ex)
         {
             logService.LogError(ex, "UpgradeProcess - CustomerGuidUniqueIndex (2.5)");
+            return false;
         }
 
         return true;
     }
 
     /// <summary>
-    ///     Recreates the CustomerGuid index as unique. Returns false when it stays non-unique
+    ///     Recreates the CustomerGuid index as unique. Returns false when duplicates keep it non-unique;
+    ///     throws, with the non-unique index restored, when the database rejects the unique one
     /// </summary>
     public static bool MakeUnique(IRepository<Customer> repository, IDatabaseContext databaseContext, ILogger logService)
     {
@@ -59,33 +60,22 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
             return false;
         }
 
-        var mongoRepository = repository as MongoRepository<Customer>;
         var keys = OrderBuilder<Customer>.Create().Ascending(x => x.CustomerGuid);
 
-        databaseContext.DeleteIndex(repository, mongoRepository != null ? IndexName : LiteDbIndexName)
+        databaseContext.DeleteIndex(repository, repository is MongoRepository<Customer> ? IndexName : LiteDbIndexName)
             .GetAwaiter().GetResult();
-        databaseContext.CreateIndex(repository, keys, IndexName, true).GetAwaiter().GetResult();
-
-        //when the unique index exists this is a rejected, swallowed no-op; when the unique create failed
-        //it restores the lookup index
-        databaseContext.CreateIndex(repository, keys, IndexName).GetAwaiter().GetResult();
-
-        //CreateIndex swallows its errors: a duplicate saved by a running instance after the check above
-        //would leave the index non-unique without a trace
-        if (mongoRepository != null && !IsUnique(mongoRepository))
+        try
         {
-            logService.LogError(
-                "The index {IndexName} could not be created unique and stays non-unique. Remove duplicate customer GUIDs and recreate the index as unique",
-                IndexName);
-            return false;
+            databaseContext.CreateIndex(repository, keys, IndexName, true).GetAwaiter().GetResult();
+        }
+        catch
+        {
+            //e.g. a duplicate saved by a running instance after the check above - keep the lookup index
+            //until the retry
+            databaseContext.CreateIndex(repository, keys, IndexName).GetAwaiter().GetResult();
+            throw;
         }
 
         return true;
-    }
-
-    private static bool IsUnique(MongoRepository<Customer> repository)
-    {
-        return repository.Collection.Indexes.List().ToList()
-            .Any(x => x["name"] == IndexName && x.Contains("unique") && x["unique"].ToBoolean());
     }
 }
