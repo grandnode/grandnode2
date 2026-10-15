@@ -35,10 +35,12 @@ public class GetCustomerDataHandler : IRequestHandler<GetCustomerData, byte[]>
         var orders = await _orderService.SearchOrders(
             customerId: request.Customer.Id);
 
+        var customers = new List<Customer> { request.Customer };
         _exportProvider
-            .BuilderExportToByte(await _customerSchemaProperty.GetProperties(), new List<Customer> { request.Customer })
-            .BuilderExportToByte(await _addresSchemaProperty.GetProperties(), request.Customer.Addresses)
-            .BuilderExportToByte(await _orderSchemaProperty.GetProperties(), orders);
+            .BuilderExportToByte(await _customerSchemaProperty.GetProperties(customers), customers)
+            .BuilderExportToByte(await _addresSchemaProperty.GetProperties(request.Customer.Addresses),
+                request.Customer.Addresses)
+            .BuilderExportToByte(await _orderSchemaProperty.GetProperties(orders), orders);
 
         return _exportProvider.BuilderExportToByte();
     }

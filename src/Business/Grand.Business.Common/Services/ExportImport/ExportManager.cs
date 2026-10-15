@@ -15,6 +15,8 @@ public class ExportManager<T> : IExportManager<T> where T : class
 
     public virtual async Task<byte[]> Export(IEnumerable<T> entity)
     {
-        return _exportProvider.ExportToByte(await _schemaProperty.GetProperties(), entity);
+        //the rows are enumerated twice: by the schema to preload data, then by the provider
+        var items = entity.ToList();
+        return _exportProvider.ExportToByte(await _schemaProperty.GetProperties(items), items);
     }
 }

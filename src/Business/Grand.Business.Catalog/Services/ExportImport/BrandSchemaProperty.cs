@@ -14,8 +14,10 @@ public class BrandSchemaProperty : ISchemaProperty<Brand>
         _pictureService = pictureService;
     }
 
-    public virtual async Task<PropertyByName<Brand>[]> GetProperties()
+    public virtual async Task<PropertyByName<Brand>[]> GetProperties(IEnumerable<Brand> items)
     {
+        var pictures = await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures);
+
         var properties = new[] {
             new PropertyByName<Brand>("Id", p => p.Id),
             new PropertyByName<Brand>("Name", p => p.Name),
@@ -25,7 +27,7 @@ public class BrandSchemaProperty : ISchemaProperty<Brand>
             new PropertyByName<Brand>("MetaDescription", p => p.MetaDescription),
             new PropertyByName<Brand>("MetaTitle", p => p.MetaTitle),
             new PropertyByName<Brand>("SeName", p => p.SeName),
-            new PropertyByName<Brand>("Picture", p => GetPictures(p.PictureId).Result),
+            new PropertyByName<Brand>("Picture", p => pictures.GetValueOrDefault(p.PictureId ?? "")),
             new PropertyByName<Brand>("PageSize", p => p.PageSize),
             new PropertyByName<Brand>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
             new PropertyByName<Brand>("PageSizeOptions", p => p.PageSizeOptions),
@@ -33,7 +35,7 @@ public class BrandSchemaProperty : ISchemaProperty<Brand>
             new PropertyByName<Brand>("DisplayOrder", p => p.DisplayOrder),
             new PropertyByName<Brand>("ExternalId", p => p.ExternalId)
         };
-        return await Task.FromResult(properties);
+        return properties;
     }
 
     protected virtual async Task<string> GetPictures(string pictureId)

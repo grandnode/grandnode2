@@ -14,8 +14,10 @@ public class CategorySchemaProperty : ISchemaProperty<Category>
         _pictureService = pictureService;
     }
 
-    public virtual async Task<PropertyByName<Category>[]> GetProperties()
+    public virtual async Task<PropertyByName<Category>[]> GetProperties(IEnumerable<Category> items)
     {
+        var pictures = await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures);
+
         var properties = new[] {
             new PropertyByName<Category>("Id", p => p.Id),
             new PropertyByName<Category>("Name", p => p.Name),
@@ -26,7 +28,7 @@ public class CategorySchemaProperty : ISchemaProperty<Category>
             new PropertyByName<Category>("MetaTitle", p => p.MetaTitle),
             new PropertyByName<Category>("SeName", p => p.SeName),
             new PropertyByName<Category>("ParentCategoryId", p => p.ParentCategoryId),
-            new PropertyByName<Category>("Picture", p => GetPictures(p.PictureId).Result),
+            new PropertyByName<Category>("Picture", p => pictures.GetValueOrDefault(p.PictureId ?? "")),
             new PropertyByName<Category>("PageSize", p => p.PageSize),
             new PropertyByName<Category>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
             new PropertyByName<Category>("PageSizeOptions", p => p.PageSizeOptions),
@@ -39,7 +41,7 @@ public class CategorySchemaProperty : ISchemaProperty<Category>
             new PropertyByName<Category>("Icon", p => p.Icon),
             new PropertyByName<Category>("DisplayOrder", p => p.DisplayOrder)
         };
-        return await Task.FromResult(properties);
+        return properties;
     }
 
     protected virtual async Task<string> GetPictures(string pictureId)

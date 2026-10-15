@@ -14,8 +14,11 @@ public class AddressSchemaProperty : ISchemaProperty<Address>
         _countryService = countryService;
     }
 
-    public virtual async Task<PropertyByName<Address>[]> GetProperties()
+    public virtual async Task<PropertyByName<Address>[]> GetProperties(IEnumerable<Address> items)
     {
+        var countries = (await _countryService.GetAllCountries(showHidden: true))
+            .ToDictionary(c => c.Id, c => c.Name);
+
         var properties = new[] {
             new PropertyByName<Address>("Email", p => p.Email),
             new PropertyByName<Address>("FirstName", p => p.FirstName),
@@ -26,8 +29,8 @@ public class AddressSchemaProperty : ISchemaProperty<Address>
             new PropertyByName<Address>("Address2", p => p.Address2),
             new PropertyByName<Address>("City", p => p.City),
             new PropertyByName<Address>("Country",
-                p => !string.IsNullOrEmpty(p.CountryId) ? _countryService.GetCountryById(p.CountryId).Result?.Name : "")
+                p => !string.IsNullOrEmpty(p.CountryId) ? countries.GetValueOrDefault(p.CountryId) : "")
         };
-        return await Task.FromResult(properties);
+        return properties;
     }
 }
