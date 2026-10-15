@@ -45,14 +45,23 @@ public class MigrationUniqueOrderNumberIndex : IMigration
             }
 
             //the non-unique index of the same name is dropped first - the driver rejects a redefinition
+            var keys = OrderBuilder<Order>.Create().Descending(x => x.OrderNumber);
             databaseContext.DeleteIndex(repository, IndexName).GetAwaiter().GetResult();
-            databaseContext.CreateIndex(repository,
-                OrderBuilder<Order>.Create().Descending(x => x.OrderNumber), IndexName, true)
-                .GetAwaiter().GetResult();
+            try
+            {
+                databaseContext.CreateIndex(repository, keys, IndexName, true).GetAwaiter().GetResult();
+            }
+            catch
+            {
+                //e.g. a duplicate saved after the check above - keep the lookup index until the retry
+                databaseContext.CreateIndex(repository, keys, IndexName).GetAwaiter().GetResult();
+                throw;
+            }
         }
         catch (Exception ex)
         {
             logService.LogError(ex, "UpgradeProcess - UniqueOrderNumberIndex (2.4)");
+            return false;
         }
 
         return true;

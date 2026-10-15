@@ -54,6 +54,7 @@ public class MigrationExternalAuthenticationIdentifierIndex : IMigration
         catch (Exception ex)
         {
             logService.LogError(ex, "UpgradeProcess - ExternalAuthenticationIdentifierIndex (2.5)");
+            return false;
         }
 
         return true;

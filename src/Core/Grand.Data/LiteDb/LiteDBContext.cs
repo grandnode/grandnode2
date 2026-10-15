@@ -37,16 +37,11 @@ public class LiteDBContext : IDatabaseContext
         bool unique = false) where T : BaseEntity
     {
         ArgumentNullException.ThrowIfNullOrEmpty(indexName);
-        try
-        {
-            foreach (var (selector, value, fieldName) in orderBuilder.Fields)
-            {
-                var col = _database.GetCollection<T>();
-                if (selector != null)
-                    col.EnsureIndex(selector, unique);
-            }
-        }
-        catch { }
+        //duplicates on a unique index must reach the caller
+        var col = _database.GetCollection<T>();
+        foreach (var (selector, _, _) in orderBuilder.Fields)
+            if (selector != null)
+                col.EnsureIndex(selector, unique);
 
         return Task.CompletedTask;
     }
@@ -55,11 +50,8 @@ public class LiteDBContext : IDatabaseContext
     {
         if (string.IsNullOrEmpty(indexName))
             throw new ArgumentNullException(nameof(indexName));
-        try
-        {
-            _database.GetCollection<T>().DropIndex(indexName);
-        }
-        catch { }
+        //returns false, does not throw, when there is no such index
+        _database.GetCollection<T>().DropIndex(indexName);
 
         return Task.CompletedTask;
     }
