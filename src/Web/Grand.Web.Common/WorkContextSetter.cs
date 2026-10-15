@@ -218,7 +218,7 @@ public class WorkContextSetter : IWorkContextSetter
 
     private async Task<Customer> CreateCustomerGuest(Store store)
     {
-        //resolved here, not injected: it lives in the request scope next to the decorated customer service
+        //resolved here, not injected: it belongs to the request scope
         var persistence = _serviceProvider.GetService<IGuestCustomerPersistence>();
 
         //a browser returning the cookie of a guest that was never saved: save it now under that GUID

@@ -5,9 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Common.RequestCustomerResolvers;
 
-/// <remarks>
-///     Takes the undecorated customer service: the decorator depends on this class
-/// </remarks>
 public class GuestCustomerPersistence(
     ICustomerService customerService,
     IGroupService groupService,
@@ -36,6 +33,9 @@ public class GuestCustomerPersistence(
     public Task EnsurePersisted()
     {
         if (Transient == null) return Task.CompletedTask;
+
+        //a failed insert is retried by the next write instead of rethrowing the cached failure
+        if (_persisting is { IsFaulted: true } or { IsCanceled: true }) _persisting = null;
 
         //writes of one request may run concurrently: they share the single insert
         return _persisting ??= Persist(Transient);

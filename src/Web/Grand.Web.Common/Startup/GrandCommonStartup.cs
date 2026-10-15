@@ -1,6 +1,7 @@
 ﻿using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Infrastructure;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Routing;
 using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Builder;
@@ -71,6 +72,9 @@ public class GrandCommonStartup : IStartupApplication
 
         //classify the request's user agent (crawler, mobile)
         services.AddScoped<IUserAgentClassifier, UserAgentClassifier>();
+
+        //a guest is saved only once it returns its cookie or an action marked [PersistGuestCustomer] writes to it
+        services.AddScoped<IGuestCustomerPersistence, GuestCustomerPersistence>();
 
         //add routing
         services.AddRouting(options =>

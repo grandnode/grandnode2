@@ -144,6 +144,7 @@ public class CommonController : BasePublicController
     [HttpGet]
     [PublicStore(true)]
     [DenySystemAccount]
+    [PersistGuestCustomer]
     public virtual async Task<IActionResult> SetLanguage(
         [FromServices] AppConfig config,
         [FromServices] ICustomerService customerService,
@@ -211,6 +212,7 @@ public class CommonController : BasePublicController
     [DenySystemAccount]
     [PublicStore(true)]
     [HttpGet]
+    [PersistGuestCustomer]
     public virtual async Task<IActionResult> SetCurrency(
         [FromServices] ICurrencyService currencyService,
         [FromServices] ICustomerService customerService,
@@ -289,6 +291,7 @@ public class CommonController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [HttpGet]
+    [PersistGuestCustomer]
     public virtual async Task<IActionResult> SetTaxType(
         [FromServices] TaxSettings taxSettings,
         [FromServices] ICustomerService customerService,

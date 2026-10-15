@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Web.Common.RequestCustomerResolvers;
@@ -89,6 +89,24 @@ public class GuestCustomerPersistenceTests
         await Task.WhenAll(first, second);
 
         _customers.Verify(c => c.InsertGuestCustomer(It.IsAny<Customer>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EnsurePersisted_AfterFailedInsert_RetriesOnTheNextWrite()
+    {
+        var guest = new Customer { Id = "g1" };
+        _customers.SetupSequence(c => c.InsertGuestCustomer(guest))
+            .ThrowsAsync(new TimeoutException("db blip"))
+            .ReturnsAsync(guest);
+        await _persistence.SetTransient(guest);
+
+        await Assert.ThrowsExactlyAsync<TimeoutException>(() => _persistence.EnsurePersisted());
+        Assert.IsTrue(_persistence.IsTransient("g1"));
+
+        await _persistence.EnsurePersisted();
+
+        _customers.Verify(c => c.InsertGuestCustomer(guest), Times.Exactly(2));
+        Assert.IsNull(_persistence.Transient);
     }
 
     [TestMethod]
