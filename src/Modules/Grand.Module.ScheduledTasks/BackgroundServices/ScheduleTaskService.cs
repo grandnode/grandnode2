@@ -117,6 +117,27 @@ public class ScheduleTaskService : IScheduleTaskService
                 .Set(x => x.LeasedUntilUtc, TruncateToMilliseconds(leasedUntilUtc)));
     }
 
+    /// <summary>
+    ///     Records the result of a claimed run and releases its lease, only while the given instance still holds it
+    /// </summary>
+    public virtual async Task CompleteTaskRun(string taskId, string instanceId, bool succeeded, DateTime endUtc,
+        bool disableTask)
+    {
+        var update = UpdateBuilder<ScheduleTask>.Create()
+            .Set(x => x.LeasedUntilUtc, null);
+        if (succeeded)
+            update.Set(x => x.LastSuccessUtc, TruncateToMilliseconds(endUtc))
+                .Set(x => x.LastNonSuccessEndUtc, null);
+        else
+            update.Set(x => x.LastNonSuccessEndUtc, TruncateToMilliseconds(endUtc));
+        if (disableTask)
+            update.Set(x => x.Enabled, false);
+
+        //LeasedByInstance changes only with a new claim, so a match means no other instance has
+        //taken the task over - runs of one task on one instance never overlap
+        await _taskRepository.UpdateOneAsync(x => x.Id == taskId && x.LeasedByInstance == instanceId, update);
+    }
+
     private static DateTime TruncateToMilliseconds(DateTime value)
     {
         return new DateTime(value.Ticks - value.Ticks % TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);

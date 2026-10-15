@@ -138,7 +138,6 @@ public class BackgroundServiceTask : BackgroundService
     private async Task RunTask(IServiceProvider serviceProvider, IScheduleTaskService scheduleTaskService,
         ScheduleTask task, bool due, ILogger logger, CancellationToken stoppingToken)
     {
-        var updateTask = false;
         var scheduleTask = serviceProvider.GetRequiredKeyedService<IScheduleTask>(task.ScheduleTaskName);
         if (scheduleTask != null)
         {
@@ -152,9 +151,7 @@ public class BackgroundServiceTask : BackgroundService
                 runStartUtc, runStartUtc.Add(LeaseDuration), InstanceId);
             if (claimed)
             {
-                updateTask = true;
-                task.LastStartUtc = runStartUtc;
-                task.LeasedByInstance = InstanceId;
+                var succeeded = false;
 
                 //keeps other instances off the task while it runs, even past its next due time
                 using var leaseCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
@@ -171,8 +168,7 @@ public class BackgroundServiceTask : BackgroundService
 
                     logger.LogInformation("Task {TaskName} execute", Name);
                     await scheduleTask.Execute();
-                    task.LastSuccessUtc = DateTime.UtcNow;
-                    task.LastNonSuccessEndUtc = null;
+                    succeeded = true;
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
@@ -181,8 +177,6 @@ public class BackgroundServiceTask : BackgroundService
                 }
                 catch (Exception exc)
                 {
-                    task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                    task.Enabled = !task.StopOnError;
                     logger.LogError(exc,
                         "Error while running the \'{TaskScheduleTaskName}\' schedule task",
                         task.ScheduleTaskName);
@@ -193,8 +187,12 @@ public class BackgroundServiceTask : BackgroundService
                     await leaseRenewal;
                 }
 
-                //the run is over - the write below releases the lease for the next one
-                task.LeasedUntilUtc = null;
+                //the run is over - record its result and release the lease for the next one.
+                //Not a write of the whole entity: that would revert changes saved in the admin
+                //during the run, and - if the lease ran out and another instance took the task
+                //over - overwrite that instance's claim, letting a third one start
+                await scheduleTaskService.CompleteTaskRun(task.Id, InstanceId, succeeded, DateTime.UtcNow,
+                    !succeeded && task.StopOnError);
             }
             else
             {
@@ -205,16 +203,11 @@ public class BackgroundServiceTask : BackgroundService
         }
         else
         {
-            updateTask = true;
             task.Enabled = !task.StopOnError;
             task.LastNonSuccessEndUtc = DateTime.UtcNow;
             logger.LogError("Type {TaskName} is not registered", Name);
-        }
-
-        //persist only when this instance actually ran the task - an unconditional
-        //write would overwrite the claim/results of the winning instance with stale data
-        if (updateTask)
             await scheduleTaskService.UpdateTask(task);
+        }
     }
 
     /// <summary>

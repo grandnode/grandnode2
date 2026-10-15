@@ -67,23 +67,27 @@ public class BackgroundServiceTaskTests
         await service.StartAsync(cts.Token);
 
         await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
-            i.Method.Name == nameof(IScheduleTaskService.UpdateTask)));
+            i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
         cts.Cancel();
 
         _scheduleTaskMock.Verify(t => t.Execute(), Times.Once);
-        _scheduleTaskServiceMock.Verify(s => s.UpdateTask(It.Is<ScheduleTask>(x =>
-            x.LastSuccessUtc != null && x.LastStartUtc != null)), Times.Once);
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), true,
+            It.IsAny<DateTime>(), false), Times.Once);
+        //a write of the whole entity read before the run would revert admin edits made during it
+        _scheduleTaskServiceMock.Verify(s => s.UpdateTask(It.IsAny<ScheduleTask>()), Times.Never);
     }
 
     [TestMethod]
     public async Task ExecuteAsync_ClaimWon_LeasesTheRunAndReleasesItWhenDone()
     {
         DateTime? claimedRunStartUtc = null, claimedLeasedUntilUtc = null;
+        string claimingInstanceId = null;
         _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
                 It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
-            .Callback<string, DateTime?, DateTime, DateTime, string>((_, _, runStartUtc, leasedUntilUtc, _) => {
+            .Callback<string, DateTime?, DateTime, DateTime, string>((_, _, runStartUtc, leasedUntilUtc, instanceId) => {
                 claimedRunStartUtc = runStartUtc;
                 claimedLeasedUntilUtc = leasedUntilUtc;
+                claimingInstanceId = instanceId;
             })
             .ReturnsAsync(true);
 
@@ -92,12 +96,34 @@ public class BackgroundServiceTaskTests
         await service.StartAsync(cts.Token);
 
         await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
-            i.Method.Name == nameof(IScheduleTaskService.UpdateTask)));
+            i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
         cts.Cancel();
 
         Assert.AreEqual(LeaseDuration, claimedLeasedUntilUtc - claimedRunStartUtc);
-        _scheduleTaskServiceMock.Verify(s => s.UpdateTask(It.Is<ScheduleTask>(x =>
-            x.LeasedUntilUtc == null)), Times.Once);
+        //released as the instance that claimed the run - a takeover by another instance is left alone
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, claimingInstanceId, It.IsAny<bool>(),
+            It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ExecuteAsync_TaskFailsAndStopsOnError_RecordsFailureAndDisablesTask()
+    {
+        _task.StopOnError = true;
+        _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
+            .ReturnsAsync(true);
+        _scheduleTaskMock.Setup(t => t.Execute()).ThrowsAsync(new InvalidOperationException("task failure"));
+
+        var service = new BackgroundServiceTask(TaskName, _serviceProvider);
+        using var cts = new CancellationTokenSource();
+        await service.StartAsync(cts.Token);
+
+        await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
+            i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
+        cts.Cancel();
+
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), false,
+            It.IsAny<DateTime>(), true), Times.Once);
     }
 
     [TestMethod]
@@ -138,7 +164,7 @@ public class BackgroundServiceTaskTests
         await service.StartAsync(cts.Token);
 
         await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
-            i.Method.Name == nameof(IScheduleTaskService.UpdateTask)));
+            i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
         cts.Cancel();
 
         Assert.AreSame(workContext, seenWorkContext);
@@ -165,6 +191,8 @@ public class BackgroundServiceTaskTests
         _scheduleTaskMock.Verify(t => t.Execute(), Times.Never);
         //losing instance must not overwrite the winner's data with a stale entity
         _scheduleTaskServiceMock.Verify(s => s.UpdateTask(It.IsAny<ScheduleTask>()), Times.Never);
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<bool>(), It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Never);
     }
 
     [TestMethod]

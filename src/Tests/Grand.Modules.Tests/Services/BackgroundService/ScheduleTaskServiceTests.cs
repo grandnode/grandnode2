@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Data.Tests.LiteDb;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Tasks;
@@ -150,6 +151,79 @@ public class ScheduleTaskServiceTests
         var updated = await _service.GetTaskById(task.Id);
         Assert.IsNull(updated.LeasedUntilUtc);
     }
+
+    [TestMethod]
+    public async Task CompleteTaskRun_Succeeded_RecordsSuccessAndReleasesLease()
+    {
+        var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-a");
+
+        await _service.CompleteTaskRun(task.Id, "instance-a", true, DateTime.UtcNow, false);
+
+        var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNull(updated.LeasedUntilUtc);
+        Assert.IsNotNull(updated.LastSuccessUtc);
+        Assert.IsNull(updated.LastNonSuccessEndUtc);
+        Assert.IsTrue(updated.Enabled);
+    }
+
+    [TestMethod]
+    public async Task CompleteTaskRun_FailedAndDisable_RecordsFailureAndDisablesTask()
+    {
+        var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-a");
+
+        await _service.CompleteTaskRun(task.Id, "instance-a", false, DateTime.UtcNow, true);
+
+        var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNull(updated.LeasedUntilUtc);
+        Assert.IsNull(updated.LastSuccessUtc);
+        Assert.IsNotNull(updated.LastNonSuccessEndUtc);
+        Assert.IsFalse(updated.Enabled);
+    }
+
+    [TestMethod]
+    public async Task CompleteTaskRun_LeaseTakenOverByAnotherInstance_LeavesItsClaimAlone()
+    {
+        //instance A's lease ran out during a long run and instance B claimed the task
+        var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-b");
+
+        await _service.CompleteTaskRun(task.Id, "instance-a", true, DateTime.UtcNow, false);
+
+        var updated = await _service.GetTaskById(task.Id);
+        Assert.AreEqual("instance-b", updated.LeasedByInstance);
+        Assert.IsNotNull(updated.LeasedUntilUtc);
+        Assert.IsNull(updated.LastSuccessUtc);
+    }
+
+    [TestMethod]
+    public async Task CompleteTaskRun_KeepsChangesSavedDuringTheRun()
+    {
+        var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-a");
+        //the admin disables the task and changes its interval while it runs
+        task.Enabled = false;
+        task.TimeInterval = 30;
+        await _service.UpdateTask(task);
+
+        await _service.CompleteTaskRun(task.Id, "instance-a", true, DateTime.UtcNow, false);
+
+        var updated = await _service.GetTaskById(task.Id);
+        Assert.IsFalse(updated.Enabled);
+        Assert.AreEqual(30, updated.TimeInterval);
+    }
+
+    [TestMethod]
+    public async Task TryClaimTaskRun_ObsoleteOverloadWithoutLease_DoesNotBlockTheNextClaim()
+    {
+        var task = await InsertTask(DateTime.UtcNow.AddMinutes(-10));
+        IScheduleTaskService service = _service;
+
+#pragma warning disable CS0618
+        var claimed = await service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, "instance-a");
+#pragma warning restore CS0618
+
+        Assert.IsTrue(claimed);
+        var updated = await _service.GetTaskById(task.Id);
+        Assert.IsFalse(updated.LeasedUntilUtc > DateTime.UtcNow);
+    }
 }
 
 /// <summary>
@@ -202,5 +276,18 @@ public class ScheduleTaskServiceLiteDbTests
             DateTime.UtcNow.AddMinutes(5), "instance-b"));
         Assert.IsTrue(await _service.TryClaimTaskRun(expired.Id, expired.LastStartUtc, DateTime.UtcNow,
             DateTime.UtcNow.AddMinutes(5), "instance-b"));
+    }
+
+    [TestMethod]
+    public async Task CompleteTaskRun_OwnLease_ReleasesItAndLeavesTakenOverOneAlone()
+    {
+        var own = await InsertTask(DateTime.UtcNow.AddMinutes(5));
+        var takenOver = await InsertTask(DateTime.UtcNow.AddMinutes(5));
+
+        await _service.CompleteTaskRun(own.Id, "instance-a", true, DateTime.UtcNow, false);
+        await _service.CompleteTaskRun(takenOver.Id, "instance-b", true, DateTime.UtcNow, false);
+
+        Assert.IsNull((await _service.GetTaskById(own.Id)).LeasedUntilUtc);
+        Assert.IsNotNull((await _service.GetTaskById(takenOver.Id)).LeasedUntilUtc);
     }
 }
