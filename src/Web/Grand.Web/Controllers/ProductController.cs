@@ -16,6 +16,7 @@ using Grand.Web.Commands.Models.Products;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
 using Grand.Web.Extensions;
@@ -44,7 +45,8 @@ public class ProductController : BasePublicController
         IPermissionService permissionService,
         IMediator mediator,
         CatalogSettings catalogSettings,
-        CaptchaSettings captchaSettings
+        CaptchaSettings captchaSettings,
+        IGuestCustomerPersistence guestCustomerPersistence
     )
     {
         _productService = productService;
@@ -57,6 +59,7 @@ public class ProductController : BasePublicController
         _mediator = mediator;
         _catalogSettings = catalogSettings;
         _captchaSettings = captchaSettings;
+        _guestCustomerPersistence = guestCustomerPersistence;
     }
 
     #endregion
@@ -262,6 +265,7 @@ public class ProductController : BasePublicController
     private readonly IMediator _mediator;
     private readonly CatalogSettings _catalogSettings;
     private readonly CaptchaSettings _captchaSettings;
+    private readonly IGuestCustomerPersistence _guestCustomerPersistence;
 
     #endregion
 
@@ -320,8 +324,9 @@ public class ProductController : BasePublicController
         var productLayoutViewPath = await _mediator.Send(new GetProductLayoutViewPath
             { ProductLayoutId = product.ProductLayoutId });
 
-        //save as recently viewed
-        await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
+        //save as recently viewed - not for the guest that is not saved yet: its rows would stay orphaned
+        if (!_guestCustomerPersistence.IsTransient(customer.Id))
+            await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
 
         //display "edit" (manage) link
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
@@ -535,8 +540,9 @@ public class ProductController : BasePublicController
         var productLayoutViewPath = await _mediator.Send(new GetProductLayoutViewPath
             { ProductLayoutId = product.ProductLayoutId });
 
-        //save as recently viewed
-        await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
+        //save as recently viewed - not for the guest that is not saved yet: its rows would stay orphaned
+        if (!_guestCustomerPersistence.IsTransient(customer.Id))
+            await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
 
         _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
 
