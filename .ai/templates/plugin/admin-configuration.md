@@ -110,7 +110,6 @@ Non-negotiable points:
 ```cshtml
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Grand.Web.Common
-@addTagHelper *, Grand.Web
 
 @using Microsoft.AspNetCore.Mvc.ViewFeatures
 @using Grand.Infrastructure.Extensions

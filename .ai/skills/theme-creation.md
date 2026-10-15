@@ -77,8 +77,7 @@ Do not use this skill for changes to `Grand.Web/Views` themselves — that is `.
     @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
     @removeTagHelper Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers
     @addTagHelper *, Grand.Web.Common
-    @addTagHelper *, Grand.Web
-    @* … @using for Grand.Web.Models.*, Grand.Domain.*, Grand.Web.Common.* … *@
+    @* … @using for Grand.Web.Models.* (from the `Grand.Web.Models` project), Grand.Domain.*, Grand.Web.Common.* … *@
     @inject LocService Loc
     ```
     The `@removeTagHelper` line is required — without it the default `InputTagHelper` renders duplicate checkboxes.
