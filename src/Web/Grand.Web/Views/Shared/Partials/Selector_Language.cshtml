@@ -22,7 +22,7 @@
                 @foreach (var lang in availableLanguages)
                 {
                     var className = lang.Id == contextAccessor.WorkContext.WorkingLanguage.Id ? "active" : "";
-                    <li><a class="dropdown-item @className" href="@Url.RouteUrl("ChangeLanguage", new { langcode = lang.UniqueSeoCode, returnurl })">
+                    <li><a class="dropdown-item @className" rel="nofollow" href="@Url.RouteUrl("ChangeLanguage", new { langcode = lang.UniqueSeoCode, returnurl })">
                         @lang.Name
                     </a></li>
                 }
