@@ -5,9 +5,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
@@ -16,23 +14,32 @@ namespace Widgets.GoogleAnalytics.Components;
 [ViewComponent(Name = "WidgetsGoogleAnalytics")]
 public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
 {
+    private readonly ICategoryService _categoryService;
     private readonly ICookiePreference _cookiePreference;
+    private readonly ICountryService _countryService;
     private readonly GoogleAnalyticsEcommerceSettings _googleAnalyticsEcommerceSettings;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<WidgetsGoogleAnalyticsViewComponent> _logger;
+    private readonly IOrderService _orderService;
+    private readonly IProductService _productService;
     private readonly IContextAccessor _contextAccessor;
 
     public WidgetsGoogleAnalyticsViewComponent(IContextAccessor contextAccessor,
         ILogger<WidgetsGoogleAnalyticsViewComponent> logger,
         GoogleAnalyticsEcommerceSettings googleAnalyticsEcommerceSettings,
         ICookiePreference cookiePreference,
-        IHttpContextAccessor httpContextAccessor)
+        IOrderService orderService,
+        ICountryService countryService,
+        IProductService productService,
+        ICategoryService categoryService)
     {
         _contextAccessor = contextAccessor;
         _logger = logger;
         _googleAnalyticsEcommerceSettings = googleAnalyticsEcommerceSettings;
         _cookiePreference = cookiePreference;
-        _httpContextAccessor = httpContextAccessor;
+        _orderService = orderService;
+        _countryService = countryService;
+        _productService = productService;
+        _categoryService = categoryService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
@@ -79,8 +86,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
 
     private async Task<Order> GetLastOrder()
     {
-        var orderService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IOrderService>();
-        var order = (await orderService.SearchOrders(_contextAccessor.StoreContext.CurrentStore.Id,
+        var order = (await _orderService.SearchOrders(_contextAccessor.StoreContext.CurrentStore.Id,
             customerId: _contextAccessor.WorkContext.CurrentCustomer.Id, pageSize: 1)).FirstOrDefault();
         return order;
     }
@@ -103,9 +109,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
 
         if (order != null)
         {
-            var countryService =
-                _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICountryService>();
-            var country = await countryService.GetCountryById(order.BillingAddress?.CountryId);
+            var country = await _countryService.GetCountryById(order.BillingAddress?.CountryId);
             var state = country?.StateProvinces.FirstOrDefault(x => x.Id == order.BillingAddress?.StateProvinceId);
 
             var analyticsEcommerceScript = _googleAnalyticsEcommerceSettings.EcommerceScript + "\n";
@@ -135,21 +139,16 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
 
             var sb = new StringBuilder();
 
-            var productService =
-                _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IProductService>();
-            var categoryService =
-                _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICategoryService>();
-
             foreach (var item in order.OrderItems)
             {
-                var product = await productService.GetProductById(item.ProductId);
+                var product = await _productService.GetProductById(item.ProductId);
                 var analyticsEcommerceDetailScript = _googleAnalyticsEcommerceSettings.EcommerceDetailScript;
                 //get category
                 var category = "";
                 if (product.ProductCategories.Any())
                 {
                     var defaultProductCategory =
-                        await categoryService.GetCategoryById(product.ProductCategories.MinBy(x => x.DisplayOrder)
+                        await _categoryService.GetCategoryById(product.ProductCategories.MinBy(x => x.DisplayOrder)
                             .CategoryId);
                     if (defaultProductCategory != null)
                         category = defaultProductCategory.Name;

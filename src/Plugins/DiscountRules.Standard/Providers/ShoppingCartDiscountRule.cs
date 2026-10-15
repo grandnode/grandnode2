@@ -1,30 +1,21 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
-using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+using Grand.Mediator;
 
 namespace DiscountRules.Standard.Providers;
 
 public class ShoppingCartDiscountRule : IDiscountRule
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IProductService _productService;
+    private readonly IMediator _mediator;
     private readonly ShoppingCartSettings _shoppingCartSettings;
-    private readonly IContextAccessor _contextAccessor;
 
     public ShoppingCartDiscountRule(
-        IContextAccessor contextAccessor,
-        IProductService productService,
-        IHttpContextAccessor httpContextAccessor,
+        IMediator mediator,
         ShoppingCartSettings shoppingCartSettings)
     {
-        _contextAccessor = contextAccessor;
-        _productService = productService;
-        _httpContextAccessor = httpContextAccessor;
+        _mediator = mediator;
         _shoppingCartSettings = shoppingCartSettings;
     }
 
@@ -50,7 +41,9 @@ public class ShoppingCartDiscountRule : IDiscountRule
             return result;
         }
 
-        var cart = _contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems
+        if (request.Customer == null) return result;
+
+        var cart = request.Customer.ShoppingCartItems
             .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
             .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, request.Store.Id)
             .ToList();
@@ -61,17 +54,7 @@ public class ShoppingCartDiscountRule : IDiscountRule
             return result;
         }
 
-        double spentAmount = 0;
-
-        var priceCalculationService =
-            _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPricingService>();
-
-        foreach (var ca in cart)
-        {
-            var product = await _productService.GetProductById(ca.ProductId);
-            if (product != null)
-                spentAmount += (await priceCalculationService.GetSubTotal(ca, product, false)).subTotal;
-        }
+        var spentAmount = await _mediator.Send(new GetShoppingCartItemsSubTotalQuery { Items = cart });
 
         result.IsValid = spentAmount > spentAmountRequirement;
         return result;

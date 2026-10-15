@@ -10,7 +10,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Payments.BrainTree.Models;
 using Payments.BrainTree.Validators;
@@ -22,19 +21,28 @@ namespace Payments.BrainTree;
 public class BrainTreePaymentProvider : IPaymentProvider
 {
     private readonly BrainTreePaymentSettings _brainTreePaymentSettings;
+    private readonly IContextAccessor _contextAccessor;
+    private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
     private readonly ITranslationService _translationService;
 
     public BrainTreePaymentProvider(
         ITranslationService translationService,
         ICustomerService customerService,
         IHttpContextAccessor httpContextAccessor,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
+        ICurrencyService currencyService,
+        IContextAccessor contextAccessor,
         BrainTreePaymentSettings brainTreePaymentSettings)
     {
         _translationService = translationService;
         _customerService = customerService;
         _httpContextAccessor = httpContextAccessor;
+        _shoppingCartSubTotalService = shoppingCartSubTotalService;
+        _currencyService = currencyService;
+        _contextAccessor = contextAccessor;
         _brainTreePaymentSettings = brainTreePaymentSettings;
     }
 
@@ -224,29 +232,16 @@ public class BrainTreePaymentProvider : IPaymentProvider
         if (_brainTreePaymentSettings.AdditionalFee <= 0)
             return _brainTreePaymentSettings.AdditionalFee;
 
-        double result;
         if (_brainTreePaymentSettings.AdditionalFeePercentage)
         {
-            //percentage
-            var orderTotalCalculationService = _httpContextAccessor.HttpContext!.RequestServices
-                .GetRequiredService<IOrderCalculationService>();
-            var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-            result = (float)subtotal.subTotalWithDiscount *
-                (float)_brainTreePaymentSettings.AdditionalFee / 100f;
-        }
-        else
-        {
-            //fixed value
-            result = _brainTreePaymentSettings.AdditionalFee;
+            //percentage of the subtotal, which is already in the working currency
+            var subtotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, true);
+            return (float)subtotal.subTotalWithDiscount * (float)_brainTreePaymentSettings.AdditionalFee / 100f;
         }
 
-        if (!(result > 0)) return await Task.FromResult(result);
-        var currencyService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICurrencyService>();
-        var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IContextAccessor>().WorkContext;
-        result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
-
-        //return result;
-        return await Task.FromResult(result);
+        //fixed value, kept in the primary store currency
+        return await _currencyService.ConvertFromPrimaryStoreCurrency(_brainTreePaymentSettings.AdditionalFee,
+            _contextAccessor.WorkContext.WorkingCurrency);
     }
 
     /// <summary>

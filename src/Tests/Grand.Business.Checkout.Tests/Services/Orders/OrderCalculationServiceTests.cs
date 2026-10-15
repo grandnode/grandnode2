@@ -76,11 +76,16 @@ public class OrderCalculationServiceTests
         _workContextMock.Setup(c => c.WorkContext.WorkingCurrency).Returns(() => new Currency());
         _workContextMock.Setup(c => c.WorkContext.TaxDisplayType).Returns(() => TaxDisplayType.ExcludingTax);
 
-        _service = new OrderCalculationService(_workContextMock.Object, _pricingServiceMock.Object,
+        var shoppingCartSubTotalService = new ShoppingCartSubTotalService(_workContextMock.Object,
+            _pricingServiceMock.Object, _taxServiceMock.Object, _checkoutAttributeParserMock.Object,
+            _discountServiceMock.Object, _discountValidationService.Object, _productServiceMock.Object,
+            _currencyServiceMock.Object, _shoppingCartSettings, _catalogSettings);
+
+        _service = new OrderCalculationService(_workContextMock.Object, shoppingCartSubTotalService,
             _taxServiceMock.Object, _shippingServiceMock.Object,
-            _paymentServiceMock.Object, _checkoutAttributeParserMock.Object, _discountServiceMock.Object,
+            _paymentServiceMock.Object, _discountServiceMock.Object,
             _giftVoucherServiceMock.Object,
-            _loyaltyPointsServiceMock.Object, _productServiceMock.Object, _currencyServiceMock.Object,
+            _loyaltyPointsServiceMock.Object, _currencyServiceMock.Object,
             _groupServiceMock.Object, _discountValidationService.Object,
             _taxSettings, _loyaltyPointsSettings, _shippingSettings, _shoppingCartSettings, _catalogSettings);
     }
