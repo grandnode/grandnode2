@@ -3,11 +3,11 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Web.Common.RequestCustomerResolvers;
+using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common.Tests;
 
@@ -132,33 +132,42 @@ public class RequestCustomerResolversTests
     [TestMethod]
     public async Task SearchEngine_NotACrawler_ReturnsNull()
     {
-        var detection = new Mock<IDetectionService>();
-        var resolver = new SearchEngineCustomerResolver(detection.Object, Mock.Of<ICustomerService>());
+        var classifier = new Mock<IUserAgentClassifier>();
+        classifier.SetupGet(c => c.IsCrawler).Returns(false);
+        var resolver = new SearchEngineCustomerResolver(classifier.Object, Mock.Of<ICustomerService>(),
+            AccessorWith(new DefaultHttpContext()));
 
-        //Crawler is null: the null-safe read must not throw
         Assert.IsNull(await resolver.Resolve());
         Assert.AreEqual(RequestCustomerResolverOrder.SearchEngine, resolver.Order);
-
-        var crawler = new Mock<ICrawlerService>();
-        crawler.SetupGet(c => c.IsCrawler).Returns(false);
-        detection.SetupGet(d => d.Crawler).Returns(crawler.Object);
-        Assert.IsNull(await resolver.Resolve());
     }
 
     [TestMethod]
     public async Task SearchEngine_Crawler_ReturnsSearchEngineCustomer()
     {
-        var crawler = new Mock<ICrawlerService>();
-        crawler.SetupGet(c => c.IsCrawler).Returns(true);
-        var detection = new Mock<IDetectionService>();
-        detection.SetupGet(d => d.Crawler).Returns(crawler.Object);
+        var classifier = new Mock<IUserAgentClassifier>();
+        classifier.SetupGet(c => c.IsCrawler).Returns(true);
         var customers = new Mock<ICustomerService>();
         customers.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.SearchEngine))
             .ReturnsAsync(new Customer { Id = "crawler" });
 
-        var resolver = new SearchEngineCustomerResolver(detection.Object, customers.Object);
+        var resolver = new SearchEngineCustomerResolver(classifier.Object, customers.Object,
+            AccessorWith(new DefaultHttpContext()));
 
         Assert.AreEqual("crawler", (await resolver.Resolve()).Id);
+    }
+
+    [TestMethod]
+    public async Task SearchEngine_AuthorizationHeader_ReturnsNull()
+    {
+        var classifier = new Mock<IUserAgentClassifier>();
+        classifier.SetupGet(c => c.IsCrawler).Returns(true);
+        var customers = new Mock<ICustomerService>();
+        var context = new DefaultHttpContext();
+        context.Request.Headers.Authorization = "Bearer token";
+        var resolver = new SearchEngineCustomerResolver(classifier.Object, customers.Object, AccessorWith(context));
+
+        Assert.IsNull(await resolver.Resolve());
+        customers.Verify(c => c.GetCustomerBySystemName(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -212,6 +221,40 @@ public class RequestCustomerResolversTests
             Mock.Of<ICustomerService>());
 
         Assert.AreEqual("api", (await resolver.Resolve()).Id);
+    }
+
+    [TestMethod]
+    public async Task GuestCookie_SystemAccountGuid_ReturnsNull()
+    {
+        //Anonymous and SearchEngine belong to the Guests group
+        var guid = Guid.NewGuid();
+        var authentication = new Mock<IGrandAuthenticationService>();
+        authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
+        var customers = new Mock<ICustomerService>();
+        customers.Setup(c => c.GetCustomerByGuid(guid))
+            .ReturnsAsync(new Customer { Id = "anonymous", Active = true, IsSystemAccount = true });
+
+        var resolver = new GuestCookieCustomerResolver(authentication.Object, customers.Object,
+            Mock.Of<IGroupService>());
+
+        Assert.IsNull(await resolver.Resolve());
+    }
+
+    [TestMethod]
+    [DataRow("00000000-0000-0000-0000-000000000000")]
+    [DataRow("0f8fad5bd9cb469fa16570867728950e")]
+    [DataRow("{0f8fad5b-d9cb-469f-a165-70867728950e}")]
+    public async Task GuestCookie_EmptyOrNonCanonicalGuid_NotLookedUp(string cookie)
+    {
+        var authentication = new Mock<IGrandAuthenticationService>();
+        authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(cookie);
+        var customers = new Mock<ICustomerService>();
+
+        var resolver = new GuestCookieCustomerResolver(authentication.Object, customers.Object,
+            Mock.Of<IGroupService>());
+
+        Assert.IsNull(await resolver.Resolve());
+        customers.Verify(c => c.GetCustomerByGuid(It.IsAny<Guid>()), Times.Never);
     }
 
     private static IHttpContextAccessor AccessorWith(HttpContext context)

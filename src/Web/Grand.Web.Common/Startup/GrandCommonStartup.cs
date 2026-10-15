@@ -1,7 +1,9 @@
 ﻿using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Infrastructure;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Routing;
+using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -68,8 +70,11 @@ public class GrandCommonStartup : IStartupApplication
         //add WebEncoderOptions
         services.AddWebEncoder();
 
-        //add detection device
-        services.AddDetectionDevice();
+        //classify the request's user agent (crawler, mobile)
+        services.AddScoped<IUserAgentClassifier, UserAgentClassifier>();
+
+        //a guest is saved only once it returns its cookie or an action marked [PersistGuestCustomer] writes to it
+        services.AddScoped<IGuestCustomerPersistence, GuestCustomerPersistence>();
 
         //add routing
         services.AddRouting(options =>
@@ -121,9 +126,6 @@ public class GrandCommonStartup : IStartupApplication
         //use powered by
         if (!performanceConfig.IgnoreUsePoweredByMiddleware)
             application.UsePoweredBy();
-
-        //add responsive middleware (for detection)
-        application.UseDetection();
 
         //use routing
         application.UseRouting();

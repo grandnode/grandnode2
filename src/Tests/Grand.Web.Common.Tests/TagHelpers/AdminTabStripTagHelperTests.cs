@@ -12,8 +12,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Wangkanai.Detection.Models;
-using Wangkanai.Detection.Services;
+using Grand.Web.Common.UserAgent;
 
 namespace Grand.Web.Common.Tests.TagHelpers;
 
@@ -21,8 +20,7 @@ namespace Grand.Web.Common.Tests.TagHelpers;
 public class AdminTabStripTagHelperTests
 {
     private Mock<IMediator> _mediatorMock;
-    private Mock<IDetectionService> _detectionServiceMock;
-    private Mock<IDeviceService> _deviceServiceMock;
+    private Mock<IUserAgentClassifier> _userAgentMock;
     private ViewContext _viewContext;
     private Action<AdminTabStripCreated> _onPublish;
 
@@ -37,10 +35,8 @@ public class AdminTabStripTagHelperTests
                 _onPublish?.Invoke(message);
                 return Task.CompletedTask;
             });
-        _deviceServiceMock = new Mock<IDeviceService>();
-        _deviceServiceMock.Setup(x => x.Type).Returns(Device.Desktop);
-        _detectionServiceMock = new Mock<IDetectionService>();
-        _detectionServiceMock.Setup(x => x.Device).Returns(_deviceServiceMock.Object);
+        _userAgentMock = new Mock<IUserAgentClassifier>();
+        _userAgentMock.SetupGet(x => x.IsMobileOrTablet).Returns(false);
         _viewContext = new ViewContext {
             RouteData = new RouteData(),
             ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()),
@@ -51,7 +47,7 @@ public class AdminTabStripTagHelperTests
     private AdminTabStripTagHelper CreateStrip(string name = "product-edit", bool bindGrid = true,
         bool setTabPos = false)
     {
-        return new AdminTabStripTagHelper(_mediatorMock.Object, _detectionServiceMock.Object) {
+        return new AdminTabStripTagHelper(_mediatorMock.Object, _userAgentMock.Object) {
             Name = name,
             BindGrid = bindGrid,
             SetTabPos = setTabPos,
@@ -166,7 +162,7 @@ public class AdminTabStripTagHelperTests
     [TestMethod]
     public async Task Process_OnAMobileDevice_IgnoresSetTabPos()
     {
-        _deviceServiceMock.Setup(x => x.Type).Returns(Device.Mobile);
+        _userAgentMock.SetupGet(x => x.IsMobileOrTablet).Returns(true);
         var output = await Run(CreateStrip(setTabPos: true), "<div>a</div>");
 
         Assert.AreEqual("grand-tabstrip", output.Attributes["class"].Value);

@@ -334,6 +334,19 @@ public class CustomerServiceTests
     }
 
     [TestMethod]
+    public async Task InsertGuestCustomer_GroupAlreadyPresent_AddedOnce()
+    {
+        _mediatorMock.Setup(x => x.Send(It.IsAny<GetGroupBySystemNameQuery>(), default))
+            .Returns(Task.FromResult(new CustomerGroup { Id = "guests" }));
+        var customer = new Customer { CustomerGuid = Guid.NewGuid(), Active = true };
+        customer.Groups.Add("guests");
+
+        await _customerService.InsertGuestCustomer(customer);
+
+        CollectionAssert.AreEqual(new[] { "guests" }, customer.Groups.ToArray());
+    }
+
+    [TestMethod]
     public async Task InsertCustomerTest()
     {
         //Act

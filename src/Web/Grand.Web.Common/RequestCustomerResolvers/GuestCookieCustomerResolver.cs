@@ -17,11 +17,11 @@ public class GuestCookieCustomerResolver(
 
     public async Task<Customer> Resolve()
     {
-        var guid = await authenticationService.GetCustomerGuid();
-        if (string.IsNullOrEmpty(guid) || !Guid.TryParse(guid, out var customerGuid)) return null;
+        var cookie = await authenticationService.GetCustomerGuid();
+        if (!GuestCustomerRules.TryParseCookie(cookie, out var customerGuid)) return null;
 
         var customerByGuid = await customerService.GetCustomerByGuid(customerGuid);
-        if (customerByGuid is { Deleted: false, Active: true } && !await groupService.IsRegistered(customerByGuid))
+        if (customerByGuid != null && await GuestCustomerRules.IsAcceptableGuest(customerByGuid, groupService))
             return customerByGuid;
 
         return null;

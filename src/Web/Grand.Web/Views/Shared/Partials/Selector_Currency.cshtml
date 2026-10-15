@@ -38,7 +38,7 @@
             @foreach (var item in currencies)
             {
                 var className = item.Selected ? "active" : "";
-                <li><a class="dropdown-item @className" href="@item.Value">@item.Text</a></li>
+                <li><a class="dropdown-item @className" rel="nofollow" href="@item.Value">@item.Text</a></li>
             }
         </ul>
     </div>

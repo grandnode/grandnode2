@@ -25,7 +25,7 @@
             @foreach (var theme in availablThemes)
             {
                 var className = theme.Name == themeContext?.GetCurrentTheme() ? "active" : "";
-                <li><a class="dropdown-item @className" href="@Url.Action("SetStoreTheme", "Common", new { themename = theme.Name, returnUrl = returnurl })">
+                <li><a class="dropdown-item @className" rel="nofollow" href="@Url.Action("SetStoreTheme", "Common", new { themename = theme.Name, returnUrl = returnurl })">
                     @(theme.Title ?? theme.Name)
                 </a></li>
             }

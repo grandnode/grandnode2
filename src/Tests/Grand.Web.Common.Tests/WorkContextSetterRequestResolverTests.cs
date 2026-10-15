@@ -11,13 +11,13 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.RequestCustomerResolvers;
+using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common.Tests;
 
@@ -29,8 +29,9 @@ public class WorkContextSetterRequestResolverTests
     private DefaultHttpContext _httpContext;
     private Mock<IGrandAuthenticationService> _authentication;
     private Mock<IApiAuthenticationService> _apiAuthentication;
-    private Mock<IDetectionService> _detection;
+    private Mock<IUserAgentClassifier> _userAgent;
     private Mock<IHttpContextAccessor> _accessor;
+    private Mock<IGuestCustomerPersistence> _persistence;
 
     [TestInitialize]
     public void Setup()
@@ -39,9 +40,11 @@ public class WorkContextSetterRequestResolverTests
         _groupService = new Mock<IGroupService>();
         _authentication = new Mock<IGrandAuthenticationService>();
         _apiAuthentication = new Mock<IApiAuthenticationService>();
-        _detection = new Mock<IDetectionService>();
+        _userAgent = new Mock<IUserAgentClassifier>();
         _httpContext = new DefaultHttpContext();
         _accessor = new Mock<IHttpContextAccessor>();
+        _persistence = new Mock<IGuestCustomerPersistence>();
+        _persistence.Setup(p => p.SetTransient(It.IsAny<Customer>())).Returns(Task.CompletedTask);
         _accessor.Setup(a => a.HttpContext).Returns(_httpContext);
     }
 
@@ -50,6 +53,16 @@ public class WorkContextSetterRequestResolverTests
         var services = new ServiceCollection();
         foreach (var resolver in resolvers)
             services.AddSingleton(resolver);
+        return new TestableSetter(_accessor.Object, _authentication.Object, Mock.Of<ICurrencyService>(),
+            _customerService.Object, Mock.Of<ILanguageService>(),
+            Mock.Of<IStoreService>(), Mock.Of<IAclService>(), Mock.Of<IVendorService>(),
+            new TaxSettings(), new AppConfig(), services.BuildServiceProvider());
+    }
+
+    private TestableSetter CreateSetterWithPersistence()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton(_persistence.Object);
         return new TestableSetter(_accessor.Object, _authentication.Object, Mock.Of<ICurrencyService>(),
             _customerService.Object, Mock.Of<ILanguageService>(),
             Mock.Of<IStoreService>(), Mock.Of<IAclService>(), Mock.Of<IVendorService>(),
@@ -65,11 +78,11 @@ public class WorkContextSetterRequestResolverTests
     }
 
     //registered in a scrambled order on purpose: the setter must sort by Order
-    private IRequestCustomerResolver[] BuiltIns()
+    private IRequestCustomerResolver[] BuiltIns(IUserAgentClassifier classifier = null)
     {
         return [
             new ApiUserCustomerResolver(_apiAuthentication.Object, _accessor.Object, _customerService.Object),
-            new SearchEngineCustomerResolver(_detection.Object, _customerService.Object),
+            new SearchEngineCustomerResolver(classifier ?? _userAgent.Object, _customerService.Object, _accessor.Object),
             new GuestCookieCustomerResolver(_authentication.Object, _customerService.Object, _groupService.Object),
             new CookieCustomerResolver(_authentication.Object),
             new AllowAnonymousCustomerResolver(_accessor.Object, _customerService.Object)
@@ -87,9 +100,7 @@ public class WorkContextSetterRequestResolverTests
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
         _customerService.Setup(c => c.GetCustomerByGuid(guid))
             .ReturnsAsync(new Customer { Id = "guest", Active = true });
-        var crawler = new Mock<ICrawlerService>();
-        crawler.SetupGet(c => c.IsCrawler).Returns(true);
-        _detection.SetupGet(d => d.Crawler).Returns(crawler.Object);
+        _userAgent.SetupGet(u => u.IsCrawler).Returns(true);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.SearchEngine))
             .ReturnsAsync(new Customer { Id = "crawler", IsSystemAccount = true });
         _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api", Active = true });
@@ -123,6 +134,23 @@ public class WorkContextSetterRequestResolverTests
     }
 
     [TestMethod]
+    [DataRow("python-requests/2.31.0")]
+    [DataRow("")]
+    public async Task BuiltIns_ApiClientWithRealClassifier_ResolvesToApiCustomer(string userAgent)
+    {
+        _httpContext.Request.Headers.UserAgent = userAgent;
+        _httpContext.Request.Headers.Authorization = "Bearer token";
+        _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.SearchEngine))
+            .ReturnsAsync(new Customer { Id = "crawler", IsSystemAccount = true });
+        _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api", Active = true });
+
+        var customer = await CreateSetter(BuiltIns(new UserAgentClassifier(_accessor.Object)))
+            .CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("api", customer.Id);
+    }
+
+    [TestMethod]
     public async Task BuiltIns_SearchEngine_BeatsApiUser()
     {
         ArrangeAllBuiltInsMatch();
@@ -140,7 +168,7 @@ public class WorkContextSetterRequestResolverTests
         _httpContext.SetEndpoint(null);
         _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string)null);
-        _detection.SetupGet(d => d.Crawler).Returns((ICrawlerService)null);
+        _userAgent.SetupGet(u => u.IsCrawler).Returns(false);
         var customer = await CreateSetter(BuiltIns()).CurrentCustomerForTest(new Store());
         Assert.AreEqual("api", customer.Id);
     }
@@ -150,7 +178,7 @@ public class WorkContextSetterRequestResolverTests
     {
         _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string)null);
-        _detection.SetupGet(d => d.Crawler).Returns((ICrawlerService)null);
+        _userAgent.SetupGet(u => u.IsCrawler).Returns(false);
         _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
         _customerService.Setup(c => c.InsertGuestCustomer(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
@@ -160,6 +188,93 @@ public class WorkContextSetterRequestResolverTests
         Assert.IsNotNull(customer);
         Assert.AreEqual("s1", customer.StoreId);
         _authentication.Verify(a => a.SetCustomerGuid(customer.CustomerGuid), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Get_NoCookie_TransientGuestNotInserted()
+    {
+        _httpContext.Request.Method = HttpMethods.Get;
+
+        var customer = await CreateSetterWithPersistence().CurrentCustomerForTest(new Store { Id = "s1" });
+
+        Assert.AreEqual("s1", customer.StoreId);
+        _persistence.Verify(p => p.SetTransient(customer), Times.Once);
+        _customerService.Verify(c => c.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
+        _authentication.Verify(a => a.SetCustomerGuid(customer.CustomerGuid), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Post_NoCookie_GuestInserted()
+    {
+        _httpContext.Request.Method = HttpMethods.Post;
+        _customerService.Setup(c => c.InsertGuestCustomer(It.IsAny<Customer>())).ReturnsAsync((Customer c) => c);
+
+        var customer = await CreateSetterWithPersistence().CurrentCustomerForTest(new Store { Id = "s1" });
+
+        _customerService.Verify(c => c.InsertGuestCustomer(customer), Times.Once);
+        _persistence.Verify(p => p.SetTransient(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ReturnedCookieOfUnsavedGuest_Promoted()
+    {
+        _httpContext.Request.Method = HttpMethods.Get;
+        var guid = Guid.NewGuid();
+        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
+        _customerService.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync((Customer)null);
+        var promoted = new Customer { Id = "promoted", CustomerGuid = guid, Active = true };
+        _persistence.Setup(p => p.Promote(It.Is<Customer>(c => c.CustomerGuid == guid && c.StoreId == "s1")))
+            .ReturnsAsync(promoted);
+
+        var customer = await CreateSetterWithPersistence().CurrentCustomerForTest(new Store { Id = "s1" });
+
+        Assert.AreSame(promoted, customer);
+        _authentication.Verify(a => a.SetCustomerGuid(It.IsAny<Guid>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CookieOfExistingCustomer_NeverPromoted_NewGuestIssued()
+    {
+        //an administrator's GUID planted in the guest cookie
+        _httpContext.Request.Method = HttpMethods.Get;
+        var adminGuid = Guid.NewGuid();
+        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(adminGuid.ToString());
+        _customerService.Setup(c => c.GetCustomerByGuid(adminGuid))
+            .ReturnsAsync(new Customer { Id = "admin", CustomerGuid = adminGuid, Active = true });
+
+        var customer = await CreateSetterWithPersistence().CurrentCustomerForTest(new Store { Id = "s1" });
+
+        Assert.AreNotEqual("admin", customer.Id);
+        Assert.AreNotEqual(adminGuid, customer.CustomerGuid);
+        _persistence.Verify(p => p.Promote(It.IsAny<Customer>()), Times.Never);
+        _authentication.Verify(a => a.SetCustomerGuid(customer.CustomerGuid), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PromotionRefused_NewGuestIssued()
+    {
+        _httpContext.Request.Method = HttpMethods.Get;
+        var guid = Guid.NewGuid();
+        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
+        _persistence.Setup(p => p.Promote(It.IsAny<Customer>())).ReturnsAsync((Customer)null);
+
+        var customer = await CreateSetterWithPersistence().CurrentCustomerForTest(new Store { Id = "s1" });
+
+        Assert.AreNotEqual(guid, customer.CustomerGuid);
+        _persistence.Verify(p => p.SetTransient(customer), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BackgroundTask_NeverTransient()
+    {
+        _accessor.Setup(a => a.HttpContext).Returns((HttpContext)null);
+        _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask))
+            .ReturnsAsync(new Customer { Id = "task", IsSystemAccount = true });
+
+        var customer = await CreateSetterWithPersistence().CurrentCustomerForTest(new Store());
+
+        Assert.AreEqual("task", customer.Id);
+        _persistence.Verify(p => p.SetTransient(It.IsAny<Customer>()), Times.Never);
     }
 
     [TestMethod]

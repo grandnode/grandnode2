@@ -218,6 +218,49 @@ public class WorkContextSetter : IWorkContextSetter
 
     private async Task<Customer> CreateCustomerGuest(Store store)
     {
+        //resolved here, not injected: it belongs to the request scope
+        var persistence = _serviceProvider.GetService<IGuestCustomerPersistence>();
+
+        //a browser returning the cookie of a guest that was never saved: save it now under that GUID
+        var returningGuid = persistence != null ? await ReturningGuestGuid() : null;
+        if (returningGuid.HasValue)
+        {
+            var promoted = await persistence.Promote(BuildGuest(store, returningGuid.Value));
+            if (promoted != null) return promoted;
+        }
+
+        var customer = BuildGuest(store, Guid.NewGuid());
+        if (persistence != null && IsSafeRequest())
+            //saved on its first write, or by the next request that returns the cookie
+            await persistence.SetTransient(customer);
+        else
+            customer = await _customerService.InsertGuestCustomer(customer);
+
+        await _authenticationService.SetCustomerGuid(customer.CustomerGuid);
+        return customer;
+    }
+
+    /// <summary>
+    ///     The guest cookie's GUID when no customer has it; an existing customer (registered, administrator, system,
+    ///     deleted) is never taken over
+    /// </summary>
+    private async Task<Guid?> ReturningGuestGuid()
+    {
+        var cookie = await _authenticationService.GetCustomerGuid();
+        if (!GuestCustomerRules.TryParseCookie(cookie, out var customerGuid)) return null;
+
+        return await _customerService.GetCustomerByGuid(customerGuid) == null ? customerGuid : null;
+    }
+
+    private bool IsSafeRequest()
+    {
+        var method = _httpContextAccessor.HttpContext?.Request.Method;
+        return method != null && (HttpMethods.IsGet(method) || HttpMethods.IsHead(method) ||
+                                  HttpMethods.IsOptions(method));
+    }
+
+    private Customer BuildGuest(Store store, Guid customerGuid)
+    {
         var userFields = new List<UserField>();
 
         if (!string.IsNullOrEmpty(store.DefaultCurrencyId))
@@ -234,20 +277,14 @@ public class WorkContextSetter : IWorkContextSetter
                 StoreId = store.Id
             });
 
-        var customer = new Customer {
-            CustomerGuid = Guid.NewGuid(),
+        return new Customer {
+            CustomerGuid = customerGuid,
             Active = true,
             StoreId = store.Id,
             LastActivityDateUtc = DateTime.UtcNow,
             LastIpAddress = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
             UserFields = userFields
         };
-
-        customer = await _customerService.InsertGuestCustomer(customer);
-
-        //set customer cookie
-        await _authenticationService.SetCustomerGuid(customer.CustomerGuid);
-        return customer;
     }
 
     /// <summary>

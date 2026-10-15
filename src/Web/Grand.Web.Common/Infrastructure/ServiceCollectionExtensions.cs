@@ -302,13 +302,4 @@ public static class ServiceCollectionExtensions
         });
     }
 
-
-    /// <summary>
-    ///     Adds services for detection device
-    /// </summary>
-    /// <param name="services">Collection of service descriptors</param>
-    public static void AddDetectionDevice(this IServiceCollection services)
-    {
-        services.AddDetection();
-    }
 }

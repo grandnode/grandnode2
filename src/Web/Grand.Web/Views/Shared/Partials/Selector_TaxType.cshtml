@@ -19,10 +19,10 @@
     <div class="dropdown btn-group me-2">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">@text</button>
         <ul class="dropdown-menu">
-        <li><a class="dropdown-item @className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.IncludingTax, returnUrl })">
+        <li><a class="dropdown-item @className" rel="nofollow" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.IncludingTax, returnUrl })">
             @Loc["Tax.Inclusive"]
         </a></li>
-        <li><a class="dropdown-item @className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.ExcludingTax, returnUrl })">
+        <li><a class="dropdown-item @className" rel="nofollow" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.ExcludingTax, returnUrl })">
             @Loc["Tax.Exclusive"]
         </a></li>
     </ul>

@@ -327,7 +327,8 @@ public class CustomerService : ICustomerService
             { SystemName = SystemCustomerGroupNames.Guests });
         if (guestGroup == null)
             throw new GrandException("'Guests' group could not be loaded");
-        customer.Groups.Add(guestGroup.Id);
+        if (!customer.Groups.Contains(guestGroup.Id))
+            customer.Groups.Add(guestGroup.Id);
 
         await _customerRepository.InsertAsync(customer);
 
