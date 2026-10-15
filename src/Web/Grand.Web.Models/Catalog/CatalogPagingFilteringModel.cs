@@ -4,6 +4,7 @@ using Grand.Domain.Catalog;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Page.Paging;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.Catalog;

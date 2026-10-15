@@ -1,6 +1,6 @@
 ﻿#! "net6.0"
 #r "Grand.Infrastructure"
-#r "Grand.Web"
+#r "Grand.Web.Models"
 #r "Grand.Web.Common"
 
 
