@@ -129,6 +129,37 @@ public class TransientGuestCustomerServiceTests
         Assert.IsFalse(new Grand.Web.Common.Startup.GuestCustomerStartup().BeforeConfigure);
     }
 
+    private static readonly string[] NonPersistingMembers = [
+        "GetAllCustomers", "GetOnlineCustomers", "GetCountOnlineShoppingCart", "GetCustomerById",
+        "GetCustomersByIds", "GetCustomerByGuid", "GetCustomerByEmail", "GetCustomerBySystemName",
+        "GetCustomerByUsername", "InsertGuestCustomer", "InsertCustomer", "DeleteGuestCustomers"
+    ];
+
+    //every one of these calls Persist(...) in TransientGuestCustomerService before it writes
+    private static readonly string[] PersistingWrites = [
+        "UpdateCustomer", "UpdateUserField`1", "DeleteCustomer", "UpdateCustomerField`1", "UpdateActive",
+        "UpdateContributions", "UpdateCustomerLastLoginDate", "UpdateCustomerInAdminPanel", "ResetCheckoutData",
+        "InsertCustomerGroupInCustomer", "DeleteCustomerGroupInCustomer", "DeleteAddress", "InsertAddress",
+        "UpdateAddress", "UpdateBillingAddress", "UpdateShippingAddress", "ClearShoppingCartItem",
+        "DeleteShoppingCartItem", "InsertShoppingCartItem", "UpdateShoppingCartItem"
+    ];
+
+    [TestMethod]
+    public void CustomerServiceSurface_IsExactlyTheKnownSet()
+    {
+        var actual = typeof(ICustomerService).GetMethods()
+            .Select(m => m.IsGenericMethodDefinition ? $"{m.Name}`{m.GetGenericArguments().Length}" : m.Name)
+            .Distinct()
+            .OrderBy(n => n)
+            .ToArray();
+        var expected = NonPersistingMembers.Concat(PersistingWrites).OrderBy(n => n).ToArray();
+
+        CollectionAssert.AreEqual(expected, actual,
+            "ICustomerService changed. Decide whether the new member writes a customer; if it does, wrap it with " +
+            "Persist(...) in TransientGuestCustomerService, add a test for it and list it in PersistingWrites, " +
+            "otherwise list it in NonPersistingMembers.");
+    }
+
     //any concrete ICustomerService with a parameterless constructor, as the business layer registers one
     private class FakeCustomerService()
         : TransientGuestCustomerService(Mock.Of<ICustomerService>(), Mock.Of<IGuestCustomerPersistence>());

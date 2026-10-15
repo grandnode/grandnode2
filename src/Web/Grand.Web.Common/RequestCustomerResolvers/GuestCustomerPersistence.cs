@@ -61,7 +61,7 @@ public class GuestCustomerPersistence(
 
             if (await GuestCustomerRules.IsAcceptableGuest(existing, groupService)) return existing;
 
-            logger.LogWarning("Guest cookie {CustomerGuid} belongs to a customer that is not a guest; a new guest is issued",
+            logger.LogWarning(ex, "Guest cookie {CustomerGuid} belongs to a customer that is not a guest; a new guest is issued",
                 guest.CustomerGuid);
             return null;
         }
