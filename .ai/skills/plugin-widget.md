@@ -46,7 +46,6 @@ Do not use this skill for admin-only functionality with no storefront output, or
    ```cshtml
    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
    @addTagHelper *, Grand.Web.Common
-   @addTagHelper *, Grand.Web
    @using YourPlugin.Models
    @inject LocService Loc
    ```

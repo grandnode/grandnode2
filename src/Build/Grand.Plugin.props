@@ -47,4 +47,15 @@
         <ProjectReference Include="$(MSBuildThisFileDirectory)..\Web\Grand.Web.Common\Grand.Web.Common.csproj" Private="false" ExcludeAssets="all" />
     </ItemGroup>
 
+    <!--
+        A plugin compiles against the core projects above, never against the host. Grand.Web
+        references the Admin, Store and Vendor panels and Aspire, so a reference to it puts the
+        whole host into the plugin's build. A theme that needs storefront view models
+        references Grand.Web.Models instead.
+    -->
+    <Target Name="GrandForbidHostReference" BeforeTargets="ResolveProjectReferences">
+        <Error Condition="'%(ProjectReference.Filename)' == 'Grand.Web'"
+               Text="GRAND001: $(MSBuildProjectName) references Grand.Web. Plugins must not reference the host project; reference Grand.Web.Models for storefront view models." />
+    </Target>
+
 </Project>

@@ -74,7 +74,7 @@ src/Plugins/Theme.{ThemeName}/
 			<Private>false</Private>
 			<ExcludeAssets>all</ExcludeAssets>
 		</ProjectReference>
-		<ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj">
+		<ProjectReference Include="..\..\Web\Grand.Web.Models\Grand.Web.Models.csproj">
 			<Private>false</Private>
 			<ExcludeAssets>all</ExcludeAssets>
 		</ProjectReference>
@@ -94,7 +94,7 @@ src/Plugins/Theme.{ThemeName}/
 </Project>
 ```
 
-A theme is the one plugin kind that references `Grand.Web` — it compiles against the storefront view models. Both `Grand.Web` and `Grand.Web.Common` use `<ExcludeAssets>all</ExcludeAssets>`; the host already loads them.
+A theme is the one plugin kind that references `Grand.Web.Models` — it compiles against the storefront view models. Both `Grand.Web.Models` and `Grand.Web.Common` use `<ExcludeAssets>all</ExcludeAssets>`; the host already loads them. No plugin may reference `Grand.Web` itself; `Grand.Plugin.props` fails the build with GRAND001 if one does.
 
 ## 2. `Manifest.cs`
 
@@ -192,7 +192,6 @@ public class StartupApplication : IStartupApplication
 @*we remove the default InputTagHelper to prevent the checkbox duplicating*@
 @removeTagHelper Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Grand.Web.Common
-@addTagHelper *, Grand.Web
 
 @using Microsoft.AspNetCore.Http.Extensions
 @using Microsoft.AspNetCore.Mvc.Localization
@@ -205,7 +204,6 @@ public class StartupApplication : IStartupApplication
 @using Grand.Web.Common.Security.Captcha
 @using Grand.Web.Common.Themes
 @using Grand.Web.Common.Localization
-@using Grand.Web.Extensions
 @using Grand.Web.Models.Catalog
 @using Grand.Web.Models.Checkout
 @using Grand.Web.Models.Common

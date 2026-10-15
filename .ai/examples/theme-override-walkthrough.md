@@ -117,13 +117,13 @@ Without it, every checkbox in the theme renders twice. Copy the file wholesale r
 		<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
 	</PropertyGroup>
 	…
-	<ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj">
+	<ProjectReference Include="..\..\Web\Grand.Web.Models\Grand.Web.Models.csproj">
 		<Private>false</Private>
 		<ExcludeAssets>all</ExcludeAssets>
 	</ProjectReference>
 ```
 
-A theme is the one plugin kind that references `Grand.Web` — it compiles against the storefront view models. `ExcludeAssets=all` keeps the assembly out of the plugin's output; the host already has it.
+A theme is the one plugin kind that references `Grand.Web.Models` — it compiles against the storefront view models. No plugin may reference `Grand.Web` itself; `Grand.Plugin.props` fails the build with GRAND001 if one does. `ExcludeAssets=all` keeps the assembly out of the plugin's output; the host already has it.
 
 Output path is set for both Debug and Release to `..\..\Web\Grand.Web\Plugins\Theme.Modern\`.
 

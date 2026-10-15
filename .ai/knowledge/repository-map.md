@@ -106,7 +106,7 @@ Use the closest feature project. Register implementations in that project's `Sta
 ## Web Projects
 
 ### `src/Web/Grand.Web`
-Use for public storefront controllers, views, view models, commands, handlers, validators, components, and static web assets.
+Use for public storefront controllers, views, commands, handlers, validators, components, and static web assets.
 
 Important folders:
 - `Controllers`
@@ -116,10 +116,12 @@ Important folders:
 - `Components`
 - `Commands`
 - `Features`
-- `Models`
 - `Validators`
 - `wwwroot`
 - `vueapp`
+
+### `src/Web/Grand.Web.Models`
+Storefront view models (`Grand.Web.Models.*`). Referenced by `Grand.Web` and by themes; a theme compiles against this project, never against `Grand.Web`.
 
 ### `src/Web/Grand.Web.Admin`
 Use for main Admin panel controllers and views.

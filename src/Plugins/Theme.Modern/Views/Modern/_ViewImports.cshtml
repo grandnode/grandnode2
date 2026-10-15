@@ -2,7 +2,6 @@
 @*we remove the default InputTagHelper to prevent the checkbox duplicating: https://stackoverflow.com/questions/42544961/asp-net-core-custom-input-tag-helper-rendering-duplicate-checkboxes*@
 @removeTagHelper Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Grand.Web.Common
-@addTagHelper *, Grand.Web
 
 @using System.Text;
 @using Microsoft.AspNetCore.Http.Extensions
@@ -15,7 +14,6 @@
 @using Grand.Web.Common.Extensions
 @using Grand.Web.Common.Security.Captcha
 @using Grand.Web.Common.Themes
-@using Grand.Web.Extensions
 @using Grand.Web.Models.Blogs
 @using Grand.Web.Models.Catalog
 @using Grand.Web.Models.Contact

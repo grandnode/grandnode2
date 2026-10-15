@@ -96,6 +96,7 @@
     <Project Path="src/Web/Grand.SharedUIResources/Grand.SharedUIResources.csproj" />
     <Project Path="src/Web/Grand.Web.AdminShared/Grand.Web.AdminShared.csproj" />
     <Project Path="src/Web/Grand.Web.Common/Grand.Web.Common.csproj" />
+    <Project Path="src/Web/Grand.Web.Models/Grand.Web.Models.csproj" />
   </Folder>
   <Project Path="src/Aspire/Aspire.AppHost/Aspire.AppHost.csproj" />
   <Project Path="src/Aspire/Aspire.ServiceDefaults/Aspire.ServiceDefaults.csproj" />
