@@ -1,4 +1,4 @@
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.ShoppingCart;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -407,14 +407,23 @@ public class ShoppingCartService : IShoppingCartService
             return; //the same customer
 
         //shopping cart items; the whole cart moves together, so a product's required products
-        //may not be in the target cart yet when the product itself is added
+        //may not be in the target cart yet when the product itself is added - they are checked
+        //against the source cart instead, which holds the whole set being moved
         var fromCart = fromCustomer.ShoppingCartItems.ToList();
         foreach (var sci in fromCart)
+        {
+            var product = await _productService.GetProductById(sci.ProductId);
+            if (product != null &&
+                (await _shoppingCartValidator.GetRequiredProductWarnings(fromCustomer, sci, product, sci.StoreId)).Any())
+                continue;
+
             await AddToCart(toCustomer, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
                 sci.Attributes, sci.EnteredPrice,
                 sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter,
                 sci.Duration,
                 new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false });
+        }
+
         foreach (var sci in fromCart) await DeleteShoppingCartItem(fromCustomer, sci);
 
         //copy discount and gift voucher coupon codes
