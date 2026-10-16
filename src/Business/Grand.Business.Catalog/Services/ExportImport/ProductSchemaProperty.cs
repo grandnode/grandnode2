@@ -15,10 +15,11 @@ public class ProductSchemaProperty : ISchemaProperty<Product>
         _pictureService = pictureService;
     }
 
-    public virtual async Task<PropertyByName<Product>[]> GetProperties(IEnumerable<Product> items)
+    public virtual async Task<PropertyByName<Product>[]> GetProperties(IEnumerable<Product> items,
+        CancellationToken cancellationToken = default)
     {
         var pictures = await ExportPictures.Preload(
-            items.SelectMany(x => x.ProductPictures.Take(3)).Select(x => x.PictureId), GetPicture);
+            items.SelectMany(x => x.ProductPictures.Take(3)).Select(x => x.PictureId), GetPicture, cancellationToken);
 
         var properties = new[] {
             new PropertyByName<Product>("Id", p => p.Id),

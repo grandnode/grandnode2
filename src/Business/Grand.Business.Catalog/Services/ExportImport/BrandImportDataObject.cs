@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
-using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
@@ -44,10 +43,12 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         _logger = logger;
     }
 
-    public async Task Execute(IEnumerable<BrandDto> data)
+    public async Task Execute(IEnumerable<BrandDto> data, CancellationToken cancellationToken = default)
     {
-        var result = await Import(data.ToList(), false, ImportMode.Panel);
+        var result = await Import(data.ToList(), false, ImportMode.Panel, cancellationToken);
         ImportRows.LogRejected(_logger, "brand", result);
+        //what was saved stays saved; the panel must not report a cancelled import as done
+        cancellationToken.ThrowIfCancellationRequested();
     }
 
     /// <summary>Row API: an unknown Id is rejected, a row without Id is matched by SeName, else (best effort) by Name</summary>
@@ -61,11 +62,13 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
     private Task<ImportBatchResult> Import(IReadOnlyList<BrandDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
-        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key, (row, dto) => ImportRow(row, dto, dryRun, mode),
-            mode == ImportMode.Row, _logger, cancellationToken);
+        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
+            (row, dto) => ImportRow(row, dto, dryRun, mode, cancellationToken), mode == ImportMode.Row, _logger,
+            cancellationToken);
     }
 
-    private async Task<ImportRowResult> ImportRow(int row, BrandDto dto, bool dryRun, ImportMode mode)
+    private async Task<ImportRowResult> ImportRow(int row, BrandDto dto, bool dryRun, ImportMode mode,
+        CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -109,10 +112,14 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
             return new ImportRowResult(row, ImportRowStatus.Rejected, "", key, errors, warnings);
         }
 
+        //downloaded before anything is written, so a cancelled download leaves the row untouched
+        var image = await ImportPictures.Download(dto.Picture, _securityConfig.PictureImportAllowedPrivateHosts,
+            cancellationToken);
+
         if (isNew) await _brandService.InsertBrand(brand);
         else await _brandService.UpdateBrand(brand);
 
-        await UpdateBrandData(dto, brand);
+        await UpdateBrandData(brand, image);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, brand.Id, key,
             errors, warnings);
     }
@@ -146,7 +153,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         return (found, found != null, error);
     }
 
-    private async Task UpdateBrandData(BrandDto brandDto, Brand brand)
+    private async Task UpdateBrandData(Brand brand, DownloadedImage image)
     {
         if (string.IsNullOrEmpty(brand.BrandLayoutId))
         {
@@ -159,12 +166,9 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
                 brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault()?.Id;
         }
 
-        if (!string.IsNullOrEmpty(brandDto.Picture))
-        {
-            var picture = await LoadPicture(brandDto.Picture, brand.Name, brand.PictureId);
-            if (picture != null)
-                brand.PictureId = picture.Id;
-        }
+        var picture = await ImportPictures.Save(_pictureService, image, brand.Name, brand.PictureId);
+        if (picture != null)
+            brand.PictureId = picture.Id;
 
         var seName = brand.SeName ?? brand.Name;
         seName = await _seNameService.ValidateSeName(brand, seName, brand.Name, true);
@@ -177,46 +181,5 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
     private static bool ValidBrand(Brand brand)
     {
         return !string.IsNullOrEmpty(brand.Name);
-    }
-
-    /// <summary>
-    ///     Creates or loads the image
-    /// </summary>
-    /// <param name="pictureUrl">The URL of the image</param>
-    /// <param name="name">The name of the object</param>
-    /// <param name="picId">Image identifier, may be null</param>
-    /// <returns>The image or null if the image has not changed</returns>
-    private async Task<Picture> LoadPicture(string pictureUrl, string name, string picId = "")
-    {
-        if (string.IsNullOrEmpty(pictureUrl))
-            return null;
-
-        //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
-        //import read any file on the server
-        var image = await DownloadUrl.DownloadImage(pictureUrl, _securityConfig.PictureImportAllowedPrivateHosts);
-        if (image == null)
-            return null;
-
-        var mimeType = image.MimeType;
-        var newPictureBinary = image.Binary;
-        var pictureAlreadyExists = false;
-        if (!string.IsNullOrEmpty(picId))
-        {
-            //compare with existing product pictures
-            var existingPicture = await _pictureService.GetPictureById(picId);
-
-            var existingBinary = await _pictureService.LoadPictureBinary(existingPicture);
-            //picture binary after validation (like in database)
-            var validatedPictureBinary = _pictureService.ValidatePicture(newPictureBinary, mimeType);
-            if (existingBinary.SequenceEqual(validatedPictureBinary) ||
-                existingBinary.SequenceEqual(newPictureBinary))
-                pictureAlreadyExists = true;
-        }
-
-        if (pictureAlreadyExists) return null;
-
-        var newPicture = await _pictureService.InsertPicture(newPictureBinary, mimeType,
-            _pictureService.GetPictureSeName(name));
-        return newPicture;
     }
 }

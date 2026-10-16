@@ -110,6 +110,16 @@ public abstract class BaseController : Controller
     }
 
     /// <summary>
+    ///     Whether the exception is the request's own cancellation: the client went away. A catch-all that reports an
+    ///     error leaves it out, so the exception handler middleware logs an aborted request at debug level instead of an
+    ///     error nobody sees.
+    /// </summary>
+    protected bool IsRequestAborted(Exception exception)
+    {
+        return exception is OperationCanceledException && HttpContext.RequestAborted.IsCancellationRequested;
+    }
+
+    /// <summary>
     ///     Log exception
     /// </summary>
     /// <param name="exception">Exception</param>

@@ -2,5 +2,9 @@
 
 public interface IImportDataObject<T>
 {
-    Task Execute(IEnumerable<T> data);
+    /// <summary>
+    ///     Imports the rows of a spreadsheet. A cancelled token stops the import before the next row and the call throws
+    ///     <see cref="OperationCanceledException" />; rows already saved stay saved.
+    /// </summary>
+    Task Execute(IEnumerable<T> data, CancellationToken cancellationToken = default);
 }

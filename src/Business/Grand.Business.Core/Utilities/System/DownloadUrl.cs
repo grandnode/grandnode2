@@ -53,15 +53,19 @@ public static class DownloadUrl
     /// <param name="url">Image URL</param>
     /// <param name="allowedPrivateHosts">Hosts that may resolve to a non-public address and use any port;
     /// a leading "*." matches any subdomain</param>
+    /// <param name="cancellationToken">Stops the download. Unlike the time limit it throws
+    /// <see cref="OperationCanceledException" />, so the caller does not go on as if the picture were missing</param>
     /// <returns>Image binary with the MIME type detected from its content, or null when the URL is not allowed,
     /// the download fails or the content is not a supported image</returns>
-    public static async Task<DownloadedImage> DownloadImage(string url, string[] allowedPrivateHosts = null)
+    public static async Task<DownloadedImage> DownloadImage(string url, string[] allowedPrivateHosts = null,
+        CancellationToken cancellationToken = default)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
             (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
             return null;
 
-        using var cts = new CancellationTokenSource(RequestTimeout);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(RequestTimeout);
         try
         {
             //redirects reuse this request message, so every hop is checked against the same list
@@ -83,6 +87,7 @@ public static class DownloadUrl
         }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or IOException)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             return null;
         }
     }

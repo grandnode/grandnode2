@@ -73,6 +73,7 @@ public class ProductImportDataObjectTests
     private Mock<ILogger<ProductImportDataObject>> _loggerMock;
     private List<string> _downloadedUrls;
     private Func<string, DownloadedImage> _downloadResult;
+    private Action<CancellationToken> _onDownload;
 
     [TestInitialize]
     public void Init()
@@ -120,9 +121,10 @@ public class ProductImportDataObjectTests
             _taxSettings,
             new ImportHtmlGuard(new HtmlSanitizationService(_securityConfig), _securityConfig),
             (_loggerMock = new Mock<ILogger<ProductImportDataObject>>()).Object,
-            url =>
+            (url, cancellationToken) =>
             {
                 _downloadedUrls.Add(url);
+                _onDownload?.Invoke(cancellationToken);
                 return Task.FromResult(_downloadResult(url));
             });
     }
@@ -640,6 +642,53 @@ public class ProductImportDataObjectTests
         Assert.AreEqual("Not processed: the batch time limit was reached; send these rows again.",
             result.Rows[1].Errors.Single());
         Assert.AreEqual("one", _repository.Table.Single().Name);
+    }
+
+    [TestMethod]
+    public async Task Import_CancelledDuringPictureDownload_RowNotWrittenAndNotProcessed()
+    {
+        SetupLookups();
+        using var cts = new CancellationTokenSource();
+        //what DownloadUrl.DownloadImage does when the caller's token fires
+        _onDownload = token =>
+        {
+            cts.Cancel();
+            token.ThrowIfCancellationRequested();
+        };
+
+        var result = await _productImportDataObject.Import(new List<ProductDto> {
+            new() { Name = "one", Sku = "S1", Picture1 = "https://images.example.com/one.png" },
+            new() { Name = "two", Sku = "S2" }
+        }, false, cts.Token);
+
+        //the pictures are downloaded before the product is written, so the interrupted row is untouched
+        Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
+        Assert.AreEqual(ImportRowResult.NotProcessedError, result.Rows[0].Errors.Single());
+        Assert.AreEqual(ImportRowResult.NotProcessedError, result.Rows[1].Errors.Single());
+        Assert.IsFalse(_repository.Table.Any());
+    }
+
+    [TestMethod]
+    public async Task Execute_CancelledMidBatch_RemainingRowsLoggedAsNotProcessedAndThrows()
+    {
+        SetupLookups();
+        using var cts = new CancellationTokenSource();
+        //the layout lookup runs while row 1 is saved
+        _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts())
+            .Callback(() => cts.Cancel())
+            .Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new() }));
+
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => _productImportDataObject.Execute(
+            new List<ProductDto> {
+                new() { Name = "one", Sku = "S1" }, new() { Name = "two", Sku = "S2" },
+                new() { Name = "three", Sku = "S3" }
+            }, cts.Token));
+
+        Assert.AreEqual("one", _repository.Table.Single().Name);
+        _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("2 row(s)") && v.ToString()!.Contains("row 3") &&
+                                          v.ToString()!.Contains(ImportRowResult.NotProcessedError)),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
     [TestMethod]

@@ -2872,7 +2872,7 @@ public class BaseProductControllerTests
         var model = new ProductListModel();
         _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync([]);
         var exportManagerMock = new Mock<IExportManager<Product>>();
-        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>())).ReturnsAsync([1, 2, 3]);
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>(), It.IsAny<CancellationToken>())).ReturnsAsync([1, 2, 3]);
 
         await _controller.ExportExcelAll(model, exportManagerMock.Object);
 
@@ -2886,7 +2886,7 @@ public class BaseProductControllerTests
         var model = new ProductListModel { SearchStoreId = "explicit" };
         _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync([]);
         var exportManagerMock = new Mock<IExportManager<Product>>();
-        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>())).ReturnsAsync([1, 2, 3]);
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>(), It.IsAny<CancellationToken>())).ReturnsAsync([1, 2, 3]);
 
         await _controller.ExportExcelAll(model, exportManagerMock.Object);
 
@@ -2899,7 +2899,7 @@ public class BaseProductControllerTests
         var model = new ProductListModel();
         _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync([]);
         var exportManagerMock = new Mock<IExportManager<Product>>();
-        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>()))
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("boom"));
 
         var result = await _controller.ExportExcelAll(model, exportManagerMock.Object);
@@ -2913,7 +2913,7 @@ public class BaseProductControllerTests
     public async Task ExportExcelSelected_NullSelectedIds_ExportsEmptyList()
     {
         var exportManagerMock = new Mock<IExportManager<Product>>();
-        exportManagerMock.Setup(e => e.Export(It.Is<IEnumerable<Product>>(p => !p.Any())))
+        exportManagerMock.Setup(e => e.Export(It.Is<IEnumerable<Product>>(p => !p.Any()), It.IsAny<CancellationToken>()))
             .ReturnsAsync([9]);
 
         var result = await _controller.ExportExcelSelected(null, exportManagerMock.Object);
@@ -2937,14 +2937,16 @@ public class BaseProductControllerTests
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
         var exportManagerMock = new Mock<IExportManager<Product>>();
         exportManagerMock
-            .Setup(e => e.Export(It.Is<IEnumerable<Product>>(p => p.Single() == owned)))
+            .Setup(e => e.Export(It.Is<IEnumerable<Product>>(p => p.Single() == owned), It.IsAny<CancellationToken>()))
             .ReturnsAsync([7]);
 
         var result = await _controller.ExportExcelSelected("owned,foreign", exportManagerMock.Object);
 
         var file = result as FileContentResult;
         Assert.IsNotNull(file);
-        exportManagerMock.Verify(e => e.Export(It.Is<IEnumerable<Product>>(p => p.Single() == owned)), Times.Once);
+        exportManagerMock.Verify(
+            e => e.Export(It.Is<IEnumerable<Product>>(p => p.Single() == owned), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [TestMethod]
@@ -2959,7 +2961,7 @@ public class BaseProductControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Common.UploadFile"), Times.Once);
     }
 
@@ -2977,7 +2979,7 @@ public class BaseProductControllerTests
 
         var redirect = Assert.IsInstanceOfType<RedirectToActionResult>(result);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
         _translationServiceMock.Verify(t => t.GetResource("Admin.AccessDenied.Title"), Times.Once);
     }
 
@@ -2993,7 +2995,7 @@ public class BaseProductControllerTests
 
         var redirect = Assert.IsInstanceOfType<RedirectToActionResult>(result);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
         _translationServiceMock.Verify(t => t.GetResource("Admin.AccessDenied.Title"), Times.Once);
     }
 
@@ -3007,7 +3009,7 @@ public class BaseProductControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]

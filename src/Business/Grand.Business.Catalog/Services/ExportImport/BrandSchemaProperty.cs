@@ -14,9 +14,11 @@ public class BrandSchemaProperty : ISchemaProperty<Brand>
         _pictureService = pictureService;
     }
 
-    public virtual async Task<PropertyByName<Brand>[]> GetProperties(IEnumerable<Brand> items)
+    public virtual async Task<PropertyByName<Brand>[]> GetProperties(IEnumerable<Brand> items,
+        CancellationToken cancellationToken = default)
     {
-        var pictures = await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures);
+        var pictures =
+            await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures, cancellationToken);
 
         var properties = new[] {
             new PropertyByName<Brand>("Id", p => p.Id),

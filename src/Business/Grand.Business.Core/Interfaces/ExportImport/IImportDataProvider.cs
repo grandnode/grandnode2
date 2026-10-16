@@ -2,5 +2,5 @@
 
 public interface IImportDataProvider
 {
-    Task<IEnumerable<T>> Convert<T>(Stream stream);
+    Task<IEnumerable<T>> Convert<T>(Stream stream, CancellationToken cancellationToken = default);
 }

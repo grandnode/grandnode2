@@ -14,9 +14,11 @@ public class CategorySchemaProperty : ISchemaProperty<Category>
         _pictureService = pictureService;
     }
 
-    public virtual async Task<PropertyByName<Category>[]> GetProperties(IEnumerable<Category> items)
+    public virtual async Task<PropertyByName<Category>[]> GetProperties(IEnumerable<Category> items,
+        CancellationToken cancellationToken = default)
     {
-        var pictures = await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures);
+        var pictures =
+            await ExportPictures.Preload(items.Select(x => x.PictureId), GetPictures, cancellationToken);
 
         var properties = new[] {
             new PropertyByName<Category>("Id", p => p.Id),

@@ -219,10 +219,11 @@ public abstract class BaseCategoryController(
     {
         try
         {
-            var bytes = await exportManager.Export(await categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true));
+            var bytes = await exportManager.Export(await categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true),
+                HttpContext.RequestAborted);
             return File(bytes, "text/xls", "categories.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
@@ -249,7 +250,7 @@ public abstract class BaseCategoryController(
 
             if (importexcelfile is { Length: > 0 })
             {
-                await importManager.Import(importexcelfile.OpenReadStream());
+                await importManager.Import(importexcelfile.OpenReadStream(), HttpContext.RequestAborted);
             }
             else
             {
@@ -260,7 +261,7 @@ public abstract class BaseCategoryController(
             Success(translationService.GetResource("Admin.Catalog.Category.Imported"));
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

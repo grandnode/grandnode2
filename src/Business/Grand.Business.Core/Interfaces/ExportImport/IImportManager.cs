@@ -2,5 +2,5 @@
 
 public interface IImportManager<T>
 {
-    Task Import(Stream stream);
+    Task Import(Stream stream, CancellationToken cancellationToken = default);
 }

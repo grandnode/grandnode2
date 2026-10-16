@@ -40,7 +40,9 @@ public sealed record ImportBatchResult(bool DryRun, IReadOnlyList<ImportRowResul
 
 /// <summary>
 ///     Row-level import with validation and dry run; the panel's Execute runs it with dryRun = false. A cancelled
-///     token does not throw: the rows not reached yet come back rejected with <see cref="ImportRowResult.NotProcessedError" />.
+///     token does not throw: the rows not reached yet come back rejected with
+///     <see cref="ImportRowResult.NotProcessedError" />. A row downloads its pictures before it writes anything, so a row
+///     whose download the token interrupted is one of them.
 ///     Neither does a row that fails while saving: it comes back rejected with <see cref="ImportRowResult.FailedError" />
 ///     and the batch goes on
 /// </summary>

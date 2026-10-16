@@ -363,7 +363,7 @@ public class CountryController : BaseAdminController
                 Published = s.Published
             };
 
-        var bytes = await _exportManager.Export(query);
+        var bytes = await _exportManager.Export(query, HttpContext.RequestAborted);
         return File(bytes, "text/xls", "country.xlsx");
     }
 
@@ -375,7 +375,7 @@ public class CountryController : BaseAdminController
         {
             if (importexcelfile is { Length: > 0 })
             {
-                await _importManager.Import(importexcelfile.OpenReadStream());
+                await _importManager.Import(importexcelfile.OpenReadStream(), HttpContext.RequestAborted);
 
                 Success(_translationService.GetResource("Admin.Configuration.Countries.ImportSuccess"));
                 return RedirectToAction("List");
@@ -384,7 +384,7 @@ public class CountryController : BaseAdminController
             Error(_translationService.GetResource("Admin.Common.UploadFile"));
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

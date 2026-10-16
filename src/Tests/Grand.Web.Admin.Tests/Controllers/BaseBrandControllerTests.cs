@@ -380,7 +380,7 @@ public class BaseBrandControllerTests
             .Setup(b => b.GetAllBrands("", "", 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand> { new() { Id = "b1" } }, 0, int.MaxValue));
         var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
-        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>())).ReturnsAsync([1, 2, 3]);
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>(), It.IsAny<CancellationToken>())).ReturnsAsync([1, 2, 3]);
 
         var result = await _controller.ExportXlsx(exportManagerMock.Object);
 
@@ -397,7 +397,7 @@ public class BaseBrandControllerTests
             .Setup(b => b.GetAllBrands("", "store-1", 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand> { new() { Id = "b1" } }, 0, int.MaxValue));
         var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
-        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>())).ReturnsAsync([1, 2, 3]);
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>(), It.IsAny<CancellationToken>())).ReturnsAsync([1, 2, 3]);
 
         var result = await _controller.ExportXlsx(exportManagerMock.Object);
 
@@ -432,7 +432,7 @@ public class BaseBrandControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // --- ImportFromXlsx (security fix: ImportManager<T> upserts by an attacker-supplied Id with no
@@ -451,7 +451,7 @@ public class BaseBrandControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>()), Times.Never);
+        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -468,6 +468,39 @@ public class BaseBrandControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>()), Times.Once);
+        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ImportFromXlsx_RequestAborted_PropagatesWithoutNotification()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+        _controller.HttpContext.RequestAborted = cts.Token;
+        var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.BrandDto>>();
+        importManagerMock.Setup(m => m.Import(It.IsAny<Stream>(), cts.Token))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(100);
+        fileMock.Setup(f => f.OpenReadStream()).Returns(Stream.Null);
+
+        //neither "imported" nor an error: the exception handler middleware logs the aborted request
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() =>
+            _controller.ImportFromXlsx(fileMock.Object, importManagerMock.Object));
+        Assert.AreEqual(0, _controller.TempData.Count);
+    }
+
+    [TestMethod]
+    public async Task ExportXlsx_CancelledWithoutAbortedRequest_ShowsErrorAndRedirectsToList()
+    {
+        _brandServiceMock
+            .Setup(b => b.GetAllBrands("", "", 0, int.MaxValue, true))
+            .ThrowsAsync(new OperationCanceledException());
+        var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
+
+        var result = await _controller.ExportXlsx(exportManagerMock.Object);
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
     }
 }

@@ -178,10 +178,10 @@ public abstract class BaseCustomerManagementController(
 
         try
         {
-            var bytes = await exportManager.Export(customers);
+            var bytes = await exportManager.Export(customers, HttpContext.RequestAborted);
             return File(bytes, "text/xls", "customers.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
@@ -199,7 +199,7 @@ public abstract class BaseCustomerManagementController(
             customers.AddRange(await CustomerService.GetCustomersByIds(ids));
         }
 
-        var bytes = await exportManager.Export(customers);
+        var bytes = await exportManager.Export(customers, HttpContext.RequestAborted);
         return File(bytes, "text/xls", "customers.xlsx");
     }
 

@@ -251,10 +251,11 @@ public abstract class BaseBrandController(
     {
         try
         {
-            var bytes = await exportManager.Export(await brandService.GetAllBrands(brandName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true));
+            var bytes = await exportManager.Export(await brandService.GetAllBrands(brandName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true),
+                HttpContext.RequestAborted);
             return File(bytes, "text/xls", "brands.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
@@ -281,7 +282,7 @@ public abstract class BaseBrandController(
 
             if (importexcelfile is { Length: > 0 })
             {
-                await importManager.Import(importexcelfile.OpenReadStream());
+                await importManager.Import(importexcelfile.OpenReadStream(), HttpContext.RequestAborted);
             }
             else
             {
@@ -292,7 +293,7 @@ public abstract class BaseBrandController(
             Success(translationService.GetResource("Admin.Catalog.Brands.Imported"));
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");

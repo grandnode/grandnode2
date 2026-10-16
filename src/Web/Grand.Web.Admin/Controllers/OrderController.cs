@@ -47,10 +47,10 @@ public class OrderController(
         var orders = await OrderViewModelService.PrepareOrders(model);
         try
         {
-            var bytes = await exportManager.Export(orders);
+            var bytes = await exportManager.Export(orders, HttpContext.RequestAborted);
             return File(bytes, "text/xls", "orders.xlsx");
         }
-        catch (Exception exc)
+        catch (Exception exc) when (!IsRequestAborted(exc))
         {
             Error(exc);
             return RedirectToAction("List");
@@ -68,7 +68,7 @@ public class OrderController(
             orders.AddRange(await OrderService.GetOrdersByIds(ids));
         }
 
-        var bytes = await exportManager.Export(orders);
+        var bytes = await exportManager.Export(orders, HttpContext.RequestAborted);
         return File(bytes, "text/xls", "orders.xlsx");
     }
 
