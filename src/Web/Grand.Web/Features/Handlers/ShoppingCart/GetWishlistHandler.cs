@@ -77,6 +77,9 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         _enumTranslationService = enumTranslationService;
     }
 
+    private static CalculationContext CalculationContextOf(GetWishlist request) =>
+        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
+
     public async Task<WishlistModel> Handle(GetWishlist request, CancellationToken cancellationToken)
     {
         var model = new WishlistModel {
@@ -97,7 +100,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
 
         //cart warnings
         var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, null,
-            _contextAccessor.CalculationContext(), false, false);
+            CalculationContextOf(request), false, false);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);
 
