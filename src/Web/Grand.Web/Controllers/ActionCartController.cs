@@ -18,6 +18,7 @@ using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers;
 
@@ -182,7 +183,7 @@ public class ActionCartController : BasePublicController
 
         var warehouseId = GetWarehouse(product);
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, model.ShoppingCartTypeId);
+        var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, model.ShoppingCartTypeId);
 
         if (model.ShoppingCartTypeId != ShoppingCartType.Wishlist)
         {
@@ -255,7 +256,7 @@ public class ActionCartController : BasePublicController
                     });
 
                 //display notification message and update appropriate blocks
-                var qty = (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+                var qty = (await _shoppingCartService.GetCurrentCart(_contextAccessor,
                     ShoppingCartType.Wishlist)).Sum(x => x.Quantity);
                 var updatetopwishlistsectionhtml =
                     string.Format(_translationService.GetResource("Wishlist.HeaderQuantity"), qty);
@@ -289,7 +290,7 @@ public class ActionCartController : BasePublicController
 
                 var updatetopcartsectionhtml = string.Format(
                     _translationService.GetResource("ShoppingCart.HeaderQuantity"),
-                    (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+                    (await _shoppingCartService.GetCurrentCart(_contextAccessor,
                         shoppingCartTypes.ToArray()))
                     .Sum(x => x.Quantity));
 
@@ -451,7 +452,7 @@ public class ActionCartController : BasePublicController
                     });
 
                 //display notification message and update appropriate blocks
-                var qty = (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+                var qty = (await _shoppingCartService.GetCurrentCart(_contextAccessor,
                     ShoppingCartType.Wishlist)).Sum(x => x.Quantity);
                 var updatetopwishlistsectionhtml =
                     string.Format(_translationService.GetResource("Wishlist.HeaderQuantity"), qty);
@@ -485,7 +486,7 @@ public class ActionCartController : BasePublicController
 
                 var updatetopcartsectionhtml = string.Format(
                     _translationService.GetResource("ShoppingCart.HeaderQuantity"),
-                    (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+                    (await _shoppingCartService.GetCurrentCart(_contextAccessor,
                         shoppingCartTypes.ToArray()))
                     .Sum(x => x.Quantity));
 

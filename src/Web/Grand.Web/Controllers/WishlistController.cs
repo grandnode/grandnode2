@@ -16,6 +16,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers;
 
@@ -119,7 +120,7 @@ public class WishlistController : BasePublicController
         if (ModelState.IsValid)
         {
             var cart =
-                (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+                (await _shoppingCartService.GetCurrentCart(_contextAccessor, ShoppingCartType.Wishlist))
                 .FirstOrDefault(x => x.Id == model.ShoppingCartId);
             if (cart != null)
             {
@@ -141,7 +142,7 @@ public class WishlistController : BasePublicController
             success = !warnings.Any(),
             warnings = string.Join(", ", warnings),
             totalproducts =
-                (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+                (await _shoppingCartService.GetCurrentCart(_contextAccessor, ShoppingCartType.Wishlist))
                 .Sum(x => x.Quantity)
         });
     }
@@ -216,7 +217,7 @@ public class WishlistController : BasePublicController
             !_shoppingCartSettings.EmailWishlistEnabled)
             return Content("");
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist);
+        var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, ShoppingCartType.Wishlist);
         if (!cart.Any())
             return Content("");
 

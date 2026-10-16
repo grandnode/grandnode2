@@ -5,6 +5,7 @@ using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Components;
 
@@ -24,7 +25,7 @@ public class EstimateShippingViewComponent : BaseViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor,
             ShoppingCartType.ShoppingCart);
 
         var model = await _mediator.Send(new GetEstimateShipping {

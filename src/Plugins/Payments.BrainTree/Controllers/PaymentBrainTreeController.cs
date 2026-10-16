@@ -11,6 +11,7 @@ using Payments.BrainTree.Models;
 using Payments.BrainTree.Validators;
 using System.Net;
 using Environment = Braintree.Environment;
+using Grand.Web.Common.Extensions;
 
 namespace Payments.BrainTree.Controllers;
 
@@ -41,7 +42,7 @@ public class PaymentBrainTreeController : BasePaymentController
 
         if (_brainTreePaymentSettings.Use3DS)
         {
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor,
                 ShoppingCartType.ShoppingCart);
 
             if (!cart.Any())
