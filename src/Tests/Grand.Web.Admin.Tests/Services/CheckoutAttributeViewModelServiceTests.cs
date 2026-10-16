@@ -3,9 +3,9 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Web.AdminShared.Models.Orders;
@@ -48,7 +48,7 @@ public class CheckoutAttributeViewModelServiceTests
             AttributeControlTypeId = AttributeControlType.DropdownList
         };
         _checkoutAttributeServiceMock
-            .Setup(x => x.GetAllCheckoutAttributes(It.IsAny<string>(), It.IsAny<Customer>(), false, true))
+            .Setup(x => x.GetAllCheckoutAttributes(It.Is<CatalogAccess>(a => a.ShowHidden), false))
             .ReturnsAsync(new List<CheckoutAttribute> { limited });
         var model = new CheckoutAttributeModel();
 

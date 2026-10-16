@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -32,7 +33,7 @@ public class SaveCheckoutAttributesCommandHandler : IRequestHandler<SaveCheckout
 
         var customAttributes = new List<CustomAttribute>();
         var checkoutAttributes =
-            await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, request.Customer,
+            await _checkoutAttributeService.GetAllCheckoutAttributes(CatalogAccess.For(request.Customer, request.Store.Id),
                 !request.Cart.RequiresShipping());
         foreach (var attribute in checkoutAttributes)
             switch (attribute.AttributeControlTypeId)

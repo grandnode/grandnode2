@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -121,7 +122,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
 
         var requiresShipping = cart.RequiresShipping();
         var checkoutAttributesExist =
-            (await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, request.Customer, !requiresShipping))
+            (await _checkoutAttributeService.GetAllCheckoutAttributes(CatalogAccess.For(request.Customer, request.Store.Id), !requiresShipping))
             .Any();
 
         var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {

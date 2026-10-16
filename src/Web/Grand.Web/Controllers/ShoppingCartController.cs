@@ -140,8 +140,7 @@ public class ShoppingCartController : BasePublicController
         var enabledAttributeIds = new List<string>();
         var disabledAttributeIds = new List<string>();
         var attributes =
-            await _checkoutAttributeService.GetAllCheckoutAttributes(_contextAccessor.StoreContext.CurrentStore.Id,
-                _contextAccessor.WorkContext.CurrentCustomer, !cart.RequiresShipping());
+            await _checkoutAttributeService.GetAllCheckoutAttributes(_contextAccessor.CatalogAccess(), !cart.RequiresShipping());
         foreach (var attribute in attributes)
         {
             var conditionMet = await checkoutAttributeParser.IsConditionMet(attribute, checkoutAttributes);

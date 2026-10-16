@@ -12,6 +12,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
@@ -221,7 +222,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         #region Checkout attributes
 
         var checkoutAttributes =
-            await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, request.Customer,
+            await _checkoutAttributeService.GetAllCheckoutAttributes(CatalogAccess.For(request.Customer, request.Store.Id),
                 !request.Cart.RequiresShipping());
         foreach (var attribute in checkoutAttributes)
         {

@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Checkout.Services.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
@@ -77,10 +78,29 @@ public class CheckoutAttributeServiceTests
     }
 
     [TestMethod]
-    public async Task GetAllCheckoutAttributes_WithoutCustomerWhenAclApplies_ThrowException()
+    public async Task GetAllCheckoutAttributes_WithoutAccess_ThrowException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
-            await _service.GetAllCheckoutAttributes("store", null));
+            await _service.GetAllCheckoutAttributes(null));
+    }
+
+    [TestMethod]
+    public async Task GetAllCheckoutAttributes_IncludingHidden_ReturnsGroupLimitedAttributes()
+    {
+        //Arrange
+        var repository = new MongoDBRepositoryTest<CheckoutAttribute>();
+        await repository.InsertAsync(new CheckoutAttribute { Name = "members only", LimitedToGroups = true, CustomerGroups = ["members"] });
+        await repository.InsertAsync(new CheckoutAttribute { Name = "everyone" });
+        var cache = new Mock<ICacheBase>();
+        cache.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CheckoutAttribute>>>>()))
+            .Returns((string _, Func<Task<IList<CheckoutAttribute>>> acquire) => acquire());
+        var service = new CheckoutAttributeService(cache.Object, repository, _mediatorMock.Object, new AccessControlConfig());
+
+        //Act
+        var result = await service.GetAllCheckoutAttributes(CatalogAccess.IncludingHidden());
+
+        //Assert
+        Assert.AreEqual(2, result.Count);
     }
 
     [TestMethod]
@@ -98,7 +118,7 @@ public class CheckoutAttributeServiceTests
         guest.Groups.Add("guests");
 
         //Act
-        var result = await service.GetAllCheckoutAttributes("", guest);
+        var result = await service.GetAllCheckoutAttributes(CatalogAccess.For(guest, ""));
 
         //Assert
         Assert.AreEqual(1, result.Count);
@@ -119,8 +139,8 @@ public class CheckoutAttributeServiceTests
         guest.Groups.Add("guests");
 
         //Act
-        await _service.GetAllCheckoutAttributes("store", member);
-        await _service.GetAllCheckoutAttributes("store", guest);
+        await _service.GetAllCheckoutAttributes(CatalogAccess.For(member, "store"));
+        await _service.GetAllCheckoutAttributes(CatalogAccess.For(guest, "store"));
 
         //Assert
         Assert.AreNotEqual(keys[0], keys[1]);
