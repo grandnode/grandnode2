@@ -39,7 +39,7 @@ public class EmailWishlistViewComponent : BaseViewComponent
             !_shoppingCartSettings.EmailWishlistEnabled)
             return Content("");
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist);
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist);
 
         if (!cart.Any())
             return Content("");

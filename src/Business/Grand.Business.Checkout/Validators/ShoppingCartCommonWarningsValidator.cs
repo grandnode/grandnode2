@@ -5,13 +5,11 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
-using Grand.Domain.Stores;
 
 namespace Grand.Business.Checkout.Validators;
 
 public record ShoppingCartCommonWarningsValidatorRecord(
     Customer Customer,
-    Store Store,
     IList<ShoppingCartItem> ShoppingCarts,
     Product Product,
     ShoppingCartType ShoppingCartType,

@@ -144,7 +144,8 @@ public class OidcLoginController : BasePluginController
                     return RedirectToRoute("OidcLoginFailed", new { session = true });
 
                 //the identity provider is the sign-in: its multi-factor policy applies, not the store's two-factor code
-                await _mediator.Publish(new CustomerLoggedInEvent(result.Customer));
+                await _mediator.Publish(new CustomerLoggedInEvent(result.Customer,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id));
                 await _authenticationService.SignIn(result.Customer, false, sessionId);
                 return RedirectLocal(returnUrl);
             }

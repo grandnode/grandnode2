@@ -13,6 +13,11 @@ namespace Grand.Business.Core.Utilities.Checkout;
 
 public class PlaceOrderContainer
 {
+    /// <summary>
+    ///     Customer, store, working currency and tax display the order totals are calculated for
+    /// </summary>
+    public CalculationContext Context { get; set; }
+
     public Customer Customer { get; set; }
     public Store Store { get; set; }
     public Language Language { get; set; }

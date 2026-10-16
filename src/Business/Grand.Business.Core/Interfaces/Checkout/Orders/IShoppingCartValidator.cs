@@ -64,11 +64,13 @@ public interface IShoppingCartValidator
     /// </summary>
     /// <param name="shoppingCart">Shopping cart</param>
     /// <param name="checkoutAttributes">Checkout attributes</param>
+    /// <param name="context">Customer, store, currency and tax display the cart is validated for</param>
     /// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes</param>
     /// <param name="validateAmount">A value indicating whether to validate subtotal/total attributes</param>
     /// <returns>Warnings</returns>
     Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-        IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes, bool validateAmount);
+        IList<CustomAttribute> checkoutAttributes, CalculationContext context, bool validateCheckoutAttributes,
+        bool validateAmount);
 
     /// <summary>
     ///     Validates shopping cart item for reservation products

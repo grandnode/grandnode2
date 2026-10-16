@@ -19,6 +19,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Checkout;
@@ -87,7 +88,7 @@ public class CheckoutController : BasePublicController
     {
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         if (!cart.Any())
@@ -101,7 +102,8 @@ public class CheckoutController : BasePublicController
 
         //validation (cart)
         var checkoutAttributes = customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, _contextAccessor.StoreContext.CurrentStore.Id);
-        var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true, true);
+        var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,
+            _contextAccessor.CalculationContext(), true, true);
         if (scWarnings.Any())
             return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
 
@@ -123,7 +125,7 @@ public class CheckoutController : BasePublicController
     public virtual async Task<IActionResult> Start()
     {
         //validation
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         if (!cart.Any())
@@ -141,7 +143,8 @@ public class CheckoutController : BasePublicController
         var checkoutAttributes = _contextAccessor.WorkContext.CurrentCustomer
             .GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 _contextAccessor.StoreContext.CurrentStore.Id);
-        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true, true);
+        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,
+            _contextAccessor.CalculationContext(), true, true);
         if (cartWarnings.Any())
             return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
 
@@ -188,7 +191,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -286,7 +289,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -462,7 +465,7 @@ public class CheckoutController : BasePublicController
             var customer = _contextAccessor.WorkContext.CurrentCustomer;
             var store = _contextAccessor.StoreContext.CurrentStore;
 
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -547,7 +550,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -617,7 +620,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -704,7 +707,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -717,7 +720,12 @@ public class CheckoutController : BasePublicController
                     error = 1, message = _translationService.GetResource("Checkout.MinOrderPlacementInterval")
                 });
 
-            var placeOrderResult = await _mediator.Send(new PlaceOrderCommand());
+            var placeOrderResult = await _mediator.Send(new PlaceOrderCommand {
+                Context = _contextAccessor.CalculationContext(),
+                Language = _contextAccessor.WorkContext.WorkingLanguage,
+                Host = _contextAccessor.StoreContext.CurrentHost,
+                OriginalCustomerIfImpersonated = _contextAccessor.WorkContext.OriginalCustomerIfImpersonated
+            });
             if (placeOrderResult.Success)
             {
                 var paymentMethod =

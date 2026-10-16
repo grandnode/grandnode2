@@ -1,8 +1,10 @@
 ﻿using Grand.Business.Checkout.Services.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
+using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
@@ -19,7 +21,6 @@ public class CheckoutAttributeServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<CheckoutAttribute>> _repositoryMock;
     private ICheckoutAttributeService _service;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -27,9 +28,8 @@ public class CheckoutAttributeServiceTests
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<CheckoutAttribute>>();
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IContextAccessor>();
         _service = new CheckoutAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object,
-            _workContextMock.Object, new AccessControlConfig());
+            new AccessControlConfig());
     }
 
     [TestMethod]
@@ -75,5 +75,74 @@ public class CheckoutAttributeServiceTests
     public void DeleteCheckoutAttribute_NullArgument_ThrowException()
     {
         Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteCheckoutAttribute(null));
+    }
+
+    [TestMethod]
+    public async Task GetAllCheckoutAttributes_WithoutAccess_ThrowException()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
+            await _service.GetAllCheckoutAttributes(null));
+    }
+
+    [TestMethod]
+    public async Task GetAllCheckoutAttributes_IncludingHidden_ReturnsGroupLimitedAttributes()
+    {
+        //Arrange
+        var repository = new MongoDBRepositoryTest<CheckoutAttribute>();
+        await repository.InsertAsync(new CheckoutAttribute { Name = "members only", LimitedToGroups = true, CustomerGroups = ["members"] });
+        await repository.InsertAsync(new CheckoutAttribute { Name = "everyone" });
+        var cache = new Mock<ICacheBase>();
+        cache.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CheckoutAttribute>>>>()))
+            .Returns((string _, Func<Task<IList<CheckoutAttribute>>> acquire) => acquire());
+        var service = new CheckoutAttributeService(cache.Object, repository, _mediatorMock.Object, new AccessControlConfig());
+
+        //Act
+        var result = await service.GetAllCheckoutAttributes(CatalogAccess.IncludingHidden());
+
+        //Assert
+        Assert.AreEqual(2, result.Count);
+    }
+
+    [TestMethod]
+    public async Task GetAllCheckoutAttributes_FiltersByTheGroupsOfTheGivenCustomer()
+    {
+        //Arrange
+        var repository = new MongoDBRepositoryTest<CheckoutAttribute>();
+        await repository.InsertAsync(new CheckoutAttribute { Name = "members only", LimitedToGroups = true, CustomerGroups = ["members"] });
+        await repository.InsertAsync(new CheckoutAttribute { Name = "everyone" });
+        var cache = new Mock<ICacheBase>();
+        cache.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CheckoutAttribute>>>>()))
+            .Returns((string _, Func<Task<IList<CheckoutAttribute>>> acquire) => acquire());
+        var service = new CheckoutAttributeService(cache.Object, repository, _mediatorMock.Object, new AccessControlConfig());
+        var guest = new Customer();
+        guest.Groups.Add("guests");
+
+        //Act
+        var result = await service.GetAllCheckoutAttributes(CatalogAccess.For(guest, ""));
+
+        //Assert
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("everyone", result[0].Name);
+    }
+
+    [TestMethod]
+    public async Task GetAllCheckoutAttributes_CacheKeyDependsOnTheCustomerGroups()
+    {
+        //Arrange
+        var keys = new List<string>();
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CheckoutAttribute>>>>()))
+            .Callback((string key, Func<Task<IList<CheckoutAttribute>>> _) => keys.Add(key))
+            .ReturnsAsync(new List<CheckoutAttribute>());
+        var member = new Customer();
+        member.Groups.Add("members");
+        var guest = new Customer();
+        guest.Groups.Add("guests");
+
+        //Act
+        await _service.GetAllCheckoutAttributes(CatalogAccess.For(member, "store"));
+        await _service.GetAllCheckoutAttributes(CatalogAccess.For(guest, "store"));
+
+        //Assert
+        Assert.AreNotEqual(keys[0], keys[1]);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -27,7 +28,7 @@ public class ShoppingCartCheckoutAttributesValidator : AbstractValidator<Shoppin
 
             //existing checkout attributes
             var attributes2 =
-                await checkoutAttributeService.GetAllCheckoutAttributes(value.Store.Id,
+                await checkoutAttributeService.GetAllCheckoutAttributes(CatalogAccess.For(value.Customer, value.Store.Id),
                     !value.ShoppingCarts.RequiresShipping());
             foreach (var a2 in attributes2)
             {

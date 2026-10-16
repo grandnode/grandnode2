@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -29,7 +30,7 @@ public class CheckoutAttributeViewModelService(
 {
     public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel(string storeId = "")
     {
-        var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(storeId: storeId, ignoreAcl: true);
+        var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(CatalogAccess.IncludingHidden(storeId));
         return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
         {
             var attributeModel = x.ToModel();
@@ -170,7 +171,7 @@ public class CheckoutAttributeViewModelService(
         model.ConditionModel = new ConditionModel {
             EnableCondition = checkoutAttribute.ConditionAttribute.Any(),
             SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
-            ConditionAttributes = (await checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: false))
+            ConditionAttributes = (await checkoutAttributeService.GetAllCheckoutAttributes(CatalogAccess.IncludingHidden()))
                 //ignore this attribute and non-combinable attributes
                 .Where(x => x.Id != checkoutAttribute.Id && x.CanBeUsedAsCondition())
                 .Select(x =>

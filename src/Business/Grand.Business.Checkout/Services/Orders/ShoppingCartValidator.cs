@@ -6,7 +6,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Mediator;
 
@@ -17,14 +16,10 @@ public class ShoppingCartValidator : IShoppingCartValidator
     private readonly IMediator _mediator;
     private readonly IValidatorFactory _validatorFactory;
 
-    private readonly IContextAccessor _contextAccessor;
-
     public ShoppingCartValidator(
-        IContextAccessor contextAccessor,
         IMediator mediator,
         IValidatorFactory validatorFactory)
     {
-        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _validatorFactory = validatorFactory;
     }
@@ -122,14 +117,16 @@ public class ShoppingCartValidator : IShoppingCartValidator
     }
 
     public virtual async Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-        IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes, bool validateAmount)
+        IList<CustomAttribute> checkoutAttributes, CalculationContext context, bool validateCheckoutAttributes,
+        bool validateAmount)
     {
+        ArgumentNullException.ThrowIfNull(context);
+
         var warnings = new List<string>();
         checkoutAttributes ??= new List<CustomAttribute>();
 
         var result = await _validatorFactory.GetValidator<ShoppingCartWarningsValidatorRecord>()
-            .ValidateAsync(new ShoppingCartWarningsValidatorRecord(_contextAccessor.WorkContext.CurrentCustomer,
-                _contextAccessor.StoreContext.CurrentStore, shoppingCart));
+            .ValidateAsync(new ShoppingCartWarningsValidatorRecord(context.Customer, context.Store, shoppingCart));
         if (!result.IsValid)
             warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
@@ -138,8 +135,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
         {
             var resultCheckoutAttributes = await _validatorFactory
                 .GetValidator<ShoppingCartCheckoutAttributesValidatorRecord>().ValidateAsync(
-                    new ShoppingCartCheckoutAttributesValidatorRecord(_contextAccessor.WorkContext.CurrentCustomer,
-                        _contextAccessor.StoreContext.CurrentStore,
+                    new ShoppingCartCheckoutAttributesValidatorRecord(context.Customer, context.Store,
                         shoppingCart, checkoutAttributes));
             if (!resultCheckoutAttributes.IsValid)
                 warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
@@ -150,11 +146,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
         {
             var resultCheckoutAttributes = await _validatorFactory
                 .GetValidator<ShoppingCartTotalAmountValidatorRecord>().ValidateAsync(
-                    new ShoppingCartTotalAmountValidatorRecord(shoppingCart,
-                        //TODO M1 PR 3: the cart validator still reads the ambient context
-                        new CalculationContext(_contextAccessor.WorkContext.CurrentCustomer,
-                            _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingCurrency,
-                            _contextAccessor.WorkContext.TaxDisplayType)));
+                    new ShoppingCartTotalAmountValidatorRecord(shoppingCart, context));
             if (!resultCheckoutAttributes.IsValid)
                 warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
         }
@@ -173,7 +165,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
         var warnings = new List<string>();
 
         var result = await _validatorFactory.GetValidator<ShoppingCartCommonWarningsValidatorRecord>().ValidateAsync(
-            new ShoppingCartCommonWarningsValidatorRecord(customer, _contextAccessor.StoreContext.CurrentStore, currentCart,
+            new ShoppingCartCommonWarningsValidatorRecord(customer, currentCart,
                 product, shoppingCartType, rentalStartDate, rentalEndDate, quantity, reservationId));
         if (!result.IsValid)
             warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
@@ -231,8 +223,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
         if (!product.RequireOtherProducts) return warnings;
 
         var result = await _validatorFactory.GetValidator<ShoppingCartRequiredProductValidatorRecord>()
-            .ValidateAsync(new ShoppingCartRequiredProductValidatorRecord(_contextAccessor.WorkContext.CurrentCustomer,
-                _contextAccessor.StoreContext.CurrentStore, product, shoppingCartItem));
+            .ValidateAsync(new ShoppingCartRequiredProductValidatorRecord(customer, storeId, product, shoppingCartItem));
         if (!result.IsValid)
             warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
         return warnings;

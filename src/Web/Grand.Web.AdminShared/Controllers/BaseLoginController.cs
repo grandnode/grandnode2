@@ -219,7 +219,8 @@ public abstract class BaseLoginController : BaseController
         await _authenticationService.SignIn(customer, createPersistent);
 
         //raise event       
-        await _mediator.Publish(new CustomerLoggedInEvent(customer));
+        await _mediator.Publish(new CustomerLoggedInEvent(customer,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id));
 
         return RedirectToRoute($"{GetCurrentArea()}Index");
     }

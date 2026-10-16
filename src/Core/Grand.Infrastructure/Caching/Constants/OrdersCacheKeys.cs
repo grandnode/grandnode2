@@ -19,9 +19,10 @@ public static partial class CacheKey
     /// <remarks>
     ///     {0} : store ID
     ///     {1} : >A value indicating whether we should exclude shippable attributes
-    ///     {2} : ignore ACL?
+    ///     {2} : show hidden (group-limited) attributes?
+    ///     {3} : customer group ids (empty when ACL does not apply)
     /// </remarks>
-    public static string CHECKOUTATTRIBUTES_ALL_KEY => "Grand.checkoutattribute.all-{0}-{1}-{2}";
+    public static string CHECKOUTATTRIBUTES_ALL_KEY => "Grand.checkoutattribute.all-{0}-{1}-{2}-{3}";
 
     /// <summary>
     ///     Key for caching

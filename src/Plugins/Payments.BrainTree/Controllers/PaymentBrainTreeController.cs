@@ -41,7 +41,7 @@ public class PaymentBrainTreeController : BasePaymentController
 
         if (_brainTreePaymentSettings.Use3DS)
         {
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart);
 
             if (!cart.Any())

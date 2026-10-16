@@ -15,6 +15,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
@@ -76,6 +77,9 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         _enumTranslationService = enumTranslationService;
     }
 
+    private static CalculationContext CalculationContextOf(GetWishlist request) =>
+        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
+
     public async Task<WishlistModel> Handle(GetWishlist request, CancellationToken cancellationToken)
     {
         var model = new WishlistModel {
@@ -95,7 +99,8 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         model.ShowSku = _catalogSettings.ShowSkuOnProductDetailsPage;
 
         //cart warnings
-        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, null, false, false);
+        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, null,
+            CalculationContextOf(request), false, false);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);
 

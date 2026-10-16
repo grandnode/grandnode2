@@ -169,7 +169,8 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     protected virtual async Task<IActionResult> LoginUser(Customer user, string returnUrl)
     {
         //raise event       
-        await _mediator.Publish(new CustomerLoggedInEvent(user));
+        await _mediator.Publish(new CustomerLoggedInEvent(user,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id));
 
         //authenticate
         await _authenticationService.SignIn(user, false);

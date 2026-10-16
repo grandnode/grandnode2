@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -123,7 +124,7 @@ public class ShoppingCartValidatorsTests
                 }
             }));
 
-        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.IsAny<string>(), true, false))
+        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.Is<CatalogAccess>(a => !a.ShowHidden), true))
             .Returns(() => Task.FromResult((IList<CheckoutAttribute>)new List<CheckoutAttribute> {
                 new() {
                     Id = "1", Name = "test", IsRequired = true, AttributeControlTypeId = AttributeControlType.TextBox
@@ -162,7 +163,7 @@ public class ShoppingCartValidatorsTests
                 }
             }));
 
-        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.IsAny<string>(), true, false))
+        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.Is<CatalogAccess>(a => !a.ShowHidden), true))
             .Returns(() => Task.FromResult((IList<CheckoutAttribute>)new List<CheckoutAttribute> {
                 new() {
                     Id = "1", Name = "test", IsRequired = true, AttributeControlTypeId = AttributeControlType.TextBox,
@@ -337,7 +338,7 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartRequiredProductValidator.ValidateAsync(
             new ShoppingCartRequiredProductValidatorRecord(
                 customer,
-                new Store { Id = "1" },
+                "1",
                 product,
                 new ShoppingCartItem
                     { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
@@ -375,7 +376,7 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartRequiredProductValidator.ValidateAsync(
             new ShoppingCartRequiredProductValidatorRecord(
                 customer,
-                new Store { Id = "1" },
+                "1",
                 product,
                 new ShoppingCartItem
                     { ProductId = "2", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
@@ -567,7 +568,6 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartCommonWarningsValidator.ValidateAsync(
             new ShoppingCartCommonWarningsValidatorRecord(
                 customer,
-                new Store { Id = "1" },
                 new List<ShoppingCartItem> {
                     new() {
                         ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1"
@@ -603,7 +603,6 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartCommonWarningsValidator.ValidateAsync(
             new ShoppingCartCommonWarningsValidatorRecord(
                 customer,
-                new Store { Id = "1" },
                 new List<ShoppingCartItem> {
                     new() {
                         ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1"
