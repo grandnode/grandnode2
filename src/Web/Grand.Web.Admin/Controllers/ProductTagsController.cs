@@ -1,9 +1,11 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -21,19 +23,22 @@ public class ProductTagsController : BaseAdminController
 
     private readonly SeoSettings _seoSettings;
     private readonly ITranslationService _translationService;
+    private readonly IContextAccessor _contextAccessor;
 
     public ProductTagsController(
         IProductTagService productTagService,
         IProductService productService,
         ILanguageService languageService,
         ITranslationService translationService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IContextAccessor contextAccessor)
     {
         _productTagService = productTagService;
         _productService = productService;
         _languageService = languageService;
         _translationService = translationService;
         _seoSettings = seoSettings;
+        _contextAccessor = contextAccessor;
     }
 
     public IActionResult Index()
@@ -76,7 +81,9 @@ public class ProductTagsController : BaseAdminController
     {
         var tag = await _productTagService.GetProductTagById(tagId);
 
-        var products = (await _productService.SearchProducts(pageIndex: command.Page - 1, pageSize: command.PageSize,
+        var products = (await _productService.SearchProducts(
+            access: CatalogAccess.For(_contextAccessor.WorkContext.CurrentCustomer, ""),
+            pageIndex: command.Page - 1, pageSize: command.PageSize,
             productTag: tag.Name, orderBy: ProductSortingEnum.NameAsc)).products;
         var gridModel = new DataSourceResult {
             Data = products.Select(x => new {

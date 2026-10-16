@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
@@ -148,7 +149,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         if (string.IsNullOrEmpty(dto.Name))
             return (null, false, null);
 
-        var candidates = await _brandService.GetAllBrands(dto.Name, "", showHidden: true);
+        var candidates = await _brandService.GetAllBrands(dto.Name, CatalogAccess.IncludingHidden());
         var (found, error) = ImportRows.SingleByName(candidates, b => b.Name, dto.Name, "brand");
         return (found, found != null, error);
     }

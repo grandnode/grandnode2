@@ -1,5 +1,6 @@
 using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -28,20 +29,15 @@ public class CategoryServiceCacheKeyTests
     private MemoryCacheBase _cacheBase;
     private IRepository<Category> _categoryRepository;
     private CategoryService _categoryService;
-    private Customer _currentCustomer;
 
     [TestInitialize]
     public void InitializeTests()
     {
         _categoryRepository = new MongoDBRepositoryTest<Category>();
-        _currentCustomer = new Customer();
-        var contextAccessor = new Mock<IContextAccessor>();
-        contextAccessor.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "store" });
-        contextAccessor.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => _currentCustomer);
         var mediator = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), mediator.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _categoryService = new CategoryService(_cacheBase, _categoryRepository, contextAccessor.Object,
+        _categoryService = new CategoryService(_cacheBase, _categoryRepository,
             mediator.Object, new AclService(new AccessControlConfig()), new AccessControlConfig());
     }
 
@@ -58,11 +54,11 @@ public class CategoryServiceCacheKeyTests
     {
         await _categoryService.InsertCategory(new Category { ParentCategoryId = "root", Published = true });
 
-        _currentCustomer = WithGroups("customer-1", "group-a");
-        var first = await _categoryService.GetAllCategoriesByParentCategoryId("root");
+        var first = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-1", "group-a"), "store"), "root");
 
-        _currentCustomer = WithGroups("customer-2", "group-a");
-        var second = await _categoryService.GetAllCategoriesByParentCategoryId("root");
+        var second = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-2", "group-a"), "store"), "root");
 
         Assert.AreSame(first, second, "same groups must resolve to the same cache entry");
     }
@@ -72,11 +68,11 @@ public class CategoryServiceCacheKeyTests
     {
         await _categoryService.InsertCategory(new Category { ParentCategoryId = "root", Published = true });
 
-        _currentCustomer = WithGroups("customer-1", "group-a");
-        var first = await _categoryService.GetAllCategoriesByParentCategoryId("root");
+        var first = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-1", "group-a"), "store"), "root");
 
-        _currentCustomer = WithGroups("customer-2", "group-b");
-        var second = await _categoryService.GetAllCategoriesByParentCategoryId("root");
+        var second = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-2", "group-b"), "store"), "root");
 
         Assert.AreNotSame(first, second, "the ACL filter differs per group, so the entries must differ");
     }

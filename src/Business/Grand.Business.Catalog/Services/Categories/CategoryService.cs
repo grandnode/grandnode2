@@ -1,12 +1,11 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -27,20 +26,17 @@ public class CategoryService : ICategoryService
     /// </summary>
     /// <param name="cacheBase">Cache manager</param>
     /// <param name="categoryRepository">Category repository</param>
-    /// <param name="workContext">Work context</param>
     /// <param name="mediator">Mediator</param>
     /// <param name="aclService">ACL service</param>
     /// <param name="accessControlConfig"></param>
     public CategoryService(ICacheBase cacheBase,
         IRepository<Category> categoryRepository,
-        IContextAccessor contextAccessor,
         IMediator mediator,
         IAclService aclService,
         AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _categoryRepository = categoryRepository;
-        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _aclService = aclService;
         _accessControlConfig = accessControlConfig;
@@ -51,14 +47,10 @@ public class CategoryService : ICategoryService
     #region Fields
 
     private readonly IRepository<Category> _categoryRepository;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
     private readonly IAclService _aclService;
     private readonly AccessControlConfig _accessControlConfig;
-
-    private Customer CurrentCustomer => _contextAccessor.WorkContext.CurrentCustomer;
-    private Store CurrentStore => _contextAccessor.StoreContext.CurrentStore;
 
     #endregion
 
@@ -69,19 +61,19 @@ public class CategoryService : ICategoryService
     /// </summary>
     /// <param name="parentId">Parent Id</param>
     /// <param name="categoryName">Category name</param>
-    /// <param name="storeId">Store ident</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Categories</returns>
     public virtual async Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName,
-        string storeId,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
+        CatalogAccess access, int pageIndex = 0, int pageSize = int.MaxValue)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var query = from c in _categoryRepository.Table
             select c;
 
-        if (!showHidden)
+        if (!access.ShowHidden)
             query = query.Where(c => c.Published);
         if (!string.IsNullOrWhiteSpace(categoryName))
             query = query.Where(m => m.Name.ToLowerInvariant().Contains(categoryName.ToLowerInvariant()));
@@ -89,25 +81,7 @@ public class CategoryService : ICategoryService
         if (parentId != null)
             query = query.Where(m => m.ParentCategoryId == parentId);
 
-        if (!_accessControlConfig.IgnoreAcl ||
-            (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations))
-        {
-            if (!showHidden && !_accessControlConfig.IgnoreAcl)
-            {
-                //Limited to customer group (access control list)
-                var allowedCustomerGroupsIds = CurrentCustomer.GetCustomerGroupIds();
-                query = from p in query
-                    where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                    select p;
-            }
-
-            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
-                //Limited to stores rule
-                query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(storeId)
-                    select p;
-        }
-
+        query = ApplyAccess(query, access);
         query = query.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name);
 
         //pagination
@@ -117,49 +91,32 @@ public class CategoryService : ICategoryService
     /// <summary>
     ///     Gets categories for menu
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the result</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IList<Category>> GetMenuCategories()
+    public virtual async Task<IList<Category>> GetMenuCategories(Customer customer, string storeId)
     {
         var query = from c in _categoryRepository.Table
             select c;
 
         query = query.Where(c => c.Published && c.IncludeInMenu);
-
-        switch (_accessControlConfig.IgnoreAcl)
-        {
-            case true when
-                string.IsNullOrEmpty(CurrentStore.Id) || _accessControlConfig.IgnoreStoreLimitations:
-                return await _categoryRepository.ToListAsync(query);
-            case false:
-            {
-                //Limited to customer group (access control list)
-                var allowedCustomerGroupsIds = CurrentCustomer.GetCustomerGroupIds();
-                query = from p in query
-                    where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                    select p;
-                break;
-            }
-        }
-
-        if (!string.IsNullOrEmpty(CurrentStore.Id) && !_accessControlConfig.IgnoreStoreLimitations)
-            //Limited to stores rule
-            query = from p in query
-                where !p.LimitedToStores || p.Stores.Contains(CurrentStore.Id)
-                select p;
+        query = ApplyAccess(query, CatalogAccess.For(customer, storeId));
         return await _categoryRepository.ToListAsync(query);
     }
 
     /// <summary>
     ///     Gets all categories filtered by parent category identifier
     /// </summary>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <param name="parentCategoryId">Parent category identifier</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <param name="includeAllLevels">A value that indicates if we should load all child levels</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IList<Category>> GetAllCategoriesByParentCategoryId(string parentCategoryId = "",
-        bool showHidden = false, bool includeAllLevels = false)
+    public virtual async Task<IList<Category>> GetAllCategoriesByParentCategoryId(CatalogAccess access,
+        string parentCategoryId = "", bool includeAllLevels = false)
     {
-        var categories = await GetChildCategories(parentCategoryId, showHidden);
+        ArgumentNullException.ThrowIfNull(access);
+
+        var categories = await GetChildCategories(parentCategoryId, access);
         if (!includeAllLevels) return categories;
 
         //walk the tree outside the cache: every level resolves through its own cache entry, so no
@@ -167,42 +124,26 @@ public class CategoryService : ICategoryService
         //once per ancestor
         var allLevels = new List<Category>(categories);
         foreach (var category in categories)
-            allLevels.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, true));
+            allLevels.AddRange(await GetAllCategoriesByParentCategoryId(access, category.Id, true));
 
         return allLevels;
     }
 
     /// <summary>
-    ///     Gets the direct children of a category, filtered by the current customer's groups and store
+    ///     Gets the direct children of a category, as the given access sees them
     /// </summary>
-    private async Task<IList<Category>> GetChildCategories(string parentCategoryId, bool showHidden)
+    private async Task<IList<Category>> GetChildCategories(string parentCategoryId, CatalogAccess access)
     {
-        var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden,
-            string.Join(",", CurrentCustomer.GetCustomerGroupIds()), CurrentStore.Id);
+        //hidden records are not filtered by customer groups, so the key does not depend on them
+        var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, access.ShowHidden,
+            access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()), access.StoreId);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
-            if (!showHidden)
+            if (!access.ShowHidden)
                 query = query.Where(c => c.Published);
 
-            if (!showHidden && (!_accessControlConfig.IgnoreAcl || !_accessControlConfig.IgnoreStoreLimitations))
-            {
-                if (!_accessControlConfig.IgnoreAcl)
-                {
-                    //Limited to customer groups rules
-                    var allowedCustomerGroupsIds = CurrentCustomer.GetCustomerGroupIds();
-                    query = from p in query
-                        where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                        select p;
-                }
-
-                if (!_accessControlConfig.IgnoreStoreLimitations)
-                    //Limited to stores rules
-                    query = from p in query
-                        where !p.LimitedToStores || p.Stores.Contains(CurrentStore.Id)
-                        select p;
-            }
-
+            query = ApplyAccess(query, access);
             return Task.FromResult<IList<Category>>(query.OrderBy(x => x.DisplayOrder).ToList());
         });
     }
@@ -210,79 +151,66 @@ public class CategoryService : ICategoryService
     /// <summary>
     ///     Gets all categories that should be displayed on the home page
     /// </summary>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IList<Category>> GetAllCategoriesDisplayedOnHomePage(bool showHidden = false)
+    public virtual async Task<IList<Category>> GetAllCategoriesDisplayedOnHomePage(CatalogAccess access)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.ShowOnHomePage)
             .OrderBy(x => x.DisplayOrder);
-        var categories = await _categoryRepository.ToListAsync(query);
-        if (!showHidden)
-            categories = categories
-                .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
-                            _aclService.Authorize(c, CurrentStore.Id))
-                .ToList();
-
-        return categories;
+        return (await _categoryRepository.ToListAsync(query)).Where(c => IsVisible(c, access)).ToList();
     }
 
     /// <summary>
     ///     Gets all featured products from categories that should be displayed on the home page
     /// </summary>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IList<Category>> GetAllCategoriesFeaturedProductsOnHomePage(bool showHidden = false)
+    public virtual async Task<IList<Category>> GetAllCategoriesFeaturedProductsOnHomePage(CatalogAccess access)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
-
-        var categories = await _categoryRepository.ToListAsync(query);
-        if (!showHidden)
-            categories = categories
-                .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
-                            _aclService.Authorize(c, CurrentStore.Id))
-                .ToList();
-        return categories;
+        return (await _categoryRepository.ToListAsync(query)).Where(c => IsVisible(c, access)).ToList();
     }
 
     /// <summary>
     ///     Gets all categories displayed in the search box
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the result</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IList<Category>> GetAllCategoriesSearchBox()
+    public virtual async Task<IList<Category>> GetAllCategoriesSearchBox(Customer customer, string storeId)
     {
+        var access = CatalogAccess.For(customer, storeId);
+
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.ShowOnSearchBox)
             .OrderBy(x => x.SearchBoxDisplayOrder);
-
-        var categories = (await _categoryRepository.ToListAsync(query))
-            .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
-                        _aclService.Authorize(c, CurrentStore.Id))
-            .ToList();
-
-        return categories;
+        return (await _categoryRepository.ToListAsync(query)).Where(c => IsVisible(c, access)).ToList();
     }
 
     /// <summary>
     ///     Get category breadcrumb
     /// </summary>
     /// <param name="category">Category</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
-    public virtual async Task<IList<Category>> GetCategoryBreadCrumb(Category category, bool showHidden = false)
+    public virtual async Task<IList<Category>> GetCategoryBreadCrumb(Category category, CatalogAccess access)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var result = new List<Category>();
 
         //used to avoid circular references
         var alreadyProcessedCategoryIds = new List<string>();
 
-        while (category != null && //not null                
-               (showHidden || category.Published) && //published
-               (showHidden ||
-                _aclService.Authorize(category, CurrentCustomer)) && //limited to customer groups
-               (showHidden || _aclService.Authorize(category, CurrentStore.Id)) && //limited to store
+        while (category != null && //not null
+               IsVisible(category, access) && //published, limited to customer groups and store
                !alreadyProcessedCategoryIds.Contains(category.Id))
         {
             result.Add(category);
@@ -301,21 +229,20 @@ public class CategoryService : ICategoryService
     /// </summary>
     /// <param name="category">Category</param>
     /// <param name="allCategories">All categories</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
     public virtual IList<Category> GetCategoryBreadCrumb(Category category, IList<Category> allCategories,
-        bool showHidden = false)
+        CatalogAccess access)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var result = new List<Category>();
 
         //used to avoid circular references
         var alreadyProcessedCategoryIds = new List<string>();
 
-        while (category != null && //not null                
-               (showHidden || category.Published) && //published
-               (showHidden ||
-                _aclService.Authorize(category, CurrentCustomer)) && //limited to customer groups
-               (showHidden || _aclService.Authorize(category, CurrentStore.Id)) && //limited to store
+        while (category != null && //not null
+               IsVisible(category, access) && //published, limited to customer groups and store
                !alreadyProcessedCategoryIds.Contains(category.Id)) //avoid circular references
         {
             result.Add(category);
@@ -344,7 +271,7 @@ public class CategoryService : ICategoryService
     {
         var result = string.Empty;
 
-        var breadcrumb = await GetCategoryBreadCrumb(category, true);
+        var breadcrumb = await GetCategoryBreadCrumb(category, CatalogAccess.IncludingHidden());
         for (var i = 0; i <= breadcrumb.Count - 1; i++)
         {
             var categoryName = breadcrumb[i].GetTranslation(x => x.Name, languageId);
@@ -370,7 +297,7 @@ public class CategoryService : ICategoryService
     {
         var result = string.Empty;
 
-        var breadcrumb = GetCategoryBreadCrumb(category, allCategories, true);
+        var breadcrumb = GetCategoryBreadCrumb(category, allCategories, CatalogAccess.IncludingHidden());
         for (var i = 0; i <= breadcrumb.Count - 1; i++)
         {
             var categoryName = breadcrumb[i].GetTranslation(x => x.Name, languageId);
@@ -468,7 +395,9 @@ public class CategoryService : ICategoryService
         ArgumentNullException.ThrowIfNull(category);
 
         //reset a "Parent category" property of all child subcategories
-        var subcategories = await GetAllCategoriesByParentCategoryId(category.Id, true);
+        var subcategories = await _categoryRepository.ToListAsync(_categoryRepository.Table
+            .Where(c => c.ParentCategoryId == category.Id)
+            .OrderBy(c => c.DisplayOrder));
         foreach (var subcategory in subcategories)
         {
             subcategory.ParentCategoryId = "";
@@ -482,6 +411,38 @@ public class CategoryService : ICategoryService
 
         //event notification
         await _mediator.EntityDeleted(category);
+    }
+
+    /// <summary>
+    ///     Limits the query to the categories the access may see
+    /// </summary>
+    private IQueryable<Category> ApplyAccess(IQueryable<Category> query, CatalogAccess access)
+    {
+        if (!access.ShowHidden && !_accessControlConfig.IgnoreAcl)
+        {
+            //Limited to customer group (access control list)
+            var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
+            query = from p in query
+                where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                select p;
+        }
+
+        if (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations)
+            //Limited to stores rule
+            query = from p in query
+                where !p.LimitedToStores || p.Stores.Contains(access.StoreId)
+                select p;
+
+        return query;
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether the access may see the category
+    /// </summary>
+    private bool IsVisible(Category category, CatalogAccess access)
+    {
+        return (access.ShowHidden || (category.Published && _aclService.Authorize(category, access.Customer)))
+               && _aclService.Authorize(category, access.StoreId);
     }
 
     #endregion

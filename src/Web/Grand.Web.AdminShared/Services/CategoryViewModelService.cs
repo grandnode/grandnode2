@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Web.AdminShared.Extensions;
@@ -78,10 +79,9 @@ public class CategoryViewModelService : ICategoryViewModelService
         var categories = await _categoryService.GetAllCategories(
             parentId: null,
             categoryName: model.SearchCategoryName,
-            storeId: model.SearchStoreId,
+            access: CatalogAccess.IncludingHidden(model.SearchStoreId),
             pageSize: pageSize,
-            pageIndex: pageIndex - 1,
-            showHidden: true);
+            pageIndex: pageIndex - 1);
 
         var categoryListModel = new List<CategoryModel>();
         foreach (var x in categories)
@@ -198,7 +198,8 @@ public class CategoryViewModelService : ICategoryViewModelService
         PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)
     {
         var productCategories = await _productCategoryService.GetProductCategoriesByCategoryId(categoryId,
-            pageIndex - 1, pageSize, true);
+            CatalogAccess.IncludingHidden(),
+            pageIndex - 1, pageSize);
 
         var categoryproducts = new List<CategoryModel.CategoryProductModel>();
         foreach (var item in productCategories)

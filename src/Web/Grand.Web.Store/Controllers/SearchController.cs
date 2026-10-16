@@ -20,7 +20,7 @@ public class SearchController(
     ICollectionService collectionService,
     AdminSearchSettings adminSearchSettings,
     IContextAccessor contextAccessor)
-    : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings)
+    : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings, contextAccessor)
 {
-    protected override string PickerStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    protected override string PickerStoreId => CurrentCustomer.StaffStoreId;
 }

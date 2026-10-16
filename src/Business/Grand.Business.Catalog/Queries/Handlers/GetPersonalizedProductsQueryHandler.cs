@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -28,17 +29,21 @@ public class GetPersonalizedProductsQueryHandler : IRequestHandler<GetPersonaliz
 
     public async Task<IList<Product>> Handle(GetPersonalizedProductsQuery request, CancellationToken cancellationToken)
     {
-        return await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_KEY, request.CustomerId),
+        //the result is cached per key shared by many customers, so a query without one must not fill it
+        ArgumentNullException.ThrowIfNull(request.Customer);
+
+        return await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_KEY, request.Customer.Id),
             async () =>
             {
                 var query = from cr in _customerProductRepository.Table
-                    where cr.CustomerId == request.CustomerId
+                    where cr.CustomerId == request.Customer.Id
                     orderby cr.DisplayOrder
                     select cr.ProductId;
 
                 var productIds = query.Take(request.ProductsNumber).ToList();
 
-                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray());
+                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray(),
+                    access: CatalogAccess.For(request.Customer, request.StoreId));
 
                 return ids.Where(product => product.Published).ToList();
             });

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
@@ -43,7 +44,8 @@ public class GetHomepageCollectionsHandler : IRequestHandler<GetHomepageCollecti
         var model = await _cacheBase.GetAsync(collectionsCacheKey, async () =>
         {
             var modelCollect = new List<CollectionModel>();
-            var allcollections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id);
+            var allcollections = await _collectionService.GetAllCollections(collectionName: "",
+                access: CatalogAccess.For(request.Customer, request.Store.Id));
             foreach (var x in allcollections.Where(x => x.ShowOnHomePage))
             {
                 var _model = x.ToModel(request.Language);

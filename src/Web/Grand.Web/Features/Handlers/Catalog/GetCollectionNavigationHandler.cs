@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
@@ -36,7 +37,7 @@ public class GetCollectionNavigationHandler : IRequestHandler<GetCollectionNavig
             var currentCollection = await _collectionService.GetCollectionById(request.CurrentCollectionId);
             var collections =
                 await _collectionService.GetAllCollections(collectionName: "", pageSize: _catalogSettings.CollectionsBlockItemsToDisplay,
-                    storeId: request.Store.Id);
+                    access: CatalogAccess.For(request.Customer, request.Store.Id));
             var model = new CollectionNavigationModel {
                 TotalCollections = collections.TotalCount
             };

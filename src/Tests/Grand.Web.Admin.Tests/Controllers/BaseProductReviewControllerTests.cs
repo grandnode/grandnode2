@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
@@ -320,13 +321,13 @@ public class BaseProductReviewControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual("", result.Content);
         productService.Verify(s => s.SearchProducts(
+            access: It.IsAny<CatalogAccess>(),
             loadFilterableSpecificationAttributeOptionIds: It.IsAny<bool>(),
             pageIndex: It.IsAny<int>(),
             pageSize: It.IsAny<int>(),
             categoryIds: It.IsAny<IList<string>>(),
             brandId: It.IsAny<string>(),
             collectionId: It.IsAny<string>(),
-            storeId: It.IsAny<string>(),
             vendorId: It.IsAny<string>(),
             warehouseId: It.IsAny<string>(),
             productType: It.IsAny<Grand.Domain.Catalog.ProductType?>(),
@@ -345,7 +346,6 @@ public class BaseProductReviewControllerTests
             filteredSpecs: It.IsAny<IList<string>>(),
             specificationOptions: It.IsAny<IList<string>>(),
             orderBy: It.IsAny<Grand.Domain.Catalog.ProductSortingEnum>(),
-            showHidden: It.IsAny<bool>(),
             overridePublished: It.IsAny<bool?>()), Times.Never);
     }
 
@@ -355,13 +355,13 @@ public class BaseProductReviewControllerTests
         _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
         var productService = new Mock<IProductService>();
         productService.Setup(s => s.SearchProducts(
+                access: CatalogAccess.IncludingHidden("store-1"),
                 loadFilterableSpecificationAttributeOptionIds: false,
                 pageIndex: 0,
                 pageSize: 15,
                 categoryIds: null,
                 brandId: "",
                 collectionId: "",
-                storeId: "store-1",
                 vendorId: "",
                 warehouseId: "",
                 productType: null,
@@ -380,7 +380,6 @@ public class BaseProductReviewControllerTests
                 filteredSpecs: null,
                 specificationOptions: null,
                 orderBy: Grand.Domain.Catalog.ProductSortingEnum.Position,
-                showHidden: true,
                 overridePublished: null))
             .ReturnsAsync((new Grand.Domain.PagedList<Grand.Domain.Catalog.Product>(new List<Grand.Domain.Catalog.Product>(), 0, 15), new List<string>()));
 

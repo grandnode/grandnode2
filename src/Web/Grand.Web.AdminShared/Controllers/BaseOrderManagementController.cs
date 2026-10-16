@@ -2,6 +2,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -497,15 +498,14 @@ public abstract class BaseOrderManagementController(
         if (!string.IsNullOrEmpty(model.SearchCategoryId)) categoryIds.Add(model.SearchCategoryId);
 
         var gridModel = new Grand.Web.Common.DataSource.DataSourceResult();
-        var products = (await productService.SearchProducts(categoryIds: categoryIds,
-            storeId: Scope.DefaultStoreId,
+        var products = (await productService.SearchProducts(
+            access: CatalogAccess.IncludingHidden(Scope.DefaultStoreId), categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             productType: model.SearchProductTypeId > 0 ? (Grand.Domain.Catalog.ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: command.Page - 1,
-            pageSize: command.PageSize,
-            showHidden: true)).products;
+            pageSize: command.PageSize)).products;
 
         gridModel.Data = products.Select(x => new OrderModel.AddOrderProductModel.ProductModel {
             Id = x.Id, Name = x.Name, Sku = x.Sku

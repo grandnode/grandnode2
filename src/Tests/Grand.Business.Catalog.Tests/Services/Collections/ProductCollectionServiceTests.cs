@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Collections;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -21,22 +22,39 @@ public class ProductCollectionServiceTests
     private Mock<IMediator> _mediatorMock;
     private ProductCollectionService _productCollectionService;
     private IRepository<Product> _repository;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void InitializeTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _productCollectionService = new ProductCollectionService(_cacheBase, _repository, _workContextMock.Object,
+        _productCollectionService = new ProductCollectionService(_cacheBase, _repository,
             _mediatorMock.Object, new AccessControlConfig());
     }
 
+
+    [TestMethod]
+    public async Task GetProductCollectionsByCollectionId_FiltersByGroupsOfGivenCustomer()
+    {
+        //Arrange
+        var product = new Product { LimitedToGroups = true, CustomerGroups = new List<string> { "vip" } };
+        product.ProductCollections.Add(new ProductCollection { CollectionId = "col" });
+        await _repository.InsertAsync(product);
+        var vipCustomer = new Customer();
+        vipCustomer.Groups.Add("vip");
+
+        //Act
+        var guest = await _productCollectionService.GetProductCollectionsByCollectionId("col",
+            CatalogAccess.For(new Customer(), ""));
+        var vip = await _productCollectionService.GetProductCollectionsByCollectionId("col",
+            CatalogAccess.For(vipCustomer, ""));
+
+        //Assert
+        Assert.IsEmpty(guest);
+        Assert.HasCount(1, vip);
+    }
 
     [TestMethod]
     public async Task GetProductCollectionsByCollectionIdTest()
@@ -52,8 +70,10 @@ public class ProductCollectionServiceTests
         await _repository.InsertAsync(p2);
 
         //Act
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "");
-        var pc2 = await _productCollectionService.GetProductCollectionsByCollectionId("2", "");
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1",
+            CatalogAccess.For(new Customer(), ""));
+        var pc2 = await _productCollectionService.GetProductCollectionsByCollectionId("2",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -74,7 +94,8 @@ public class ProductCollectionServiceTests
             new ProductCollection { CollectionId = "1", DisplayOrder = 10 }, p1.Id);
         await _productCollectionService.InsertProductCollection(new ProductCollection { CollectionId = "2" }, p1.Id);
 
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "");
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -99,7 +120,8 @@ public class ProductCollectionServiceTests
         pc.DisplayOrder = 5;
         await _productCollectionService.UpdateProductCollection(pc, p1.Id);
 
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("10", "");
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("10",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -122,7 +144,8 @@ public class ProductCollectionServiceTests
 
         await _productCollectionService.DeleteProductCollection(pc, p1.Id);
 
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "");
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.IsEmpty(pc1);

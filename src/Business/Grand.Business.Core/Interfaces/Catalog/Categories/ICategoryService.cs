@@ -1,5 +1,7 @@
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Categories;
 
@@ -10,65 +12,68 @@ public interface ICategoryService
     /// </summary>
     /// <param name="parentId"></param>
     /// <param name="categoryName">Category name</param>
-    /// <param name="storeId">Store id</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Categories</returns>
-    Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName, string storeId,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
+    Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName, CatalogAccess access,
+        int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets all categories
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the result</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <returns>Categories</returns>
-    Task<IList<Category>> GetMenuCategories();
+    Task<IList<Category>> GetMenuCategories(Customer customer, string storeId);
 
     /// <summary>
     ///     Gets all categories by parent category
     /// </summary>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <param name="parentCategoryId">Parent category id</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <param name="includeAllLevels">A value indicates if we should load all child levels</param>
     /// <returns>Categories</returns>
-    Task<IList<Category>> GetAllCategoriesByParentCategoryId(string parentCategoryId = "",
-        bool showHidden = false, bool includeAllLevels = false);
+    Task<IList<Category>> GetAllCategoriesByParentCategoryId(CatalogAccess access, string parentCategoryId = "",
+        bool includeAllLevels = false);
 
     /// <summary>
     ///     Gets all categories displayed on the home page
     /// </summary>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Categories</returns>
-    Task<IList<Category>> GetAllCategoriesDisplayedOnHomePage(bool showHidden = false);
+    Task<IList<Category>> GetAllCategoriesDisplayedOnHomePage(CatalogAccess access);
 
     /// <summary>
     ///     Gets all categories displayed that should be visible on the home page, in featured products section
     /// </summary>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
-    Task<IList<Category>> GetAllCategoriesFeaturedProductsOnHomePage(bool showHidden = false);
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
+    Task<IList<Category>> GetAllCategoriesFeaturedProductsOnHomePage(CatalogAccess access);
 
     /// <summary>
     ///     Gets all categories that should be displayed in search box
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the result</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <returns>Categories</returns>
-    Task<IList<Category>> GetAllCategoriesSearchBox();
+    Task<IList<Category>> GetAllCategoriesSearchBox(Customer customer, string storeId);
 
     /// <summary>
     ///     Get category breadcrumb
     /// </summary>
     /// <param name="category">Category</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
-    Task<IList<Category>> GetCategoryBreadCrumb(Category category, bool showHidden = false);
+    Task<IList<Category>> GetCategoryBreadCrumb(Category category, CatalogAccess access);
 
     /// <summary>
     ///     Get category breadcrumb
     /// </summary>
     /// <param name="category">Category</param>
     /// <param name="allCategories">All categories</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
-    IList<Category> GetCategoryBreadCrumb(Category category, IList<Category> allCategories, bool showHidden = false);
+    IList<Category> GetCategoryBreadCrumb(Category category, IList<Category> allCategories, CatalogAccess access);
 
     /// <summary>
     ///     Get formatted category breadcrumb

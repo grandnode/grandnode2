@@ -10,13 +10,12 @@ public interface IProductCollectionService
     ///     Gets product collection by collection id
     /// </summary>
     /// <param name="collectionId">Collection id</param>
-    /// <param name="storeId">Store id</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Product collection collection</returns>
-    Task<IPagedList<ProductsCollection>> GetProductCollectionsByCollectionId(string collectionId, string storeId,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
+    Task<IPagedList<ProductsCollection>> GetProductCollectionsByCollectionId(string collectionId, CatalogAccess access,
+        int pageIndex = 0, int pageSize = int.MaxValue);
 
 
     /// <summary>

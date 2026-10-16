@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -181,11 +182,10 @@ public abstract class BaseOrderController(
 
         const int productNumber = 15;
         var products = (await productService.SearchProducts(
-            storeId: scope.DefaultStoreId,
+            access: CatalogAccess.IncludingHidden(scope.DefaultStoreId),
             vendorId: scope.DefaultVendorId,
             keywords: term,
-            pageSize: productNumber,
-            showHidden: true)).products;
+            pageSize: productNumber)).products;
 
         var result = products.Select(p => new { label = p.Name, productid = p.Id }).ToList();
         return Json(result);

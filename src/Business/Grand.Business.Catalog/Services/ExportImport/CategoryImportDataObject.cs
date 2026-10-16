@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
@@ -155,7 +156,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
             return (null, false, null);
 
         var parentId = string.IsNullOrEmpty(dto.ParentCategoryId) ? null : dto.ParentCategoryId;
-        var candidates = await _categoryService.GetAllCategories(parentId, dto.Name, "", showHidden: true);
+        var candidates = await _categoryService.GetAllCategories(parentId, dto.Name, CatalogAccess.IncludingHidden());
         var (found, error) = ImportRows.SingleByName(candidates, c => c.Name, dto.Name, "category");
         return (found, found != null, error);
     }

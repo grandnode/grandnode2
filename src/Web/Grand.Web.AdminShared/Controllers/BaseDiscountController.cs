@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Permissions;
 using Grand.Mediator;
@@ -459,7 +460,8 @@ public abstract class BaseDiscountController(
         DiscountModel.AddCategoryToDiscountModel model, [FromServices] ICategoryService categoryService)
     {
         var categories = await categoryService.GetAllCategories(parentId: null, categoryName: model.SearchCategoryName,
-            storeId: await scope.GetDefaultStoreIdAsync() ?? "", pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
+            access: CatalogAccess.IncludingHidden(await scope.GetDefaultStoreIdAsync() ?? ""),
+            pageIndex: command.Page - 1, pageSize: command.PageSize);
         var items = new List<CategoryModel>();
         foreach (var item in categories)
         {
@@ -551,7 +553,8 @@ public abstract class BaseDiscountController(
         DiscountModel.AddBrandToDiscountModel model, [FromServices] IBrandService brandService)
     {
         var brands = await brandService.GetAllBrands(model.SearchBrandName,
-            await scope.GetDefaultStoreIdAsync() ?? "", command.Page - 1, command.PageSize, true);
+            CatalogAccess.IncludingHidden(await scope.GetDefaultStoreIdAsync() ?? ""), command.Page - 1,
+            command.PageSize);
         return Json(new DataSourceResult { Data = brands.Select(x => x.ToModel()), Total = brands.TotalCount });
     }
 
@@ -636,7 +639,8 @@ public abstract class BaseDiscountController(
         DiscountModel.AddCollectionToDiscountModel model, [FromServices] ICollectionService collectionService)
     {
         var collections = await collectionService.GetAllCollections(model.SearchCollectionName,
-            await scope.GetDefaultStoreIdAsync() ?? "", command.Page - 1, command.PageSize, true);
+            CatalogAccess.IncludingHidden(await scope.GetDefaultStoreIdAsync() ?? ""), command.Page - 1,
+            command.PageSize);
         return Json(new DataSourceResult { Data = collections.Select(x => x.ToModel()), Total = collections.TotalCount });
     }
 

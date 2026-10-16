@@ -66,7 +66,6 @@ public class ProductImportDataObjectTests
     private Mock<ISlugService> _slugServiceMock;
     private Mock<ITaxCategoryService> _taxServiceMock;
     private Mock<IWarehouseService> _warehouseServiceMock;
-    private Mock<IContextAccessor> _workContextMock;
     private ISeNameService _seNameService;
     private SecurityConfig _securityConfig;
     private TaxSettings _taxSettings;
@@ -100,14 +99,10 @@ public class ProductImportDataObjectTests
         _productCategoryServiceMock = new Mock<IProductCategoryService>();
         _productCollectionServiceMock = new Mock<IProductCollectionService>();
 
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
-
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _productService = new ProductService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object,
+        _productService = new ProductService(_cacheBase, _repository, _mediatorMock.Object,
             new AclService(new AccessControlConfig()));
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _productImportDataObject = new ProductImportDataObject

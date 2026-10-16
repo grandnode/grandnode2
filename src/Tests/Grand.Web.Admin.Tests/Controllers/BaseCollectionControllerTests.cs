@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Mapper;
@@ -123,7 +124,7 @@ public class BaseCollectionControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _collectionServiceMock
-            .Setup(c => c.GetAllCollections(It.IsAny<string>(), "store-1", 0, 10, true))
+            .Setup(c => c.GetAllCollections(It.IsAny<string>(), CatalogAccess.IncludingHidden("store-1"), 0, 10))
             .ReturnsAsync(new Grand.Domain.PagedList<Collection>(new List<Collection>(), 0, 10));
 
         var model = new CollectionListModel { SearchStoreId = "attacker-supplied-store" };
@@ -137,7 +138,8 @@ public class BaseCollectionControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _collectionServiceMock
-            .Setup(c => c.GetAllCollections(It.IsAny<string>(), "admin-submitted-store", 0, 10, true))
+            .Setup(c => c.GetAllCollections(It.IsAny<string>(),
+                CatalogAccess.IncludingHidden("admin-submitted-store"), 0, 10))
             .ReturnsAsync(new Grand.Domain.PagedList<Collection>(new List<Collection>(), 0, 10));
 
         var model = new CollectionListModel { SearchStoreId = "admin-submitted-store" };

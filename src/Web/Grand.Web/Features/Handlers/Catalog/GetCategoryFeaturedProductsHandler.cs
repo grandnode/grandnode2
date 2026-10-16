@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -56,7 +57,8 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
         var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
         {
             var catlistmodel = new List<CategoryModel>();
-            foreach (var x in await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage())
+            foreach (var x in await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage(
+                access: CatalogAccess.For(request.Customer, request.Store.Id)))
             {
                 var catModel = x.ToModel(request.Language);
                 //prepare picture model

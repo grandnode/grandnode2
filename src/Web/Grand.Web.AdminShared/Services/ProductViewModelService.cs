@@ -14,6 +14,7 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -623,17 +624,16 @@ public class ProductViewModelService(
         // of any vendor filter on the model. Admin/Store have no DefaultVendorId, so this falls back to
         // model.SearchVendorId unchanged for them.
         var products = (await productService.SearchProducts(
+            access: CatalogAccess.IncludingHidden(model.SearchStoreId),
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            storeId: model.SearchStoreId,
             vendorId: scope.DefaultVendorId ?? model.SearchVendorId,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: pageIndex - 1,
             pageSize: pageSize,
-            showHidden: true,
             showOnHomePage: showOnHomePage,
             overridePublished: overridePublished,
             markedAsNewOnly: markedAsNewOnly
@@ -718,15 +718,14 @@ public class ProductViewModelService(
         // vendorId: same override as PrepareProductsModel above - mirrors Vendor's original PrepareProducts,
         // which always passed vendorId: CurrentVendor.Id regardless of the search model.
         var products = (await productService.SearchProducts(
+            access: CatalogAccess.IncludingHidden(model.SearchStoreId),
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            storeId: model.SearchStoreId,
             vendorId: scope.DefaultVendorId ?? model.SearchVendorId,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
-            showHidden: true,
             overridePublished: overridePublished
         )).products;
 
@@ -876,7 +875,8 @@ public class ProductViewModelService(
     public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
     {
         var products = new List<Product>();
-        products.AddRange(await productService.GetProductsByIds(selectedIds.ToArray(), true));
+        products.AddRange(await productService.GetProductsByIds(selectedIds.ToArray(),
+            access: CatalogAccess.IncludingHidden()));
         for (var i = 0; i < products.Count; i++)
         {
             await DeleteProduct(products[i]);
@@ -1320,16 +1320,15 @@ public class ProductViewModelService(
         // has no SearchVendorId field for a caller to (mis)supply in the first place, so there is nothing
         // to fall back to for Admin/Store, whose scope.DefaultVendorId is null and who intentionally see
         // every vendor's products in bulk-edit.
-        var products = (await productService.SearchProducts(categoryIds: searchCategoryIds,
+        var products = (await productService.SearchProducts(
+            access: CatalogAccess.IncludingHidden(model.SearchStoreId), categoryIds: searchCategoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            storeId: model.SearchStoreId,
             vendorId: scope.DefaultVendorId ?? "",
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: pageIndex - 1,
-            pageSize: pageSize,
-            showHidden: true)).products;
+            pageSize: pageSize)).products;
 
         var items = new List<BulkEditProductModel>();
         foreach (var x in products)
@@ -2599,7 +2598,8 @@ public class ProductViewModelService(
     protected virtual async Task<List<string>> GetChildCategoryIds(string parentCategoryId)
     {
         var categoriesIds = new List<string>();
-        var categories = await categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId, true);
+        var categories = await categoryService.GetAllCategoriesByParentCategoryId(
+            access: CatalogAccess.IncludingHidden(), parentCategoryId: parentCategoryId);
         foreach (var category in categories)
         {
             categoriesIds.Add(category.Id);

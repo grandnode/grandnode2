@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
@@ -65,7 +66,8 @@ public class GetCategorySimpleHandler : IRequestHandler<GetCategorySimple, IList
 
             async Task PrepareCategories(string categoryId)
             {
-                var parentCategories = await _categoryService.GetAllCategories(categoryId, categoryName: "", storeId: request.Store.Id);
+                var parentCategories = await _categoryService.GetAllCategories(categoryId, categoryName: "",
+                    access: CatalogAccess.For(request.Customer, request.Store.Id));
                 if (parentCategories.Any())
                 {
                     categories.AddRange(parentCategories);
@@ -79,7 +81,8 @@ public class GetCategorySimpleHandler : IRequestHandler<GetCategorySimple, IList
             if (currentCategory != null)
             {
                 var currentCategories =
-                    await _categoryService.GetAllCategories(currentCategory.Id, categoryName: "", storeId: request.Store.Id);
+                    await _categoryService.GetAllCategories(currentCategory.Id, categoryName: "",
+                        access: CatalogAccess.For(request.Customer, request.Store.Id));
                 categories.AddRange(currentCategories);
                 await PrepareCategories(currentCategory.ParentCategoryId);
             }

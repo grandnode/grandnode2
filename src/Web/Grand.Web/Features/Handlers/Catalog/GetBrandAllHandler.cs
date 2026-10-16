@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Web.Extensions;
@@ -47,7 +48,8 @@ public class GetBrandAllHandler : IRequestHandler<GetBrandAll, BrandListModel>
             request.Command.PageSize = _catalogSettings.MaxCatalogPageSize;
 
         var model = new List<BrandModel>();
-        var brands = await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id,
+        var brands = await _brandService.GetAllBrands(brandName: "",
+            access: CatalogAccess.For(request.Customer, request.Store.Id),
             pageIndex: request.Command.PageNumber - 1,
             pageSize: request.Command.PageSize
         );

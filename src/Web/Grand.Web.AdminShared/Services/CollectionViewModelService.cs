@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Infrastructure;
@@ -181,8 +182,8 @@ public class CollectionViewModelService : ICollectionViewModelService
         //collections
         model.AvailableCollections.Add(new SelectListItem
             { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var m in await _collectionService.GetAllCollections(collectionName: "", storeId: "",
-                     showHidden: true))
+        foreach (var m in await _collectionService.GetAllCollections(collectionName: "",
+            access: CatalogAccess.IncludingHidden()))
             model.AvailableCollections.Add(new SelectListItem { Text = m.Name, Value = m.Id });
 
         //stores
@@ -219,8 +220,8 @@ public class CollectionViewModelService : ICollectionViewModelService
         PrepareCollectionProductModel(string collectionId, string storeId, int pageIndex, int pageSize)
     {
         var productCollections = await _productCollectionService.GetProductCollectionsByCollectionId(collectionId,
-            storeId,
-            pageIndex - 1, pageSize, true);
+            CatalogAccess.IncludingHidden(),
+            pageIndex - 1, pageSize);
         var items = new List<CollectionModel.CollectionProductModel>();
         foreach (var x in productCollections)
             items.Add(new CollectionModel.CollectionProductModel {

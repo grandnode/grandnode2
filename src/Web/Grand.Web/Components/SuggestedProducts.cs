@@ -32,8 +32,9 @@ public class SuggestedProductsViewComponent : BaseViewComponent
             return Content("");
 
         var products = await _mediator.Send(new GetSuggestedProductsQuery {
-            CustomerTagIds = _contextAccessor.WorkContext.CurrentCustomer.CustomerTags.ToArray(),
-            ProductsNumber = _catalogSettings.SuggestedProductsNumber
+            ProductsNumber = _catalogSettings.SuggestedProductsNumber,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            StoreId = _contextAccessor.StoreContext.CurrentStore.Id
         });
 
         if (!products.Any())

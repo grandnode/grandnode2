@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
@@ -411,7 +412,8 @@ public class BaseProductControllerTests
         // bulk-delete endpoint (any staff could delete any product id in the system).
         var owned = new Product { Id = "owned" };
         var foreign = new Product { Id = "foreign" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" },
+            CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { owned, foreign });
         _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
@@ -426,7 +428,7 @@ public class BaseProductControllerTests
     public async Task DeleteSelected_AllProductsScopeDenies_DoesNotCallDeleteSelected()
     {
         var foreign = new Product { Id = "foreign" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { foreign });
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
 
@@ -522,7 +524,8 @@ public class BaseProductControllerTests
         var json = result as JsonResult;
         Assert.IsNotNull(json);
         Assert.AreEqual("", GetTextProperty(json.Value));
-        _productServiceMock.Verify(s => s.GetProductsByIds(It.IsAny<string[]>(), It.IsAny<bool>()), Times.Never);
+        _productServiceMock.Verify(s => s.GetProductsByIds(It.IsAny<string[]>(),
+            It.IsAny<CatalogAccess>()), Times.Never);
     }
 
     [TestMethod]
@@ -530,7 +533,7 @@ public class BaseProductControllerTests
     {
         var allowed = new Product { Id = "p1", Name = "Allowed" };
         var denied = new Product { Id = "p2", Name = "Denied" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1", "p2" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1", "p2" }, CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { allowed, denied });
         _scopeMock.Setup(s => s.HasAccess(allowed)).ReturnsAsync(true);
         _scopeMock.Setup(s => s.HasAccess(denied)).ReturnsAsync(false);
@@ -551,7 +554,7 @@ public class BaseProductControllerTests
     {
         var p1 = new Product { Id = "p1", Name = "First" };
         var p2 = new Product { Id = "p2", Name = "Second" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1", "p2" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1", "p2" }, CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { p1, p2 });
         _scopeMock.Setup(s => s.HasAccess(It.IsAny<Product>())).ReturnsAsync(true);
 
@@ -1979,7 +1982,7 @@ public class BaseProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
-        _productServiceMock.Setup(p => p.GetAssociatedProducts("p1", "", "", true))
+        _productServiceMock.Setup(p => p.GetAssociatedProducts("p1", CatalogAccess.IncludingHidden(), ""))
             .ReturnsAsync(new List<Product> { new() { Id = "a1", Name = "Assoc", DisplayOrder = 1 } });
 
         var result = await _controller.AssociatedProductList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
@@ -2920,7 +2923,8 @@ public class BaseProductControllerTests
 
         var file = result as FileContentResult;
         Assert.IsNotNull(file);
-        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(), true), Times.Never);
+        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(),
+            It.IsAny<CatalogAccess>()), Times.Never);
     }
 
     [TestMethod]
@@ -2931,7 +2935,8 @@ public class BaseProductControllerTests
         // Admin (where the original had no check at all) gets the same protection.
         var owned = new Product { Id = "owned" };
         var foreign = new Product { Id = "foreign" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" },
+            CatalogAccess.IncludingHidden()))
             .ReturnsAsync([owned, foreign]);
         _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
@@ -3133,7 +3138,8 @@ public class BaseProductControllerTests
         // that per-item gate uniformly.
         var owned = new Product { Id = "owned" };
         var foreign = new Product { Id = "foreign" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" },
+            CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { owned, foreign });
         _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
@@ -3152,7 +3158,7 @@ public class BaseProductControllerTests
     public async Task BulkEditUpdate_AllProductsScopeDenies_DoesNotCallUpdateBulkEdit()
     {
         var foreign = new Product { Id = "foreign" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { foreign });
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
 
@@ -3177,7 +3183,8 @@ public class BaseProductControllerTests
     {
         var owned = new Product { Id = "owned" };
         var foreign = new Product { Id = "foreign" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" },
+            CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { owned, foreign });
         _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
@@ -3195,7 +3202,7 @@ public class BaseProductControllerTests
     public async Task BulkEditDelete_AllProductsScopeDenies_DoesNotCallDeleteBulkEdit()
     {
         var foreign = new Product { Id = "foreign" };
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, true))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, CatalogAccess.IncludingHidden()))
             .ReturnsAsync(new List<Product> { foreign });
         _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
 
@@ -3211,7 +3218,8 @@ public class BaseProductControllerTests
         var result = await _controller.BulkEditUpdate(new List<BulkEditProductModel> { new() { Id = "" } });
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
-        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(), It.IsAny<bool>()), Times.Never);
+        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(),
+            It.IsAny<CatalogAccess>()), Times.Never);
         _productViewModelServiceMock.Verify(
             s => s.UpdateBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
     }

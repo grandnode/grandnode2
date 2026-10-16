@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
@@ -84,13 +85,13 @@ public class BaseSpecificationAttributeControllerTests
         _service.Setup(x => x.GetSpecificationAttributeById("s1")).ReturnsAsync(spec);
         _scope.Setup(x => x.CanView(spec)).ReturnsAsync(true);
         _productService.Setup(x => x.SearchProducts(
+            access: CatalogAccess.IncludingHidden("store-a"),
             loadFilterableSpecificationAttributeOptionIds: false,
             pageIndex: 0,
             pageSize: 10,
             categoryIds: null,
             brandId: "",
             collectionId: "",
-            storeId: "store-a",
             vendorId: "",
             warehouseId: "",
             productType: null,
@@ -109,20 +110,19 @@ public class BaseSpecificationAttributeControllerTests
             filteredSpecs: null,
             specificationOptions: It.Is<IList<string>>(l => l.Contains("o1")),
             orderBy: It.IsAny<ProductSortingEnum>(),
-            showHidden: true,
             overridePublished: null))
             .ReturnsAsync((new PagedList<Product>(new List<Product>(), 0, 10, 0), (IList<string>)new List<string>()));
 
         await _sut.UsedByProducts(new DataSourceRequest { Page = 1, PageSize = 10 }, "s1");
 
         _productService.Verify(x => x.SearchProducts(
+            access: CatalogAccess.IncludingHidden("store-a"),
             loadFilterableSpecificationAttributeOptionIds: false,
             pageIndex: 0,
             pageSize: 10,
             categoryIds: null,
             brandId: "",
             collectionId: "",
-            storeId: "store-a",
             vendorId: "",
             warehouseId: "",
             productType: null,
@@ -141,7 +141,6 @@ public class BaseSpecificationAttributeControllerTests
             filteredSpecs: null,
             specificationOptions: It.IsAny<IList<string>>(),
             orderBy: It.IsAny<ProductSortingEnum>(),
-            showHidden: true,
             overridePublished: null), Times.Once);
     }
 }

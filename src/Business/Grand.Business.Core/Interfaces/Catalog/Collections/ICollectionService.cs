@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 
@@ -12,23 +13,21 @@ public interface ICollectionService
     ///     Gets all collections
     /// </summary>
     /// <param name="collectionName">Collection name</param>
-    /// <param name="storeId">Store ident</param>
+    /// <param name="access">Whose view of the collections to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Collections</returns>
     Task<IPagedList<Collection>> GetAllCollections(string collectionName,
-        string storeId,
+        CatalogAccess access,
         int pageIndex = 0,
-        int pageSize = int.MaxValue,
-        bool showHidden = false);
+        int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets all collections products displayed on the home page
     /// </summary>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the collections to return, and the store whose limitations apply</param>
     /// <returns>Collections</returns>
-    Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(bool showHidden = false);
+    Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(CatalogAccess access);
 
     /// <summary>
     ///     Gets an existing collection by id

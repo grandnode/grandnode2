@@ -2,8 +2,10 @@
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -26,15 +28,11 @@ public class ProductServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Product> _productRepository;
     private ProductService _productService;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void InitializeTests()
     {
         _productRepository = new MongoDBRepositoryTest<Product>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
 
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetProductArchByIdQuery>(), default))
@@ -43,8 +41,63 @@ public class ProductServiceTests
         _aclServiceMock = new AclService(new AccessControlConfig());
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _productService = new ProductService(_cacheBase, _productRepository, _workContextMock.Object,
+        _productService = new ProductService(_cacheBase, _productRepository,
             _mediatorMock.Object, _aclServiceMock);
+    }
+
+    [TestMethod]
+    public async Task GetProductsByIds_AuthorizesAgainstGivenCustomerAndStore()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product {
+            Id = "p1", Published = true, LimitedToStores = true, Stores = new List<string> { "store1" }
+        });
+
+        //Act
+        var store1 = await _productService.GetProductsByIds(["p1"], CatalogAccess.For(new Customer(), "store1"));
+        var store2 = await _productService.GetProductsByIds(["p1"], CatalogAccess.For(new Customer(), "store2"));
+
+        //Assert
+        Assert.HasCount(1, store1);
+        Assert.IsEmpty(store2);
+    }
+
+    [TestMethod]
+    public async Task GetProductsByIds_WithoutAccess_Throws()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => _productService.GetProductsByIds(["p1"], null));
+    }
+
+    [TestMethod]
+    public async Task GetProductsByIds_IncludingHidden_ReturnsUnpublishedAndGroupLimitedProducts()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product {
+            Id = "p1", Published = false, LimitedToGroups = true, CustomerGroups = new List<string> { "vip" }
+        });
+
+        //Act
+        var products = await _productService.GetProductsByIds(["p1"], CatalogAccess.IncludingHidden());
+
+        //Assert
+        Assert.HasCount(1, products);
+    }
+
+    [TestMethod]
+    public async Task SearchProducts_SendsGivenCustomerInQuery()
+    {
+        //Arrange
+        var customer = new Customer { Id = "c1" };
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetSearchProductsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new PagedList<Product>(new List<Product>(), 0, 1), (IList<string>)new List<string>()));
+
+        //Act
+        await _productService.SearchProducts(CatalogAccess.For(customer, "s1"));
+
+        //Assert
+        _mediatorMock.Verify(m => m.Send(
+            It.Is<GetSearchProductsQuery>(q => q.Customer == customer && q.StoreId == "s1"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private async Task insertSampleProducts()
@@ -140,7 +193,7 @@ public class ProductServiceTests
     {
         await insertSampleProducts();
         //Act
-        var result = await _productService.GetProductsByIds(["1"]);
+        var result = await _productService.GetProductsByIds(["1"], CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.IsNotEmpty(result);
@@ -257,7 +310,7 @@ public class ProductServiceTests
         //Arrange 
         await insertSampleProducts();
         //Act
-        var result = await _productService.GetAssociatedProducts("1");
+        var result = await _productService.GetAssociatedProducts("1", CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.IsNotEmpty(result);
@@ -558,7 +611,7 @@ public class ProductServiceTests
 
         var result =
             await _productService.GetCrossSellProductsByShoppingCart(
-                new List<ShoppingCartItem> { new() { ProductId = product.Id } }, 2);
+                new List<ShoppingCartItem> { new() { ProductId = product.Id } }, 2, new Customer(), "");
 
         //Assert
         Assert.IsNotNull(result);

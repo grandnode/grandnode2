@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -264,23 +265,25 @@ public class BaseOrderControllerTests
             new Grand.Domain.PagedList<Grand.Domain.Catalog.Product>(new List<Grand.Domain.Catalog.Product>(), 0, 15);
         productServiceMock
             .Setup(p => p.SearchProducts(
-                It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
-                null, "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
+                CatalogAccess.IncludingHidden(), It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(),
+                It.IsAny<string>(), It.IsAny<string>(),
+                "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
                 It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(), It.IsAny<double?>(),
                 It.IsAny<string>(), "abc", It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(),
                 It.IsAny<IList<string>>(), It.IsAny<IList<string>>(), It.IsAny<Grand.Domain.Catalog.ProductSortingEnum>(),
-                true, It.IsAny<bool?>()))
+                It.IsAny<bool?>()))
             .ReturnsAsync((pagedProducts, (IList<string>)new List<string>()));
 
         await _controller.ProductSearchAutoComplete("abc", productServiceMock.Object);
 
         productServiceMock.Verify(p => p.SearchProducts(
-            It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
-            null, "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
+            CatalogAccess.IncludingHidden(), It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(),
+            It.IsAny<string>(), It.IsAny<string>(),
+            "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
             It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(), It.IsAny<double?>(),
             It.IsAny<string>(), "abc", It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(),
             It.IsAny<IList<string>>(), It.IsAny<IList<string>>(), It.IsAny<Grand.Domain.Catalog.ProductSortingEnum>(),
-            true, It.IsAny<bool?>()), Times.Once);
+            It.IsAny<bool?>()), Times.Once);
     }
 
     [TestMethod]

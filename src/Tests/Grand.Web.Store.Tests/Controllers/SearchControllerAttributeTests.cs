@@ -1,4 +1,5 @@
 using System.Linq;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Admin;
 using Grand.Domain.Customers;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
@@ -60,13 +61,14 @@ public class SearchControllerAttributeTests
     [TestMethod]
     public async System.Threading.Tasks.Task PickerStoreId_ReflectsCurrentCustomerStaffStoreId()
     {
+        var customer = new Customer { StaffStoreId = "store-42" };
         var categoryServiceMock = new Mock<ICategoryService>();
         categoryServiceMock
-            .Setup(s => s.GetAllCategories(null, null, "store-42", 0, It.IsAny<int>(), false))
+            .Setup(s => s.GetAllCategories(null, null, CatalogAccess.For(customer, "store-42"), 0, It.IsAny<int>()))
             .ReturnsAsync(new Grand.Domain.PagedList<Grand.Domain.Catalog.Category>([], 0, 10));
 
         var workContextMock = new Mock<IWorkContext>();
-        workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { StaffStoreId = "store-42" });
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(customer);
         var contextAccessorMock = new Mock<IContextAccessor>();
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
 
@@ -79,6 +81,7 @@ public class SearchControllerAttributeTests
 
         await controller.Category(null, new Grand.Web.Common.DataSource.DataSourceRequestFilter { Filters = [] });
 
-        categoryServiceMock.Verify(s => s.GetAllCategories(null, null, "store-42", 0, 10, false), Times.Once);
+        categoryServiceMock.Verify(s => s.GetAllCategories(null, null,
+            CatalogAccess.For(customer, "store-42"), 0, 10), Times.Once);
     }
 }

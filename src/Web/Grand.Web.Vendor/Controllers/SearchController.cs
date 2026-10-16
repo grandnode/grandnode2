@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Domain.Admin;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Vendor.Extensions;
@@ -17,7 +18,8 @@ public class SearchController(
     ICategoryService categoryService,
     IBrandService brandService,
     ICollectionService collectionService,
-    AdminSearchSettings adminSearchSettings)
-    : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings)
+    AdminSearchSettings adminSearchSettings,
+    IContextAccessor contextAccessor)
+    : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings, contextAccessor)
 {
 }

@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Mongo;
 using Grand.Domain.Catalog;
@@ -27,7 +28,6 @@ public class CategoryServiceTests
     private ProductCategoryService _productCategoryService;
     private Mock<MongoRepository<Product>> _productRepositoryMock;
     private CatalogSettings _settings;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -37,15 +37,13 @@ public class CategoryServiceTests
         _casheManagerMock = new Mock<ICacheBase>();
         _categoryRepositoryMock = new Mock<IRepository<Category>>();
         _productRepositoryMock = new Mock<MongoRepository<Product>>(Mock.Of<IAuditInfoProvider>());
-        _workContextMock = new Mock<IContextAccessor>();
         _mediatorMock = new Mock<IMediator>();
         _aclServiceMock = new Mock<IAclService>();
         _settings = new CatalogSettings();
         _categoryService = new CategoryService(_casheManagerMock.Object, _categoryRepositoryMock.Object,
-            _workContextMock.Object,
             _mediatorMock.Object, _aclServiceMock.Object, new AccessControlConfig());
         _productCategoryService = new ProductCategoryService(_productRepositoryMock.Object, _casheManagerMock.Object,
-            _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
+            _mediatorMock.Object, new AccessControlConfig());
     }
 
     [TestMethod]
@@ -88,7 +86,8 @@ public class CategoryServiceTests
         var category = new Category { ParentCategoryId = "3" };
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer { Id = "" }, ""));
         Assert.IsEmpty(result);
     }
 
@@ -97,11 +96,10 @@ public class CategoryServiceTests
     {
         var allCategory = GetMockCategoryList();
         var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer { Id = "" });
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer { Id = "" }, ""));
         Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
@@ -112,11 +110,10 @@ public class CategoryServiceTests
     {
         var allCategory = GetMockCategoryList();
         var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer { Id = "" });
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer { Id = "" }, ""));
         Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("1")));

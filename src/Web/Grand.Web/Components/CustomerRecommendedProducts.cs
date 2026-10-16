@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
-using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
@@ -33,8 +32,8 @@ public class CustomerRecommendedProductsViewComponent : BaseViewComponent
             return Content("");
 
         var products = await _mediator.Send(new GetRecommendedProductsQuery {
-            CustomerGroupIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds(),
-            StoreId = _contextAccessor.StoreContext.CurrentStore.Id
+            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer
         });
 
         if (!products.Any())

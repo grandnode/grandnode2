@@ -4,7 +4,6 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -19,12 +18,10 @@ public class ProductCollectionService : IProductCollectionService
 
     public ProductCollectionService(ICacheBase cacheBase,
         IRepository<Product> productRepository,
-        IContextAccessor contextAccessor,
         IMediator mediator, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _productRepository = productRepository;
-        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
     }
@@ -35,39 +32,38 @@ public class ProductCollectionService : IProductCollectionService
     ///     Gets product collection by collection id
     /// </summary>
     /// <param name="collectionId">Collection id</param>
-    /// <param name="storeId">Store ident</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Product collection collection</returns>
     public virtual async Task<IPagedList<ProductsCollection>> GetProductCollectionsByCollectionId(string collectionId,
-        string storeId,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
+        CatalogAccess access, int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex,
-            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), storeId);
+        ArgumentNullException.ThrowIfNull(access);
+
+        //hidden records are not filtered by customer groups, so the key does not depend on them
+        var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, access.ShowHidden, collectionId,
+            pageIndex, pageSize, access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()),
+            access.StoreId);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x =>
                 x.ProductCollections.Any(y => y.CollectionId == collectionId));
 
-            if (!showHidden && (!_accessControlConfig.IgnoreAcl || !_accessControlConfig.IgnoreStoreLimitations))
+            if (!access.ShowHidden && !_accessControlConfig.IgnoreAcl)
             {
-                if (!_accessControlConfig.IgnoreAcl)
-                {
-                    //ACL (access control list)
-                    var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
-                    query = from p in query
-                        where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                        select p;
-                }
-
-                if (!_accessControlConfig.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
-                    //Store acl
-                    query = from p in query
-                        where !p.LimitedToStores || p.Stores.Contains(storeId)
-                        select p;
+                //Limited to customer groups
+                var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
+                query = from p in query
+                    where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                    select p;
             }
+
+            if (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations)
+                //Limited to stores
+                query = from p in query
+                    where !p.LimitedToStores || p.Stores.Contains(access.StoreId)
+                    select p;
 
             var queryProductCollection = from prod in query
                 from pm in prod.ProductCollections
@@ -149,7 +145,6 @@ public class ProductCollectionService : IProductCollectionService
     #region Fields
 
     private readonly IRepository<Product> _productRepository;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
     private readonly AccessControlConfig _accessControlConfig;

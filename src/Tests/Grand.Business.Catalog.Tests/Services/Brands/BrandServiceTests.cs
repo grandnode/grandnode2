@@ -1,10 +1,9 @@
 ﻿using Grand.Business.Catalog.Services.Brands;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
@@ -21,19 +20,15 @@ public class BrandServiceTests
     private MemoryCacheBase _cacheBase;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Brand> _repository;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void InitializeTests()
     {
         _repository = new MongoDBRepositoryTest<Brand>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object,
+        _brandService = new BrandService(_cacheBase, _repository, _mediatorMock.Object,
             new AccessControlConfig());
     }
 
@@ -47,10 +42,31 @@ public class BrandServiceTests
         await _brandService.InsertBrand(new Brand { Published = true });
 
         //Act
-        var brand = await _brandService.GetAllBrands(brandName: "", storeId: "");
+        var brand = await _brandService.GetAllBrands(brandName: "", access: CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(3, brand);
+    }
+
+    [TestMethod]
+    public async Task GetAllBrands_FiltersByGroupsOfGivenCustomer()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Brand { Id = "open", Name = "open", Published = true });
+        await _repository.InsertAsync(new Brand {
+            Id = "limited", Name = "limited", Published = true, LimitedToGroups = true,
+            CustomerGroups = new List<string> { "vip" }
+        });
+        var vipCustomer = new Customer();
+        vipCustomer.Groups.Add("vip");
+
+        //Act
+        var guest = await _brandService.GetAllBrands("", CatalogAccess.For(new Customer(), ""));
+        var vip = await _brandService.GetAllBrands("", CatalogAccess.For(vipCustomer, ""));
+
+        //Assert
+        Assert.HasCount(1, guest);
+        Assert.HasCount(2, vip);
     }
 
     [TestMethod]

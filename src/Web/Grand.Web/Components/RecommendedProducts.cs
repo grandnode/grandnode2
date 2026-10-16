@@ -1,6 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +16,13 @@ public class RecommendedProductsViewComponent : BaseViewComponent
     public RecommendedProductsViewComponent(
         IProductService productService,
         IMediator mediator,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        IContextAccessor contextAccessor)
     {
         _productService = productService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -31,7 +35,7 @@ public class RecommendedProductsViewComponent : BaseViewComponent
         if (!productIds.Any())
             return Content("");
 
-        var products = await _productService.GetProductsByIds(productIds);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());
 
         if (!products.Any())
             return Content("");
@@ -55,6 +59,7 @@ public class RecommendedProductsViewComponent : BaseViewComponent
     private readonly IMediator _mediator;
 
     private readonly CatalogSettings _catalogSettings;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 }

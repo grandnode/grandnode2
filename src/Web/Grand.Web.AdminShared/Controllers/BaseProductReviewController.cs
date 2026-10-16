@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Interfaces;
@@ -144,10 +145,9 @@ public abstract class BaseProductReviewController(
 
         const int productNumber = 15;
         var products = (await productService.SearchProducts(
-            storeId: scope.DefaultStoreId ?? "",
+            access: CatalogAccess.IncludingHidden(scope.DefaultStoreId ?? ""),
             keywords: term,
-            pageSize: productNumber,
-            showHidden: true)).products;
+            pageSize: productNumber)).products;
 
         var result = (from p in products
                       select new

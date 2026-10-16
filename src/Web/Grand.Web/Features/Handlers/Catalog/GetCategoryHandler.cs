@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -87,7 +88,8 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
                 storeId,
                 languageId);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
-                (await _categoryService.GetCategoryBreadCrumb(request.Category))
+                (await _categoryService.GetCategoryBreadCrumb(request.Category,
+                    access: CatalogAccess.For(request.Customer, request.Store.Id)))
                 .Select(catBr => new CategoryModel {
                     Id = catBr.Id,
                     Name = catBr.GetTranslation(x => x.Name, languageId),
@@ -99,7 +101,9 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
 
         //subcategories
         var subCategories = new List<CategoryModel.SubCategoryModel>();
-        foreach (var x in (await _categoryService.GetAllCategoriesByParentCategoryId(request.Category.Id)).Where(x =>
+        foreach (var x in (await _categoryService.GetAllCategoriesByParentCategoryId(
+                     access: CatalogAccess.For(request.Customer, request.Store.Id),
+                     parentCategoryId: request.Category.Id)).Where(x =>
                      !x.HideOnCatalog))
         {
             var subCatModel = new CategoryModel.SubCategoryModel {

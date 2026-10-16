@@ -4,6 +4,7 @@ using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
@@ -51,7 +52,7 @@ public class ProductsAlsoPurchasedViewComponent : BaseViewComponent
         );
 
         //load products
-        var products = await _productService.GetProductsByIds(productIds);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());
 
         if (!products.Any())
             return Content("");
