@@ -17,7 +17,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
-using Grand.Infrastructure;
 using Grand.SharedKernel;
 
 namespace Grand.Business.Checkout.Services.Orders;
@@ -32,7 +31,6 @@ public class OrderCalculationService : IOrderCalculationService
     /// <summary>
     ///     Ctor
     /// </summary>
-    /// <param name="workContext">Work context</param>
     /// <param name="shoppingCartSubTotalService">Shopping cart subtotal service</param>
     /// <param name="taxService">Tax service</param>
     /// <param name="shippingService">Shipping service</param>
@@ -48,8 +46,7 @@ public class OrderCalculationService : IOrderCalculationService
     /// <param name="shippingSettings">Shipping settings</param>
     /// <param name="shoppingCartSettings">Shopping cart settings</param>
     /// <param name="catalogSettings">Catalog settings</param>
-    public OrderCalculationService(IContextAccessor contextAccessor,
-        IShoppingCartSubTotalService shoppingCartSubTotalService,
+    public OrderCalculationService(IShoppingCartSubTotalService shoppingCartSubTotalService,
         ITaxService taxService,
         IShippingService shippingService,
         IPaymentService paymentService,
@@ -65,7 +62,6 @@ public class OrderCalculationService : IOrderCalculationService
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings)
     {
-        _contextAccessor = contextAccessor;
         _shoppingCartSubTotalService = shoppingCartSubTotalService;
         _taxService = taxService;
         _shippingService = shippingService;
@@ -87,7 +83,6 @@ public class OrderCalculationService : IOrderCalculationService
 
     #region Fields
 
-    private readonly IContextAccessor _contextAccessor;
     private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
     private readonly ITaxService _taxService;
     private readonly IShippingService _shippingService;
@@ -125,7 +120,7 @@ public class OrderCalculationService : IOrderCalculationService
             return (shippingDiscountAmount, appliedDiscounts);
 
         var allDiscounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToShipping,
-            _contextAccessor.StoreContext.CurrentStore.Id, currency.CurrencyCode);
+            store.Id, currency.CurrencyCode);
         var allowedDiscounts = new List<ApplyDiscount>();
         if (allDiscounts != null)
             foreach (var discount in allDiscounts)
@@ -144,7 +139,7 @@ public class OrderCalculationService : IOrderCalculationService
             }
 
         var (appliedDiscount, discountAmount) = await _discountService.GetPreferredDiscount(allowedDiscounts,
-            customer, _contextAccessor.WorkContext.WorkingCurrency, shippingTotal);
+            customer, currency, shippingTotal);
         appliedDiscounts = appliedDiscount;
         shippingDiscountAmount = discountAmount;
 
@@ -153,7 +148,7 @@ public class OrderCalculationService : IOrderCalculationService
 
         if (_shoppingCartSettings.RoundPrices)
             shippingDiscountAmount =
-                RoundingHelper.RoundPrice(shippingDiscountAmount, _contextAccessor.WorkContext.WorkingCurrency);
+                RoundingHelper.RoundPrice(shippingDiscountAmount, currency);
 
         return (shippingDiscountAmount, appliedDiscounts);
     }
@@ -175,7 +170,7 @@ public class OrderCalculationService : IOrderCalculationService
             return (discountAmount, appliedDiscounts);
 
         var allDiscounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToOrderTotal,
-            _contextAccessor.StoreContext.CurrentStore.Id, currency.CurrencyCode);
+            store.Id, currency.CurrencyCode);
         var allowedDiscounts = new List<ApplyDiscount>();
         if (allDiscounts != null)
             foreach (var discount in allDiscounts)
@@ -194,7 +189,7 @@ public class OrderCalculationService : IOrderCalculationService
             }
 
         var preferredDiscount = await _discountService.GetPreferredDiscount(allowedDiscounts, customer,
-            _contextAccessor.WorkContext.WorkingCurrency, orderTotal);
+            currency, orderTotal);
         appliedDiscounts = preferredDiscount.appliedDiscount;
         discountAmount = preferredDiscount.discountAmount;
 
@@ -202,7 +197,7 @@ public class OrderCalculationService : IOrderCalculationService
             discountAmount = 0;
 
         if (_shoppingCartSettings.RoundPrices)
-            discountAmount = RoundingHelper.RoundPrice(discountAmount, _contextAccessor.WorkContext.WorkingCurrency);
+            discountAmount = RoundingHelper.RoundPrice(discountAmount, currency);
 
         return (discountAmount, appliedDiscounts);
     }
@@ -239,6 +234,7 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Gets shopping cart subtotal
     /// </summary>
     /// <param name="cart">Cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <remarks>
     ///     Not virtual: payment providers read the subtotal from <see cref="IShoppingCartSubTotalService" />,
@@ -247,9 +243,9 @@ public class OrderCalculationService : IOrderCalculationService
     /// </remarks>
     public Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts,
             double subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>
-        GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, bool includingTax)
+        GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool includingTax)
     {
-        return _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, includingTax);
+        return _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, context, includingTax);
     }
 
 
@@ -257,10 +253,12 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Gets shopping cart additional shipping charge
     /// </summary>
     /// <param name="cart">Cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>Additional shipping charge</returns>
-    public virtual async Task<double> GetShoppingCartAdditionalShippingCharge(IList<ShoppingCartItem> cart)
+    public virtual async Task<double> GetShoppingCartAdditionalShippingCharge(IList<ShoppingCartItem> cart,
+        CalculationContext context)
     {
-        var isFreeShipping = await IsFreeShipping(cart);
+        var isFreeShipping = await IsFreeShipping(cart, context);
         if (isFreeShipping)
             return 0;
 
@@ -274,10 +272,11 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Gets a value indicating whether shipping is free
     /// </summary>
     /// <param name="cart">Cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>A value indicating whether shipping is free</returns>
-    public virtual async Task<bool> IsFreeShipping(IList<ShoppingCartItem> cart)
+    public virtual async Task<bool> IsFreeShipping(IList<ShoppingCartItem> cart, CalculationContext context)
     {
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        var customer = context.Customer;
         if (customer != null)
         {
             //check whether customer has a free shipping
@@ -302,7 +301,7 @@ public class OrderCalculationService : IOrderCalculationService
         if (!_shippingSettings.FreeShippingOverXEnabled) return false;
         //check whether we have subtotal enough to have free shipping
         var (_, _, _, subTotalWithDiscount, _) =
-            await GetShoppingCartSubTotal(cart, _shippingSettings.FreeShippingOverXIncludingTax);
+            await GetShoppingCartSubTotal(cart, context, _shippingSettings.FreeShippingOverXIncludingTax);
 
         return subTotalWithDiscount > _shippingSettings.FreeShippingOverXValue;
         //otherwise, return false
@@ -313,25 +312,26 @@ public class OrderCalculationService : IOrderCalculationService
     /// </summary>
     /// <param name="shippingRate">Shipping rate to adjust</param>
     /// <param name="cart">Cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>Adjusted shipping rate</returns>
     public virtual async Task<(double shippingRate, List<ApplyDiscount> appliedDiscounts)> AdjustShippingRate(
-        double shippingRate, IList<ShoppingCartItem> cart)
+        double shippingRate, IList<ShoppingCartItem> cart, CalculationContext context)
     {
         var appliedDiscounts = new List<ApplyDiscount>();
 
         //free shipping
-        if (await IsFreeShipping(cart))
+        if (await IsFreeShipping(cart, context))
             return (0, appliedDiscounts);
 
         //additional shipping charges
-        var additionalShippingCharge = await GetShoppingCartAdditionalShippingCharge(cart);
+        var additionalShippingCharge = await GetShoppingCartAdditionalShippingCharge(cart, context);
         var adjustedRate = shippingRate + additionalShippingCharge;
 
         //discount
         var (discountAmount, applyDiscounts) = await GetShippingDiscount(
-            _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingCurrency, adjustedRate);
+            context.Customer,
+            context.Store,
+            context.Currency, adjustedRate);
         appliedDiscounts = applyDiscounts;
 
         adjustedRate -= discountAmount;
@@ -340,7 +340,7 @@ public class OrderCalculationService : IOrderCalculationService
             adjustedRate = 0;
 
         if (_shoppingCartSettings.RoundPrices)
-            adjustedRate = RoundingHelper.RoundPrice(adjustedRate, _contextAccessor.WorkContext.WorkingCurrency);
+            adjustedRate = RoundingHelper.RoundPrice(adjustedRate, context.Currency);
 
         return (adjustedRate, appliedDiscounts);
     }
@@ -349,13 +349,14 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Gets shopping cart shipping total
     /// </summary>
     /// <param name="cart">Cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>Shipping total</returns>
     public virtual async
         Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)>
-        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart)
+        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, CalculationContext context)
     {
-        var includingTax = _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-        return await GetShoppingCartShippingTotal(cart, includingTax);
+        var includingTax = context.IncludingTax;
+        return await GetShoppingCartShippingTotal(cart, context, includingTax);
     }
 
 
@@ -363,21 +364,22 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Gets shopping cart shipping total
     /// </summary>
     /// <param name="cart">Cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <returns>Shipping total</returns>
     public virtual async
         Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)>
-        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, bool includingTax)
+        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool includingTax)
     {
         double? shippingTotal = null;
         var appliedDiscounts = new List<ApplyDiscount>();
         double taxRate = 0;
 
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
-        var store = _contextAccessor.StoreContext.CurrentStore;
+        var customer = context.Customer;
+        var store = context.Store;
         var currency = await _currencyService.GetPrimaryExchangeRateCurrency();
 
-        var isFreeShipping = await IsFreeShipping(cart);
+        var isFreeShipping = await IsFreeShipping(cart, context);
         if (isFreeShipping)
             return (0, taxRate, appliedDiscounts);
 
@@ -385,12 +387,12 @@ public class OrderCalculationService : IOrderCalculationService
         if (customer != null)
             shippingOption =
                 customer.GetUserFieldFromEntity<ShippingOption>(SystemCustomerFieldNames.SelectedShippingOption,
-                    _contextAccessor.StoreContext.CurrentStore.Id);
+                    context.Store.Id);
 
         if (shippingOption != null)
         {
             var rate = shippingOption.Rate;
-            var adjustShippingRate = await AdjustShippingRate(rate, cart);
+            var adjustShippingRate = await AdjustShippingRate(rate, cart, context);
             shippingTotal = adjustShippingRate.shippingRate;
             appliedDiscounts = adjustShippingRate.appliedDiscounts;
         }
@@ -402,8 +404,8 @@ public class OrderCalculationService : IOrderCalculationService
                 shippingAddress = customer.ShippingAddress;
 
             var shippingRateMethods =
-                await _shippingService.LoadActiveShippingRateCalculationProviders(_contextAccessor.WorkContext.CurrentCustomer,
-                    _contextAccessor.StoreContext.CurrentStore.Id, cart);
+                await _shippingService.LoadActiveShippingRateCalculationProviders(context.Customer,
+                    context.Store.Id, cart);
 
             if (!shippingRateMethods.Any() && !_shippingSettings.AllowPickUpInStore)
                 throw new GrandException("Shipping rate  method could not be loaded");
@@ -414,7 +416,7 @@ public class OrderCalculationService : IOrderCalculationService
 
                 var shippingOptionRequest = await _shippingService.CreateShippingOptionRequests(customer, cart,
                     shippingAddress,
-                    _contextAccessor.StoreContext.CurrentStore);
+                    context.Store);
 
                 double? fixedRate = null;
                 //calculate fixed rates for each request-package
@@ -428,7 +430,7 @@ public class OrderCalculationService : IOrderCalculationService
                 if (fixedRate.HasValue)
                 {
                     //adjust shipping rate
-                    var adjustShippingRate = await AdjustShippingRate(fixedRate.Value, cart);
+                    var adjustShippingRate = await AdjustShippingRate(fixedRate.Value, cart, context);
                     shippingTotal = adjustShippingRate.shippingRate;
                     appliedDiscounts = adjustShippingRate.appliedDiscounts;
                 }
@@ -463,31 +465,32 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Gets tax
     /// </summary>
     /// <param name="cart">Shopping cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="usePaymentMethodAdditionalFee">
     ///     A value indicating whether we should use payment method additional fee when
     ///     calculating tax
     /// </param>
     /// <returns>Tax total</returns>
     public virtual async Task<(double taxtotal, SortedDictionary<double, double> taxRates)> GetTaxTotal(
-        IList<ShoppingCartItem> cart, bool usePaymentMethodAdditionalFee = true)
+        IList<ShoppingCartItem> cart, CalculationContext context, bool usePaymentMethodAdditionalFee = true)
     {
         ArgumentNullException.ThrowIfNull(cart);
 
         var taxRates = new SortedDictionary<double, double>();
 
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
-        var store = _contextAccessor.StoreContext.CurrentStore;
+        var customer = context.Customer;
+        var store = context.Store;
 
         var paymentMethodSystemName = "";
         if (customer != null)
             paymentMethodSystemName = customer.GetUserFieldFromEntity<string>(
                 SystemCustomerFieldNames.SelectedPaymentMethod,
-                _contextAccessor.StoreContext.CurrentStore.Id);
+                context.Store.Id);
 
         //order sub total (items + checkout attributes)
         double subTotalTaxTotal = 0;
 
-        var shoppingCartSubTotal = await GetShoppingCartSubTotal(cart, false);
+        var shoppingCartSubTotal = await GetShoppingCartSubTotal(cart, context, false);
         var orderSubTotalTaxRates = shoppingCartSubTotal.taxRates;
 
         foreach (var (taxRate, taxValue) in orderSubTotalTaxRates)
@@ -505,10 +508,10 @@ public class OrderCalculationService : IOrderCalculationService
         double shippingTax = 0;
         if (_taxSettings.ShippingIsTaxable)
         {
-            var shippingTotalExcl = await GetShoppingCartShippingTotal(cart, false);
+            var shippingTotalExcl = await GetShoppingCartShippingTotal(cart, context, false);
             var shippingExclTax = shippingTotalExcl.shoppingCartShippingTotal;
 
-            var (shippingInclTax, taxRate, _) = await GetShoppingCartShippingTotal(cart, true);
+            var (shippingInclTax, taxRate, _) = await GetShoppingCartShippingTotal(cart, context, true);
 
             if (shippingExclTax.HasValue && shippingInclTax.HasValue)
             {
@@ -567,7 +570,7 @@ public class OrderCalculationService : IOrderCalculationService
             taxTotal = 0;
         //round tax
         if (_shoppingCartSettings.RoundPrices)
-            taxTotal = RoundingHelper.RoundPrice(taxTotal, _contextAccessor.WorkContext.WorkingCurrency);
+            taxTotal = RoundingHelper.RoundPrice(taxTotal, context.Currency);
 
         return (taxTotal, taxRates);
     }
@@ -577,28 +580,29 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Gets shopping cart total
     /// </summary>
     /// <param name="cart">Cart</param>
+    /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="useLoyaltyPoints">Use Loyalty Points</param>
     /// <param name="usePaymentMethodAdditionalFee">A value indicating whether we should use payment method additional fee</param>
     /// <returns>Shopping cart total, discount amount, applied discounts, gift vouchers, loyalty point/amount</returns>
     public virtual async Task<(double? shoppingCartTotal, double discountAmount, List<ApplyDiscount>
             appliedDiscounts, List<AppliedGiftVoucher> appliedGiftVouchers,
             int redeemedLoyaltyPoints, double redeemedLoyaltyPointsAmount)>
-        GetShoppingCartTotal(IList<ShoppingCartItem> cart, bool? useLoyaltyPoints = null,
+        GetShoppingCartTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool? useLoyaltyPoints = null,
             bool usePaymentMethodAdditionalFee = true)
     {
         var redeemedLoyaltyPoints = 0;
         double redeemedLoyaltyPointsAmount = 0;
 
-        var paymentMethodSystemName = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(
+        var paymentMethodSystemName = context.Customer.GetUserFieldFromEntity<string>(
             SystemCustomerFieldNames.SelectedPaymentMethod,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+            context.Store.Id);
 
         //subtotal without tax
-        var subTotal = await GetShoppingCartSubTotal(cart, false);
+        var subTotal = await GetShoppingCartSubTotal(cart, context, false);
         var subTotalWithDiscountBase = subTotal.subTotalWithDiscount;
 
         //shipping without tax
-        var shippingTotal = await GetShoppingCartShippingTotal(cart, false);
+        var shippingTotal = await GetShoppingCartShippingTotal(cart, context, false);
         var shoppingCartShipping = shippingTotal.shoppingCartShippingTotal;
 
         //payment method additional fee without tax
@@ -609,12 +613,12 @@ public class OrderCalculationService : IOrderCalculationService
                 await _paymentService.GetAdditionalHandlingFee(cart, paymentMethodSystemName);
             paymentMethodAdditionalFeeWithoutTax =
                 (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, false,
-                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
+                    context.Customer, context.Store))
                 .paymentPrice;
         }
 
         //tax
-        var shoppingCartTax = (await GetTaxTotal(cart, usePaymentMethodAdditionalFee)).taxtotal;
+        var shoppingCartTax = (await GetTaxTotal(cart, context, usePaymentMethodAdditionalFee)).taxtotal;
 
         //order total
         double resultTemp = 0;
@@ -624,12 +628,12 @@ public class OrderCalculationService : IOrderCalculationService
         resultTemp += paymentMethodAdditionalFeeWithoutTax;
         resultTemp += shoppingCartTax;
         if (_shoppingCartSettings.RoundPrices)
-            resultTemp = RoundingHelper.RoundPrice(resultTemp, _contextAccessor.WorkContext.WorkingCurrency);
+            resultTemp = RoundingHelper.RoundPrice(resultTemp, context.Currency);
 
         #region Order total discount
 
-        var totalDiscount = await GetOrderTotalDiscount(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingCurrency, resultTemp);
+        var totalDiscount = await GetOrderTotalDiscount(context.Customer, context.Store,
+            context.Currency, resultTemp);
         var discountAmount = totalDiscount.orderTotalDiscount;
         var appliedDiscounts = totalDiscount.appliedDiscounts;
 
@@ -643,7 +647,7 @@ public class OrderCalculationService : IOrderCalculationService
         if (resultTemp < 0)
             resultTemp = 0;
         if (_shoppingCartSettings.RoundPrices)
-            resultTemp = RoundingHelper.RoundPrice(resultTemp, _contextAccessor.WorkContext.WorkingCurrency);
+            resultTemp = RoundingHelper.RoundPrice(resultTemp, context.Currency);
 
         #endregion
 
@@ -652,8 +656,8 @@ public class OrderCalculationService : IOrderCalculationService
         var appliedGiftVouchers = new List<AppliedGiftVoucher>();
         //we don't apply gift vouchers for recurring products
         var giftVouchers =
-            await GetActiveGiftVouchers(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.WorkContext.WorkingCurrency,
-                _contextAccessor.StoreContext.CurrentStore);
+            await GetActiveGiftVouchers(context.Customer, context.Currency,
+                context.Store);
         if (giftVouchers != null)
             foreach (var gc in giftVouchers)
                 if (resultTemp > 0)
@@ -676,7 +680,7 @@ public class OrderCalculationService : IOrderCalculationService
         if (resultTemp < 0)
             resultTemp = 0;
         if (_shoppingCartSettings.RoundPrices)
-            resultTemp = RoundingHelper.RoundPrice(resultTemp, _contextAccessor.WorkContext.WorkingCurrency);
+            resultTemp = RoundingHelper.RoundPrice(resultTemp, context.Currency);
 
         if (!shoppingCartShipping.HasValue)
             //we have errors
@@ -689,18 +693,18 @@ public class OrderCalculationService : IOrderCalculationService
 
         if (_loyaltyPointsSettings.Enabled)
         {
-            useLoyaltyPoints ??= _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<bool>(
+            useLoyaltyPoints ??= context.Customer.GetUserFieldFromEntity<bool>(
                 SystemCustomerFieldNames.UseLoyaltyPointsDuringCheckout,
-                _contextAccessor.StoreContext.CurrentStore.Id);
+                context.Store.Id);
 
             if (useLoyaltyPoints.Value)
             {
                 var loyaltyPointsBalance =
-                    await _loyaltyPointsService.GetLoyaltyPointsBalance(_contextAccessor.WorkContext.CurrentCustomer.Id,
-                        _contextAccessor.StoreContext.CurrentStore.Id);
+                    await _loyaltyPointsService.GetLoyaltyPointsBalance(context.Customer.Id,
+                        context.Store.Id);
                 if (CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
-                    var loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
+                    var loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance, context.Currency);
                     if (orderTotal > 0)
                     {
                         if (orderTotal > loyaltyPointsBalanceAmount)
@@ -708,14 +712,14 @@ public class OrderCalculationService : IOrderCalculationService
                             redeemedLoyaltyPoints = loyaltyPointsBalance;
                             redeemedLoyaltyPointsAmount =
                                 await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsBalanceAmount,
-                                    _contextAccessor.WorkContext.WorkingCurrency);
+                                    context.Currency);
                         }
                         else
                         {
                             redeemedLoyaltyPointsAmount = orderTotal;
                             redeemedLoyaltyPoints = ConvertAmountToLoyaltyPoints(
                                 await _currencyService.ConvertToPrimaryStoreCurrency(redeemedLoyaltyPointsAmount,
-                                    _contextAccessor.WorkContext.WorkingCurrency));
+                                    context.Currency));
                         }
                     }
                 }
@@ -726,7 +730,7 @@ public class OrderCalculationService : IOrderCalculationService
 
         orderTotal -= redeemedLoyaltyPointsAmount;
         if (_shoppingCartSettings.RoundPrices)
-            orderTotal = RoundingHelper.RoundPrice(orderTotal, _contextAccessor.WorkContext.WorkingCurrency);
+            orderTotal = RoundingHelper.RoundPrice(orderTotal, context.Currency);
 
         return (orderTotal, discountAmount, appliedDiscounts, appliedGiftVouchers, redeemedLoyaltyPoints,
             redeemedLoyaltyPointsAmount);
@@ -736,14 +740,15 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Converts existing loyalty points to amount
     /// </summary>
     /// <param name="loyaltyPoints">Loyalty points</param>
+    /// <param name="currency">Currency the amount is rounded in</param>
     /// <returns>Converted value</returns>
-    public virtual async Task<double> ConvertLoyaltyPointsToAmount(int loyaltyPoints)
+    public virtual async Task<double> ConvertLoyaltyPointsToAmount(int loyaltyPoints, Currency currency)
     {
         if (loyaltyPoints <= 0)
             return 0;
 
         var result = loyaltyPoints * _loyaltyPointsSettings.ExchangeRate;
-        if (_shoppingCartSettings.RoundPrices) result = RoundingHelper.RoundPrice(result, _contextAccessor.WorkContext.WorkingCurrency);
+        if (_shoppingCartSettings.RoundPrices) result = RoundingHelper.RoundPrice(result, currency);
 
         return await Task.FromResult(result);
     }

@@ -10,6 +10,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
@@ -60,7 +61,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             var loyaltyPointsBalance =
                 await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
             var loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(
-                await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance),
+                await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance,
+                    _contextAccessor.WorkContext.WorkingCurrency),
                 request.Currency);
             if (loyaltyPointsAmount > 0 &&
                 _orderTotalCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
@@ -69,7 +71,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
                 model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, request.Currency);
                 model.LoyaltyPointsBalance = loyaltyPointsBalance;
                 var shoppingCartTotalBase =
-                    (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, true)).shoppingCartTotal;
+                    (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, _contextAccessor.CalculationContext(), true)).shoppingCartTotal;
                 model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase is 0;
             }
         }

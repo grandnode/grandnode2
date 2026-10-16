@@ -8,6 +8,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
@@ -78,7 +79,7 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
 
                     //calculate discounted and taxed rate
                     var total = await _orderTotalCalculationService.AdjustShippingRate(shippingOption.Rate,
-                        request.Cart);
+                        request.Cart, _contextAccessor.CalculationContext());
                     var shippingTotal = total.shippingRate;
 
                     var rate = (await _taxService.GetShippingPrice(shippingTotal,

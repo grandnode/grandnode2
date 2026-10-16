@@ -96,7 +96,9 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
         if (_cashOnDeliveryPaymentSettings.AdditionalFeePercentage)
         {
             //percentage of the subtotal, which is already in the working currency
-            var subtotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, true);
+            var subtotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart,
+                new CalculationContext(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType), true);
             return (float)subtotal.subTotalWithDiscount * (float)_cashOnDeliveryPaymentSettings.AdditionalFee / 100f;
         }
 

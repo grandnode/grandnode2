@@ -8,6 +8,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
@@ -67,7 +68,7 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
 
                 //adjust rate
                 var shippingTotal = (await _orderTotalCalculationService.AdjustShippingRate(
-                    shippingOption.Rate, request.Cart)).shippingRate;
+                    shippingOption.Rate, request.Cart, _contextAccessor.CalculationContext())).shippingRate;
 
                 var rateBase = (await _taxService.GetShippingPrice(shippingTotal,
                     _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store)).shippingPrice;

@@ -1,4 +1,5 @@
 using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -17,5 +18,5 @@ public interface IShoppingCartSubTotalService
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts, double subTotalWithoutDiscount, double
             subTotalWithDiscount, SortedDictionary<double, double> taxRates)>
-        GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, bool includingTax);
+        GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool includingTax);
 }

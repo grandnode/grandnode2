@@ -22,6 +22,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
@@ -168,6 +169,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         else
         {
             var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
+                Context = _contextAccessor.CalculationContext(),
                 Customer = request.Customer,
                 Cart = request.Cart.Where(x =>
                     x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()

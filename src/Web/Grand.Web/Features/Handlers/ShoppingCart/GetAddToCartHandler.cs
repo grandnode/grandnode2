@@ -9,6 +9,8 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
+using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -19,6 +21,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IAuctionService _auctionService;
     private readonly MediaSettings _mediaSettings;
     private readonly IOrderCalculationService _orderTotalCalculationService;
@@ -46,8 +49,10 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
         IAuctionService auctionService,
         ShoppingCartSettings shoppingCartSettings,
         TaxSettings taxSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _productAttributeFormatter = productAttributeFormatter;
         _translationService = translationService;
         _taxService = taxService;
@@ -156,7 +161,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                            !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal =
-                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
+                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, _contextAccessor.CalculationContext(), subTotalIncludingTax);
                 model.SubTotalIncludingTax = subTotalIncludingTax;
                 model.SubTotal =
                     _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);

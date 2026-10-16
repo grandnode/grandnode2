@@ -32,6 +32,7 @@ public class BrainTreePaymentProviderTests
         _currencyService = new Mock<ICurrencyService>();
         var contextAccessor = new Mock<IContextAccessor>();
         contextAccessor.Setup(c => c.WorkContext.WorkingCurrency).Returns(new Currency());
+        contextAccessor.Setup(c => c.StoreContext.CurrentStore).Returns(new Grand.Domain.Stores.Store());
 
         var services = new ServiceCollection();
         services.AddSingleton(_settings);
@@ -61,7 +62,7 @@ public class BrainTreePaymentProviderTests
         _settings.AdditionalFee = 2;
         _settings.AdditionalFeePercentage = true;
         var cart = new List<ShoppingCartItem> { new() };
-        _subTotalService.Setup(s => s.GetShoppingCartSubTotal(cart, true))
+        _subTotalService.Setup(s => s.GetShoppingCartSubTotal(cart, It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), true))
             .ReturnsAsync((0d, new List<ApplyDiscount>(), 500d, 500d, new SortedDictionary<double, double>()));
 
         var provider = _scope.ServiceProvider.GetRequiredService<IPaymentProvider>();
