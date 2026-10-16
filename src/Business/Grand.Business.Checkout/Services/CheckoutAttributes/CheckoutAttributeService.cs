@@ -56,7 +56,9 @@ public class CheckoutAttributeService : ICheckoutAttributeService
     public virtual async Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId, Customer customer,
         bool excludeShippableAttributes = false, bool ignoreAcl = false)
     {
-        var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignoreAcl);
+        var applyAcl = !ignoreAcl && !_accessControlConfig.IgnoreAcl;
+        var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignoreAcl,
+            applyAcl ? string.Join(",", customer.GetCustomerGroupIds()) : string.Empty);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _checkoutAttributeRepository.Table

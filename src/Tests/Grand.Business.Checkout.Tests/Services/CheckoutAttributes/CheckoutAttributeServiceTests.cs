@@ -99,7 +99,6 @@ public class CheckoutAttributeServiceTests
     }
 
     [TestMethod]
-    [Ignore("fix in next commit")]
     public async Task GetAllCheckoutAttributes_CacheKeyDependsOnTheCustomerGroups()
     {
         //Arrange
