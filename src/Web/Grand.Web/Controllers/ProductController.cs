@@ -241,7 +241,7 @@ public class ProductController : BasePublicController
         if (!string.IsNullOrEmpty(parameter)) query = query.Where(x => x.Parameter == parameter);
 
         var reservations = query.ToList();
-        var inCart = (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id))
+        var inCart = (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id))
             .Where(x => !string.IsNullOrEmpty(x.ReservationId)).ToList();
         foreach (var cartItem in inCart)
         {

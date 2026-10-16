@@ -127,7 +127,7 @@ public class ShoppingCartController : BasePublicController
         [FromServices] ICheckoutAttributeParser checkoutAttributeParser,
         [FromServices] ICheckoutAttributeFormatter checkoutAttributeFormatter)
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         var checkoutAttributes = await _mediator.Send(new SaveCheckoutAttributesCommand {
@@ -254,7 +254,7 @@ public class ShoppingCartController : BasePublicController
         if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
             return RedirectToRoute("HomePage");
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
         var model = await _mediator.Send(new GetShoppingCart {
             Cart = cart,
             ValidateCheckoutAttributes = checkoutAttributes,
@@ -271,7 +271,7 @@ public class ShoppingCartController : BasePublicController
     [DenySystemAccount]
     public async Task<ActionResult<ShoppingCartModel>> CartSummary()
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         var model = await _mediator.Send(new GetShoppingCart {
@@ -291,7 +291,7 @@ public class ShoppingCartController : BasePublicController
     [DenySystemAccount]
     public async Task<ActionResult<OrderTotalsModel>> CartTotal()
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         var model = await _mediator.Send(new GetOrderTotals {
@@ -316,7 +316,7 @@ public class ShoppingCartController : BasePublicController
                 warnings = string.Join(',', ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)))
             });
 
-        var cart = (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes()))
+        var cart = (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes()))
             .FirstOrDefault(x => x.Id == model.ShoppingCartId);
         var warnings = new List<string>();
 
@@ -330,7 +330,7 @@ public class ShoppingCartController : BasePublicController
         }
 
         var cartModel = await _mediator.Send(new GetShoppingCart {
-            Cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes()),
+            Cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes()),
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
@@ -354,7 +354,7 @@ public class ShoppingCartController : BasePublicController
         if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
             return RedirectToRoute("HomePage");
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
 
         foreach (var sci in cart)
             await _shoppingCartService.DeleteShoppingCartItem(_contextAccessor.WorkContext.CurrentCustomer, sci,
@@ -374,7 +374,7 @@ public class ShoppingCartController : BasePublicController
         if (_shoppingCartSettings.AllowOnHoldCart)
             shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
-        var item = (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var item = (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 shoppingCartTypes.ToArray()))
             .FirstOrDefault(sci => sci.Id == model.Id);
 
@@ -396,7 +396,7 @@ public class ShoppingCartController : BasePublicController
                 sidebarshoppingcartmodel = miniShoppingCartmodel
             });
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
         var shoppingcartmodel = await _mediator.Send(new GetShoppingCart {
             Cart = cart,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
@@ -428,7 +428,7 @@ public class ShoppingCartController : BasePublicController
         if (_shoppingCartSettings.AllowOnHoldCart)
             shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
-        var item = (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var item = (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 shoppingCartTypes.ToArray()))
             .FirstOrDefault(sci => sci.Id == model.Id);
 
@@ -446,7 +446,7 @@ public class ShoppingCartController : BasePublicController
             Store = _contextAccessor.StoreContext.CurrentStore
         });
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
         var shoppingcartmodel = await _mediator.Send(new GetShoppingCart {
             Cart = cart,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
@@ -473,7 +473,7 @@ public class ShoppingCartController : BasePublicController
     [DenySystemAccount]
     public virtual async Task<IActionResult> StartCheckout(CheckoutAttributeSelectedModel model)
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
         List<CustomAttribute> checkoutAttributes;
         //parse and save checkout attributes
@@ -506,7 +506,7 @@ public class ShoppingCartController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> ApplyDiscountCoupon(DiscountCouponModel model)
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
 
         var message = string.Empty;
         var isApplied = false;
@@ -549,7 +549,7 @@ public class ShoppingCartController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> ApplyGiftVoucher(GiftVoucherCouponModel model)
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
 
         var message = string.Empty;
         var isApplied = false;
@@ -592,7 +592,7 @@ public class ShoppingCartController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> GetEstimateShipping(EstimateShippingModel model)
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         var result = await _mediator.Send(new GetEstimateShippingResult {
@@ -630,7 +630,7 @@ public class ShoppingCartController : BasePublicController
             }
         }
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
 
         var model = await _mediator.Send(new GetShoppingCart {
             Cart = cart,
@@ -665,7 +665,7 @@ public class ShoppingCartController : BasePublicController
             }
         }
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes());
 
         var model = await _mediator.Send(new GetShoppingCart {
             Cart = cart,

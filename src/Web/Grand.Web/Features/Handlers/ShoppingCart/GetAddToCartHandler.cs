@@ -136,7 +136,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
             model.Picture = await PrepareCartItemPicture(request);
         }
 
-        var cart = await _shoppingCartService.GetShoppingCart(request.Store.Id, request.CartType);
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, request.Store.Id, request.CartType);
 
         if (request.CartType != ShoppingCartType.Auctions)
         {

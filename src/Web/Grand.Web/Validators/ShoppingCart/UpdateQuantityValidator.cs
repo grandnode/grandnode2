@@ -36,7 +36,7 @@ public class UpdateQuantityValidator : BaseGrandValidator<UpdateQuantityModel>
                 }
             }
 
-            var cart = (await shoppingCartService.GetShoppingCart(contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes()))
+            var cart = (await shoppingCartService.GetShoppingCart(contextAccessor.WorkContext.CurrentCustomer, contextAccessor.StoreContext.CurrentStore.Id, PrepareCartTypes()))
                 .FirstOrDefault(z => z.Id == x.ShoppingCartId);
             if (cart == null) context.AddFailure("Shopping cart item not found");
         });

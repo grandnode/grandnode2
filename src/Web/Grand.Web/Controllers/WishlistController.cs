@@ -119,7 +119,7 @@ public class WishlistController : BasePublicController
         if (ModelState.IsValid)
         {
             var cart =
-                (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+                (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist))
                 .FirstOrDefault(x => x.Id == model.ShoppingCartId);
             if (cart != null)
             {
@@ -141,7 +141,7 @@ public class WishlistController : BasePublicController
             success = !warnings.Any(),
             warnings = string.Join(", ", warnings),
             totalproducts =
-                (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+                (await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist))
                 .Sum(x => x.Quantity)
         });
     }
@@ -216,7 +216,7 @@ public class WishlistController : BasePublicController
             !_shoppingCartSettings.EmailWishlistEnabled)
             return Content("");
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist);
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist);
         if (!cart.Any())
             return Content("");
 

@@ -357,7 +357,8 @@ public class AccountController : BasePublicController
         string returnUrl = null)
     {
         //raise event       
-        await _mediator.Publish(new CustomerLoggedInEvent(customer));
+        await _mediator.Publish(new CustomerLoggedInEvent(customer,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id));
 
         //sign in new customer
         await _authenticationService.SignIn(customer, createPersistentCookie);

@@ -13,10 +13,12 @@ public interface IShoppingCartService
     /// <summary>
     ///     Gets shopping cart
     /// </summary>
+    /// <param name="customer">Customer whose cart is read</param>
     /// <param name="storeId">Store identifier; pass null to load all records</param>
     /// <param name="shoppingCartType">Shopping cart type; pass null to load all records</param>
     /// <returns>Shopping Cart</returns>
-    Task<IList<ShoppingCartItem>> GetShoppingCart(string storeId = null, params ShoppingCartType[] shoppingCartType);
+    Task<IList<ShoppingCartItem>> GetShoppingCart(Customer customer, string storeId = null,
+        params ShoppingCartType[] shoppingCartType);
 
     /// <summary>
     ///     Finds a shopping cart item in the cart
@@ -107,9 +109,10 @@ public interface IShoppingCartService
     /// </summary>
     /// <param name="fromCustomer">From customer</param>
     /// <param name="toCustomer">To customer</param>
+    /// <param name="storeId">Store whose selected checkout attributes move along</param>
     /// <param name="includeCouponCodes">
     ///     A value indicating whether to coupon codes (discount and gift voucher) should be also
     ///     re-applied
     /// </param>
-    Task MigrateShoppingCart(Customer fromCustomer, Customer toCustomer, bool includeCouponCodes);
+    Task MigrateShoppingCart(Customer fromCustomer, Customer toCustomer, string storeId, bool includeCouponCodes);
 }

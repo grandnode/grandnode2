@@ -49,6 +49,8 @@ public class AccountControllerTwoFactorReturnUrlTests
         _customers = new Mock<ICustomerService>();
         _customers.Setup(x => x.GetCustomerByEmail("a@b.c", It.IsAny<string>())).ReturnsAsync(_customer);
         var context = new Mock<IContextAccessor>();
+        context.Setup(x => x.StoreContext.CurrentStore).Returns(new Domain.Stores.Store { Id = "store" });
+        context.Setup(x => x.WorkContext.CurrentCustomer).Returns(new Customer());
         var settings = new CustomerSettings { TwoFactorAuthenticationEnabled = true };
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object, new Mock<ITranslationService>().Object,
             context.Object, _customers.Object, new Mock<IGroupService>().Object, _manager.Object, new Mock<ICountryService>().Object,

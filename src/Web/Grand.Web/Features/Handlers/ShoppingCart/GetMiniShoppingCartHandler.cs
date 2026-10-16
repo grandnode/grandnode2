@@ -107,7 +107,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         if (_shoppingCartSettings.AllowOnHoldCart)
             shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
-        var cart = await _shoppingCartService.GetShoppingCart(request.Store.Id, shoppingCartTypes.ToArray());
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, request.Store.Id, shoppingCartTypes.ToArray());
         model.TotalProducts = cart.Sum(x => x.Quantity);
         if (!cart.Any()) return model;
 

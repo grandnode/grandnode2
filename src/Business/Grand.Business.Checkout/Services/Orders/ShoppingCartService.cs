@@ -8,7 +8,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 
@@ -22,14 +21,12 @@ public class ShoppingCartService : IShoppingCartService
     #region Ctor
 
     public ShoppingCartService(
-        IContextAccessor contextAccessor,
         IProductService productService,
         ICustomerService customerService,
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
         ShoppingCartSettings shoppingCartSettings)
     {
-        _contextAccessor = contextAccessor;
         _productService = productService;
         _customerService = customerService;
         _mediator = mediator;
@@ -41,7 +38,6 @@ public class ShoppingCartService : IShoppingCartService
 
     #region Fields
 
-    private readonly IContextAccessor _contextAccessor;
     private readonly IProductService _productService;
     private readonly ICustomerService _customerService;
     private readonly IMediator _mediator;
@@ -55,14 +51,17 @@ public class ShoppingCartService : IShoppingCartService
     /// <summary>
     ///     Gets shopping cart
     /// </summary>
+    /// <param name="customer">Customer whose cart is read</param>
     /// <param name="storeId">Store identifier; pass null to load all records</param>
     /// <param name="shoppingCartType">Shopping cart type; pass null to load all records</param>
     /// <returns>Shopping Cart</returns>
-    public virtual async Task<IList<ShoppingCartItem>> GetShoppingCart(string storeId = null,
+    public virtual async Task<IList<ShoppingCartItem>> GetShoppingCart(Customer customer, string storeId = null,
         params ShoppingCartType[] shoppingCartType)
     {
+        ArgumentNullException.ThrowIfNull(customer);
+
         var model = new List<ShoppingCartItem>();
-        var cart = _contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.ToList();
+        var cart = customer.ShoppingCartItems.ToList();
 
         if (!string.IsNullOrEmpty(storeId))
             cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, storeId).ToList();
@@ -393,11 +392,13 @@ public class ShoppingCartService : IShoppingCartService
     /// </summary>
     /// <param name="fromCustomer">From customer</param>
     /// <param name="toCustomer">To customer</param>
+    /// <param name="storeId">Store whose selected checkout attributes move along</param>
     /// <param name="includeCouponCodes">
     ///     A value indicating whether to coupon codes (discount and gift voucher) should be also
     ///     re-applied
     /// </param>
-    public virtual async Task MigrateShoppingCart(Customer fromCustomer, Customer toCustomer, bool includeCouponCodes)
+    public virtual async Task MigrateShoppingCart(Customer fromCustomer, Customer toCustomer, string storeId,
+        bool includeCouponCodes)
     {
         ArgumentNullException.ThrowIfNull(fromCustomer);
         ArgumentNullException.ThrowIfNull(toCustomer);
@@ -430,9 +431,9 @@ public class ShoppingCartService : IShoppingCartService
         }
 
         //move selected checkout attributes
-        var checkoutAttributes = fromCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, _contextAccessor.StoreContext.CurrentStore.Id);
+        var checkoutAttributes = fromCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, storeId);
         await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.CheckoutAttributes, checkoutAttributes,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+            storeId);
     }
 
     #endregion

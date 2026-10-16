@@ -24,7 +24,7 @@ public class EstimateShippingViewComponent : BaseViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart);
 
         var model = await _mediator.Send(new GetEstimateShipping {

@@ -88,7 +88,7 @@ public class CheckoutController : BasePublicController
     {
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         if (!cart.Any())
@@ -125,7 +125,7 @@ public class CheckoutController : BasePublicController
     public virtual async Task<IActionResult> Start()
     {
         //validation
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
         if (!cart.Any())
@@ -191,7 +191,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -289,7 +289,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -465,7 +465,7 @@ public class CheckoutController : BasePublicController
             var customer = _contextAccessor.WorkContext.CurrentCustomer;
             var store = _contextAccessor.StoreContext.CurrentStore;
 
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -550,7 +550,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -620,7 +620,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
@@ -707,7 +707,7 @@ public class CheckoutController : BasePublicController
         try
         {
             //validation
-            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 

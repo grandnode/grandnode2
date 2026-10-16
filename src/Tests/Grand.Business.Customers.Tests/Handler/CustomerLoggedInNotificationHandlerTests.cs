@@ -29,7 +29,7 @@ public class CustomerLoggedInNotificationHandlerTests
             CannotLoginUntilDateUtc = DateTime.Now
         };
         //Act
-        await _handler.Handle(new CustomerLoggedInEvent(customer), CancellationToken.None);
+        await _handler.Handle(new CustomerLoggedInEvent(customer, new Customer(), ""), CancellationToken.None);
 
         //Assert
         Assert.AreEqual(0, customer.FailedLoginAttempts);
