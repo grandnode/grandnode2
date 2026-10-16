@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Mongo;
 using Grand.Domain.Catalog;
@@ -85,7 +86,8 @@ public class CategoryServiceTests
         var category = new Category { ParentCategoryId = "3" };
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer { Id = "" }, "");
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer { Id = "" }, ""));
         Assert.IsEmpty(result);
     }
 
@@ -96,7 +98,8 @@ public class CategoryServiceTests
         var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer { Id = "" }, "");
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer { Id = "" }, ""));
         Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
@@ -109,7 +112,8 @@ public class CategoryServiceTests
         var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer { Id = "" }, "");
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer { Id = "" }, ""));
         Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("1")));

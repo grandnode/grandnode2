@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -99,14 +100,14 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
         {
             var categoriesModel = new List<SearchModel.CategoryModel>();
             //all categories
-            var allCategories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id,
-                customer: request.Customer, pageSize: 100);
+            var allCategories = await _categoryService.GetAllCategories(parentId: null, categoryName: "",
+                access: CatalogAccess.For(request.Customer, request.Store.Id), pageSize: 100);
             foreach (var c in allCategories)
             {
                 //generate full category name (breadcrumb)
                 var categoryBreadcrumb = "";
-                var breadcrumb = _categoryService.GetCategoryBreadCrumb(c, allCategories, customer: request.Customer,
-                    storeId: request.Store.Id);
+                var breadcrumb = _categoryService.GetCategoryBreadCrumb(c, allCategories,
+                    access: CatalogAccess.For(request.Customer, request.Store.Id));
                 for (var i = 0; i <= breadcrumb.Count - 1; i++)
                 {
                     categoryBreadcrumb += breadcrumb[i].GetTranslation(x => x.Name, request.Language.Id);
@@ -138,7 +139,8 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
                 });
         }
 
-        var collections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id, customer: request.Customer,
+        var collections = await _collectionService.GetAllCollections(collectionName: "",
+            access: CatalogAccess.For(request.Customer, request.Store.Id),
             pageSize: 100);
         if (collections.Any())
         {

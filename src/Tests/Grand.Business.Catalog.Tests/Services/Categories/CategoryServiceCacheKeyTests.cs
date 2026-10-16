@@ -1,5 +1,6 @@
 using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -53,11 +54,11 @@ public class CategoryServiceCacheKeyTests
     {
         await _categoryService.InsertCategory(new Category { ParentCategoryId = "root", Published = true });
 
-        var first = await _categoryService.GetAllCategoriesByParentCategoryId(WithGroups("customer-1", "group-a"),
-            "store", "root");
+        var first = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-1", "group-a"), "store"), "root");
 
-        var second = await _categoryService.GetAllCategoriesByParentCategoryId(WithGroups("customer-2", "group-a"),
-            "store", "root");
+        var second = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-2", "group-a"), "store"), "root");
 
         Assert.AreSame(first, second, "same groups must resolve to the same cache entry");
     }
@@ -67,11 +68,11 @@ public class CategoryServiceCacheKeyTests
     {
         await _categoryService.InsertCategory(new Category { ParentCategoryId = "root", Published = true });
 
-        var first = await _categoryService.GetAllCategoriesByParentCategoryId(WithGroups("customer-1", "group-a"),
-            "store", "root");
+        var first = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-1", "group-a"), "store"), "root");
 
-        var second = await _categoryService.GetAllCategoriesByParentCategoryId(WithGroups("customer-2", "group-b"),
-            "store", "root");
+        var second = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-2", "group-b"), "store"), "root");
 
         Assert.AreNotSame(first, second, "the ACL filter differs per group, so the entries must differ");
     }

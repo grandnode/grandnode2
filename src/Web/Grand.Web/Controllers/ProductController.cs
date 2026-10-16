@@ -95,8 +95,7 @@ public class ProductController : BasePublicController
             .Select(x => x.ProductId2).ToArray();
 
         //load products
-        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());
 
         var model = await _mediator.Send(new GetProductOverview {
             PreparePictureModel = true,
@@ -121,8 +120,7 @@ public class ProductController : BasePublicController
             return Content("");
 
         var products = (await _productService.SearchProducts(
-            customer: _contextAccessor.WorkContext.CurrentCustomer,
-            storeId: _contextAccessor.StoreContext.CurrentStore.Id,
+            access: _contextAccessor.CatalogAccess(),
             visibleIndividuallyOnly: true,
             markedAsNewOnly: true,
             orderBy: ProductSortingEnum.CreatedOn,

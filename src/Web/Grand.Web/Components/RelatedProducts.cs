@@ -2,6 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -34,8 +35,7 @@ public class RelatedProductsViewComponent : BaseViewComponent
             .Select(x => x.ProductId2).ToArray();
 
         //load products
-        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());
 
         var model = await _mediator.Send(new GetProductOverview {
             PreparePictureModel = true,

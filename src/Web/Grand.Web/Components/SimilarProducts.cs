@@ -2,6 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -35,8 +36,7 @@ public class SimilarProductsViewComponent : BaseViewComponent
         if (!productIds.Any())
             return Content("");
 
-        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());
 
         if (!products.Any())
             return Content("");

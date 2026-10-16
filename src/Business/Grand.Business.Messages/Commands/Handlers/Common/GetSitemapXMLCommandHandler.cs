@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -196,7 +197,8 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         //categories
         if (_commonSettings.SitemapIncludeCategories)
         {
-            var categories = (await _categoryService.GetAllCategories(null, "", store.Id, customer: null, showHidden: true))
+            var categories = (await _categoryService.GetAllCategories(null, "",
+                CatalogAccess.IncludingHidden(store.Id)))
                 .Where(c => c.Published && IsVisibleToGuests(c))
                 .ToLookup(c => c.ParentCategoryId ?? "");
             sitemapUrls.AddRange(await GetCategoryUrls("", categories, language));
@@ -259,7 +261,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
     private async Task<IEnumerable<SitemapUrl>> GetBrandUrls(Language language, Store store)
     {
-        var brands = (await _brandService.GetAllBrands(brandName: "", storeId: store.Id, customer: null, showHidden: true))
+        var brands = (await _brandService.GetAllBrands(brandName: "", access: CatalogAccess.IncludingHidden(store.Id)))
             .Where(b => b.Published && IsVisibleToGuests(b));
         var brandUrls = new List<SitemapUrl>();
         var storeLocation = GetStoreLocation();

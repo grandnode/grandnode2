@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Domain.Customers;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Categories;
 
@@ -11,14 +10,12 @@ public interface IProductCategoryService
     ///     Gets product category mapping collection
     /// </summary>
     /// <param name="categoryId">Category id</param>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
-    /// <param name="storeId">Store whose limitations apply</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Product a category mapping collection</returns>
-    Task<IPagedList<ProductsCategory>> GetProductCategoriesByCategoryId(string categoryId, Customer customer,
-        string storeId, int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
+    Task<IPagedList<ProductsCategory>> GetProductCategoriesByCategoryId(string categoryId, CatalogAccess access,
+        int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Inserts a mapping for product category

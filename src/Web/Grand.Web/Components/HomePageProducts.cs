@@ -3,6 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
@@ -37,8 +38,7 @@ public class HomePageProductsViewComponent : BaseViewComponent
         var productsIds = await _cacheBase.GetAsync(CacheKeyConst.HOMEPAGE_PRODUCTS_MODEL_KEY,
             async () => await _productService.GetAllProductsDisplayedOnHomePage());
 
-        var products = await _productService.GetProductsByIds(productsIds.ToArray(), _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+        var products = await _productService.GetProductsByIds(productsIds.ToArray(), _contextAccessor.CatalogAccess());
 
         if (!products.Any())
             return Content("");

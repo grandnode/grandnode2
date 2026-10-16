@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -57,8 +58,8 @@ public class
         var model = await _cacheBase.GetAsync(collectionCacheKey, async () =>
         {
             var collectionList = new List<CollectionModel>();
-            var collectionmodel = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(customer: request.Customer,
-                storeId: request.Store.Id);
+            var collectionmodel = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(
+                access: CatalogAccess.For(request.Customer, request.Store.Id));
             foreach (var x in collectionmodel)
             {
                 var colModel = x.ToModel(request.Language);

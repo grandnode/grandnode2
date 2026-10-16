@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions;
@@ -219,7 +220,8 @@ public abstract class BaseCategoryController(
     {
         try
         {
-            var bytes = await exportManager.Export(await categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: scope.DefaultStoreId ?? "", customer: null, showHidden: true),
+            var bytes = await exportManager.Export(await categoryService.GetAllCategories(parentId: null, categoryName: "",
+                access: CatalogAccess.IncludingHidden(scope.DefaultStoreId ?? "")),
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "categories.xlsx");
         }

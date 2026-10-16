@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
@@ -32,8 +33,9 @@ public class GetChildCategoryIdsHandler : IRequestHandler<GetChildCategoryIds, I
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {
             var categoriesIds = new List<string>();
-            var categories = await _categoryService.GetAllCategoriesByParentCategoryId(customer: request.Customer,
-                storeId: request.Store.Id, parentCategoryId: request.ParentCategoryId);
+            var categories = await _categoryService.GetAllCategoriesByParentCategoryId(
+                access: CatalogAccess.For(request.Customer, request.Store.Id),
+                parentCategoryId: request.ParentCategoryId);
             foreach (var category in categories)
             {
                 categoriesIds.Add(category.Id);

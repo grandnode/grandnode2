@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -52,43 +53,41 @@ public class CollectionService : ICollectionService
     ///     Gets all collections
     /// </summary>
     /// <param name="collectionName">Collection name</param>
-    /// <param name="storeId">Store ident</param>
-    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
+    /// <param name="access">Whose view of the collections to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Collections</returns>
     public virtual async Task<IPagedList<Collection>> GetAllCollections(string collectionName,
-        string storeId,
-        Customer customer,
+        CatalogAccess access,
         int pageIndex = 0,
-        int pageSize = int.MaxValue,
-        bool showHidden = false)
+        int pageSize = int.MaxValue)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var query = from m in _collectionRepository.Table
             select m;
 
-        if (!showHidden)
+        if (!access.ShowHidden)
             query = query.Where(m => m.Published);
         if (!string.IsNullOrWhiteSpace(collectionName))
             query = query.Where(m => m.Name != null && m.Name.ToLower().Contains(collectionName.ToLower()));
 
         if (!_accessControlConfig.IgnoreAcl ||
-            (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations))
+            (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations))
         {
-            if (!showHidden && !_accessControlConfig.IgnoreAcl)
+            if (!access.ShowHidden && !_accessControlConfig.IgnoreAcl)
             {
                 //Limited to customer groups rules
-                var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
             }
 
-            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+            if (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations)
                 //Limited to stores rules
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(storeId)
+                    where !p.LimitedToStores || p.Stores.Contains(access.StoreId)
                     select p;
         }
 
@@ -100,22 +99,19 @@ public class CollectionService : ICollectionService
     /// <summary>
     ///     Gets all featured products for collections displayed on the home page
     /// </summary>
-    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
-    /// <param name="storeId">Store whose limitations apply</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
+    /// <param name="access">Whose view of the collections to return, and the store whose limitations apply</param>
     /// <returns>Collections</returns>
-    public virtual async Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(Customer customer, string storeId,
-        bool showHidden = false)
+    public virtual async Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(CatalogAccess access)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var query = _collectionRepository.Table.Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
 
-        var collections = await _collectionRepository.ToListAsync(query);
-        if (!showHidden)
-            collections = collections
-                .Where(c => _aclService.Authorize(c, customer) && _aclService.Authorize(c, storeId))
-                .ToList();
-        return collections;
+        return (await _collectionRepository.ToListAsync(query))
+            .Where(c => (access.ShowHidden || _aclService.Authorize(c, access.Customer)) &&
+                        _aclService.Authorize(c, access.StoreId))
+            .ToList();
     }
 
 

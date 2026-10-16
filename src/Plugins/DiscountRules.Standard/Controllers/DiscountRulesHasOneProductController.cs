@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Permissions;
@@ -186,17 +187,14 @@ public class DiscountRulesHasOneProductController : BaseDiscountRulePluginContro
             searchCategoryIds.Add(model.SearchCategoryId);
 
         var products = (await _productService.SearchProducts(
-            customer: null,
+            access: CatalogAccess.IncludingHidden(model.SearchStoreId),
             categoryIds: searchCategoryIds,
             collectionId: model.SearchCollectionId,
-            storeId: model.SearchStoreId,
             vendorId: model.SearchVendorId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: command.Page - 1,
-            pageSize: command.PageSize,
-            showHidden: true
-        )).products;
+            pageSize: command.PageSize)).products;
         var gridModel = new DataSourceResult {
             Data = products.Select(x => new RequirementOneProductModel.ProductModel {
                 Id = x.Id,
@@ -224,7 +222,7 @@ public class DiscountRulesHasOneProductController : BaseDiscountRulePluginContro
             .Select(x => x.Split(':')[0].Trim())
             .ToList();
 
-        var products = await _productService.GetProductsByIds(ids.ToArray(), customer: null, storeId: "", showHidden: true);
+        var products = await _productService.GetProductsByIds(ids.ToArray(), access: CatalogAccess.IncludingHidden());
         result = string.Join(", ", products.Select(p => p.Name));
 
         return new JsonResult(new { Text = result });

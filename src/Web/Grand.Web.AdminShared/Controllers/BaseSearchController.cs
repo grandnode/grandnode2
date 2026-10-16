@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Admin;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -29,12 +30,9 @@ public abstract class BaseSearchController(
         var categories = await categoryService.GetAllCategories(
             parentId: null,
             categoryName: model.GetNameFilterValue(),
-            storeId: PickerStoreId,
-            customer: CurrentCustomer,
+            access: CatalogAccess.For(CurrentCustomer, PickerStoreId),
             pageIndex: 0,
-            pageSize: adminSearchSettings.CategorySizeLimit,
-            showHidden: false
-        );
+            pageSize: adminSearchSettings.CategorySizeLimit);
 
         var gridModel = await DataSourceResultHelper.GetSearchResult(categoryId, categories, async category => await categoryService.GetFormattedBreadCrumb(category));
         return Json(gridModel);
@@ -45,12 +43,9 @@ public abstract class BaseSearchController(
     {
         var collections = await collectionService.GetAllCollections(
             collectionName: model.GetNameFilterValue(),
-            storeId: PickerStoreId,
-            customer: CurrentCustomer,
+            access: CatalogAccess.For(CurrentCustomer, PickerStoreId),
             pageIndex: 0,
-            pageSize: adminSearchSettings.CollectionSizeLimit,
-            showHidden: false
-        );
+            pageSize: adminSearchSettings.CollectionSizeLimit);
 
         var gridModel = await DataSourceResultHelper.GetSearchResult(collectionId, collections, collection => Task.FromResult(collection.Name));
         return Json(gridModel);
@@ -61,8 +56,7 @@ public abstract class BaseSearchController(
     {
         var brands = await brandService.GetAllBrands(
             model.GetNameFilterValue(),
-            storeId: PickerStoreId,
-            customer: CurrentCustomer,
+            access: CatalogAccess.For(CurrentCustomer, PickerStoreId),
             pageSize: adminSearchSettings.BrandSizeLimit);
 
         var gridModel = await DataSourceResultHelper.GetSearchResult(brandId, brands, brand => Task.FromResult(brand.Name));

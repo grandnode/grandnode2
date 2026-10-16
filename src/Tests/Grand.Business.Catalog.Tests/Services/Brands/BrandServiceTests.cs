@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Brands;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -41,7 +42,7 @@ public class BrandServiceTests
         await _brandService.InsertBrand(new Brand { Published = true });
 
         //Act
-        var brand = await _brandService.GetAllBrands(brandName: "", storeId: "", customer: new Customer());
+        var brand = await _brandService.GetAllBrands(brandName: "", access: CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(3, brand);
@@ -60,8 +61,8 @@ public class BrandServiceTests
         vipCustomer.Groups.Add("vip");
 
         //Act
-        var guest = await _brandService.GetAllBrands("", "", new Customer());
-        var vip = await _brandService.GetAllBrands("", "", vipCustomer);
+        var guest = await _brandService.GetAllBrands("", CatalogAccess.For(new Customer(), ""));
+        var vip = await _brandService.GetAllBrands("", CatalogAccess.For(vipCustomer, ""));
 
         //Assert
         Assert.HasCount(1, guest);

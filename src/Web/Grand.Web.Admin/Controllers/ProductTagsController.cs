@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
@@ -80,7 +81,8 @@ public class ProductTagsController : BaseAdminController
     {
         var tag = await _productTagService.GetProductTagById(tagId);
 
-        var products = (await _productService.SearchProducts(customer: _contextAccessor.WorkContext.CurrentCustomer,
+        var products = (await _productService.SearchProducts(
+            access: CatalogAccess.For(_contextAccessor.WorkContext.CurrentCustomer, ""),
             pageIndex: command.Page - 1, pageSize: command.PageSize,
             productTag: tag.Name, orderBy: ProductSortingEnum.NameAsc)).products;
         var gridModel = new DataSourceResult {
