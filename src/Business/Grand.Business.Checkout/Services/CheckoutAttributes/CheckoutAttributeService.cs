@@ -49,7 +49,7 @@ public class CheckoutAttributeService : ICheckoutAttributeService
     ///     Gets all checkout attributes
     /// </summary>
     /// <param name="storeId">Store identifier</param>
-    /// <param name="customer">Customer whose groups limit the result (not read when ignoreAcl is true)</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when ignoreAcl or AccessControlConfig.IgnoreAcl is set)</param>
     /// <param name="excludeShippableAttributes">A value indicating whether we should exclude shippable attributes</param>
     /// <param name="ignoreAcl"></param>
     /// <returns>Checkout attributes</returns>

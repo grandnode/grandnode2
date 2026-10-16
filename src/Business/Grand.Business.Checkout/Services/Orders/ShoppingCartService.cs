@@ -406,14 +406,15 @@ public class ShoppingCartService : IShoppingCartService
         if (fromCustomer.Id == toCustomer.Id)
             return; //the same customer
 
-        //shopping cart items
+        //shopping cart items; the whole cart moves together, so a product's required products
+        //may not be in the target cart yet when the product itself is added
         var fromCart = fromCustomer.ShoppingCartItems.ToList();
         foreach (var sci in fromCart)
             await AddToCart(toCustomer, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
                 sci.Attributes, sci.EnteredPrice,
                 sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter,
                 sci.Duration,
-                new ShoppingCartValidatorOptions());
+                new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false });
         foreach (var sci in fromCart) await DeleteShoppingCartItem(fromCustomer, sci);
 
         //copy discount and gift voucher coupon codes

@@ -223,6 +223,33 @@ public class ShoppingCartServiceTests
     }
 
     [TestMethod]
+    public async Task MigrateShoppingCart_DoesNotRequireRequiredProductsInTheTargetCartYet()
+    {
+        //Arrange
+        var guest = new Customer();
+        guest.ShoppingCartItems.Add(new ShoppingCartItem
+            { ProductId = "A", ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "", Quantity = 1 });
+        var customer = new Customer();
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false))
+            .ReturnsAsync(new Product { Id = "A", Published = true });
+        _shoppingCartValidatorMock.Setup(x => x.CheckCommonWarnings(It.IsAny<Customer>(),
+                It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Product>(), It.IsAny<ShoppingCartType>(), null, null,
+                It.IsAny<int>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<string>());
+        _shoppingCartValidatorMock.Setup(x => x.GetShoppingCartItemWarnings(It.IsAny<Customer>(),
+                It.IsAny<ShoppingCartItem>(), It.IsAny<Product>(), It.IsAny<ShoppingCartValidatorOptions>()))
+            .ReturnsAsync(new List<string>());
+
+        //Act
+        await _shoppingCartService.MigrateShoppingCart(guest, customer, "", false);
+
+        //Assert
+        //the guest's whole cart moves together, so a required product may still be on its way to the target cart
+        _shoppingCartValidatorMock.Verify(x => x.GetShoppingCartItemWarnings(customer, It.IsAny<ShoppingCartItem>(),
+            It.IsAny<Product>(), It.Is<ShoppingCartValidatorOptions>(o => !o.GetRequiredProductWarnings)), Times.Once);
+    }
+
+    [TestMethod]
     public async Task MigrateShoppingCart_MovesCheckoutAttributesOfTheGivenStore()
     {
         //Arrange
