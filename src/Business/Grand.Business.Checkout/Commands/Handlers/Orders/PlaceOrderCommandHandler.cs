@@ -141,6 +141,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         try
         {
             ArgumentNullException.ThrowIfNull(command.Context);
+            ArgumentNullException.ThrowIfNull(command.Language);
+            ArgumentNullException.ThrowIfNull(command.Host);
 
             //prepare order details
             var details = await PreparePlaceOrderDetails(command);

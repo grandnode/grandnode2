@@ -71,6 +71,40 @@ public class PlaceOrderCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_WithoutLanguage_ReturnsError()
+    {
+        //Arrange
+        var command = new PlaceOrderCommand {
+            Context = new CalculationContext(new Customer(), new Store(), new Currency(), TaxDisplayType.IncludingTax),
+            Host = new DomainHost { Url = "https://shop.example/" }
+        };
+
+        //Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        Assert.IsTrue(result.Errors.Any(e => e.Contains(nameof(PlaceOrderCommand.Language))));
+        Assert.IsNull(result.PlacedOrder);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutHost_ReturnsError()
+    {
+        //Arrange
+        var command = new PlaceOrderCommand {
+            Context = new CalculationContext(new Customer(), new Store(), new Currency(), TaxDisplayType.IncludingTax),
+            Language = new Language { Id = "pl" }
+        };
+
+        //Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        Assert.IsTrue(result.Errors.Any(e => e.Contains(nameof(PlaceOrderCommand.Host))));
+        Assert.IsNull(result.PlacedOrder);
+    }
+
+    [TestMethod]
     public async Task Handle_PreparesDetailsFromTheCommand()
     {
         //Arrange

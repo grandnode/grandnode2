@@ -14,12 +14,12 @@ public class PlaceOrderCommand : IRequest<PlaceOrderResult>
     public CalculationContext Context { get; set; }
 
     /// <summary>
-    ///     Language used when the customer has no published language of their own
+    ///     Language used when the customer has no published language of their own (required)
     /// </summary>
     public Language Language { get; set; }
 
     /// <summary>
-    ///     Store address used for file download links in the checkout attribute description
+    ///     Store address used for file download links in the checkout attribute description (required)
     /// </summary>
     public DomainHost Host { get; set; }
 
