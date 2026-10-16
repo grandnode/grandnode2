@@ -26,20 +26,19 @@ public class CategoryServiceTreeTests
     private CategoryService _categoryService;
     private IRepository<Category> _categoryRepository;
 
+    private Customer _customer;
+
     [TestInitialize]
     public void InitializeTests()
     {
         _categoryRepository = new MongoDBRepositoryTest<Category>();
-        //one customer for the whole fixture: a fresh instance per access would give every call its
+        //one customer for the whole fixture: a fresh instance per call would give every call its
         //own id, hence its own cache key, and the caching under test would never be exercised
-        var customer = new Customer { Id = "customer" };
-        var contextAccessor = new Mock<IContextAccessor>();
-        contextAccessor.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "store" });
-        contextAccessor.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => customer);
+        _customer = new Customer { Id = "customer" };
         var mediator = new Mock<IMediator>();
         var cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), mediator.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _categoryService = new CategoryService(cacheBase, _categoryRepository, contextAccessor.Object,
+        _categoryService = new CategoryService(cacheBase, _categoryRepository,
             mediator.Object, new AclService(new AccessControlConfig()), new AccessControlConfig());
     }
 
@@ -59,7 +58,7 @@ public class CategoryServiceTreeTests
     {
         await GivenATwoLevelTree();
 
-        var result = await _categoryService.GetAllCategoriesByParentCategoryId("root", includeAllLevels: true);
+        var result = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root", includeAllLevels: true);
 
         CollectionAssert.AreEqual(new[] { "a", "b", "a1", "b1" }, result.Select(x => x.Id).ToArray());
     }
@@ -69,7 +68,7 @@ public class CategoryServiceTreeTests
     {
         await GivenATwoLevelTree();
 
-        var result = await _categoryService.GetAllCategoriesByParentCategoryId("root");
+        var result = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root");
 
         CollectionAssert.AreEqual(new[] { "a", "b" }, result.Select(x => x.Id).ToArray());
     }
@@ -83,9 +82,9 @@ public class CategoryServiceTreeTests
     {
         await GivenATwoLevelTree();
 
-        var first = await _categoryService.GetAllCategoriesByParentCategoryId("root", includeAllLevels: true);
+        var first = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root", includeAllLevels: true);
         first.Clear();
-        var second = await _categoryService.GetAllCategoriesByParentCategoryId("root", includeAllLevels: true);
+        var second = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root", includeAllLevels: true);
 
         Assert.HasCount(4, second);
     }

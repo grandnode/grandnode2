@@ -459,7 +459,8 @@ public abstract class BaseDiscountController(
         DiscountModel.AddCategoryToDiscountModel model, [FromServices] ICategoryService categoryService)
     {
         var categories = await categoryService.GetAllCategories(parentId: null, categoryName: model.SearchCategoryName,
-            storeId: await scope.GetDefaultStoreIdAsync() ?? "", pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
+            storeId: await scope.GetDefaultStoreIdAsync() ?? "", customer: null, pageIndex: command.Page - 1,
+            pageSize: command.PageSize, showHidden: true);
         var items = new List<CategoryModel>();
         foreach (var item in categories)
         {

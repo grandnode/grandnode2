@@ -62,7 +62,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
             request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
         var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () => await PrepareCategorySimpleModels(
             request.Language,
-            await _categoryService.GetMenuCategories()));
+            await _categoryService.GetMenuCategories(customer: request.Customer, storeId: request.Store.Id)));
 
         //top menu pages
         var now = DateTime.UtcNow;

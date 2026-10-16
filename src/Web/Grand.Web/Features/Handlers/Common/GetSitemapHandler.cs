@@ -78,7 +78,8 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             //categories
             if (_commonSettings.SitemapIncludeCategories)
             {
-                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id);
+                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id,
+                    customer: request.Customer);
                 model.Categories = categories.Select(x => x.ToModel(request.Language)).ToList();
             }
 

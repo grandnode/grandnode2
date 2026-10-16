@@ -2599,7 +2599,10 @@ public class ProductViewModelService(
     protected virtual async Task<List<string>> GetChildCategoryIds(string parentCategoryId)
     {
         var categoriesIds = new List<string>();
-        var categories = await categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId, true);
+        var categories = await categoryService.GetAllCategoriesByParentCategoryId(
+            customer: contextAccessor.WorkContext.CurrentCustomer,
+            storeId: contextAccessor.StoreContext.CurrentStore.Id,
+            parentCategoryId: parentCategoryId, showHidden: true);
         foreach (var category in categories)
         {
             categoriesIds.Add(category.Id);

@@ -42,7 +42,8 @@ public class GetSearchBoxHandler : IRequestHandler<GetSearchBox, SearchBoxModel>
 
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {
-            var searchbocategories = await _categoryService.GetAllCategoriesSearchBox();
+            var searchbocategories = await _categoryService.GetAllCategoriesSearchBox(customer: request.Customer,
+                storeId: request.Store.Id);
 
             var availableCategories = new List<SelectListItem>();
             if (searchbocategories.Any())

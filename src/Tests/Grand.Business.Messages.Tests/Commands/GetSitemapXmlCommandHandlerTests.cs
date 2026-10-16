@@ -60,7 +60,7 @@ public class GetSitemapXmlCommandHandlerTests
         groupServiceMock.Setup(x => x.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests))
             .ReturnsAsync(new CustomerGroup { Id = GuestsGroupId, SystemName = SystemCustomerGroupNames.Guests });
 
-        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "", StoreId, 0, int.MaxValue, true))
+        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "", StoreId, null, 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Category>());
         _brandServiceMock.Setup(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Brand>());
@@ -124,7 +124,7 @@ public class GetSitemapXmlCommandHandlerTests
 
         //Assert
         Assert.IsFalse(Locations(xml).Any(string.IsNullOrEmpty), "sitemap contains an empty <loc>");
-        _categoryServiceMock.Verify(x => x.GetAllCategories(null, "", StoreId, 0, int.MaxValue, true), Times.Once);
+        _categoryServiceMock.Verify(x => x.GetAllCategories(null, "", StoreId, null, 0, int.MaxValue, true), Times.Once);
         _brandServiceMock.Verify(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true), Times.Once);
         _pageServiceMock.Verify(x => x.GetAllPages(StoreId, true), Times.Once);
         _mediatorMock.Verify(x => x.Send(It.Is<GetSearchProductsQuery>(q =>
@@ -148,7 +148,7 @@ public class GetSitemapXmlCommandHandlerTests
             },
             new() { Id = "4", SystemName = "Draft", SeName = "draft-page", Published = false, IncludeInSitemap = true }
         });
-        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "", StoreId, 0, int.MaxValue, true))
+        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "", StoreId, null, 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Category>(new List<Category> {
                 new() { Id = "c1", ParentCategoryId = "", SeName = "open-category", Published = true },
                 new() { Id = "c2", ParentCategoryId = "c1", SeName = "child-category", Published = true },

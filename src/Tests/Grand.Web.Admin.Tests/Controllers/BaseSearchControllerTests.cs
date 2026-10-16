@@ -83,7 +83,7 @@ public class BaseSearchControllerTests
     {
         var controller = CreateController("");
         _categoryServiceMock
-            .Setup(s => s.GetAllCategories(null, null, "", 0, 10, false))
+            .Setup(s => s.GetAllCategories(null, null, "", _customer, 0, 10, false))
             .ReturnsAsync(new PagedList<Category>([new Category { Id = "cat-1", Name = "Books" }], 0, 10));
         _categoryServiceMock.Setup(s => s.GetFormattedBreadCrumb(It.IsAny<Category>(), ">>", ""))
             .ReturnsAsync("Books");
@@ -93,7 +93,7 @@ public class BaseSearchControllerTests
         var rows = ReadRows(result);
         Assert.AreEqual(1, rows.Length);
         Assert.AreEqual("cat-1", rows[0].Id);
-        _categoryServiceMock.Verify(s => s.GetAllCategories(null, null, "", 0, 10, false), Times.Once);
+        _categoryServiceMock.Verify(s => s.GetAllCategories(null, null, "", _customer, 0, 10, false), Times.Once);
     }
 
     [TestMethod]
@@ -101,12 +101,12 @@ public class BaseSearchControllerTests
     {
         var controller = CreateController("store-1");
         _categoryServiceMock
-            .Setup(s => s.GetAllCategories(null, null, "store-1", 0, 10, false))
+            .Setup(s => s.GetAllCategories(null, null, "store-1", _customer, 0, 10, false))
             .ReturnsAsync(new PagedList<Category>([], 0, 10));
 
         await controller.Category(null, EmptyFilter());
 
-        _categoryServiceMock.Verify(s => s.GetAllCategories(null, null, "store-1", 0, 10, false), Times.Once);
+        _categoryServiceMock.Verify(s => s.GetAllCategories(null, null, "store-1", _customer, 0, 10, false), Times.Once);
     }
 
     [TestMethod]

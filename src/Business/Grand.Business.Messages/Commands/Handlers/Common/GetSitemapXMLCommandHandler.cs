@@ -196,7 +196,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         //categories
         if (_commonSettings.SitemapIncludeCategories)
         {
-            var categories = (await _categoryService.GetAllCategories(null, "", store.Id, showHidden: true))
+            var categories = (await _categoryService.GetAllCategories(null, "", store.Id, customer: null, showHidden: true))
                 .Where(c => c.Published && IsVisibleToGuests(c))
                 .ToLookup(c => c.ParentCategoryId ?? "");
             sitemapUrls.AddRange(await GetCategoryUrls("", categories, language));

@@ -56,7 +56,8 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
         var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
         {
             var catlistmodel = new List<CategoryModel>();
-            foreach (var x in await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage())
+            foreach (var x in await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage(customer: request.Customer,
+                         storeId: request.Store.Id))
             {
                 var catModel = x.ToModel(request.Language);
                 //prepare picture model

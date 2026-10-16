@@ -219,7 +219,7 @@ public abstract class BaseCategoryController(
     {
         try
         {
-            var bytes = await exportManager.Export(await categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true),
+            var bytes = await exportManager.Export(await categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: scope.DefaultStoreId ?? "", customer: null, showHidden: true),
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "categories.xlsx");
         }

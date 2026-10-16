@@ -96,6 +96,7 @@ public class SearchController : BaseSearchController
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
             {
                 var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: searchTerm, storeId: "",
+                    customer: _contextAccessor.WorkContext.CurrentCustomer,
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden:
                     await _groupService.IsAdmin(_contextAccessor.WorkContext.CurrentCustomer));
                 foreach (var category in categories)

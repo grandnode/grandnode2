@@ -30,6 +30,7 @@ public abstract class BaseSearchController(
             parentId: null,
             categoryName: model.GetNameFilterValue(),
             storeId: PickerStoreId,
+            customer: CurrentCustomer,
             pageIndex: 0,
             pageSize: adminSearchSettings.CategorySizeLimit,
             showHidden: false

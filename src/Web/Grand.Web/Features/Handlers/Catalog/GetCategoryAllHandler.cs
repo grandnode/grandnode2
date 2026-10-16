@@ -49,6 +49,7 @@ public class GetCategoryAllHandler : IRequestHandler<GetCategoryAll, CategoryLis
 
         var model = new List<CategoryModel>();
         var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id,
+            customer: request.Customer,
             pageIndex: request.Command.PageNumber - 1,
             pageSize: request.Command.PageSize
         );

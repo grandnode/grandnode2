@@ -155,7 +155,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
             return (null, false, null);
 
         var parentId = string.IsNullOrEmpty(dto.ParentCategoryId) ? null : dto.ParentCategoryId;
-        var candidates = await _categoryService.GetAllCategories(parentId, dto.Name, "", showHidden: true);
+        var candidates = await _categoryService.GetAllCategories(parentId, dto.Name, "", customer: null, showHidden: true);
         var (found, error) = ImportRows.SingleByName(candidates, c => c.Name, dto.Name, "category");
         return (found, found != null, error);
     }

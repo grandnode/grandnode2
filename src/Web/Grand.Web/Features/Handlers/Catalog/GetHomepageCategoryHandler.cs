@@ -46,7 +46,8 @@ public class GetHomepageCategoryHandler : IRequestHandler<GetHomepageCategory, I
         var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
         {
             var cat = new List<CategoryModel>();
-            foreach (var x in await _categoryService.GetAllCategoriesDisplayedOnHomePage())
+            foreach (var x in await _categoryService.GetAllCategoriesDisplayedOnHomePage(customer: request.Customer,
+                         storeId: request.Store.Id))
             {
                 var catModel = x.ToModel(request.Language);
                 //prepare picture model

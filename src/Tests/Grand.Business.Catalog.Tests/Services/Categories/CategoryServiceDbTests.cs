@@ -25,22 +25,65 @@ public class CategoryServiceDbTests
     private CategoryService _categoryService;
     private Mock<IMediator> _mediatorMock;
     private CatalogSettings _settings;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void InitializeTests()
     {
         _categoryRepository = new MongoDBRepositoryTest<Category>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _aclServiceMock = new AclService(new AccessControlConfig());
         _settings = new CatalogSettings();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _categoryService = new CategoryService(_cacheBase, _categoryRepository, _workContextMock.Object,
+        _categoryService = new CategoryService(_cacheBase, _categoryRepository,
             _mediatorMock.Object, _aclServiceMock, new AccessControlConfig());
+    }
+
+    [TestMethod]
+    public async Task GetMenuCategories_UsesGivenCustomerAndStore()
+    {
+        //Arrange
+        await _categoryRepository.InsertAsync(new Category { Id = "open", Published = true, IncludeInMenu = true });
+        await _categoryRepository.InsertAsync(new Category {
+            Id = "vip", Published = true, IncludeInMenu = true,
+            LimitedToGroups = true, CustomerGroups = new List<string> { "vip" }
+        });
+        await _categoryRepository.InsertAsync(new Category {
+            Id = "s2", Published = true, IncludeInMenu = true,
+            LimitedToStores = true, Stores = new List<string> { "store2" }
+        });
+        var vipCustomer = new Customer();
+        vipCustomer.Groups.Add("vip");
+
+        //Act
+        var guestStore1 = await _categoryService.GetMenuCategories(new Customer(), "store1");
+        var vipStore2 = await _categoryService.GetMenuCategories(vipCustomer, "store2");
+
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "open" }, guestStore1.Select(c => c.Id).ToArray());
+        CollectionAssert.AreEquivalent(new[] { "open", "vip", "s2" }, vipStore2.Select(c => c.Id).ToArray());
+    }
+
+    [TestMethod]
+    public async Task GetCategoryBreadCrumb_StopsAtCategoryHiddenFromGivenCustomer()
+    {
+        //Arrange
+        var parent = new Category {
+            Id = "p", Published = true, LimitedToGroups = true, CustomerGroups = new List<string> { "vip" }
+        };
+        var child = new Category { Id = "c", Published = true, ParentCategoryId = "p" };
+        await _categoryRepository.InsertAsync(parent);
+        await _categoryRepository.InsertAsync(child);
+        var vipCustomer = new Customer();
+        vipCustomer.Groups.Add("vip");
+
+        //Act
+        var guest = await _categoryService.GetCategoryBreadCrumb(child, new Customer(), "");
+        var vip = await _categoryService.GetCategoryBreadCrumb(child, vipCustomer, "");
+
+        //Assert
+        Assert.HasCount(1, guest);
+        Assert.HasCount(2, vip);
     }
 
     [TestMethod]
@@ -85,7 +128,7 @@ public class CategoryServiceDbTests
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
         await _categoryService.InsertCategory(category);
-        var result = await _categoryService.GetCategoryBreadCrumb(category);
+        var result = await _categoryService.GetCategoryBreadCrumb(category, new Customer(), "");
         Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
@@ -97,7 +140,7 @@ public class CategoryServiceDbTests
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { ParentCategoryId = "3" };
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer(), "");
         Assert.IsEmpty(result);
     }
 
@@ -106,7 +149,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: "");
+        var result = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: "", customer: new Customer());
         Assert.HasCount(5, result);
     }
 
@@ -115,7 +158,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetMenuCategories();
+        var result = await _categoryService.GetMenuCategories(new Customer(), "");
         Assert.HasCount(1, result);
     }
 
@@ -124,7 +167,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategoriesByParentCategoryId("5");
+        var result = await _categoryService.GetAllCategoriesByParentCategoryId(new Customer(), "", "5");
         Assert.HasCount(1, result);
     }
 
@@ -133,7 +176,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategoriesDisplayedOnHomePage();
+        var result = await _categoryService.GetAllCategoriesDisplayedOnHomePage(new Customer(), "");
         Assert.HasCount(2, result);
     }
 
@@ -142,7 +185,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage();
+        var result = await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage(new Customer(), "");
         Assert.HasCount(2, result);
     }
 
@@ -151,7 +194,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategoriesSearchBox();
+        var result = await _categoryService.GetAllCategoriesSearchBox(new Customer(), "");
         Assert.HasCount(2, result);
     }
 
@@ -180,7 +223,7 @@ public class CategoryServiceDbTests
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
         await _categoryService.InsertCategory(category);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer(), "");
         Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
@@ -192,7 +235,7 @@ public class CategoryServiceDbTests
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer(), "");
         Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("1")));

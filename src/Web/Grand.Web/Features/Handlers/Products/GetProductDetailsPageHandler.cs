@@ -549,7 +549,9 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                 await _categoryService.GetCategoryById(productCategories.MinBy(x => x.DisplayOrder).CategoryId);
             if (category == null) return breadcrumbModel;
 
-            foreach (var catBr in await _categoryService.GetCategoryBreadCrumb(category))
+            foreach (var catBr in await _categoryService.GetCategoryBreadCrumb(category,
+                         customer: _contextAccessor.WorkContext.CurrentCustomer,
+                         storeId: _contextAccessor.StoreContext.CurrentStore.Id))
                 breadcrumbModel.CategoryBreadcrumb.Add(new CategorySimpleModel {
                     Id = catBr.Id,
                     Name = catBr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),

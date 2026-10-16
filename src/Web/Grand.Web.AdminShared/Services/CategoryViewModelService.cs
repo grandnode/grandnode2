@@ -79,6 +79,7 @@ public class CategoryViewModelService : ICategoryViewModelService
             parentId: null,
             categoryName: model.SearchCategoryName,
             storeId: model.SearchStoreId,
+            customer: null,
             pageSize: pageSize,
             pageIndex: pageIndex - 1,
             showHidden: true);

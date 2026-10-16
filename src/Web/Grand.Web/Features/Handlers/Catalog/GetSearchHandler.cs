@@ -99,12 +99,14 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
         {
             var categoriesModel = new List<SearchModel.CategoryModel>();
             //all categories
-            var allCategories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id, pageSize: 100);
+            var allCategories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id,
+                customer: request.Customer, pageSize: 100);
             foreach (var c in allCategories)
             {
                 //generate full category name (breadcrumb)
                 var categoryBreadcrumb = "";
-                var breadcrumb = _categoryService.GetCategoryBreadCrumb(c, allCategories);
+                var breadcrumb = _categoryService.GetCategoryBreadCrumb(c, allCategories, customer: request.Customer,
+                    storeId: request.Store.Id);
                 for (var i = 0; i <= breadcrumb.Count - 1; i++)
                 {
                     categoryBreadcrumb += breadcrumb[i].GetTranslation(x => x.Name, request.Language.Id);
