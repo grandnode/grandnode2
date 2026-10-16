@@ -13,8 +13,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Shipping.ByWeight.Services;
 
 namespace Shipping.ByWeight;
@@ -30,7 +28,8 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
         IProductService productService,
         ICheckoutAttributeParser checkoutAttributeParser,
         ICurrencyService currencyService,
-        IHttpContextAccessor httpContextAccessor,
+        IPricingService pricingService,
+        IShippingByWeightService shippingByWeightService,
         ByWeightShippingSettings byWeightShippingSettings)
     {
         _shippingMethodService = shippingMethodService;
@@ -39,7 +38,8 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
         _productService = productService;
         _checkoutAttributeParser = checkoutAttributeParser;
         _currencyService = currencyService;
-        _httpContextAccessor = httpContextAccessor;
+        _pricingService = pricingService;
+        _shippingByWeightService = shippingByWeightService;
         _byWeightShippingSettings = byWeightShippingSettings;
     }
 
@@ -50,10 +50,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
     private async Task<double?> GetRate(double subTotal, double weight, string shippingMethodId,
         string storeId, string warehouseId, string countryId, string stateProvinceId, string zip)
     {
-        var shippingByWeightService =
-            _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IShippingByWeightService>();
-
-        var shippingByWeightRecord = await shippingByWeightService.FindRecord(shippingMethodId,
+        var shippingByWeightRecord = await _shippingByWeightService.FindRecord(shippingMethodId,
             storeId, warehouseId, countryId, stateProvinceId, zip, weight);
         if (shippingByWeightRecord == null)
         {
@@ -94,7 +91,8 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
     private readonly IProductService _productService;
     private readonly ICheckoutAttributeParser _checkoutAttributeParser;
     private readonly ICurrencyService _currencyService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IPricingService _pricingService;
+    private readonly IShippingByWeightService _shippingByWeightService;
     private readonly ByWeightShippingSettings _byWeightShippingSettings;
 
     #endregion
@@ -215,9 +213,6 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
 
         var zip = getShippingOptionRequest.ShippingAddress.ZipPostalCode;
         double subTotal = 0;
-        var priceCalculationService =
-            _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPricingService>();
-
         foreach (var packageItem in getShippingOptionRequest.Items)
         {
             if (packageItem.ShoppingCartItem.IsFreeShipping)
@@ -225,7 +220,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
 
             var product = await _productService.GetProductById(packageItem.ShoppingCartItem.ProductId);
             if (product != null)
-                subTotal += (await priceCalculationService.GetSubTotal(packageItem.ShoppingCartItem, product)).subTotal;
+                subTotal += (await _pricingService.GetSubTotal(packageItem.ShoppingCartItem, product)).subTotal;
         }
 
         var weight = await GetTotalWeight(getShippingOptionRequest);

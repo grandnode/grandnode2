@@ -7,24 +7,31 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Payments.CashOnDelivery;
 
 public class CashOnDeliveryPaymentProvider : IPaymentProvider
 {
     private readonly CashOnDeliveryPaymentSettings _cashOnDeliveryPaymentSettings;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
+    private readonly ICurrencyService _currencyService;
+    private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
     private readonly ITranslationService _translationService;
 
     public CashOnDeliveryPaymentProvider(
         ITranslationService translationService,
-        IHttpContextAccessor httpContextAccessor,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
+        ICurrencyService currencyService,
+        IContextAccessor contextAccessor,
+        IPaymentTransactionService paymentTransactionService,
         CashOnDeliveryPaymentSettings cashOnDeliveryPaymentSettings)
     {
         _translationService = translationService;
-        _httpContextAccessor = httpContextAccessor;
+        _shoppingCartSubTotalService = shoppingCartSubTotalService;
+        _currencyService = currencyService;
+        _contextAccessor = contextAccessor;
+        _paymentTransactionService = paymentTransactionService;
         _cashOnDeliveryPaymentSettings = cashOnDeliveryPaymentSettings;
     }
 
@@ -86,28 +93,16 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
         if (_cashOnDeliveryPaymentSettings.AdditionalFee <= 0)
             return _cashOnDeliveryPaymentSettings.AdditionalFee;
 
-        double result;
         if (_cashOnDeliveryPaymentSettings.AdditionalFeePercentage)
         {
-            //percentage
-            var orderTotalCalculationService = _httpContextAccessor.HttpContext!.RequestServices
-                .GetRequiredService<IOrderCalculationService>();
-            var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-            result = (float)subtotal.subTotalWithDiscount * (float)_cashOnDeliveryPaymentSettings.AdditionalFee / 100f;
-        }
-        else
-        {
-            //fixed value
-            result = _cashOnDeliveryPaymentSettings.AdditionalFee;
+            //percentage of the subtotal, which is already in the working currency
+            var subtotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, true);
+            return (float)subtotal.subTotalWithDiscount * (float)_cashOnDeliveryPaymentSettings.AdditionalFee / 100f;
         }
 
-        if (!(result > 0)) return result;
-        var currencyService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICurrencyService>();
-        var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IContextAccessor>().WorkContext;
-        result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
-
-        //return result;
-        return result;
+        //fixed value, kept in the primary store currency
+        return await _currencyService.ConvertFromPrimaryStoreCurrency(_cashOnDeliveryPaymentSettings.AdditionalFee,
+            _contextAccessor.WorkContext.WorkingCurrency);
     }
 
     public async Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model)
@@ -161,10 +156,8 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
     /// <returns>Result</returns>
     public async Task CancelPayment(PaymentTransaction paymentTransaction)
     {
-        var paymentTransactionService = _httpContextAccessor.HttpContext!.RequestServices
-            .GetRequiredService<IPaymentTransactionService>();
         paymentTransaction.TransactionStatus = TransactionStatus.Canceled;
-        await paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
+        await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
     }
 
     public async Task<bool> SupportCapture()
