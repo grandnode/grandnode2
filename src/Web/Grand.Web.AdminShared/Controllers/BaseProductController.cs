@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
@@ -225,7 +226,8 @@ public abstract class BaseProductController(
         // unscoped bulk-delete endpoint (any store staff could delete any product id in the system,
         // bypassing AccessToEntityByStore entirely) purely because MVC routes actions regardless of
         // whether a host's views ever link to them.
-        var products = await productService.GetProductsByIds(selectedIds.ToArray(), customer: null, storeId: "", showHidden: true);
+        var products = await productService.GetProductsByIds(selectedIds.ToArray(),
+            access: CatalogAccess.IncludingHidden());
         var allowedIds = new List<string>();
         foreach (var product in products)
             if (await scope.HasAccess(product))
@@ -309,7 +311,8 @@ public abstract class BaseProductController(
                 .Select(x => x.Trim())
                 .ToList();
 
-            var products = await productService.GetProductsByIds(ids.ToArray(), customer: null, storeId: "", showHidden: true);
+            var products = await productService.GetProductsByIds(ids.ToArray(),
+                access: CatalogAccess.IncludingHidden());
             for (var i = 0; i <= products.Count - 1; i++)
             {
                 // Filters the friendly-name list, not a hard deny of the whole action: matches Store's
@@ -1223,8 +1226,9 @@ public abstract class BaseProductController(
         // associated-product set, the ones they themselves own. That vendor filter is unconditional in
         // GetAssociatedProducts regardless of showHidden, unlike its storeId parameter (which only applies
         // when showHidden is false - moot here since all three hosts pass showHidden: true).
-        var associatedProducts = await productService.GetAssociatedProducts(productId, customer: null,
-            vendorId: AssociatedProductVendorId, showHidden: true);
+        var associatedProducts = await productService.GetAssociatedProducts(productId,
+            access: CatalogAccess.IncludingHidden(),
+            vendorId: AssociatedProductVendorId);
         var associatedProductsModel = associatedProducts
             .Select(x => new ProductModel.AssociatedProductModel {
                 Id = x.Id,
@@ -1835,7 +1839,7 @@ public abstract class BaseProductController(
                 .Split([','], StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
-            products.AddRange(await productService.GetProductsByIds(ids, customer: null, storeId: "", showHidden: true));
+            products.AddRange(await productService.GetProductsByIds(ids, access: CatalogAccess.IncludingHidden()));
         }
 
         // Unlike ExportExcelAll, selectedIds is caller-supplied and not derived from a scoped search -
@@ -2011,7 +2015,8 @@ public abstract class BaseProductController(
             .ToDictionary(g => g.Key, g => g.First());
         if (byId.Count == 0) return [];
 
-        var loadedProducts = await productService.GetProductsByIds(byId.Keys.ToArray(), customer: null, storeId: "", showHidden: true);
+        var loadedProducts = await productService.GetProductsByIds(byId.Keys.ToArray(),
+            access: CatalogAccess.IncludingHidden());
         var validProducts = new List<BulkEditProductModel>();
         foreach (var product in loadedProducts)
             if (await scope.HasAccess(product))

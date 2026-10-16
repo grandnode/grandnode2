@@ -1,5 +1,6 @@
 using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -58,7 +59,8 @@ public class CategoryServiceTreeTests
     {
         await GivenATwoLevelTree();
 
-        var result = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root", includeAllLevels: true);
+        var result = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(_customer, "store"), "root", includeAllLevels: true);
 
         CollectionAssert.AreEqual(new[] { "a", "b", "a1", "b1" }, result.Select(x => x.Id).ToArray());
     }
@@ -68,7 +70,8 @@ public class CategoryServiceTreeTests
     {
         await GivenATwoLevelTree();
 
-        var result = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root");
+        var result = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(_customer, "store"), "root");
 
         CollectionAssert.AreEqual(new[] { "a", "b" }, result.Select(x => x.Id).ToArray());
     }
@@ -82,9 +85,11 @@ public class CategoryServiceTreeTests
     {
         await GivenATwoLevelTree();
 
-        var first = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root", includeAllLevels: true);
+        var first = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(_customer, "store"), "root", includeAllLevels: true);
         first.Clear();
-        var second = await _categoryService.GetAllCategoriesByParentCategoryId(_customer, "store", "root", includeAllLevels: true);
+        var second = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(_customer, "store"), "root", includeAllLevels: true);
 
         Assert.HasCount(4, second);
     }

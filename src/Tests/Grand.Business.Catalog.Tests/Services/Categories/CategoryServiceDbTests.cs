@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -49,8 +50,9 @@ public class CategoryServiceDbTests
         });
 
         //Act
-        var children = await _categoryService.GetAllCategoriesByParentCategoryId(customer: null, storeId: "",
-            parentCategoryId: "parent", showHidden: true);
+        var children = await _categoryService.GetAllCategoriesByParentCategoryId(
+            access: CatalogAccess.IncludingHidden(),
+            parentCategoryId: "parent");
 
         //Assert
         Assert.HasCount(1, children);
@@ -102,8 +104,8 @@ public class CategoryServiceDbTests
         vipCustomer.Groups.Add("vip");
 
         //Act
-        var guest = await _categoryService.GetCategoryBreadCrumb(child, new Customer(), "");
-        var vip = await _categoryService.GetCategoryBreadCrumb(child, vipCustomer, "");
+        var guest = await _categoryService.GetCategoryBreadCrumb(child, CatalogAccess.For(new Customer(), ""));
+        var vip = await _categoryService.GetCategoryBreadCrumb(child, CatalogAccess.For(vipCustomer, ""));
 
         //Assert
         Assert.HasCount(1, guest);
@@ -169,7 +171,7 @@ public class CategoryServiceDbTests
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
         await _categoryService.InsertCategory(category);
-        var result = await _categoryService.GetCategoryBreadCrumb(category, new Customer(), "");
+        var result = await _categoryService.GetCategoryBreadCrumb(category, CatalogAccess.For(new Customer(), ""));
         Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
@@ -181,7 +183,8 @@ public class CategoryServiceDbTests
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { ParentCategoryId = "3" };
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer(), "");
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer(), ""));
         Assert.IsEmpty(result);
     }
 
@@ -190,7 +193,8 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: "", customer: new Customer());
+        var result = await _categoryService.GetAllCategories(parentId: null, categoryName: "",
+            access: CatalogAccess.For(new Customer(), ""));
         Assert.HasCount(5, result);
     }
 
@@ -208,7 +212,8 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategoriesByParentCategoryId(new Customer(), "", "5");
+        var result = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(new Customer(), ""), "5");
         Assert.HasCount(1, result);
     }
 
@@ -217,7 +222,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategoriesDisplayedOnHomePage(new Customer(), "");
+        var result = await _categoryService.GetAllCategoriesDisplayedOnHomePage(CatalogAccess.For(new Customer(), ""));
         Assert.HasCount(2, result);
     }
 
@@ -226,7 +231,8 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage(new Customer(), "");
+        var result = await _categoryService.GetAllCategoriesFeaturedProductsOnHomePage(
+            CatalogAccess.For(new Customer(), ""));
         Assert.HasCount(2, result);
     }
 
@@ -264,7 +270,8 @@ public class CategoryServiceDbTests
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
         await _categoryService.InsertCategory(category);
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer(), "");
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer(), ""));
         Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
@@ -276,7 +283,8 @@ public class CategoryServiceDbTests
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
-        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory, new Customer(), "");
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory,
+            CatalogAccess.For(new Customer(), ""));
         Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("1")));

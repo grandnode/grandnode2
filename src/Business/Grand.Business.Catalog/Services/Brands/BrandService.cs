@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -48,43 +49,41 @@ public class BrandService : IBrandService
     ///     Gets all brands
     /// </summary>
     /// <param name="brandName">Brand name</param>
-    /// <param name="storeId">Store ident</param>
-    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
+    /// <param name="access">Whose view of the brands to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Brands</returns>
     public virtual async Task<IPagedList<Brand>> GetAllBrands(string brandName,
-        string storeId,
-        Customer customer,
+        CatalogAccess access,
         int pageIndex = 0,
-        int pageSize = int.MaxValue,
-        bool showHidden = false)
+        int pageSize = int.MaxValue)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var query = from m in _brandRepository.Table
             select m;
 
-        if (!showHidden)
+        if (!access.ShowHidden)
             query = query.Where(m => m.Published);
         if (!string.IsNullOrWhiteSpace(brandName))
             query = query.Where(m => m.Name != null && m.Name.ToLower().Contains(brandName.ToLower()));
 
         if (!_accessControlConfig.IgnoreAcl ||
-            (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations))
+            (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations))
         {
-            if (!showHidden && !_accessControlConfig.IgnoreAcl)
+            if (!access.ShowHidden && !_accessControlConfig.IgnoreAcl)
             {
                 //Limited to customer groups rules
-                var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
             }
 
-            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+            if (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations)
                 //Limited to stores rules
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(storeId)
+                    where !p.LimitedToStores || p.Stores.Contains(access.StoreId)
                     select p;
         }
 

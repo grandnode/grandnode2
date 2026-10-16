@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Admin;
 using Grand.Domain.Customers;
@@ -82,8 +83,9 @@ public class SearchController : BaseSearchController
         {
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInProducts)
             {
-                var products = (await _productService.SearchProducts(customer: null, keywords: searchTerm,
-                    pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true)).products;
+                var products = (await _productService.SearchProducts(
+                    access: CatalogAccess.IncludingHidden(), keywords: searchTerm,
+                    pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count)).products;
                 foreach (var product in products)
                     result.Add(new Tuple<object, int>(new
                     {
@@ -95,10 +97,12 @@ public class SearchController : BaseSearchController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
             {
-                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: searchTerm, storeId: "",
-                    customer: _contextAccessor.WorkContext.CurrentCustomer,
-                    pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden:
-                    await _groupService.IsAdmin(_contextAccessor.WorkContext.CurrentCustomer));
+                var customer = _contextAccessor.WorkContext.CurrentCustomer;
+                var access = await _groupService.IsAdmin(customer)
+                    ? CatalogAccess.IncludingHidden()
+                    : CatalogAccess.For(customer, "");
+                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: searchTerm,
+                    access: access, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count);
                 foreach (var category in categories)
                     result.Add(new Tuple<object, int>(new
                     {
@@ -110,8 +114,9 @@ public class SearchController : BaseSearchController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCollections)
             {
-                var collections = await _collectionService.GetAllCollections(searchTerm, storeId: "", customer: null,
-                    pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
+                var collections = await _collectionService.GetAllCollections(searchTerm,
+                    access: CatalogAccess.IncludingHidden(),
+                    pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count);
                 foreach (var collection in collections)
                     result.Add(new Tuple<object, int>(new
                     {

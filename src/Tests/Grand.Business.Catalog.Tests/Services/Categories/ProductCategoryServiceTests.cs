@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -43,8 +44,10 @@ public class ProductCategoryServiceTests
         await _repository.InsertAsync(product);
 
         //Act
-        var store1 = await _productCategoryService.GetProductCategoriesByCategoryId("cat", new Customer(), "store1");
-        var store2 = await _productCategoryService.GetProductCategoriesByCategoryId("cat", new Customer(), "store2");
+        var store1 = await _productCategoryService.GetProductCategoriesByCategoryId("cat",
+            CatalogAccess.For(new Customer(), "store1"));
+        var store2 = await _productCategoryService.GetProductCategoriesByCategoryId("cat",
+            CatalogAccess.For(new Customer(), "store2"));
 
         //Assert
         Assert.HasCount(1, store1);
@@ -63,8 +66,8 @@ public class ProductCategoryServiceTests
         await _repository.InsertAsync(product);
 
         //Act
-        var mappings = await _productCategoryService.GetProductCategoriesByCategoryId("cat", customer: null, storeId: "",
-            showHidden: true);
+        var mappings = await _productCategoryService.GetProductCategoriesByCategoryId("cat",
+            access: CatalogAccess.IncludingHidden());
 
         //Assert
         Assert.HasCount(1, mappings);
@@ -84,8 +87,10 @@ public class ProductCategoryServiceTests
         await _repository.InsertAsync(p2);
 
         //Act
-        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("1", new Customer(), "");
-        var pc2 = await _productCategoryService.GetProductCategoriesByCategoryId("2", new Customer(), "");
+        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("1",
+            CatalogAccess.For(new Customer(), ""));
+        var pc2 = await _productCategoryService.GetProductCategoriesByCategoryId("2",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -106,7 +111,8 @@ public class ProductCategoryServiceTests
             p1.Id);
         await _productCategoryService.InsertProductCategory(new ProductCategory { CategoryId = "2" }, p1.Id);
 
-        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("1", new Customer(), "");
+        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("1",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -131,7 +137,8 @@ public class ProductCategoryServiceTests
         pc.DisplayOrder = 5;
         await _productCategoryService.UpdateProductCategory(pc, p1.Id);
 
-        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("10", new Customer(), "");
+        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("10",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -154,7 +161,8 @@ public class ProductCategoryServiceTests
 
         await _productCategoryService.DeleteProductCategory(pc, p1.Id);
 
-        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("1", new Customer(), "");
+        var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("1",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.IsEmpty(pc1);

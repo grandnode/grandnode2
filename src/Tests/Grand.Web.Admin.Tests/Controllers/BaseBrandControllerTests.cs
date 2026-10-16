@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Stores;
@@ -122,7 +123,7 @@ public class BaseBrandControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _brandServiceMock
-            .Setup(b => b.GetAllBrands(It.IsAny<string>(), "store-1", null, 0, 10, true))
+            .Setup(b => b.GetAllBrands(It.IsAny<string>(), CatalogAccess.IncludingHidden("store-1"), 0, 10))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10));
 
         var model = new BrandListModel { SearchStoreId = "attacker-supplied-store" };
@@ -136,7 +137,8 @@ public class BaseBrandControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _brandServiceMock
-            .Setup(b => b.GetAllBrands(It.IsAny<string>(), "admin-submitted-store", null, 0, 10, true))
+            .Setup(b => b.GetAllBrands(It.IsAny<string>(),
+                CatalogAccess.IncludingHidden("admin-submitted-store"), 0, 10))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10));
 
         var model = new BrandListModel { SearchStoreId = "admin-submitted-store" };
@@ -377,7 +379,7 @@ public class BaseBrandControllerTests
     public async Task ExportXlsx_Success_ReturnsXlsxFile()
     {
         _brandServiceMock
-            .Setup(b => b.GetAllBrands("", "", null, 0, int.MaxValue, true))
+            .Setup(b => b.GetAllBrands("", CatalogAccess.IncludingHidden(), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand> { new() { Id = "b1" } }, 0, int.MaxValue));
         var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
         exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>(), It.IsAny<CancellationToken>())).ReturnsAsync([1, 2, 3]);
@@ -394,7 +396,7 @@ public class BaseBrandControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _brandServiceMock
-            .Setup(b => b.GetAllBrands("", "store-1", null, 0, int.MaxValue, true))
+            .Setup(b => b.GetAllBrands("", CatalogAccess.IncludingHidden("store-1"), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand> { new() { Id = "b1" } }, 0, int.MaxValue));
         var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
         exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>(), It.IsAny<CancellationToken>())).ReturnsAsync([1, 2, 3]);
@@ -403,15 +405,17 @@ public class BaseBrandControllerTests
 
         var file = result as FileContentResult;
         Assert.IsNotNull(file);
-        _brandServiceMock.Verify(b => b.GetAllBrands("", "store-1", null, 0, int.MaxValue, true), Times.Once);
-        _brandServiceMock.Verify(b => b.GetAllBrands("", "", null, 0, int.MaxValue, true), Times.Never);
+        _brandServiceMock.Verify(b => b.GetAllBrands("",
+            CatalogAccess.IncludingHidden("store-1"), 0, int.MaxValue), Times.Once);
+        _brandServiceMock.Verify(b => b.GetAllBrands("",
+            CatalogAccess.IncludingHidden(), 0, int.MaxValue), Times.Never);
     }
 
     [TestMethod]
     public async Task ExportXlsx_ExportThrows_ShowsErrorAndRedirectsToList()
     {
         _brandServiceMock
-            .Setup(b => b.GetAllBrands("", "", null, 0, int.MaxValue, true))
+            .Setup(b => b.GetAllBrands("", CatalogAccess.IncludingHidden(), 0, int.MaxValue))
             .ThrowsAsync(new InvalidOperationException("boom"));
         var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
 
@@ -495,7 +499,7 @@ public class BaseBrandControllerTests
     public async Task ExportXlsx_CancelledWithoutAbortedRequest_ShowsErrorAndRedirectsToList()
     {
         _brandServiceMock
-            .Setup(b => b.GetAllBrands("", "", null, 0, int.MaxValue, true))
+            .Setup(b => b.GetAllBrands("", CatalogAccess.IncludingHidden(), 0, int.MaxValue))
             .ThrowsAsync(new OperationCanceledException());
         var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
 

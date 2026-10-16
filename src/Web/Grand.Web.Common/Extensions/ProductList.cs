@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 
@@ -16,18 +17,15 @@ public static class ProductList
             searchCategoryIds.Add(searchCategoryId);
 
         var products = (await productService.SearchProducts(
-            customer: null,
+            access: CatalogAccess.IncludingHidden(searchStoreId),
             categoryIds: searchCategoryIds,
             brandId: searchBrandId,
             collectionId: searchCollectionId,
-            storeId: searchStoreId,
             vendorId: searchVendorId,
             productType: productTypeId > 0 ? (ProductType?)productTypeId : null,
             keywords: searchProductName,
             pageIndex: pageIndex - 1,
-            pageSize: pageSize,
-            showHidden: true
-        )).products;
+            pageSize: pageSize)).products;
 
         return products;
     }

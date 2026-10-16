@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Collections;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -45,8 +46,10 @@ public class ProductCollectionServiceTests
         vipCustomer.Groups.Add("vip");
 
         //Act
-        var guest = await _productCollectionService.GetProductCollectionsByCollectionId("col", "", new Customer());
-        var vip = await _productCollectionService.GetProductCollectionsByCollectionId("col", "", vipCustomer);
+        var guest = await _productCollectionService.GetProductCollectionsByCollectionId("col",
+            CatalogAccess.For(new Customer(), ""));
+        var vip = await _productCollectionService.GetProductCollectionsByCollectionId("col",
+            CatalogAccess.For(vipCustomer, ""));
 
         //Assert
         Assert.IsEmpty(guest);
@@ -67,8 +70,10 @@ public class ProductCollectionServiceTests
         await _repository.InsertAsync(p2);
 
         //Act
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "", new Customer());
-        var pc2 = await _productCollectionService.GetProductCollectionsByCollectionId("2", "", new Customer());
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1",
+            CatalogAccess.For(new Customer(), ""));
+        var pc2 = await _productCollectionService.GetProductCollectionsByCollectionId("2",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -89,7 +94,8 @@ public class ProductCollectionServiceTests
             new ProductCollection { CollectionId = "1", DisplayOrder = 10 }, p1.Id);
         await _productCollectionService.InsertProductCollection(new ProductCollection { CollectionId = "2" }, p1.Id);
 
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "", new Customer());
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -114,7 +120,8 @@ public class ProductCollectionServiceTests
         pc.DisplayOrder = 5;
         await _productCollectionService.UpdateProductCollection(pc, p1.Id);
 
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("10", "", new Customer());
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("10",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.HasCount(1, pc1);
@@ -137,7 +144,8 @@ public class ProductCollectionServiceTests
 
         await _productCollectionService.DeleteProductCollection(pc, p1.Id);
 
-        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "", new Customer());
+        var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1",
+            CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.IsEmpty(pc1);

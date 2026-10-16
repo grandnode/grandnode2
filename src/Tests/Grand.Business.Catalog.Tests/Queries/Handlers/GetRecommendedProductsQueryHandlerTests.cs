@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -64,7 +65,7 @@ public class GetRecommendedProductsQueryHandlerTests
         _customerGroupProductRepositoryMock.Setup(r => r.Table)
             .Returns(new List<CustomerGroupProduct> { new() { CustomerGroupId = "1", ProductId = "p1" } }
                 .AsQueryable());
-        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1" }, customer, "1", false))
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1" }, CatalogAccess.For(customer, "1")))
             .ReturnsAsync(new List<Product>());
 
         //Act
@@ -75,6 +76,7 @@ public class GetRecommendedProductsQueryHandlerTests
         //Assert
         _casheManagerMock.Verify(c => c.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, "1", "1"), It.IsAny<Func<Task<List<Product>>>>()),
             Times.Once);
-        _productServiceMock.Verify(p => p.GetProductsByIds(new[] { "p1" }, customer, "1", false), Times.Once);
+        _productServiceMock.Verify(p => p.GetProductsByIds(new[] { "p1" },
+            CatalogAccess.For(customer, "1")), Times.Once);
     }
 }

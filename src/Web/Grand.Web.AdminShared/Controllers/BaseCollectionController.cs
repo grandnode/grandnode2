@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions;
@@ -76,7 +77,7 @@ public abstract class BaseCollectionController(
     {
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
         var collections = await collectionService.GetAllCollections(model.SearchCollectionName,
-            model.SearchStoreId, customer: null, command.Page - 1, command.PageSize, true);
+            CatalogAccess.IncludingHidden(model.SearchStoreId), command.Page - 1, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = collections.Select(x => x.ToModel()),
             Total = collections.TotalCount
@@ -252,7 +253,8 @@ public abstract class BaseCollectionController(
     {
         try
         {
-            var bytes = await exportManager.Export(await collectionService.GetAllCollections(collectionName: "", storeId: scope.DefaultStoreId ?? "", customer: null, showHidden: true),
+            var bytes = await exportManager.Export(await collectionService.GetAllCollections(collectionName: "",
+                access: CatalogAccess.IncludingHidden(scope.DefaultStoreId ?? "")),
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "collections.xlsx");
         }

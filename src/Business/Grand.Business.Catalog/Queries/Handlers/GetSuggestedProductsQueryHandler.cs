@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -38,8 +39,8 @@ public class GetSuggestedProductsQueryHandler : IRequestHandler<GetSuggestedProd
 
                 var productIds = query.Take(request.ProductsNumber).ToList();
 
-                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray(), customer: request.Customer,
-                    storeId: request.StoreId);
+                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray(),
+                    access: CatalogAccess.For(request.Customer, request.StoreId));
 
                 return ids.Where(product => product.Published).ToList();
             });

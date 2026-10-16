@@ -12,6 +12,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
@@ -225,8 +226,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
                 #region Grouped product
 
                 var associatedProducts =
-                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.WorkContext.CurrentCustomer,
-                        _contextAccessor.StoreContext.CurrentStore.Id);
+                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.CatalogAccess());
 
                 //add to cart button (ignore "DisableBuyButton" property for grouped products)
                 priceModel.DisableBuyButton = !enableShoppingCart || !displayPrices;

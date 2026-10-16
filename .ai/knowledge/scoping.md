@@ -85,6 +85,15 @@ Prices are stored in the store's primary currency and converted for display. Do 
 
 Code in those paths must receive store, customer, or language **explicitly as parameters**. Reaching for `IWorkContext` there yields null or a stale context.
 
+### Catalog reads take a `CatalogAccess`
+
+The catalog read services (`IBrandService`, `ICategoryService`, `ICollectionService`, `IProductService` and the product mapping services) take a `CatalogAccess` instead of a customer, a store id and a `showHidden` flag:
+
+- `CatalogAccess.For(customer, storeId)`: the published records the customer's groups may see in the store. The storefront gets it from the request with `IContextAccessor.CatalogAccess()` (`Grand.Web.Common.Extensions`).
+- `CatalogAccess.IncludingHidden(storeId = "")`: every record, unpublished and group-limited ones included, for the admin panels, import, export and the sitemap. A store id still leaves out the records limited to other stores.
+
+A store id limits the records whenever it is set. Pass `IncludingHidden()` without a store when a back-office screen must see every store's records.
+
 ## Review checklist
 
 - [ ] Every list query filters by store, and by vendor when the caller is a vendor.
