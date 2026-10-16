@@ -312,7 +312,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             if (!isAssociatedProduct)
             {
                 var associatedProducts =
-                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.StoreContext.CurrentStore.Id);
+                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.WorkContext.CurrentCustomer,
+                        _contextAccessor.StoreContext.CurrentStore.Id);
                 foreach (var associatedProduct in associatedProducts)
                     model.AssociatedProducts.Add(
                         await PrepareProductDetailsModel(store, associatedProduct, null, true));

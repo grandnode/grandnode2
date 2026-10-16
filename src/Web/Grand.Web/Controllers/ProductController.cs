@@ -72,7 +72,8 @@ public class ProductController : BasePublicController
         if (!_catalogSettings.RecentlyViewedProductsEnabled)
             return Content("");
 
-        var products = await _recentlyViewedProductsService.GetRecentlyViewedProducts(_contextAccessor.WorkContext.CurrentCustomer.Id,
+        var products = await _recentlyViewedProductsService.GetRecentlyViewedProducts(_contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id,
             _catalogSettings.RecentlyViewedProductsNumber);
 
         //prepare model
@@ -94,7 +95,8 @@ public class ProductController : BasePublicController
             .Select(x => x.ProductId2).ToArray();
 
         //load products
-        var products = await _productService.GetProductsByIds(productIds);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         var model = await _mediator.Send(new GetProductOverview {
             PreparePictureModel = true,
@@ -119,6 +121,7 @@ public class ProductController : BasePublicController
             return Content("");
 
         var products = (await _productService.SearchProducts(
+            customer: _contextAccessor.WorkContext.CurrentCustomer,
             storeId: _contextAccessor.StoreContext.CurrentStore.Id,
             visibleIndividuallyOnly: true,
             markedAsNewOnly: true,

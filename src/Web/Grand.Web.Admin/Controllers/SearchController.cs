@@ -82,7 +82,7 @@ public class SearchController : BaseSearchController
         {
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInProducts)
             {
-                var products = (await _productService.SearchProducts(keywords: searchTerm,
+                var products = (await _productService.SearchProducts(customer: null, keywords: searchTerm,
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true)).products;
                 foreach (var product in products)
                     result.Add(new Tuple<object, int>(new

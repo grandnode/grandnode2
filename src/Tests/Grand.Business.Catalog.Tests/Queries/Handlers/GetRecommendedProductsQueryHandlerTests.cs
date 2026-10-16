@@ -41,4 +41,26 @@ public class GetRecommendedProductsQueryHandlerTests
         _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
             Times.Once);
     }
+
+    [TestMethod]
+    public async Task Handle_AuthorizesProductsAgainstCustomerAndStoreOfQuery()
+    {
+        //Arrange
+        var customer = new Customer();
+        _casheManagerMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()))
+            .Returns((string _, Func<Task<List<Product>>> acquire) => acquire());
+        _customerGroupProductRepositoryMock.Setup(r => r.Table)
+            .Returns(new List<CustomerGroupProduct> { new() { CustomerGroupId = "1", ProductId = "p1" } }
+                .AsQueryable());
+        _productServiceMock.Setup(p => p.GetProductsByIds(It.IsAny<string[]>(), customer, "1", false))
+            .ReturnsAsync(new List<Product>());
+
+        //Act
+        await handler.Handle(new GetRecommendedProductsQuery {
+            CustomerGroupIds = ["1"], StoreId = "1", Customer = customer
+        }, CancellationToken.None);
+
+        //Assert
+        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(), customer, "1", false), Times.Once);
+    }
 }

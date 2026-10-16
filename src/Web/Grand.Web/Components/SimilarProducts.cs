@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
@@ -14,11 +15,13 @@ public class SimilarProductsViewComponent : BaseViewComponent
     public SimilarProductsViewComponent(
         IProductService productService,
         IMediator mediator,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        IContextAccessor contextAccessor)
     {
         _productService = productService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -32,7 +35,8 @@ public class SimilarProductsViewComponent : BaseViewComponent
         if (!productIds.Any())
             return Content("");
 
-        var products = await _productService.GetProductsByIds(productIds);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         if (!products.Any())
             return Content("");
@@ -56,6 +60,7 @@ public class SimilarProductsViewComponent : BaseViewComponent
     private readonly IMediator _mediator;
 
     private readonly CatalogSettings _catalogSettings;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 }

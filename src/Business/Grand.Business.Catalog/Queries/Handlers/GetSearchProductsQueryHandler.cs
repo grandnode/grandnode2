@@ -34,8 +34,11 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         // Clean up request parameters
         CleanupRequestParameters(request);
 
-        // Access control list. Allowed customer groups
-        var allowedCustomerGroupsIds = request.CustomerGroupIds?.ToArray() ?? request.Customer.GetCustomerGroupIds();
+        // Access control list. Allowed customer groups; the customer is read only when the filter applies
+        var allowedCustomerGroupsIds = request.CustomerGroupIds?.ToArray()
+                                       ?? (request.ShowHidden || _accessControlConfig.IgnoreAcl
+                                           ? []
+                                           : request.Customer.GetCustomerGroupIds());
 
         // Build base query
         var query = _productRepository.Table.AsQueryable();

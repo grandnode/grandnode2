@@ -42,7 +42,8 @@ public class CrossSellProductsViewComponent : BaseViewComponent
             .ToList();
 
         var products =
-            await _productService.GetCrossSellProductsByShoppingCart(cart, _shoppingCartSettings.CrossSellsNumber);
+            await _productService.GetCrossSellProductsByShoppingCart(cart, _shoppingCartSettings.CrossSellsNumber,
+                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
 
         if (!products.Any())
             return Content("");

@@ -225,7 +225,8 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
                 #region Grouped product
 
                 var associatedProducts =
-                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.StoreContext.CurrentStore.Id);
+                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.WorkContext.CurrentCustomer,
+                        _contextAccessor.StoreContext.CurrentStore.Id);
 
                 //add to cart button (ignore "DisableBuyButton" property for grouped products)
                 priceModel.DisableBuyButton = !enableShoppingCart || !displayPrices;

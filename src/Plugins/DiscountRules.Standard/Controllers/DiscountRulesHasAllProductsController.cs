@@ -174,6 +174,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
             searchCategoryIds.Add(model.SearchCategoryId);
 
         var products = (await _productService.SearchProducts(
+            customer: null,
             categoryIds: searchCategoryIds,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,
@@ -229,7 +230,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
             ids.Add(str2);
         }
 
-        var products = await _productService.GetProductsByIds(ids.ToArray(), true);
+        var products = await _productService.GetProductsByIds(ids.ToArray(), customer: null, storeId: "", showHidden: true);
         for (var i = 0; i <= products.Count - 1; i++)
         {
             result += products[i].Name;

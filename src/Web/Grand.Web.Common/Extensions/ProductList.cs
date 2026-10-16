@@ -16,6 +16,7 @@ public static class ProductList
             searchCategoryIds.Add(searchCategoryId);
 
         var products = (await productService.SearchProducts(
+            customer: null,
             categoryIds: searchCategoryIds,
             brandId: searchBrandId,
             collectionId: searchCollectionId,

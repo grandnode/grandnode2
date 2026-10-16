@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
 using Grand.Web.Events.Cache;
@@ -17,12 +18,14 @@ public class HomePageProductsViewComponent : BaseViewComponent
         IProductService productService,
         IMediator mediator,
         ICacheBase cacheBase,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        IContextAccessor contextAccessor)
     {
         _productService = productService;
         _mediator = mediator;
         _cacheBase = cacheBase;
         _catalogSettings = catalogSettings;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -34,7 +37,8 @@ public class HomePageProductsViewComponent : BaseViewComponent
         var productsIds = await _cacheBase.GetAsync(CacheKeyConst.HOMEPAGE_PRODUCTS_MODEL_KEY,
             async () => await _productService.GetAllProductsDisplayedOnHomePage());
 
-        var products = await _productService.GetProductsByIds(productsIds.ToArray());
+        var products = await _productService.GetProductsByIds(productsIds.ToArray(), _contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         if (!products.Any())
             return Content("");
@@ -58,6 +62,7 @@ public class HomePageProductsViewComponent : BaseViewComponent
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
     private readonly CatalogSettings _catalogSettings;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 }

@@ -39,7 +39,8 @@ public class GetRecommendedProductsQueryHandler : IRequestHandler<GetRecommended
 
                 var productIds = query.ToList();
 
-                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray());
+                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray(), customer: request.Customer,
+                    storeId: request.StoreId);
 
                 return ids.Where(product => product.Published).ToList();
             });

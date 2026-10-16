@@ -320,6 +320,7 @@ public class BaseProductReviewControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual("", result.Content);
         productService.Verify(s => s.SearchProducts(
+            customer: null,
             loadFilterableSpecificationAttributeOptionIds: It.IsAny<bool>(),
             pageIndex: It.IsAny<int>(),
             pageSize: It.IsAny<int>(),
@@ -355,6 +356,7 @@ public class BaseProductReviewControllerTests
         _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
         var productService = new Mock<IProductService>();
         productService.Setup(s => s.SearchProducts(
+                customer: null,
                 loadFilterableSpecificationAttributeOptionIds: false,
                 pageIndex: 0,
                 pageSize: 15,

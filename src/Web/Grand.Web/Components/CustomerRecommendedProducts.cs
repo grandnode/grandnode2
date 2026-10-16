@@ -34,7 +34,8 @@ public class CustomerRecommendedProductsViewComponent : BaseViewComponent
 
         var products = await _mediator.Send(new GetRecommendedProductsQuery {
             CustomerGroupIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds(),
-            StoreId = _contextAccessor.StoreContext.CurrentStore.Id
+            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer
         });
 
         if (!products.Any())

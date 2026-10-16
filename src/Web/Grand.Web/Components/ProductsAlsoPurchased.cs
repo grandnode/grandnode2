@@ -51,7 +51,8 @@ public class ProductsAlsoPurchasedViewComponent : BaseViewComponent
         );
 
         //load products
-        var products = await _productService.GetProductsByIds(productIds);
+        var products = await _productService.GetProductsByIds(productIds, _contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         if (!products.Any())
             return Content("");

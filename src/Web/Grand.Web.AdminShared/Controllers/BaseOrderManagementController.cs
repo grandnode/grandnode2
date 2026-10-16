@@ -497,7 +497,7 @@ public abstract class BaseOrderManagementController(
         if (!string.IsNullOrEmpty(model.SearchCategoryId)) categoryIds.Add(model.SearchCategoryId);
 
         var gridModel = new Grand.Web.Common.DataSource.DataSourceResult();
-        var products = (await productService.SearchProducts(categoryIds: categoryIds,
+        var products = (await productService.SearchProducts(customer: null, categoryIds: categoryIds,
             storeId: Scope.DefaultStoreId,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,

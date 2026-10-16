@@ -66,7 +66,8 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
         }
 
         //load products
-        var products = await _productService.GetProductsByIds(productIds.ToArray());
+        var products = await _productService.GetProductsByIds(productIds.ToArray(), _contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         if (!products.Any())
             return Content("");

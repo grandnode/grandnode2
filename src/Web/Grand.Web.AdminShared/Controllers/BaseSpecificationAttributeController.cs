@@ -43,6 +43,7 @@ public abstract class BaseSpecificationAttributeController(
         if (optionIds.Count > 0)
         {
             var products = (await productService.SearchProducts(
+                customer: null,
                 storeId: scope.DefaultStoreId ?? "",
                 specificationOptions: optionIds,
                 pageIndex: command.Page - 1,

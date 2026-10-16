@@ -144,6 +144,7 @@ public abstract class BaseProductReviewController(
 
         const int productNumber = 15;
         var products = (await productService.SearchProducts(
+            customer: null,
             storeId: scope.DefaultStoreId ?? "",
             keywords: term,
             pageSize: productNumber,

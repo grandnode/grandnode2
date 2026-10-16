@@ -61,4 +61,20 @@ public class GetSearchProductsQueryHandlerTests
         //Assert
         CollectionAssert.AreEquivalent(new[] { "open", "guests" }, result.products.Select(p => p.Id).ToList());
     }
+
+    [TestMethod]
+    public async Task Handle_WhenShowHiddenWithoutCustomer_DoesNotFilterByGroups()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Product { Id = "open", Published = true, VisibleIndividually = true });
+        await _repository.InsertAsync(new Product {
+            Id = "admins", Published = true, VisibleIndividually = true, LimitedToGroups = true,
+            CustomerGroups = ["admins-group"]
+        });
+        var searchProductsQuery = new GetSearchProductsQuery { ShowHidden = true };
+        //Act
+        var result = await handler.Handle(searchProductsQuery, CancellationToken.None);
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "open", "admins" }, result.products.Select(p => p.Id).ToList());
+    }
 }

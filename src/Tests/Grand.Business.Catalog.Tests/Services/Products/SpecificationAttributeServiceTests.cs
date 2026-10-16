@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
@@ -30,7 +31,7 @@ public class SpecificationAttributeServiceTests
         _repositoryProduct = new MongoDBRepositoryTest<Product>();
         _mediatorMock = new Mock<IMediator>();
         _productServiceMock = new Mock<IProductService>();
-        _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), false)).Returns(() =>
+        _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), It.IsAny<Customer>(), It.IsAny<string>(), false)).Returns(() =>
             Task.FromResult((IList<Product>)new List<Product> {
                 new() { Id = "1", Published = true }, new() { Id = "2", Published = true },
                 new() { Id = "3", Published = true }

@@ -44,9 +44,12 @@ public interface IProductService
     ///     Gets products by identifier
     /// </summary>
     /// <param name="productIds">Product identifiers</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="showHidden">Show hidden</param>
     /// <returns>Products</returns>
-    Task<IList<Product>> GetProductsByIds(string[] productIds, bool showHidden = false);
+    Task<IList<Product>> GetProductsByIds(string[] productIds, Customer customer, string storeId,
+        bool showHidden = false);
 
     /// <summary>
     ///     Gets products by discount
@@ -115,6 +118,7 @@ public interface IProductService
     /// <summary>
     ///     Search products
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the search</param>
     /// <param name="loadFilterableSpecificationAttributeOptionIds">
     ///     A value indicating whether we should load the specification
     ///     attribute option identifiers applied to loaded products (all pages)
@@ -158,6 +162,7 @@ public interface IProductService
     /// </param>
     /// <returns>Products</returns>
     Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> SearchProducts(
+        Customer customer,
         bool loadFilterableSpecificationAttributeOptionIds = false,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
@@ -201,11 +206,12 @@ public interface IProductService
     ///     Gets associated products
     /// </summary>
     /// <param name="parentGroupedProductId">Parent product identifier (used with grouped products)</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="storeId">Store identifier; "" to load all records</param>
     /// <param name="vendorId">Vendor identifier; "" to load all records</param>
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Products</returns>
-    Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId,
+    Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId, Customer customer,
         string storeId = "", string vendorId = "", bool showHidden = false);
 
     /// <summary>
@@ -289,8 +295,11 @@ public interface IProductService
     /// </summary>
     /// <param name="cart">Shopping cart</param>
     /// <param name="numberOfProducts">Number of products to return</param>
+    /// <param name="customer">Customer whose groups limit the result</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <returns>Cross-sells</returns>
-    Task<IList<Product>> GetCrossSellProductsByShoppingCart(IList<ShoppingCartItem> cart, int numberOfProducts);
+    Task<IList<Product>> GetCrossSellProductsByShoppingCart(IList<ShoppingCartItem> cart, int numberOfProducts,
+        Customer customer, string storeId);
 
     #endregion
 

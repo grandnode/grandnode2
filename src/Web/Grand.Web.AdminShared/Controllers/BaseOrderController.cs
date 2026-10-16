@@ -181,6 +181,7 @@ public abstract class BaseOrderController(
 
         const int productNumber = 15;
         var products = (await productService.SearchProducts(
+            customer: null,
             storeId: scope.DefaultStoreId,
             vendorId: scope.DefaultVendorId,
             keywords: term,

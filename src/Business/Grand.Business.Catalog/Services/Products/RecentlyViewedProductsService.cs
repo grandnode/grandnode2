@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 
@@ -81,13 +82,15 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
     /// <summary>
     ///     Gets a "recently viewed products" list
     /// </summary>
-    /// <param name="customerId">Customer ident</param>
+    /// <param name="customer">Customer whose list is loaded and whose groups limit it</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="number">Number of products to load</param>
     /// <returns>"recently viewed products" list</returns>
-    public virtual async Task<IList<Product>> GetRecentlyViewedProducts(string customerId, int number)
+    public virtual async Task<IList<Product>> GetRecentlyViewedProducts(Customer customer, string storeId, int number)
     {
-        var productIds = await GetRecentlyViewedProductsIds(customerId, number);
-        return (await _productService.GetProductsByIds(productIds.ToArray())).Where(product => product.Published)
+        var productIds = await GetRecentlyViewedProductsIds(customer.Id, number);
+        return (await _productService.GetProductsByIds(productIds.ToArray(), customer, storeId))
+            .Where(product => product.Published)
             .ToList();
     }
 

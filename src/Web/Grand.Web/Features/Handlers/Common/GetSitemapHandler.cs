@@ -95,6 +95,7 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             {
                 //limit product to 200 until paging is supported on this page
                 var products = (await _productService.SearchProducts(
+                    customer: request.Customer,
                     storeId: request.Store.Id,
                     visibleIndividuallyOnly: true,
                     pageSize: 200)).products;

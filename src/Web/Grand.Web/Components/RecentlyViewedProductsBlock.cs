@@ -34,7 +34,8 @@ public class RecentlyViewedProductsBlockViewComponent : BaseViewComponent
             return Content("");
 
         var preparePictureModel = productThumbPictureSize.HasValue;
-        var products = await _recentlyViewedProductsService.GetRecentlyViewedProducts(_contextAccessor.WorkContext.CurrentCustomer.Id,
+        var products = await _recentlyViewedProductsService.GetRecentlyViewedProducts(_contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id,
             _catalogSettings.RecentlyViewedProductsNumber);
 
         if (!products.Any())

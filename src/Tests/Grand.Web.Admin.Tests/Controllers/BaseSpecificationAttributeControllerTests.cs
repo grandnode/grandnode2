@@ -84,6 +84,7 @@ public class BaseSpecificationAttributeControllerTests
         _service.Setup(x => x.GetSpecificationAttributeById("s1")).ReturnsAsync(spec);
         _scope.Setup(x => x.CanView(spec)).ReturnsAsync(true);
         _productService.Setup(x => x.SearchProducts(
+            customer: null,
             loadFilterableSpecificationAttributeOptionIds: false,
             pageIndex: 0,
             pageSize: 10,
@@ -116,6 +117,7 @@ public class BaseSpecificationAttributeControllerTests
         await _sut.UsedByProducts(new DataSourceRequest { Page = 1, PageSize = 10 }, "s1");
 
         _productService.Verify(x => x.SearchProducts(
+            customer: null,
             loadFilterableSpecificationAttributeOptionIds: false,
             pageIndex: 0,
             pageSize: 10,

@@ -623,6 +623,7 @@ public class ProductViewModelService(
         // of any vendor filter on the model. Admin/Store have no DefaultVendorId, so this falls back to
         // model.SearchVendorId unchanged for them.
         var products = (await productService.SearchProducts(
+            customer: null,
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
@@ -718,6 +719,7 @@ public class ProductViewModelService(
         // vendorId: same override as PrepareProductsModel above - mirrors Vendor's original PrepareProducts,
         // which always passed vendorId: CurrentVendor.Id regardless of the search model.
         var products = (await productService.SearchProducts(
+            customer: null,
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
@@ -876,7 +878,7 @@ public class ProductViewModelService(
     public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
     {
         var products = new List<Product>();
-        products.AddRange(await productService.GetProductsByIds(selectedIds.ToArray(), true));
+        products.AddRange(await productService.GetProductsByIds(selectedIds.ToArray(), customer: null, storeId: "", showHidden: true));
         for (var i = 0; i < products.Count; i++)
         {
             await DeleteProduct(products[i]);
@@ -1320,7 +1322,7 @@ public class ProductViewModelService(
         // has no SearchVendorId field for a caller to (mis)supply in the first place, so there is nothing
         // to fall back to for Admin/Store, whose scope.DefaultVendorId is null and who intentionally see
         // every vendor's products in bulk-edit.
-        var products = (await productService.SearchProducts(categoryIds: searchCategoryIds,
+        var products = (await productService.SearchProducts(customer: null, categoryIds: searchCategoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,

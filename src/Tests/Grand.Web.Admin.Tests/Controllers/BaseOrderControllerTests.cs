@@ -264,7 +264,7 @@ public class BaseOrderControllerTests
             new Grand.Domain.PagedList<Grand.Domain.Catalog.Product>(new List<Grand.Domain.Catalog.Product>(), 0, 15);
         productServiceMock
             .Setup(p => p.SearchProducts(
-                It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
+                null, It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
                 null, "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
                 It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(), It.IsAny<double?>(),
                 It.IsAny<string>(), "abc", It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(),
@@ -275,7 +275,7 @@ public class BaseOrderControllerTests
         await _controller.ProductSearchAutoComplete("abc", productServiceMock.Object);
 
         productServiceMock.Verify(p => p.SearchProducts(
-            It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
+            null, It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
             null, "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
             It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(), It.IsAny<double?>(),
             It.IsAny<string>(), "abc", It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(),

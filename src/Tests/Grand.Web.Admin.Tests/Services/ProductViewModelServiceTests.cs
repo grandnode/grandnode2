@@ -306,7 +306,7 @@ public class ProductViewModelServiceTests
     private void SetupSearchProducts()
     {
         _productServiceMock.Setup(p => p.SearchProducts(
-                It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(),
+                null, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<ProductType?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(),
                 It.IsAny<double?>(), It.IsAny<double?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
@@ -318,7 +318,7 @@ public class ProductViewModelServiceTests
     private void VerifySearchProductsCalledWithVendorId(string expectedVendorId)
     {
         _productServiceMock.Verify(p => p.SearchProducts(
-            It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(),
+            null, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), expectedVendorId, It.IsAny<string>(),
             It.IsAny<ProductType?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(),
             It.IsAny<double?>(), It.IsAny<double?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),

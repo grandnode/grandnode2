@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
@@ -16,12 +17,14 @@ public class BlogPostProductsViewComponent : BaseViewComponent
         IProductService productService,
         IMediator mediator,
         IBlogService blogService,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        IContextAccessor contextAccessor)
     {
         _productService = productService;
         _mediator = mediator;
         _blogService = blogService;
         _catalogSettings = catalogSettings;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -34,7 +37,8 @@ public class BlogPostProductsViewComponent : BaseViewComponent
         if (!blogproducts.Any())
             return Content("");
 
-        var products = await _productService.GetProductsByIds(blogproducts.Select(x => x.ProductId).ToArray());
+        var products = await _productService.GetProductsByIds(blogproducts.Select(x => x.ProductId).ToArray(), _contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         if (!products.Any())
             return Content("");
@@ -59,6 +63,7 @@ public class BlogPostProductsViewComponent : BaseViewComponent
     private readonly IBlogService _blogService;
 
     private readonly CatalogSettings _catalogSettings;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 }
