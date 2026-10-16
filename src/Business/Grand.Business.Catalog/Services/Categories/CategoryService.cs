@@ -146,7 +146,7 @@ public class CategoryService : ICategoryService
     /// <summary>
     ///     Gets all categories filtered by parent category identifier
     /// </summary>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="parentCategoryId">Parent category identifier</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
@@ -175,8 +175,9 @@ public class CategoryService : ICategoryService
     private async Task<IList<Category>> GetChildCategories(string parentCategoryId, bool showHidden, Customer customer,
         string storeId)
     {
+        //hidden records are not filtered by customer or store, so the key does not depend on them
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden,
-            string.Join(",", customer.GetCustomerGroupIds()), storeId);
+            showHidden ? "" : string.Join(",", customer.GetCustomerGroupIds()), showHidden ? "" : storeId);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
@@ -215,6 +216,9 @@ public class CategoryService : ICategoryService
     public virtual async Task<IList<Category>> GetAllCategoriesDisplayedOnHomePage(Customer customer, string storeId,
         bool showHidden = false)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        if (!showHidden) ArgumentNullException.ThrowIfNull(customer);
+
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.ShowOnHomePage)
             .OrderBy(x => x.DisplayOrder);
@@ -238,6 +242,9 @@ public class CategoryService : ICategoryService
     public virtual async Task<IList<Category>> GetAllCategoriesFeaturedProductsOnHomePage(Customer customer, string storeId,
         bool showHidden = false)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        if (!showHidden) ArgumentNullException.ThrowIfNull(customer);
+
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
@@ -259,6 +266,9 @@ public class CategoryService : ICategoryService
     /// <returns>Categories</returns>
     public virtual async Task<IList<Category>> GetAllCategoriesSearchBox(Customer customer, string storeId)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        ArgumentNullException.ThrowIfNull(customer);
+
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.ShowOnSearchBox)
             .OrderBy(x => x.SearchBoxDisplayOrder);
@@ -282,6 +292,9 @@ public class CategoryService : ICategoryService
     public virtual async Task<IList<Category>> GetCategoryBreadCrumb(Category category, Customer customer, string storeId,
         bool showHidden = false)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        if (!showHidden) ArgumentNullException.ThrowIfNull(customer);
+
         var result = new List<Category>();
 
         //used to avoid circular references
@@ -317,6 +330,9 @@ public class CategoryService : ICategoryService
     public virtual IList<Category> GetCategoryBreadCrumb(Category category, IList<Category> allCategories,
         Customer customer, string storeId, bool showHidden = false)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        if (!showHidden) ArgumentNullException.ThrowIfNull(customer);
+
         var result = new List<Category>();
 
         //used to avoid circular references

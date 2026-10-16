@@ -11,7 +11,7 @@ public interface IProductCategoryService
     ///     Gets product category mapping collection
     /// </summary>
     /// <param name="categoryId">Category id</param>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>

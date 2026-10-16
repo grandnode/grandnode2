@@ -62,6 +62,13 @@ public class ProductServiceTests
     }
 
     [TestMethod]
+    public async Task GetProductsByIds_WithoutCustomer_Throws()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
+            _productService.GetProductsByIds(["p1"], null, "store1"));
+    }
+
+    [TestMethod]
     public async Task SearchProducts_SendsGivenCustomerInQuery()
     {
         //Arrange

@@ -40,6 +40,30 @@ public class CategoryServiceDbTests
     }
 
     [TestMethod]
+    public async Task GetAllCategoriesByParentCategoryId_ShowHiddenWithoutCustomer_ReturnsHiddenChildren()
+    {
+        //Arrange
+        await _categoryRepository.InsertAsync(new Category {
+            Id = "child", ParentCategoryId = "parent", Published = false,
+            LimitedToGroups = true, CustomerGroups = new List<string> { "vip" }
+        });
+
+        //Act
+        var children = await _categoryService.GetAllCategoriesByParentCategoryId(customer: null, storeId: "",
+            parentCategoryId: "parent", showHidden: true);
+
+        //Assert
+        Assert.HasCount(1, children);
+    }
+
+    [TestMethod]
+    public async Task GetAllCategoriesSearchBox_WithoutCustomer_Throws()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
+            _categoryService.GetAllCategoriesSearchBox(null, "store1"));
+    }
+
+    [TestMethod]
     public async Task GetMenuCategories_UsesGivenCustomerAndStore()
     {
         //Arrange

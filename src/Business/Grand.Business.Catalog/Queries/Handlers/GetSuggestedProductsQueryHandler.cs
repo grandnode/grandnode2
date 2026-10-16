@@ -26,11 +26,13 @@ public class GetSuggestedProductsQueryHandler : IRequestHandler<GetSuggestedProd
         //the result is cached per key shared by many customers, so a query without one must not fill it
         ArgumentNullException.ThrowIfNull(request.Customer);
 
+        var customerTagIds = request.Customer.CustomerTags.ToArray();
+
         return await _cacheBase.GetAsync(
-            string.Format(CacheKey.PRODUCTS_CUSTOMER_TAG, string.Join(",", request.CustomerTagIds)), async () =>
+            string.Format(CacheKey.PRODUCTS_CUSTOMER_TAG, string.Join(",", customerTagIds)), async () =>
             {
                 var query = from cr in _customerTagProductRepository.Table
-                    where request.CustomerTagIds.Contains(cr.CustomerTagId)
+                    where customerTagIds.Contains(cr.CustomerTagId)
                     orderby cr.DisplayOrder
                     select cr.ProductId;
 

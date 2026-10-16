@@ -125,6 +125,9 @@ public class ProductService : IProductService
         if (productIds == null || productIds.Length == 0)
             return new List<Product>();
 
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        if (!showHidden) ArgumentNullException.ThrowIfNull(customer);
+
         var products = new List<Product>();
         foreach (var id in productIds)
         {
@@ -593,6 +596,9 @@ public class ProductService : IProductService
     public virtual async Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId, Customer customer,
         string storeId = "", string vendorId = "", bool showHidden = false)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        if (!showHidden) ArgumentNullException.ThrowIfNull(customer);
+
         var query = from p in _productRepository.Table
                     select p;
 
@@ -871,6 +877,9 @@ public class ProductService : IProductService
     public virtual async Task<IList<Product>> GetCrossSellProductsByShoppingCart(IList<ShoppingCartItem> cart,
         int numberOfProducts, Customer customer, string storeId)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        ArgumentNullException.ThrowIfNull(customer);
+
         var result = new List<Product>();
 
         if (numberOfProducts == 0)

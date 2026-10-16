@@ -31,7 +31,7 @@ public interface ICategoryService
     /// <summary>
     ///     Gets all categories by parent category
     /// </summary>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="parentCategoryId">Parent category id</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>

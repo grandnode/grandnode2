@@ -5,6 +5,7 @@ using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -42,9 +43,33 @@ public class GetPersonalizedProductsQueryHandlerTests
     public async Task Handle_WithoutCustomer_ThrowsBeforeCaching()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            handler.Handle(new GetPersonalizedProductsQuery { CustomerId = "1", ProductsNumber = 1 },
+            handler.Handle(new GetPersonalizedProductsQuery { ProductsNumber = 1 },
                 CancellationToken.None));
         _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
             Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_KeysAndLoadsByIdOfQueryCustomer()
+    {
+        //Arrange
+        var customer = new Customer { Id = "c1" };
+        _casheManagerMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()))
+            .Returns((string _, Func<Task<List<Product>>> acquire) => acquire());
+        _customerProductRepositoryMock.Setup(r => r.Table)
+            .Returns(new List<CustomerProduct> {
+                new() { CustomerId = "c1", ProductId = "p1" }, new() { CustomerId = "c2", ProductId = "p2" }
+            }.AsQueryable());
+        _productServiceMock.Setup(p => p.GetProductsByIds(It.IsAny<string[]>(), customer, "s1", false))
+            .ReturnsAsync(new List<Product>());
+
+        //Act
+        await handler.Handle(new GetPersonalizedProductsQuery { Customer = customer, StoreId = "s1", ProductsNumber = 10 },
+            CancellationToken.None);
+
+        //Assert
+        _casheManagerMock.Verify(c => c.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_KEY, "c1"),
+            It.IsAny<Func<Task<List<Product>>>>()), Times.Once);
+        _productServiceMock.Verify(p => p.GetProductsByIds(new[] { "p1" }, customer, "s1", false), Times.Once);
     }
 }

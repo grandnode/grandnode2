@@ -52,6 +52,25 @@ public class ProductCategoryServiceTests
     }
 
     [TestMethod]
+    public async Task GetProductCategoriesByCategoryId_ShowHiddenWithoutCustomer_ReturnsLimitedProducts()
+    {
+        //Arrange
+        var product = new Product {
+            LimitedToStores = true, Stores = new List<string> { "store1" },
+            LimitedToGroups = true, CustomerGroups = new List<string> { "vip" }
+        };
+        product.ProductCategories.Add(new ProductCategory { CategoryId = "cat" });
+        await _repository.InsertAsync(product);
+
+        //Act
+        var mappings = await _productCategoryService.GetProductCategoriesByCategoryId("cat", customer: null, storeId: "",
+            showHidden: true);
+
+        //Assert
+        Assert.HasCount(1, mappings);
+    }
+
+    [TestMethod]
     public async Task GetProductCategoriesByCategoryIdTest()
     {
         //Arrange

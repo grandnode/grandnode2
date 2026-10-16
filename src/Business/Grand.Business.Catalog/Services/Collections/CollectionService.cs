@@ -107,6 +107,9 @@ public class CollectionService : ICollectionService
     public virtual async Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(Customer customer, string storeId,
         bool showHidden = false)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        if (!showHidden) ArgumentNullException.ThrowIfNull(customer);
+
         var query = _collectionRepository.Table.Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
 

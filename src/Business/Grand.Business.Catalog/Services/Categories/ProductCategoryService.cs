@@ -34,7 +34,7 @@ public class ProductCategoryService : IProductCategoryService
     ///     Gets product category mapping collection
     /// </summary>
     /// <param name="categoryId">Category identifier</param>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
@@ -47,8 +47,8 @@ public class ProductCategoryService : IProductCategoryService
             return new PagedList<ProductsCategory>(new List<ProductsCategory>(), pageIndex, pageSize);
 
         var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex,
-            pageSize, string.Join(",", customer.GetCustomerGroupIds()),
-            storeId);
+            pageSize, showHidden ? "" : string.Join(",", customer.GetCustomerGroupIds()),
+            showHidden ? "" : storeId);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));

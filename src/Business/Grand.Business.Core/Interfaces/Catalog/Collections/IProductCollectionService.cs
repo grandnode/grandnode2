@@ -12,7 +12,7 @@ public interface IProductCollectionService
     /// </summary>
     /// <param name="collectionId">Collection id</param>
     /// <param name="storeId">Store id</param>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>

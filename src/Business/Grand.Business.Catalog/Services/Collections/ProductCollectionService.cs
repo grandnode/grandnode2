@@ -33,7 +33,7 @@ public class ProductCollectionService : IProductCollectionService
     /// </summary>
     /// <param name="collectionId">Collection id</param>
     /// <param name="storeId">Store ident</param>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
@@ -43,7 +43,7 @@ public class ProductCollectionService : IProductCollectionService
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex,
-            pageSize, string.Join(",", customer.GetCustomerGroupIds()), storeId);
+            pageSize, showHidden ? "" : string.Join(",", customer.GetCustomerGroupIds()), showHidden ? "" : storeId);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x =>
