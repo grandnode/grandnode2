@@ -1,0 +1,12 @@
+# Findings accepted after review. Each entry expires and is reported again
+# on that date, so it has to be reviewed rather than forgotten.
+
+# SixLabors.ImageSharp 3.1.12 (fixed in 4.1.2), a transitive dependency of
+# Scryber.Core, which pins 3.1.12 up to its latest release (9.7.5).
+# GrandNode does not reference ImageSharp; Scryber.Imaging only detects and
+# decodes images (TiffFormat, TiffMetadata, DecoderOptions). The affected code
+# is never called: the TIFF CCITT T4/T6 encoders and HistogramEqualization.
+# Drop these entries once Scryber.Core moves to ImageSharp 4.1.2 or later.
+CVE-2026-106110 exp:2027-01-16
+CVE-2026-106113 exp:2027-01-16
+CVE-2026-106115 exp:2027-01-16
