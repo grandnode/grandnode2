@@ -145,6 +145,9 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         return model;
     }
 
+    private static CalculationContext CalculationContextOf(GetShoppingCart request) =>
+        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
+
     private async Task PrepareSimpleProperties(ShoppingCartModel model, GetShoppingCart request)
     {
         #region Simple properties
@@ -160,10 +163,8 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             request.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 request.Store.Id);
         model.CheckoutAttributeInfo =
-            await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes,
-                new CalculationContext(request.Customer, request.Store, _contextAccessor.WorkContext.WorkingCurrency,
-                    _contextAccessor.WorkContext.TaxDisplayType),
-                _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost);
+            await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, CalculationContextOf(request),
+                request.Language, _contextAccessor.StoreContext.CurrentHost);
         if (!request.Cart.Where(x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions)
                 .ToList().Any())
         {
@@ -172,7 +173,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         else
         {
             var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
-                Context = _contextAccessor.CalculationContext(),
+                Context = CalculationContextOf(request),
                 Customer = request.Customer,
                 Cart = request.Cart.Where(x =>
                     x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
@@ -197,8 +198,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         {
             var discount = await _discountService.GetDiscountByCouponCode(couponCode);
             if (discount is { RequiresCouponCode: true } &&
-                (await _discountValidationService.ValidateDiscount(discount, request.Customer, request.Store,
-                    request.Currency)).IsValid)
+                (await _discountValidationService.ValidateDiscount(discount, request.Customer, request.Store, request.Currency)).IsValid)
                 model.DiscountBox.AppliedDiscountsWithCodes.Add(new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel {
                     Id = discount.Id,
                     CouponCode = couponCode
@@ -208,7 +208,8 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         model.GiftVoucherBox.Display = _shoppingCartSettings.ShowGiftVoucherBox;
 
         //cart warnings
-        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes, _contextAccessor.CalculationContext(),
+        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes,
+            CalculationContextOf(request),
             request.ValidateCheckoutAttributes, true);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);
@@ -255,8 +256,8 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                     //display price if allowed
                     if (!await _permissionService.Authorize(StandardPermission.DisplayPrices)) continue;
                     var priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue,
-                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
+                        request.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        request.Customer, request.Store))
                         .checkoutPrice;
                     var priceAdjustment =
                         await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, request.Currency);
@@ -455,20 +456,18 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             else
             {
                 var unitprices = await _pricingService.GetUnitPrice(sci, product,
-                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                    _contextAccessor.WorkContext.WorkingCurrency);
+                    request.Customer, request.Store, request.Currency);
                 var appliedDiscounts = unitprices.appliedDiscounts;
                 var productprices = await _taxService.GetProductPrice(product, unitprices.unitprice,
-                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                    request.TaxDisplayType == TaxDisplayType.IncludingTax,
+                    request.Customer, request.Store);
 
                 cartItemModel.UnitPriceWithoutDiscountValue =
                     (await _taxService.GetProductPrice(product,
                         (await _pricingService.GetUnitPrice(sci, product,
-                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                            _contextAccessor.WorkContext.WorkingCurrency, false)).unitprice,
-                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
+                            request.Customer, request.Store, request.Currency, false)).unitprice,
+                            request.TaxDisplayType == TaxDisplayType.IncludingTax,
+                            request.Customer, request.Store)).productprice;
 
                 cartItemModel.UnitPriceWithoutDiscount =
                     _priceFormatter.FormatPrice(cartItemModel.UnitPriceWithoutDiscountValue, request.Currency);
@@ -485,13 +484,12 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
                 //sub total
                 var subtotal = await _pricingService.GetSubTotal(sci, product,
-                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                    _contextAccessor.WorkContext.WorkingCurrency);
+                    request.Customer, request.Store, request.Currency);
                 var shoppingCartItemDiscountBase = subtotal.discountAmount;
                 var shoppingCartItemSubTotalWithDiscount =
                     (await _taxService.GetProductPrice(product, subtotal.subTotal,
-                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
+                        request.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        request.Customer, request.Store)).productprice;
                 cartItemModel.SubTotal = _priceFormatter.FormatPrice(shoppingCartItemSubTotalWithDiscount,
                     request.Currency);
                 cartItemModel.SubTotalValue = shoppingCartItemSubTotalWithDiscount;
@@ -501,8 +499,8 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 {
                     shoppingCartItemDiscountBase =
                         (await _taxService.GetProductPrice(product, shoppingCartItemDiscountBase,
-                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
+                            request.TaxDisplayType == TaxDisplayType.IncludingTax,
+                            request.Customer, request.Store)).productprice;
                     if (shoppingCartItemDiscountBase > 0)
                         cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase,
                             request.Currency);
