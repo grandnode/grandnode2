@@ -13,6 +13,7 @@ using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
+using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Features.Models.Catalog;
@@ -114,7 +115,8 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
         var storeurl = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
 
         var displayPrices =
-            await _permissionService.Authorize(StandardPermission.DisplayPrices, _contextAccessor.WorkContext.CurrentCustomer);
+            await _permissionService.Authorize(StandardPermission.DisplayPrices,
+                _contextAccessor.WorkContext.CurrentCustomer);
 
         foreach (var item in products)
         {
@@ -163,7 +165,8 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             if (brand is not { Published: true }) continue;
             var allow = true;
             
-            if (!_accessControlConfig.IgnoreAcl && !_aclService.Authorize(brand, _contextAccessor.WorkContext.CurrentCustomer))
+            if (!_accessControlConfig.IgnoreAcl && !_aclService.Authorize(brand,
+                _contextAccessor.WorkContext.CurrentCustomer))
                 allow = false;
 
             if (!_accessControlConfig.IgnoreStoreLimitations && !_aclService.Authorize(brand, storeId))
@@ -187,7 +190,8 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             var category = await _categoryService.GetCategoryById(item);
             if (category is not { Published: true }) continue;
             var allow = true;
-            if (!_accessControlConfig.IgnoreAcl && !_aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer))
+            if (!_accessControlConfig.IgnoreAcl && !_aclService.Authorize(category,
+                _contextAccessor.WorkContext.CurrentCustomer))
                 allow = false;
             if (!_accessControlConfig.IgnoreStoreLimitations && !_aclService.Authorize(category, storeId))
                 allow = false;
@@ -245,11 +249,15 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
         var finalPriceWithoutDiscount =
             (await _taxService.GetProductPrice(product,
                 (await _pricingService.GetFinalPrice(product, request.Customer, request.Store, request.Currency,
-                    includeDiscounts: false)).finalPrice)).productprice;
+                    includeDiscounts: false)).finalPrice,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
 
         var appliedPrice = await _pricingService.GetFinalPrice(product, request.Customer, request.Store,
             request.Currency, includeDiscounts: true);
-        var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
+        var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice,
+            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
 
         var price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount, request.Currency);
         var priceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount, request.Currency);

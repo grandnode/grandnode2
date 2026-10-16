@@ -6,6 +6,8 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Handlers.Products;
 using Grand.Web.Features.Models.Products;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -44,13 +46,15 @@ public class GetProductStructuredDataHandlerTests
         _pricingServiceMock = new Mock<IPricingService>();
         _taxServiceMock = new Mock<ITaxService>();
         //shipping taxed at 10%, product prices passed through
-        _taxServiceMock.Setup(x => x.GetShippingPrice(It.IsAny<double>(), _customer, _store))
-            .ReturnsAsync((double price, Customer _, Domain.Stores.Store _) => (price * 1.1, 10));
+        _taxServiceMock.Setup(x => x.GetShippingPrice(It.IsAny<double>(), false, _customer, _store))
+            .ReturnsAsync((double price, bool _, Customer _, Domain.Stores.Store _) => (price * 1.1, 10));
         _taxServiceMock.Setup(x => x.GetProductPrice(It.IsAny<Product>(), It.IsAny<double>(), It.IsAny<bool>(),
                 _customer, _store))
             .ReturnsAsync((Product _, double price, bool _, Customer _, Domain.Stores.Store _) => (price, 0));
+        var contextAccessor = new Mock<IContextAccessor>();
+        contextAccessor.Setup(c => c.WorkContext.TaxDisplayType).Returns(TaxDisplayType.ExcludingTax);
         _handler = new GetProductStructuredDataHandler(_countryServiceMock.Object, _currencyServiceMock.Object,
-            _pricingServiceMock.Object, _taxServiceMock.Object, _orderSettings, _shippingSettings);
+            _pricingServiceMock.Object, _taxServiceMock.Object, _orderSettings, _shippingSettings, contextAccessor.Object);
     }
 
     private Task<Grand.Web.Models.Catalog.ProductStructuredDataModel> Handle(Product product) =>

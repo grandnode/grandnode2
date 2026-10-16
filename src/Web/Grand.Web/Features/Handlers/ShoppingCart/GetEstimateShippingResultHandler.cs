@@ -6,6 +6,8 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
@@ -14,6 +16,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShippingResult, EstimateShippingResultModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IOrderCalculationService _orderTotalCalculationService;
     private readonly IPickupPointService _pickupPointService;
     private readonly IPriceFormatter _priceFormatter;
@@ -30,8 +33,10 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
         ITaxService taxService,
         ITranslationService translationService,
         IPriceFormatter priceFormatter,
-        ShippingSettings shippingSettings)
+        ShippingSettings shippingSettings,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _shippingService = shippingService;
         _pickupPointService = pickupPointService;
         _orderTotalCalculationService = orderTotalCalculationService;
@@ -76,7 +81,8 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
                         request.Cart);
                     var shippingTotal = total.shippingRate;
 
-                    var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer, request.Store)).shippingPrice;
+                    var rate = (await _taxService.GetShippingPrice(shippingTotal,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store)).shippingPrice;
                     soModel.Price = _priceFormatter.FormatPrice(rate, request.Currency);
                     model.ShippingOptions.Add(soModel);
                 }
@@ -92,7 +98,8 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
                     };
 
                     var shippingTotal = pickupPoints.Max(x => x.PickupFee);
-                    var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer, request.Store)).shippingPrice;
+                    var rate = (await _taxService.GetShippingPrice(shippingTotal,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store)).shippingPrice;
                     soModel.Price = _priceFormatter.FormatPrice(rate, request.Currency);
                     model.ShippingOptions.Add(soModel);
                 }

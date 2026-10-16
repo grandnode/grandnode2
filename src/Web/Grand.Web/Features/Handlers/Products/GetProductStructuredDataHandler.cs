@@ -4,6 +4,8 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Mediator;
@@ -12,6 +14,7 @@ namespace Grand.Web.Features.Handlers.Products;
 
 public class GetProductStructuredDataHandler : IRequestHandler<GetProductStructuredData, ProductStructuredDataModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
     private readonly OrderSettings _orderSettings;
@@ -25,8 +28,10 @@ public class GetProductStructuredDataHandler : IRequestHandler<GetProductStructu
         IPricingService pricingService,
         ITaxService taxService,
         OrderSettings orderSettings,
-        ShippingSettings shippingSettings)
+        ShippingSettings shippingSettings,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _countryService = countryService;
         _currencyService = currencyService;
         _pricingService = pricingService;
@@ -99,7 +104,8 @@ public class GetProductStructuredDataHandler : IRequestHandler<GetProductStructu
         //convert theirs, plus the product's own surcharge, taxed as shipping
         var rate = await _currencyService.ConvertFromPrimaryStoreCurrency(
             _shippingSettings.DefaultShippingRate.Value + product.AdditionalShippingCharge, request.Currency);
-        rate = (await _taxService.GetShippingPrice(rate, request.Customer, request.Store)).shippingPrice;
+        rate = (await _taxService.GetShippingPrice(rate,
+            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store)).shippingPrice;
         return RoundingHelper.RoundPrice(rate, request.Currency);
     }
 

@@ -8,6 +8,8 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
@@ -16,6 +18,7 @@ namespace Grand.Web.Features.Handlers.Checkout;
 
 public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, CheckoutPaymentMethodModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly ICurrencyService _currencyService;
     private readonly ILoyaltyPointsService _loyaltyPointsService;
 
@@ -33,8 +36,10 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         IPaymentService paymentService,
         ITaxService taxService,
         LoyaltyPointsSettings loyaltyPointsSettings,
-        PaymentSettings paymentSettings)
+        PaymentSettings paymentSettings,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _loyaltyPointsService = loyaltyPointsService;
         _orderTotalCalculationService = orderTotalCalculationService;
         _currencyService = currencyService;
@@ -89,7 +94,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             //payment method additional fee
             var paymentMethodAdditionalFee =
                 await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
-            var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer, request.Store))
+            var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee,
+                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store))
                 .paymentPrice;
             if (rate > 0)
                 pmModel.Fee = _priceFormatter.FormatPrice(rate, request.Currency);

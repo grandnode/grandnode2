@@ -19,6 +19,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
+using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -312,7 +313,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             if (!isAssociatedProduct)
             {
                 var associatedProducts =
-                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.WorkContext.CurrentCustomer,
+                    await _productService.GetAssociatedProducts(product.Id,
+                        _contextAccessor.WorkContext.CurrentCustomer,
                         _contextAccessor.StoreContext.CurrentStore.Id);
                 foreach (var associatedProduct in associatedProducts)
                     model.AssociatedProducts.Add(
@@ -455,7 +457,9 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         //additional shipping charge
         if (model.AdditionalShippingCharge > 0)
             model.AdditionalShippingChargeStr = _priceFormatter.FormatPrice(
-                (await _taxService.GetShippingPrice(model.AdditionalShippingCharge, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
+                (await _taxService.GetShippingPrice(model.AdditionalShippingCharge,
+                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
                 .shippingPrice, _contextAccessor.WorkContext.WorkingCurrency);
 
         //ask question us on the product
@@ -680,25 +684,35 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             {
                 if (!product.CallForPrice)
                 {
-                    var oldproductprice = await _taxService.GetProductPrice(product, product.OldPrice);
+                    var oldproductprice = await _taxService.GetProductPrice(product, product.OldPrice,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
                     var oldPriceBase = oldproductprice.productprice;
                     var finalPriceWithoutDiscount = (await _taxService.GetProductPrice(product,
                         (await _pricingService.GetFinalPrice(product, _contextAccessor.WorkContext.CurrentCustomer,
                             _contextAccessor.StoreContext.CurrentStore,
-                            _contextAccessor.WorkContext.WorkingCurrency, includeDiscounts: false)).finalPrice)).productprice;
+                            _contextAccessor.WorkContext.WorkingCurrency, includeDiscounts: false)).finalPrice,
+                                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
 
-                    var appliedPrice = await _pricingService.GetFinalPrice(product, _contextAccessor.WorkContext.CurrentCustomer,
-                        _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingCurrency, includeDiscounts: true);
+                    var appliedPrice = await _pricingService.GetFinalPrice(product,
+                        _contextAccessor.WorkContext.CurrentCustomer,
+                        _contextAccessor.StoreContext.CurrentStore,
+                            _contextAccessor.WorkContext.WorkingCurrency, includeDiscounts: true);
                     var finalPriceWithDiscount =
-                        (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
+                        (await _taxService.GetProductPrice(product, appliedPrice.finalPrice,
+                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
                     var oldPrice =
                         await _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase,
                             _contextAccessor.WorkContext.WorkingCurrency);
 
                     if (finalPriceWithoutDiscount != oldPrice && oldPrice > 0)
-                        model.OldPrice = _priceFormatter.FormatPrice(oldPrice, _contextAccessor.WorkContext.WorkingCurrency);
+                        model.OldPrice = _priceFormatter.FormatPrice(oldPrice,
+                            _contextAccessor.WorkContext.WorkingCurrency);
 
-                    model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount, _contextAccessor.WorkContext.WorkingCurrency);
+                    model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount,
+                        _contextAccessor.WorkContext.WorkingCurrency);
                     if (appliedPrice.appliedDiscounts.Any())
                         model.AppliedDiscounts = appliedPrice.appliedDiscounts;
                     if (appliedPrice.preferredTierPrice != null)
@@ -709,11 +723,13 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                         var catalogPrice =
                             await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice,
                                 _contextAccessor.WorkContext.WorkingCurrency);
-                        model.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice, _contextAccessor.WorkContext.WorkingCurrency);
+                        model.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice,
+                            _contextAccessor.WorkContext.WorkingCurrency);
                     }
 
                     if (finalPriceWithoutDiscount != finalPriceWithDiscount)
-                        model.PriceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount, _contextAccessor.WorkContext.WorkingCurrency);
+                        model.PriceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount,
+                            _contextAccessor.WorkContext.WorkingCurrency);
 
                     model.PriceValue = finalPriceWithDiscount;
 
@@ -731,7 +747,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     if (product.ProductTypeId == ProductType.Reservation)
                     {
                         model.IsReservation = true;
-                        var priceStr = _priceFormatter.FormatPrice(finalPriceWithDiscount, _contextAccessor.WorkContext.WorkingCurrency);
+                        var priceStr = _priceFormatter.FormatPrice(finalPriceWithDiscount,
+                            _contextAccessor.WorkContext.WorkingCurrency);
                         model.ReservationPrice =
                             string.Format(_translationService.GetResource(product.ResourceReservationProductPeriod()),
                                 priceStr, product.Interval);
@@ -743,13 +760,15 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     var highestBid =
                         await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid,
                             _contextAccessor.WorkContext.WorkingCurrency);
-                    model.HighestBid = _priceFormatter.FormatPrice(highestBid, _contextAccessor.WorkContext.WorkingCurrency);
+                    model.HighestBid = _priceFormatter.FormatPrice(highestBid,
+                        _contextAccessor.WorkContext.WorkingCurrency);
                     model.HighestBidValue = highestBid;
                     model.DisableBuyButton = product.DisableBuyButton;
                     var startPrice =
                         await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice,
                             _contextAccessor.WorkContext.WorkingCurrency);
-                    model.StartPrice = _priceFormatter.FormatPrice(startPrice, _contextAccessor.WorkContext.WorkingCurrency);
+                    model.StartPrice = _priceFormatter.FormatPrice(startPrice,
+                        _contextAccessor.WorkContext.WorkingCurrency);
                     model.StartPriceValue = startPrice;
                 }
             }
@@ -943,7 +962,9 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                         var attributeValuePriceAdjustment =
                             await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
                         var productprice =
-                            await _taxService.GetProductPrice(product, attributeValuePriceAdjustment);
+                            await _taxService.GetProductPrice(product, attributeValuePriceAdjustment,
+                                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
                         switch (productprice.productprice)
                         {
                             case > 0:
@@ -1084,10 +1105,14 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         {
             var tier = new ProductDetailsModel.TierPriceModel();
             var priceBase = await _taxService.GetProductPrice(product, (await _pricingService.GetFinalPrice(product,
-                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingCurrency,
-                0, _catalogSettings.DisplayTierPricesWithDiscounts, tierPrice.Quantity)).finalPrice);
+                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                    _contextAccessor.WorkContext.WorkingCurrency,
+                0, _catalogSettings.DisplayTierPricesWithDiscounts, tierPrice.Quantity)).finalPrice,
+                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
             tier.Quantity = tierPrice.Quantity;
-            tier.Price = _priceFormatter.FormatPrice(priceBase.productprice, _contextAccessor.WorkContext.WorkingCurrency);
+            tier.Price = _priceFormatter.FormatPrice(priceBase.productprice,
+                _contextAccessor.WorkContext.WorkingCurrency);
             model.Add(tier);
         }
 
@@ -1163,9 +1188,13 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             if (displayPrices)
             {
                 var productprice = await _taxService.GetProductPrice(p1,
-                    (await _pricingService.GetFinalPrice(p1, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                        _contextAccessor.WorkContext.WorkingCurrency, includeDiscounts: true)).finalPrice);
-                bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice, _contextAccessor.WorkContext.WorkingCurrency);
+                    (await _pricingService.GetFinalPrice(p1,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        _contextAccessor.WorkContext.WorkingCurrency, includeDiscounts: true)).finalPrice,
+                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice,
+                    _contextAccessor.WorkContext.WorkingCurrency);
                 bundleProduct.PriceValue = productprice.productprice;
             }
 

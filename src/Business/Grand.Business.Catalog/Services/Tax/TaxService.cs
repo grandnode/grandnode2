@@ -8,7 +8,6 @@ using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +21,6 @@ public class TaxService : ITaxService
     #region Ctor
 
     public TaxService(
-        IContextAccessor contextAccessor,
         IGroupService groupService,
         ICountryService countryService,
         IEnumerable<ITaxProvider> taxProviders,
@@ -32,7 +30,6 @@ public class TaxService : ITaxService
         CustomerSettings customerSettings,
         AddressSettings addressSettings)
     {
-        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _taxSettings = taxSettings;
         _taxProviderSettings = taxProviderSettings;
@@ -47,7 +44,6 @@ public class TaxService : ITaxService
 
     #region Fields
 
-    private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
     private readonly ICountryService _countryService;
     private readonly IEnumerable<ITaxProvider> _taxProviders;
@@ -193,7 +189,7 @@ public class TaxService : ITaxService
         var isTaxable = true;
 
         //active tax provider
-        var activeTaxProvider = LoadActiveTaxProvider();
+        var activeTaxProvider = LoadActiveTaxProvider(customer, store?.Id);
         if (activeTaxProvider == null)
             return (taxRate, true);
 
@@ -235,11 +231,13 @@ public class TaxService : ITaxService
     /// <summary>
     ///     Load active tax provider
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the fallback providers</param>
+    /// <param name="storeId">Store whose providers are the fallback</param>
     /// <returns>Active tax provider</returns>
-    public virtual ITaxProvider LoadActiveTaxProvider()
+    public virtual ITaxProvider LoadActiveTaxProvider(Customer customer, string storeId)
     {
         var taxProvider = LoadTaxProviderBySystemName(_taxProviderSettings.ActiveTaxProviderSystemName) ??
-                          LoadAllTaxProviders(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id)
+                          LoadAllTaxProviders(customer, storeId)
                               .FirstOrDefault();
         return taxProvider;
     }
@@ -269,31 +267,6 @@ public class TaxService : ITaxService
             .OrderBy(x => x.Priority).ToList();
     }
 
-
-    /// <summary>
-    ///     Gets price
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="price">Price</param>
-    /// <returns>Price</returns>
-    public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price)
-    {
-        return await GetProductPrice(product, price, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
-    }
-
-    /// <summary>
-    ///     Gets price
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="price">Price</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <returns>Price</returns>
-    public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, Customer customer, Store store)
-    {
-        var includingTax = _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-        return await GetProductPrice(product, price, includingTax, customer, store);
-    }
 
     /// <summary>
     ///     Gets price
@@ -465,18 +438,6 @@ public class TaxService : ITaxService
     ///     Gets shipping price
     /// </summary>
     /// <param name="price">Price</param>
-    /// <param name="customer">Customer</param>
-    /// <returns>Price</returns>
-    public virtual async Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, Customer customer, Store store)
-    {
-        var includingTax = _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-        return await GetShippingPrice(price, includingTax, customer, store);
-    }
-
-    /// <summary>
-    ///     Gets shipping price
-    /// </summary>
-    /// <param name="price">Price</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
     /// <param name="store">Store</param>
@@ -496,19 +457,6 @@ public class TaxService : ITaxService
     ///     Gets payment method additional handling fee
     /// </summary>
     /// <param name="price">Price</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <returns>Price</returns>
-    public virtual async Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, Customer customer, Store store)
-    {
-        var includingTax = _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-        return await GetPaymentMethodAdditionalFee(price, includingTax, customer, store);
-    }
-
-    /// <summary>
-    ///     Gets payment method additional handling fee
-    /// </summary>
-    /// <param name="price">Price</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
     /// <param name="store">Store</param>
@@ -520,33 +468,6 @@ public class TaxService : ITaxService
         var priceIncludesTax = _taxSettings.PaymentMethodAdditionalFeeIncludesTax;
         var prices = await GetProductPrice(null, taxClassId, price, includingTax, customer, store, priceIncludesTax);
         return (prices.productprice, prices.taxRate);
-    }
-
-    /// <summary>
-    ///     Gets checkout attribute value price
-    /// </summary>
-    /// <param name="ca">Checkout attribute</param>
-    /// <param name="cav">Checkout attribute value</param>
-    /// <returns>Price</returns>
-    public virtual async Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav)
-    {
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
-        var store = _contextAccessor.StoreContext.CurrentStore;
-        return await GetCheckoutAttributePrice(ca, cav, customer, store);
-    }
-
-    /// <summary>
-    ///     Gets checkout attribute value price
-    /// </summary>
-    /// <param name="ca">Checkout attribute</param>
-    /// <param name="cav">Checkout attribute value</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <returns>Price</returns>
-    public virtual async Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, Customer customer, Store store)
-    {
-        var includingTax = _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-        return await GetCheckoutAttributePrice(ca, cav, includingTax, customer, store);
     }
 
     /// <summary>

@@ -111,13 +111,15 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
             else
             {
                 var productprices = await _taxService.GetProductPrice(request.Product,
-                    (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
+                    (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice,
+                        request.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store);
                 model.Price = !request.CustomerEnteredPrice.HasValue
                     ? _priceFormatter.FormatPrice(productprices.productprice, request.Currency)
                     : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value, request.Currency);
                 model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
                 model.TotalPrice =
-                    _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity, request.Currency);
+                    _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity,
+                        request.Currency);
             }
 
             //picture

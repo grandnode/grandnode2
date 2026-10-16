@@ -8,6 +8,8 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -18,6 +20,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishlistModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly LinkGenerator _linkGenerator;
     private readonly MediaSettings _mediaSettings;
     private readonly IPictureService _pictureService;
@@ -39,8 +42,10 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
         IPictureService pictureService,
         LinkGenerator linkGenerator,
         ShoppingCartSettings shoppingCartSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;
         _translationService = translationService;
@@ -92,7 +97,9 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
             else
             {
                 var productprice = await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice);
+                    (await _pricingService.GetUnitPrice(sci, product)).unitprice,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
 
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice, request.Currency);
                 cartItemModel.UnitPriceValue = productprice.productprice;

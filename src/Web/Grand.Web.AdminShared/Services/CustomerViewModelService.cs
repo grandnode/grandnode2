@@ -862,7 +862,9 @@ public class CustomerViewModelService : ICustomerViewModelService
                 if (product != null)
                 {
                     var price = (await taxService.GetProductPrice(product,
-                        (await priceCalculationService.GetUnitPrice(sci, product)).unitprice)).productprice;
+                        (await priceCalculationService.GetUnitPrice(sci, product)).unitprice,
+                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
                     var sciModel = new ShoppingCartItemModel {
                         Id = sci.Id,
                         Store = store != null ? store.Shortcut : "Unknown",
@@ -873,7 +875,10 @@ public class CustomerViewModelService : ICustomerViewModelService
                         UnitPrice = priceFormatter.FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency),
                         UnitPriceValue = price,
                         Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product,
-                            (await priceCalculationService.GetSubTotal(sci, product)).subTotal)).productprice, _contextAccessor.WorkContext.WorkingCurrency),
+                            (await priceCalculationService.GetSubTotal(sci, product)).subTotal,
+                                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice,
+                                _contextAccessor.WorkContext.WorkingCurrency),
                         UpdatedOn = sci.UpdatedOnUtc.HasValue
                             ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)
                             : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)

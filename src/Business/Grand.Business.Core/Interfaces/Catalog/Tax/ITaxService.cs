@@ -15,8 +15,10 @@ public interface ITaxService
     /// <summary>
     ///     Load active tax provider
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the fallback providers</param>
+    /// <param name="storeId">Store whose providers are the fallback</param>
     /// <returns>Active tax provider</returns>
-    ITaxProvider LoadActiveTaxProvider();
+    ITaxProvider LoadActiveTaxProvider(Customer customer, string storeId);
 
     /// <summary>
     ///     Load tax provider by system name
@@ -33,24 +35,6 @@ public interface ITaxService
     /// <returns>Tax providers</returns>
     IList<ITaxProvider> LoadAllTaxProviders(Customer customer = null, string storeId = "");
 
-
-    /// <summary>
-    ///     Gets price
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="price">Price</param>
-    /// <returns>Price</returns>
-    Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price);
-
-    /// <summary>
-    ///     Gets price
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="price">Price</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <returns>Price</returns>
-    Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, Customer customer, Store store);
 
     /// <summary>
     ///     Gets price
@@ -107,15 +91,6 @@ public interface ITaxService
     ///     Gets shipping price
     /// </summary>
     /// <param name="price">Price</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <returns>Price</returns>
-    Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, Customer customer, Store store);
-
-    /// <summary>
-    ///     Gets shipping price
-    /// </summary>
-    /// <param name="price">Price</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
     /// <param name="store">Store</param>
@@ -126,38 +101,11 @@ public interface ITaxService
     ///     Gets payment method additional handling fee
     /// </summary>
     /// <param name="price">Price</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <returns>Price</returns>
-    Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, Customer customer, Store store);
-
-    /// <summary>
-    ///     Gets payment method additional handling fee
-    /// </summary>
-    /// <param name="price">Price</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <param name="customer">Customer</param>
     /// <param name="store">Store</param>
     /// <returns>Price</returns>
     Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, bool includingTax, Customer customer, Store store);
-
-    /// <summary>
-    ///     Gets checkout attribute value price
-    /// </summary>
-    /// <param name="ca">Checkout attribute</param>
-    /// <param name="cav">Checkout attribute value</param>
-    /// <returns>Price</returns>
-    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav);
-
-    /// <summary>
-    ///     Gets checkout attribute value price
-    /// </summary>
-    /// <param name="ca">Checkout attribute</param>
-    /// <param name="cav">Checkout attribute value</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <returns>Price</returns>
-    Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, Customer customer, Store store);
 
     /// <summary>
     ///     Gets checkout attribute value price

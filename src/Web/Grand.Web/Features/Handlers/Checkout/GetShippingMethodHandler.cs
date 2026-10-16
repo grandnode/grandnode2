@@ -6,6 +6,8 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
@@ -14,6 +16,7 @@ namespace Grand.Web.Features.Handlers.Checkout;
 
 public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, CheckoutShippingMethodModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IOrderCalculationService _orderTotalCalculationService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IShippingService _shippingService;
@@ -24,8 +27,10 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
         ICustomerService customerService,
         IOrderCalculationService orderTotalCalculationService,
         ITaxService taxService,
-        IPriceFormatter priceFormatter)
+        IPriceFormatter priceFormatter,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _shippingService = shippingService;
         _customerService = customerService;
         _orderTotalCalculationService = orderTotalCalculationService;
@@ -64,7 +69,8 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
                 var shippingTotal = (await _orderTotalCalculationService.AdjustShippingRate(
                     shippingOption.Rate, request.Cart)).shippingRate;
 
-                var rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer, request.Store)).shippingPrice;
+                var rateBase = (await _taxService.GetShippingPrice(shippingTotal,
+                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store)).shippingPrice;
                 soModel.Fee = _priceFormatter.FormatPrice(rateBase, request.Currency);
 
                 model.ShippingMethods.Add(soModel);

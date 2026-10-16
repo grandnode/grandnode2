@@ -6,6 +6,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Net;
@@ -235,7 +236,9 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                                 var attributeValuePriceAdjustment =
                                     await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
                                 var (priceAdjustmentBase, _) = await _taxService.GetProductPrice(product,
-                                    attributeValuePriceAdjustment, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                                    attributeValuePriceAdjustment,
+                                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
                                 switch (priceAdjustmentBase)
                                 {
                                     case > 0:
