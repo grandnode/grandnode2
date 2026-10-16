@@ -27,7 +27,7 @@ public class ShoppingCartCheckoutAttributesValidator : AbstractValidator<Shoppin
 
             //existing checkout attributes
             var attributes2 =
-                await checkoutAttributeService.GetAllCheckoutAttributes(value.Store.Id,
+                await checkoutAttributeService.GetAllCheckoutAttributes(value.Store.Id, value.Customer,
                     !value.ShoppingCarts.RequiresShipping());
             foreach (var a2 in attributes2)
             {

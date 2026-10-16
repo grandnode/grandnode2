@@ -122,7 +122,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
 
         var requiresShipping = cart.RequiresShipping();
         var checkoutAttributesExist =
-            (await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, !requiresShipping))
+            (await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, request.Customer, !requiresShipping))
             .Any();
 
         var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {

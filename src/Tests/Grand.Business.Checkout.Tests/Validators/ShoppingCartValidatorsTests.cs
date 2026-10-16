@@ -123,7 +123,7 @@ public class ShoppingCartValidatorsTests
                 }
             }));
 
-        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.IsAny<string>(), true, false))
+        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.IsAny<string>(), It.IsAny<Customer>(), true, false))
             .Returns(() => Task.FromResult((IList<CheckoutAttribute>)new List<CheckoutAttribute> {
                 new() {
                     Id = "1", Name = "test", IsRequired = true, AttributeControlTypeId = AttributeControlType.TextBox
@@ -162,7 +162,7 @@ public class ShoppingCartValidatorsTests
                 }
             }));
 
-        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.IsAny<string>(), true, false))
+        _checkoutAttributeServiceMock.Setup(x => x.GetAllCheckoutAttributes(It.IsAny<string>(), It.IsAny<Customer>(), true, false))
             .Returns(() => Task.FromResult((IList<CheckoutAttribute>)new List<CheckoutAttribute> {
                 new() {
                     Id = "1", Name = "test", IsRequired = true, AttributeControlTypeId = AttributeControlType.TextBox,

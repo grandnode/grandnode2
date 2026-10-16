@@ -1,3 +1,4 @@
+using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
@@ -13,10 +14,11 @@ public interface ICheckoutAttributeService
     ///     Gets all checkout attributes
     /// </summary>
     /// <param name="storeId">Store identifier</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when ignoreAcl is true)</param>
     /// <param name="excludeShippableAttributes">A value indicating whether we should exclude shippable attributes</param>
     /// <param name="ignoreAcl"></param>
     /// <returns>Checkout attributes</returns>
-    Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId = "",
+    Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId, Customer customer,
         bool excludeShippableAttributes = false, bool ignoreAcl = false);
 
     /// <summary>

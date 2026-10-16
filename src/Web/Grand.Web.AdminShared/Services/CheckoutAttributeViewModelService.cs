@@ -29,7 +29,7 @@ public class CheckoutAttributeViewModelService(
 {
     public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel(string storeId = "")
     {
-        var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(storeId: storeId, ignoreAcl: true);
+        var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(storeId: storeId, customer: null, ignoreAcl: true);
         return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
         {
             var attributeModel = x.ToModel();
@@ -170,7 +170,7 @@ public class CheckoutAttributeViewModelService(
         model.ConditionModel = new ConditionModel {
             EnableCondition = checkoutAttribute.ConditionAttribute.Any(),
             SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
-            ConditionAttributes = (await checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: false))
+            ConditionAttributes = (await checkoutAttributeService.GetAllCheckoutAttributes(storeId: "", customer: null, ignoreAcl: true))
                 //ignore this attribute and non-combinable attributes
                 .Where(x => x.Id != checkoutAttribute.Id && x.CanBeUsedAsCondition())
                 .Select(x =>

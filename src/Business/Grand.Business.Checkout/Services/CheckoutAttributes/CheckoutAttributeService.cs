@@ -2,7 +2,6 @@
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -25,12 +24,11 @@ public class CheckoutAttributeService : ICheckoutAttributeService
         ICacheBase cacheBase,
         IRepository<CheckoutAttribute> checkoutAttributeRepository,
         IMediator mediator,
-        IContextAccessor contextAccessor, AccessControlConfig accessControlConfig)
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _checkoutAttributeRepository = checkoutAttributeRepository;
         _mediator = mediator;
-        _contextAccessor = contextAccessor;
         _accessControlConfig = accessControlConfig;
     }
 
@@ -41,7 +39,6 @@ public class CheckoutAttributeService : ICheckoutAttributeService
     private readonly IRepository<CheckoutAttribute> _checkoutAttributeRepository;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
-    private readonly IContextAccessor _contextAccessor;
     private readonly AccessControlConfig _accessControlConfig;
 
     #endregion
@@ -52,10 +49,11 @@ public class CheckoutAttributeService : ICheckoutAttributeService
     ///     Gets all checkout attributes
     /// </summary>
     /// <param name="storeId">Store identifier</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when ignoreAcl is true)</param>
     /// <param name="excludeShippableAttributes">A value indicating whether we should exclude shippable attributes</param>
     /// <param name="ignoreAcl"></param>
     /// <returns>Checkout attributes</returns>
-    public virtual async Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId = "",
+    public virtual async Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId, Customer customer,
         bool excludeShippableAttributes = false, bool ignoreAcl = false)
     {
         var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignoreAcl);
@@ -71,7 +69,7 @@ public class CheckoutAttributeService : ICheckoutAttributeService
             {
                 if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
                 {
-                    var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                    var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
                     query = from p in query
                         where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                         select p;

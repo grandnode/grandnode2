@@ -32,7 +32,7 @@ public class SaveCheckoutAttributesCommandHandler : IRequestHandler<SaveCheckout
 
         var customAttributes = new List<CustomAttribute>();
         var checkoutAttributes =
-            await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id,
+            await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, request.Customer,
                 !request.Cart.RequiresShipping());
         foreach (var attribute in checkoutAttributes)
             switch (attribute.AttributeControlTypeId)

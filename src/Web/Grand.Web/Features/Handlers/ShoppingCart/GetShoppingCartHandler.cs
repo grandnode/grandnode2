@@ -218,7 +218,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         #region Checkout attributes
 
         var checkoutAttributes =
-            await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id,
+            await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, request.Customer,
                 !request.Cart.RequiresShipping());
         foreach (var attribute in checkoutAttributes)
         {
