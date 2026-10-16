@@ -168,7 +168,8 @@ public class ShoppingCartController : BasePublicController
             disabledattributeids = disabledAttributeIds.ToArray(),
             model = orderTotals,
             checkoutattributeinfo =
-                await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)
+                await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _contextAccessor.CalculationContext(),
+                    _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost)
         });
     }
 

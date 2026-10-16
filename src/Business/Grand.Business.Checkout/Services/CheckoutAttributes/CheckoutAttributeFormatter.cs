@@ -3,13 +3,12 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
-using Grand.Domain.Tax;
-using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Net;
 
@@ -24,15 +23,12 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     private readonly ICurrencyService _currencyService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITaxService _taxService;
-    private readonly IContextAccessor _contextAccessor;
 
-    public CheckoutAttributeFormatter(IContextAccessor contextAccessor,
-        ICheckoutAttributeParser checkoutAttributeParser,
+    public CheckoutAttributeFormatter(ICheckoutAttributeParser checkoutAttributeParser,
         ICurrencyService currencyService,
         ITaxService taxService,
         IPriceFormatter priceFormatter)
     {
-        _contextAccessor = contextAccessor;
         _checkoutAttributeParser = checkoutAttributeParser;
         _currencyService = currencyService;
         _taxService = taxService;
@@ -43,16 +39,18 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     ///     Formats attributes
     /// </summary>
     /// <param name="customAttributes">Attributes</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
+    /// <param name="context">Customer, store, currency and tax display the prices are rendered for</param>
+    /// <param name="language">Language of the attribute names</param>
+    /// <param name="host">Store address used for file download links (read only when allowHyperlinks is true)</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="renderPrices">A value indicating whether to render prices</param>
     /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
     /// <returns>Attributes</returns>
     public virtual async Task<string> FormatAttributes(IList<CustomAttribute> customAttributes,
-        Customer customer,
-        Store store,
+        CalculationContext context,
+        Language language,
+        DomainHost host,
         string separator = "<br />",
         bool htmlEncode = true,
         bool renderPrices = true,
@@ -80,7 +78,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                         case AttributeControlType.MultilineTextbox:
                         {
                             //multiline text box
-                            var attributeName = attribute.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id);
+                            var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
                             //encode (if required)
                             if (htmlEncode)
                                 attributeName = WebUtility.HtmlEncode(attributeName);
@@ -95,14 +93,14 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                             {
                                 var attributeText = string.Empty;
                                 var attributeName =
-                                    attribute.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id);
+                                    attribute.GetTranslation(a => a.Name, language.Id);
                                 if (allowHyperlinks)
                                 {
                                     //hyperlinks are allowed
                                     var downloadLink =
-                                        $"{_contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                        $"{host.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
                                     attributeText =
-                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, _contextAccessor.WorkContext.WorkingLanguage.Id)}</a>";
+                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, language.Id)}</a>";
                                 }
 
                                 formattedAttribute = $"{attributeName}: {attributeText}";
@@ -114,7 +112,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                         {
                             //other attributes (text box, datepicker)
                             formattedAttribute =
-                                $"{attribute.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)}: {valueStr}";
+                                $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
                             //encode (if required)
                             if (htmlEncode)
                                 formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
@@ -128,21 +126,20 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                     if (attributeValue != null)
                     {
                         formattedAttribute =
-                            $"{attribute.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)}: {attributeValue.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)}";
+                            $"{attribute.GetTranslation(a => a.Name, language.Id)}: {attributeValue.GetTranslation(a => a.Name, language.Id)}";
                         if (renderPrices)
                         {
                             var priceAdjustmentBase =
                                 (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue,
-                                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                                    customer, store))
+                                    context.IncludingTax, context.Customer, context.Store))
                                 .checkoutPrice;
                             var priceAdjustment =
                                 await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase,
-                                    _contextAccessor.WorkContext.WorkingCurrency);
+                                    context.Currency);
                             if (priceAdjustmentBase > 0)
                             {
                                 var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment,
-                                    _contextAccessor.WorkContext.WorkingCurrency);
+                                    context.Currency);
                                 formattedAttribute += $" [+{priceAdjustmentStr}]";
                             }
                         }

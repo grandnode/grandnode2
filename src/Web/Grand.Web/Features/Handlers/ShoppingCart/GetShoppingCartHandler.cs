@@ -160,7 +160,10 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             request.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 request.Store.Id);
         model.CheckoutAttributeInfo =
-            await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, request.Customer, request.Store);
+            await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes,
+                new CalculationContext(request.Customer, request.Store, _contextAccessor.WorkContext.WorkingCurrency,
+                    _contextAccessor.WorkContext.TaxDisplayType),
+                _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost);
         if (!request.Cart.Where(x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions)
                 .ToList().Any())
         {

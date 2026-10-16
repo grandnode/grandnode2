@@ -441,7 +441,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             details.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 _contextAccessor.StoreContext.CurrentStore.Id);
         details.CheckoutAttributeDescription =
-            await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, details.Customer, details.Store);
+            await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, AmbientCalculationContext,
+                _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost);
 
         //load and validate customer shopping cart
         details.Cart = details.Customer.ShoppingCartItems
