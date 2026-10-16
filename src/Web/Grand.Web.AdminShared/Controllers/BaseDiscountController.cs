@@ -636,7 +636,7 @@ public abstract class BaseDiscountController(
         DiscountModel.AddCollectionToDiscountModel model, [FromServices] ICollectionService collectionService)
     {
         var collections = await collectionService.GetAllCollections(model.SearchCollectionName,
-            await scope.GetDefaultStoreIdAsync() ?? "", command.Page - 1, command.PageSize, true);
+            await scope.GetDefaultStoreIdAsync() ?? "", customer: null, command.Page - 1, command.PageSize, true);
         return Json(new DataSourceResult { Data = collections.Select(x => x.ToModel()), Total = collections.TotalCount });
     }
 

@@ -613,13 +613,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var collectionService = new Mock<ICollectionService>();
-        collectionService.Setup(x => x.GetAllCollections(null, "", 0, 10, true))
+        collectionService.Setup(x => x.GetAllCollections(null, "", null, 0, 10, true))
             .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
 
         await _sut.CollectionAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddCollectionToDiscountModel(), collectionService.Object);
 
-        collectionService.Verify(x => x.GetAllCollections(null, "", 0, 10, true), Times.Once);
+        collectionService.Verify(x => x.GetAllCollections(null, "", null, 0, 10, true), Times.Once);
     }
 
     [TestMethod]
@@ -627,13 +627,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var collectionService = new Mock<ICollectionService>();
-        collectionService.Setup(x => x.GetAllCollections(null, "store-a", 0, 10, true))
+        collectionService.Setup(x => x.GetAllCollections(null, "store-a", null, 0, 10, true))
             .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
 
         await _sut.CollectionAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddCollectionToDiscountModel(), collectionService.Object);
 
-        collectionService.Verify(x => x.GetAllCollections(null, "store-a", 0, 10, true), Times.Once);
+        collectionService.Verify(x => x.GetAllCollections(null, "store-a", null, 0, 10, true), Times.Once);
     }
 
     [TestMethod]

@@ -114,7 +114,7 @@ public class BaseSearchControllerTests
     {
         var controller = CreateController("");
         _collectionServiceMock
-            .Setup(s => s.GetAllCollections(null, "", 0, 10, false))
+            .Setup(s => s.GetAllCollections(null, "", _customer, 0, 10, false))
             .ReturnsAsync(new PagedList<Collection>([new Collection { Id = "col-1", Name = "Summer" }], 0, 10));
 
         var result = await controller.Collection(null, EmptyFilter());
@@ -122,7 +122,7 @@ public class BaseSearchControllerTests
         var rows = ReadRows(result);
         Assert.AreEqual(1, rows.Length);
         Assert.AreEqual("Summer", rows[0].Name);
-        _collectionServiceMock.Verify(s => s.GetAllCollections(null, "", 0, 10, false), Times.Once);
+        _collectionServiceMock.Verify(s => s.GetAllCollections(null, "", _customer, 0, 10, false), Times.Once);
     }
 
     [TestMethod]
@@ -130,12 +130,12 @@ public class BaseSearchControllerTests
     {
         var controller = CreateController("store-1");
         _collectionServiceMock
-            .Setup(s => s.GetAllCollections(null, "store-1", 0, 10, false))
+            .Setup(s => s.GetAllCollections(null, "store-1", _customer, 0, 10, false))
             .ReturnsAsync(new PagedList<Collection>([], 0, 10));
 
         await controller.Collection(null, EmptyFilter());
 
-        _collectionServiceMock.Verify(s => s.GetAllCollections(null, "store-1", 0, 10, false), Times.Once);
+        _collectionServiceMock.Verify(s => s.GetAllCollections(null, "store-1", _customer, 0, 10, false), Times.Once);
     }
 
     [TestMethod]

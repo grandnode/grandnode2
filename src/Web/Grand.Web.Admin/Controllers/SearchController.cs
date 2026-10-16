@@ -109,7 +109,7 @@ public class SearchController : BaseSearchController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCollections)
             {
-                var collections = await _collectionService.GetAllCollections(searchTerm, storeId: "",
+                var collections = await _collectionService.GetAllCollections(searchTerm, storeId: "", customer: null,
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                 foreach (var collection in collections)
                     result.Add(new Tuple<object, int>(new

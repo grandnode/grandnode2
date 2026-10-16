@@ -4,7 +4,6 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -25,13 +24,11 @@ public class CollectionService : ICollectionService
     /// </summary>
     public CollectionService(ICacheBase cacheBase,
         IRepository<Collection> collectionRepository,
-        IContextAccessor contextAccessor,
         IMediator mediator,
         IAclService aclService, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _collectionRepository = collectionRepository;
-        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _aclService = aclService;
         _accessControlConfig = accessControlConfig;
@@ -42,7 +39,6 @@ public class CollectionService : ICollectionService
     #region Fields
 
     private readonly IRepository<Collection> _collectionRepository;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
     private readonly IAclService _aclService;
@@ -57,12 +53,14 @@ public class CollectionService : ICollectionService
     /// </summary>
     /// <param name="collectionName">Collection name</param>
     /// <param name="storeId">Store ident</param>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Collections</returns>
     public virtual async Task<IPagedList<Collection>> GetAllCollections(string collectionName,
         string storeId,
+        Customer customer,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
         bool showHidden = false)
@@ -81,7 +79,7 @@ public class CollectionService : ICollectionService
             if (!showHidden && !_accessControlConfig.IgnoreAcl)
             {
                 //Limited to customer groups rules
-                var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -102,9 +100,12 @@ public class CollectionService : ICollectionService
     /// <summary>
     ///     Gets all featured products for collections displayed on the home page
     /// </summary>
+    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Collections</returns>
-    public virtual async Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(bool showHidden = false)
+    public virtual async Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(Customer customer, string storeId,
+        bool showHidden = false)
     {
         var query = _collectionRepository.Table.Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
@@ -112,8 +113,7 @@ public class CollectionService : ICollectionService
         var collections = await _collectionRepository.ToListAsync(query);
         if (!showHidden)
             collections = collections
-                .Where(c => _aclService.Authorize(c, _contextAccessor.WorkContext.CurrentCustomer) &&
-                            _aclService.Authorize(c, _contextAccessor.StoreContext.CurrentStore.Id))
+                .Where(c => _aclService.Authorize(c, customer) && _aclService.Authorize(c, storeId))
                 .ToList();
         return collections;
     }

@@ -149,7 +149,7 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         if (string.IsNullOrEmpty(dto.Name))
             return (null, false, null);
 
-        var candidates = await _collectionService.GetAllCollections(dto.Name, "", showHidden: true);
+        var candidates = await _collectionService.GetAllCollections(dto.Name, "", customer: null, showHidden: true);
         var (found, error) = ImportRows.SingleByName(candidates, c => c.Name, dto.Name, "collection");
         return (found, found != null, error);
     }

@@ -45,6 +45,7 @@ public abstract class BaseSearchController(
         var collections = await collectionService.GetAllCollections(
             collectionName: model.GetNameFilterValue(),
             storeId: PickerStoreId,
+            customer: CurrentCustomer,
             pageIndex: 0,
             pageSize: adminSearchSettings.CollectionSizeLimit,
             showHidden: false

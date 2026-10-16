@@ -48,7 +48,7 @@ public class GetCollectionAllHandler : IRequestHandler<GetCollectionAll, Collect
             request.Command.PageSize = _catalogSettings.MaxCatalogPageSize;
 
         var model = new List<CollectionModel>();
-        var collections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id,
+        var collections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id, customer: request.Customer,
             pageIndex: request.Command.PageNumber - 1,
             pageSize: request.Command.PageSize);
 

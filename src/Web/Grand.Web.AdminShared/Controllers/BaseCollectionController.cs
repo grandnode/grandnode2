@@ -76,7 +76,7 @@ public abstract class BaseCollectionController(
     {
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
         var collections = await collectionService.GetAllCollections(model.SearchCollectionName,
-            model.SearchStoreId, command.Page - 1, command.PageSize, true);
+            model.SearchStoreId, customer: null, command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
             Data = collections.Select(x => x.ToModel()),
             Total = collections.TotalCount
@@ -252,7 +252,7 @@ public abstract class BaseCollectionController(
     {
         try
         {
-            var bytes = await exportManager.Export(await collectionService.GetAllCollections(collectionName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true),
+            var bytes = await exportManager.Export(await collectionService.GetAllCollections(collectionName: "", storeId: scope.DefaultStoreId ?? "", customer: null, showHidden: true),
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "collections.xlsx");
         }

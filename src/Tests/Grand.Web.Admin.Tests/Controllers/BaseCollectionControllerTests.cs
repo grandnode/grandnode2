@@ -123,7 +123,7 @@ public class BaseCollectionControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _collectionServiceMock
-            .Setup(c => c.GetAllCollections(It.IsAny<string>(), "store-1", 0, 10, true))
+            .Setup(c => c.GetAllCollections(It.IsAny<string>(), "store-1", null, 0, 10, true))
             .ReturnsAsync(new Grand.Domain.PagedList<Collection>(new List<Collection>(), 0, 10));
 
         var model = new CollectionListModel { SearchStoreId = "attacker-supplied-store" };
@@ -137,7 +137,7 @@ public class BaseCollectionControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _collectionServiceMock
-            .Setup(c => c.GetAllCollections(It.IsAny<string>(), "admin-submitted-store", 0, 10, true))
+            .Setup(c => c.GetAllCollections(It.IsAny<string>(), "admin-submitted-store", null, 0, 10, true))
             .ReturnsAsync(new Grand.Domain.PagedList<Collection>(new List<Collection>(), 0, 10));
 
         var model = new CollectionListModel { SearchStoreId = "admin-submitted-store" };

@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure;
+using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
@@ -22,21 +22,39 @@ public class CollectionServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<Collection>> _repositoryMock;
     private CatalogSettings _settings;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<Collection>>();
-        _workContextMock = new Mock<IContextAccessor>();
         _mediatorMock = new Mock<IMediator>();
         _aclMock = new Mock<IAclService>();
         _settings = new CatalogSettings();
-        _collectionService = new CollectionService(_cacheMock.Object, _repositoryMock.Object, _workContextMock.Object
-            , _mediatorMock.Object, _aclMock.Object, new AccessControlConfig());
+        _collectionService = new CollectionService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object, _aclMock.Object, new AccessControlConfig());
     }
 
+
+    [TestMethod]
+    public async Task GetAllCollectionFeaturedProductsOnHomePage_AuthorizesAgainstGivenCustomerAndStore()
+    {
+        //Arrange
+        var collection = new Collection { Id = "a", Published = true, FeaturedProductsOnHomePage = true };
+        var customer = new Customer();
+        _repositoryMock.Setup(r => r.Table).Returns(new List<Collection> { collection }.AsQueryable());
+        _repositoryMock.Setup(r => r.ToListAsync(It.IsAny<IQueryable<Collection>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IQueryable<Collection> q, CancellationToken _) => q.ToList());
+        _aclMock.Setup(a => a.Authorize(collection, customer)).Returns(true);
+        _aclMock.Setup(a => a.Authorize(collection, "store1")).Returns(true);
+
+        //Act
+        var inStore1 = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(customer, "store1");
+        var inStore2 = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(customer, "store2");
+
+        //Assert
+        Assert.HasCount(1, inStore1);
+        Assert.IsEmpty(inStore2);
+    }
 
     [TestMethod]
     public async Task DeleteCollection_ValidArguments_InvokeMethods()

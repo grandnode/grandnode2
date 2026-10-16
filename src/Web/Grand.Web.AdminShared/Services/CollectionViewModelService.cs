@@ -181,7 +181,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         //collections
         model.AvailableCollections.Add(new SelectListItem
             { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var m in await _collectionService.GetAllCollections(collectionName: "", storeId: "",
+        foreach (var m in await _collectionService.GetAllCollections(collectionName: "", storeId: "", customer: null,
                      showHidden: true))
             model.AvailableCollections.Add(new SelectListItem { Text = m.Name, Value = m.Id });
 

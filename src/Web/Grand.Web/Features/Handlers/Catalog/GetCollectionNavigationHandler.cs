@@ -36,7 +36,7 @@ public class GetCollectionNavigationHandler : IRequestHandler<GetCollectionNavig
             var currentCollection = await _collectionService.GetCollectionById(request.CurrentCollectionId);
             var collections =
                 await _collectionService.GetAllCollections(collectionName: "", pageSize: _catalogSettings.CollectionsBlockItemsToDisplay,
-                    storeId: request.Store.Id);
+                    storeId: request.Store.Id, customer: request.Customer);
             var model = new CollectionNavigationModel {
                 TotalCollections = collections.TotalCount
             };

@@ -95,7 +95,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
             request.Language.Id, request.Store.Id);
 
         var cachedCollectionModel = await _cacheBase.GetAsync(collectionCacheKey, async () =>
-            (await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id))
+            (await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id, customer: request.Customer))
             .Where(x => x.IncludeInMenu)
             .Select(t => new MenuModel.MenuCollectionModel {
                 Id = t.Id,

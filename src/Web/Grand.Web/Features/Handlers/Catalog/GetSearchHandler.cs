@@ -136,7 +136,8 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
                 });
         }
 
-        var collections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id, pageSize: 100);
+        var collections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id, customer: request.Customer,
+            pageSize: 100);
         if (collections.Any())
         {
             request.Model.AvailableCollections.Add(new SelectListItem {

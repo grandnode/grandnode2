@@ -57,7 +57,8 @@ public class
         var model = await _cacheBase.GetAsync(collectionCacheKey, async () =>
         {
             var collectionList = new List<CollectionModel>();
-            var collectionmodel = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage();
+            var collectionmodel = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(customer: request.Customer,
+                storeId: request.Store.Id);
             foreach (var x in collectionmodel)
             {
                 var colModel = x.ToModel(request.Language);
