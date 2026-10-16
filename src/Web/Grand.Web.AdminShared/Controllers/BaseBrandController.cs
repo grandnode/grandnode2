@@ -75,7 +75,7 @@ public abstract class BaseBrandController(
     {
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
         var brands = await brandService.GetAllBrands(model.SearchBrandName,
-            model.SearchStoreId, command.Page - 1, command.PageSize, true);
+            model.SearchStoreId, customer: null, command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
             Data = brands.Select(x => x.ToModel()),
             Total = brands.TotalCount
@@ -251,7 +251,7 @@ public abstract class BaseBrandController(
     {
         try
         {
-            var bytes = await exportManager.Export(await brandService.GetAllBrands(brandName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true),
+            var bytes = await exportManager.Export(await brandService.GetAllBrands(brandName: "", storeId: scope.DefaultStoreId ?? "", customer: null, showHidden: true),
                 HttpContext.RequestAborted);
             return File(bytes, "text/xls", "brands.xlsx");
         }

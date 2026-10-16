@@ -2,6 +2,8 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Domain.Admin;
+using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Helpers;
@@ -13,10 +15,13 @@ public abstract class BaseSearchController(
     ICategoryService categoryService,
     IBrandService brandService,
     ICollectionService collectionService,
-    AdminSearchSettings adminSearchSettings)
+    AdminSearchSettings adminSearchSettings,
+    IContextAccessor contextAccessor)
     : BaseController
 {
     protected virtual string PickerStoreId => "";
+
+    protected Customer CurrentCustomer => contextAccessor.WorkContext.CurrentCustomer;
 
     [HttpGet]
     public virtual async Task<IActionResult> Category(string categoryId, DataSourceRequestFilter model)
@@ -55,6 +60,7 @@ public abstract class BaseSearchController(
         var brands = await brandService.GetAllBrands(
             model.GetNameFilterValue(),
             storeId: PickerStoreId,
+            customer: CurrentCustomer,
             pageSize: adminSearchSettings.BrandSizeLimit);
 
         var gridModel = await DataSourceResultHelper.GetSearchResult(brandId, brands, brand => Task.FromResult(brand.Name));

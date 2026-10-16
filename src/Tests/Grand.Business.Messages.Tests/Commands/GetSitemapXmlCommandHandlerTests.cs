@@ -62,7 +62,7 @@ public class GetSitemapXmlCommandHandlerTests
 
         _categoryServiceMock.Setup(x => x.GetAllCategories(null, "", StoreId, 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Category>());
-        _brandServiceMock.Setup(x => x.GetAllBrands("", StoreId, 0, int.MaxValue, true))
+        _brandServiceMock.Setup(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Brand>());
         _pageServiceMock.Setup(x => x.GetAllPages(StoreId, true)).ReturnsAsync(new List<Page>());
         _knowledgebaseServiceMock.Setup(x => x.GetPublicKnowledgebaseArticles(StoreId,
@@ -125,7 +125,7 @@ public class GetSitemapXmlCommandHandlerTests
         //Assert
         Assert.IsFalse(Locations(xml).Any(string.IsNullOrEmpty), "sitemap contains an empty <loc>");
         _categoryServiceMock.Verify(x => x.GetAllCategories(null, "", StoreId, 0, int.MaxValue, true), Times.Once);
-        _brandServiceMock.Verify(x => x.GetAllBrands("", StoreId, 0, int.MaxValue, true), Times.Once);
+        _brandServiceMock.Verify(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true), Times.Once);
         _pageServiceMock.Verify(x => x.GetAllPages(StoreId, true), Times.Once);
         _mediatorMock.Verify(x => x.Send(It.Is<GetSearchProductsQuery>(q =>
             q.Customer == null && q.StoreId == StoreId && q.VisibleIndividuallyOnly &&
@@ -159,7 +159,7 @@ public class GetSitemapXmlCommandHandlerTests
                 new() { Id = "c4", ParentCategoryId = "c3", SeName = "child-of-hidden-category", Published = true },
                 new() { Id = "c5", ParentCategoryId = "", SeName = "unpublished-category", Published = false }
             }, 0, int.MaxValue));
-        _brandServiceMock.Setup(x => x.GetAllBrands("", StoreId, 0, int.MaxValue, true))
+        _brandServiceMock.Setup(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand> {
                 new() { Id = "b1", SeName = "open-brand", Published = true },
                 new() {

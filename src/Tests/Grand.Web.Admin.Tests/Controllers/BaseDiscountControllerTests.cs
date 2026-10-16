@@ -531,13 +531,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var brandService = new Mock<IBrandService>();
-        brandService.Setup(x => x.GetAllBrands(null, "", 0, 10, true))
+        brandService.Setup(x => x.GetAllBrands(null, "", null, 0, 10, true))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
 
         await _sut.BrandAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddBrandToDiscountModel(), brandService.Object);
 
-        brandService.Verify(x => x.GetAllBrands(null, "", 0, 10, true), Times.Once);
+        brandService.Verify(x => x.GetAllBrands(null, "", null, 0, 10, true), Times.Once);
     }
 
     [TestMethod]
@@ -545,13 +545,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var brandService = new Mock<IBrandService>();
-        brandService.Setup(x => x.GetAllBrands(null, "store-a", 0, 10, true))
+        brandService.Setup(x => x.GetAllBrands(null, "store-a", null, 0, 10, true))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
 
         await _sut.BrandAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddBrandToDiscountModel(), brandService.Object);
 
-        brandService.Verify(x => x.GetAllBrands(null, "store-a", 0, 10, true), Times.Once);
+        brandService.Verify(x => x.GetAllBrands(null, "store-a", null, 0, 10, true), Times.Once);
     }
 
     [TestMethod]

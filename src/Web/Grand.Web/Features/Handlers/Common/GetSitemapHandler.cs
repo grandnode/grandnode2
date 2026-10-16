@@ -85,7 +85,7 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             //collections
             if (_commonSettings.SitemapIncludeBrands)
             {
-                var brands = await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id);
+                var brands = await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id, customer: request.Customer);
                 model.Brands = brands.Select(x => x.ToModel(request.Language)).ToList();
             }
 

@@ -551,7 +551,7 @@ public abstract class BaseDiscountController(
         DiscountModel.AddBrandToDiscountModel model, [FromServices] IBrandService brandService)
     {
         var brands = await brandService.GetAllBrands(model.SearchBrandName,
-            await scope.GetDefaultStoreIdAsync() ?? "", command.Page - 1, command.PageSize, true);
+            await scope.GetDefaultStoreIdAsync() ?? "", customer: null, command.Page - 1, command.PageSize, true);
         return Json(new DataSourceResult { Data = brands.Select(x => x.ToModel()), Total = brands.TotalCount });
     }
 

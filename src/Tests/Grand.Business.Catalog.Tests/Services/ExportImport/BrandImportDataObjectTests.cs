@@ -43,7 +43,6 @@ public class BrandImportDataObjectTests
 
     private IRepository<Brand> _repository;
     private Mock<ISlugService> _slugServiceMock;
-    private Mock<IContextAccessor> _workContextMock;
     private ISeNameService _seNameService;
     private SecurityConfig _securityConfig;
     private Mock<ILogger<BrandImportDataObject>> _loggerMock;
@@ -59,14 +58,11 @@ public class BrandImportDataObjectTests
         _brandLayoutServiceMock = new Mock<IBrandLayoutService>();
         _slugServiceMock = new Mock<ISlugService>();
         _languageServiceMock = new Mock<ILanguageService>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
 
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object,
+        _brandService = new BrandService(_cacheBase, _repository, _mediatorMock.Object,
             new AccessControlConfig());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object,

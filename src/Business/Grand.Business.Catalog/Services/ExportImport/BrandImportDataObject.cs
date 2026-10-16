@@ -148,7 +148,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         if (string.IsNullOrEmpty(dto.Name))
             return (null, false, null);
 
-        var candidates = await _brandService.GetAllBrands(dto.Name, "", showHidden: true);
+        var candidates = await _brandService.GetAllBrands(dto.Name, "", customer: null, showHidden: true);
         var (found, error) = ImportRows.SingleByName(candidates, b => b.Name, dto.Name, "brand");
         return (found, found != null, error);
     }

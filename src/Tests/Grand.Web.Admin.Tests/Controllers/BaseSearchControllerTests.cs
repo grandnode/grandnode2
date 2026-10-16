@@ -4,6 +4,8 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Domain;
 using Grand.Domain.Admin;
 using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +26,9 @@ public class BaseSearchControllerTests
         IBrandService brandService,
         ICollectionService collectionService,
         AdminSearchSettings adminSearchSettings,
+        IContextAccessor contextAccessor,
         string pickerStoreId)
-        : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings)
+        : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings, contextAccessor)
     {
         protected override string PickerStoreId => pickerStoreId;
     }
@@ -34,6 +37,8 @@ public class BaseSearchControllerTests
     private Mock<IBrandService> _brandServiceMock = null!;
     private Mock<ICollectionService> _collectionServiceMock = null!;
     private AdminSearchSettings _settings = null!;
+    private Customer _customer = null!;
+    private Mock<IContextAccessor> _contextAccessorMock = null!;
 
     [TestInitialize]
     public void Setup()
@@ -41,6 +46,9 @@ public class BaseSearchControllerTests
         _categoryServiceMock = new Mock<ICategoryService>();
         _brandServiceMock = new Mock<IBrandService>();
         _collectionServiceMock = new Mock<ICollectionService>();
+        _customer = new Customer();
+        _contextAccessorMock = new Mock<IContextAccessor>();
+        _contextAccessorMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(_customer);
         _settings = new AdminSearchSettings {
             CategorySizeLimit = 10,
             CollectionSizeLimit = 10,
@@ -49,7 +57,7 @@ public class BaseSearchControllerTests
     }
 
     private TestSearchController CreateController(string pickerStoreId) =>
-        new(_categoryServiceMock.Object, _brandServiceMock.Object, _collectionServiceMock.Object, _settings, pickerStoreId);
+        new(_categoryServiceMock.Object, _brandServiceMock.Object, _collectionServiceMock.Object, _settings, _contextAccessorMock.Object, pickerStoreId);
 
     private static DataSourceRequestFilter EmptyFilter() => new() { Filters = [] };
 
@@ -135,7 +143,7 @@ public class BaseSearchControllerTests
     {
         var controller = CreateController("");
         _brandServiceMock
-            .Setup(s => s.GetAllBrands(null, "", 0, 10, false))
+            .Setup(s => s.GetAllBrands(null, "", _customer, 0, 10, false))
             .ReturnsAsync(new PagedList<Brand>([new Brand { Id = "brand-1", Name = "Acme" }], 0, 10));
 
         var result = await controller.Brand(null, EmptyFilter());
@@ -143,7 +151,7 @@ public class BaseSearchControllerTests
         var rows = ReadRows(result);
         Assert.AreEqual(1, rows.Length);
         Assert.AreEqual("Acme", rows[0].Name);
-        _brandServiceMock.Verify(s => s.GetAllBrands(null, "", 0, 10, false), Times.Once);
+        _brandServiceMock.Verify(s => s.GetAllBrands(null, "", _customer, 0, 10, false), Times.Once);
     }
 
     [TestMethod]
@@ -151,11 +159,11 @@ public class BaseSearchControllerTests
     {
         var controller = CreateController("store-1");
         _brandServiceMock
-            .Setup(s => s.GetAllBrands(null, "store-1", 0, 10, false))
+            .Setup(s => s.GetAllBrands(null, "store-1", _customer, 0, 10, false))
             .ReturnsAsync(new PagedList<Brand>([], 0, 10));
 
         await controller.Brand(null, EmptyFilter());
 
-        _brandServiceMock.Verify(s => s.GetAllBrands(null, "store-1", 0, 10, false), Times.Once);
+        _brandServiceMock.Verify(s => s.GetAllBrands(null, "store-1", _customer, 0, 10, false), Times.Once);
     }
 }

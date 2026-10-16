@@ -50,7 +50,7 @@ public class SearchController : BaseSearchController
         AdminSearchSettings adminSearchSettings, ITranslationService translationService, IContextAccessor contextAccessor,
         IGroupService groupService,
         IStoreService storeService, IVendorService vendorService)
-        : base(categoryService, brandService, collectionService, adminSearchSettings)
+        : base(categoryService, brandService, collectionService, adminSearchSettings, contextAccessor)
     {
         _productService = productService;
         _categoryService = categoryService;
