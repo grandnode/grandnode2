@@ -1,6 +1,7 @@
 using Authentication.OpenIdConnect;
 using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,7 @@ public class OidcSignOutProviderTests
     public void Init()
     {
         _authenticationService = new Mock<IExternalAuthenticationService>();
-        _authenticationService.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName))
+        _authenticationService.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName, It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>()))
             .Returns(true);
         _manager = new Mock<IConfigurationManager<OpenIdConnectConfiguration>>();
         _logger = new Mock<ILogger<OidcSignOutProvider>>();
@@ -43,7 +44,7 @@ public class OidcSignOutProviderTests
             ConfigurationManager = withManager ? _manager.Object : null
         });
         return new OidcSignOutProvider(monitor.Object, new OidcLoginConfig { ClientId = "shop app" },
-            _authenticationService.Object, _logger.Object);
+            _authenticationService.Object, new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock }.Object, _logger.Object);
     }
 
     [TestMethod]
@@ -76,7 +77,7 @@ public class OidcSignOutProviderTests
     [TestMethod]
     public async Task NotAvailable_Null()
     {
-        _authenticationService.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName))
+        _authenticationService.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName, It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>()))
             .Returns(false);
         Assert.IsNull(await Provider().GetSignOutUrl(Back));
         _manager.Verify(x => x.GetConfigurationAsync(It.IsAny<CancellationToken>()), Times.Never);

@@ -137,7 +137,9 @@ public abstract class BaseLoginController : BaseController
     private async Task PrepareExternalSignIn(LoginModel model, IExternalAuthenticationService externalAuthenticationService)
     {
         var returnUrl = Url.RouteUrl($"{GetCurrentArea()}Index");
-        foreach (var provider in externalAuthenticationService.LoadActiveAuthenticationProviders()
+        foreach (var provider in externalAuthenticationService
+                     .LoadActiveAuthenticationProviders(_contextAccessor.WorkContext.CurrentCustomer,
+                         _contextAccessor.StoreContext.CurrentStore)
                      .OfType<IExternalSignInPathProvider>())
         {
             var path = await provider.GetSignInPath(returnUrl);

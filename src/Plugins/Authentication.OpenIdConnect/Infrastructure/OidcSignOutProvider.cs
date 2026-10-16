@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Logging;
@@ -14,11 +15,14 @@ public class OidcSignOutProvider(
     IOptionsMonitor<OpenIdConnectOptions> optionsMonitor,
     OidcLoginConfig config,
     IExternalAuthenticationService externalAuthenticationService,
+    IContextAccessor contextAccessor,
     ILogger<OidcSignOutProvider> logger) : IExternalSignOutProvider
 {
     public async Task<string> GetSignOutUrl(string postLogoutRedirectUri)
     {
-        if (!externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName))
+        //called before the local sign-out: the customer is still the signed-in one
+        if (!externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName,
+                contextAccessor.WorkContext.CurrentCustomer, contextAccessor.StoreContext.CurrentStore))
             return null;
 
         var options = optionsMonitor.Get(OidcLoginDefaults.AuthenticationScheme);
