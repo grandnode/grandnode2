@@ -145,4 +145,27 @@ public class CheckoutAttributeServiceTests
         //Assert
         Assert.AreNotEqual(keys[0], keys[1]);
     }
+
+    [TestMethod]
+    public async Task GetAllCheckoutAttributes_SameGroupsInAnotherOrder_UseTheSameCacheKey()
+    {
+        //Arrange
+        var keys = new List<string>();
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CheckoutAttribute>>>>()))
+            .Callback((string key, Func<Task<IList<CheckoutAttribute>>> _) => keys.Add(key))
+            .ReturnsAsync(new List<CheckoutAttribute>());
+        var first = new Customer();
+        first.Groups.Add("registered");
+        first.Groups.Add("members");
+        var second = new Customer();
+        second.Groups.Add("members");
+        second.Groups.Add("registered");
+
+        //Act
+        await _service.GetAllCheckoutAttributes(CatalogAccess.For(first, "store"));
+        await _service.GetAllCheckoutAttributes(CatalogAccess.For(second, "store"));
+
+        //Assert
+        Assert.AreEqual(keys[0], keys[1]);
+    }
 }

@@ -232,12 +232,12 @@ public static class CustomerExtensions
     ///     Get customer group identifiers
     /// </summary>
     /// <param name="customer">Customer</param>
-    /// <returns>Customer group identifiers</returns>
+    /// <returns>Customer group identifiers, sorted so that cache keys built from them do not depend on the stored order</returns>
     public static string[] GetCustomerGroupIds(this Customer customer)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
-        return customer.Groups.ToArray();
+        return customer.Groups.Order(StringComparer.Ordinal).ToArray();
     }
 
     #endregion

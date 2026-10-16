@@ -76,4 +76,18 @@ public class CategoryServiceCacheKeyTests
 
         Assert.AreNotSame(first, second, "the ACL filter differs per group, so the entries must differ");
     }
+
+    [TestMethod]
+    public async Task SameGroupsInAnotherOrder_ShareTheCachedTree()
+    {
+        await _categoryService.InsertCategory(new Category { ParentCategoryId = "root", Published = true });
+
+        var first = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-1", "group-a", "group-b"), "store"), "root");
+
+        var second = await _categoryService.GetAllCategoriesByParentCategoryId(
+            CatalogAccess.For(WithGroups("customer-2", "group-b", "group-a"), "store"), "root");
+
+        Assert.AreSame(first, second, "the order the groups are stored in must not split the cache");
+    }
 }
