@@ -30,7 +30,6 @@ public class ValidateMinShoppingCartSubtotalAmountCommandHandlerTests
     public async Task HandleTest()
     {
         var command = new ValidateMinShoppingCartSubtotalAmountCommand {
-            Customer = new Customer(),
             Cart = new List<ShoppingCartItem> { new() },
             Context = new Grand.Business.Core.Utilities.Checkout.CalculationContext(new Customer(),
                 new Grand.Domain.Stores.Store(), new Grand.Domain.Directory.Currency(),

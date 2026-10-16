@@ -86,8 +86,8 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
         //attributes
         if (renderProductAttributes)
         {
-            result = await PrepareFormattedAttribute(product, customAttributes, langId, separator, htmlEncode,
-                renderPrices, allowHyperlinks, showInAdmin);
+            result = await PrepareFormattedAttribute(product, customAttributes, customer, langId, separator,
+                htmlEncode, renderPrices, allowHyperlinks, showInAdmin);
 
             if (product.ProductTypeId == ProductType.BundledProduct)
             {
@@ -106,8 +106,8 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                     else
                         result.Append(
                             $"{(htmlEncode ? WebUtility.HtmlEncode(p1.GetTranslation(x => x.Name, langId)) : p1.GetTranslation(x => x.Name, langId))}");
-                    var formattedAttribute = await PrepareFormattedAttribute(p1, customAttributes, langId, separator,
-                        htmlEncode,
+                    var formattedAttribute = await PrepareFormattedAttribute(p1, customAttributes, customer, langId,
+                        separator, htmlEncode,
                         renderPrices, allowHyperlinks, showInAdmin);
                     if (formattedAttribute.Length > 0)
                     {
@@ -151,10 +151,11 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     }
 
     private async Task<StringBuilder> PrepareFormattedAttribute(Product product,
-        IList<CustomAttribute> customAttributes, string langId,
+        IList<CustomAttribute> customAttributes, Customer customer, string langId,
         string separator, bool htmlEncode, bool renderPrices,
         bool allowHyperlinks, bool showInAdmin)
     {
+        var priceCustomer = customer ?? _contextAccessor.WorkContext.CurrentCustomer;
         var result = new StringBuilder();
         var attributes = product.ParseProductAttributeMappings(customAttributes);
         for (var i = 0; i < attributes.Count; i++)
@@ -235,12 +236,12 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                             {
                                 var attributeValuePriceAdjustment =
                                     await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue,
-                                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                                        priceCustomer, _contextAccessor.StoreContext.CurrentStore,
                                         _contextAccessor.WorkContext.WorkingCurrency);
                                 var (priceAdjustmentBase, _) = await _taxService.GetProductPrice(product,
                                     attributeValuePriceAdjustment,
                                     _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                                    priceCustomer, _contextAccessor.StoreContext.CurrentStore);
                                 switch (priceAdjustmentBase)
                                 {
                                     case > 0:

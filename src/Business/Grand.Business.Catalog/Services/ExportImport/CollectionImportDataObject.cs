@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
@@ -149,7 +150,7 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         if (string.IsNullOrEmpty(dto.Name))
             return (null, false, null);
 
-        var candidates = await _collectionService.GetAllCollections(dto.Name, "", customer: null, showHidden: true);
+        var candidates = await _collectionService.GetAllCollections(dto.Name, CatalogAccess.IncludingHidden());
         var (found, error) = ImportRows.SingleByName(candidates, c => c.Name, dto.Name, "collection");
         return (found, found != null, error);
     }

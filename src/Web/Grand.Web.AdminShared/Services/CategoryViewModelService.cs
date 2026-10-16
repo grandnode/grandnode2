@@ -6,9 +6,9 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
-using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
@@ -33,7 +33,6 @@ public class CategoryViewModelService : ICategoryViewModelService
     private readonly IVendorService _vendorService;
     private readonly ISeNameService _seNameService;
     private readonly IEnumTranslationService _enumTranslationService;
-    private readonly IContextAccessor _contextAccessor;
    
     public CategoryViewModelService(
         ICategoryService categoryService,
@@ -47,8 +46,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         IVendorService vendorService,
         CatalogSettings catalogSettings,
         ISeNameService seNameService, 
-        IEnumTranslationService enumTranslationService,
-        IContextAccessor contextAccessor)
+        IEnumTranslationService enumTranslationService)
     {
         _categoryService = categoryService;
         _productCategoryService = productCategoryService;
@@ -62,7 +60,6 @@ public class CategoryViewModelService : ICategoryViewModelService
         _catalogSettings = catalogSettings;
         _seNameService = seNameService;
         _enumTranslationService = enumTranslationService;
-        _contextAccessor = contextAccessor;
     }
 
     public virtual async Task<CategoryListModel> PrepareCategoryListModel(string storeId)
@@ -82,11 +79,9 @@ public class CategoryViewModelService : ICategoryViewModelService
         var categories = await _categoryService.GetAllCategories(
             parentId: null,
             categoryName: model.SearchCategoryName,
-            storeId: model.SearchStoreId,
-            customer: null,
+            access: CatalogAccess.IncludingHidden(model.SearchStoreId),
             pageSize: pageSize,
-            pageIndex: pageIndex - 1,
-            showHidden: true);
+            pageIndex: pageIndex - 1);
 
         var categoryListModel = new List<CategoryModel>();
         foreach (var x in categories)
@@ -203,9 +198,8 @@ public class CategoryViewModelService : ICategoryViewModelService
         PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)
     {
         var productCategories = await _productCategoryService.GetProductCategoriesByCategoryId(categoryId,
-            customer: _contextAccessor.WorkContext.CurrentCustomer,
-            storeId: _contextAccessor.StoreContext.CurrentStore.Id,
-            pageIndex - 1, pageSize, true);
+            CatalogAccess.IncludingHidden(),
+            pageIndex - 1, pageSize);
 
         var categoryproducts = new List<CategoryModel.CategoryProductModel>();
         foreach (var item in productCategories)

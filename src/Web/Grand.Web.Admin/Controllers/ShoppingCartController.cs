@@ -104,6 +104,7 @@ public class ShoppingCartController : BaseAdminController
         foreach (var sci in cart)
         {
             var store = await _storeService.GetStoreById(sci.StoreId);
+            var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
             var product = await _productService.GetProductById(sci.ProductId);
             var sciModel = new ShoppingCartItemModel {
                 Id = sci.Id,
@@ -114,17 +115,17 @@ public class ShoppingCartController : BaseAdminController
                 AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
                 UnitPrice = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        customer, priceStore,
                         _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
                         _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice,
+                        customer, priceStore)).productprice,
                         _contextAccessor.WorkContext.WorkingCurrency),
                 Total = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
                     (await _pricingService.GetSubTotal(sci, product,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        customer, priceStore,
                         _contextAccessor.WorkContext.WorkingCurrency)).subTotal,
                         _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice,
+                        customer, priceStore)).productprice,
                         _contextAccessor.WorkContext.WorkingCurrency),
                 UpdatedOn = sci.UpdatedOnUtc.HasValue
                     ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)
@@ -175,6 +176,7 @@ public class ShoppingCartController : BaseAdminController
         foreach (var sci in cart)
         {
             var store = await _storeService.GetStoreById(sci.StoreId);
+            var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
             var product = await _productService.GetProductById(sci.ProductId);
             var sciModel = new ShoppingCartItemModel {
                 Id = sci.Id,
@@ -185,17 +187,17 @@ public class ShoppingCartController : BaseAdminController
                 AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
                 UnitPrice = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        customer, priceStore,
                         _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
                         _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice,
+                        customer, priceStore)).productprice,
                         _contextAccessor.WorkContext.WorkingCurrency),
                 Total = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
                     (await _pricingService.GetSubTotal(sci, product,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        customer, priceStore,
                         _contextAccessor.WorkContext.WorkingCurrency)).subTotal,
                         _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice,
+                        customer, priceStore)).productprice,
                         _contextAccessor.WorkContext.WorkingCurrency),
                 UpdatedOn = sci.UpdatedOnUtc.HasValue
                     ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)

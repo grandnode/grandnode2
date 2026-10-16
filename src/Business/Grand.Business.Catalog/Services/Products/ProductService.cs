@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -115,13 +116,12 @@ public class ProductService : IProductService
     ///     Get products by identifiers
     /// </summary>
     /// <param name="productIds">Product identifiers</param>
-    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
-    /// <param name="storeId">Store whose limitations apply</param>
-    /// <param name="showHidden">Show hidden</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <returns>Products</returns>
-    public virtual async Task<IList<Product>> GetProductsByIds(string[] productIds, Customer customer, string storeId,
-        bool showHidden = false)
+    public virtual async Task<IList<Product>> GetProductsByIds(string[] productIds, CatalogAccess access)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         if (productIds == null || productIds.Length == 0)
             return new List<Product>();
 
@@ -129,9 +129,9 @@ public class ProductService : IProductService
         foreach (var id in productIds)
         {
             var product = await GetProductById(id);
-            if (product != null && (showHidden || (_aclService.Authorize(product, customer) &&
-                                                   _aclService.Authorize(product, storeId) &&
-                                                   product.IsAvailable())))
+            if (product != null &&
+                (access.ShowHidden || (_aclService.Authorize(product, access.Customer) && product.IsAvailable())) &&
+                _aclService.Authorize(product, access.StoreId))
                 products.Add(product);
         }
 
@@ -450,7 +450,7 @@ public class ProductService : IProductService
     /// <summary>
     ///     Search products
     /// </summary>
-    /// <param name="customer">Customer whose groups limit the search</param>
+    /// <param name="access">Whose view of the products to search, and the store whose limitations apply</param>
     /// <param name="loadFilterableSpecificationAttributeOptionIds">
     ///     A value indicating whether we should load the specification
     ///     attribute option identifiers applied to loaded products (all pages)
@@ -460,7 +460,6 @@ public class ProductService : IProductService
     /// <param name="categoryIds">Category identifiers</param>
     /// <param name="brandId">Brand ident</param>
     /// <param name="collectionId">Collection identifier; "" to load all records</param>
-    /// <param name="storeId">Store identifier; "" to load all records</param>
     /// <param name="vendorId">Vendor identifier; "" to load all records</param>
     /// <param name="warehouseId">Warehouse identifier; "" to load all records</param>
     /// <param name="productType">Product type; "" to load all records</param>
@@ -485,9 +484,8 @@ public class ProductService : IProductService
     /// <param name="filteredSpecs">Filtered product specification identifiers</param>
     /// <param name="specificationOptions">Specification options identifiers</param>
     /// <param name="orderBy">Order by</param>
-    /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="overridePublished">
-    ///     null - process "Published" property according to "showHidden" parameter
+    ///     null - process "Published" property according to "access"
     ///     true - load only "Published" products
     ///     false - load only "Unpublished" products
     /// </param>
@@ -495,15 +493,14 @@ public class ProductService : IProductService
     /// <returns>Products</returns>
     public virtual async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
         SearchProducts(
-            Customer customer,
+            CatalogAccess access,
             bool loadFilterableSpecificationAttributeOptionIds = false,
             int pageIndex = 0,
             int pageSize = int.MaxValue,
             IList<string> categoryIds = null,
             string brandId = "",
             string collectionId = "",
-            string storeId = "",
-            string vendorId = "",
+                        string vendorId = "",
             string warehouseId = "",
             ProductType? productType = null,
             bool visibleIndividuallyOnly = false,
@@ -521,18 +518,19 @@ public class ProductService : IProductService
             IList<string> filteredSpecs = null,
             IList<string> specificationOptions = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
-            bool showHidden = false,
-            bool? overridePublished = null)
+                        bool? overridePublished = null)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var model = await _mediator.Send(new GetSearchProductsQuery {
-            Customer = customer,
+            Customer = access.Customer,
             LoadFilterableSpecificationAttributeOptionIds = loadFilterableSpecificationAttributeOptionIds,
             PageIndex = pageIndex,
             PageSize = pageSize,
             CategoryIds = categoryIds,
             BrandId = brandId,
             CollectionId = collectionId,
-            StoreId = storeId,
+            StoreId = access.StoreId,
             VendorId = vendorId,
             WarehouseId = warehouseId,
             ProductType = productType,
@@ -551,7 +549,7 @@ public class ProductService : IProductService
             FilteredSpecs = filteredSpecs,
             SpecificationOptions = specificationOptions,
             OrderBy = orderBy,
-            ShowHidden = showHidden,
+            ShowHidden = access.ShowHidden,
             OverridePublished = overridePublished
         });
 
@@ -585,21 +583,21 @@ public class ProductService : IProductService
     ///     Gets associated products
     /// </summary>
     /// <param name="parentGroupedProductId">Parent product identifier (used with grouped products)</param>
-    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
-    /// <param name="storeId">Store identifier; "" to load all records</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <param name="vendorId">Vendor identifier; "" to load all records</param>
-    /// <param name="showHidden">Show hidden</param>
     /// <returns>Products</returns>
-    public virtual async Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId, Customer customer,
-        string storeId = "", string vendorId = "", bool showHidden = false)
+    public virtual async Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId, CatalogAccess access,
+        string vendorId = "")
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         var query = from p in _productRepository.Table
                     select p;
 
         query = query.Where(p => p.ParentGroupedProductId == parentGroupedProductId);
 
-        if (!showHidden) query = query.Where(p => p.Published);
-        if (!showHidden)
+        if (!access.ShowHidden) query = query.Where(p => p.Published);
+        if (!access.ShowHidden)
         {
             var nowUtc = DateTime.UtcNow;
             //available dates
@@ -614,11 +612,10 @@ public class ProductService : IProductService
         var products = query.OrderBy(x => x.DisplayOrder).ToList();
 
         //ACL mapping
-        if (!showHidden)
-            products = products.Where(x => _aclService.Authorize(x, customer)).ToList();
+        if (!access.ShowHidden)
+            products = products.Where(x => _aclService.Authorize(x, access.Customer)).ToList();
         //Store acl
-        if (!showHidden && !string.IsNullOrEmpty(storeId))
-            products = products.Where(x => _aclService.Authorize(x, storeId)).ToList();
+        products = products.Where(x => _aclService.Authorize(x, access.StoreId)).ToList();
 
         return await Task.FromResult(products);
     }
@@ -871,6 +868,9 @@ public class ProductService : IProductService
     public virtual async Task<IList<Product>> GetCrossSellProductsByShoppingCart(IList<ShoppingCartItem> cart,
         int numberOfProducts, Customer customer, string storeId)
     {
+        //without a customer the ACL check rejects every record, so fail instead of returning nothing
+        ArgumentNullException.ThrowIfNull(customer);
+
         var result = new List<Product>();
 
         if (numberOfProducts == 0)

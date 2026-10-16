@@ -1,6 +1,5 @@
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -104,8 +103,8 @@ public interface IOrderCalculationService
     ///     Converts existing loyalty points to amount
     /// </summary>
     /// <param name="loyaltyPoints">Loyalty points</param>
-    /// <returns>Converted value</returns>
-    Task<double> ConvertLoyaltyPointsToAmount(int loyaltyPoints, Currency currency);
+    /// <returns>Converted value in the primary store currency</returns>
+    Task<double> ConvertLoyaltyPointsToAmount(int loyaltyPoints);
 
     /// <summary>
     ///     Converts an amount to loyalty points

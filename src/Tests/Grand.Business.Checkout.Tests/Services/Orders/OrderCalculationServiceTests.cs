@@ -289,9 +289,23 @@ public class OrderCalculationServiceTests
         //Arrange
         _loyaltyPointsSettings.ExchangeRate = 1;
         //Act
-        var result = await _service.ConvertLoyaltyPointsToAmount(10, _context.Currency);
+        var result = await _service.ConvertLoyaltyPointsToAmount(10);
         //Assert
         Assert.AreEqual(10, result);
+    }
+
+    [TestMethod]
+    public async Task ConvertLoyaltyPointsToAmount_RoundsInThePrimaryStoreCurrency()
+    {
+        //Arrange
+        _loyaltyPointsSettings.ExchangeRate = 0.33;
+        _shoppingCartSettings.RoundPrices = true;
+        _currencyServiceMock.Setup(x => x.GetPrimaryStoreCurrency())
+            .ReturnsAsync(new Currency { CurrencyCode = "USD", NumberDecimal = 2 });
+        //Act
+        var result = await _service.ConvertLoyaltyPointsToAmount(15);
+        //Assert
+        Assert.AreEqual(4.95, result, 0.0001);
     }
 
     [TestMethod]

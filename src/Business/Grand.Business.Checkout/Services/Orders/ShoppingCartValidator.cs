@@ -146,8 +146,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
         {
             var resultCheckoutAttributes = await _validatorFactory
                 .GetValidator<ShoppingCartTotalAmountValidatorRecord>().ValidateAsync(
-                    new ShoppingCartTotalAmountValidatorRecord(context.Customer, context.Currency, shoppingCart,
-                        context));
+                    new ShoppingCartTotalAmountValidatorRecord(shoppingCart, context));
             if (!resultCheckoutAttributes.IsValid)
                 warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
         }

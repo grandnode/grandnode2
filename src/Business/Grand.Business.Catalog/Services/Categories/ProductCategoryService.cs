@@ -34,44 +34,40 @@ public class ProductCategoryService : IProductCategoryService
     ///     Gets product category mapping collection
     /// </summary>
     /// <param name="categoryId">Category identifier</param>
-    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
-    /// <param name="storeId">Store whose limitations apply</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Product a category mapping collection</returns>
     public virtual async Task<IPagedList<ProductsCategory>> GetProductCategoriesByCategoryId(string categoryId,
-        Customer customer, string storeId, int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
+        CatalogAccess access, int pageIndex = 0, int pageSize = int.MaxValue)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
         if (string.IsNullOrEmpty(categoryId))
             return new PagedList<ProductsCategory>(new List<ProductsCategory>(), pageIndex, pageSize);
 
-        var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex,
-            pageSize, string.Join(",", customer.GetCustomerGroupIds()),
-            storeId);
+        //hidden records are not filtered by customer groups, so the key does not depend on them
+        var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, access.ShowHidden, categoryId,
+            pageIndex, pageSize, access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()),
+            access.StoreId);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));
 
-            if (!showHidden && (!_accessControlConfig.IgnoreAcl || !_accessControlConfig.IgnoreStoreLimitations))
+            if (!access.ShowHidden && !_accessControlConfig.IgnoreAcl)
             {
-                if (!_accessControlConfig.IgnoreAcl)
-                {
-                    //Limited to customer groups
-                    var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
-                    query = from p in query
-                        where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                        select p;
-                }
-
-                if (!_accessControlConfig.IgnoreStoreLimitations)
-                {
-                    //Limited to stores
-                    query = from p in query
-                        where !p.LimitedToStores || p.Stores.Contains(storeId)
-                        select p;
-                }
+                //Limited to customer groups
+                var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
+                query = from p in query
+                    where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                    select p;
             }
+
+            if (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations)
+                //Limited to stores
+                query = from p in query
+                    where !p.LimitedToStores || p.Stores.Contains(access.StoreId)
+                    select p;
 
             var queryProductCategories = from prod in query
                 from pc in prod.ProductCategories

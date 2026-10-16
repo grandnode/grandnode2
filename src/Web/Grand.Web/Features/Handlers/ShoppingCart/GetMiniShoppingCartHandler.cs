@@ -84,9 +84,6 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         _mediaSettings = mediaSettings;
     }
 
-    private static CalculationContext CalculationContextOf(GetMiniShoppingCart request) =>
-        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
-
     public async Task<MiniShoppingCartModel> Handle(GetMiniShoppingCart request,
         CancellationToken cancellationToken)
     {
@@ -110,11 +107,14 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         model.TotalProducts = cart.Sum(x => x.Quantity);
         if (!cart.Any()) return model;
 
+        var context = new CalculationContext(request.Customer, request.Store, request.Currency,
+            request.TaxDisplayType);
+
         //subtotal
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                    !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
         var shoppingCartSubTotal =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, CalculationContextOf(request), subTotalIncludingTax);
+            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, subTotalIncludingTax);
 
         model.SubTotalIncludingTax = subTotalIncludingTax;
         model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
@@ -125,8 +125,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
             .Any();
 
         var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
-            Context = CalculationContextOf(request),
-            Customer = request.Customer,
+            Context = context,
             Cart = cart.Where
                 (x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
         }, cancellationToken);

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Catalog.Services.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -48,8 +49,10 @@ public class CollectionServiceTests
         _aclMock.Setup(a => a.Authorize(collection, "store1")).Returns(true);
 
         //Act
-        var inStore1 = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(customer, "store1");
-        var inStore2 = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(customer, "store2");
+        var inStore1 = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(
+            CatalogAccess.For(customer, "store1"));
+        var inStore2 = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage(
+            CatalogAccess.For(customer, "store2"));
 
         //Assert
         Assert.HasCount(1, inStore1);

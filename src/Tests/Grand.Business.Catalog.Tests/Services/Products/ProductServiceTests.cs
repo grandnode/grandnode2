@@ -2,6 +2,7 @@
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain;
@@ -53,12 +54,33 @@ public class ProductServiceTests
         });
 
         //Act
-        var store1 = await _productService.GetProductsByIds(["p1"], new Customer(), "store1");
-        var store2 = await _productService.GetProductsByIds(["p1"], new Customer(), "store2");
+        var store1 = await _productService.GetProductsByIds(["p1"], CatalogAccess.For(new Customer(), "store1"));
+        var store2 = await _productService.GetProductsByIds(["p1"], CatalogAccess.For(new Customer(), "store2"));
 
         //Assert
         Assert.HasCount(1, store1);
         Assert.IsEmpty(store2);
+    }
+
+    [TestMethod]
+    public async Task GetProductsByIds_WithoutAccess_Throws()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => _productService.GetProductsByIds(["p1"], null));
+    }
+
+    [TestMethod]
+    public async Task GetProductsByIds_IncludingHidden_ReturnsUnpublishedAndGroupLimitedProducts()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product {
+            Id = "p1", Published = false, LimitedToGroups = true, CustomerGroups = new List<string> { "vip" }
+        });
+
+        //Act
+        var products = await _productService.GetProductsByIds(["p1"], CatalogAccess.IncludingHidden());
+
+        //Assert
+        Assert.HasCount(1, products);
     }
 
     [TestMethod]
@@ -70,7 +92,7 @@ public class ProductServiceTests
             .ReturnsAsync((new PagedList<Product>(new List<Product>(), 0, 1), (IList<string>)new List<string>()));
 
         //Act
-        await _productService.SearchProducts(customer, storeId: "s1");
+        await _productService.SearchProducts(CatalogAccess.For(customer, "s1"));
 
         //Assert
         _mediatorMock.Verify(m => m.Send(
@@ -171,7 +193,7 @@ public class ProductServiceTests
     {
         await insertSampleProducts();
         //Act
-        var result = await _productService.GetProductsByIds(["1"], new Customer(), "");
+        var result = await _productService.GetProductsByIds(["1"], CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.IsNotEmpty(result);
@@ -288,7 +310,7 @@ public class ProductServiceTests
         //Arrange 
         await insertSampleProducts();
         //Act
-        var result = await _productService.GetAssociatedProducts("1", new Customer());
+        var result = await _productService.GetAssociatedProducts("1", CatalogAccess.For(new Customer(), ""));
 
         //Assert
         Assert.IsNotEmpty(result);

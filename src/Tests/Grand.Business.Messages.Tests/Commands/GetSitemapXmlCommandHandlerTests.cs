@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Messages.Commands.Handlers.Common;
 using Grand.Domain;
 using Grand.Domain.Blogs;
@@ -60,9 +61,10 @@ public class GetSitemapXmlCommandHandlerTests
         groupServiceMock.Setup(x => x.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests))
             .ReturnsAsync(new CustomerGroup { Id = GuestsGroupId, SystemName = SystemCustomerGroupNames.Guests });
 
-        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "", StoreId, null, 0, int.MaxValue, true))
+        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "",
+            CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Category>());
-        _brandServiceMock.Setup(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true))
+        _brandServiceMock.Setup(x => x.GetAllBrands("", CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Brand>());
         _pageServiceMock.Setup(x => x.GetAllPages(StoreId, true)).ReturnsAsync(new List<Page>());
         _knowledgebaseServiceMock.Setup(x => x.GetPublicKnowledgebaseArticles(StoreId,
@@ -124,8 +126,10 @@ public class GetSitemapXmlCommandHandlerTests
 
         //Assert
         Assert.IsFalse(Locations(xml).Any(string.IsNullOrEmpty), "sitemap contains an empty <loc>");
-        _categoryServiceMock.Verify(x => x.GetAllCategories(null, "", StoreId, null, 0, int.MaxValue, true), Times.Once);
-        _brandServiceMock.Verify(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true), Times.Once);
+        _categoryServiceMock.Verify(x => x.GetAllCategories(null, "",
+            CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue), Times.Once);
+        _brandServiceMock.Verify(x => x.GetAllBrands("",
+            CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue), Times.Once);
         _pageServiceMock.Verify(x => x.GetAllPages(StoreId, true), Times.Once);
         _mediatorMock.Verify(x => x.Send(It.Is<GetSearchProductsQuery>(q =>
             q.Customer == null && q.StoreId == StoreId && q.VisibleIndividuallyOnly &&
@@ -148,7 +152,8 @@ public class GetSitemapXmlCommandHandlerTests
             },
             new() { Id = "4", SystemName = "Draft", SeName = "draft-page", Published = false, IncludeInSitemap = true }
         });
-        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "", StoreId, null, 0, int.MaxValue, true))
+        _categoryServiceMock.Setup(x => x.GetAllCategories(null, "",
+            CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Category>(new List<Category> {
                 new() { Id = "c1", ParentCategoryId = "", SeName = "open-category", Published = true },
                 new() { Id = "c2", ParentCategoryId = "c1", SeName = "child-category", Published = true },
@@ -159,7 +164,7 @@ public class GetSitemapXmlCommandHandlerTests
                 new() { Id = "c4", ParentCategoryId = "c3", SeName = "child-of-hidden-category", Published = true },
                 new() { Id = "c5", ParentCategoryId = "", SeName = "unpublished-category", Published = false }
             }, 0, int.MaxValue));
-        _brandServiceMock.Setup(x => x.GetAllBrands("", StoreId, null, 0, int.MaxValue, true))
+        _brandServiceMock.Setup(x => x.GetAllBrands("", CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand> {
                 new() { Id = "b1", SeName = "open-brand", Published = true },
                 new() {

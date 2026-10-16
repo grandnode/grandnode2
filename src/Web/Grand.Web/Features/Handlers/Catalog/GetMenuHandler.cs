@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -80,7 +81,8 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
             request.Language.Id, request.Store.Id);
 
         var cachedBrandModel = await _cacheBase.GetAsync(brandCacheKey, async () =>
-            (await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id, customer: request.Customer))
+            (await _brandService.GetAllBrands(brandName: "",
+                access: CatalogAccess.For(request.Customer, request.Store.Id)))
             .Where(x => x.IncludeInMenu)
             .Select(t => new MenuModel.MenuBrandModel {
                 Id = t.Id,
@@ -95,7 +97,8 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
             request.Language.Id, request.Store.Id);
 
         var cachedCollectionModel = await _cacheBase.GetAsync(collectionCacheKey, async () =>
-            (await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id, customer: request.Customer))
+            (await _collectionService.GetAllCollections(collectionName: "",
+                access: CatalogAccess.For(request.Customer, request.Store.Id)))
             .Where(x => x.IncludeInMenu)
             .Select(t => new MenuModel.MenuCollectionModel {
                 Id = t.Id,

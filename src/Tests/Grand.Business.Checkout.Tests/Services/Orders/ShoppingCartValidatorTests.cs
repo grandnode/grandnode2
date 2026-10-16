@@ -64,8 +64,6 @@ public class ShoppingCartValidatorTests
         Assert.AreSame(context.Customer, attributes.Customer);
         Assert.AreSame(context.Store, attributes.Store);
         var amount = _records.OfType<ShoppingCartTotalAmountValidatorRecord>().Single();
-        Assert.AreSame(context.Customer, amount.Customer);
-        Assert.AreSame(context.Currency, amount.Currency);
         Assert.AreSame(context, amount.Context);
     }
 

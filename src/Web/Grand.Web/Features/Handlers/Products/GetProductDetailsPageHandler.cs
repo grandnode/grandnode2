@@ -24,6 +24,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
@@ -313,9 +314,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             if (!isAssociatedProduct)
             {
                 var associatedProducts =
-                    await _productService.GetAssociatedProducts(product.Id,
-                        _contextAccessor.WorkContext.CurrentCustomer,
-                        _contextAccessor.StoreContext.CurrentStore.Id);
+                    await _productService.GetAssociatedProducts(product.Id, _contextAccessor.CatalogAccess());
                 foreach (var associatedProduct in associatedProducts)
                     model.AssociatedProducts.Add(
                         await PrepareProductDetailsModel(store, associatedProduct, null, true));
@@ -555,8 +554,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             if (category == null) return breadcrumbModel;
 
             foreach (var catBr in await _categoryService.GetCategoryBreadCrumb(category,
-                         customer: _contextAccessor.WorkContext.CurrentCustomer,
-                         storeId: _contextAccessor.StoreContext.CurrentStore.Id))
+                         _contextAccessor.CatalogAccess()))
                 breadcrumbModel.CategoryBreadcrumb.Add(new CategorySimpleModel {
                     Id = catBr.Id,
                     Name = catBr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),

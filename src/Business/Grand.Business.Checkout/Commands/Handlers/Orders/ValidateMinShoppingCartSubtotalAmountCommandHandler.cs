@@ -25,7 +25,6 @@ public class
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request.Cart);
-        ArgumentNullException.ThrowIfNull(request.Customer);
         ArgumentNullException.ThrowIfNull(request.Context);
 
         return await ValidateMinOrderSubtotalAmount(request.Cart, request.Context);

@@ -5,6 +5,7 @@ using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
@@ -66,8 +67,7 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
         }
 
         //load products
-        var products = await _productService.GetProductsByIds(productIds.ToArray(), _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+        var products = await _productService.GetProductsByIds(productIds.ToArray(), _contextAccessor.CatalogAccess());
 
         if (!products.Any())
             return Content("");

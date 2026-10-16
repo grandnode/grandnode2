@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -44,12 +45,9 @@ public interface IProductService
     ///     Gets products by identifier
     /// </summary>
     /// <param name="productIds">Product identifiers</param>
-    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
-    /// <param name="storeId">Store whose limitations apply</param>
-    /// <param name="showHidden">Show hidden</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <returns>Products</returns>
-    Task<IList<Product>> GetProductsByIds(string[] productIds, Customer customer, string storeId,
-        bool showHidden = false);
+    Task<IList<Product>> GetProductsByIds(string[] productIds, CatalogAccess access);
 
     /// <summary>
     ///     Gets products by discount
@@ -118,7 +116,7 @@ public interface IProductService
     /// <summary>
     ///     Search products
     /// </summary>
-    /// <param name="customer">Customer whose groups limit the search</param>
+    /// <param name="access">Whose view of the products to search, and the store whose limitations apply</param>
     /// <param name="loadFilterableSpecificationAttributeOptionIds">
     ///     A value indicating whether we should load the specification
     ///     attribute option identifiers applied to loaded products (all pages)
@@ -128,7 +126,6 @@ public interface IProductService
     /// <param name="categoryIds">Category identifiers</param>
     /// <param name="brandId">Brand ident</param>
     /// <param name="collectionId">Collection identifier; "" to load all records</param>
-    /// <param name="storeId">Store identifier; "" to load all records</param>
     /// <param name="vendorId">Vendor identifier; "" to load all records</param>
     /// <param name="warehouseId">Warehouse identifier; "" to load all records</param>
     /// <param name="productType">Product type; "" to load all records</param>
@@ -154,23 +151,21 @@ public interface IProductService
     /// <param name="filteredSpecs">Filtered product specification identifiers</param>
     /// <param name="specificationOptions">Specification options identifiers</param>
     /// <param name="orderBy">Order by</param>
-    /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="overridePublished">
-    ///     null - process "Published" property according to "showHidden" parameter
+    ///     null - process "Published" property according to "access"
     ///     true - load only "Published" products
     ///     false - load only "Unpublished" products
     /// </param>
     /// <returns>Products</returns>
     Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> SearchProducts(
-        Customer customer,
+        CatalogAccess access,
         bool loadFilterableSpecificationAttributeOptionIds = false,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
         IList<string> categoryIds = null,
         string brandId = "",
         string collectionId = "",
-        string storeId = "",
-        string vendorId = "",
+                string vendorId = "",
         string warehouseId = "",
         ProductType? productType = null,
         bool visibleIndividuallyOnly = false,
@@ -188,8 +183,7 @@ public interface IProductService
         IList<string> filteredSpecs = null,
         IList<string> specificationOptions = null,
         ProductSortingEnum orderBy = ProductSortingEnum.Position,
-        bool showHidden = false,
-        bool? overridePublished = null);
+                bool? overridePublished = null);
 
     /// <summary>
     ///     Gets products by product attribute
@@ -206,13 +200,11 @@ public interface IProductService
     ///     Gets associated products
     /// </summary>
     /// <param name="parentGroupedProductId">Parent product identifier (used with grouped products)</param>
-    /// <param name="customer">Customer whose groups limit the result (not read when showHidden is true)</param>
-    /// <param name="storeId">Store identifier; "" to load all records</param>
+    /// <param name="access">Whose view of the products to return, and the store whose limitations apply</param>
     /// <param name="vendorId">Vendor identifier; "" to load all records</param>
-    /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Products</returns>
-    Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId, Customer customer,
-        string storeId = "", string vendorId = "", bool showHidden = false);
+    Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId, CatalogAccess access,
+        string vendorId = "");
 
     /// <summary>
     ///     Update product associated

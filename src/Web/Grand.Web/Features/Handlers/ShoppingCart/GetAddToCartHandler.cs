@@ -64,9 +64,6 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
         _mediaSettings = mediaSettings;
     }
 
-    private static CalculationContext CalculationContextOf(GetAddToCart request) =>
-        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
-
     public async Task<AddToCartModel> Handle(GetAddToCart request, CancellationToken cancellationToken)
     {
         var model = new AddToCartModel {
@@ -160,7 +157,9 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                            !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal =
-                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, CalculationContextOf(request), subTotalIncludingTax);
+                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart,
+                        new CalculationContext(request.Customer, request.Store, request.Currency,
+                            request.TaxDisplayType), subTotalIncludingTax);
                 model.SubTotalIncludingTax = subTotalIncludingTax;
                 model.SubTotal =
                     _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);

@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
@@ -46,8 +47,8 @@ public class GetHomepageCategoryHandler : IRequestHandler<GetHomepageCategory, I
         var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
         {
             var cat = new List<CategoryModel>();
-            foreach (var x in await _categoryService.GetAllCategoriesDisplayedOnHomePage(customer: request.Customer,
-                         storeId: request.Store.Id))
+            foreach (var x in await _categoryService.GetAllCategoriesDisplayedOnHomePage(
+                access: CatalogAccess.For(request.Customer, request.Store.Id)))
             {
                 var catModel = x.ToModel(request.Language);
                 //prepare picture model

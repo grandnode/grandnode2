@@ -174,7 +174,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         {
             var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
                 Context = CalculationContextOf(request),
-                Customer = request.Customer,
                 Cart = request.Cart.Where(x =>
                     x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
             });

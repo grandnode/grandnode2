@@ -946,7 +946,8 @@ public class CheckoutController : BasePublicController
                 Customer = _contextAccessor.WorkContext.CurrentCustomer,
                 FilterByCountryId = filterByCountryId,
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
-                Store = _contextAccessor.StoreContext.CurrentStore
+                Store = _contextAccessor.StoreContext.CurrentStore,
+                TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
             });
 
             if (!_paymentSettings.SkipPaymentIfOnlyOne ||

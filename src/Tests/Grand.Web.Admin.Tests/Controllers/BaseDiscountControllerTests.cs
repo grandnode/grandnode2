@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
@@ -449,13 +450,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var categoryService = new Mock<ICategoryService>();
-        categoryService.Setup(x => x.GetAllCategories(null, null, "", null, 0, 10, true))
+        categoryService.Setup(x => x.GetAllCategories(null, null, CatalogAccess.IncludingHidden(), 0, 10))
             .ReturnsAsync(new PagedList<Category>(new List<Category>(), 0, 10, 0));
 
         await _sut.CategoryAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddCategoryToDiscountModel(), categoryService.Object);
 
-        categoryService.Verify(x => x.GetAllCategories(null, null, "", null, 0, 10, true), Times.Once);
+        categoryService.Verify(x => x.GetAllCategories(null, null, CatalogAccess.IncludingHidden(), 0, 10), Times.Once);
     }
 
     [TestMethod]
@@ -463,13 +464,14 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var categoryService = new Mock<ICategoryService>();
-        categoryService.Setup(x => x.GetAllCategories(null, null, "store-a", null, 0, 10, true))
+        categoryService.Setup(x => x.GetAllCategories(null, null, CatalogAccess.IncludingHidden("store-a"), 0, 10))
             .ReturnsAsync(new PagedList<Category>(new List<Category>(), 0, 10, 0));
 
         await _sut.CategoryAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddCategoryToDiscountModel(), categoryService.Object);
 
-        categoryService.Verify(x => x.GetAllCategories(null, null, "store-a", null, 0, 10, true), Times.Once);
+        categoryService.Verify(x => x.GetAllCategories(null, null,
+            CatalogAccess.IncludingHidden("store-a"), 0, 10), Times.Once);
     }
 
     [TestMethod]
@@ -531,13 +533,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var brandService = new Mock<IBrandService>();
-        brandService.Setup(x => x.GetAllBrands(null, "", null, 0, 10, true))
+        brandService.Setup(x => x.GetAllBrands(null, CatalogAccess.IncludingHidden(), 0, 10))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
 
         await _sut.BrandAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddBrandToDiscountModel(), brandService.Object);
 
-        brandService.Verify(x => x.GetAllBrands(null, "", null, 0, 10, true), Times.Once);
+        brandService.Verify(x => x.GetAllBrands(null, CatalogAccess.IncludingHidden(), 0, 10), Times.Once);
     }
 
     [TestMethod]
@@ -545,13 +547,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var brandService = new Mock<IBrandService>();
-        brandService.Setup(x => x.GetAllBrands(null, "store-a", null, 0, 10, true))
+        brandService.Setup(x => x.GetAllBrands(null, CatalogAccess.IncludingHidden("store-a"), 0, 10))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
 
         await _sut.BrandAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddBrandToDiscountModel(), brandService.Object);
 
-        brandService.Verify(x => x.GetAllBrands(null, "store-a", null, 0, 10, true), Times.Once);
+        brandService.Verify(x => x.GetAllBrands(null, CatalogAccess.IncludingHidden("store-a"), 0, 10), Times.Once);
     }
 
     [TestMethod]
@@ -613,13 +615,13 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var collectionService = new Mock<ICollectionService>();
-        collectionService.Setup(x => x.GetAllCollections(null, "", null, 0, 10, true))
+        collectionService.Setup(x => x.GetAllCollections(null, CatalogAccess.IncludingHidden(), 0, 10))
             .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
 
         await _sut.CollectionAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddCollectionToDiscountModel(), collectionService.Object);
 
-        collectionService.Verify(x => x.GetAllCollections(null, "", null, 0, 10, true), Times.Once);
+        collectionService.Verify(x => x.GetAllCollections(null, CatalogAccess.IncludingHidden(), 0, 10), Times.Once);
     }
 
     [TestMethod]
@@ -627,13 +629,14 @@ public class BaseDiscountControllerTests
     {
         _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var collectionService = new Mock<ICollectionService>();
-        collectionService.Setup(x => x.GetAllCollections(null, "store-a", null, 0, 10, true))
+        collectionService.Setup(x => x.GetAllCollections(null, CatalogAccess.IncludingHidden("store-a"), 0, 10))
             .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
 
         await _sut.CollectionAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
             new DiscountModel.AddCollectionToDiscountModel(), collectionService.Object);
 
-        collectionService.Verify(x => x.GetAllCollections(null, "store-a", null, 0, 10, true), Times.Once);
+        collectionService.Verify(x => x.GetAllCollections(null,
+            CatalogAccess.IncludingHidden("store-a"), 0, 10), Times.Once);
     }
 
     [TestMethod]

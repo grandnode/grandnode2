@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -26,18 +27,20 @@ public class GetSuggestedProductsQueryHandler : IRequestHandler<GetSuggestedProd
         //the result is cached per key shared by many customers, so a query without one must not fill it
         ArgumentNullException.ThrowIfNull(request.Customer);
 
+        var customerTagIds = request.Customer.CustomerTags.ToArray();
+
         return await _cacheBase.GetAsync(
-            string.Format(CacheKey.PRODUCTS_CUSTOMER_TAG, string.Join(",", request.CustomerTagIds)), async () =>
+            string.Format(CacheKey.PRODUCTS_CUSTOMER_TAG, string.Join(",", customerTagIds)), async () =>
             {
                 var query = from cr in _customerTagProductRepository.Table
-                    where request.CustomerTagIds.Contains(cr.CustomerTagId)
+                    where customerTagIds.Contains(cr.CustomerTagId)
                     orderby cr.DisplayOrder
                     select cr.ProductId;
 
                 var productIds = query.Take(request.ProductsNumber).ToList();
 
-                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray(), customer: request.Customer,
-                    storeId: request.StoreId);
+                var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray(),
+                    access: CatalogAccess.For(request.Customer, request.StoreId));
 
                 return ids.Where(product => product.Published).ToList();
             });

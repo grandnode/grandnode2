@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Blogs;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -78,15 +79,16 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             //categories
             if (_commonSettings.SitemapIncludeCategories)
             {
-                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id,
-                    customer: request.Customer);
+                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: "",
+                    access: CatalogAccess.For(request.Customer, request.Store.Id));
                 model.Categories = categories.Select(x => x.ToModel(request.Language)).ToList();
             }
 
             //collections
             if (_commonSettings.SitemapIncludeBrands)
             {
-                var brands = await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id, customer: request.Customer);
+                var brands = await _brandService.GetAllBrands(brandName: "",
+                    access: CatalogAccess.For(request.Customer, request.Store.Id));
                 model.Brands = brands.Select(x => x.ToModel(request.Language)).ToList();
             }
 
@@ -95,8 +97,7 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             {
                 //limit product to 200 until paging is supported on this page
                 var products = (await _productService.SearchProducts(
-                    customer: request.Customer,
-                    storeId: request.Store.Id,
+                    access: CatalogAccess.For(request.Customer, request.Store.Id),
                     visibleIndividuallyOnly: true,
                     pageSize: 200)).products;
                 model.Products = products.Select(product => new ProductOverviewModel {

@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -37,8 +38,8 @@ public class BlogPostProductsViewComponent : BaseViewComponent
         if (!blogproducts.Any())
             return Content("");
 
-        var products = await _productService.GetProductsByIds(blogproducts.Select(x => x.ProductId).ToArray(), _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+        var products = await _productService.GetProductsByIds(blogproducts.Select(x => x.ProductId).ToArray(),
+            _contextAccessor.CatalogAccess());
 
         if (!products.Any())
             return Content("");

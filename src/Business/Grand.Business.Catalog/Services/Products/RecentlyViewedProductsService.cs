@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -89,7 +90,7 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
     public virtual async Task<IList<Product>> GetRecentlyViewedProducts(Customer customer, string storeId, int number)
     {
         var productIds = await GetRecentlyViewedProductsIds(customer.Id, number);
-        return (await _productService.GetProductsByIds(productIds.ToArray(), customer, storeId))
+        return (await _productService.GetProductsByIds(productIds.ToArray(), CatalogAccess.For(customer, storeId)))
             .Where(product => product.Published)
             .ToList();
     }
