@@ -862,7 +862,9 @@ public class CustomerViewModelService : ICustomerViewModelService
                 if (product != null)
                 {
                     var price = (await taxService.GetProductPrice(product,
-                        (await priceCalculationService.GetUnitPrice(sci, product)).unitprice,
+                        (await priceCalculationService.GetUnitPrice(sci, product,
+                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                            _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
                             _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
                             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
                     var sciModel = new ShoppingCartItemModel {
@@ -875,7 +877,9 @@ public class CustomerViewModelService : ICustomerViewModelService
                         UnitPrice = priceFormatter.FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency),
                         UnitPriceValue = price,
                         Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product,
-                            (await priceCalculationService.GetSubTotal(sci, product)).subTotal,
+                            (await priceCalculationService.GetSubTotal(sci, product,
+                                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                                _contextAccessor.WorkContext.WorkingCurrency)).subTotal,
                                 _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
                                 _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice,
                                 _contextAccessor.WorkContext.WorkingCurrency),

@@ -617,10 +617,16 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     protected virtual async Task<OrderItem> PrepareOrderItem(ShoppingCartItem sc, Product product,
         PlaceOrderContainer details)
     {
-        var scUnitPrice = (await _pricingService.GetUnitPrice(sc, product)).unitprice;
-        var scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product, false)).unitprice;
+        var scUnitPrice = (await _pricingService.GetUnitPrice(sc, product,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingCurrency)).unitprice;
+        var scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingCurrency, false)).unitprice;
 
-        var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product);
+        var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingCurrency);
 
         var prices = await _taxService.GetTaxProductPrice(product, details.Customer,
             details.Store, scUnitPrice,

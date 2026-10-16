@@ -234,7 +234,9 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                             if (renderPrices)
                             {
                                 var attributeValuePriceAdjustment =
-                                    await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
+                                    await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue,
+                                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                                        _contextAccessor.WorkContext.WorkingCurrency);
                                 var (priceAdjustmentBase, _) = await _taxService.GetProductPrice(product,
                                     attributeValuePriceAdjustment,
                                     _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,

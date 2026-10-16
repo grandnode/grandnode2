@@ -147,7 +147,9 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
             else
             {
                 var productprice = await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice,
+                    (await _pricingService.GetUnitPrice(sci, product,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
                         _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
                         _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice, request.Currency);
@@ -161,7 +163,9 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
             else
             {
                 //sub total
-                var subtotal = await _pricingService.GetSubTotal(sci, product);
+                var subtotal = await _pricingService.GetSubTotal(sci, product,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                    _contextAccessor.WorkContext.WorkingCurrency);
                 var shoppingCartItemDiscountBase = subtotal.discountAmount;
                 var productprices = await _taxService.GetProductPrice(product, subtotal.subTotal,
                     _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,

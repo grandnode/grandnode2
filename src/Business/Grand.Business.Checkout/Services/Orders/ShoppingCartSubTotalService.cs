@@ -148,7 +148,9 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
             if (product == null)
                 continue;
 
-            var subtotal = await _pricingService.GetSubTotal(shoppingCartItem, product);
+            var subtotal = await _pricingService.GetSubTotal(shoppingCartItem, product,
+                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                _contextAccessor.WorkContext.WorkingCurrency);
             var sciSubTotal = subtotal.subTotal;
 
             var pricesExcl = await _taxService.GetProductPrice(product, sciSubTotal, false, customer, store);
@@ -177,9 +179,11 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
             {
                 var checkoutAttributePriceExclTax = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, customer, store);
                 
-                var caExclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutAttributePriceExclTax.checkoutPrice, _contextAccessor.WorkContext.WorkingCurrency);
+                var caExclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutAttributePriceExclTax.checkoutPrice,
+                    _contextAccessor.WorkContext.WorkingCurrency);
                 var (checkoutPrice, taxRate) = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, true, customer, store);
-                var caInclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutPrice, _contextAccessor.WorkContext.WorkingCurrency);
+                var caInclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutPrice,
+                    _contextAccessor.WorkContext.WorkingCurrency);
 
                 subTotalExclTaxWithoutDiscount += caExclTax;
                 subTotalInclTaxWithoutDiscount += caInclTax;
@@ -201,7 +205,8 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
             subTotalWithoutDiscount = 0;
 
         if (_shoppingCartSettings.RoundPrices)
-            subTotalWithoutDiscount = RoundingHelper.RoundPrice(subTotalWithoutDiscount, _contextAccessor.WorkContext.WorkingCurrency);
+            subTotalWithoutDiscount = RoundingHelper.RoundPrice(subTotalWithoutDiscount,
+                _contextAccessor.WorkContext.WorkingCurrency);
 
         //We calculate discount amount on order subtotal excl tax (discount first)
         //calculate discount amount ('Applied to order subtotal' discount)
@@ -242,8 +247,10 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
 
         if (_shoppingCartSettings.RoundPrices)
         {
-            discountAmountInclTax = RoundingHelper.RoundPrice(discountAmountInclTax, _contextAccessor.WorkContext.WorkingCurrency);
-            discountAmountExclTax = RoundingHelper.RoundPrice(discountAmountExclTax, _contextAccessor.WorkContext.WorkingCurrency);
+            discountAmountInclTax = RoundingHelper.RoundPrice(discountAmountInclTax,
+                _contextAccessor.WorkContext.WorkingCurrency);
+            discountAmountExclTax = RoundingHelper.RoundPrice(discountAmountExclTax,
+                _contextAccessor.WorkContext.WorkingCurrency);
         }
 
         if (includingTax)
@@ -261,7 +268,8 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
             subTotalWithDiscount = 0;
 
         if (_shoppingCartSettings.RoundPrices)
-            subTotalWithDiscount = RoundingHelper.RoundPrice(subTotalWithDiscount, _contextAccessor.WorkContext.WorkingCurrency);
+            subTotalWithDiscount = RoundingHelper.RoundPrice(subTotalWithDiscount,
+                _contextAccessor.WorkContext.WorkingCurrency);
 
         return (discountAmount, appliedDiscounts, subTotalWithoutDiscount, subTotalWithDiscount, taxRates);
     }

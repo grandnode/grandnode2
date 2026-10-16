@@ -11,7 +11,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Mediator;
 using System.Globalization;
 
@@ -25,7 +24,6 @@ public class PricingService : IPricingService
     #region Ctor
 
     public PricingService(
-        IContextAccessor contextAccessor,
         IProductService productService,
         IMediator mediator,
         ICurrencyService currencyService,
@@ -33,7 +31,6 @@ public class PricingService : IPricingService
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings)
     {
-        _contextAccessor = contextAccessor;
         _productService = productService;
         _mediator = mediator;
         _currencyService = currencyService;
@@ -58,7 +55,6 @@ public class PricingService : IPricingService
 
     #region Fields
 
-    private readonly IContextAccessor _contextAccessor;
     private readonly IProductService _productService;
     private readonly IMediator _mediator;
     private readonly ICurrencyService _currencyService;
@@ -210,18 +206,21 @@ public class PricingService : IPricingService
     /// </summary>
     /// <param name="shoppingCartItem">The shopping cart item</param>
     /// <param name="product">Product</param>
+    /// <param name="customer">Customer the price is for</param>
+    /// <param name="store">Store the price is for</param>
+    /// <param name="currency">Currency the price is converted to</param>
     /// <param name="includeDiscounts">Include discounts or not for price</param>
     /// <returns>Shopping cart unit price (one item)</returns>
     public virtual async Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)>
-        GetUnitPrice(ShoppingCartItem shoppingCartItem,
-            Product product, bool includeDiscounts = true)
+        GetUnitPrice(ShoppingCartItem shoppingCartItem, Product product, Customer customer, Store store,
+            Currency currency, bool includeDiscounts = true)
     {
         ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
         return await GetUnitPrice(product,
-            _contextAccessor.WorkContext.CurrentCustomer,
-            _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingCurrency,
+            customer,
+            store,
+            currency,
             shoppingCartItem.ShoppingCartTypeId,
             shoppingCartItem.Quantity,
             shoppingCartItem.Attributes,
@@ -303,7 +302,8 @@ public class PricingService : IPricingService
                 var attributeValues = product.ParseProductAttributeValues(attributes);
                 if (attributeValues != null)
                     foreach (var attributeValue in attributeValues)
-                        attributesTotalPrice += await GetProductAttributeValuePriceAdjustment(attributeValue);
+                        attributesTotalPrice +=
+                            await GetProductAttributeValuePriceAdjustment(attributeValue, customer, store, currency);
                 if (product.ProductTypeId == ProductType.BundledProduct)
                     foreach (var item in product.BundleProducts)
                     {
@@ -312,7 +312,8 @@ public class PricingService : IPricingService
                         if (bundledProductsAttributeValues == null) continue;
                         foreach (var attributeValue in bundledProductsAttributeValues)
                             attributesTotalPrice += item.Quantity *
-                                                    await GetProductAttributeValuePriceAdjustment(attributeValue);
+                                                    await GetProductAttributeValuePriceAdjustment(attributeValue,
+                                                        customer, store, currency);
                     }
             }
 
@@ -355,17 +356,20 @@ public class PricingService : IPricingService
     /// </summary>
     /// <param name="shoppingCartItem">The shopping cart item</param>
     /// <param name="product">Product</param>
+    /// <param name="customer">Customer the price is for</param>
+    /// <param name="store">Store the price is for</param>
+    /// <param name="currency">Currency the price is converted to</param>
     /// <param name="includeDiscounts">Include discounts or not for price</param>
     /// <returns>Shopping cart item sub total</returns>
     public virtual async Task<(double subTotal, double discountAmount, List<ApplyDiscount> appliedDiscounts)>
-        GetSubTotal(ShoppingCartItem shoppingCartItem, Product product,
-            bool includeDiscounts = true)
+        GetSubTotal(ShoppingCartItem shoppingCartItem, Product product, Customer customer, Store store,
+            Currency currency, bool includeDiscounts = true)
     {
         ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
         double subTotal = 0;
         //unit price
-        var getUnitPrice = await GetUnitPrice(shoppingCartItem, product, includeDiscounts);
+        var getUnitPrice = await GetUnitPrice(shoppingCartItem, product, customer, store, currency, includeDiscounts);
         var unitPrice = getUnitPrice.unitprice;
         var discountAmount = getUnitPrice.discountAmount;
         var appliedDiscounts = getUnitPrice.appliedDiscounts;
@@ -385,7 +389,8 @@ public class PricingService : IPricingService
                 discountAmount *= discountedQuantity;
 
                 var notDiscountedQuantity = shoppingCartItem.Quantity - discountedQuantity;
-                var notDiscountedUnitPrice = await GetUnitPrice(shoppingCartItem, product, false);
+                var notDiscountedUnitPrice =
+                    await GetUnitPrice(shoppingCartItem, product, customer, store, currency, false);
                 var notDiscountedSubTotal = notDiscountedUnitPrice.unitprice * notDiscountedQuantity;
 
                 subTotal = discountedSubTotal + notDiscountedSubTotal;
@@ -445,8 +450,12 @@ public class PricingService : IPricingService
     ///     Get a price adjustment of a product attribute value
     /// </summary>
     /// <param name="value">Product attribute value</param>
+    /// <param name="customer">Customer the price is for</param>
+    /// <param name="store">Store the price is for</param>
+    /// <param name="currency">Currency the price is converted to</param>
     /// <returns>Price adjustment</returns>
-    public virtual async Task<double> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value)
+    public virtual async Task<double> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value,
+        Customer customer, Store store, Currency currency)
     {
         ArgumentNullException.ThrowIfNull(value);
 
@@ -459,8 +468,7 @@ public class PricingService : IPricingService
                     adjustment = value.PriceAdjustment;
                     if (adjustment > 0)
                         adjustment =
-                            await _currencyService.ConvertFromPrimaryStoreCurrency(adjustment,
-                                _contextAccessor.WorkContext.WorkingCurrency);
+                            await _currencyService.ConvertFromPrimaryStoreCurrency(adjustment, currency);
                 }
                 break;
             case AttributeValueType.AssociatedToProduct:
@@ -469,9 +477,9 @@ public class PricingService : IPricingService
                     var associatedProduct = await _productService.GetProductById(value.AssociatedProductId);
                     if (associatedProduct != null)
                         adjustment = (await GetFinalPrice(associatedProduct,
-                            _contextAccessor.WorkContext.CurrentCustomer,
-                            _contextAccessor.StoreContext.CurrentStore,
-                            _contextAccessor.WorkContext.WorkingCurrency,
+                            customer,
+                            store,
+                            currency,
                             value.PriceAdjustment)).finalPrice * value.Quantity;
                 }
                 break;

@@ -220,12 +220,15 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
 
             var product = await _productService.GetProductById(packageItem.ShoppingCartItem.ProductId);
             if (product != null)
-                subTotal += (await _pricingService.GetSubTotal(packageItem.ShoppingCartItem, product)).subTotal;
+                subTotal += (await _pricingService.GetSubTotal(packageItem.ShoppingCartItem, product,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                    _contextAccessor.WorkContext.WorkingCurrency)).subTotal;
         }
 
         var weight = await GetTotalWeight(getShippingOptionRequest);
 
-        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(countryId, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(countryId,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
         foreach (var shippingMethod in shippingMethods)
         {
             double? rate = null;

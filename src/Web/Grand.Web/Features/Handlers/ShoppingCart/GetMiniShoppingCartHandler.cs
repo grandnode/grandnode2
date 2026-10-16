@@ -188,7 +188,8 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
             else
             {
                 var productprices = await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice,
+                    (await _pricingService.GetUnitPrice(sci, product, request.Customer, request.Store,
+                        request.Currency)).unitprice,
                         request.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store);
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice, request.Currency);
             }

@@ -449,7 +449,9 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             }
             else
             {
-                var unitprices = await _pricingService.GetUnitPrice(sci, product);
+                var unitprices = await _pricingService.GetUnitPrice(sci, product,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                    _contextAccessor.WorkContext.WorkingCurrency);
                 var appliedDiscounts = unitprices.appliedDiscounts;
                 var productprices = await _taxService.GetProductPrice(product, unitprices.unitprice,
                     _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
@@ -457,7 +459,9 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
                 cartItemModel.UnitPriceWithoutDiscountValue =
                     (await _taxService.GetProductPrice(product,
-                        (await _pricingService.GetUnitPrice(sci, product, false)).unitprice,
+                        (await _pricingService.GetUnitPrice(sci, product,
+                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                            _contextAccessor.WorkContext.WorkingCurrency, false)).unitprice,
                             _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
                             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
 
@@ -475,7 +479,9 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 }
 
                 //sub total
-                var subtotal = await _pricingService.GetSubTotal(sci, product);
+                var subtotal = await _pricingService.GetSubTotal(sci, product,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                    _contextAccessor.WorkContext.WorkingCurrency);
                 var shoppingCartItemDiscountBase = subtotal.discountAmount;
                 var shoppingCartItemSubTotalWithDiscount =
                     (await _taxService.GetProductPrice(product, subtotal.subTotal,

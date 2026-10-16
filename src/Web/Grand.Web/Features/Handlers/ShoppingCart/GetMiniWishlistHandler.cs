@@ -97,7 +97,9 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
             else
             {
                 var productprice = await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice,
+                    (await _pricingService.GetUnitPrice(sci, product,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
                         _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
                         _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
 
