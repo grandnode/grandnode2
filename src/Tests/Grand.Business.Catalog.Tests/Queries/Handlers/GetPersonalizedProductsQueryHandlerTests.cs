@@ -33,8 +33,18 @@ public class GetPersonalizedProductsQueryHandlerTests
     [TestMethod]
     public async Task HandleTest()
     {
-        await handler.Handle(new GetPersonalizedProductsQuery(), CancellationToken.None);
+        await handler.Handle(new GetPersonalizedProductsQuery { Customer = new Customer() }, CancellationToken.None);
         _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
             Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutCustomer_ThrowsBeforeCaching()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
+            handler.Handle(new GetPersonalizedProductsQuery { CustomerId = "1", ProductsNumber = 1 },
+                CancellationToken.None));
+        _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
+            Times.Never);
     }
 }

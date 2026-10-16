@@ -35,11 +35,22 @@ public class GetRecommendedProductsQueryHandlerTests
     {
         var getRecommendedProductsQuery = new GetRecommendedProductsQuery {
             CustomerGroupIds = ["1"],
-            StoreId = "1"
+            StoreId = "1",
+            Customer = new Customer()
         };
         await handler.Handle(getRecommendedProductsQuery, CancellationToken.None);
         _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
             Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutCustomer_ThrowsBeforeCaching()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
+            handler.Handle(new GetRecommendedProductsQuery { CustomerGroupIds = ["1"], StoreId = "1" },
+                CancellationToken.None));
+        _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
+            Times.Never);
     }
 
     [TestMethod]

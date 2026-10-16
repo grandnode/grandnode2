@@ -28,6 +28,9 @@ public class GetRecommendedProductsQueryHandler : IRequestHandler<GetRecommended
 
     public async Task<IList<Product>> Handle(GetRecommendedProductsQuery request, CancellationToken cancellationToken)
     {
+        //the result is cached per key shared by many customers, so a query without one must not fill it
+        ArgumentNullException.ThrowIfNull(request.Customer);
+
         return await _cacheBase.GetAsync(
             string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, string.Join(",", request.CustomerGroupIds),
                 request.StoreId), async () =>

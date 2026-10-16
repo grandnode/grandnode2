@@ -2920,7 +2920,7 @@ public class BaseProductControllerTests
 
         var file = result as FileContentResult;
         Assert.IsNotNull(file);
-        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(), null, "", true), Times.Never);
+        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(), It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<string>(), true), Times.Never);
     }
 
     [TestMethod]

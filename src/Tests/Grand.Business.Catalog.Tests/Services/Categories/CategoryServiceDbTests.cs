@@ -109,6 +109,23 @@ public class CategoryServiceDbTests
     }
 
     [TestMethod]
+    public async Task DeleteCategory_DetachesItsChildCategories()
+    {
+        //Arrange
+        var parent = new Category { Id = "p", Published = true };
+        await _categoryService.InsertCategory(parent);
+        await _categoryService.InsertCategory(new Category { Id = "c1", ParentCategoryId = "p" });
+        await _categoryService.InsertCategory(new Category { Id = "c2", ParentCategoryId = "p", Published = true });
+        await _categoryService.InsertCategory(new Category { Id = "other", ParentCategoryId = "x" });
+        //Act
+        await _categoryService.DeleteCategory(parent);
+        //Assert
+        Assert.AreEqual("", _categoryRepository.Table.First(x => x.Id == "c1").ParentCategoryId);
+        Assert.AreEqual("", _categoryRepository.Table.First(x => x.Id == "c2").ParentCategoryId);
+        Assert.AreEqual("x", _categoryRepository.Table.First(x => x.Id == "other").ParentCategoryId);
+    }
+
+    [TestMethod]
     public async Task DeleteCategory()
     {
         //Arrange

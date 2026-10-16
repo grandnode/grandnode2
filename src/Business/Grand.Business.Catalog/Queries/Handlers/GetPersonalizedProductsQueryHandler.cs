@@ -28,6 +28,9 @@ public class GetPersonalizedProductsQueryHandler : IRequestHandler<GetPersonaliz
 
     public async Task<IList<Product>> Handle(GetPersonalizedProductsQuery request, CancellationToken cancellationToken)
     {
+        //the result is cached per key shared by many customers, so a query without one must not fill it
+        ArgumentNullException.ThrowIfNull(request.Customer);
+
         return await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_KEY, request.CustomerId),
             async () =>
             {
