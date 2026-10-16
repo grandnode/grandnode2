@@ -5,12 +5,11 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
-using Grand.Infrastructure;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -21,7 +20,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
 {
-    private readonly IContextAccessor _contextAccessor;
     private readonly IAuctionService _auctionService;
     private readonly MediaSettings _mediaSettings;
     private readonly IOrderCalculationService _orderTotalCalculationService;
@@ -49,10 +47,8 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
         IAuctionService auctionService,
         ShoppingCartSettings shoppingCartSettings,
         TaxSettings taxSettings,
-        MediaSettings mediaSettings,
-        IContextAccessor contextAccessor)
+        MediaSettings mediaSettings)
     {
-        _contextAccessor = contextAccessor;
         _productAttributeFormatter = productAttributeFormatter;
         _translationService = translationService;
         _taxService = taxService;
@@ -67,6 +63,9 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
         _taxSettings = taxSettings;
         _mediaSettings = mediaSettings;
     }
+
+    private static CalculationContext CalculationContextOf(GetAddToCart request) =>
+        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
 
     public async Task<AddToCartModel> Handle(GetAddToCart request, CancellationToken cancellationToken)
     {
@@ -136,7 +135,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
             model.Picture = await PrepareCartItemPicture(request);
         }
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, request.Store.Id, request.CartType);
+        var cart = await _shoppingCartService.GetShoppingCart(request.Customer, request.Store.Id, request.CartType);
 
         if (request.CartType != ShoppingCartType.Auctions)
         {
@@ -161,7 +160,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                            !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal =
-                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, _contextAccessor.CalculationContext(), subTotalIncludingTax);
+                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, CalculationContextOf(request), subTotalIncludingTax);
                 model.SubTotalIncludingTax = subTotalIncludingTax;
                 model.SubTotal =
                     _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
