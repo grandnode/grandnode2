@@ -720,7 +720,12 @@ public class CheckoutController : BasePublicController
                     error = 1, message = _translationService.GetResource("Checkout.MinOrderPlacementInterval")
                 });
 
-            var placeOrderResult = await _mediator.Send(new PlaceOrderCommand());
+            var placeOrderResult = await _mediator.Send(new PlaceOrderCommand {
+                Context = _contextAccessor.CalculationContext(),
+                Language = _contextAccessor.WorkContext.WorkingLanguage,
+                Host = _contextAccessor.StoreContext.CurrentHost,
+                OriginalCustomerIfImpersonated = _contextAccessor.WorkContext.OriginalCustomerIfImpersonated
+            });
             if (placeOrderResult.Success)
             {
                 var paymentMethod =

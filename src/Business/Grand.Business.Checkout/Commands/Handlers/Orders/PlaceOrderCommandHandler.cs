@@ -25,7 +25,6 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
@@ -67,7 +66,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly ITaxService _taxService;
     private readonly TaxSettings _taxSettings;
     private readonly IVendorService _vendorService;
-    private readonly IContextAccessor _contextAccessor;
 
     public PlaceOrderCommandHandler(
         IOrderService orderService,
@@ -85,7 +83,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         ITaxService taxService,
         ICustomerService customerService,
         IDiscountService discountService,
-        IContextAccessor contextAccessor,
         IGroupService groupService,
         IMessageProviderService messageProviderService,
         IVendorService vendorService,
@@ -120,7 +117,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _customerService = customerService;
         _groupService = groupService;
         _discountService = discountService;
-        _contextAccessor = contextAccessor;
         _messageProviderService = messageProviderService;
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;
@@ -144,8 +140,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var result = new PlaceOrderResult();
         try
         {
+            ArgumentNullException.ThrowIfNull(command.Context);
+
             //prepare order details
-            var details = await PreparePlaceOrderDetails();
+            var details = await PreparePlaceOrderDetails(command);
 
             //event notification
             await _mediator.PlaceOrderDetailsEvent(result, details);
@@ -181,7 +179,11 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
                 #region Events & notes
 
-                await _mediator.Send(new OrderNotificationCommand { Order = result.PlacedOrder, WorkContext = _contextAccessor.WorkContext }, cancellationToken);
+                await _mediator.Send(new OrderNotificationCommand {
+                    Order = result.PlacedOrder,
+                    Customer = details.Customer,
+                    OriginalCustomerIfImpersonated = command.OriginalCustomerIfImpersonated
+                }, cancellationToken);
 
                 //check order status
                 await _mediator.Send(new CheckOrderStatusCommand { Order = result.PlacedOrder }, cancellationToken);
@@ -270,7 +272,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var paymentTransaction = new PaymentTransaction();
         var paymentTransactionId =
             details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PaymentTransaction,
-                _contextAccessor.StoreContext.CurrentStore.Id);
+                details.Store.Id);
         if (!string.IsNullOrEmpty(paymentTransactionId))
         {
             paymentTransaction = await _paymentTransactionService.GetById(paymentTransactionId);
@@ -288,7 +290,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         paymentTransaction.OrderGuid =
             paymentTransaction.OrderGuid == Guid.Empty ? Guid.NewGuid() : paymentTransaction.OrderGuid;
         paymentTransaction.PaymentMethodSystemName = details.PaymentMethodSystemName;
-        paymentTransaction.StoreId = _contextAccessor.StoreContext.CurrentStore.Id;
+        paymentTransaction.StoreId = details.Store.Id;
         paymentTransaction.CustomerId = details.Customer.Id;
         paymentTransaction.TransactionAmount = details.OrderTotal;
         paymentTransaction.CurrencyRate = details.CurrencyRate;
@@ -377,16 +379,12 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return weight;
     }
 
-    //TODO M1 PR 3: build the calculation context from PlaceOrderContainer instead of the ambient context
-    private CalculationContext AmbientCalculationContext =>
-        new(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType);
-
-    protected virtual async Task<PlaceOrderContainer> PreparePlaceOrderDetails()
+    protected virtual async Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
     {
         var details = new PlaceOrderContainer {
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Store = _contextAccessor.StoreContext.CurrentStore,
+            Context = command.Context,
+            Customer = command.Context.Customer,
+            Store = command.Context.Store
         };
         if (details.Customer == null)
             throw new ArgumentException("Customer is not set");
@@ -413,8 +411,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //customer currency
         var currencyTmp = await _currencyService.GetCurrencyById(
             details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId,
-                _contextAccessor.StoreContext.CurrentStore.Id));
-        var customerCurrency = currencyTmp is { Published: true } ? currencyTmp : _contextAccessor.WorkContext.WorkingCurrency;
+                details.Store.Id));
+        var customerCurrency = currencyTmp is { Published: true } ? currencyTmp : details.Context.Currency;
         details.Currency = customerCurrency;
         var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
         details.CurrencyRate = Math.Round(customerCurrency.Rate / primaryStoreCurrency.Rate, 6);
@@ -423,10 +421,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //customer language
         details.Language = await _languageService.GetLanguageById(
             details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId,
-                _contextAccessor.StoreContext.CurrentStore.Id));
+                details.Store.Id));
 
         if (details.Language is not { Published: true })
-            details.Language = _contextAccessor.WorkContext.WorkingLanguage;
+            details.Language = command.Language;
 
         details.BillingAddress = details.Customer.BillingAddress;
         if (!string.IsNullOrEmpty(details.BillingAddress.CountryId))
@@ -439,15 +437,15 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //checkout attributes
         details.CheckoutAttributes =
             details.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
-                _contextAccessor.StoreContext.CurrentStore.Id);
+                details.Store.Id);
         details.CheckoutAttributeDescription =
-            await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, AmbientCalculationContext,
-                _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost);
+            await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, details.Context,
+                command.Language, command.Host);
 
         //load and validate customer shopping cart
         details.Cart = details.Customer.ShoppingCartItems
             .Where(sci => sci.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions)
-            .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _contextAccessor.StoreContext.CurrentStore.Id)
+            .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, details.Store.Id)
             .ToList();
 
         if (!details.Cart.Any())
@@ -455,7 +453,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //validate the entire shopping cart
         var warnings =
-            await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, AmbientCalculationContext,
+            await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, details.Context,
                 true, true);
         if (warnings.Any()) throw new GrandException(string.Join(", ", warnings));
 
@@ -488,13 +486,13 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         if (_taxSettings.AllowCustomersToSelectTaxDisplayType)
             details.TaxDisplayType =
                 (TaxDisplayType)details.Customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.TaxDisplayTypeId,
-                    _contextAccessor.StoreContext.CurrentStore.Id);
+                    details.Store.Id);
         else
             details.TaxDisplayType = _taxSettings.TaxDisplayType;
 
         //sub total
         //sub total (incl tax)
-        var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, AmbientCalculationContext, true);
+        var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, details.Context, true);
         var orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
         var orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
         var subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
@@ -507,7 +505,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             details.AppliedDiscounts.Add(disc);
 
         //sub total (excl tax)
-        shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, AmbientCalculationContext, false);
+        shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, details.Context, false);
         orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
         subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
 
@@ -521,7 +519,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         {
             var pickupPoint =
                 details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPickupPoint,
-                    _contextAccessor.StoreContext.CurrentStore.Id);
+                    details.Store.Id);
             if (_shippingSettings.AllowPickUpInStore && pickupPoint != null)
             {
                 details.PickUpInStore = true;
@@ -547,7 +545,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
             var shippingOption =
                 details.Customer.GetUserFieldFromEntity<ShippingOption>(SystemCustomerFieldNames.SelectedShippingOption,
-                    _contextAccessor.StoreContext.CurrentStore.Id);
+                    details.Store.Id);
             if (shippingOption != null)
             {
                 details.ShippingMethodName = shippingOption.Name;
@@ -562,9 +560,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //shipping total
 
         var (orderShippingTotalInclTax, _, shippingTotalDiscounts) =
-            await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, AmbientCalculationContext, true);
+            await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, true);
         var orderShippingTotalExclTax =
-            (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, AmbientCalculationContext, false))
+            (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, false))
             .shoppingCartShippingTotal;
         if (!orderShippingTotalInclTax.HasValue || !orderShippingTotalExclTax.HasValue)
             throw new GrandException("Shipping total couldn't be calculated");
@@ -577,8 +575,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //payment 
         var paymentMethodSystemName =
-            _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod,
-                _contextAccessor.StoreContext.CurrentStore.Id);
+            details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod,
+                details.Store.Id);
         details.PaymentMethodSystemName = paymentMethodSystemName;
         var paymentAdditionalFee =
             await _paymentService.GetAdditionalHandlingFee(details.Cart, paymentMethodSystemName);
@@ -591,7 +589,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //tax total
         //tax amount
-        var (taxTotal, taxRates) = await _orderTotalCalculationService.GetTaxTotal(details.Cart, AmbientCalculationContext);
+        var (taxTotal, taxRates) = await _orderTotalCalculationService.GetTaxTotal(details.Cart, details.Context);
         details.OrderTaxTotal = taxTotal;
 
         //tax rates
@@ -603,7 +601,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //order total (and applied discounts, gift vouchers, loyalty points)
         var (orderTotal, orderDiscountAmount, orderAppliedDiscounts, appliedGiftVouchers, redeemedLoyaltyPoints,
-            redeemedLoyaltyPointsAmount) = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart, AmbientCalculationContext);
+            redeemedLoyaltyPointsAmount) = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart, details.Context);
         if (!orderTotal.HasValue)
             throw new GrandException("Order total couldn't be calculated");
 
@@ -625,15 +623,15 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         PlaceOrderContainer details)
     {
         var scUnitPrice = (await _pricingService.GetUnitPrice(sc, product,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingCurrency)).unitprice;
+            details.Customer, details.Store,
+            details.Context.Currency)).unitprice;
         var scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingCurrency, false)).unitprice;
+            details.Customer, details.Store,
+            details.Context.Currency, false)).unitprice;
 
         var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingCurrency);
+            details.Customer, details.Store,
+            details.Context.Currency);
 
         var prices = await _taxService.GetTaxProductPrice(product, details.Customer,
             details.Store, scUnitPrice,
@@ -655,7 +653,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var itemWeight = await GetShoppingCartItemWeight(sc);
         var warehouseId = !string.IsNullOrEmpty(sc.WarehouseId)
             ? sc.WarehouseId
-            : _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId;
+            : details.Store.DefaultWarehouseId;
         if (!product.UseMultipleWarehouses && string.IsNullOrEmpty(warehouseId))
             if (!string.IsNullOrEmpty(product.WarehouseId))
                 warehouseId = product.WarehouseId;
@@ -752,7 +750,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 SenderEmail = giftVoucherSenderEmail,
                 Message = giftVoucherMessage,
                 IsRecipientNotified = false,
-                StoreId = _orderSettings.GiftVouchers_Assign_StoreId ? _contextAccessor.StoreContext.CurrentStore.Id : string.Empty
+                StoreId = _orderSettings.GiftVouchers_Assign_StoreId ? details.Store.Id : string.Empty
             };
             await _giftVoucherService.InsertGiftVoucher(gc);
         }
