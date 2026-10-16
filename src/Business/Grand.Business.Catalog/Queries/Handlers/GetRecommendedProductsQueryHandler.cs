@@ -31,12 +31,14 @@ public class GetRecommendedProductsQueryHandler : IRequestHandler<GetRecommended
         //the result is cached per key shared by many customers, so a query without one must not fill it
         ArgumentNullException.ThrowIfNull(request.Customer);
 
+        var customerGroupIds = request.Customer.GetCustomerGroupIds();
+
         return await _cacheBase.GetAsync(
-            string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, string.Join(",", request.CustomerGroupIds),
+            string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, string.Join(",", customerGroupIds),
                 request.StoreId), async () =>
             {
                 var query = from cr in _customerGroupProductRepository.Table
-                    where request.CustomerGroupIds.Contains(cr.CustomerGroupId)
+                    where customerGroupIds.Contains(cr.CustomerGroupId)
                     orderby cr.DisplayOrder
                     select cr.ProductId;
 
