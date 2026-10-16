@@ -251,10 +251,10 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                     switch (priceAdjustmentBase)
                     {
                         case > 0:
-                            attributeValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment);
+                            attributeValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment, request.Currency);
                             break;
                         case < 0:
-                            attributeValueModel.PriceAdjustment = "-" + _priceFormatter.FormatPrice(-priceAdjustment);
+                            attributeValueModel.PriceAdjustment = "-" + _priceFormatter.FormatPrice(-priceAdjustment, request.Currency);
                             break;
                     }
                 }
@@ -449,9 +449,9 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                         (await _pricingService.GetUnitPrice(sci, product, false)).unitprice)).productprice;
 
                 cartItemModel.UnitPriceWithoutDiscount =
-                    _priceFormatter.FormatPrice(cartItemModel.UnitPriceWithoutDiscountValue);
+                    _priceFormatter.FormatPrice(cartItemModel.UnitPriceWithoutDiscountValue, request.Currency);
                 cartItemModel.UnitPriceValue = productprices.productprice;
-                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice);
+                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice, request.Currency);
                 if (appliedDiscounts.Any())
                 {
                     if (appliedDiscounts.Any(x => x.MaximumDiscountedQuantity.HasValue))
@@ -466,7 +466,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 var shoppingCartItemDiscountBase = subtotal.discountAmount;
                 var shoppingCartItemSubTotalWithDiscount =
                     (await _taxService.GetProductPrice(product, subtotal.subTotal)).productprice;
-                cartItemModel.SubTotal = _priceFormatter.FormatPrice(shoppingCartItemSubTotalWithDiscount);
+                cartItemModel.SubTotal = _priceFormatter.FormatPrice(shoppingCartItemSubTotalWithDiscount, request.Currency);
                 cartItemModel.SubTotalValue = shoppingCartItemSubTotalWithDiscount;
 
                 //display an applied discount amount
@@ -475,7 +475,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                     shoppingCartItemDiscountBase =
                         (await _taxService.GetProductPrice(product, shoppingCartItemDiscountBase)).productprice;
                     if (shoppingCartItemDiscountBase > 0)
-                        cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase);
+                        cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase, request.Currency);
                 }
             }
 

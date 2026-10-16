@@ -73,7 +73,7 @@ public class GetMerchandiseReturnsHandler : IRequestHandler<GetMerchandiseReturn
                 MerchandiseReturnStatus = _enumTranslationService.GetTranslationEnum(merchandiseReturn.MerchandiseReturnStatus),
                 CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturn.CreatedOnUtc, DateTimeKind.Utc),
                 ProductsCount = merchandiseReturn.MerchandiseReturnItems.Sum(x => x.Quantity),
-                ReturnTotal = _priceFormatter.FormatPrice(total)
+                ReturnTotal = _priceFormatter.FormatPrice(total, request.Currency)
             };
 
             model.Items.Add(itemModel);

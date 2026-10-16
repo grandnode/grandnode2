@@ -58,7 +58,7 @@ public class MerchandiseReturnViewModelService(
             unitPriceInclTaxInCustomerCurrency += orderItem.UnitPriceInclTax * item.Quantity;
         }
 
-        model.Total = priceFormatter.FormatPrice(unitPriceInclTaxInCustomerCurrency);
+        model.Total = priceFormatter.FormatPrice(unitPriceInclTaxInCustomerCurrency, contextAccessor.WorkContext.WorkingCurrency);
         model.Quantity = merchandiseReturn.MerchandiseReturnItems.Sum(x => x.Quantity);
         model.Id = merchandiseReturn.Id;
         model.OrderId = order.Id;
@@ -230,7 +230,7 @@ public class MerchandiseReturnViewModelService(
                 ProductName = (await productService.GetProductByIdIncludeArch(orderItem.ProductId)).Name,
                 ProductSku = orderItem.Sku,
                 Quantity = item.Quantity,
-                UnitPrice = priceFormatter.FormatPrice(orderItem.UnitPriceInclTax),
+                UnitPrice = priceFormatter.FormatPrice(orderItem.UnitPriceInclTax, contextAccessor.WorkContext.WorkingCurrency),
                 ReasonForReturn = item.ReasonForReturn,
                 RequestedAction = item.RequestedAction
             });

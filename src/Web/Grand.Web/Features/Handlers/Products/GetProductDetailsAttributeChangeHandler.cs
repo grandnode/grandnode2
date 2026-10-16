@@ -101,7 +101,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
             var finalPrice = unitprice.unitprice;
             var productprice = await _taxService.GetProductPrice(request.Product, finalPrice);
             var finalPriceWithDiscount = productprice.productprice;
-            model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount);
+            model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount, request.Currency);
         }
 
         //stock

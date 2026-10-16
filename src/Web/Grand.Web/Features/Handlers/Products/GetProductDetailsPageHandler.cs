@@ -456,7 +456,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         if (model.AdditionalShippingCharge > 0)
             model.AdditionalShippingChargeStr = _priceFormatter.FormatPrice(
                 (await _taxService.GetShippingPrice(model.AdditionalShippingCharge, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
-                .shippingPrice);
+                .shippingPrice, _contextAccessor.WorkContext.WorkingCurrency);
 
         //ask question us on the product
         if (model.AskQuestionOnProduct)
@@ -696,9 +696,9 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                             _contextAccessor.WorkContext.WorkingCurrency);
 
                     if (finalPriceWithoutDiscount != oldPrice && oldPrice > 0)
-                        model.OldPrice = _priceFormatter.FormatPrice(oldPrice);
+                        model.OldPrice = _priceFormatter.FormatPrice(oldPrice, _contextAccessor.WorkContext.WorkingCurrency);
 
-                    model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
+                    model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount, _contextAccessor.WorkContext.WorkingCurrency);
                     if (appliedPrice.appliedDiscounts.Any())
                         model.AppliedDiscounts = appliedPrice.appliedDiscounts;
                     if (appliedPrice.preferredTierPrice != null)
@@ -709,11 +709,11 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                         var catalogPrice =
                             await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice,
                                 _contextAccessor.WorkContext.WorkingCurrency);
-                        model.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice);
+                        model.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice, _contextAccessor.WorkContext.WorkingCurrency);
                     }
 
                     if (finalPriceWithoutDiscount != finalPriceWithDiscount)
-                        model.PriceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount);
+                        model.PriceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount, _contextAccessor.WorkContext.WorkingCurrency);
 
                     model.PriceValue = finalPriceWithDiscount;
 
@@ -731,7 +731,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     if (product.ProductTypeId == ProductType.Reservation)
                     {
                         model.IsReservation = true;
-                        var priceStr = _priceFormatter.FormatPrice(finalPriceWithDiscount);
+                        var priceStr = _priceFormatter.FormatPrice(finalPriceWithDiscount, _contextAccessor.WorkContext.WorkingCurrency);
                         model.ReservationPrice =
                             string.Format(_translationService.GetResource(product.ResourceReservationProductPeriod()),
                                 priceStr, product.Interval);
@@ -743,13 +743,13 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     var highestBid =
                         await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid,
                             _contextAccessor.WorkContext.WorkingCurrency);
-                    model.HighestBid = _priceFormatter.FormatPrice(highestBid);
+                    model.HighestBid = _priceFormatter.FormatPrice(highestBid, _contextAccessor.WorkContext.WorkingCurrency);
                     model.HighestBidValue = highestBid;
                     model.DisableBuyButton = product.DisableBuyButton;
                     var startPrice =
                         await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice,
                             _contextAccessor.WorkContext.WorkingCurrency);
-                    model.StartPrice = _priceFormatter.FormatPrice(startPrice);
+                    model.StartPrice = _priceFormatter.FormatPrice(startPrice, _contextAccessor.WorkContext.WorkingCurrency);
                     model.StartPriceValue = startPrice;
                 }
             }
@@ -832,8 +832,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             : minimumCustomerEnteredPrice;
         model.CustomerEnteredPriceRange = string.Format(
             _translationService.GetResource("Products.EnterProductPrice.Range"),
-            _priceFormatter.FormatPrice(minimumCustomerEnteredPrice),
-            _priceFormatter.FormatPrice(maximumCustomerEnteredPrice));
+            _priceFormatter.FormatPrice(minimumCustomerEnteredPrice, _contextAccessor.WorkContext.WorkingCurrency),
+            _priceFormatter.FormatPrice(maximumCustomerEnteredPrice, _contextAccessor.WorkContext.WorkingCurrency));
 
         return model;
     }
@@ -1165,7 +1165,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                 var productprice = await _taxService.GetProductPrice(p1,
                     (await _pricingService.GetFinalPrice(p1, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
                         _contextAccessor.WorkContext.WorkingCurrency, includeDiscounts: true)).finalPrice);
-                bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice);
+                bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice, _contextAccessor.WorkContext.WorkingCurrency);
                 bundleProduct.PriceValue = productprice.productprice;
             }
 

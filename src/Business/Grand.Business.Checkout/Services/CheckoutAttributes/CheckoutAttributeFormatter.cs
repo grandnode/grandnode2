@@ -138,7 +138,8 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                                     _contextAccessor.WorkContext.WorkingCurrency);
                             if (priceAdjustmentBase > 0)
                             {
-                                var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment);
+                                var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment,
+                                    _contextAccessor.WorkContext.WorkingCurrency);
                                 formattedAttribute += $" [+{priceAdjustmentStr}]";
                             }
                         }

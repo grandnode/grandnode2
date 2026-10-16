@@ -94,7 +94,7 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
                 var productprice = await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product)).unitprice);
 
-                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice);
+                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice, request.Currency);
                 cartItemModel.UnitPriceValue = productprice.productprice;
                 cartItemModel.TaxRate = productprice.taxRate;
             }

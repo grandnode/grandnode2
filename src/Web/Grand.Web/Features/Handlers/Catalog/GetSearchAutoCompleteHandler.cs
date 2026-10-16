@@ -251,8 +251,8 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             request.Currency, includeDiscounts: true);
         var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
 
-        var price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
-        var priceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount);
+        var price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount, request.Currency);
+        var priceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount, request.Currency);
 
         return (price, priceWithDiscount);
     }

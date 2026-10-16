@@ -77,7 +77,7 @@ public class
                     orderItem.UnitPriceInclTax
                     :
                     //excluding tax
-                    orderItem.UnitPriceExclTax);
+                    orderItem.UnitPriceExclTax, _contextAccessor.WorkContext.WorkingCurrency);
 
             model.MerchandiseReturnItems.Add(new MerchandiseReturnDetailsModel.MerchandiseReturnItemModel {
                 OrderItemId = item.OrderItemId,

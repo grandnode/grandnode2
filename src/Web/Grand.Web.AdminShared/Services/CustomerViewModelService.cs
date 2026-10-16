@@ -870,10 +870,10 @@ public class CustomerViewModelService : ICustomerViewModelService
                         Quantity = sci.Quantity,
                         ProductName = product.Name,
                         AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes),
-                        UnitPrice = priceFormatter.FormatPrice(price),
+                        UnitPrice = priceFormatter.FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency),
                         UnitPriceValue = price,
                         Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product,
-                            (await priceCalculationService.GetSubTotal(sci, product)).subTotal)).productprice),
+                            (await priceCalculationService.GetSubTotal(sci, product)).subTotal)).productprice, _contextAccessor.WorkContext.WorkingCurrency),
                         UpdatedOn = sci.UpdatedOnUtc.HasValue
                             ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)
                             : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)

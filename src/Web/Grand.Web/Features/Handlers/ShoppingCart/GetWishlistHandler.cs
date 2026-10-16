@@ -143,7 +143,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
             {
                 var productprice = await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product)).unitprice);
-                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice);
+                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice, request.Currency);
             }
 
             //subtotal, discount
@@ -157,7 +157,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
                 var subtotal = await _pricingService.GetSubTotal(sci, product);
                 var shoppingCartItemDiscountBase = subtotal.discountAmount;
                 var productprices = await _taxService.GetProductPrice(product, subtotal.subTotal);
-                cartItemModel.SubTotal = _priceFormatter.FormatPrice(productprices.productprice);
+                cartItemModel.SubTotal = _priceFormatter.FormatPrice(productprices.productprice, request.Currency);
 
                 //display an applied discount amount
                 if (shoppingCartItemDiscountBase > 0)
@@ -165,7 +165,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
                     shoppingCartItemDiscountBase =
                         (await _taxService.GetProductPrice(product, shoppingCartItemDiscountBase)).productprice;
                     if (shoppingCartItemDiscountBase > 0)
-                        cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase);
+                        cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase, request.Currency);
                 }
             }
 

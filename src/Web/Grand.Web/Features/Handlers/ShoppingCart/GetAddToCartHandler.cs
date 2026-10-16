@@ -113,11 +113,11 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                 var productprices = await _taxService.GetProductPrice(request.Product,
                     (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
                 model.Price = !request.CustomerEnteredPrice.HasValue
-                    ? _priceFormatter.FormatPrice(productprices.productprice)
-                    : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
+                    ? _priceFormatter.FormatPrice(productprices.productprice, request.Currency)
+                    : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value, request.Currency);
                 model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
                 model.TotalPrice =
-                    _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity);
+                    _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity, request.Currency);
             }
 
             //picture
@@ -167,7 +167,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
             case ShoppingCartType.Auctions:
                 model.IsAuction = true;
                 model.HighestBidValue = request.Product.HighestBid;
-                model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid);
+                model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid, request.Currency);
                 model.EndTime = request.Product.AvailableEndDateTimeUtc;
                 break;
         }

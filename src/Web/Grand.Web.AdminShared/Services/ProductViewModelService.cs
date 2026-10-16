@@ -1482,7 +1482,7 @@ public class ProductViewModelService(
             bidsModel.Add(new ProductModel.BidModel {
                 BidId = x.Id,
                 ProductId = x.ProductId,
-                Amount = priceFormatter.FormatPrice(x.Amount),
+                Amount = priceFormatter.FormatPrice(x.Amount, contextAccessor.WorkContext.WorkingCurrency),
                 Date = dateTimeService.ConvertToUserTime(x.Date, DateTimeKind.Utc),
                 CustomerId = x.CustomerId,
                 Email = (await customerService.GetCustomerById(x.CustomerId))?.Email,
