@@ -220,6 +220,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     {
         var productCollections = await _productCollectionService.GetProductCollectionsByCollectionId(collectionId,
             storeId,
+            customer: _contextAccessor.WorkContext.CurrentCustomer,
             pageIndex - 1, pageSize, true);
         var items = new List<CollectionModel.CollectionProductModel>();
         foreach (var x in productCollections)

@@ -27,7 +27,6 @@ public class CategoryServiceTests
     private ProductCategoryService _productCategoryService;
     private Mock<MongoRepository<Product>> _productRepositoryMock;
     private CatalogSettings _settings;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -37,14 +36,13 @@ public class CategoryServiceTests
         _casheManagerMock = new Mock<ICacheBase>();
         _categoryRepositoryMock = new Mock<IRepository<Category>>();
         _productRepositoryMock = new Mock<MongoRepository<Product>>(Mock.Of<IAuditInfoProvider>());
-        _workContextMock = new Mock<IContextAccessor>();
         _mediatorMock = new Mock<IMediator>();
         _aclServiceMock = new Mock<IAclService>();
         _settings = new CatalogSettings();
         _categoryService = new CategoryService(_casheManagerMock.Object, _categoryRepositoryMock.Object,
             _mediatorMock.Object, _aclServiceMock.Object, new AccessControlConfig());
         _productCategoryService = new ProductCategoryService(_productRepositoryMock.Object, _casheManagerMock.Object,
-            _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
+            _mediatorMock.Object, new AccessControlConfig());
     }
 
     [TestMethod]

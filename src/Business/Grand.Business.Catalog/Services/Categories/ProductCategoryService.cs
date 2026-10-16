@@ -4,7 +4,6 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -19,17 +18,14 @@ public class ProductCategoryService : IProductCategoryService
     private readonly ICacheBase _cacheBase;
     private readonly IMediator _mediator;
     private readonly IRepository<Product> _productRepository;
-    private readonly IContextAccessor _contextAccessor;
 
     public ProductCategoryService(
         IRepository<Product> productRepository,
         ICacheBase cacheBase,
-        IContextAccessor contextAccessor,
         IMediator mediator, AccessControlConfig accessControlConfig)
     {
         _productRepository = productRepository;
         _cacheBase = cacheBase;
-        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
     }
@@ -38,19 +34,21 @@ public class ProductCategoryService : IProductCategoryService
     ///     Gets product category mapping collection
     /// </summary>
     /// <param name="categoryId">Category identifier</param>
+    /// <param name="customer">Customer whose groups limit the result and key the cache</param>
+    /// <param name="storeId">Store whose limitations apply</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Product a category mapping collection</returns>
     public virtual async Task<IPagedList<ProductsCategory>> GetProductCategoriesByCategoryId(string categoryId,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
+        Customer customer, string storeId, int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         if (string.IsNullOrEmpty(categoryId))
             return new PagedList<ProductsCategory>(new List<ProductsCategory>(), pageIndex, pageSize);
 
         var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex,
-            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
-            _contextAccessor.StoreContext.CurrentStore.Id);
+            pageSize, string.Join(",", customer.GetCustomerGroupIds()),
+            storeId);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));
@@ -60,7 +58,7 @@ public class ProductCategoryService : IProductCategoryService
                 if (!_accessControlConfig.IgnoreAcl)
                 {
                     //Limited to customer groups
-                    var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                    var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
                     query = from p in query
                         where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                         select p;
@@ -69,9 +67,8 @@ public class ProductCategoryService : IProductCategoryService
                 if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Limited to stores
-                    var currentStoreId = _contextAccessor.StoreContext.CurrentStore.Id;
                     query = from p in query
-                        where !p.LimitedToStores || p.Stores.Contains(currentStoreId)
+                        where !p.LimitedToStores || p.Stores.Contains(storeId)
                         select p;
                 }
             }
