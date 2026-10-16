@@ -61,8 +61,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             var loyaltyPointsBalance =
                 await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
             var loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(
-                await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance,
-                    _contextAccessor.WorkContext.WorkingCurrency),
+                await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance),
                 request.Currency);
             if (loyaltyPointsAmount > 0 &&
                 _orderTotalCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))

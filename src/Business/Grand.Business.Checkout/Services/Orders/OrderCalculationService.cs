@@ -704,7 +704,7 @@ public class OrderCalculationService : IOrderCalculationService
                         context.Store.Id);
                 if (CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
-                    var loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance, context.Currency);
+                    var loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
                     if (orderTotal > 0)
                     {
                         if (orderTotal > loyaltyPointsBalanceAmount)
@@ -740,17 +740,18 @@ public class OrderCalculationService : IOrderCalculationService
     ///     Converts existing loyalty points to amount
     /// </summary>
     /// <param name="loyaltyPoints">Loyalty points</param>
-    /// <param name="currency">Currency the amount is rounded in</param>
     /// <returns>Converted value</returns>
-    public virtual async Task<double> ConvertLoyaltyPointsToAmount(int loyaltyPoints, Currency currency)
+    public virtual async Task<double> ConvertLoyaltyPointsToAmount(int loyaltyPoints)
     {
         if (loyaltyPoints <= 0)
             return 0;
 
+        //the amount is in the primary store currency, so it is rounded in that currency
         var result = loyaltyPoints * _loyaltyPointsSettings.ExchangeRate;
-        if (_shoppingCartSettings.RoundPrices) result = RoundingHelper.RoundPrice(result, currency);
+        if (_shoppingCartSettings.RoundPrices)
+            result = RoundingHelper.RoundPrice(result, await _currencyService.GetPrimaryStoreCurrency());
 
-        return await Task.FromResult(result);
+        return result;
     }
 
     /// <summary>
