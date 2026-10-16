@@ -208,7 +208,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         model.GiftVoucherBox.Display = _shoppingCartSettings.ShowGiftVoucherBox;
 
         //cart warnings
-        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes,
+        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes, _contextAccessor.CalculationContext(),
             request.ValidateCheckoutAttributes, true);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);

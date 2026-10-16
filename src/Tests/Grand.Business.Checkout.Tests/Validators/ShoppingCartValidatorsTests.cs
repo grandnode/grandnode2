@@ -337,7 +337,7 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartRequiredProductValidator.ValidateAsync(
             new ShoppingCartRequiredProductValidatorRecord(
                 customer,
-                new Store { Id = "1" },
+                "1",
                 product,
                 new ShoppingCartItem
                     { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
@@ -375,7 +375,7 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartRequiredProductValidator.ValidateAsync(
             new ShoppingCartRequiredProductValidatorRecord(
                 customer,
-                new Store { Id = "1" },
+                "1",
                 product,
                 new ShoppingCartItem
                     { ProductId = "2", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
@@ -567,7 +567,6 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartCommonWarningsValidator.ValidateAsync(
             new ShoppingCartCommonWarningsValidatorRecord(
                 customer,
-                new Store { Id = "1" },
                 new List<ShoppingCartItem> {
                     new() {
                         ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1"
@@ -603,7 +602,6 @@ public class ShoppingCartValidatorsTests
         var result = await shoppingCartCommonWarningsValidator.ValidateAsync(
             new ShoppingCartCommonWarningsValidatorRecord(
                 customer,
-                new Store { Id = "1" },
                 new List<ShoppingCartItem> {
                     new() {
                         ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1"

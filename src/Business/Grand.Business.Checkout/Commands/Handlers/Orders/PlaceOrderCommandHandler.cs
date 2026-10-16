@@ -455,7 +455,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //validate the entire shopping cart
         var warnings =
-            await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, true, true);
+            await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, AmbientCalculationContext,
+                true, true);
         if (warnings.Any()) throw new GrandException(string.Join(", ", warnings));
 
         //validate individual cart items

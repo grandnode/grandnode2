@@ -490,7 +490,8 @@ public class ShoppingCartController : BasePublicController
                     SystemCustomerFieldNames.CheckoutAttributes, _contextAccessor.StoreContext.CurrentStore.Id);
 
         var checkoutAttributeWarnings =
-            await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true, true);
+            await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,
+            _contextAccessor.CalculationContext(), true, true);
         if (checkoutAttributeWarnings.Any()) return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
 
         //everything is OK

@@ -4,13 +4,12 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Domain.Stores;
 
 namespace Grand.Business.Checkout.Validators;
 
 public record ShoppingCartRequiredProductValidatorRecord(
     Customer Customer,
-    Store Store,
+    string StoreId,
     Product Product,
     ShoppingCartItem ShoppingCartItem);
 
@@ -23,7 +22,7 @@ public class ShoppingCartRequiredProductValidator : AbstractValidator<ShoppingCa
         {
             var cart = value.Customer.ShoppingCartItems
                 .Where(sci => sci.ShoppingCartTypeId == value.ShoppingCartItem.ShoppingCartTypeId)
-                .LimitPerStore(shoppingCartSettings.SharedCartBetweenStores, value.Store.Id)
+                .LimitPerStore(shoppingCartSettings.SharedCartBetweenStores, value.StoreId)
                 .ToList();
 
             var requiredProducts = new List<Product>();
