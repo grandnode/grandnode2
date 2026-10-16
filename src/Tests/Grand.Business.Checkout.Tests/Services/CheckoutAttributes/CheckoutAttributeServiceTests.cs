@@ -77,6 +77,13 @@ public class CheckoutAttributeServiceTests
     }
 
     [TestMethod]
+    public async Task GetAllCheckoutAttributes_WithoutCustomerWhenAclApplies_ThrowException()
+    {
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
+            await _service.GetAllCheckoutAttributes("store", null));
+    }
+
+    [TestMethod]
     public async Task GetAllCheckoutAttributes_FiltersByTheGroupsOfTheGivenCustomer()
     {
         //Arrange

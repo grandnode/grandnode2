@@ -57,6 +57,9 @@ public class CheckoutAttributeService : ICheckoutAttributeService
         bool excludeShippableAttributes = false, bool ignoreAcl = false)
     {
         var applyAcl = !ignoreAcl && !_accessControlConfig.IgnoreAcl;
+        if (applyAcl)
+            ArgumentNullException.ThrowIfNull(customer);
+
         var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignoreAcl,
             applyAcl ? string.Join(",", customer.GetCustomerGroupIds()) : string.Empty);
         return await _cacheBase.GetAsync(key, async () =>
