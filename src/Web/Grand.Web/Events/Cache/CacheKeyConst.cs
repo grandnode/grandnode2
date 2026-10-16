@@ -18,8 +18,9 @@ public static class CacheKeyConst
     /// <remarks>
     ///     {0} : current store ID
     ///     {1} : language ID
+    ///     {2} : groups of the current user
     /// </remarks>
-    public const string BRAND_HOMEPAGE_KEY = "Grand.brand.navigation.homepage-{0}-{1}.pres";
+    public const string BRAND_HOMEPAGE_KEY = "Grand.brand.navigation.homepage-{0}-{1}-{2}.pres";
 
     /// <summary>
     ///     Key for CollectionNavigationModel caching
@@ -27,8 +28,9 @@ public static class CacheKeyConst
     /// <remarks>
     ///     {0} : language id
     ///     {1} : current store ID
+    ///     {2} : groups of the current user
     /// </remarks>
-    public const string BRAND_NAVIGATION_MENU = "Grand.brand.navigation.menu-{0}-{1}.pres";
+    public const string BRAND_NAVIGATION_MENU = "Grand.brand.navigation.menu-{0}-{1}-{2}.pres";
 
     /// <summary>
     ///     Key for CollectionNavigationModel caching
@@ -47,8 +49,9 @@ public static class CacheKeyConst
     /// <remarks>
     ///     {0} : language id
     ///     {1} : current store ID
+    ///     {2} : groups of the current user
     /// </remarks>
-    public const string COLLECTION_NAVIGATION_MENU = "Grand.collection.navigation.menu-{0}-{1}.pres";
+    public const string COLLECTION_NAVIGATION_MENU = "Grand.collection.navigation.menu-{0}-{1}-{2}.pres";
 
     /// <summary>
     ///     Key for caching of collection displayed on home page
@@ -56,8 +59,9 @@ public static class CacheKeyConst
     /// <remarks>
     ///     {0} : current store ID
     ///     {1} : language ID
+    ///     {2} : groups of the current user
     /// </remarks>
-    public const string COLLECTION_HOMEPAGE_KEY = "Grand.collection.navigation.homepage-{0}-{1}.pres";
+    public const string COLLECTION_HOMEPAGE_KEY = "Grand.collection.navigation.homepage-{0}-{1}-{2}.pres";
 
 
     /// <summary>
