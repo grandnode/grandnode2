@@ -4,13 +4,12 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Tax;
-using Grand.Infrastructure;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
@@ -19,7 +18,6 @@ namespace Grand.Web.Features.Handlers.Checkout;
 
 public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, CheckoutPaymentMethodModel>
 {
-    private readonly IContextAccessor _contextAccessor;
     private readonly ICurrencyService _currencyService;
     private readonly ILoyaltyPointsService _loyaltyPointsService;
 
@@ -37,10 +35,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         IPaymentService paymentService,
         ITaxService taxService,
         LoyaltyPointsSettings loyaltyPointsSettings,
-        PaymentSettings paymentSettings,
-        IContextAccessor contextAccessor)
+        PaymentSettings paymentSettings)
     {
-        _contextAccessor = contextAccessor;
         _loyaltyPointsService = loyaltyPointsService;
         _orderTotalCalculationService = orderTotalCalculationService;
         _currencyService = currencyService;
@@ -70,7 +66,9 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
                 model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, request.Currency);
                 model.LoyaltyPointsBalance = loyaltyPointsBalance;
                 var shoppingCartTotalBase =
-                    (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, _contextAccessor.CalculationContext(), true)).shoppingCartTotal;
+                    (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart,
+                        new CalculationContext(request.Customer, request.Store, request.Currency,
+                            request.TaxDisplayType), true)).shoppingCartTotal;
                 model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase is 0;
             }
         }
@@ -96,7 +94,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             var paymentMethodAdditionalFee =
                 await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
             var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee,
-                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store))
+                request.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store))
                 .paymentPrice;
             if (rate > 0)
                 pmModel.Fee = _priceFormatter.FormatPrice(rate, request.Currency);

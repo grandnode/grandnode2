@@ -8,14 +8,13 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -26,7 +25,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, MiniShoppingCartModel>
 {
-    private readonly IContextAccessor _contextAccessor;
     private readonly ICheckoutAttributeService _checkoutAttributeService;
     private readonly IGroupService _groupService;
     private readonly LinkGenerator _linkGenerator;
@@ -64,10 +62,8 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         OrderSettings orderSettings,
         OidcLoginConfig oidcLoginConfig,
         TaxSettings taxSettings,
-        MediaSettings mediaSettings,
-        IContextAccessor contextAccessor)
+        MediaSettings mediaSettings)
     {
-        _contextAccessor = contextAccessor;
         _shoppingCartService = shoppingCartService;
         _orderTotalCalculationService = orderTotalCalculationService;
         _priceFormatter = priceFormatter;
@@ -111,11 +107,14 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         model.TotalProducts = cart.Sum(x => x.Quantity);
         if (!cart.Any()) return model;
 
+        var context = new CalculationContext(request.Customer, request.Store, request.Currency,
+            request.TaxDisplayType);
+
         //subtotal
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                    !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
         var shoppingCartSubTotal =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, _contextAccessor.CalculationContext(), subTotalIncludingTax);
+            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, subTotalIncludingTax);
 
         model.SubTotalIncludingTax = subTotalIncludingTax;
         model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
@@ -126,8 +125,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
             .Any();
 
         var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
-            Context = _contextAccessor.CalculationContext(),
-            Customer = request.Customer,
+            Context = context,
             Cart = cart.Where
                 (x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
         }, cancellationToken);
