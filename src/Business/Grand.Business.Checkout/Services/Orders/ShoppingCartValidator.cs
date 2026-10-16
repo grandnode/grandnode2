@@ -150,8 +150,11 @@ public class ShoppingCartValidator : IShoppingCartValidator
         {
             var resultCheckoutAttributes = await _validatorFactory
                 .GetValidator<ShoppingCartTotalAmountValidatorRecord>().ValidateAsync(
-                    new ShoppingCartTotalAmountValidatorRecord(_contextAccessor.WorkContext.CurrentCustomer,
-                        _contextAccessor.WorkContext.WorkingCurrency, shoppingCart));
+                    new ShoppingCartTotalAmountValidatorRecord(shoppingCart,
+                        //TODO M1 PR 3: the cart validator still reads the ambient context
+                        new CalculationContext(_contextAccessor.WorkContext.CurrentCustomer,
+                            _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingCurrency,
+                            _contextAccessor.WorkContext.TaxDisplayType)));
             if (!resultCheckoutAttributes.IsValid)
                 warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
         }

@@ -110,7 +110,6 @@ public class PriceServiceTests
         tempDiscountApplicationService = new Mock<IDiscountHandlerService>();
 
         _pricingService = new PricingService(
-            _workContext,
             _productService,
             _eventPublisher,
             _currencyService,
@@ -291,8 +290,48 @@ public class PriceServiceTests
         tempDiscountServiceMock
             .Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode))
             .ReturnsAsync(new List<Discount>());
-        var pp = (await _pricingService.GetUnitPrice(shoppingCartItem, product001)).unitprice;
+        var pp = (await _pricingService.GetUnitPrice(shoppingCartItem, product001, customer001, _store, _currency))
+            .unitprice;
         Assert.AreEqual(49.99, pp);
+    }
+
+    [TestMethod]
+    public async Task GetSubTotal_PricesTheItemForTheGivenCustomerStoreAndCurrency()
+    {
+        //Arrange - nothing is set on the ambient context: the price must come from the arguments alone
+        var product = new Product { Id = "explicit", Name = "explicit", Price = 10, Published = true };
+        product.ProductPrices.Add(new ProductPrice { CurrencyCode = "USD", Price = 10 });
+        var customer = new Customer { Id = "c-explicit" };
+        var item = new ShoppingCartItem { ProductId = product.Id, Quantity = 3 };
+        tempDiscountApplicationService.Setup(x => x.GetDiscountAmount(It.IsAny<Product>(), customer, _store,
+                _currency, It.IsAny<double>()))
+            .ReturnsAsync((new List<ApplyDiscount>(), 0));
+
+        //Act
+        var (subTotal, _, _) = await _pricingService.GetSubTotal(item, product, customer, _store, _currency);
+
+        //Assert
+        Assert.AreEqual(30, subTotal);
+    }
+
+    [TestMethod]
+    public async Task GetProductAttributeValuePriceAdjustment_ConvertsToTheGivenCurrency()
+    {
+        //Arrange - a working currency at twice the primary one, so the conversion shows
+        var eur = new Currency { Id = "2", CurrencyCode = "EUR", Rate = 2, Published = true,
+            MidpointRoundId = MidpointRounding.ToEven, RoundingTypeId = RoundingType.Rounding001 };
+        var value = new ProductAttributeValue { PriceAdjustment = 10, AttributeValueTypeId = AttributeValueType.Simple };
+        var currencyService = new Mock<ICurrencyService>();
+        currencyService.Setup(x => x.ConvertFromPrimaryStoreCurrency(10, eur)).ReturnsAsync(20);
+        var pricingService = new PricingService(_productService, _eventPublisher, currencyService.Object,
+            tempDiscountApplicationService.Object, _shoppingCartSettings, _catalogSettings);
+
+        //Act
+        var adjustment =
+            await pricingService.GetProductAttributeValuePriceAdjustment(value, new Customer(), _store, eur);
+
+        //Assert
+        Assert.AreEqual(20, adjustment);
     }
 
     [TestMethod]
@@ -327,7 +366,8 @@ public class PriceServiceTests
         tempDiscountServiceMock
             .Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode))
             .ReturnsAsync(new List<Discount>());
-        var subtotal = (await _pricingService.GetSubTotal(shoppingCartItem, product001)).subTotal;
+        var subtotal = (await _pricingService.GetSubTotal(shoppingCartItem, product001, customer001, _store, _currency))
+            .subTotal;
         Assert.AreEqual(110.22, subtotal);
     }
 
@@ -350,7 +390,7 @@ public class PriceServiceTests
                 It.IsAny<Store>(), It.IsAny<Currency>(), It.IsAny<double>()))
             .ReturnsAsync((new List<ApplyDiscount> { new() { DiscountId = "d1", MaximumDiscountedQuantity = cap } }, 100));
 
-        var (subTotal, _, _) = await _pricingService.GetSubTotal(item, product);
+        var (subTotal, _, _) = await _pricingService.GetSubTotal(item, product, customer, _store, _currency);
 
         Assert.AreEqual(expected, subTotal);
     }

@@ -7,6 +7,8 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Orders;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Models.ShoppingCart;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
@@ -27,7 +29,8 @@ public class ShoppingCartController : BaseAdminController
         IPricingService priceCalculationService,
         ITranslationService translationService,
         IProductAttributeFormatter productAttributeFormatter,
-        IProductService productService)
+        IProductService productService,
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _dateTimeService = dateTimeService;
@@ -38,6 +41,7 @@ public class ShoppingCartController : BaseAdminController
         _translationService = translationService;
         _productAttributeFormatter = productAttributeFormatter;
         _productService = productService;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -53,6 +57,7 @@ public class ShoppingCartController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IProductService _productService;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
@@ -99,6 +104,7 @@ public class ShoppingCartController : BaseAdminController
         foreach (var sci in cart)
         {
             var store = await _storeService.GetStoreById(sci.StoreId);
+            var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
             var product = await _productService.GetProductById(sci.ProductId);
             var sciModel = new ShoppingCartItemModel {
                 Id = sci.Id,
@@ -108,9 +114,19 @@ public class ShoppingCartController : BaseAdminController
                 ProductName = product.Name,
                 AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
                 UnitPrice = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice)).productprice),
+                    (await _pricingService.GetUnitPrice(sci, product,
+                        customer, priceStore,
+                        _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        customer, priceStore)).productprice,
+                        _contextAccessor.WorkContext.WorkingCurrency),
                 Total = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetSubTotal(sci, product)).subTotal)).productprice),
+                    (await _pricingService.GetSubTotal(sci, product,
+                        customer, priceStore,
+                        _contextAccessor.WorkContext.WorkingCurrency)).subTotal,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        customer, priceStore)).productprice,
+                        _contextAccessor.WorkContext.WorkingCurrency),
                 UpdatedOn = sci.UpdatedOnUtc.HasValue
                     ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)
                     : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)
@@ -160,6 +176,7 @@ public class ShoppingCartController : BaseAdminController
         foreach (var sci in cart)
         {
             var store = await _storeService.GetStoreById(sci.StoreId);
+            var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
             var product = await _productService.GetProductById(sci.ProductId);
             var sciModel = new ShoppingCartItemModel {
                 Id = sci.Id,
@@ -169,9 +186,19 @@ public class ShoppingCartController : BaseAdminController
                 ProductName = product.Name,
                 AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
                 UnitPrice = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice)).productprice),
+                    (await _pricingService.GetUnitPrice(sci, product,
+                        customer, priceStore,
+                        _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        customer, priceStore)).productprice,
+                        _contextAccessor.WorkContext.WorkingCurrency),
                 Total = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetSubTotal(sci, product)).subTotal)).productprice),
+                    (await _pricingService.GetSubTotal(sci, product,
+                        customer, priceStore,
+                        _contextAccessor.WorkContext.WorkingCurrency)).subTotal,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        customer, priceStore)).productprice,
+                        _contextAccessor.WorkContext.WorkingCurrency),
                 UpdatedOn = sci.UpdatedOnUtc.HasValue
                     ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)
                     : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)

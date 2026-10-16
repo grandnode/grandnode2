@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
@@ -106,11 +107,14 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         model.TotalProducts = cart.Sum(x => x.Quantity);
         if (!cart.Any()) return model;
 
+        var context = new CalculationContext(request.Customer, request.Store, request.Currency,
+            request.TaxDisplayType);
+
         //subtotal
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                    !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
         var shoppingCartSubTotal =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
+            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, subTotalIncludingTax);
 
         model.SubTotalIncludingTax = subTotalIncludingTax;
         model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
@@ -121,7 +125,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
             .Any();
 
         var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
-            Customer = request.Customer,
+            Context = context,
             Cart = cart.Where
                 (x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
         }, cancellationToken);
@@ -188,8 +192,10 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
             else
             {
                 var productprices = await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice);
-                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice);
+                    (await _pricingService.GetUnitPrice(sci, product, request.Customer, request.Store,
+                        request.Currency)).unitprice,
+                        request.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store);
+                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice, request.Currency);
             }
 
             //picture

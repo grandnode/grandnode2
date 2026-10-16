@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 
@@ -24,12 +25,13 @@ public class
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request.Cart);
-        ArgumentNullException.ThrowIfNull(request.Customer);
+        ArgumentNullException.ThrowIfNull(request.Context);
 
-        return await ValidateMinOrderSubtotalAmount(request.Cart);
+        return await ValidateMinOrderSubtotalAmount(request.Cart, request.Context);
     }
 
-    protected virtual async Task<bool> ValidateMinOrderSubtotalAmount(IList<ShoppingCartItem> cart)
+    protected virtual async Task<bool> ValidateMinOrderSubtotalAmount(IList<ShoppingCartItem> cart,
+        CalculationContext context)
     {
         ArgumentNullException.ThrowIfNull(cart);
 
@@ -41,7 +43,7 @@ public class
 
         //subtotal
         var (_, _, subTotalWithoutDiscount, _, _) =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, false);
+            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, false);
         return !(subTotalWithoutDiscount < _orderSettings.MinOrderSubtotalAmount);
     }
 }

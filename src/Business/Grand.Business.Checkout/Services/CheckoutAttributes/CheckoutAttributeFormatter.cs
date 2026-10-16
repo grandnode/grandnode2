@@ -8,6 +8,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
+using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Net;
@@ -131,14 +132,17 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                         if (renderPrices)
                         {
                             var priceAdjustmentBase =
-                                (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue, customer, store))
+                                (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue,
+                                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                                    customer, store))
                                 .checkoutPrice;
                             var priceAdjustment =
                                 await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase,
                                     _contextAccessor.WorkContext.WorkingCurrency);
                             if (priceAdjustmentBase > 0)
                             {
-                                var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment);
+                                var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment,
+                                    _contextAccessor.WorkContext.WorkingCurrency);
                                 formattedAttribute += $" [+{priceAdjustmentStr}]";
                             }
                         }

@@ -35,6 +35,7 @@ public class CashOnDeliveryPaymentProviderTests
         _paymentTransactionService = new Mock<IPaymentTransactionService>();
         var contextAccessor = new Mock<IContextAccessor>();
         contextAccessor.Setup(c => c.WorkContext.WorkingCurrency).Returns(_workingCurrency);
+        contextAccessor.Setup(c => c.StoreContext.CurrentStore).Returns(new Grand.Domain.Stores.Store());
 
         //no IHttpContextAccessor: the provider has to work outside a request
         var services = new ServiceCollection();
@@ -71,7 +72,7 @@ public class CashOnDeliveryPaymentProviderTests
         _settings.AdditionalFee = 10;
         _settings.AdditionalFeePercentage = true;
         var cart = new List<ShoppingCartItem> { new() };
-        _subTotalService.Setup(s => s.GetShoppingCartSubTotal(cart, true))
+        _subTotalService.Setup(s => s.GetShoppingCartSubTotal(cart, It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), true))
             .ReturnsAsync((0d, new List<ApplyDiscount>(), 200d, 180d, new SortedDictionary<double, double>()));
 
         var fee = await Provider.GetAdditionalHandlingFee(cart);
@@ -91,7 +92,8 @@ public class CashOnDeliveryPaymentProviderTests
         var fee = await Provider.GetAdditionalHandlingFee(new List<ShoppingCartItem>());
 
         Assert.AreEqual(20, fee);
-        _subTotalService.Verify(s => s.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<bool>()),
+        _subTotalService.Verify(s => s.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(),
+            It.IsAny<bool>()),
             Times.Never);
     }
 

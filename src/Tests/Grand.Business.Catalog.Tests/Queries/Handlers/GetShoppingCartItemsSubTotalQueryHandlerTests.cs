@@ -48,7 +48,9 @@ public class GetShoppingCartItemsSubTotalQueryHandlerTests
         }, CancellationToken.None);
 
         Assert.AreEqual(60, subTotal);
-        pricingService.Verify(p => p.GetSubTotal(It.IsAny<ShoppingCartItem>(), It.IsAny<Product>(), It.IsAny<bool>()),
+        pricingService.Verify(p => p.GetSubTotal(It.IsAny<ShoppingCartItem>(), It.IsAny<Product>(),
+                It.IsAny<Customer>(), It.IsAny<Grand.Domain.Stores.Store>(), It.IsAny<Grand.Domain.Directory.Currency>(),
+                It.IsAny<bool>()),
             Times.Never);
     }
 }

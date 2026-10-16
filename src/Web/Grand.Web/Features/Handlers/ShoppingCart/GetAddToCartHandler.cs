@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
@@ -111,13 +112,16 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
             else
             {
                 var productprices = await _taxService.GetProductPrice(request.Product,
-                    (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
+                    (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product, request.Customer, request.Store,
+                        request.Currency)).unitprice,
+                        request.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store);
                 model.Price = !request.CustomerEnteredPrice.HasValue
-                    ? _priceFormatter.FormatPrice(productprices.productprice)
-                    : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
+                    ? _priceFormatter.FormatPrice(productprices.productprice, request.Currency)
+                    : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value, request.Currency);
                 model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
                 model.TotalPrice =
-                    _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity);
+                    _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity,
+                        request.Currency);
             }
 
             //picture
@@ -153,7 +157,9 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                            !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal =
-                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
+                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart,
+                        new CalculationContext(request.Customer, request.Store, request.Currency,
+                            request.TaxDisplayType), subTotalIncludingTax);
                 model.SubTotalIncludingTax = subTotalIncludingTax;
                 model.SubTotal =
                     _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
@@ -167,7 +173,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
             case ShoppingCartType.Auctions:
                 model.IsAuction = true;
                 model.HighestBidValue = request.Product.HighestBid;
-                model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid);
+                model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid, request.Currency);
                 model.EndTime = request.Product.AvailableEndDateTimeUtc;
                 break;
         }

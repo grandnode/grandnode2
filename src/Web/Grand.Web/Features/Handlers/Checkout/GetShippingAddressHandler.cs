@@ -6,6 +6,8 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Checkout;
@@ -15,6 +17,7 @@ namespace Grand.Web.Features.Handlers.Checkout;
 
 public class GetShippingAddressHandler : IRequestHandler<GetShippingAddress, CheckoutShippingAddressModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IAclService _aclService;
     private readonly AddressSettings _addressSettings;
     private readonly ICountryService _countryService;
@@ -38,8 +41,10 @@ public class GetShippingAddressHandler : IRequestHandler<GetShippingAddress, Che
         IAclService aclService,
         IMediator mediator,
         ShippingSettings shippingSettings,
-        AddressSettings addressSettings)
+        AddressSettings addressSettings,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _shippingService = shippingService;
         _pickupPointService = pickupPointService;
         _taxService = taxService;
@@ -101,7 +106,8 @@ public class GetShippingAddressHandler : IRequestHandler<GetShippingAddress, Che
                 };
                 if (pickupPoint.PickupFee > 0)
                 {
-                    var amount = (await _taxService.GetShippingPrice(pickupPoint.PickupFee, request.Customer, request.Store))
+                    var amount = (await _taxService.GetShippingPrice(pickupPoint.PickupFee,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store))
                         .shippingPrice;
                     amount = await _currencyService.ConvertFromPrimaryStoreCurrency(amount, request.Currency);
                     pickupPointModel.PickupFee = _priceFormatter.FormatPrice(amount, request.Currency);

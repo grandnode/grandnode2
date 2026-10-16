@@ -99,7 +99,7 @@ public class PriceFormatterTests
             _translationService = tempLocalizationService.Object;
         }
 
-        _priceFormatter = new PriceFormatter(tempWorkContext.Object);
+        _priceFormatter = new PriceFormatter();
     }
 
     [TestMethod]

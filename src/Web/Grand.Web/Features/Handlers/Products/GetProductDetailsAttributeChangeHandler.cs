@@ -9,6 +9,8 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
@@ -21,6 +23,7 @@ namespace Grand.Web.Features.Handlers.Products;
 public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProductDetailsAttributeChange,
     ProductDetailsAttributeChangeModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
     private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
@@ -44,8 +47,10 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
         ITranslationService translationService,
         IPictureService pictureService,
         ShoppingCartSettings shoppingCartSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _stockQuantityService = stockQuantityService;
         _permissionService = permissionService;
@@ -99,9 +104,11 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
                 true);
 
             var finalPrice = unitprice.unitprice;
-            var productprice = await _taxService.GetProductPrice(request.Product, finalPrice);
+            var productprice = await _taxService.GetProductPrice(request.Product, finalPrice,
+                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
             var finalPriceWithDiscount = productprice.productprice;
-            model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount);
+            model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount, request.Currency);
         }
 
         //stock

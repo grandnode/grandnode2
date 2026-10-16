@@ -136,7 +136,7 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
         foreach (var item in request.Order.OrderTaxes)
         {
             var taxRate = _priceFormatter.FormatTaxRate(item.Percent);
-            var taxValue = _priceFormatter.FormatPrice(item.Amount);
+            var taxValue = _priceFormatter.FormatPrice(item.Amount, currency);
 
             if (string.IsNullOrEmpty(taxRate))
                 taxRate = item.Percent.ToString(CultureInfo.InvariantCulture);

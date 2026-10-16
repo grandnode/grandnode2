@@ -56,29 +56,32 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
 
         if (!request.Cart.Any()) return model;
 
+        var context = new CalculationContext(request.Customer, request.Store, request.Currency,
+            request.TaxDisplayType);
+
         //subtotal
-        await PrepareSubtotal(model, request);
+        await PrepareSubtotal(model, request, context);
 
         //shipping info
-        await PrepareShippingInfo(model, request);
+        await PrepareShippingInfo(model, request, context);
 
         //payment method fee
         await PreparePayment(model, request);
 
         //tax
-        await PrepareTax(model, request);
+        await PrepareTax(model, request, context);
 
         //total
-        await PrepareTotal(model, request);
+        await PrepareTotal(model, request, context);
         return model;
     }
 
-    private async Task PrepareSubtotal(OrderTotalsModel model, GetOrderTotals request)
+    private async Task PrepareSubtotal(OrderTotalsModel model, GetOrderTotals request, CalculationContext context)
     {
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                    !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
         var shoppingCartSubTotal =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(request.Cart, subTotalIncludingTax);
+            await _orderTotalCalculationService.GetShoppingCartSubTotal(request.Cart, context, subTotalIncludingTax);
         model.SubTotalIncludingTax = subTotalIncludingTax;
         model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
         model.SubTotalValue = shoppingCartSubTotal.subTotalWithoutDiscount;
@@ -91,13 +94,14 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         }
     }
 
-    private async Task PrepareShippingInfo(OrderTotalsModel model, GetOrderTotals request)
+    private async Task PrepareShippingInfo(OrderTotalsModel model, GetOrderTotals request,
+        CalculationContext context)
     {
         model.RequiresShipping = request.Cart.RequiresShipping();
         if (model.RequiresShipping)
         {
             var shoppingCartShippingBase =
-                (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart))
+                (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, context))
                 .shoppingCartShippingTotal;
             if (shoppingCartShippingBase.HasValue)
             {
@@ -120,7 +124,8 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         var paymentMethodAdditionalFee =
             await _paymentService.GetAdditionalHandlingFee(request.Cart, paymentMethodSystemName);
         var paymentMethodAdditionalFeeWithTaxBase =
-            (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer, request.Store))
+            (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee,
+                request.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store))
             .paymentPrice;
         if (paymentMethodAdditionalFeeWithTaxBase > 0)
         {
@@ -130,7 +135,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         }
     }
 
-    private async Task PrepareTax(OrderTotalsModel model, GetOrderTotals request)
+    private async Task PrepareTax(OrderTotalsModel model, GetOrderTotals request, CalculationContext context)
     {
         bool displayTax;
         bool displayTaxRates;
@@ -141,7 +146,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         }
         else
         {
-            var taxtotal = await _orderTotalCalculationService.GetTaxTotal(request.Cart);
+            var taxtotal = await _orderTotalCalculationService.GetTaxTotal(request.Cart, context);
             var taxRates = taxtotal.taxRates;
 
             if (taxtotal.taxtotal == 0 && _taxSettings.HideZeroTax)
@@ -167,9 +172,9 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         model.DisplayTax = displayTax;
     }
 
-    private async Task PrepareTotal(OrderTotalsModel model, GetOrderTotals request)
+    private async Task PrepareTotal(OrderTotalsModel model, GetOrderTotals request, CalculationContext context)
     {
-        var carttotal = await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart);
+        var carttotal = await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, context);
         var shoppingCartTotalBase = carttotal.shoppingCartTotal;
         var orderTotalDiscountAmountBase = carttotal.discountAmount;
         var appliedGiftVouchers = carttotal.appliedGiftVouchers;
@@ -208,7 +213,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
             shoppingCartTotalBase.HasValue)
         {
             var shippingBaseInclTax = model.RequiresShipping
-                ? (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, true))
+                ? (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, context, true))
                 .shoppingCartShippingTotal
                 : 0;
             var earnLoyaltyPoints = shoppingCartTotalBase.Value - shippingBaseInclTax ?? 0;

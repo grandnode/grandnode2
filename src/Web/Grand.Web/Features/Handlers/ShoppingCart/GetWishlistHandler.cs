@@ -13,6 +13,8 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
@@ -25,6 +27,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly CatalogSettings _catalogSettings;
     private readonly LinkGenerator _linkGenerator;
     private readonly MediaSettings _mediaSettings;
@@ -53,8 +56,10 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
         MediaSettings mediaSettings, 
-        IEnumTranslationService enumTranslationService)
+        IEnumTranslationService enumTranslationService,
+        IContextAccessor contextAccessor)
     {
+        _contextAccessor = contextAccessor;
         _permissionService = permissionService;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;
@@ -142,8 +147,12 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
             else
             {
                 var productprice = await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetUnitPrice(sci, product)).unitprice);
-                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice);
+                    (await _pricingService.GetUnitPrice(sci, product,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                        _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
+                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice, request.Currency);
             }
 
             //subtotal, discount
@@ -154,18 +163,25 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
             else
             {
                 //sub total
-                var subtotal = await _pricingService.GetSubTotal(sci, product);
+                var subtotal = await _pricingService.GetSubTotal(sci, product,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                    _contextAccessor.WorkContext.WorkingCurrency);
                 var shoppingCartItemDiscountBase = subtotal.discountAmount;
-                var productprices = await _taxService.GetProductPrice(product, subtotal.subTotal);
-                cartItemModel.SubTotal = _priceFormatter.FormatPrice(productprices.productprice);
+                var productprices = await _taxService.GetProductPrice(product, subtotal.subTotal,
+                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                cartItemModel.SubTotal = _priceFormatter.FormatPrice(productprices.productprice, request.Currency);
 
                 //display an applied discount amount
                 if (shoppingCartItemDiscountBase > 0)
                 {
                     shoppingCartItemDiscountBase =
-                        (await _taxService.GetProductPrice(product, shoppingCartItemDiscountBase)).productprice;
+                        (await _taxService.GetProductPrice(product, shoppingCartItemDiscountBase,
+                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
                     if (shoppingCartItemDiscountBase > 0)
-                        cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase);
+                        cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase,
+                            request.Currency);
                 }
             }
 

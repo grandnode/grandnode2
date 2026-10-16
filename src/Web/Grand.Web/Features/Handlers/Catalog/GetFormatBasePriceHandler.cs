@@ -49,7 +49,7 @@ public class GetFormatBasePriceHandler : IRequestHandler<GetFormatBasePrice, str
                         //do not round. otherwise, it can cause issues
                         await _measureService.ConvertWeight(productAmount, productUnit, referenceUnit, false) *
                         referenceAmount;
-        var basePriceStr = _priceFormatter.FormatPrice(basePrice);
+        var basePriceStr = _priceFormatter.FormatPrice(basePrice, request.Currency);
 
         var result = string.Format(_translationService.GetResource("Products.BasePrice"),
             basePriceStr, referenceAmount.ToString("G29"), referenceUnit.Name);

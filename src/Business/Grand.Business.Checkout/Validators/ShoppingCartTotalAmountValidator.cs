@@ -3,16 +3,14 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Customers;
-using Grand.Domain.Directory;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Checkout.Validators;
 
 public record ShoppingCartTotalAmountValidatorRecord(
-    Customer Customer,
-    Currency Currency,
-    IList<ShoppingCartItem> Cart);
+    IList<ShoppingCartItem> Cart,
+    CalculationContext Context);
 
 public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTotalAmountValidatorRecord>
 {
@@ -26,7 +24,7 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
     {
         RuleFor(x => x).CustomAsync(async (value, context, _) =>
         {
-            var customerGroups = await groupService.GetAllByIds(value.Customer.Groups.ToArray());
+            var customerGroups = await groupService.GetAllByIds(value.Context.Customer.Groups.ToArray());
             var minRoles = customerGroups.OrderBy(x => x.MinOrderAmount).FirstOrDefault(x => x.MinOrderAmount.HasValue);
             var minOrderAmount = minRoles?.MinOrderAmount ?? 0;
 
@@ -38,7 +36,7 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
                                       !(orderSettings.MinOrderTotalAmount > 0))) return;
 
             var shoppingCartTotalBase =
-                (await orderTotalCalculationService.GetShoppingCartTotal(value.Cart)).shoppingCartTotal;
+                (await orderTotalCalculationService.GetShoppingCartTotal(value.Cart, value.Context)).shoppingCartTotal;
 
             if (shoppingCartTotalBase.HasValue && (shoppingCartTotalBase.Value < minOrderAmount ||
                                                    shoppingCartTotalBase.Value > maxOrderAmount))
@@ -48,14 +46,14 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
 
             //subtotal
             var (_, _, subTotalWithoutDiscount, _, _) =
-                await orderTotalCalculationService.GetShoppingCartSubTotal(value.Cart, false);
+                await orderTotalCalculationService.GetShoppingCartSubTotal(value.Cart, value.Context, false);
             if (subTotalWithoutDiscount < orderSettings.MinOrderSubtotalAmount)
             {
                 var minOrderSubtotalAmount =
                     await currencyService.ConvertFromPrimaryStoreCurrency(orderSettings.MinOrderSubtotalAmount,
-                        value.Currency);
+                        value.Context.Currency);
                 context.AddFailure(string.Format(translationService.GetResource("Checkout.MinOrderSubtotalAmount"),
-                    priceFormatter.FormatPrice(minOrderSubtotalAmount, value.Currency)));
+                    priceFormatter.FormatPrice(minOrderSubtotalAmount, value.Context.Currency)));
             }
         });
     }

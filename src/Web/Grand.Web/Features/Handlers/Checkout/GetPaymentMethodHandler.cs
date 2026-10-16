@@ -4,10 +4,12 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
+using Grand.Domain.Tax;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
@@ -64,7 +66,9 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
                 model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, request.Currency);
                 model.LoyaltyPointsBalance = loyaltyPointsBalance;
                 var shoppingCartTotalBase =
-                    (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, true)).shoppingCartTotal;
+                    (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart,
+                        new CalculationContext(request.Customer, request.Store, request.Currency,
+                            request.TaxDisplayType), true)).shoppingCartTotal;
                 model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase is 0;
             }
         }
@@ -89,7 +93,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             //payment method additional fee
             var paymentMethodAdditionalFee =
                 await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
-            var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer, request.Store))
+            var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee,
+                request.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store))
                 .paymentPrice;
             if (rate > 0)
                 pmModel.Fee = _priceFormatter.FormatPrice(rate, request.Currency);

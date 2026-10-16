@@ -113,7 +113,8 @@ public class MerchandiseReturnController : BasePublicController
         var model = await _mediator.Send(new GetMerchandiseReturns {
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Store = _contextAccessor.StoreContext.CurrentStore,
-            Language = _contextAccessor.WorkContext.WorkingLanguage
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Currency = _contextAccessor.WorkContext.WorkingCurrency
         });
 
         return View(model);

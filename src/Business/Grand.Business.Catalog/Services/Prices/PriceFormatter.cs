@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Domain.Directory;
-using Grand.Infrastructure;
 using System.Globalization;
 
 namespace Grand.Business.Catalog.Services.Prices;
@@ -10,21 +9,6 @@ namespace Grand.Business.Catalog.Services.Prices;
 /// </summary>
 public class PriceFormatter : IPriceFormatter
 {
-    #region Fields
-
-    private readonly IContextAccessor _contextAccessor;
-
-    #endregion
-
-    #region Constructors
-
-    public PriceFormatter(IContextAccessor contextAccessor)
-    {
-        _contextAccessor = contextAccessor;
-    }
-
-    #endregion
-
     #region Utilities
 
     /// <summary>
@@ -65,16 +49,6 @@ public class PriceFormatter : IPriceFormatter
     #endregion
 
     #region Methods
-
-    /// <summary>
-    ///     Formats the price
-    /// </summary>
-    /// <param name="price">Price</param>
-    /// <returns>Price</returns>
-    public virtual string FormatPrice(double price)
-    {
-        return FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency);
-    }
 
     /// <summary>
     ///     Formats the price

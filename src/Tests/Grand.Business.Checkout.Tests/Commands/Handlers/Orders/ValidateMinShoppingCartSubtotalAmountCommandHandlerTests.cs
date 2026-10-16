@@ -30,12 +30,14 @@ public class ValidateMinShoppingCartSubtotalAmountCommandHandlerTests
     public async Task HandleTest()
     {
         var command = new ValidateMinShoppingCartSubtotalAmountCommand {
-            Customer = new Customer(),
-            Cart = new List<ShoppingCartItem> { new() }
+            Cart = new List<ShoppingCartItem> { new() },
+            Context = new Grand.Business.Core.Utilities.Checkout.CalculationContext(new Customer(),
+                new Grand.Domain.Stores.Store(), new Grand.Domain.Directory.Currency(),
+                Grand.Domain.Tax.TaxDisplayType.ExcludingTax)
         };
 
         _orderTotalCalculationServiceMock
-            .Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), false)).Returns(() =>
+            .Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), false)).Returns(() =>
                 Task.FromResult<(double discountAmount, List<ApplyDiscount> appliedDiscounts, double
                     subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>((
                     20, null, 100, 100, null)));

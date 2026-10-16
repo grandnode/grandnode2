@@ -858,22 +858,32 @@ public class CustomerViewModelService : ICustomerViewModelService
             foreach (var sci in cart)
             {
                 var store = await _storeService.GetStoreById(sci.StoreId);
+                var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
                 var product = await _productService.GetProductById(sci.ProductId);
                 if (product != null)
                 {
                     var price = (await taxService.GetProductPrice(product,
-                        (await priceCalculationService.GetUnitPrice(sci, product)).unitprice)).productprice;
+                        (await priceCalculationService.GetUnitPrice(sci, product,
+                            customer, priceStore,
+                            _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
+                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                            customer, priceStore)).productprice;
                     var sciModel = new ShoppingCartItemModel {
                         Id = sci.Id,
                         Store = store != null ? store.Shortcut : "Unknown",
                         ProductId = sci.ProductId,
                         Quantity = sci.Quantity,
                         ProductName = product.Name,
-                        AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes),
-                        UnitPrice = priceFormatter.FormatPrice(price),
+                        AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
+                        UnitPrice = priceFormatter.FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency),
                         UnitPriceValue = price,
                         Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product,
-                            (await priceCalculationService.GetSubTotal(sci, product)).subTotal)).productprice),
+                            (await priceCalculationService.GetSubTotal(sci, product,
+                                customer, priceStore,
+                                _contextAccessor.WorkContext.WorkingCurrency)).subTotal,
+                                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
+                                customer, priceStore)).productprice,
+                                _contextAccessor.WorkContext.WorkingCurrency),
                         UpdatedOn = sci.UpdatedOnUtc.HasValue
                             ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)
                             : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)

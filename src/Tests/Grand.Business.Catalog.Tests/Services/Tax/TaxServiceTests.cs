@@ -50,11 +50,24 @@ public class TaxServiceTests
         _loggerMock = new Mock<ILogger<TaxService>>();
         var providers = new List<ITaxProvider>();
         providers.Add(new FixedRateTestTaxProvider());
-        _taxService = new TaxService(_workContext, _groupServiceMock.Object,
+        _taxService = new TaxService(_groupServiceMock.Object,
             _countryService, providers, _loggerMock.Object,
             _taxSettings, _taxProviderSettings, _customerSettings, _addressSettings);
 
         _vatService = new VatService(_taxSettings);
+    }
+
+    [TestMethod]
+    public void LoadActiveTaxProvider_FallsBackToProvidersOfGivenCustomerAndStore()
+    {
+        //Arrange
+        _taxProviderSettings.ActiveTaxProviderSystemName = "not-installed";
+
+        //Act
+        var provider = _taxService.LoadActiveTaxProvider(new Customer(), "store1");
+
+        //Assert
+        Assert.AreEqual("test-provider", provider?.SystemName);
     }
 
     [TestMethod]

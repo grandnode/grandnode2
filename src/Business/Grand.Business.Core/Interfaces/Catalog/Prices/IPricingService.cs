@@ -64,12 +64,14 @@ public interface IPricingService
     /// </summary>
     /// <param name="shoppingCartItem">The shopping cart item</param>
     /// <param name="product">Product</param>
+    /// <param name="customer">Customer the price is for</param>
+    /// <param name="store">Store the price is for</param>
+    /// <param name="currency">Currency the price is converted to</param>
     /// <param name="includeDiscounts">A value indicating whether include discounts or not for price computation</param>
     /// <returns>Shopping cart unit price (one item)</returns>
     Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(
-        ShoppingCartItem shoppingCartItem,
-        Product product, bool includeDiscounts = true);
-
+        ShoppingCartItem shoppingCartItem, Product product, Customer customer, Store store, Currency currency,
+        bool includeDiscounts = true);
 
     /// <summary>
     ///     Gets the shopping cart unit price (one item)
@@ -102,10 +104,13 @@ public interface IPricingService
     /// </summary>
     /// <param name="shoppingCartItem">The shopping cart item</param>
     /// <param name="product">Product</param>
+    /// <param name="customer">Customer the price is for</param>
+    /// <param name="store">Store the price is for</param>
+    /// <param name="currency">Currency the price is converted to</param>
     /// <param name="includeDiscounts">A value indicating whether include discounts or not for price computation</param>
     /// <returns>Shopping cart item sub total</returns>
     Task<(double subTotal, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetSubTotal(
-        ShoppingCartItem shoppingCartItem, Product product,
+        ShoppingCartItem shoppingCartItem, Product product, Customer customer, Store store, Currency currency,
         bool includeDiscounts = true);
 
     /// <summary>
@@ -121,6 +126,10 @@ public interface IPricingService
     ///     Get a price adjustment of a product attribute value
     /// </summary>
     /// <param name="value">Product attribute value</param>
+    /// <param name="customer">Customer the price is for</param>
+    /// <param name="store">Store the price is for</param>
+    /// <param name="currency">Currency the price is converted to</param>
     /// <returns>Price adjustment</returns>
-    Task<double> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value);
+    Task<double> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value, Customer customer, Store store,
+        Currency currency);
 }

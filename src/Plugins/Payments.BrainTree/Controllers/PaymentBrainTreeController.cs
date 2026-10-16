@@ -1,6 +1,7 @@
 ﻿using Braintree;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
@@ -60,7 +61,9 @@ public class PaymentBrainTreeController : BasePaymentController
             };
 
             ViewBag.ClientToken = await gateway.ClientToken.GenerateAsync();
-            ViewBag.OrderTotal = (await _orderTotalCalculationService.GetShoppingCartTotal(cart)).shoppingCartTotal;
+            ViewBag.OrderTotal = (await _orderTotalCalculationService.GetShoppingCartTotal(cart,
+                new CalculationContext(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+                _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType))).shoppingCartTotal;
 
             return View("PaymentInfo_3DS", model);
         }

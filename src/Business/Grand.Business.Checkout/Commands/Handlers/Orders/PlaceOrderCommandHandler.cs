@@ -377,6 +377,11 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return weight;
     }
 
+    //TODO M1 PR 3: build the calculation context from PlaceOrderContainer instead of the ambient context
+    private CalculationContext AmbientCalculationContext =>
+        new(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType);
+
     protected virtual async Task<PlaceOrderContainer> PreparePlaceOrderDetails()
     {
         var details = new PlaceOrderContainer {
@@ -487,7 +492,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //sub total
         //sub total (incl tax)
-        var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, true);
+        var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, AmbientCalculationContext, true);
         var orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
         var orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
         var subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
@@ -500,7 +505,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             details.AppliedDiscounts.Add(disc);
 
         //sub total (excl tax)
-        shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, false);
+        shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, AmbientCalculationContext, false);
         orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
         subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
 
@@ -555,9 +560,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //shipping total
 
         var (orderShippingTotalInclTax, _, shippingTotalDiscounts) =
-            await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, true);
+            await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, AmbientCalculationContext, true);
         var orderShippingTotalExclTax =
-            (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, false))
+            (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, AmbientCalculationContext, false))
             .shoppingCartShippingTotal;
         if (!orderShippingTotalInclTax.HasValue || !orderShippingTotalExclTax.HasValue)
             throw new GrandException("Shipping total couldn't be calculated");
@@ -584,7 +589,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //tax total
         //tax amount
-        var (taxTotal, taxRates) = await _orderTotalCalculationService.GetTaxTotal(details.Cart);
+        var (taxTotal, taxRates) = await _orderTotalCalculationService.GetTaxTotal(details.Cart, AmbientCalculationContext);
         details.OrderTaxTotal = taxTotal;
 
         //tax rates
@@ -596,7 +601,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //order total (and applied discounts, gift vouchers, loyalty points)
         var (orderTotal, orderDiscountAmount, orderAppliedDiscounts, appliedGiftVouchers, redeemedLoyaltyPoints,
-            redeemedLoyaltyPointsAmount) = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart);
+            redeemedLoyaltyPointsAmount) = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart, AmbientCalculationContext);
         if (!orderTotal.HasValue)
             throw new GrandException("Order total couldn't be calculated");
 
@@ -617,10 +622,16 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     protected virtual async Task<OrderItem> PrepareOrderItem(ShoppingCartItem sc, Product product,
         PlaceOrderContainer details)
     {
-        var scUnitPrice = (await _pricingService.GetUnitPrice(sc, product)).unitprice;
-        var scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product, false)).unitprice;
+        var scUnitPrice = (await _pricingService.GetUnitPrice(sc, product,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingCurrency)).unitprice;
+        var scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingCurrency, false)).unitprice;
 
-        var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product);
+        var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingCurrency);
 
         var prices = await _taxService.GetTaxProductPrice(product, details.Customer,
             details.Store, scUnitPrice,
