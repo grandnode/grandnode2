@@ -21,25 +21,20 @@ public class UpdateQuantityValidator : BaseGrandValidator<UpdateQuantityModel>
         RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Wrong quantity");
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            switch (x.ShoppingCartType)
-            {
-                case ShoppingCartType.ShoppingCart:
-                {
-                    if (!await permissionService.Authorize(StandardPermission.EnableShoppingCart))
-                        context.AddFailure("No permission");
-                    break;
-                }
-                case ShoppingCartType.Wishlist:
-                {
-                    if (!await permissionService.Authorize(StandardPermission.EnableWishlist))
-                        context.AddFailure("No permission");
-                    break;
-                }
-            }
-
             var cart = (await shoppingCartService.GetCurrentCart(contextAccessor, PrepareCartTypes()))
                 .FirstOrDefault(z => z.Id == x.ShoppingCartId);
-            if (cart == null) context.AddFailure("Shopping cart item not found");
+            if (cart == null)
+            {
+                context.AddFailure("Shopping cart item not found");
+                return;
+            }
+
+            //check the permission of the item's own type; the type sent by the client is not trusted
+            var permission = cart.ShoppingCartTypeId == ShoppingCartType.Wishlist
+                ? StandardPermission.EnableWishlist
+                : StandardPermission.EnableShoppingCart;
+            if (!await permissionService.Authorize(permission))
+                context.AddFailure("No permission");
         });
 
         ShoppingCartType[] PrepareCartTypes()
