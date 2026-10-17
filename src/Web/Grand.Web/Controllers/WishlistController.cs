@@ -65,14 +65,10 @@ public class WishlistController : BasePublicController
         if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
             return Content("");
 
-        var cart = _contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.Where(sci =>
-            sci.ShoppingCartTypeId == ShoppingCartType.Wishlist);
-
-        if (!string.IsNullOrEmpty(_contextAccessor.StoreContext.CurrentStore.Id))
-            cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _contextAccessor.StoreContext.CurrentStore.Id);
+        var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, ShoppingCartType.Wishlist);
 
         var model = await _mediator.Send(new GetMiniWishlist {
-            Cart = cart.ToList(),
+            Cart = cart,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
@@ -94,13 +90,11 @@ public class WishlistController : BasePublicController
         if (customer == null)
             return RedirectToRoute("HomePage");
 
-        var cart = customer.ShoppingCartItems.Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist);
-
-        if (!string.IsNullOrEmpty(_contextAccessor.StoreContext.CurrentStore.Id))
-            cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _contextAccessor.StoreContext.CurrentStore.Id);
+        var cart = await _shoppingCartService.GetShoppingCart(customer, _contextAccessor.StoreContext.CurrentStore.Id,
+            ShoppingCartType.Wishlist);
 
         var model = await _mediator.Send(new GetWishlist {
-            Cart = cart.ToList(),
+            Cart = cart,
             Customer = customer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Currency = _contextAccessor.WorkContext.WorkingCurrency,

@@ -19,17 +19,12 @@
     var wishlistEnabled = await permissionService.Authorize(StandardPermission.EnableWishlist);
     var miniShoppingCartEnabled = shoppingCartSettings.MiniShoppingCartEnabled;
 
-    var shoppingCartItems =
-        contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.Any()
-            ? (await shoppingCartService.GetCurrentCart(contextAccessor, shoppingCartTypes.ToArray()))
-            .Sum(x => x.Quantity)
-            : 0;
+    var cart = contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.Any()
+        ? await shoppingCartService.GetCurrentCart(contextAccessor, [.. shoppingCartTypes, ShoppingCartType.Wishlist])
+        : [];
 
-
-    var wishlistItems = contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.Any()
-        ? (await shoppingCartService.GetCurrentCart(contextAccessor, ShoppingCartType.Wishlist))
-        .Sum(x => x.Quantity)
-        : 0;
+    var shoppingCartItems = cart.Where(x => shoppingCartTypes.Contains(x.ShoppingCartTypeId)).Sum(x => x.Quantity);
+    var wishlistItems = cart.Where(x => x.ShoppingCartTypeId == ShoppingCartType.Wishlist).Sum(x => x.Quantity);
 }
 @if (catalogSettings.CompareProductsEnabled)
 {
