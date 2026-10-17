@@ -1,6 +1,7 @@
 ﻿using Authentication.Facebook.Models;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Utilities.Authentication;
+using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authentication;
@@ -17,10 +18,12 @@ public class FacebookAuthenticationController : BasePluginController
 
     public FacebookAuthenticationController(
         IExternalAuthenticationService externalAuthenticationService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IContextAccessor contextAccessor)
     {
         _externalAuthenticationService = externalAuthenticationService;
         _configuration = configuration;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -29,6 +32,7 @@ public class FacebookAuthenticationController : BasePluginController
 
     private readonly IExternalAuthenticationService _externalAuthenticationService;
     private readonly IConfiguration _configuration;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
@@ -36,8 +40,9 @@ public class FacebookAuthenticationController : BasePluginController
 
     public IActionResult FacebookLogin(string returnUrl)
     {
-        if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(FacebookAuthenticationDefaults
-                .ProviderSystemName))
+        if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(
+                FacebookAuthenticationDefaults.ProviderSystemName, _contextAccessor.WorkContext.CurrentCustomer,
+                _contextAccessor.StoreContext.CurrentStore))
             throw new GrandException("Facebook authentication module cannot be loaded");
 
         if (string.IsNullOrEmpty(_configuration["FacebookSettings:AppId"]) ||
@@ -71,7 +76,8 @@ public class FacebookAuthenticationController : BasePluginController
         };
 
         //authenticate Grand user
-        return await _externalAuthenticationService.Authenticate(authenticationParameters, returnUrl);
+        return await _externalAuthenticationService.Authenticate(authenticationParameters,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore, returnUrl);
     }
 
     public IActionResult FacebookSignInFailed(string error_code, string error_message, string state)

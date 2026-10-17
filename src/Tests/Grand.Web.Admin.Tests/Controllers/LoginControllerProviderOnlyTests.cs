@@ -34,7 +34,7 @@ public class LoginControllerProviderOnlyTests
         _groupService = new Mock<IGroupService>();
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer());
-        _contextAccessor = new Mock<IContextAccessor>();
+        _contextAccessor = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         _contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         _customerManagerService = new Mock<ICustomerManagerService>();
     }
@@ -63,7 +63,7 @@ public class LoginControllerProviderOnlyTests
         var provider = new Mock<IExternalSignInPathProvider>();
         provider.Setup(x => x.FriendlyName).Returns("OpenID Connect");
         provider.Setup(x => x.GetSignInPath(It.IsAny<string>())).ReturnsAsync(path);
-        _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null))
+        _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>()))
             .Returns([provider.Object]);
     }
 

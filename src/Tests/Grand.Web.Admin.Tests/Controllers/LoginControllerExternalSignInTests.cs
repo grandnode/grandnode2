@@ -34,7 +34,7 @@ public class LoginControllerExternalSignInTests
         _controller = new LoginController(new CustomerSettings(), new CaptchaSettings(),
             new Mock<ITranslationService>().Object, new Mock<ICustomerManagerService>().Object,
             new Mock<ICustomerService>().Object, new Mock<IGrandAuthenticationService>().Object,
-            new Mock<IMessageProviderService>().Object, new Mock<IContextAccessor>().Object,
+            new Mock<IMessageProviderService>().Object, new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock }.Object,
             new Mock<IMediator>().Object);
         var httpContext = new DefaultHttpContext();
         httpContext.Request.PathBase = "/shop";
@@ -54,7 +54,7 @@ public class LoginControllerExternalSignInTests
         panel.Setup(x => x.FriendlyName).Returns("OpenID Connect");
         panel.Setup(x => x.GetSignInPath("/shop/admin")).ReturnsAsync("/oidc/login?returnUrl=%2Fshop%2Fadmin");
         var storefrontOnly = new Mock<IExternalAuthenticationProvider>();
-        _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null))
+        _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>()))
             .Returns([panel.Object, storefrontOnly.Object]);
 
         var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object, new OidcLoginConfig(), _groupService.Object)).Model!;
@@ -69,7 +69,7 @@ public class LoginControllerExternalSignInTests
     {
         var panel = new Mock<IExternalSignInPathProvider>();
         panel.Setup(x => x.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null!);
-        _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(null, null)).Returns([panel.Object]);
+        _externalAuthenticationService.Setup(x => x.LoadActiveAuthenticationProviders(It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns([panel.Object]);
         var model = (LoginModel)((ViewResult)await _controller.Index(_externalAuthenticationService.Object, new OidcLoginConfig(), _groupService.Object)).Model!;
         Assert.AreEqual(0, model.ExternalSignIn.Count);
     }

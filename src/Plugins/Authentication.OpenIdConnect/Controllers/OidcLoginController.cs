@@ -259,7 +259,8 @@ public class OidcLoginController : BasePluginController
     }
 
     private bool IsAvailable() =>
-        _externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName);
+        _externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
 
     private static bool TryReadMarker(string marker, out long shown, out string subject)
     {

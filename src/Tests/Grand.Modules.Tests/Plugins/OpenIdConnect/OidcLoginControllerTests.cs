@@ -77,7 +77,7 @@ public class OidcLoginControllerTests
         _sessions.Setup(x => x.Start(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("session-1");
         _mediator = new Mock<IMediator>();
         _externalAuth = new Mock<IExternalAuthenticationService>();
-        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName)).Returns(true);
+        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName, It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns(true);
         _schemes = new Mock<IAuthenticationSchemeProvider>();
         _schemes.Setup(x => x.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme)).ReturnsAsync(
             new AuthenticationScheme(OidcLoginDefaults.AuthenticationScheme, null, typeof(IAuthenticationHandler)));
@@ -149,7 +149,7 @@ public class OidcLoginControllerTests
     [TestMethod]
     public async Task Login_MethodInactive_Failed()
     {
-        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>())).Returns(false);
+        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>(), It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns(false);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Login("/")).RouteName);
     }
 
@@ -286,7 +286,7 @@ public class OidcLoginControllerTests
     public async Task Callback_MethodInactive_ClearsAndFails_NothingResolved()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>())).Returns(false);
+        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>(), It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns(false);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
         _external.Verify(x => x.Clear(), Times.Once);
         _resolver.Verify(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
@@ -308,7 +308,7 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>())).Returns(false);
+        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>(), It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns(false);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Link("/")).RouteName);
         _external.Verify(x => x.Clear(), Times.Once);
         _httpAuth.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme,
@@ -321,7 +321,7 @@ public class OidcLoginControllerTests
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         Marker("sub-1");
-        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>())).Returns(false);
+        _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>(), It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns(false);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.LinkComplete("/")).RouteName);
         _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
         _external.Verify(x => x.Clear(), Times.Once);

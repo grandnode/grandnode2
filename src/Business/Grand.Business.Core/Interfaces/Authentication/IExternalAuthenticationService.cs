@@ -16,9 +16,12 @@ public interface IExternalAuthenticationService
     ///     Use passed parameters to authenticate customer
     /// </summary>
     /// <param name="parameters">External authentication parameters</param>
+    /// <param name="customer">Customer of the request (a guest when nobody is logged in)</param>
+    /// <param name="store">Store of the request</param>
     /// <param name="returnUrl">Defines the URL of user return, when successfully authenticated</param>
     /// <returns>Result of an authentication</returns>
-    Task<IActionResult> Authenticate(ExternalAuthParam parameters, string returnUrl = null);
+    Task<IActionResult> Authenticate(ExternalAuthParam parameters, Customer customer, Store store,
+        string returnUrl = null);
 
     #endregion
 
@@ -50,11 +53,10 @@ public interface IExternalAuthenticationService
     /// <summary>
     ///     Load all active authentication providers
     /// </summary>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
+    /// <param name="customer">Customer whose groups the providers may be limited to</param>
+    /// <param name="store">Store the providers may be limited to</param>
     /// <returns>External authentication providers</returns>
-    IList<IExternalAuthenticationProvider> LoadActiveAuthenticationProviders(Customer customer = null,
-        Store store = null);
+    IList<IExternalAuthenticationProvider> LoadActiveAuthenticationProviders(Customer customer, Store store);
 
     /// <summary>
     ///     Load specified external authentication provider by system name
@@ -73,8 +75,10 @@ public interface IExternalAuthenticationService
     ///     Check whether authentication by the passed external authentication provider is available
     /// </summary>
     /// <param name="systemName">System name of the external authentication provider</param>
+    /// <param name="customer">Customer whose groups the provider may be limited to</param>
+    /// <param name="store">Store the provider may be limited to</param>
     /// <returns>True if is available; otherwise false</returns>
-    bool AuthenticationProviderIsAvailable(string systemName);
+    bool AuthenticationProviderIsAvailable(string systemName, Customer customer, Store store);
 
     #endregion
 }

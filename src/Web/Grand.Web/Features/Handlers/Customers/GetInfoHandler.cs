@@ -209,7 +209,8 @@ public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
             .LoadActiveAuthenticationProviders(request.Customer, request.Store).Count;
         foreach (var ear in await _externalAuthenticationService.GetExternalIdentifiers(request.Customer))
         {
-            if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(ear.ProviderSystemName))
+            if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(ear.ProviderSystemName,
+                    request.Customer, request.Store))
                 continue;
 
             var authMethod =

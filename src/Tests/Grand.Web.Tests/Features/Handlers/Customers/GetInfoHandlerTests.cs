@@ -33,7 +33,7 @@ public class GetInfoHandlerTests
                 new() { Id = "1", ProviderSystemName = Oidc },
                 new() { Id = "2", ProviderSystemName = Google }
             });
-        external.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>())).Returns(true);
+        external.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>(), It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns(true);
         var providerMock = new Mock<IExternalAuthenticationProvider>();
         providerMock.Setup(p => p.FriendlyName).Returns("Provider");
         external.Setup(x => x.LoadAuthenticationProviderBySystemName(It.IsAny<string>())).Returns(providerMock.Object);

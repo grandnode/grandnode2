@@ -1,13 +1,14 @@
 ﻿using Grand.Business.Authentication.Services;
+using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
+using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -26,7 +27,6 @@ public class ExternalAuthenticationServiceTests
     private ExternalAuthenticationService _externalAuthenticationService;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IMediator> _mediatorMock;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -37,9 +37,6 @@ public class ExternalAuthenticationServiceTests
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
         _mediatorMock = new Mock<IMediator>();
         _externalAuthenticationRecordRepository = new MongoDBRepositoryTest<ExternalAuthentication>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(s => s.WorkContext.CurrentCustomer).Returns(new Customer());
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
         _externalAuthenticationProviders = new List<IExternalAuthenticationProvider>
             { new ExternalAuthenticationProviderTest() };
 
@@ -52,8 +49,8 @@ public class ExternalAuthenticationServiceTests
         _externalAuthenticationService = new ExternalAuthenticationService(_authenticationServiceMock.Object,
             _customerManagerServiceMock.Object, _customerServiceMock.Object,
             _groupServiceMock.Object, _mediatorMock.Object, _externalAuthenticationRecordRepository,
-            _workContextMock.Object, _externalAuthenticationProviders,
-            new CustomerSettings(), externalAuthenticationSetting);
+            _externalAuthenticationProviders,
+            new CustomerSettings { UserRegistrationType = UserRegistrationType.Standard }, externalAuthenticationSetting);
     }
 
 
@@ -61,7 +58,7 @@ public class ExternalAuthenticationServiceTests
     public void LoadActiveAuthenticationProvidersTest()
     {
         //Act
-        var result = _externalAuthenticationService.LoadActiveAuthenticationProviders();
+        var result = _externalAuthenticationService.LoadActiveAuthenticationProviders(new Customer(), new Store());
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -90,7 +87,8 @@ public class ExternalAuthenticationServiceTests
     {
         //Act
         var result =
-            _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest");
+            _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest",
+                new Customer(), new Store());
         //Assert
         Assert.IsTrue(result);
     }
@@ -99,9 +97,63 @@ public class ExternalAuthenticationServiceTests
     public void AuthenticationProviderIsAvailableTest_NotAvailable()
     {
         //Act
-        var result = _externalAuthenticationService.AuthenticationProviderIsAvailable("123");
+        var result = _externalAuthenticationService.AuthenticationProviderIsAvailable("123", new Customer(), new Store());
         //Assert
         Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void LoadActiveAuthenticationProviders_NullCustomerOrStore_Throws()
+    {
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.LoadActiveAuthenticationProviders(null, new Store()));
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.LoadActiveAuthenticationProviders(new Customer(), null));
+    }
+
+    [TestMethod]
+    public void AuthenticationProviderIsAvailable_NullCustomerOrStore_Throws()
+    {
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest",
+                null, new Store()));
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest",
+                new Customer(), null));
+    }
+
+    [TestMethod]
+    public async Task Authenticate_AssociatedUserFromGuest_PublishesLoggedInEventWithPassedCustomerAndStore()
+    {
+        var user = new Customer { Id = "user" };
+        var guest = new Customer { Id = "guest" };
+        _customerServiceMock.Setup(c => c.GetCustomerById("user")).ReturnsAsync(user);
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" };
+        await _externalAuthenticationService.AssociateCustomer(user, parameters);
+
+        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" });
+
+        _mediatorMock.Verify(m => m.Publish(It.Is<CustomerLoggedInEvent>(e =>
+            e.Customer == user && e.PreviousCustomer == guest && e.StoreId == "store1"), default), Times.Once);
+        _authenticationServiceMock.Verify(a => a.SignIn(user, false), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnknownIdentity_RegistersPassedCustomerInPassedStore()
+    {
+        var guest = new Customer { Id = "guest" };
+        var parameters = new ExternalAuthParam {
+            ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "new@test.com"
+        };
+
+        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" });
+
+        _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.Is<RegistrationRequest>(r =>
+            r.Customer == guest && r.StoreId == "store1" && r.Email == "new@test.com")), Times.Once);
+        _mediatorMock.Verify(m => m.Publish(It.Is<CustomerRegisteredEvent>(e => e.Customer == guest), default),
+            Times.Once);
+        _authenticationServiceMock.Verify(a => a.SignIn(guest, false), Times.Once);
+        Assert.AreEqual("guest", _externalAuthenticationRecordRepository.Table.Single().CustomerId);
     }
 
     [TestMethod]

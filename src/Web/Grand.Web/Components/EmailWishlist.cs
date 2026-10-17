@@ -7,6 +7,7 @@ using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.ShoppingCart;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Components;
 
@@ -39,7 +40,7 @@ public class EmailWishlistViewComponent : BaseViewComponent
             !_shoppingCartSettings.EmailWishlistEnabled)
             return Content("");
 
-        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, ShoppingCartType.Wishlist);
+        var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, ShoppingCartType.Wishlist);
 
         if (!cart.Any())
             return Content("");

@@ -22,7 +22,6 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
@@ -36,7 +35,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingCartModel>
 {
-    private readonly IContextAccessor _contextAccessor;
     private readonly CatalogSettings _catalogSettings;
     private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
     private readonly ICheckoutAttributeParser _checkoutAttributeParser;
@@ -95,10 +93,8 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
         CommonSettings commonSettings,
-        IEnumTranslationService enumTranslationService,
-        IContextAccessor contextAccessor)
+        IEnumTranslationService enumTranslationService)
     {
-        _contextAccessor = contextAccessor;
         _productService = productService;
         _pictureService = pictureService;
         _translationService = translationService;
@@ -132,6 +128,10 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
     public async Task<ShoppingCartModel> Handle(GetShoppingCart request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request.Customer);
+        ArgumentNullException.ThrowIfNull(request.Store);
+        ArgumentNullException.ThrowIfNull(request.Host);
+
         var model = new ShoppingCartModel();
 
         if (!request.Cart.Any())
@@ -165,7 +165,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 request.Store.Id);
         model.CheckoutAttributeInfo =
             await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, CalculationContextOf(request),
-                request.Language, _contextAccessor.StoreContext.CurrentHost);
+                request.Language, request.Host);
         if (!request.Cart.Where(x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions)
                 .ToList().Any())
         {
