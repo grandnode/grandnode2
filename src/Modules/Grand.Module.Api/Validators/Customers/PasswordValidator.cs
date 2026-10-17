@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Customers;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Customers;
@@ -16,7 +17,7 @@ public class PasswordValidator : BaseGrandValidator<PasswordDto>
         CustomerSettings customerSettings)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.Password).NotEmpty()
             .WithMessage(translationService.GetResource("Account.Fields.Password.Required", languageId));

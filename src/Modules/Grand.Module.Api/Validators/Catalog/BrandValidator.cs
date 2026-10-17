@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -16,7 +17,7 @@ public class BrandValidator : BaseGrandValidator<BrandDto>
         IBrandLayoutService brandLayoutService)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.Name).NotEmpty()
             .WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.Name.Required", languageId));

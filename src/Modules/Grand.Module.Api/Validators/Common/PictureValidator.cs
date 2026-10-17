@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Common;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure;
@@ -14,7 +15,7 @@ public class PictureValidator : BaseGrandValidator<PictureDto>
         IContextAccessor contextAccessor)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.MimeType).NotEmpty()
             .WithMessage(translationService.GetResource("Api.Common.Picture.Fields.MimeType.Required", languageId));

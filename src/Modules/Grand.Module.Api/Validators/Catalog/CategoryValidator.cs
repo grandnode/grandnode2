@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -16,7 +17,7 @@ public class CategoryValidator : BaseGrandValidator<CategoryDto>
         ICategoryLayoutService
             categoryLayoutService) : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.Name).NotEmpty()
             .WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.Name.Required", languageId));

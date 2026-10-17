@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -22,7 +23,7 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
         IVendorService vendorService, CommonSettings commonSettings)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.Name).NotEmpty()
             .WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.Name.Required", languageId));

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -15,7 +16,7 @@ public class SpecificationAttributeValidator : BaseGrandValidator<SpecificationA
         IContextAccessor contextAccessor, ISpecificationAttributeService specificationAttributeService)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.Name).NotEmpty()
             .WithMessage(translationService.GetResource("Api.Catalog.SpecificationAttribute.Fields.Name.Required", languageId));

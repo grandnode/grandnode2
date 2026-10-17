@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -16,7 +17,7 @@ public class ProductTierPriceValidator : BaseGrandValidator<ProductTierPriceDto>
         IContextAccessor contextAccessor, IStoreService storeService, IGroupService groupService)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.Quantity).GreaterThan(0)
             .WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.Quantity.GreaterThan0", languageId));

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
@@ -14,7 +15,7 @@ public class ProductPictureValidator : BaseGrandValidator<ProductPictureDto>
         IContextAccessor contextAccessor, IPictureService pictureService)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {

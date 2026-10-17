@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Customers;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -16,7 +17,7 @@ public class AddressValidator : BaseGrandValidator<AddressDto>
         IContextAccessor contextAccessor, ICountryService countryService, AddressSettings addressSettings)
         : base(validators)
     {
-        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var languageId = contextAccessor.WorkingLanguageId();
 
         RuleFor(x => x.FirstName)
             .NotEmpty()
