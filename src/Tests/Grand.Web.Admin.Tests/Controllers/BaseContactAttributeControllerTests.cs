@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -30,7 +31,7 @@ public class BaseContactAttributeControllerTests
         IContactAttributeViewModelService contactAttributeViewModelService,
         IContactAttributeService contactAttributeService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminDataScope<ContactAttribute> scope)
         : BaseContactAttributeController(contactAttributeViewModelService, contactAttributeService,
             languageService, translationService, scope);
@@ -52,7 +53,7 @@ public class BaseContactAttributeControllerTests
 
         var languageServiceMock = new Mock<ILanguageService>();
         languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>())).ReturnsAsync(new List<Grand.Domain.Localization.Language>());
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _sut = new TestContactAttributeController(

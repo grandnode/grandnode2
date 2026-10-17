@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.SharedKernel.Attributes;
+﻿using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -14,7 +14,7 @@ public class CountryController : BasePublicController
 {
     #region Constructors
 
-    public CountryController(IMediator mediator, ITranslationService translationService)
+    public CountryController(IMediator mediator, IRequestTranslationService translationService)
     {
         _mediator = mediator;
         _translationService = translationService;
@@ -43,7 +43,7 @@ public class CountryController : BasePublicController
     #region Fields
 
     private readonly IMediator _mediator;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     #endregion
 }

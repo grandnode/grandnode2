@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Shipping.ShippingPoint.Models;
 using Shipping.ShippingPoint.Services;
+using Grand.Web.Common.Localization;
 
 namespace Shipping.ShippingPoint.Controllers;
 
@@ -15,7 +15,7 @@ public class SelectedShippingPointController : Controller
     private readonly ICurrencyService _currencyService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IShippingPointService _shippingPointService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public SelectedShippingPointController(
@@ -24,7 +24,7 @@ public class SelectedShippingPointController : Controller
         IPriceFormatter priceFormatter,
         IContextAccessor contextAccessor,
         ICurrencyService currencyService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _shippingPointService = shippingPointService;
         _countryService = countryService;

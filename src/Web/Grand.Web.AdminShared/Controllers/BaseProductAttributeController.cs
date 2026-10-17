@@ -12,6 +12,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -21,7 +22,7 @@ public abstract class BaseProductAttributeController(
     IProductService productService,
     IProductAttributeService productAttributeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     SeoSettings seoSettings,
     IAdminDataScope<ProductAttribute> scope) : BaseController
 {

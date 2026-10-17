@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
@@ -40,7 +39,7 @@ public class TaxController(
     ISettingService settingService,
     IServiceProvider serviceProvider,
     ICacheBase cacheBase,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     ICountryService countryService,
     IEnumTranslationService enumTranslationService,
     IContextAccessor contextAccessor,

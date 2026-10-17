@@ -9,6 +9,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -20,7 +21,7 @@ public class ContactAttributeController(
     IContactAttributeViewModelService contactAttributeViewModelService,
     IContactAttributeService contactAttributeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<ContactAttribute> scope)
     : BaseContactAttributeController(contactAttributeViewModelService, contactAttributeService,
         languageService, translationService, scope);

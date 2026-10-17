@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -22,6 +21,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
@@ -40,7 +40,7 @@ public class CustomerControllerTests
     private Mock<ICustomerManagerService> _customerManagerServiceMock;
     private Mock<ICustomerAttributeService> _customerAttributeServiceMock;
     private Mock<IGroupService> _groupServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IAdminDataScope<Customer>> _scopeMock;
 
@@ -52,7 +52,7 @@ public class CustomerControllerTests
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
         _customerAttributeServiceMock = new Mock<ICustomerAttributeService>();
         _groupServiceMock = new Mock<IGroupService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         var workContextMock = new Mock<IWorkContext>();
@@ -81,7 +81,7 @@ public class CustomerControllerTests
         IAddressAttributeService addressAttributeService,
         IMessageProviderService messageProviderService,
         IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings,
         IAdminDataScope<Customer> scope,

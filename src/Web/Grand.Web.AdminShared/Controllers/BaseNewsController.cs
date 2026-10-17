@@ -14,6 +14,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -23,7 +24,7 @@ public abstract class BaseNewsController(
     INewsViewModelService newsViewModelService,
     INewsService newsService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     IDateTimeService dateTimeService,
     IAdminDataScope<NewsItem> scope)
@@ -35,7 +36,7 @@ public abstract class BaseNewsController(
     // by name in C#.
     protected INewsService NewsService => newsService;
     protected IDateTimeService DateTimeService => dateTimeService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<NewsItem> Scope => scope;
 
     #region News items

@@ -40,7 +40,7 @@ public class BaseProductControllerTests
         IProductService productService,
         IInventoryManageService inventoryManageService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductReservationService productReservationService,
         IAuctionService auctionService,
         IDateTimeService dateTimeService,
@@ -54,7 +54,7 @@ public class BaseProductControllerTests
     private TestProductController _controller;
     private Mock<IProductService> _productServiceMock;
     private Mock<IProductViewModelService> _productViewModelServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Product>> _scopeMock;
     private Mock<IPermissionService> _permissionServiceMock;
     private Mock<IProductReservationService> _productReservationServiceMock;
@@ -72,7 +72,7 @@ public class BaseProductControllerTests
 
         _productServiceMock = new Mock<IProductService>();
         _productViewModelServiceMock = new Mock<IProductViewModelService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Product>>();

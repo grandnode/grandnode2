@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Catalog;
 
@@ -9,7 +9,7 @@ public class ProductAskQuestionValidator : BaseGrandValidator<ProductAskQuestion
 {
     public ProductAskQuestionValidator(
         IEnumerable<IValidatorConsumer<ProductAskQuestionModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Email).NotEmpty()

@@ -1,6 +1,5 @@
 ﻿using Braintree;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -12,6 +11,7 @@ using Payments.BrainTree.Validators;
 using System.Net;
 using Environment = Braintree.Environment;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Payments.BrainTree.Controllers;
 
@@ -20,14 +20,14 @@ public class PaymentBrainTreeController : BasePaymentController
     private readonly BrainTreePaymentSettings _brainTreePaymentSettings;
     private readonly IOrderCalculationService _orderTotalCalculationService;
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public PaymentBrainTreeController(BrainTreePaymentSettings brainTreePaymentSettings,
         IOrderCalculationService orderTotalCalculationService,
         IShoppingCartService shoppingCartService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _brainTreePaymentSettings = brainTreePaymentSettings;
         _orderTotalCalculationService = orderTotalCalculationService;

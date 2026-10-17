@@ -1,7 +1,6 @@
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -16,6 +15,7 @@ using Grand.Infrastructure;
 using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Services;
 
@@ -54,7 +54,7 @@ public class PanelPasswordRecoveryServiceTests
         _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(PasswordSignInDecision.Password);
 
-        var translationService = new Mock<ITranslationService>();
+        var translationService = new Mock<IRequestTranslationService>();
         translationService.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => key);
 
         var workContext = new Mock<IWorkContext>();

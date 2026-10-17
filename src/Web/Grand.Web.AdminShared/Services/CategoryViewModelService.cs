@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -29,7 +28,7 @@ public class CategoryViewModelService : ICategoryViewModelService
     private readonly IProductCategoryService _productCategoryService;
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly ISeNameService _seNameService;
     private readonly IEnumTranslationService _enumTranslationService;
@@ -39,7 +38,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         IProductCategoryService productCategoryService,
         ICategoryLayoutService categoryLayoutService,
         IDiscountService discountService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IPictureService pictureService,
         IProductService productService,

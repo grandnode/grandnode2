@@ -1,11 +1,11 @@
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -16,6 +16,6 @@ namespace Grand.Web.Admin.Controllers;
 public class GiftVoucherController(
     IGiftVoucherViewModelService giftVoucherViewModelService,
     IGiftVoucherService giftVoucherService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<GiftVoucher> scope)
     : BaseGiftVoucherController(giftVoucherViewModelService, giftVoucherService, translationService, scope);

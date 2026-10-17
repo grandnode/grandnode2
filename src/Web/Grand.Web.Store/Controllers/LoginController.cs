@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
@@ -9,13 +8,14 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Store.Extensions;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Controllers;
 
 [Area(Constants.AreaStore)]
 public class LoginController : BaseLoginController
 {
-    public LoginController(CustomerSettings customerSettings, CaptchaSettings captchaSettings, ITranslationService translationService, ICustomerManagerService customerManagerService, ICustomerService customerService, IGrandAuthenticationService authenticationService, IMessageProviderService messageProviderService, IContextAccessor contextAccessor, IMediator mediator) : base(customerSettings, captchaSettings, translationService, customerManagerService, customerService, authenticationService, messageProviderService, contextAccessor, mediator)
+    public LoginController(CustomerSettings customerSettings, CaptchaSettings captchaSettings, IRequestTranslationService translationService, ICustomerManagerService customerManagerService, ICustomerService customerService, IGrandAuthenticationService authenticationService, IMessageProviderService messageProviderService, IContextAccessor contextAccessor, IMediator mediator) : base(customerSettings, captchaSettings, translationService, customerManagerService, customerService, authenticationService, messageProviderService, contextAccessor, mediator)
     {
     }
 }

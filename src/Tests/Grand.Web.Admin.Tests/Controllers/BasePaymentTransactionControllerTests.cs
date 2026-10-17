@@ -2,7 +2,6 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -29,7 +28,7 @@ public class BasePaymentTransactionControllerTests
     private class TestPaymentTransactionController(
         IPaymentTransactionService paymentTransactionService,
         IOrderService orderService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         IMediator mediator,
         IEnumTranslationService enumTranslationService,
@@ -54,7 +53,7 @@ public class BasePaymentTransactionControllerTests
         _scopeMock = new Mock<IAdminDataScope<PaymentTransaction>>();
         _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(true);
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         dateTimeServiceMock.Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), It.IsAny<DateTimeKind>()))

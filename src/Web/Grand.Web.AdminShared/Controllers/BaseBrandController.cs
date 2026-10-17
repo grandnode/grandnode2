@@ -18,6 +18,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -34,7 +35,7 @@ public abstract class BaseBrandController(
     IBrandService brandService,
     IStoreService storeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IPictureViewModelService pictureViewModelService,
     IAdminDataScope<Brand> scope)
     : BaseController
@@ -46,7 +47,7 @@ public abstract class BaseBrandController(
 
     // Exposed for host subclasses: primary-constructor parameters are not visible to derived
     // classes by name in C#, so Store's EditWarningCheck override needs these.
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<Brand> Scope => scope;
 
     #region List

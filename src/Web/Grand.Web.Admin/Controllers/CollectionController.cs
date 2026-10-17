@@ -21,7 +21,7 @@ public class CollectionController(
     ICollectionService collectionService,
     IStoreService storeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IPictureViewModelService pictureViewModelService,
     IProductService productService,
     IAdminDataScope<Collection> scope)

@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -7,6 +6,7 @@ using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Widgets.FacebookPixel.Models;
+using Grand.Web.Common.Localization;
 
 namespace Widgets.FacebookPixel.Areas.Admin.Controllers;
 
@@ -14,11 +14,11 @@ namespace Widgets.FacebookPixel.Areas.Admin.Controllers;
 public class WidgetsFacebookPixelController : BaseAdminPluginController
 {
     private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IAdminStoreService _adminStoreService;
     public WidgetsFacebookPixelController(
         ISettingService settingService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminStoreService adminStoreService)
     {
         _settingService = settingService;

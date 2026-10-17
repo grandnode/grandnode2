@@ -1,8 +1,8 @@
 using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Common;
 
@@ -14,7 +14,7 @@ public class PasswordRecoveryConfirmValidator : BaseGrandValidator<PasswordRecov
 {
     public PasswordRecoveryConfirmValidator(
         IEnumerable<IValidatorConsumer<PasswordRecoveryConfirmModel>> validators,
-        ITranslationService translationService, CustomerSettings customerSettings)
+        IRequestTranslationService translationService, CustomerSettings customerSettings)
         : base(validators)
     {
         RuleFor(x => x.NewPassword).NotEmpty()

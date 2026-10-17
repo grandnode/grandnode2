@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
@@ -35,7 +34,7 @@ public abstract class BaseReportsController(
     IProductService productService,
     IProductAttributeFormatter productAttributeFormatter,
     IStockQuantityService stockQuantityService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     ICountryService countryService,
     IVendorService vendorService,
@@ -56,7 +55,7 @@ public abstract class BaseReportsController(
     protected IProductService ProductService => productService;
     protected IProductAttributeFormatter ProductAttributeFormatter => productAttributeFormatter;
     protected IStockQuantityService StockQuantityService => stockQuantityService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IStoreService StoreService => storeService;
     protected ICountryService CountryService => countryService;
     protected IVendorService VendorService => vendorService;

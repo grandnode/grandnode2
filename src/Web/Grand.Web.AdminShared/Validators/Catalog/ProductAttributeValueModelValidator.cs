@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Catalog;
 
@@ -13,7 +13,7 @@ public class ProductAttributeValueModelValidator : BaseStoreAccessValidator<Prod
     private readonly IProductService _productService;
     public ProductAttributeValueModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.ProductAttributeValueModel>> validators,
-        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
+        IRequestTranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
         : base(validators, translationService, contextAccessor)
     {
         _productService = productService;

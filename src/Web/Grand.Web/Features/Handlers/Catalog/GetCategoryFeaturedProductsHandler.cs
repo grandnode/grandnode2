@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
@@ -16,6 +15,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -27,13 +27,13 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
     private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetCategoryFeaturedProductsHandler(
         ICategoryService categoryService,
         ICacheBase cacheBase,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMediator mediator,
         MediaSettings mediaSettings,
         CatalogSettings catalogSettings)

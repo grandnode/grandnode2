@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
@@ -15,6 +14,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Common.Tests.TagHelpers;
 
@@ -24,7 +24,7 @@ public class AdminGridTagHelperTests
     private AdminAreaSettings _adminAreaSettings;
     private LanguageSettings _languageSettings;
     private Mock<IContextAccessor> _contextAccessorMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IUrlHelper> _urlHelperMock;
     private Mock<IUrlHelperFactory> _urlHelperFactoryMock;
     private Language _workingLanguage;
@@ -43,7 +43,7 @@ public class AdminGridTagHelperTests
         workContextMock.Setup(x => x.WorkingLanguage).Returns(() => _workingLanguage);
         _contextAccessorMock = new Mock<IContextAccessor>();
         _contextAccessorMock.Setup(x => x.WorkContext).Returns(workContextMock.Object);
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => $"[{key}]");
         _translationServiceMock
             .Setup(x => x.GetResource(It.IsAny<string>(), "lang1", string.Empty, true))

@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Common.Extensions;
+﻿using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Text.Json;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Common.TagHelpers.Admin;
 
@@ -14,9 +14,9 @@ public class AdminDeleteConfirmationTagHelper : TagHelper
 {
     private readonly IHtmlHelper _htmlHelper;
 
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public AdminDeleteConfirmationTagHelper(IHtmlHelper htmlHelper, ITranslationService translationService)
+    public AdminDeleteConfirmationTagHelper(IHtmlHelper htmlHelper, IRequestTranslationService translationService)
     {
         _htmlHelper = htmlHelper;
         _translationService = translationService;

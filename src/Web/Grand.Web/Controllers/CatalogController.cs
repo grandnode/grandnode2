@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
@@ -21,6 +20,7 @@ using Grand.Web.Models.Vendors;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -36,7 +36,7 @@ public class CatalogController : BasePublicController
         ICollectionService collectionService,
         IContextAccessor contextAccessor,
         IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAclService aclService,
         IPermissionService permissionService,
         IMediator mediator,
@@ -65,7 +65,7 @@ public class CatalogController : BasePublicController
     private readonly ICollectionService _collectionService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IAclService _aclService;
     private readonly IPermissionService _permissionService;
     private readonly IMediator _mediator;

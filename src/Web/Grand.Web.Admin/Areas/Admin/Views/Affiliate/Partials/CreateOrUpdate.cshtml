@@ -8,7 +8,7 @@
 @model AffiliateModel
 
 @inject IOrderStatusService orderStatusService;
-@inject ITranslationService translationService;
+@inject Grand.Web.Common.Localization.IRequestTranslationService translationService;
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>

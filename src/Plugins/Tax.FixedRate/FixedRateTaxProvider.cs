@@ -1,17 +1,17 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
 using Tax.FixedRate.Models;
+using Grand.Web.Common.Localization;
 
 namespace Tax.FixedRate;
 
 public class FixedRateTaxProvider : ITaxProvider
 {
     private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public FixedRateTaxProvider(ISettingService settingService, ITranslationService translationService)
+    public FixedRateTaxProvider(ISettingService settingService, IRequestTranslationService translationService)
     {
         _settingService = settingService;
         _translationService = translationService;

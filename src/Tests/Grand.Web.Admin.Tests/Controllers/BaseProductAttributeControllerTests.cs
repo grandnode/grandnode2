@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -28,7 +29,7 @@ public class BaseProductAttributeControllerTests
         IProductService productService,
         IProductAttributeService productAttributeService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         SeoSettings seoSettings,
         IAdminDataScope<ProductAttribute> scope)
         : BaseProductAttributeController(productService, productAttributeService, languageService,
@@ -46,7 +47,7 @@ public class BaseProductAttributeControllerTests
         _attributeService = new Mock<IProductAttributeService>();
         _scope = new Mock<IAdminDataScope<ProductAttribute>>();
         _sut = new TestProductAttributeController(_productService.Object, _attributeService.Object,
-            Mock.Of<ILanguageService>(), Mock.Of<ITranslationService>(), new SeoSettings(), _scope.Object);
+            Mock.Of<ILanguageService>(), Mock.Of<IRequestTranslationService>(), new SeoSettings(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();

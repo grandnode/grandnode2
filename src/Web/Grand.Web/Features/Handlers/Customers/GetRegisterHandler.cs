@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -10,6 +9,7 @@ using Grand.Web.Models.Customer;
 using Grand.Web.Models.Newsletter;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Customers;
 
@@ -23,11 +23,11 @@ public class GetRegisterHandler : IRequestHandler<GetRegister, RegisterModel>
 
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly TaxSettings _taxSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetRegisterHandler(
         INewsletterCategoryService newsletterCategoryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         IMediator mediator,
         CustomerSettings customerSettings,

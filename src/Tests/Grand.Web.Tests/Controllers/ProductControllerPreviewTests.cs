@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -71,7 +71,7 @@ public class ProductControllerPreviewTests
         _controller = new ProductController(
             _productServiceMock.Object,
             contextAccessorMock.Object,
-            new Mock<ITranslationService>().Object,
+            new Mock<IRequestTranslationService>().Object,
             _recentlyViewedMock.Object,
             new Mock<IShoppingCartService>().Object,
             _aclServiceMock.Object,

@@ -1,21 +1,21 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Infrastructure.Validators;
+﻿using Grand.Infrastructure.Validators;
 using Grand.Infrastructure;
 using FluentValidation;
 using Grand.Domain;
 using Grand.Domain.Stores;
 using Grand.Web.AdminShared.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Catalog
 {
     public abstract class BaseStoreAccessValidator<TModel, TEntity> : BaseGrandValidator<TModel> where TEntity : BaseEntity, IStoreLinkEntity where TModel : class
     {
         protected readonly IContextAccessor _contextAccessor;
-        protected readonly ITranslationService _translationService;
+        protected readonly IRequestTranslationService _translationService;
 
         protected BaseStoreAccessValidator(
             IEnumerable<IValidatorConsumer<TModel>> validators,
-            ITranslationService translationService,
+            IRequestTranslationService translationService,
             IContextAccessor contextAccessor)
             : base(validators)
         {

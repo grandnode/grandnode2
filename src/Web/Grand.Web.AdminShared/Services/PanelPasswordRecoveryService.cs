@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -10,6 +9,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -21,7 +21,7 @@ public class PanelPasswordRecoveryService(
     IPermissionService permissionService,
     IVendorService vendorService,
     IMessageProviderService messageProviderService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
     IExternalSignInPolicy externalSignInPolicy) : IPanelPasswordRecoveryService

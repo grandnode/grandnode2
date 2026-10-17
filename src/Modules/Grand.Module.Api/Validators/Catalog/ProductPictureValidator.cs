@@ -2,6 +2,7 @@
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -9,13 +10,16 @@ namespace Grand.Module.Api.Validators.Catalog;
 public class ProductPictureValidator : BaseGrandValidator<ProductPictureDto>
 {
     public ProductPictureValidator(IEnumerable<IValidatorConsumer<ProductPictureDto>> validators,
-        ITranslationService translationService, IPictureService pictureService)
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, IPictureService pictureService)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             var picture = await pictureService.GetPictureById(x.PictureId);
             return picture != null;
-        }).WithMessage(translationService.GetResource("Api.Catalog.ProductPicture.Fields.PictureId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.ProductPicture.Fields.PictureId.NotExists", languageId));
     }
 }

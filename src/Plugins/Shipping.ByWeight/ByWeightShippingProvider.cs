@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -14,6 +13,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Shipping.ByWeight.Services;
+using Grand.Web.Common.Localization;
 
 namespace Shipping.ByWeight;
 
@@ -24,7 +24,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
     public ByWeightShippingCalcPlugin(
         IShippingMethodService shippingMethodService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         ICheckoutAttributeParser checkoutAttributeParser,
         ICurrencyService currencyService,
@@ -87,7 +87,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
 
     private readonly IShippingMethodService _shippingMethodService;
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IProductService _productService;
     private readonly ICheckoutAttributeParser _checkoutAttributeParser;
     private readonly ICurrencyService _currencyService;

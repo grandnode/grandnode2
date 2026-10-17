@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -9,6 +8,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.AdminShared.Models.Customers;
 using System.Text.RegularExpressions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Customers;
 
@@ -16,7 +16,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 {
     public CustomerValidator(
         IEnumerable<IValidatorConsumer<CustomerModel>> validators,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         IContextAccessor contextAccessor,
         ICustomerService customerService,

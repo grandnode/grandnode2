@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
@@ -14,6 +13,7 @@ using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -31,7 +31,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
     private readonly IShippingService _shippingService;
     private readonly ShippingSettings _shippingSettings;
     private readonly IStockQuantityService _stockQuantityService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IWarehouseService _warehouseService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IAdminDataScope<Shipment> _scope;
@@ -45,7 +45,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         IMeasureService measureService,
         IDateTimeService dateTimeService,
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDownloadService downloadService,
         IShippingService shippingService,
         IStockQuantityService stockQuantityService,

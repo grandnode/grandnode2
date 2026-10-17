@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Blogs;
@@ -11,6 +10,7 @@ using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using Grand.Web.Models.Media;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Blogs;
 
@@ -19,7 +19,7 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
     private readonly IBlogService _blogService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly MediaSettings _mediaSettings;
     private readonly BlogSettings _blogSettings;
@@ -31,7 +31,7 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
         IBlogService blogService,
         IContextAccessor contextAccessor,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         BlogSettings blogSettings,
         MediaSettings mediaSettings)

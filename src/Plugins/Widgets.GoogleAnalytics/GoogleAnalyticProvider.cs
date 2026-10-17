@@ -1,5 +1,5 @@
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Web.Common.Localization;
 
 namespace Widgets.GoogleAnalytics;
 
@@ -9,10 +9,10 @@ namespace Widgets.GoogleAnalytics;
 public class GoogleAnalyticProvider : IWidgetProvider
 {
     private readonly GoogleAnalyticsEcommerceSettings _googleAnalyticsEcommerceSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GoogleAnalyticProvider(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         GoogleAnalyticsEcommerceSettings googleAnalyticsEcommerceSettings)
     {
         _translationService = translationService;

@@ -12,6 +12,7 @@ using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -39,7 +40,7 @@ public class CustomerController(
     Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService addressAttributeService,
     Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
     IGroupService groupService,
-    Grand.Business.Core.Interfaces.Common.Localization.ITranslationService translationService,
+    Grand.Web.Common.Localization.IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
     IAdminDataScope<Customer> scope,

@@ -11,6 +11,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -22,14 +23,14 @@ public class ProductTagsController : BaseAdminController
     private readonly IProductTagService _productTagService;
 
     private readonly SeoSettings _seoSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public ProductTagsController(
         IProductTagService productTagService,
         IProductService productService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         SeoSettings seoSettings,
         IContextAccessor contextAccessor)
     {

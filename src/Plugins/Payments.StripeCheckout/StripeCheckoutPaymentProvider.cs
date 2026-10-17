@@ -1,12 +1,12 @@
 ﻿using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Microsoft.AspNetCore.Http;
 using Payments.StripeCheckout.Services;
+using Grand.Web.Common.Localization;
 
 namespace Payments.StripeCheckout;
 
@@ -16,13 +16,13 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     private readonly IOrderService _orderService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
     private readonly IStripeCheckoutService _stripeCheckoutService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     #region Ctor
 
     public StripeCheckoutPaymentProvider(
         IHttpContextAccessor httpContextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IOrderService orderService,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings, IStripeCheckoutService stripeCheckoutService)
     {

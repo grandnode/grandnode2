@@ -1,17 +1,16 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Microsoft.Extensions.Localization;
+﻿using Microsoft.Extensions.Localization;
 
 namespace Grand.Web.Common.Localization;
 
 public class LocService : StringLocalizer<string>
 {
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public LocService(IStringLocalizerFactory factory) : base(factory)
     {
     }
 
-    public LocService(IStringLocalizerFactory factory, ITranslationService translationService) : base(factory)
+    public LocService(IStringLocalizerFactory factory, IRequestTranslationService translationService) : base(factory)
     {
         _translationService = translationService;
     }

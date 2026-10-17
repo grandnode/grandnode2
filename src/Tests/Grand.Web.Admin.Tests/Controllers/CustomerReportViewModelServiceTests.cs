@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Utilities.System;
@@ -25,7 +24,7 @@ public class CustomerReportViewModelServiceTests
     public void Setup()
     {
         var customerServiceMock = new Mock<ICustomerService>();
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         _customerReportServiceMock = new Mock<ICustomerReportService>();
         var dateTimeServiceMock = new Mock<IDateTimeService>();

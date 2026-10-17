@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
@@ -19,6 +18,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -32,7 +32,7 @@ public class PaymentControllerTests
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<ISettingService> _settingServiceMock;
     private Mock<IShippingMethodService> _shippingMethodServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -48,7 +48,7 @@ public class PaymentControllerTests
         _settingServiceMock = new Mock<ISettingService>();
         _countryServiceMock = new Mock<ICountryService>();
         _shippingMethodServiceMock = new Mock<IShippingMethodService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new PaymentController(

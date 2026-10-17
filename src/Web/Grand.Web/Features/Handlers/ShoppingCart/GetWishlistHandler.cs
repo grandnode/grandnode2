@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
@@ -40,13 +39,13 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly ITaxService _taxService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
     public GetWishlistHandler(
         IPermissionService permissionService,
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ITaxService taxService,
         IPricingService priceCalculationService,
         IPriceFormatter priceFormatter,

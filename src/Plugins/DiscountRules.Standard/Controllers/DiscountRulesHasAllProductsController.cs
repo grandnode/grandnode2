@@ -1,7 +1,6 @@
 using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -23,7 +22,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
     private readonly IPermissionService _permissionService;
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
@@ -32,7 +31,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
     public DiscountRulesHasAllProductsController(IDiscountService discountService,
         IPermissionService permissionService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IVendorService vendorService,
         IProductService productService,

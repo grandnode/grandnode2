@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
@@ -71,7 +71,7 @@ public class GiftVoucherControllerAttributeTests
         private GiftVoucherController _controller;
         private Mock<IGiftVoucherViewModelService> _viewModelServiceMock;
         private Mock<IGiftVoucherService> _giftVoucherServiceMock;
-        private Mock<ITranslationService> _translationServiceMock;
+        private Mock<IRequestTranslationService> _translationServiceMock;
         private Mock<IAdminDataScope<GiftVoucher>> _scopeMock;
 
         [TestInitialize]
@@ -81,7 +81,7 @@ public class GiftVoucherControllerAttributeTests
             _viewModelServiceMock.Setup(s => s.PrepareGiftVoucherModel(It.IsAny<GiftVoucher>()))
                 .ReturnsAsync(new Grand.Web.AdminShared.Models.Orders.GiftVoucherModel());
             _giftVoucherServiceMock = new Mock<IGiftVoucherService>();
-            _translationServiceMock = new Mock<ITranslationService>();
+            _translationServiceMock = new Mock<IRequestTranslationService>();
             _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
             _scopeMock = new Mock<IAdminDataScope<GiftVoucher>>();

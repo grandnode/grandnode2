@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
@@ -60,14 +59,14 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly ITaxService _taxService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWarehouseService _warehouseService;
     private readonly IEnumTranslationService _enumTranslationService;
     public GetShoppingCartHandler(
         IProductService productService,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICheckoutAttributeFormatter checkoutAttributeFormatter,
         ICurrencyService currencyService,
         IDiscountService discountService,

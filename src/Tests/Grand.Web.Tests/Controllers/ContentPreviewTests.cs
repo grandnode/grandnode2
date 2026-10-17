@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -26,6 +25,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -80,7 +80,7 @@ public class ContentPreviewTests
         var newsServiceMock = new Mock<INewsService>();
         newsServiceMock.Setup(x => x.GetNewsById(newsItem.Id)).ReturnsAsync(newsItem);
         return new NewsController(newsServiceMock.Object, _contextAccessorMock.Object,
-            new Mock<ITranslationService>().Object, _aclServiceMock.Object, _permissionServiceMock.Object,
+            new Mock<IRequestTranslationService>().Object, _aclServiceMock.Object, _permissionServiceMock.Object,
             _mediatorMock.Object, new NewsSettings { Enabled = true }) { ControllerContext = GetContext() };
     }
 
@@ -89,7 +89,7 @@ public class ContentPreviewTests
         var blogServiceMock = new Mock<IBlogService>();
         blogServiceMock.Setup(x => x.GetBlogPostById(blogPost.Id)).ReturnsAsync(blogPost);
         return new BlogController(_mediatorMock.Object, blogServiceMock.Object,
-            new Mock<ITranslationService>().Object, _contextAccessorMock.Object,
+            new Mock<IRequestTranslationService>().Object, _contextAccessorMock.Object,
             new BlogSettings { Enabled = true }) { ControllerContext = GetContext() };
     }
 
@@ -101,7 +101,7 @@ public class ContentPreviewTests
             .ReturnsAsync(new List<KnowledgebaseArticleComment>());
         return new KnowledgebaseController(new KnowledgebaseSettings { Enabled = true },
             knowledgebaseServiceMock.Object, _contextAccessorMock.Object, new Mock<ICacheBase>().Object,
-            _aclServiceMock.Object, new Mock<ITranslationService>().Object,
+            _aclServiceMock.Object, new Mock<IRequestTranslationService>().Object,
             new Mock<IMessageProviderService>().Object, new Mock<IDateTimeService>().Object,
             _permissionServiceMock.Object, new CustomerSettings(), new CaptchaSettings(), new LanguageSettings()) {
             ControllerContext = GetContext()

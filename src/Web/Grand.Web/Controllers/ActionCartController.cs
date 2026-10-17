@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -19,6 +18,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -32,7 +32,7 @@ public class ActionCartController : BasePublicController
         IShoppingCartService shoppingCartService,
         IContextAccessor contextAccessor,
         IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICurrencyService currencyService,
         IShoppingCartValidator shoppingCartValidator,
         IMediator mediator,
@@ -57,7 +57,7 @@ public class ActionCartController : BasePublicController
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICurrencyService _currencyService;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly IMediator _mediator;

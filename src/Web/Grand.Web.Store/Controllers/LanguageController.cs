@@ -6,13 +6,14 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Models;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.Languages)]
 public class LanguageController(
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     IContextAccessor contextAccessor) : BaseStoreController
 {

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Interfaces;
@@ -8,6 +7,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -16,7 +16,7 @@ public class AffiliateController : BaseAdminController
 {
     #region Constructors
 
-    public AffiliateController(ITranslationService translationService,
+    public AffiliateController(IRequestTranslationService translationService,
         IAffiliateService affiliateService, IAffiliateViewModelService affiliateViewModelService,
         IPermissionService permissionService)
     {
@@ -30,7 +30,7 @@ public class AffiliateController : BaseAdminController
 
     #region Fields
 
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IAffiliateService _affiliateService;
     private readonly IAffiliateViewModelService _affiliateViewModelService;
     private readonly IPermissionService _permissionService;

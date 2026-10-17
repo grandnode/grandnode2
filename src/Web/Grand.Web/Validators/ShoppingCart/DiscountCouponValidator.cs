@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.ShoppingCart;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.ShoppingCart;
 
@@ -14,7 +14,7 @@ public class DiscountCouponValidator : BaseGrandValidator<DiscountCouponModel>
         IEnumerable<IValidatorConsumer<DiscountCouponModel>> validators,
         IDiscountValidationService discountValidationService,
         IDiscountService discountService, IContextAccessor contextAccessor,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.DiscountCouponCode).NotEmpty()

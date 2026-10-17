@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
@@ -9,6 +8,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -18,7 +18,7 @@ public abstract class BaseOnlineCustomerController(
     ICustomerService customerService,
     IDateTimeService dateTimeService,
     CustomerSettings customerSettings,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor)
     : BaseController
 {

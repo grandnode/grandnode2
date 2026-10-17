@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Settings;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Settings;
 
@@ -10,7 +10,7 @@ public class LoyaltyPointsSettingsValidator : BaseGrandValidator<SalesSettingsMo
 {
     public LoyaltyPointsSettingsValidator(
         IEnumerable<IValidatorConsumer<SalesSettingsModel.LoyaltyPointsSettingsModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.PointsForPurchases_Awarded).NotEqual((int)OrderStatusSystem.Pending).WithMessage(

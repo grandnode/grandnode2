@@ -11,6 +11,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -20,7 +21,7 @@ public abstract class BaseMessageTemplateController(
     IMessageTemplateService messageTemplateService,
     IEmailAccountService emailAccountService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IMessageTokenProvider messageTokenProvider,
     IDownloadService downloadService,
     IAdminDataScope<MessageTemplate> scope,
@@ -34,7 +35,7 @@ public abstract class BaseMessageTemplateController(
     protected IMessageTemplateService MessageTemplateService => messageTemplateService;
 
     /// <summary>See <see cref="MessageTemplateService" />.</summary>
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
 
     public IActionResult Index() => RedirectToAction("List");
 

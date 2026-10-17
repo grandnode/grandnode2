@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -29,7 +28,7 @@ public class BlogViewModelService : IBlogViewModelService
     private readonly IPictureService _pictureService;
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IContextAccessor _contextAccessor;
     private readonly ISeNameService _seNameService;
@@ -41,7 +40,7 @@ public class BlogViewModelService : IBlogViewModelService
         IStoreService storeService,
         IPictureService pictureService, 
         ICustomerService customerService, 
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         IVendorService vendorService, 
         IContextAccessor contextAccessor,

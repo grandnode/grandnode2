@@ -4,12 +4,13 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
 public abstract class BaseHomeControllerWithSetLanguage(
     ICountryService countryService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor)
     : BaseHomeController(countryService, translationService)
 {

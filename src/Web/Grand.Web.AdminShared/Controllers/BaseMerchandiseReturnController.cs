@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions;
@@ -9,6 +8,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -16,7 +16,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [AutoValidateAntiforgeryToken]
 public abstract class BaseMerchandiseReturnController(
     IMerchandiseReturnViewModelService merchandiseReturnViewModelService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IMerchandiseReturnService merchandiseReturnService,
     IOrderService orderService,
     IAdminDataScope<MerchandiseReturn> scope)
@@ -25,7 +25,7 @@ public abstract class BaseMerchandiseReturnController(
     // Exposed for host subclasses: primary-constructor parameters aren't visible to derived classes
     // by name in C#.
     protected IMerchandiseReturnViewModelService MerchandiseReturnViewModelService => merchandiseReturnViewModelService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IMerchandiseReturnService MerchandiseReturnService => merchandiseReturnService;
     protected IOrderService OrderService => orderService;
     protected IAdminDataScope<MerchandiseReturn> Scope => scope;

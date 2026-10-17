@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -8,6 +7,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Models.Customer;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -16,7 +16,7 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
     public SubAccountEditValidator(
         IEnumerable<IValidatorConsumer<SubAccountEditModel>> validators,
         ICustomerService customerService, IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings,
         CustomerConfig customerConfig)

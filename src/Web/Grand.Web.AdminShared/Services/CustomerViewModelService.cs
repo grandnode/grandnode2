@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
@@ -69,7 +68,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     private readonly IStoreService _storeService;
 
     private readonly TaxSettings _taxSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
@@ -80,7 +79,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         ICustomerProductService customerProductService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         IDateTimeService dateTimeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ILoyaltyPointsService loyaltyPointsService,
         ICountryService countryService,
         IContextAccessor contextAccessor,

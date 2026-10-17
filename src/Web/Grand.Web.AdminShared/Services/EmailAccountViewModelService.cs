@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Messages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -14,10 +14,10 @@ public class EmailAccountViewModelService : IEmailAccountViewModelService
     private readonly IEmailAccountService _emailAccountService;
     private readonly IEmailSender _emailSender;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public EmailAccountViewModelService(IEmailAccountService emailAccountService, IEmailSender emailSender,
-        IStoreService storeService, ITranslationService translationService)
+        IStoreService storeService, IRequestTranslationService translationService)
     {
         _emailAccountService = emailAccountService;
         _emailSender = emailSender;

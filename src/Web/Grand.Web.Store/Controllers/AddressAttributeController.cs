@@ -22,7 +22,7 @@ public class AddressAttributeController(
     IAddressAttributeService addressAttributeService,
     IAddressAttributeViewModelService addressAttributeViewModelService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<AddressAttribute> scope)
     : BaseAddressAttributeController(addressAttributeService, addressAttributeViewModelService,
         languageService, translationService, scope)

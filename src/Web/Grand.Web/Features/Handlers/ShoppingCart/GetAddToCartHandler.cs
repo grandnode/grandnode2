@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
@@ -15,6 +14,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 
@@ -32,11 +32,11 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly ITaxService _taxService;
     private readonly TaxSettings _taxSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetAddToCartHandler(
         IProductAttributeFormatter productAttributeFormatter,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ITaxService taxService,
         IPricingService priceCalculationService,
         IPriceFormatter priceFormatter,

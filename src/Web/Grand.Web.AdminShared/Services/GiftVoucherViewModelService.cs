@@ -12,6 +12,7 @@ using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -25,7 +26,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
         IDateTimeService dateTimeService,
         ICurrencyService currencyService,
         LanguageSettings languageSettings,
-        ITranslationService translationService, ILanguageService languageService,
+        IRequestTranslationService translationService, ILanguageService languageService,
         IContextAccessor contextAccessor,
         IStoreService storeService)
     {
@@ -235,7 +236,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
     private readonly IDateTimeService _dateTimeService;
     private readonly ICurrencyService _currencyService;
     private readonly LanguageSettings _languageSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ILanguageService _languageService;
     private readonly IStoreService _storeService;
 

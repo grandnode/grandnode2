@@ -1,9 +1,9 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Infrastructure.Caching;
 using Tax.CountryStateZip.Infrastructure.Cache;
 using Tax.CountryStateZip.Services;
+using Grand.Web.Common.Localization;
 
 namespace Tax.CountryStateZip;
 
@@ -13,10 +13,10 @@ public class CountryStateZipTaxProvider : ITaxProvider
 
     private readonly CountryStateZipTaxSettings _countryStateZipTaxSettings;
     private readonly ITaxRateService _taxRateService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
 
-    public CountryStateZipTaxProvider(ITranslationService translationService,
+    public CountryStateZipTaxProvider(IRequestTranslationService translationService,
         ICacheBase cacheBase,
         ITaxRateService taxRateService,
         CountryStateZipTaxSettings countryStateZipTaxSettings)

@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -10,6 +9,7 @@ using Grand.SharedKernel.Extensions;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -20,7 +20,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
         IContextAccessor contextAccessor,
         ICustomerService customerService,
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         CustomerSettings customerSettings,
         CustomerConfig customerConfig)

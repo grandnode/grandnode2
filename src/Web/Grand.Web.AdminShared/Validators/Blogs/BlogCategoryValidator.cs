@@ -1,14 +1,14 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Blogs;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Blogs;
 
 public class BlogCategoryValidator : BaseGrandValidator<BlogCategoryModel>
 {
     public BlogCategoryValidator(IEnumerable<IValidatorConsumer<BlogCategoryModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name)

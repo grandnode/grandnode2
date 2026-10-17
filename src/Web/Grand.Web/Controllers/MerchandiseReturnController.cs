@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
@@ -16,6 +15,7 @@ using Grand.Web.Models.Common;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -30,7 +30,7 @@ public class MerchandiseReturnController : BasePublicController
         IOrderService orderService,
         IContextAccessor contextAccessor,
         IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMediator mediator,
         AddressSettings addressSettings,
         OrderSettings orderSettings)
@@ -53,7 +53,7 @@ public class MerchandiseReturnController : BasePublicController
     private readonly IOrderService _orderService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IMediator _mediator;
     private readonly AddressSettings _addressSettings;
     private readonly OrderSettings _orderSettings;

@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
@@ -16,6 +15,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Validators.Customers;
 
@@ -28,9 +28,9 @@ public class CustomerValidatorsStoreScopingTests
 {
     private const string StoreId = "store-1";
 
-    private static Mock<ITranslationService> Translation()
+    private static Mock<IRequestTranslationService> Translation()
     {
-        var m = new Mock<ITranslationService>();
+        var m = new Mock<IRequestTranslationService>();
         m.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
         return m;
     }

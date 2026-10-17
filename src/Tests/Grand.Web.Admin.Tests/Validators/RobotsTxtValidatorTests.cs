@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Infrastructure.Validators;
+﻿using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Directory;
 using Grand.Web.AdminShared.Validators.Directory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Validators;
 
@@ -12,9 +12,9 @@ public class RobotsTxtValidatorTests
 {
     private readonly RobotsTxtValidator _validator = new(new List<IValidatorConsumer<RobotsTxtModel>>(), Translations());
 
-    private static ITranslationService Translations()
+    private static IRequestTranslationService Translations()
     {
-        var mock = new Mock<ITranslationService>();
+        var mock = new Mock<IRequestTranslationService>();
         mock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("message");
         return mock.Object;
     }

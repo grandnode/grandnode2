@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Validators.Common;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Customers;
 
@@ -10,7 +10,7 @@ public class SalesEmployeeValidator : BaseGrandValidator<SalesEmployeeModel>
 {
     public SalesEmployeeValidator(
         IEnumerable<IValidatorConsumer<SalesEmployeeModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

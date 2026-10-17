@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain;
 using Grand.Domain.Discounts;
@@ -18,6 +17,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -46,7 +46,7 @@ public class DiscountControllerVendorTests
         _scope.Setup(x => x.HasAccess(It.IsAny<Discount>())).ReturnsAsync(true);
         _scope.Setup(x => x.CanView(It.IsAny<Discount>())).ReturnsAsync(true);
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _sut = new DiscountController(

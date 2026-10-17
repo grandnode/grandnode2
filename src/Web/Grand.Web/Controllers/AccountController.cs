@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Customers;
@@ -29,6 +28,7 @@ using Grand.Web.Models.Customer;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -40,7 +40,7 @@ public class AccountController : BasePublicController
 
     public AccountController(
         IGrandAuthenticationService authenticationService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         ICustomerService customerService,
         IGroupService groupService,
@@ -165,7 +165,7 @@ public class AccountController : BasePublicController
     #region Fields
 
     private readonly IGrandAuthenticationService _authenticationService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;

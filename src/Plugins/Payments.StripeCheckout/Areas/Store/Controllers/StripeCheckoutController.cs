@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -8,6 +7,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.StripeCheckout.Models;
+using Grand.Web.Common.Localization;
 
 namespace Payments.StripeCheckout.Areas.Store.Controllers;
 
@@ -31,11 +31,11 @@ public class StripeCheckoutController : BasePaymentController
     private readonly IContextAccessor _contextAccessor;
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public StripeCheckoutController(
         ISettingService settingService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IContextAccessor contextAccessor)
     {

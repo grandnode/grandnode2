@@ -19,7 +19,7 @@ public class PageController(
     IPageViewModelService pageViewModelService,
     IPageService pageService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IAdminDataScope<Page> scope)
     : BasePageController(pageViewModelService, pageService, languageService, translationService,

@@ -45,7 +45,7 @@ namespace Grand.Web.Admin.Controllers;
 public class SettingController(
     ISettingService settingService,
     IPictureService pictureService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IMerchandiseReturnService merchandiseReturnService,
     ILanguageService languageService,
     ICacheBase cacheBase,

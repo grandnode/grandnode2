@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -28,7 +29,7 @@ public class BaseAddressAttributeControllerTests
         IAddressAttributeService addressAttributeService,
         IAddressAttributeViewModelService addressAttributeViewModelService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminDataScope<AddressAttribute> scope)
         : BaseAddressAttributeController(addressAttributeService, addressAttributeViewModelService,
             languageService, translationService, scope);
@@ -46,7 +47,7 @@ public class BaseAddressAttributeControllerTests
         _scope = new Mock<IAdminDataScope<AddressAttribute>>();
         _sut = new TestAddressAttributeController(
             _service.Object, _vmService.Object,
-            Mock.Of<ILanguageService>(), Mock.Of<ITranslationService>(), _scope.Object);
+            Mock.Of<ILanguageService>(), Mock.Of<IRequestTranslationService>(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();

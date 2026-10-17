@@ -37,7 +37,7 @@ public abstract class BaseProductController(
     IProductService productService,
     IInventoryManageService inventoryManageService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IProductReservationService productReservationService,
     IAuctionService auctionService,
     IDateTimeService dateTimeService,
@@ -48,7 +48,7 @@ public abstract class BaseProductController(
 {
     protected virtual void EditWarningCheck(Product product) { }
 
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<Product> Scope => scope;
 
     #region Product list / create / edit / delete

@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Domain.Stores;
@@ -10,6 +9,7 @@ using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Services;
 
@@ -20,7 +20,7 @@ public class CurrencyViewModelServiceTests
     private Mock<IStoreService> _storeServiceMock;
     private CurrencySettings _currencySettings;
     private Mock<ISettingService> _settingServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<ICacheBase> _cacheBaseMock;
     private CurrencyViewModelService _service;
 
@@ -31,7 +31,7 @@ public class CurrencyViewModelServiceTests
         _storeServiceMock = new Mock<IStoreService>();
         _currencySettings = new CurrencySettings();
         _settingServiceMock = new Mock<ISettingService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _cacheBaseMock = new Mock<ICacheBase>();
 
         _service = new CurrencyViewModelService(

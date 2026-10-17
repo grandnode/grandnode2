@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Settings;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Settings;
 
@@ -10,7 +10,7 @@ public class OrderSettingsValidator : BaseGrandValidator<SalesSettingsModel.Orde
 {
     public OrderSettingsValidator(
         IEnumerable<IValidatorConsumer<SalesSettingsModel.OrderSettingsModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.GiftVouchers_Activated_OrderStatusId).NotEqual((int)OrderStatusSystem.Pending)

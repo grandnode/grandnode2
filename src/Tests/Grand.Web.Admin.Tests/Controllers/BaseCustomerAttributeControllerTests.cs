@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -25,7 +26,7 @@ public class BaseCustomerAttributeControllerTests
         ICustomerAttributeService customerAttributeService,
         ICustomerAttributeViewModelService customerAttributeViewModelService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminDataScope<CustomerAttribute> scope)
         : BaseCustomerAttributeController(customerAttributeService, customerAttributeViewModelService,
             languageService, translationService, scope);
@@ -42,7 +43,7 @@ public class BaseCustomerAttributeControllerTests
         _vmService = new Mock<ICustomerAttributeViewModelService>();
         _scope = new Mock<IAdminDataScope<CustomerAttribute>>();
         _sut = new TestCustomerAttributeController(_service.Object, _vmService.Object,
-            Mock.Of<ILanguageService>(), Mock.Of<ITranslationService>(), _scope.Object);
+            Mock.Of<ILanguageService>(), Mock.Of<IRequestTranslationService>(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();

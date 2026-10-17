@@ -8,6 +8,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -19,7 +20,7 @@ public class NewsletterCategoryController : BaseAdminController
     public NewsletterCategoryController(
         INewsletterCategoryService newsletterCategoryService,
         ILanguageService languageService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _newsletterCategoryService = newsletterCategoryService;
         _languageService = languageService;
@@ -32,7 +33,7 @@ public class NewsletterCategoryController : BaseAdminController
 
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     #endregion
 

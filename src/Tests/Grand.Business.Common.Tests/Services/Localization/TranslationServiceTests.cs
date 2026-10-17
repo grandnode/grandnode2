@@ -1,10 +1,7 @@
 ﻿using Grand.Business.Common.Services.Localization;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Customers;
 using Grand.Domain.Localization;
-using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,7 +15,6 @@ public class TranslationServiceTests
     private IRepository<TranslationResource> _repository;
 
     private TranslationService _translationService;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -26,12 +22,7 @@ public class TranslationServiceTests
         _repository = new MongoDBRepositoryTest<TranslationResource>();
 
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store());
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
-        _workContextMock.Setup(c => c.WorkContext.WorkingLanguage).Returns(() => new Language { Id = "1" });
-
-        _translationService = new TranslationService(_workContextMock.Object, _repository, _mediatorMock.Object);
+        _translationService = new TranslationService(_repository, _mediatorMock.Object);
     }
 
     [TestMethod]
@@ -137,7 +128,7 @@ public class TranslationServiceTests
             { Name = "name3", Value = "value3", LanguageId = "2" });
 
         //Act
-        var result = _translationService.GetResource("name1");
+        var result = _translationService.GetResource("name1", "1");
 
         //Assert
         Assert.AreEqual("value1", result);
@@ -174,8 +165,6 @@ public class TranslationServiceTests
     [TestMethod]
     public async Task ImportResourcesFromXml_WithoutCurrentCustomer_InsertsResources()
     {
-        //Arrange - no customer, as outside a request
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => null);
         //Act
         await _translationService.ImportResourcesFromXml(new Language { Id = "1", Name = "en" },
             "<?xml version=\"1.0\" encoding=\"utf-16\"?><Language Name=\"en\"><Resource Name=\"name2\" Area=\"Common\"><Value>value2</Value></Resource></Language>");

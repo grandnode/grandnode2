@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
@@ -25,6 +24,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -44,7 +44,7 @@ public abstract class BaseCustomerController(
     IAddressAttributeService addressAttributeService,
     IMessageProviderService messageProviderService,
     IGroupService groupService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
     IAdminDataScope<Customer> scope)
@@ -65,7 +65,7 @@ public abstract class BaseCustomerController(
     protected IAddressAttributeService AddressAttributeService => addressAttributeService;
     protected IMessageProviderService MessageProviderService => messageProviderService;
     protected IGroupService GroupService => groupService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IContextAccessor ContextAccessor => contextAccessor;
     protected CustomerSettings CustomerSettings => customerSettings;
     protected IAdminDataScope<Customer> Scope => scope;

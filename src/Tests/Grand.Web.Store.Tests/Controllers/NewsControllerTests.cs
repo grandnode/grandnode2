@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Reflection;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
@@ -44,7 +45,7 @@ public class NewsControllerTests
             new Mock<INewsViewModelService>().Object,
             _newsServiceMock.Object,
             languageServiceMock.Object,
-            new Mock<ITranslationService>().Object,
+            new Mock<IRequestTranslationService>().Object,
             new Mock<IStoreService>().Object,
             new Mock<IDateTimeService>().Object,
             _scopeMock.Object);

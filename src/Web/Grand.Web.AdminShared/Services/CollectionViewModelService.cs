@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -31,7 +30,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
     private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IDiscountService _discountService;
     private readonly IVendorService _vendorService;
     private readonly IContextAccessor _contextAccessor;
@@ -49,7 +48,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         IProductService productService,
         IStoreService storeService,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDiscountService discountService,
         IVendorService vendorService,
         IContextAccessor contextAccessor,

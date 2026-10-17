@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Business.Core.Interfaces.Storage;
@@ -10,13 +9,14 @@ using Grand.Web.AdminShared.Models.PushNotifications;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.PushNotifications)]
 public class PushNotificationsController(
     PushNotificationsSettings pushNotificationsSettings,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     ISettingService settingService,
     IPushNotificationsService pushNotificationsService,
     ICustomerService customerService,

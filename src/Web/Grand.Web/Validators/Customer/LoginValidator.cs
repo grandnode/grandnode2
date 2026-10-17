@@ -2,7 +2,6 @@
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
@@ -15,6 +14,7 @@ using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -24,7 +24,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         IEnumerable<IValidatorConsumer<LoginModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, IGroupService groupService, IEncryptionService encryptionService,
-        ITranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
+        IRequestTranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         IContextAccessor workContextAccessor, CustomerConfig customerConfig,
         IExternalSignInPolicy externalSignInPolicy)

@@ -6,6 +6,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Localization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -15,7 +16,7 @@ public class LanguageViewModelService : ILanguageViewModelService
     #region Fields
 
     private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICurrencyService _currencyService;
     private readonly IWebHostEnvironment _hostingEnvironment;
 
@@ -24,7 +25,7 @@ public class LanguageViewModelService : ILanguageViewModelService
     #region Constructors
 
     public LanguageViewModelService(ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICurrencyService currencyService,
         IWebHostEnvironment hostingEnvironment)
     {

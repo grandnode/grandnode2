@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Catalog;
 
@@ -9,7 +9,7 @@ public class BrandValidator : BaseGrandValidator<BrandModel>
 {
     public BrandValidator(
         IEnumerable<IValidatorConsumer<BrandModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

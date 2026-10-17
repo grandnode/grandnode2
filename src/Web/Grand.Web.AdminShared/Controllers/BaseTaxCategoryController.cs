@@ -1,7 +1,6 @@
 #nullable enable
 
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
 using Grand.Domain.Tax;
@@ -13,6 +12,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -26,7 +26,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseTaxCategoryController(
     ITaxCategoryService taxCategoryService,
     IStoreService storeService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<TaxCategory> scope)
     : BaseController
 {
@@ -40,7 +40,7 @@ public abstract class BaseTaxCategoryController(
     protected IStoreService StoreService => storeService;
 
     /// <summary>See <see cref="TaxCategoryService" />.</summary>
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
 
     /// <summary>See <see cref="TaxCategoryService" />.</summary>
     protected IAdminDataScope<TaxCategory> Scope => scope;

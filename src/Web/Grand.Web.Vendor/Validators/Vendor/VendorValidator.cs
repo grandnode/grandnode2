@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Vendor.Models.Common;
 using Grand.Web.Vendor.Models.Vendor;
 using Grand.Web.Vendor.Validators.Common;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Vendor.Validators.Vendor;
 
@@ -12,7 +12,7 @@ public class VendorValidator : BaseGrandValidator<VendorModel>
     public VendorValidator(
         IEnumerable<IValidatorConsumer<VendorModel>> validators,
         IEnumerable<IValidatorConsumer<AddressModel>> addressValidators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Vendor.Fields.Name.Required"));

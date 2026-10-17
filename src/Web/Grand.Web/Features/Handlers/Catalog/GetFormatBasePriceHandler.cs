@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -10,10 +10,10 @@ public class GetFormatBasePriceHandler : IRequestHandler<GetFormatBasePrice, str
 {
     private readonly IMeasureService _measureService;
     private readonly IPriceFormatter _priceFormatter;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetFormatBasePriceHandler(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMeasureService measureService,
         IPriceFormatter priceFormatter)
     {

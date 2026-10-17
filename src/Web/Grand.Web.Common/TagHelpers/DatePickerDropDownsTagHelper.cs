@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Common.Extensions;
+﻿using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Globalization;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Common.TagHelpers;
 
@@ -12,9 +12,9 @@ namespace Grand.Web.Common.TagHelpers;
 public class DatePickerDropDownsTagHelper : TagHelper
 {
     private readonly IHtmlHelper _htmlHelper;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public DatePickerDropDownsTagHelper(IHtmlHelper htmlHelper, ITranslationService translationService)
+    public DatePickerDropDownsTagHelper(IHtmlHelper htmlHelper, IRequestTranslationService translationService)
     {
         _htmlHelper = htmlHelper;
         _translationService = translationService;

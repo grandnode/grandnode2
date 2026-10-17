@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Pages;
@@ -8,6 +7,7 @@ using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Pages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -17,13 +17,13 @@ public class PageViewModelService : IPageViewModelService
     private readonly IPageLayoutService _pageLayoutService;
     private readonly IPageService _pageService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ISeNameService _seNameService;
     
     public PageViewModelService(
         IPageLayoutService pageLayoutService,
         IPageService pageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IDateTimeService dateTimeService,
         ISeNameService seNameService)

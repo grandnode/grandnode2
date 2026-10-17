@@ -13,6 +13,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -21,7 +22,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseSpecificationAttributeController(
     ISpecificationAttributeService specificationAttributeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IProductService productService,
     SeoSettings seoSettings,
     IAdminDataScope<SpecificationAttribute> scope) : BaseController

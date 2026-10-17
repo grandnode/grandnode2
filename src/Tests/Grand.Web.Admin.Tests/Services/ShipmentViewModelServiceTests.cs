@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
@@ -16,6 +15,7 @@ using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Services;
 
@@ -60,7 +60,7 @@ public class ShipmentViewModelServiceTests
             _measureServiceMock.Object,
             new Mock<IDateTimeService>().Object,
             new Mock<ICountryService>().Object,
-            new Mock<ITranslationService>().Object,
+            new Mock<IRequestTranslationService>().Object,
             new Mock<IDownloadService>().Object,
             new Mock<IShippingService>().Object,
             new Mock<IStockQuantityService>().Object,

@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Catalog;
 
@@ -12,7 +12,7 @@ public class CollectionProductModelValidator : BaseStoreAccessValidator<Collecti
     private readonly ICollectionService _collectionService;
     public CollectionProductModelValidator(
         IEnumerable<IValidatorConsumer<CollectionModel.CollectionProductModel>> validators,
-        ITranslationService translationService, ICollectionService collectionService, IContextAccessor contextAccessor)
+        IRequestTranslationService translationService, ICollectionService collectionService, IContextAccessor contextAccessor)
         : base(validators, translationService, contextAccessor)
     {
         _collectionService = collectionService;

@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Messages;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
 using Grand.Web.Models.Vendors;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Commands.Handler.Vendors;
 
@@ -13,11 +13,11 @@ public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendComm
 {
     private readonly CommonSettings _commonSettings;
     private readonly IMessageProviderService _messageProviderService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public ContactVendorCommandHandler(IMessageProviderService messageProviderService, IContextAccessor contextAccessor,
-        ITranslationService translationService, CommonSettings commonSettings)
+        IRequestTranslationService translationService, CommonSettings commonSettings)
     {
         _messageProviderService = messageProviderService;
         _contextAccessor = contextAccessor;

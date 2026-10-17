@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Directory;
@@ -30,12 +29,12 @@ public class AffiliateViewModelService : IAffiliateViewModelService
     private readonly IOrderStatusService _orderStatusService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly SeoSettings _seoSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
     public AffiliateViewModelService(IContextAccessor contextAccessor, ICountryService countryService,
         IPriceFormatter priceFormatter, IAffiliateService affiliateService,
-        ICustomerService customerService, IOrderService orderService, ITranslationService translationService,
+        ICustomerService customerService, IOrderService orderService, IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         IOrderStatusService orderStatusService,
         SeoSettings seoSettings, ICurrencyService currencyService, IEnumTranslationService enumTranslationService)

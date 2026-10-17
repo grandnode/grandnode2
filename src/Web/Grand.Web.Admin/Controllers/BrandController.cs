@@ -20,7 +20,7 @@ public class BrandController(
     IBrandService brandService,
     IStoreService storeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IPictureViewModelService pictureViewModelService,
     IAdminDataScope<Brand> scope)
     : BaseBrandController(brandViewModelService, brandService, storeService, languageService,

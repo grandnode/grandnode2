@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -14,29 +15,32 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
 {
     public ProductValidator(
         IEnumerable<IValidatorConsumer<ProductDto>> validators,
-        ITranslationService translationService, IProductService productService,
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, IProductService productService,
         IProductLayoutService productLayoutService,
         IBrandService brandService,
         IVendorService vendorService, CommonSettings commonSettings)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+
         RuleFor(x => x.Name).NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.Name.Required"));
-        //RuleFor(x => x.ProductType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ProductType.Required"));
-        //RuleFor(x => x.BackorderMode).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.BackorderMode.Required"));
-        //RuleFor(x => x.DownloadActivationType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.DownloadActivationType.Required"));
-        //RuleFor(x => x.IntervalUnitType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.IntervalUnitType.Required"));
-        //RuleFor(x => x.GiftCardType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.GiftCardType.Required"));
-        //RuleFor(x => x.LowStockActivity).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.LowStockActivity.Required"));
-        //RuleFor(x => x.ManageInventoryMethod).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ManageInventoryMethod.Required"));
-        //RuleFor(x => x.RecurringCyclePeriod).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.RecurringCyclePeriod.Required"));
+            .WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.Name.Required", languageId));
+        //RuleFor(x => x.ProductType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ProductType.Required", languageId));
+        //RuleFor(x => x.BackorderMode).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.BackorderMode.Required", languageId));
+        //RuleFor(x => x.DownloadActivationType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.DownloadActivationType.Required", languageId));
+        //RuleFor(x => x.IntervalUnitType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.IntervalUnitType.Required", languageId));
+        //RuleFor(x => x.GiftCardType).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.GiftCardType.Required", languageId));
+        //RuleFor(x => x.LowStockActivity).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.LowStockActivity.Required", languageId));
+        //RuleFor(x => x.ManageInventoryMethod).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ManageInventoryMethod.Required", languageId));
+        //RuleFor(x => x.RecurringCyclePeriod).IsInEnum().WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.RecurringCyclePeriod.Required", languageId));
 
         if (!commonSettings.AllowEditProductEndedAuction)
             RuleFor(x => x.AuctionEnded && x.ProductTypeId == ProductType.Auction).Equal(false)
-                .WithMessage(translationService.GetResource("Api.Catalog.Products.Cannoteditauction"));
+                .WithMessage(translationService.GetResource("Api.Catalog.Products.Cannoteditauction", languageId));
 
         RuleFor(x => x.ProductTypeId == ProductType.Auction && !x.AvailableEndDateTimeUtc.HasValue).Equal(false)
-            .WithMessage(translationService.GetResource("Api.Catalog.Products.Fields.AvailableEndDateTime.Required"));
+            .WithMessage(translationService.GetResource("Api.Catalog.Products.Fields.AvailableEndDateTime.Required", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -48,7 +52,7 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ParentGroupedProductId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ParentGroupedProductId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -60,7 +64,7 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ProductLayoutId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ProductLayoutId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -72,7 +76,7 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.VendorId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.VendorId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -84,7 +88,7 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.BrandId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.BrandId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -96,6 +100,6 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.Id.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.Id.NotExists", languageId));
     }
 }

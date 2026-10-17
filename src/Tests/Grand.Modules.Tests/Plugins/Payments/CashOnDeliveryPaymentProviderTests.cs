@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Payments.CashOnDelivery;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Modules.Tests.Plugins.Payments;
 
@@ -41,6 +42,7 @@ public class CashOnDeliveryPaymentProviderTests
         var services = new ServiceCollection();
         services.AddSingleton(_settings);
         services.AddSingleton(Mock.Of<ITranslationService>());
+        services.AddSingleton(Mock.Of<IRequestTranslationService>());
         services.AddSingleton(_subTotalService.Object);
         services.AddSingleton(_currencyService.Object);
         services.AddSingleton(_paymentTransactionService.Object);

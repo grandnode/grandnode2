@@ -1,14 +1,14 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Web.Common.Localization;
 
 namespace Payments.BrainTree;
 
 public class BrainTreeWidgetProvider : IWidgetProvider
 {
     private readonly BrainTreePaymentSettings _brainTreePaymentSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public BrainTreeWidgetProvider(ITranslationService translationService,
+    public BrainTreeWidgetProvider(IRequestTranslationService translationService,
         BrainTreePaymentSettings brainTreePaymentSettings)
     {
         _translationService = translationService;

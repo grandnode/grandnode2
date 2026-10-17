@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
@@ -122,7 +121,7 @@ public class MerchandiseReturnViewModelServiceTests
         var productServiceMock = new Mock<IProductService>();
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         dateTimeServiceMock.Setup(d => d.CurrentTimeZone).Returns(TimeZoneInfo.Utc);
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         var messageProviderServiceMock = new Mock<IMessageProviderService>();
         var languageSettings = new LanguageSettings();
         var merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
@@ -176,7 +175,7 @@ public class MerchandiseReturnViewModelServiceTests
         var customerServiceMock = new Mock<ICustomerService>();
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         dateTimeServiceMock.Setup(d => d.CurrentTimeZone).Returns(TimeZoneInfo.Utc);
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         var messageProviderServiceMock = new Mock<IMessageProviderService>();
         var languageSettings = new LanguageSettings();
         var priceFormatterMock = new Mock<IPriceFormatter>();

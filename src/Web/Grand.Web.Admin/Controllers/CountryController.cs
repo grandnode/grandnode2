@@ -12,6 +12,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -22,7 +23,7 @@ public class CountryController : BaseAdminController
 
     public CountryController(ICountryService countryService,
         ICountryViewModelService countryViewModelService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ILanguageService languageService,
         IExportManager<CountryStatesDto> exportManager,
         IImportManager<CountryStatesDto> importManager)
@@ -41,7 +42,7 @@ public class CountryController : BaseAdminController
 
     private readonly ICountryService _countryService;
     private readonly ICountryViewModelService _countryViewModelService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ILanguageService _languageService;
     private readonly IExportManager<CountryStatesDto> _exportManager;
     private readonly IImportManager<CountryStatesDto> _importManager;
