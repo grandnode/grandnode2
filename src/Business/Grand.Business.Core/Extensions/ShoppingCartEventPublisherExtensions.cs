@@ -2,6 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 
@@ -10,18 +11,19 @@ namespace Grand.Business.Core.Extensions;
 public static class ShoppingCartEventPublisherExtensions
 {
     public static async Task ShoppingCartWarningsAdd<T, U>(this IMediator eventPublisher, IList<T> warnings,
-        IList<U> shoppingCartItems, IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes)
+        IList<U> shoppingCartItems, IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes,
+        Language language)
         where U : ShoppingCartItem
     {
         await eventPublisher.Publish(new ShoppingCartWarningsEvent<T, U>(warnings, shoppingCartItems,
-            checkoutAttributes, validateCheckoutAttributes));
+            checkoutAttributes, validateCheckoutAttributes, language));
     }
 
     public static async Task ShoppingCartItemWarningsAdded<C, S, P>(this IMediator eventPublisher,
-        IList<string> warnings, C customer, S shoppingCartItem, P product)
+        IList<string> warnings, C customer, S shoppingCartItem, P product, Language language)
         where C : Customer where S : ShoppingCartItem where P : Product
     {
         await eventPublisher.Publish(
-            new ShoppingCartItemWarningsEvent<C, S, P>(warnings, customer, shoppingCartItem, product));
+            new ShoppingCartItemWarningsEvent<C, S, P>(warnings, customer, shoppingCartItem, product, language));
     }
 }

@@ -167,7 +167,8 @@ public class ShoppingCartValidator : IShoppingCartValidator
         }
 
         //event notification
-        await _mediator.ShoppingCartWarningsAdd(warnings, shoppingCart, checkoutAttributes, validateCheckoutAttributes);
+        await _mediator.ShoppingCartWarningsAdd(warnings, shoppingCart, checkoutAttributes, validateCheckoutAttributes,
+            language);
 
         return warnings;
     }
@@ -195,6 +196,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
         Product product, ShoppingCartValidatorOptions options, Language language)
     {
         ArgumentNullException.ThrowIfNull(product);
+        ArgumentNullException.ThrowIfNull(language);
 
         var warnings = new List<string>();
 
@@ -226,7 +228,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
             warnings.AddRange(await GetReservationProductWarnings(customer, product, shoppingCartItem, language));
 
         //event notification
-        await _mediator.ShoppingCartItemWarningsAdded(warnings, customer, shoppingCartItem, product);
+        await _mediator.ShoppingCartItemWarningsAdded(warnings, customer, shoppingCartItem, product, language);
 
         return warnings;
     }

@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Checkout.Validators;
+using Grand.Business.Core.Events.Checkout.ShoppingCart;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -24,6 +25,7 @@ public class ShoppingCartValidatorTests
 {
     private static readonly Language Language = new() { Id = "lang1" };
     private readonly List<object> _records = [];
+    private Mock<IMediator> _mediatorMock;
     private ShoppingCartValidator _validator;
     private Mock<IValidatorFactory> _validatorFactoryMock;
 
@@ -35,7 +37,8 @@ public class ShoppingCartValidatorTests
         Capture<ShoppingCartCheckoutAttributesValidatorRecord>();
         Capture<ShoppingCartTotalAmountValidatorRecord>();
         Capture<ShoppingCartRequiredProductValidatorRecord>();
-        _validator = new ShoppingCartValidator(new Mock<IMediator>().Object, _validatorFactoryMock.Object);
+        _mediatorMock = new Mock<IMediator>();
+        _validator = new ShoppingCartValidator(_mediatorMock.Object, _validatorFactoryMock.Object);
     }
 
     private void Capture<T>()
@@ -88,4 +91,47 @@ public class ShoppingCartValidatorTests
         Assert.AreEqual("store-b", record.StoreId);
         Assert.AreSame(Language, record.Language);
     }
+
+    [TestMethod]
+    public async Task GetShoppingCartWarnings_PublishesTheWarningsWithTheLanguage()
+    {
+        //Arrange
+        var context = new CalculationContext(new Customer(), new Store { Id = "store" },
+            new Currency { CurrencyCode = "EUR" }, TaxDisplayType.IncludingTax);
+
+        //Act
+        await _validator.GetShoppingCartWarnings(new List<ShoppingCartItem>(), null, context, Language, false, false);
+
+        //Assert
+        _mediatorMock.Verify(x => x.Publish(
+            It.Is<ShoppingCartWarningsEvent<string, ShoppingCartItem>>(e => e.Language == Language),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartItemWarnings_PublishesTheWarningsWithTheLanguage()
+    {
+        //Act
+        await _validator.GetShoppingCartItemWarnings(new Customer(), new ShoppingCartItem(), new Product(),
+            NoChecks(), Language);
+
+        //Assert
+        _mediatorMock.Verify(x => x.Publish(
+            It.Is<ShoppingCartItemWarningsEvent<Customer, ShoppingCartItem, Product>>(e => e.Language == Language),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartItemWarnings_WithoutLanguage_Throws()
+    {
+        //Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            _validator.GetShoppingCartItemWarnings(new Customer(), new ShoppingCartItem(), new Product(), NoChecks(),
+                null));
+    }
+
+    private static ShoppingCartValidatorOptions NoChecks() => new() {
+        GetStandardWarnings = false, GetInventoryWarnings = false, GetAttributesWarnings = false,
+        GetGiftVoucherWarnings = false, GetRequiredProductWarnings = false, GetReservationWarnings = false
+    };
 }
