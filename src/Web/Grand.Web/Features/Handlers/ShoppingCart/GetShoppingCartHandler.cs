@@ -128,6 +128,10 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
     public async Task<ShoppingCartModel> Handle(GetShoppingCart request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request.Customer);
+        ArgumentNullException.ThrowIfNull(request.Store);
+        ArgumentNullException.ThrowIfNull(request.Host);
+
         var model = new ShoppingCartModel();
 
         if (!request.Cart.Any())

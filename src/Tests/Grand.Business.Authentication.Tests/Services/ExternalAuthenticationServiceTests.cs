@@ -103,6 +103,26 @@ public class ExternalAuthenticationServiceTests
     }
 
     [TestMethod]
+    public void LoadActiveAuthenticationProviders_NullCustomerOrStore_Throws()
+    {
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.LoadActiveAuthenticationProviders(null, new Store()));
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.LoadActiveAuthenticationProviders(new Customer(), null));
+    }
+
+    [TestMethod]
+    public void AuthenticationProviderIsAvailable_NullCustomerOrStore_Throws()
+    {
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest",
+                null, new Store()));
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest",
+                new Customer(), null));
+    }
+
+    [TestMethod]
     public async Task Authenticate_AssociatedUserFromGuest_PublishesLoggedInEventWithPassedCustomerAndStore()
     {
         var user = new Customer { Id = "user" };

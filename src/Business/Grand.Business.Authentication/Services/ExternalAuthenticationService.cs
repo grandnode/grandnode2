@@ -209,6 +209,9 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     public virtual IList<IExternalAuthenticationProvider> LoadActiveAuthenticationProviders(Customer customer,
         Store store)
     {
+        ArgumentNullException.ThrowIfNull(customer);
+        ArgumentNullException.ThrowIfNull(store);
+
         return LoadAllAuthenticationProviders()
             .Where(provider =>
                 provider.IsMethodActive(_externalAuthenticationSettings) &&
@@ -246,6 +249,9 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <returns>True if is available; otherwise false</returns>
     public virtual bool AuthenticationProviderIsAvailable(string systemName, Customer customer, Store store)
     {
+        ArgumentNullException.ThrowIfNull(customer);
+        ArgumentNullException.ThrowIfNull(store);
+
         var authenticationMethod = LoadAuthenticationProviderBySystemName(systemName);
 
         return authenticationMethod != null &&
