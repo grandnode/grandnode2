@@ -665,7 +665,7 @@ public class ShoppingCartValidatorsTests
         _aclServiceMock.Setup(x => x.Authorize(It.IsAny<Product>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(x => x.Authorize(It.IsAny<Product>(), It.IsAny<string>())).Returns(() => true);
         _translationServiceMock.Setup(x => x.GetResource("ShoppingCart.ProductUnpublished", "lang-pl", It.IsAny<string>(),
-            It.IsAny<bool>())).Returns("Produkt niedostÄ™pny");
+            It.IsAny<bool>())).Returns("Produkt niedostępny");
 
         //Act
         var result = await shoppingCartStandardValidator.ValidateAsync(new ShoppingCartStandardValidatorRecord(
@@ -675,7 +675,7 @@ public class ShoppingCartValidatorsTests
             new Language { Id = "lang-pl" }));
 
         //Assert
-        Assert.AreEqual("Produkt niedostÄ™pny", result.Errors.Single().ErrorMessage);
+        Assert.AreEqual("Produkt niedostępny", result.Errors.Single().ErrorMessage);
     }
 
     [TestMethod]
