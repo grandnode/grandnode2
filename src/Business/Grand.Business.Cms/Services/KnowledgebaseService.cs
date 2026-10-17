@@ -49,7 +49,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             access.StoreId);
     }
 
-    //null group ids skip the group filter
+    //null group ids skip the group filter, an empty store id the store filter
     private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query, string[] allowedCustomerGroupsIds,
         string storeId) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     {
@@ -60,7 +60,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                     select p;
         }
 
-        if (!_accessControlConfig.IgnoreStoreLimitations)
+        if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
         {
             query = from p in query
                     where !p.LimitedToStores || p.Stores.Contains(storeId)
@@ -70,14 +70,14 @@ public class KnowledgebaseService : IKnowledgebaseService
         return query;
     }
 
-    private static string GetCacheKey(string format, CatalogAccess access, params object[] additionalParams)
+    private string GetCacheKey(string format, CatalogAccess access, params object[] additionalParams)
     {
         ArgumentNullException.ThrowIfNull(access);
-        var standardParams = new[]
-        {
-            access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()),
-            access.StoreId
-        };
+        //groups only matter with the ACL on; "*" keeps reads including hidden records apart from a customer with no groups
+        var groupIds = _accessControlConfig.IgnoreAcl ? ""
+            : access.ShowHidden ? "*"
+            : string.Join(",", access.Customer.GetCustomerGroupIds());
+        var standardParams = new[] { groupIds, access.StoreId };
 
         var allParams = additionalParams != null
             ? standardParams.Concat(additionalParams).ToArray()

@@ -429,6 +429,33 @@ public class KnowledgebaseServiceTests
     }
 
     [TestMethod]
+    public async Task GetPublicKnowledgebaseArticles_IncludingHiddenWithoutStore_ReturnsEveryStoresArticles()
+    {
+        //Arrange
+        var article = new KnowledgebaseArticle { Published = true, LimitedToStores = true, Stores = ["s1"] };
+        await _repositoryKnowledgebaseArticle.InsertAsync(article);
+        //Act
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticles(CatalogAccess.IncludingHidden());
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == article.Id));
+    }
+
+    [TestMethod]
+    public async Task GetPublicKnowledgebaseArticles_IncludingHiddenThenNoGroups_DoNotShareTheCachedList()
+    {
+        //Arrange
+        var article = new KnowledgebaseArticle { Published = true, LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repositoryKnowledgebaseArticle.InsertAsync(article);
+        //Act
+        var hidden = await _knowledgebaseService.GetPublicKnowledgebaseArticles(CatalogAccess.IncludingHidden("s1"));
+        var noGroups = await _knowledgebaseService.GetPublicKnowledgebaseArticles(
+            CatalogAccess.For(CustomerIn(), "s1"));
+        //Assert
+        Assert.IsTrue(hidden.Any(x => x.Id == article.Id));
+        Assert.IsFalse(noGroups.Any(x => x.Id == article.Id));
+    }
+
+    [TestMethod]
     public async Task GetPublicKnowledgebaseArticles_WhenScopeGivenWithoutContext_FiltersByStoreAndGroups()
     {
         //Arrange - no ambient work or store context, as in a scheduled task

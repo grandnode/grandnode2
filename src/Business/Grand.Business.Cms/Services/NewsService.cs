@@ -66,7 +66,6 @@ public class NewsService : INewsService
         ArgumentNullException.ThrowIfNull(access);
 
         var storeId = access.StoreId;
-        var ignoreAcl = access.ShowHidden;
         var query = from p in _newsItemRepository.Table
             select p;
 
@@ -81,23 +80,19 @@ public class NewsService : INewsService
             query = query.Where(n => !n.EndDateUtc.HasValue || n.EndDateUtc >= utcNow);
         }
 
-        if ((!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations) ||
-            (!ignoreAcl && !_accessControlConfig.IgnoreAcl))
+        if (!access.ShowHidden && !_accessControlConfig.IgnoreAcl)
         {
-            if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
-            {
-                var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
-                query = from p in query
-                    where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                    select p;
-            }
-
-            //Store acl
-            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
-                query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(storeId)
-                    select p;
+            var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
+            query = from p in query
+                where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                select p;
         }
+
+        //Store acl
+        if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+            query = from p in query
+                where !p.LimitedToStores || p.Stores.Contains(storeId)
+                select p;
 
         query = query.OrderByDescending(n => n.CreatedOnUtc);
         return await _newsItemRepository.PagedAsync(query, pageIndex, pageSize);

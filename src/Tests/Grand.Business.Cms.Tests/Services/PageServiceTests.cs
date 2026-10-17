@@ -147,6 +147,18 @@ public class PageServiceTests
         Assert.IsTrue(result.Any());
     }
 
+    [TestMethod]
+    public async Task GetAllPages_InAStore_KeepsTheDisplayOrder()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Page { Id = "second", SystemName = "a", DisplayOrder = 2 });
+        await _repository.InsertAsync(new Page { Id = "first", SystemName = "b", DisplayOrder = 1 });
+        //Act
+        var result = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("g1"), "store-1"));
+        //Assert
+        CollectionAssert.AreEqual(new[] { "first", "second" }, result.Select(x => x.Id).ToArray());
+    }
+
     private static Customer CustomerIn(params string[] groupIds)
     {
         var customer = new Customer();

@@ -54,6 +54,8 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
     public virtual async Task<TwoFactorCodeSetup> GenerateCodeSetup(string secretKey, Customer customer,
         Store store, Language language, TwoFactorAuthenticationType twoFactorAuthenticationType)
     {
+        ArgumentNullException.ThrowIfNull(store);
+
         var model = new TwoFactorCodeSetup();
 
         switch (twoFactorAuthenticationType)

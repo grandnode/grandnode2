@@ -271,17 +271,19 @@ public class PermissionService : IPermissionService
     public virtual async Task<bool> AuthorizeAction(string permissionSystemName, string permissionActionName,
         Customer customer)
     {
+        ArgumentNullException.ThrowIfNull(customer);
+
         if (string.IsNullOrEmpty(permissionSystemName) || string.IsNullOrEmpty(permissionActionName))
             return false;
 
-        if (!await Authorize(permissionSystemName, customer))
-            return false;
-
+        var authorized = false;
         var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
         foreach (var group in customerGroups)
         {
             if (!await Authorize(permissionSystemName, group))
                 continue;
+
+            authorized = true;
 
             var key = string.Format(CacheKey.PERMISSIONS_ALLOWED_ACTION_KEY, group.Id, permissionSystemName,
                 permissionActionName);
@@ -296,7 +298,7 @@ public class PermissionService : IPermissionService
                 return false;
         }
 
-        return true;
+        return authorized;
     }
 
     #endregion

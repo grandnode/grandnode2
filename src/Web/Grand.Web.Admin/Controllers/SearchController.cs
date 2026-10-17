@@ -128,8 +128,7 @@ public class SearchController : BaseSearchController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInPages)
             {
-                var pages = (await _pageService.GetAllPages(
-                    CatalogAccess.For(_contextAccessor.WorkContext.CurrentCustomer, ""))).Where(x =>
+                var pages = (await _pageService.GetAllPages(CatalogAccess.IncludingHidden())).Where(x =>
                     (x.SystemName != null && x.SystemName.ToLower().Contains(searchTerm.ToLower())) ||
                     (x.Title != null && x.Title.ToLower().Contains(searchTerm.ToLower())));
                 foreach (var page in pages)
@@ -143,8 +142,7 @@ public class SearchController : BaseSearchController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInNews)
             {
-                var news = await _newsService.GetAllNews(
-                    CatalogAccess.For(_contextAccessor.WorkContext.CurrentCustomer, ""), newsTitle: searchTerm,
+                var news = await _newsService.GetAllNews(CatalogAccess.IncludingHidden(), newsTitle: searchTerm,
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, includeUnpublished: true);
                 foreach (var signleNews in news)
                     result.Add(new Tuple<object, int>(new

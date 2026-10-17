@@ -154,10 +154,9 @@ public class KnowledgebaseController : BasePublicController
 
         if (!string.IsNullOrEmpty(keyword))
         {
-            var categories = await _knowledgebaseService.GetPublicKnowledgebaseCategoriesByKeyword(keyword,
-                _contextAccessor.CatalogAccess());
-            var allCategories = await _knowledgebaseService.GetPublicKnowledgebaseCategories(
-                _contextAccessor.CatalogAccess());
+            var access = _contextAccessor.CatalogAccess();
+            var categories = await _knowledgebaseService.GetPublicKnowledgebaseCategoriesByKeyword(keyword, access);
+            var allCategories = await _knowledgebaseService.GetPublicKnowledgebaseCategories(access);
             categories.ForEach(x => model.Items.Add(new KnowledgebaseItemModel {
                 Name = x.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 Id = x.Id,
@@ -166,8 +165,7 @@ public class KnowledgebaseController : BasePublicController
                 FormattedBreadcrumbs = x.GetFormattedBreadCrumb(allCategories, ">")
             }));
 
-            var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByKeyword(keyword,
-                _contextAccessor.CatalogAccess());
+            var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByKeyword(keyword, access);
             foreach (var item in articles)
             {
                 var kbm = new KnowledgebaseItemModel {
@@ -176,9 +174,8 @@ public class KnowledgebaseController : BasePublicController
                     SeName = item.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id),
                     IsArticle = true,
                     FormattedBreadcrumbs =
-                        (await _knowledgebaseService.GetPublicKnowledgebaseCategory(item.ParentCategoryId,
-                            _contextAccessor.CatalogAccess()))
-                        ?.GetFormattedBreadCrumb(allCategories, ">") +
+                        allCategories.FirstOrDefault(x => x.Id == item.ParentCategoryId)
+                            ?.GetFormattedBreadCrumb(allCategories, ">") +
                         " > " + item.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
                 };
                 model.Items.Add(kbm);

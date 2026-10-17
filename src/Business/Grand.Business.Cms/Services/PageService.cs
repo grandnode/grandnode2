@@ -99,36 +99,27 @@ public class PageService : IPageService
         ArgumentNullException.ThrowIfNull(access);
 
         var storeId = access.StoreId;
-        var ignoreAcl = access.ShowHidden;
-        var groupIds = ignoreAcl ? "" : string.Join(",", access.Customer.GetCustomerGroupIds());
-        var key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, ignoreAcl, groupIds);
+        var ignoreAcl = access.ShowHidden || _accessControlConfig.IgnoreAcl;
+        var allowedCustomerGroupsIds = ignoreAcl ? Array.Empty<string>() : access.Customer.GetCustomerGroupIds();
+        var key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, access.ShowHidden,
+            string.Join(",", allowedCustomerGroupsIds));
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _pageRepository.Table
                 select p;
 
-            query = query.OrderBy(t => t.DisplayOrder).ThenBy(t => t.SystemName);
+            if (!ignoreAcl)
+                query = from p in query
+                    where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                    select p;
 
-            if ((string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations) &&
-                (ignoreAcl || _accessControlConfig.IgnoreAcl)) return await _pageRepository.ToListAsync(query);
-            {
-                if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
-                {
-                    var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
-                    query = from p in query
-                        where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                        select p;
-                }
-
-                //Store acl
-                if (string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations)
-                    return await _pageRepository.ToListAsync(query);
+            //Store acl
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
                 query = from p in query
                     where !p.LimitedToStores || p.Stores.Contains(storeId)
                     select p;
 
-                query = query.OrderBy(t => t.SystemName);
-            }
+            query = query.OrderBy(t => t.DisplayOrder).ThenBy(t => t.SystemName);
             return await _pageRepository.ToListAsync(query);
         });
     }

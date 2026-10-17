@@ -23,14 +23,16 @@ namespace Grand.Web.Tests.Features.Handlers.News;
 [TestClass]
 public class GetHomePageNewsItemsHandlerTests
 {
+    private readonly AccessControlConfig _accessControlConfig = new();
     private Customer _currentCustomer;
     private GetHomePageNewsItemsHandler _handler;
+    private Mock<INewsService> _newsServiceMock;
 
     [TestInitialize]
     public void Init()
     {
-        var newsServiceMock = new Mock<INewsService>();
-        newsServiceMock.Setup(s => s.GetAllNews(It.IsAny<CatalogAccess>(), It.IsAny<int>(), It.IsAny<int>(),
+        _newsServiceMock = new Mock<INewsService>();
+        _newsServiceMock.Setup(s => s.GetAllNews(It.IsAny<CatalogAccess>(), It.IsAny<int>(), It.IsAny<int>(),
                 It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync((CatalogAccess access, int _, int _, bool _, string _) => {
                 var news = new List<NewsItem> { new() { Id = "public" } };
@@ -47,9 +49,10 @@ public class GetHomePageNewsItemsHandlerTests
         var cacheBase = new MemoryCacheBase(new MemoryCache(new MemoryCacheOptions()), new Mock<IMediator>().Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _handler = new GetHomePageNewsItemsHandler(cacheBase, contextAccessorMock.Object, newsServiceMock.Object,
+        _handler = new GetHomePageNewsItemsHandler(cacheBase, contextAccessorMock.Object, _newsServiceMock.Object,
             new Mock<IDateTimeService>().Object, new Mock<IPictureService>().Object,
-            new Mock<ITranslationService>().Object, new NewsSettings(), new MediaSettings());
+            new Mock<ITranslationService>().Object, new NewsSettings(), new MediaSettings(),
+            _accessControlConfig);
     }
 
     private Task<Web.Models.News.HomePageNewsItemsModel> HandleAs(params string[] groups)
@@ -76,5 +79,17 @@ public class GetHomePageNewsItemsHandlerTests
         var vip = await HandleAs("registered", "vip");
 
         Assert.IsTrue(vip.NewsItems.Any(x => x.Id == "vip-only"));
+    }
+
+    [TestMethod]
+    public async Task Handle_IgnoreAcl_SharesOneEntryAcrossGroups()
+    {
+        _accessControlConfig.IgnoreAcl = true;
+
+        await HandleAs("guests");
+        await HandleAs("registered", "vip");
+
+        _newsServiceMock.Verify(s => s.GetAllNews(It.IsAny<CatalogAccess>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<bool>(), It.IsAny<string>()), Times.Once);
     }
 }
