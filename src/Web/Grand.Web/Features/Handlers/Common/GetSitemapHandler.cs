@@ -134,7 +134,8 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
             }).ToList();
 
             //knowledge base
-            var knowledgebasearticles = (await _knowledgebaseService.GetPublicKnowledgebaseArticles()).ToList();
+            var knowledgebasearticles = (await _knowledgebaseService.GetPublicKnowledgebaseArticles(
+                CatalogAccess.For(request.Customer, request.Store.Id))).ToList();
             model.KnowledgebaseArticles = knowledgebasearticles.Select(knowledgebasearticle =>
                 new KnowledgebaseItemModel {
                     Id = knowledgebasearticle.Id,

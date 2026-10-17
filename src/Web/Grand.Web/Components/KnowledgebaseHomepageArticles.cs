@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +28,7 @@ public class KnowledgebaseHomepageArticles : BaseViewComponent
         if (!_knowledgebaseSettings.Enabled)
             return Content("");
 
-        var articles = await _knowledgebaseService.GetHomepageKnowledgebaseArticles();
+        var articles = await _knowledgebaseService.GetHomepageKnowledgebaseArticles(_contextAccessor.CatalogAccess());
 
         foreach (var article in articles)
         {

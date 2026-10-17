@@ -14,6 +14,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
@@ -83,7 +84,8 @@ public class KnowledgebaseController : BasePublicController
         if (!_knowledgebaseSettings.Enabled)
             return RedirectToRoute("HomePage");
 
-        var category = await _knowledgebaseService.GetPublicKnowledgebaseCategory(categoryId);
+        var category = await _knowledgebaseService.GetPublicKnowledgebaseCategory(categoryId,
+            _contextAccessor.CatalogAccess());
         if (category == null)
         {
             //Check whether the current user has a "Manage knowledgebase" permission
@@ -100,7 +102,8 @@ public class KnowledgebaseController : BasePublicController
         }
 
         var model = new KnowledgebaseHomePageModel();
-        var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(categoryId);
+        var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(categoryId,
+            _contextAccessor.CatalogAccess());
         articles.ForEach(x => model.Items.Add(new KnowledgebaseItemModel {
             Name = x.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
             Id = x.Id,
@@ -151,8 +154,10 @@ public class KnowledgebaseController : BasePublicController
 
         if (!string.IsNullOrEmpty(keyword))
         {
-            var categories = await _knowledgebaseService.GetPublicKnowledgebaseCategoriesByKeyword(keyword);
-            var allCategories = await _knowledgebaseService.GetPublicKnowledgebaseCategories();
+            var categories = await _knowledgebaseService.GetPublicKnowledgebaseCategoriesByKeyword(keyword,
+                _contextAccessor.CatalogAccess());
+            var allCategories = await _knowledgebaseService.GetPublicKnowledgebaseCategories(
+                _contextAccessor.CatalogAccess());
             categories.ForEach(x => model.Items.Add(new KnowledgebaseItemModel {
                 Name = x.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 Id = x.Id,
@@ -161,7 +166,8 @@ public class KnowledgebaseController : BasePublicController
                 FormattedBreadcrumbs = x.GetFormattedBreadCrumb(allCategories, ">")
             }));
 
-            var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByKeyword(keyword);
+            var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByKeyword(keyword,
+                _contextAccessor.CatalogAccess());
             foreach (var item in articles)
             {
                 var kbm = new KnowledgebaseItemModel {
@@ -170,7 +176,8 @@ public class KnowledgebaseController : BasePublicController
                     SeName = item.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id),
                     IsArticle = true,
                     FormattedBreadcrumbs =
-                        (await _knowledgebaseService.GetPublicKnowledgebaseCategory(item.ParentCategoryId))
+                        (await _knowledgebaseService.GetPublicKnowledgebaseCategory(item.ParentCategoryId,
+                            _contextAccessor.CatalogAccess()))
                         ?.GetFormattedBreadCrumb(allCategories, ">") +
                         " > " + item.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
                 };
@@ -253,7 +260,7 @@ public class KnowledgebaseController : BasePublicController
 
         foreach (var id in article.RelatedArticles)
         {
-            var a = await _knowledgebaseService.GetPublicKnowledgebaseArticle(id);
+            var a = await _knowledgebaseService.GetPublicKnowledgebaseArticle(id, _contextAccessor.CatalogAccess());
             if (a != null)
                 model.RelatedArticles.Add(new KnowledgebaseArticleModel {
                     SeName = a.SeName,
@@ -290,7 +297,8 @@ public class KnowledgebaseController : BasePublicController
         if (!_knowledgebaseSettings.Enabled)
             return RedirectToRoute("HomePage");
 
-        var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(model.ArticleId);
+        var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(model.ArticleId,
+            _contextAccessor.CatalogAccess());
         if (article is not { AllowComments: true })
             return RedirectToRoute("HomePage");
 

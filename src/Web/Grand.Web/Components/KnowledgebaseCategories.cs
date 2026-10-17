@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +28,7 @@ public class KnowledgebaseCategories : BaseViewComponent
         if (!_knowledgebaseSettings.Enabled)
             return Content("");
 
-        var categories = await _knowledgebaseService.GetPublicKnowledgebaseCategories();
+        var categories = await _knowledgebaseService.GetPublicKnowledgebaseCategories(_contextAccessor.CatalogAccess());
 
         foreach (var category in categories)
         {

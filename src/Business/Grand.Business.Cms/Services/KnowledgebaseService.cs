@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -22,7 +22,6 @@ public class KnowledgebaseService : IKnowledgebaseService
     private readonly IRepository<KnowledgebaseArticle> _knowledgebaseArticleRepository;
     private readonly IRepository<KnowledgebaseCategory> _knowledgebaseCategoryRepository;
     private readonly IMediator _mediator;
-    private readonly IContextAccessor _contextAccessor;
 
     /// <summary>
     ///     Ctor
@@ -32,28 +31,29 @@ public class KnowledgebaseService : IKnowledgebaseService
         IRepository<KnowledgebaseArticle> knowledgebaseArticleRepository,
         IRepository<KnowledgebaseArticleComment> articleCommentRepository,
         IMediator mediator,
-        IContextAccessor contextAccessor,
         ICacheBase cacheBase, AccessControlConfig accessControlConfig)
     {
         _knowledgebaseCategoryRepository = knowledgebaseCategoryRepository;
         _knowledgebaseArticleRepository = knowledgebaseArticleRepository;
         _articleCommentRepository = articleCommentRepository;
         _mediator = mediator;
-        _contextAccessor = contextAccessor;
         _cacheBase = cacheBase;
         _accessControlConfig = accessControlConfig;
     }
 
-    private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
+    private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query, CatalogAccess access)
+        where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     {
-        return ApplyStandardFilter(query, _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds(),
-            _contextAccessor.StoreContext.CurrentStore.Id);
+        ArgumentNullException.ThrowIfNull(access);
+        return ApplyStandardFilter(query, access.ShowHidden ? null : access.Customer.GetCustomerGroupIds(),
+            access.StoreId);
     }
 
+    //null group ids skip the group filter
     private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query, string[] allowedCustomerGroupsIds,
         string storeId) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     {
-        if (!_accessControlConfig.IgnoreAcl)
+        if (allowedCustomerGroupsIds != null && !_accessControlConfig.IgnoreAcl)
         {
             query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
@@ -70,12 +70,13 @@ public class KnowledgebaseService : IKnowledgebaseService
         return query;
     }
 
-    private string GetCacheKey(string format, params object[] additionalParams)
+    private static string GetCacheKey(string format, CatalogAccess access, params object[] additionalParams)
     {
+        ArgumentNullException.ThrowIfNull(access);
         var standardParams = new[]
         {
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
-            _contextAccessor.StoreContext.CurrentStore.Id
+            access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()),
+            access.StoreId
         };
 
         var allParams = additionalParams != null
@@ -132,9 +133,9 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base category</returns>
-    public virtual async Task<KnowledgebaseCategory> GetPublicKnowledgebaseCategory(string id)
+    public virtual async Task<KnowledgebaseCategory> GetPublicKnowledgebaseCategory(string id, CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.KNOWLEDGEBASE_CATEGORY_BY_ID, id);
+        var key = GetCacheKey(CacheKey.KNOWLEDGEBASE_CATEGORY_BY_ID, access, id);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -143,7 +144,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = query.Where(x => x.Published);
             query = query.Where(x => x.Id == id);
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
             var toReturn = await _knowledgebaseCategoryRepository.FirstOrDefaultAsync(query);
             return toReturn;
         });
@@ -251,9 +252,9 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets public(published etc) knowledge base categories
     /// </summary>
     /// <returns>List of public knowledgebase categories</returns>
-    public virtual async Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategories()
+    public virtual async Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategories(CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.KNOWLEDGEBASE_CATEGORIES);
+        var key = GetCacheKey(CacheKey.KNOWLEDGEBASE_CATEGORIES, access);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -262,7 +263,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = query.Where(x => x.Published);
 
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
             query = query.OrderBy(x => x.DisplayOrder);
             return (await _knowledgebaseCategoryRepository.ToListAsync(query)).ToList();
         });
@@ -272,9 +273,9 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets public(published etc) knowledge base articles
     /// </summary>
     /// <returns>List of public knowledge base articles</returns>
-    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles()
+    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.ARTICLES);
+        var key = GetCacheKey(CacheKey.ARTICLES, access);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -282,7 +283,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                         select p;
 
             query = query.Where(x => x.Published);
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
 
             query = query.OrderBy(x => x.DisplayOrder);
             return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
@@ -312,9 +313,9 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets knowledge base article if it is published etc
     /// </summary>
     /// <returns>knowledge base article</returns>
-    public virtual async Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id)
+    public virtual async Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id, CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.ARTICLE_BY_ID, id);
+        var key = GetCacheKey(CacheKey.ARTICLE_BY_ID, access, id);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -323,7 +324,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = query.Where(x => x.Published);
             query = query.Where(x => x.Id == id);
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
             return await _knowledgebaseArticleRepository.FirstOrDefaultAsync(query);
         });
     }
@@ -332,9 +333,10 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets public(published etc) knowledge base articles for category id
     /// </summary>
     /// <returns>List of public knowledge base articles</returns>
-    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByCategory(string categoryId)
+    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByCategory(string categoryId,
+        CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.ARTICLES_BY_CATEGORY_ID, categoryId);
+        var key = GetCacheKey(CacheKey.ARTICLES_BY_CATEGORY_ID, access, categoryId);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -344,7 +346,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             query = query.Where(x => x.Published);
             query = query.Where(x => x.ParentCategoryId == categoryId);
 
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
             query = query.OrderBy(x => x.DisplayOrder);
             return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
@@ -354,9 +356,10 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets public(published etc) knowledge base articles for keyword
     /// </summary>
     /// <returns>List of public knowledge base articles</returns>
-    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByKeyword(string keyword)
+    public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByKeyword(string keyword,
+        CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.ARTICLES_BY_KEYWORD, keyword);
+        var key = GetCacheKey(CacheKey.ARTICLES_BY_KEYWORD, access, keyword);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -369,7 +372,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                 p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
                 || p.Name.ToLower().Contains(keyword.ToLower()) || p.Content.ToLower().Contains(keyword.ToLower()));
 
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
             query = query.OrderBy(x => x.DisplayOrder);
             return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
@@ -379,9 +382,10 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets public(published etc) knowledge base categories for keyword
     /// </summary>
     /// <returns>List of public knowledge base categories</returns>
-    public virtual async Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategoriesByKeyword(string keyword)
+    public virtual async Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategoriesByKeyword(string keyword,
+        CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.KNOWLEDGEBASE_CATEGORIES_BY_KEYWORD, keyword);
+        var key = GetCacheKey(CacheKey.KNOWLEDGEBASE_CATEGORIES_BY_KEYWORD, access, keyword);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -394,7 +398,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                 p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
                 || p.Name.ToLower().Contains(keyword.ToLower()) || p.Description.ToLower().Contains(keyword.ToLower()));
 
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
             query = query.OrderBy(x => x.DisplayOrder);
             return (await _knowledgebaseCategoryRepository.ToListAsync(query)).ToList();
         });
@@ -404,9 +408,9 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets homepage knowledge base articles
     /// </summary>
     /// <returns>List of homepage knowledge base articles</returns>
-    public virtual async Task<List<KnowledgebaseArticle>> GetHomepageKnowledgebaseArticles()
+    public virtual async Task<List<KnowledgebaseArticle>> GetHomepageKnowledgebaseArticles(CatalogAccess access)
     {
-        var key = GetCacheKey(CacheKey.HOMEPAGE_ARTICLES);
+        var key = GetCacheKey(CacheKey.HOMEPAGE_ARTICLES, access);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -415,7 +419,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = query.Where(x => x.Published);
             query = query.Where(x => x.ShowOnHomepage);
-            query = ApplyStandardFilter(query);
+            query = ApplyStandardFilter(query, access);
             query = query.OrderBy(x => x.DisplayOrder);
             return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
         });
