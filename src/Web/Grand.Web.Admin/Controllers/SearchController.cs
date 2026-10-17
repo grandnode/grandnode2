@@ -143,8 +143,9 @@ public class SearchController : BaseSearchController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInNews)
             {
-                var news = await _newsService.GetAllNews(storeId: "", newsTitle: searchTerm,
-                    pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
+                var news = await _newsService.GetAllNews(
+                    CatalogAccess.For(_contextAccessor.WorkContext.CurrentCustomer, ""), newsTitle: searchTerm,
+                    pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, includeUnpublished: true);
                 foreach (var signleNews in news)
                     result.Add(new Tuple<object, int>(new
                     {

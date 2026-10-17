@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.News;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.AdminShared.Extensions;
@@ -49,7 +50,8 @@ public class NewsViewModelService : INewsViewModelService
     public virtual async Task<(IEnumerable<NewsItemModel> newsItemModels, int totalCount)> PrepareNewsItemModel(
         NewsItemListModel model, int pageIndex, int pageSize)
     {
-        var news = await _newsService.GetAllNews(model.SearchStoreId, pageIndex - 1, pageSize, true, true, model.SearchNewsTitle);
+        var news = await _newsService.GetAllNews(CatalogAccess.IncludingHidden(model.SearchStoreId), pageIndex - 1, pageSize,
+            includeUnpublished: true, newsTitle: model.SearchNewsTitle);
         return (news.Select(x =>
         {
             var m = x.ToModel(_dateTimeService);

@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.News;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
@@ -19,11 +19,10 @@ public class NewsService : INewsService
 
     public NewsService(IRepository<NewsItem> newsItemRepository,
         IMediator mediator,
-        IContextAccessor contextAccessor, AccessControlConfig accessControlConfig)
+        AccessControlConfig accessControlConfig)
     {
         _newsItemRepository = newsItemRepository;
         _mediator = mediator;
-        _contextAccessor = contextAccessor;
         _accessControlConfig = accessControlConfig;
     }
 
@@ -33,7 +32,6 @@ public class NewsService : INewsService
 
     private readonly IRepository<NewsItem> _newsItemRepository;
     private readonly IMediator _mediator;
-    private readonly IContextAccessor _contextAccessor;
     private readonly AccessControlConfig _accessControlConfig;
 
     #endregion
@@ -53,24 +51,29 @@ public class NewsService : INewsService
     /// <summary>
     ///     Gets all news
     /// </summary>
-    /// <param name="storeId">Store identifier; 0 if you want to get all records</param>
+    /// <param name="access">
+    ///     Whose news: the customer's groups limit them unless hidden ones are included; an empty store id loads
+    ///     the news of every store
+    /// </param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="ignoreAcl"></param>
-    /// <param name="showHidden">A value indicating whether to show hidden records</param>
+    /// <param name="includeUnpublished">A value indicating whether to include unpublished and out-of-date news</param>
     /// <param name="newsTitle">News title</param>
     /// <returns>News items</returns>
-    public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool ignoreAcl = false, bool showHidden = false,
-        string newsTitle = "")
+    public virtual async Task<IPagedList<NewsItem>> GetAllNews(CatalogAccess access,
+        int pageIndex = 0, int pageSize = int.MaxValue, bool includeUnpublished = false, string newsTitle = "")
     {
+        ArgumentNullException.ThrowIfNull(access);
+
+        var storeId = access.StoreId;
+        var ignoreAcl = access.ShowHidden;
         var query = from p in _newsItemRepository.Table
             select p;
 
         if (!string.IsNullOrWhiteSpace(newsTitle))
             query = query.Where(n => n.Title != null && n.Title.ToLower().Contains(newsTitle.ToLower()));
 
-        if (!showHidden)
+        if (!includeUnpublished)
         {
             var utcNow = DateTime.UtcNow;
             query = query.Where(n => n.Published);
@@ -83,7 +86,7 @@ public class NewsService : INewsService
         {
             if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;

@@ -7,6 +7,7 @@ using Grand.Domain.Media;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.Media;
@@ -49,7 +50,7 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
         var model = await _cacheBase.GetAsync(cacheKey, async () =>
         {
             var newsItems =
-                await _newsService.GetAllNews(CurrentStoreId, 0, _newsSettings.MainPageNewsCount);
+                await _newsService.GetAllNews(_contextAccessor.CatalogAccess(), 0, _newsSettings.MainPageNewsCount);
             var hpnitemodel = new HomePageNewsItemsModel();
             foreach (var item in newsItems)
             {

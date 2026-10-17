@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.News;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
@@ -93,8 +94,8 @@ public class BaseNewsControllerTests
         await _controller.List(new DataSourceRequest { Page = 1, PageSize = 10 }, new NewsItemListModel());
 
         _newsViewModelServiceMock.Verify(v => v.PrepareNewsItemModel(It.IsAny<NewsItemListModel>(), 1, 10), Times.Once);
-        _newsServiceMock.Verify(s => s.GetAllNews(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
-            It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+        _newsServiceMock.Verify(s => s.GetAllNews(It.IsAny<CatalogAccess>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
