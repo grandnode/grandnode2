@@ -157,8 +157,7 @@ public class ContactAttributeParser : IContactAttributeParser
     /// </summary>
     /// <param name="language">Language</param>
     /// <param name="customAttributes">Attributes </param>
-    /// <param name="customer">Customer</param>
-    /// <param name="host">Store host the file upload links point to; without one no link is rendered</param>
+    /// <param name="host">Store host the file upload links point to; without one the file is named but not linked</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
@@ -166,7 +165,6 @@ public class ContactAttributeParser : IContactAttributeParser
     public virtual async Task<string> FormatAttributes(
         Language language,
         IList<CustomAttribute> customAttributes,
-        Customer customer,
         DomainHost host,
         string separator = "<br />",
         bool htmlEncode = true,
@@ -208,12 +206,21 @@ public class ContactAttributeParser : IContactAttributeParser
                             {
                                 var attributeText = string.Empty;
                                 var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
-                                if (allowHyperlinks && host != null)
+                                if (allowHyperlinks)
                                 {
-                                    var downloadLink =
-                                        $"{host.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
-                                    attributeText =
-                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, language.Id)}</a>";
+                                    var textPrompt = attribute.GetTranslation(a => a.TextPrompt, language.Id);
+                                    if (host != null)
+                                    {
+                                        var downloadLink =
+                                            $"{host.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                        attributeText =
+                                            $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{textPrompt}</a>";
+                                    }
+                                    else
+                                    {
+                                        //without a host the file cannot be linked, so name it instead of dropping it
+                                        attributeText = $"{textPrompt} ({downloadGuid})";
+                                    }
                                 }
 
                                 formattedAttribute = $"{attributeName}: {attributeText}";

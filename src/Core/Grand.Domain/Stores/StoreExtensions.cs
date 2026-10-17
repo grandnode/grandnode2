@@ -33,4 +33,19 @@ public static class StoreExtensions
             ? null
             : store.Domains.FirstOrDefault(x => x.HostName.Equals(host, StringComparison.OrdinalIgnoreCase));
     }
+
+    /// <summary>
+    ///     Return the host links to a store point to: its primary domain, else its first domain, else its url
+    /// </summary>
+    /// <param name="store">Store</param>
+    /// <returns>DomainHost</returns>
+    public static DomainHost PrimaryHost(this Store store)
+    {
+        ArgumentNullException.ThrowIfNull(store);
+        return store.Domains?.FirstOrDefault(x => x.Primary) ?? store.Domains?.FirstOrDefault() ?? new DomainHost {
+            Id = int.MinValue.ToString(),
+            Url = store.Url,
+            HostName = "temporary-store"
+        };
+    }
 }

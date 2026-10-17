@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Stores;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Models.Contact;
@@ -37,8 +38,7 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
 
         request.Model.ContactAttribute = attributes;
         request.Model.ContactAttributeInfo =
-            await _contactAttributeParser.FormatAttributes(request.Language, attributes, request.Customer,
-                request.Host);
+            await _contactAttributeParser.FormatAttributes(request.Language, attributes, request.Store.PrimaryHost());
         request.Model = await SendContactUs(request);
 
         return request.Model;

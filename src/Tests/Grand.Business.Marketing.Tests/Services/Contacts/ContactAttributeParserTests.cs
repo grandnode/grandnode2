@@ -124,7 +124,7 @@ public class ContactAttributeParserTests
         var result = await _parser.FormatAttributes(new Language(),
             new List<CustomAttribute> {
                 new() { Key = "key1", Value = "value1" }
-            }, new Customer(), null);
+            }, null);
         Assert.AreEqual("name1: value1", result);
     }
 
@@ -137,11 +137,13 @@ public class ContactAttributeParserTests
     }
 
     [TestMethod]
-    public async Task FormatAttributes_FileUploadWithoutHost_RendersNoLink()
+    public async Task FormatAttributes_FileUploadWithoutHost_NamesTheFileWithoutALink()
     {
-        var result = await FormatFileUpload(null);
+        var downloadGuid = Guid.NewGuid();
 
-        Assert.AreEqual("file: ", result);
+        var result = await FormatFileUpload(null, downloadGuid);
+
+        Assert.AreEqual($"file: download ({downloadGuid})", result);
     }
 
     [TestMethod]
@@ -158,13 +160,13 @@ public class ContactAttributeParserTests
         Assert.AreEqual("text", result[0].Value);
     }
 
-    private async Task<string> FormatFileUpload(DomainHost host)
+    private async Task<string> FormatFileUpload(DomainHost host, Guid? downloadGuid = null)
     {
         var attribute = new ContactAttribute {
             Id = "file", Name = "file", TextPrompt = "download", AttributeControlType = AttributeControlType.FileUpload
         };
         _contactAttributeServiceMock.Setup(c => c.GetContactAttributeById("file")).ReturnsAsync(attribute);
         return await _parser.FormatAttributes(new Language(),
-            [new CustomAttribute { Key = "file", Value = Guid.NewGuid().ToString() }], new Customer(), host);
+            [new CustomAttribute { Key = "file", Value = (downloadGuid ?? Guid.NewGuid()).ToString() }], host);
     }
 }

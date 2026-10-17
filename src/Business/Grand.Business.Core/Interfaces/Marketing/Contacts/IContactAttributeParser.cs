@@ -57,8 +57,7 @@ public interface IContactAttributeParser
     /// </summary>
     /// <param name="language">Language</param>
     /// <param name="customAttributes">Attributes </param>
-    /// <param name="customer">Customer</param>
-    /// <param name="host">Store host the file upload links point to; without one no link is rendered</param>
+    /// <param name="host">Store host the file upload links point to; without one the file is named but not linked</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
@@ -66,7 +65,6 @@ public interface IContactAttributeParser
     Task<string> FormatAttributes(
         Language language,
         IList<CustomAttribute> customAttributes,
-        Customer customer,
         DomainHost host,
         string separator = "<br />",
         bool htmlEncode = true,

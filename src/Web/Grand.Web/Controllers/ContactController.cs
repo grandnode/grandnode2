@@ -79,7 +79,6 @@ public class ContactController : BasePublicController
                 Customer = _contextAccessor.WorkContext.CurrentCustomer,
                 Store = _contextAccessor.StoreContext.CurrentStore,
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
-                Host = _contextAccessor.StoreContext.CurrentHost,
                 Model = model,
                 IpAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString()
             });

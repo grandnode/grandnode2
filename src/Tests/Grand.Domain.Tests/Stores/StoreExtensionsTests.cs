@@ -29,6 +29,28 @@ public class StoreExtensionsTests
     }
 
     [TestMethod]
+    public void PrimaryHost_ReturnsThePrimaryDomain()
+    {
+        store.Domains[1].Primary = true;
+
+        Assert.AreEqual("yahoo.com", store.PrimaryHost().HostName);
+    }
+
+    [TestMethod]
+    public void PrimaryHost_WithoutAPrimaryDomain_ReturnsTheFirstDomain()
+    {
+        Assert.AreEqual("google.com", store.PrimaryHost().HostName);
+    }
+
+    [TestMethod]
+    public void PrimaryHost_WithoutDomains_FallsBackToTheStoreUrl()
+    {
+        var withoutDomains = new Store { Url = "https://shop.example/", Domains = null };
+
+        Assert.AreEqual("https://shop.example/", withoutDomains.PrimaryHost().Url);
+    }
+
+    [TestMethod]
     public void HostValueTest_NotNull()
     {
         Assert.IsNotNull(store.HostValue("yAhoO.com"));

@@ -11,7 +11,6 @@ public class ContactUsSendCommand : IRequest<ContactUsModel>
     public Customer Customer { get; set; }
     public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
-    public DomainHost Host { get; set; }
     public ContactUsModel Model { get; set; }
     public string IpAddress { get; set; }
 }
