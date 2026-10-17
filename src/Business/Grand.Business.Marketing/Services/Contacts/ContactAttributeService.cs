@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -24,12 +24,11 @@ public class ContactAttributeService : IContactAttributeService
     public ContactAttributeService(ICacheBase cacheBase,
         IRepository<ContactAttribute> contactAttributeRepository,
         IMediator mediator,
-        IContextAccessor contextAccessor, AccessControlConfig accessControlConfig)
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _contactAttributeRepository = contactAttributeRepository;
         _mediator = mediator;
-        _contextAccessor = contextAccessor;
         _accessControlConfig = accessControlConfig;
     }
 
@@ -40,7 +39,6 @@ public class ContactAttributeService : IContactAttributeService
     private readonly IRepository<ContactAttribute> _contactAttributeRepository;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
-    private readonly IContextAccessor _contextAccessor;
     private readonly AccessControlConfig _accessControlConfig;
 
     #endregion
@@ -69,13 +67,16 @@ public class ContactAttributeService : IContactAttributeService
     /// <summary>
     ///     Gets all contact attributes
     /// </summary>
-    /// <param name="storeId">Store identifier</param>
-    /// <param name="ignoreAcl"></param>
+    /// <param name="access">Customer whose groups limit the result and the store, or every attribute of the store</param>
     /// <returns>Contact attributes</returns>
-    public virtual async Task<IList<ContactAttribute>> GetAllContactAttributes(string storeId = "",
-        bool ignoreAcl = false)
+    public virtual async Task<IList<ContactAttribute>> GetAllContactAttributes(CatalogAccess access)
     {
-        var key = string.Format(CacheKey.CONTACTATTRIBUTES_ALL_KEY, storeId, ignoreAcl);
+        ArgumentNullException.ThrowIfNull(access);
+
+        var applyAcl = !access.ShowHidden && !_accessControlConfig.IgnoreAcl;
+        var allowedCustomerGroupsIds = applyAcl ? access.Customer.GetCustomerGroupIds() : [];
+        var key = string.Format(CacheKey.CONTACTATTRIBUTES_ALL_KEY, access.StoreId, access.ShowHidden,
+            string.Join(",", allowedCustomerGroupsIds));
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _contactAttributeRepository.Table
@@ -83,21 +84,15 @@ public class ContactAttributeService : IContactAttributeService
 
             query = query.OrderBy(c => c.DisplayOrder);
 
-            if ((string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations) &&
-                (ignoreAcl || _accessControlConfig.IgnoreAcl))
-                return await _contactAttributeRepository.ToListAsync(query);
-            if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
-            {
-                var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+            if (applyAcl)
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
-            }
 
             //Store acl
-            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+            if (!string.IsNullOrEmpty(access.StoreId) && !_accessControlConfig.IgnoreStoreLimitations)
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(storeId)
+                    where !p.LimitedToStores || p.Stores.Contains(access.StoreId)
                     select p;
             return await _contactAttributeRepository.ToListAsync(query);
         });

@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Web.Commands.Models.Contact;
@@ -26,7 +27,7 @@ public class ContactAttributeChangeCommandHandler : IRequestHandler<ContactAttri
 
         var enabledAttributeIds = new List<string>();
         var disabledAttributeIds = new List<string>();
-        var attributes = await _contactAttributeService.GetAllContactAttributes(request.Store.Id);
+        var attributes = await _contactAttributeService.GetAllContactAttributes(CatalogAccess.For(request.Customer, request.Store.Id));
         foreach (var attribute in attributes)
         {
             var conditionMet = await _contactAttributeParser.IsConditionMet(attribute, customAttributes);
@@ -43,7 +44,7 @@ public class ContactAttributeChangeCommandHandler : IRequestHandler<ContactAttri
     private async Task<IList<CustomAttribute>> ParseContactAttributes(ContactAttributeChangeCommand request)
     {
         var customAttributes = new List<CustomAttribute>();
-        var contactAttributes = await _contactAttributeService.GetAllContactAttributes(request.Store.Id);
+        var contactAttributes = await _contactAttributeService.GetAllContactAttributes(CatalogAccess.For(request.Customer, request.Store.Id));
         foreach (var attribute in contactAttributes)
             switch (attribute.AttributeControlType)
             {

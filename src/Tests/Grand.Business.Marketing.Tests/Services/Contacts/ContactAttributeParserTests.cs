@@ -1,12 +1,13 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Marketing.Services.Contacts;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Messages;
-using Grand.Infrastructure;
+using Grand.Domain.Stores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -18,20 +19,18 @@ public class ContactAttributeParserTests
     private List<ContactAttribute> _contactAtr;
     private Mock<IContactAttributeService> _contactAttributeServiceMock;
     private ContactAttributeParser _parser;
-    private Mock<IContextAccessor> _workContextMock;
     private List<CustomAttribute> customAtr;
 
     [TestInitialize]
     public void Init()
     {
         _contactAttributeServiceMock = new Mock<IContactAttributeService>();
-        _workContextMock = new Mock<IContextAccessor>();
         var _translationServiceMock = new Mock<ITranslationService>();
         {
             _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Warning{0}");
         }
 
-        _parser = new ContactAttributeParser(_contactAttributeServiceMock.Object, _workContextMock.Object);
+        _parser = new ContactAttributeParser(_contactAttributeServiceMock.Object);
         customAtr = [
             new CustomAttribute { Key = "key1", Value = "value1" },
             new CustomAttribute { Key = "key2", Value = "value2" },
@@ -120,14 +119,52 @@ public class ContactAttributeParserTests
     [TestMethod]
     public async Task FormatAttributesTest()
     {
-        _contactAttributeServiceMock.Setup(c => c.GetAllContactAttributes("", false))
-            .Returns(() => Task.FromResult((IList<ContactAttribute>)_contactAtr));
         _contactAttributeServiceMock.Setup(c => c.GetContactAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_contactAtr.FirstOrDefault(a => a.Id.Equals(w))));
         var result = await _parser.FormatAttributes(new Language(),
             new List<CustomAttribute> {
                 new() { Key = "key1", Value = "value1" }
-            }, new Customer());
+            }, new Customer(), null);
         Assert.AreEqual("name1: value1", result);
+    }
+
+    [TestMethod]
+    public async Task FormatAttributes_FileUpload_LinksToTheGivenHost()
+    {
+        var result = await FormatFileUpload(new DomainHost { Url = "https://shop.example/" });
+
+        StringAssert.Contains(result, "href=\"https://shop.example/download/getfileupload/?downloadId=");
+    }
+
+    [TestMethod]
+    public async Task FormatAttributes_FileUploadWithoutHost_RendersNoLink()
+    {
+        var result = await FormatFileUpload(null);
+
+        Assert.AreEqual("file: ", result);
+    }
+
+    [TestMethod]
+    public async Task GetParseContactAttributes_ReadsTheAttributesOfTheGivenAccess()
+    {
+        var access = CatalogAccess.For(new Customer(), "store1");
+        _contactAttributeServiceMock.Setup(c => c.GetAllContactAttributes(access))
+            .ReturnsAsync(_contactAtr.Take(1).ToList());
+
+        var result = await _parser.GetParseContactAttributes(
+            [new CustomAttribute { Key = "key1", Value = " text " }], access);
+
+        Assert.HasCount(1, result);
+        Assert.AreEqual("text", result[0].Value);
+    }
+
+    private async Task<string> FormatFileUpload(DomainHost host)
+    {
+        var attribute = new ContactAttribute {
+            Id = "file", Name = "file", TextPrompt = "download", AttributeControlType = AttributeControlType.FileUpload
+        };
+        _contactAttributeServiceMock.Setup(c => c.GetContactAttributeById("file")).ReturnsAsync(attribute);
+        return await _parser.FormatAttributes(new Language(),
+            [new CustomAttribute { Key = "file", Value = Guid.NewGuid().ToString() }], new Customer(), host);
     }
 }

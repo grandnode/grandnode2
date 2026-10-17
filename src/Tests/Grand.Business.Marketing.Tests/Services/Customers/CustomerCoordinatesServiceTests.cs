@@ -3,8 +3,6 @@ using Grand.Business.Marketing.Services.Customers;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -14,36 +12,27 @@ namespace Grand.Business.Marketing.Tests.Services.Customers;
 [TestClass]
 public class CustomerCoordinatesServiceTests
 {
-    private Customer _customer;
     private CustomerCoordinatesService _customerCoordinatesService;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Customer> _repository;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IContextAccessor>();
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
-        _customer = new Customer();
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => _customer);
 
-        _customerCoordinatesService =
-            new CustomerCoordinatesService(_repository, _workContextMock.Object, _mediatorMock.Object);
+        _customerCoordinatesService = new CustomerCoordinatesService(_repository, _mediatorMock.Object);
     }
 
     [TestMethod]
-    public async Task GetGeoCoordinateTest_WorkContext()
+    public async Task GetGeoCoordinateTest_CustomerWithoutCoordinates_ReturnsZero()
     {
-        //Arrange
-        await _customerCoordinatesService.SaveGeoCoordinate(1, 2);
         //Act
-        var result = await _customerCoordinatesService.GetGeoCoordinate();
+        var result = await _customerCoordinatesService.GetGeoCoordinate(new Customer());
         //Assert
-        Assert.AreEqual(1, result.longitude);
-        Assert.AreEqual(2, result.latitude);
+        Assert.AreEqual(0, result.longitude);
+        Assert.AreEqual(0, result.latitude);
     }
 
     [TestMethod]
@@ -71,17 +60,6 @@ public class CustomerCoordinatesServiceTests
         //Assert
         Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Coordinates.X);
         Assert.AreEqual(2, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Coordinates.Y);
-        _mediatorMock.Verify(c => c.Publish(It.IsAny<CustomerCoordinatesEvent>(), default), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task SaveGeoCoordinateTest_WorkContext()
-    {
-        //Act
-        await _customerCoordinatesService.SaveGeoCoordinate(1, 2);
-        //Assert
-        Assert.AreEqual(1, _workContextMock.Object.WorkContext.CurrentCustomer.Coordinates.X);
-        Assert.AreEqual(2, _workContextMock.Object.WorkContext.CurrentCustomer.Coordinates.Y);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<CustomerCoordinatesEvent>(), default), Times.Once);
     }
 }
