@@ -52,7 +52,7 @@ public class ShoppingCartStandardValidator : AbstractValidator<ShoppingCartStand
         RuleFor(x => x).Custom((value, context) =>
         {
             if (!value.Product.Published)
-                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished", value.Language.Id));
         });
     }
 }

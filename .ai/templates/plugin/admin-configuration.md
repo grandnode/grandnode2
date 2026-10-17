@@ -35,6 +35,7 @@ using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Helpers;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using {SystemName}.Models;
@@ -47,12 +48,12 @@ namespace {SystemName}.Areas.Admin.Controllers;
 public class {ControllerName}Controller : Base{Kind}Controller
 {
     private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IAdminStoreService _adminStoreService;
 
     public {ControllerName}Controller(
         ISettingService settingService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminStoreService adminStoreService)
     {
         _settingService = settingService;

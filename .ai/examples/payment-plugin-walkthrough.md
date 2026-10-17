@@ -47,7 +47,7 @@ public static class CashOnDeliveryPaymentDefaults
 Three constants, referenced everywhere else:
 
 - `ProviderSystemName` → the manifest's `SystemName`, the provider's `SystemName`, and the output folder. All three must agree; the system name is the plugin's persisted identity and cannot change after release.
-- `FriendlyName` is a **resource key**, not a display string. The provider resolves it through `ITranslationService`.
+- `FriendlyName` is a **resource key**, not a display string. The provider resolves it through `IRequestTranslationService`.
 - `ConfigurationUrl` must match the admin controller's actual route, or the admin's *Configure* link 404s.
 
 The manifest points back at the constant:
@@ -67,7 +67,7 @@ The manifest points back at the constant:
 public class CashOnDeliveryPaymentProvider : IPaymentProvider
 {
     public CashOnDeliveryPaymentProvider(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IHttpContextAccessor httpContextAccessor,
         CashOnDeliveryPaymentSettings cashOnDeliveryPaymentSettings)
     { … }
@@ -85,7 +85,7 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
 Points worth copying:
 
 - **The settings class is injected directly.** GrandNode registers `ISettings` implementations in DI — do not resolve them through `ISettingService` inside a provider.
-- **`FriendlyName` goes through `ITranslationService`.** A literal here cannot be translated and cannot be changed by an operator.
+- **`FriendlyName` goes through `IRequestTranslationService`.** A literal here cannot be translated and cannot be changed by an operator.
 - **`Priority` comes from `DisplayOrder`**, so operators control ordering from the admin screen.
 - **`LimitedToStores` / `LimitedToGroups`** are the scoping hooks from `.ai/knowledge/scoping.md`. Returning empty lists means "available everywhere".
 
@@ -206,6 +206,6 @@ A Release output path missing means the plugin silently disappears from release 
 1. Host starts → assembly scan finds `StartupApplication` → `IPaymentProvider` registered.
 2. Plugin marked installed → `Install()` seeded settings and resource keys.
 3. Checkout asks for available payment providers → this one appears, ordered by `Priority`, filtered by `LimitedToStores` / `LimitedToGroups`.
-4. Its name renders through `FriendlyName` → `ITranslationService` → the resource key installed in step 2.
+4. Its name renders through `FriendlyName` → `IRequestTranslationService` → the resource key installed in step 2.
 5. Operator clicks *Configure* → `ConfigurationUrl` → admin controller → settings loaded for the active store.
 6. Customer selects it → `ProcessPayment` → `TransactionStatus.Pending`.

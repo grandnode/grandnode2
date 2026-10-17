@@ -34,7 +34,7 @@ Do not use this skill for shipping method domain data (managed via `IShippingMet
 | `ShippingRateCalculationType` | `ShippingRateCalculationType.Off` for pre-configured rates; `ShippingRateCalculationType.Real` for live API rates. |
 | `ShipmentTracker` | Return `null` if shipment tracking is not supported; return an `IShipmentTracker` implementation otherwise. |
 
-3. Resolve `FriendlyName` through `ITranslationService.GetResource(Defaults.FriendlyName)` so it is localizable.
+3. Resolve `FriendlyName` through `IRequestTranslationService.GetResource(Defaults.FriendlyName)` so it is localizable.
 4. Resolve `Priority` from the plugin settings `DisplayOrder` property.
 5. Use `IShippingMethodService.GetAllShippingMethods(restrictByCountryId, customer, storeId)` to iterate over admin-configured methods and build a `ShippingOption` for each.
 6. Set `ShippingOption.Name` and `ShippingOption.Description` using `shippingMethod.GetTranslation(x => x.Name, languageId)`.
