@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Blogs;
 using Grand.Domain.Common;
@@ -63,7 +64,7 @@ public class GetSitemapHandlerTests
     [TestMethod]
     public async Task Handle_ListsOnlyPublishedPagesIncludedInSitemap()
     {
-        _pageServiceMock.Setup(s => s.GetAllPages("store-1", It.IsAny<bool>())).ReturnsAsync(new List<Page> {
+        _pageServiceMock.Setup(s => s.GetAllPages(It.Is<CatalogAccess>(a => a.StoreId == "store-1"))).ReturnsAsync(new List<Page> {
             CreatePage("published", true, true),
             CreatePage("unpublished", false, true),
             CreatePage("hidden", true, false)

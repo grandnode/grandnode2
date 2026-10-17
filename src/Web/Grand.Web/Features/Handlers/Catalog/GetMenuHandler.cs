@@ -68,7 +68,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
 
         //top menu pages
         var now = DateTime.UtcNow;
-        var pageModel = (await _pageService.GetAllPages(request.Store.Id))
+        var pageModel = (await _pageService.GetAllPages(CatalogAccess.For(request.Customer, request.Store.Id)))
             .PreferStoreOverrides(request.Store.Id)
             .Where(t => t.Published && t.IncludeInMenu && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                         (!t.EndDateUtc.HasValue || t.EndDateUtc > now))

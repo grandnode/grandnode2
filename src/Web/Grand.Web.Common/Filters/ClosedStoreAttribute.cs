@@ -4,6 +4,7 @@ using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -91,7 +92,7 @@ public class ClosedStoreAttribute : TypeFilterAttribute
             {
                 //get identifiers of pages are accessible when a store is closed
                 var now = DateTime.UtcNow;
-                var allowedPageIds = (await pageService.GetAllPages(contextAccessor.StoreContext.CurrentStore.Id))
+                var allowedPageIds = (await pageService.GetAllPages(contextAccessor.CatalogAccess()))
                     .Where(t => t.AccessibleWhenStoreClosed &&
                                 (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                                 (!t.EndDateUtc.HasValue || t.EndDateUtc > now))

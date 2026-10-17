@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Pages;
 
 namespace Grand.Business.Core.Interfaces.Cms;
@@ -25,10 +26,12 @@ public interface IPageService
     /// <summary>
     ///     Gets all pages
     /// </summary>
-    /// <param name="storeId">Store identifier; pass "" to load all records</param>
-    /// <param name="ignoreAcl"></param>
+    /// <param name="access">
+    ///     Whose pages: the customer's groups limit them unless hidden ones are included; an empty store id loads
+    ///     the pages of every store
+    /// </param>
     /// <returns>Pages</returns>
-    Task<IList<Page>> GetAllPages(string storeId, bool ignoreAcl = false);
+    Task<IList<Page>> GetAllPages(CatalogAccess access);
 
     /// <summary>
     ///     Inserts a page

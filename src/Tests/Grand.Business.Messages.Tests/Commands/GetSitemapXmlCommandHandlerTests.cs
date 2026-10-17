@@ -66,7 +66,7 @@ public class GetSitemapXmlCommandHandlerTests
             .ReturnsAsync(new PagedList<Category>());
         _brandServiceMock.Setup(x => x.GetAllBrands("", CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Brand>());
-        _pageServiceMock.Setup(x => x.GetAllPages(StoreId, true)).ReturnsAsync(new List<Page>());
+        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Page>());
         _knowledgebaseServiceMock.Setup(x => x.GetPublicKnowledgebaseArticles(StoreId,
                 It.Is<IList<string>>(g => g.SequenceEqual(new[] { GuestsGroupId }))))
             .ReturnsAsync(new List<KnowledgebaseArticle>());
@@ -103,7 +103,7 @@ public class GetSitemapXmlCommandHandlerTests
     public async Task Handle_WhenPagesIncludedInSitemap_WritesNonEmptyPageLocations()
     {
         //Arrange
-        _pageServiceMock.Setup(x => x.GetAllPages(StoreId, true)).ReturnsAsync(new List<Page> {
+        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Page> {
             new() { Id = "1", SystemName = "AboutUs", SeName = "about-us", Published = true, IncludeInSitemap = true },
             new() { Id = "2", SystemName = "Shipping", SeName = "shipping", Published = true, IncludeInSitemap = true }
         });
@@ -130,7 +130,7 @@ public class GetSitemapXmlCommandHandlerTests
             CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue), Times.Once);
         _brandServiceMock.Verify(x => x.GetAllBrands("",
             CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue), Times.Once);
-        _pageServiceMock.Verify(x => x.GetAllPages(StoreId, true), Times.Once);
+        _pageServiceMock.Verify(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId)), Times.Once);
         _mediatorMock.Verify(x => x.Send(It.Is<GetSearchProductsQuery>(q =>
             q.Customer == null && q.StoreId == StoreId && q.VisibleIndividuallyOnly &&
             q.CustomerGroupIds.SequenceEqual(new[] { GuestsGroupId })), It.IsAny<CancellationToken>()), Times.Once);
@@ -140,7 +140,7 @@ public class GetSitemapXmlCommandHandlerTests
     public async Task Handle_ListsOnlyWhatAGuestCanSee()
     {
         //Arrange
-        _pageServiceMock.Setup(x => x.GetAllPages(StoreId, true)).ReturnsAsync(new List<Page> {
+        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Page> {
             new() { Id = "1", SystemName = "Open", SeName = "open-page", Published = true, IncludeInSitemap = true },
             new() {
                 Id = "2", SystemName = "ForGuests", SeName = "guest-page", Published = true, IncludeInSitemap = true,

@@ -2,6 +2,7 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Pages;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -53,7 +54,7 @@ public abstract class BasePageController(
     {
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
-        var pageModels = (await pageService.GetAllPages(model.SearchStoreId, true))
+        var pageModels = (await pageService.GetAllPages(CatalogAccess.IncludingHidden(model.SearchStoreId)))
             .Select(x => x.ToModel(dateTimeService))
             .ToList();
 

@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Pages;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
@@ -82,26 +83,26 @@ public class BasePageControllerTests
     public async Task ListPost_ForcesScopeDefaultStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _pageServiceMock.Setup(p => p.GetAllPages("store-1", true)).ReturnsAsync(new List<Page>());
+        _pageServiceMock.Setup(p => p.GetAllPages(CatalogAccess.IncludingHidden("store-1"))).ReturnsAsync(new List<Page>());
 
         var model = new PageListModel { SearchStoreId = "attacker-supplied" };
         await _controller.List(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.AreEqual("store-1", model.SearchStoreId);
-        _pageServiceMock.Verify(p => p.GetAllPages("store-1", true), Times.Once);
+        _pageServiceMock.Verify(p => p.GetAllPages(CatalogAccess.IncludingHidden("store-1")), Times.Once);
     }
 
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _pageServiceMock.Setup(p => p.GetAllPages("admin-submitted-store", true)).ReturnsAsync(new List<Page>());
+        _pageServiceMock.Setup(p => p.GetAllPages(CatalogAccess.IncludingHidden("admin-submitted-store"))).ReturnsAsync(new List<Page>());
 
         var model = new PageListModel { SearchStoreId = "admin-submitted-store" };
         await _controller.List(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.AreEqual("admin-submitted-store", model.SearchStoreId);
-        _pageServiceMock.Verify(p => p.GetAllPages("admin-submitted-store", true), Times.Once);
+        _pageServiceMock.Verify(p => p.GetAllPages(CatalogAccess.IncludingHidden("admin-submitted-store")), Times.Once);
     }
 
     [TestMethod]

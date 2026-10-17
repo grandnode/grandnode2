@@ -1,9 +1,9 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Pages;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -20,13 +20,11 @@ public class PageService : IPageService
     #region Ctor
 
     public PageService(IRepository<Page> pageRepository,
-        IContextAccessor contextAccessor,
         IAclService aclService,
         IMediator mediator,
         ICacheBase cacheBase, AccessControlConfig accessControlConfig)
     {
         _pageRepository = pageRepository;
-        _contextAccessor = contextAccessor;
         _aclService = aclService;
         _mediator = mediator;
         _cacheBase = cacheBase;
@@ -38,7 +36,6 @@ public class PageService : IPageService
     #region Fields
 
     private readonly IRepository<Page> _pageRepository;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IAclService _aclService;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
@@ -92,11 +89,17 @@ public class PageService : IPageService
     /// <summary>
     ///     Gets all pages
     /// </summary>
-    /// <param name="storeId">Store identifier; pass "" to load all records</param>
-    /// <param name="ignoreAcl"></param>
+    /// <param name="access">
+    ///     Whose pages: the customer's groups limit them unless hidden ones are included; an empty store id loads
+    ///     the pages of every store
+    /// </param>
     /// <returns>Pages</returns>
-    public virtual async Task<IList<Page>> GetAllPages(string storeId, bool ignoreAcl = false)
+    public virtual async Task<IList<Page>> GetAllPages(CatalogAccess access)
     {
+        ArgumentNullException.ThrowIfNull(access);
+
+        var storeId = access.StoreId;
+        var ignoreAcl = access.ShowHidden;
         var key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, ignoreAcl);
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -110,7 +113,7 @@ public class PageService : IPageService
             {
                 if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
                 {
-                    var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                    var allowedCustomerGroupsIds = access.Customer.GetCustomerGroupIds();
                     query = from p in query
                         where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                         select p;

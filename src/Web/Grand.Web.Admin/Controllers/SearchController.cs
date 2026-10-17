@@ -128,7 +128,8 @@ public class SearchController : BaseSearchController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInPages)
             {
-                var pages = (await _pageService.GetAllPages("")).Where(x =>
+                var pages = (await _pageService.GetAllPages(
+                    CatalogAccess.For(_contextAccessor.WorkContext.CurrentCustomer, ""))).Where(x =>
                     (x.SystemName != null && x.SystemName.ToLower().Contains(searchTerm.ToLower())) ||
                     (x.Title != null && x.Title.ToLower().Contains(searchTerm.ToLower())));
                 foreach (var page in pages)
