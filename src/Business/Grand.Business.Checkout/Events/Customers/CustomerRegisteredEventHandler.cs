@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -36,19 +37,15 @@ public class CustomerRegisteredEventHandler : INotificationHandler<CustomerRegis
         if (!_loyaltyPointsSettings.Enabled || _loyaltyPointsSettings.PointsForRegistration <= 0)
             return;
 
-        var languageId = notification.Language?.Id ?? await GetStoreLanguageId(notification.Customer.StoreId);
+        //the request language; registration without a request (access-token sign-up) writes in the store's language
+        var language = notification.Language ??
+                       await _languageService.GetLanguageOrStoreDefault(null,
+                           await _storeService.GetStoreById(notification.Customer.StoreId));
         await _loyaltyPointsService.AddLoyaltyPointsHistory(notification.Customer.Id,
             _loyaltyPointsSettings.PointsForRegistration,
             notification.Customer.StoreId,
-            _translationService.GetResource("LoyaltyPoints.Message.EarnedForRegistration", languageId));
-    }
-
-    private async Task<string> GetStoreLanguageId(string storeId)
-    {
-        var store = await _storeService.GetStoreById(storeId);
-        if (!string.IsNullOrEmpty(store?.DefaultLanguageId))
-            return store.DefaultLanguageId;
-
-        return (await _languageService.GetAllLanguages(storeId: storeId)).FirstOrDefault()?.Id;
+            language != null
+                ? _translationService.GetResource("LoyaltyPoints.Message.EarnedForRegistration", language.Id)
+                : "");
     }
 }

@@ -1,8 +1,11 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Orders;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
@@ -14,6 +17,8 @@ public class AwardLoyaltyPointsCommandHandler : IRequestHandler<AwardLoyaltyPoin
     private readonly ILoyaltyPointsService _loyaltyPointsService;
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
+    private readonly ILanguageService _languageService;
+    private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
 
     public AwardLoyaltyPointsCommandHandler(
@@ -22,6 +27,8 @@ public class AwardLoyaltyPointsCommandHandler : IRequestHandler<AwardLoyaltyPoin
         IMediator mediator,
         IOrderService orderService,
         ITranslationService translationService,
+        ILanguageService languageService,
+        IStoreService storeService,
         ICurrencyService currencyService)
     {
         _customerService = customerService;
@@ -29,6 +36,8 @@ public class AwardLoyaltyPointsCommandHandler : IRequestHandler<AwardLoyaltyPoin
         _mediator = mediator;
         _orderService = orderService;
         _translationService = translationService;
+        _languageService = languageService;
+        _storeService = storeService;
         _currencyService = currencyService;
     }
 
@@ -49,9 +58,7 @@ public class AwardLoyaltyPointsCommandHandler : IRequestHandler<AwardLoyaltyPoin
         //add loyalty points
         await _loyaltyPointsService.AddLoyaltyPointsHistory(customer.Id, points,
             request.Order.StoreId,
-            string.Format(
-                _translationService.GetResource("LoyaltyPoints.Message.EarnedForOrder",
-                    request.Order.CustomerLanguageId),
+            string.Format(await GetMessage("LoyaltyPoints.Message.EarnedForOrder", request.Order),
                 request.Order.OrderNumber));
 
         request.Order.CalcLoyaltyPoints += points;
@@ -59,5 +66,13 @@ public class AwardLoyaltyPointsCommandHandler : IRequestHandler<AwardLoyaltyPoin
         await _orderService.UpdateOrder(request.Order);
 
         return true;
+    }
+
+    //the message is written in the language the order was placed in, or in the store's language when that is gone
+    private async Task<string> GetMessage(string resourceKey, Order order)
+    {
+        var store = await _storeService.GetStoreById(order.StoreId);
+        var language = await _languageService.GetLanguageOrStoreDefault(order.CustomerLanguageId, store);
+        return language != null ? _translationService.GetResource(resourceKey, language.Id) : "";
     }
 }

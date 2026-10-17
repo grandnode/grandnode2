@@ -3,9 +3,11 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +24,8 @@ public class ReduceLoyaltyPointsCommandHandlerTests
     private Mock<ILoyaltyPointsService> _loyaltyPointsServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IOrderService> _orderServiceMock;
+    private Mock<ILanguageService> _languageServiceMock;
+    private Mock<IStoreService> _storeServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
 
 
@@ -34,10 +38,13 @@ public class ReduceLoyaltyPointsCommandHandlerTests
         _currencyServiceMock = new Mock<ICurrencyService>();
         _orderServiceMock = new Mock<IOrderService>();
         _translationServiceMock = new Mock<ITranslationService>();
+        _languageServiceMock = new Mock<ILanguageService>();
+        _languageServiceMock.Setup(c => c.GetLanguageById("lang1")).ReturnsAsync(new Language { Id = "lang1" });
+        _storeServiceMock = new Mock<IStoreService>();
 
         _handler = new ReduceLoyaltyPointsCommandHandler(_customerServiceMock.Object, _loyaltyPointsServiceMock.Object,
             _mediatorMock.Object, _orderServiceMock.Object, _translationServiceMock.Object,
-            _currencyServiceMock.Object);
+            _languageServiceMock.Object, _storeServiceMock.Object, _currencyServiceMock.Object);
     }
 
 

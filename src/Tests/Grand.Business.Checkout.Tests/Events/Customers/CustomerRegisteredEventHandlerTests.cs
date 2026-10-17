@@ -82,6 +82,8 @@ public class CustomerRegisteredEventHandlerTests
     {
         _storeServiceMock.Setup(c => c.GetStoreById("store1"))
             .ReturnsAsync(new Store { Id = "store1", DefaultLanguageId = "store-lang" });
+        _languageServiceMock.Setup(c => c.GetAllLanguages(false, "store1"))
+            .ReturnsAsync(new List<Language> { new() { Id = "first-lang" }, new() { Id = "store-lang" } });
         //Act
         await _customerRegisteredEventHandler.Handle(
             new CustomerRegisteredEvent(new Customer { StoreId = "store1" }, null), CancellationToken.None);
@@ -106,5 +108,37 @@ public class CustomerRegisteredEventHandlerTests
             c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), 10, "store1",
                 "LoyaltyPoints.Message.EarnedForRegistration@first-lang", It.IsAny<string>(), It.IsAny<double>()),
             Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutLanguageAndDeletedStoreDefault_WritesTheMessageInTheFirstStoreLanguage()
+    {
+        _storeServiceMock.Setup(c => c.GetStoreById("store1"))
+            .ReturnsAsync(new Store { Id = "store1", DefaultLanguageId = "deleted-lang" });
+        _languageServiceMock.Setup(c => c.GetAllLanguages(false, "store1"))
+            .ReturnsAsync(new List<Language> { new() { Id = "first-lang" } });
+        //Act
+        await _customerRegisteredEventHandler.Handle(
+            new CustomerRegisteredEvent(new Customer { StoreId = "store1" }, null), CancellationToken.None);
+        //Assert
+        _loyaltyPointsServiceMock.Verify(
+            c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), 10, "store1",
+                "LoyaltyPoints.Message.EarnedForRegistration@first-lang", It.IsAny<string>(), It.IsAny<double>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutAnyLanguage_AwardsThePointsWithAnEmptyMessage()
+    {
+        _storeServiceMock.Setup(c => c.GetStoreById("store1")).ReturnsAsync(new Store { Id = "store1" });
+        _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Language>());
+        //Act
+        await _customerRegisteredEventHandler.Handle(
+            new CustomerRegisteredEvent(new Customer { StoreId = "store1" }, null), CancellationToken.None);
+        //Assert
+        _loyaltyPointsServiceMock.Verify(
+            c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), 10, "store1", "", It.IsAny<string>(),
+                It.IsAny<double>()), Times.Once);
     }
 }
