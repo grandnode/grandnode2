@@ -42,7 +42,7 @@ public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecove
 
         //send email
         await _messageProviderService.SendCustomerPasswordRecoveryMessage(request.Customer, request.Store,
-            request.Language.Id);
+            request.Language.Id, host: request.Host);
 
         return true;
     }

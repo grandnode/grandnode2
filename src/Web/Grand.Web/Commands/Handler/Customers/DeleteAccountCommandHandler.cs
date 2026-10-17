@@ -33,7 +33,7 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand,
     {
         //send notification to customer
         await _messageProviderService.SendCustomerDeleteStoreOwnerMessage(request.Customer,
-            _languageSettings.DefaultAdminLanguageId);
+            _languageSettings.DefaultAdminLanguageId, host: request.Host);
 
         //delete emails
         await _queuedEmailService.DeleteCustomerEmail(request.Customer.Email);

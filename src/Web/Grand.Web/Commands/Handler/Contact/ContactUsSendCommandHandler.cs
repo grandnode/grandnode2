@@ -38,7 +38,8 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
 
         request.Model.ContactAttribute = attributes;
         request.Model.ContactAttributeInfo =
-            await _contactAttributeParser.FormatAttributes(request.Language, attributes, request.Store.PrimaryHost());
+            await _contactAttributeParser.FormatAttributes(request.Language, attributes,
+                request.Store.LinkHost(request.Host));
         request.Model = await SendContactUs(request);
 
         return request.Model;
@@ -52,7 +53,8 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
         await _messageProviderService.SendContactUsMessage
         (request.Customer, request.Store, request.Language.Id, request.Model.Email.Trim(),
             request.Model.FullName, subject,
-            body, request.Model.ContactAttributeInfo, request.Model.ContactAttribute, request.IpAddress);
+            body, request.Model.ContactAttributeInfo, request.Model.ContactAttribute, request.IpAddress,
+            host: request.Host);
 
         request.Model.SuccessfullySent = true;
         request.Model.Result = _translationService.GetResource("ContactUs.YourEnquiryHasBeenSent", request.Language.Id);

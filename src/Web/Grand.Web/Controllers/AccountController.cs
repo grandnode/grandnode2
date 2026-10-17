@@ -297,6 +297,7 @@ public class AccountController : BasePublicController
 
         if (_customerSettings.TwoFactorAuthenticationType != TwoFactorAuthenticationType.AppVerification)
             await _mediator.Send(new GetTwoFactorAuthentication {
+                Host = _contextAccessor.StoreContext.CurrentHost,
                 Customer = customer,
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
                 Store = _contextAccessor.StoreContext.CurrentStore
@@ -432,6 +433,7 @@ public class AccountController : BasePublicController
 
         var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
         await _mediator.Send(new PasswordRecoverySendCommand {
+            Host = _contextAccessor.StoreContext.CurrentHost,
             Customer = customer,
             Store = _contextAccessor.StoreContext.CurrentStore,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
@@ -603,6 +605,7 @@ public class AccountController : BasePublicController
                 { SelectedAttributes = model.SelectedAttributes });
 
             await _mediator.Send(new CustomerRegisteredCommand {
+                Host = _contextAccessor.StoreContext.CurrentHost,
                 Customer = _contextAccessor.WorkContext.CurrentCustomer,
                 CustomerAttributes = customerAttributes,
                 Model = model,
@@ -627,7 +630,8 @@ public class AccountController : BasePublicController
                         SystemCustomerFieldNames.AccountActivationToken, Guid.NewGuid().ToString());
                     await _messageProviderService.SendCustomerEmailValidationMessage(
                         _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                        _contextAccessor.WorkContext.WorkingLanguage.Id);
+                        _contextAccessor.WorkContext.WorkingLanguage.Id,
+                        host: _contextAccessor.StoreContext.CurrentHost);
 
                     //result
                     result = RedirectToRoute("RegisterResult",
@@ -644,7 +648,8 @@ public class AccountController : BasePublicController
                 {
                     //send customer welcome message
                     await _messageProviderService.SendCustomerWelcomeMessage(_contextAccessor.WorkContext.CurrentCustomer,
-                        _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id);
+                        _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id,
+                        host: _contextAccessor.StoreContext.CurrentHost);
 
                     var redirectUrl = Url.RouteUrl("RegisterResult",
                         new { resultId = (int)UserRegistrationType.Standard }, HttpContext.Request.Scheme);
@@ -791,7 +796,7 @@ public class AccountController : BasePublicController
 
         //send welcome message
         await _messageProviderService.SendCustomerWelcomeMessage(customer, _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingLanguage.Id);
+            _contextAccessor.WorkContext.WorkingLanguage.Id, host: _contextAccessor.StoreContext.CurrentHost);
 
         var model = new AccountActivationModel {
             Result = _translationService.GetResource("Account.AccountActivation.Activated")
@@ -1152,6 +1157,7 @@ public class AccountController : BasePublicController
 
         //delete account 
         await _mediator.Send(new DeleteAccountCommand {
+            Host = _contextAccessor.StoreContext.CurrentHost,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Store = _contextAccessor.StoreContext.CurrentStore,
             IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
@@ -1182,6 +1188,7 @@ public class AccountController : BasePublicController
             return RedirectToRoute("CustomerInfo");
 
         var model = await _mediator.Send(new GetTwoFactorAuthentication {
+            Host = _contextAccessor.StoreContext.CurrentHost,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Store = _contextAccessor.StoreContext.CurrentStore
@@ -1242,6 +1249,7 @@ public class AccountController : BasePublicController
             return RedirectToRoute("CustomerInfo");
 
         _ = await _mediator.Send(new GetTwoFactorAuthentication {
+            Host = _contextAccessor.StoreContext.CurrentHost,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Store = _contextAccessor.StoreContext.CurrentStore

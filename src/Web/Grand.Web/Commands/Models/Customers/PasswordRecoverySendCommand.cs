@@ -10,5 +10,6 @@ public class PasswordRecoverySendCommand : IRequest<bool>
     public PasswordRecoveryModel Model { get; set; }
     public Customer Customer { get; set; }
     public Domain.Stores.Store Store { get; set; }
+    public Domain.Stores.DomainHost Host { get; set; }
     public Language Language { get; set; }
 }

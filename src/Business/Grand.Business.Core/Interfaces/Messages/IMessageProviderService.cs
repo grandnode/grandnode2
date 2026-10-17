@@ -23,7 +23,10 @@ public interface IMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId, DomainHost host = null);
 
     /// <summary>
     ///     Sends a welcome message to a customer
@@ -32,7 +35,10 @@ public interface IMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string languageId, DomainHost host = null);
 
     /// <summary>
     ///     Sends an email validation message to a customer
@@ -41,7 +47,11 @@ public interface IMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendCustomerEmailValidationMessage(Customer customer, Store store, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendCustomerEmailValidationMessage(Customer customer, Store store, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends password recovery message to a customer
@@ -50,7 +60,11 @@ public interface IMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendCustomerPasswordRecoveryMessage(Customer customer, Store store, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendCustomerPasswordRecoveryMessage(Customer customer, Store store, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends a new customer note added notification to a customer
@@ -69,7 +83,11 @@ public interface IMessageProviderService
     /// <param name="store">Store instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendCustomerEmailTokenValidationMessage(Customer customer, Store store, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendCustomerEmailTokenValidationMessage(Customer customer, Store store, string languageId,
+        DomainHost host = null);
 
     #endregion
 
@@ -83,7 +101,11 @@ public interface IMessageProviderService
     /// <param name="vendor">Vendor instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderPlacedVendorMessage(Order order, Customer customer, Vendor vendor, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendOrderPlacedVendorMessage(Order order, Customer customer, Vendor vendor, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends an order placed notification to a store owner
@@ -92,7 +114,11 @@ public interface IMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer customer, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer customer, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends an order paid notification to a store owner
@@ -141,8 +167,12 @@ public interface IMessageProviderService
     /// </param>
     /// <param name="attachments">Attachments ident</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null);
+        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends a shipment sent notification to a customer
@@ -227,7 +257,10 @@ public interface IMessageProviderService
     /// <param name="order">Order</param>
     /// <param name="orderNote">Order note</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote, DomainHost host = null);
 
     #endregion
 
@@ -239,8 +272,11 @@ public interface IMessageProviderService
     /// <param name="subscription">Newsletter subscription</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendNewsLetterSubscriptionActivationMessage(NewsLetterSubscription subscription,
-        string languageId);
+        string languageId, DomainHost host = null);
 
     /// <summary>
     ///     Sends a newsletter subscription deactivation message
@@ -248,8 +284,11 @@ public interface IMessageProviderService
     /// <param name="subscription">Newsletter subscription</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendNewsLetterSubscriptionDeactivationMessage(NewsLetterSubscription subscription,
-        string languageId);
+        string languageId, DomainHost host = null);
 
     #endregion
 
@@ -266,8 +305,11 @@ public interface IMessageProviderService
     /// <param name="friendsEmail">Friend's email</param>
     /// <param name="personalMessage">Personal message</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string languageId,
-        Product product, string customerEmail, string friendsEmail, string personalMessage);
+        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null);
 
     /// <summary>
     ///     Sends wishlist "email a friend" message
@@ -279,16 +321,23 @@ public interface IMessageProviderService
     /// <param name="friendsEmail">Friend's email</param>
     /// <param name="personalMessage">Personal message</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string languageId,
-        string customerEmail, string friendsEmail, string personalMessage);
+        string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null);
 
 
     /// <summary>
     ///     Sends "email a friend" message
     /// </summary>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
-        Product product, string customerEmail, string fullName, string phone, string message, string ipaddress);
+        Product product, string customerEmail, string fullName, string phone, string message, string ipaddress,
+        DomainHost host = null);
 
     #endregion
 
@@ -301,8 +350,11 @@ public interface IMessageProviderService
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendNewMerchandiseReturnStoreOwnerMessage(MerchandiseReturn merchandiseReturn, Order order,
-        string languageId);
+        string languageId, DomainHost host = null);
 
 
     /// <summary>
@@ -322,8 +374,11 @@ public interface IMessageProviderService
     /// <param name="order"></param>
     /// <param name="languageId"></param>
     /// <returns></returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendNewMerchandiseReturnCustomerMessage(MerchandiseReturn merchandiseReturn, Order order,
-        string languageId);
+        string languageId, DomainHost host = null);
 
     /// <summary>
     ///     Sends a new merchandise return note added notification to a customer
@@ -347,8 +402,11 @@ public interface IMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendNewVendorAccountApplyStoreOwnerMessage(Customer customer, Vendor vendor, Store store,
-        string languageId);
+        string languageId, DomainHost host = null);
 
 
     /// <summary>
@@ -368,7 +426,11 @@ public interface IMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendProductReviewMessage(Product product, ProductReview productReview, Store store, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendProductReviewMessage(Product product, ProductReview productReview, Store store, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends a vendor review notification message to a store owner
@@ -377,7 +439,11 @@ public interface IMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends a gift voucher notification
@@ -413,13 +479,20 @@ public interface IMessageProviderService
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId, DomainHost host = null);
 
     /// <summary>
     ///     Sends a blog comment notification message to a store owner
     /// </summary>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends an article comment notification message to a store owner
@@ -428,8 +501,11 @@ public interface IMessageProviderService
     /// <param name="articleComment">Article comment</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendArticleCommentMessage(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment,
-        string languageId);
+        string languageId, DomainHost host = null);
 
     /// <summary>
     ///     Sends a news comment notification message to a store owner
@@ -438,7 +514,11 @@ public interface IMessageProviderService
     /// <param name="newsComment">News comment</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string languageId);
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string languageId,
+        DomainHost host = null);
 
     /// <summary>
     ///     Sends a 'Back in stock' notification message to a customer
@@ -466,9 +546,12 @@ public interface IMessageProviderService
     /// <param name="customAttributes">Custom Attributes</param>
     /// <param name="ipaddress">ip address</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendContactUsMessage(Customer customer, Store store, string languageId, string senderEmail,
         string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes,
-        string ipaddress);
+        string ipaddress, DomainHost host = null);
 
     /// <summary>
     ///     Sends "contact vendor" message
@@ -483,8 +566,11 @@ public interface IMessageProviderService
     /// <param name="body">Email body</param>
     /// <param name="ipaddress">Ip Address</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId,
-        string senderEmail, string senderName, string subject, string body, string ipaddress);
+        string senderEmail, string senderName, string subject, string body, string ipaddress, DomainHost host = null);
 
     /// <summary>
     ///     Sends auction ended notification to a customer (winner)

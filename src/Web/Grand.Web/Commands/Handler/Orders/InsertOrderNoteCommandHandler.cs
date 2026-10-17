@@ -28,7 +28,8 @@ public class InsertOrderNoteCommandHandler : IRequestHandler<InsertOrderNoteComm
         await _orderService.InsertOrderNote(orderNote);
 
         //email
-        await _messageProviderService.SendNewOrderNoteAddedCustomerMessage(request.Order, orderNote);
+        await _messageProviderService.SendNewOrderNoteAddedCustomerMessage(request.Order, orderNote,
+            host: request.Host);
 
         return orderNote;
     }

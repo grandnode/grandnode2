@@ -315,7 +315,7 @@ public class KnowledgebaseController : BasePublicController
             //notify a store owner
             if (_knowledgebaseSettings.NotifyAboutNewArticleComments)
                 await _messageProviderService.SendArticleCommentMessage(article, comment,
-                    _languageSettings.DefaultAdminLanguageId);
+                    _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
             //The text boxes should be cleared after a comment has been posted
             //That' why we reload the page

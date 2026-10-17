@@ -151,6 +151,7 @@ public class ProductController : BasePublicController
         if (ModelState.IsValid)
         {
             await _mediator.Send(new SendProductEmailAFriendMessageCommand {
+                Host = _contextAccessor.StoreContext.CurrentHost,
                 Customer = _contextAccessor.WorkContext.CurrentCustomer,
                 Product = product,
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
@@ -210,6 +211,7 @@ public class ProductController : BasePublicController
 
         // email
         await _mediator.Send(new SendProductAskQuestionMessageCommand {
+            Host = _contextAccessor.StoreContext.CurrentHost,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Store = _contextAccessor.StoreContext.CurrentStore,
@@ -573,6 +575,7 @@ public class ProductController : BasePublicController
         if (ModelState.IsValid)
         {
             var productReview = await _mediator.Send(new InsertProductReviewCommand {
+                Host = _contextAccessor.StoreContext.CurrentHost,
                 Customer = _contextAccessor.WorkContext.CurrentCustomer,
                 Store = _contextAccessor.StoreContext.CurrentStore,
                 Model = model,

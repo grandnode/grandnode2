@@ -1,5 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Messages.Common;
@@ -17,4 +18,9 @@ public class OrderNotificationCommand : IRequest
     ///     Staff member who placed the order while impersonating the customer, if any
     /// </summary>
     public Customer OriginalCustomerIfImpersonated { get; set; }
+
+    /// <summary>
+    ///     Host of the storefront request that placed the order; the messages link to it
+    /// </summary>
+    public DomainHost Host { get; set; }
 }

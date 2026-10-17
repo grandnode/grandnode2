@@ -184,7 +184,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 await _mediator.Send(new OrderNotificationCommand {
                     Order = result.PlacedOrder,
                     Customer = details.Customer,
-                    OriginalCustomerIfImpersonated = command.OriginalCustomerIfImpersonated
+                    OriginalCustomerIfImpersonated = command.OriginalCustomerIfImpersonated,
+                    Host = command.Host
                 }, cancellationToken);
 
                 //check order status

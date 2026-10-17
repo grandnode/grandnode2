@@ -18,7 +18,7 @@ public class SendProductAskQuestionMessageCommandHandler : IRequestHandler<SendP
     {
         await _messageProviderService.SendProductQuestionMessage(request.Customer, request.Store,
             request.Language.Id, request.Product, request.Model.Email, request.Model.FullName, request.Model.Phone,
-            FormatText.ConvertText(request.Model.Message), request.RemoteIpAddress);
+            FormatText.ConvertText(request.Model.Message), request.RemoteIpAddress, host: request.Host);
 
         return true;
     }

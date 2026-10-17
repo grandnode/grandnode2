@@ -51,6 +51,23 @@ public class StoreExtensionsTests
     }
 
     [TestMethod]
+    public void LinkHost_ReturnsTheRequestHostWhenItIsOneOfTheStoreDomains()
+    {
+        store.Domains[0].Primary = true;
+
+        Assert.AreEqual("yahoo.com", store.LinkHost(new DomainHost { HostName = "Yahoo.com" }).HostName);
+    }
+
+    [TestMethod]
+    public void LinkHost_ForeignOrMissingHost_ReturnsThePrimaryDomain()
+    {
+        store.Domains[1].Primary = true;
+
+        Assert.AreEqual("yahoo.com", store.LinkHost(new DomainHost { HostName = "other.example" }).HostName);
+        Assert.AreEqual("yahoo.com", store.LinkHost(null).HostName);
+    }
+
+    [TestMethod]
     public void HostValueTest_NotNull()
     {
         Assert.IsNotNull(store.HostValue("yAhoO.com"));

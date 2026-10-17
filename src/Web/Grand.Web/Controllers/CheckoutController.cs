@@ -724,7 +724,7 @@ public class CheckoutController : BasePublicController
             var placeOrderResult = await _mediator.Send(new PlaceOrderCommand {
                 Context = _contextAccessor.CalculationContext(),
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
-                Host = _contextAccessor.StoreContext.CurrentStore.PrimaryHost(),
+                Host = _contextAccessor.StoreContext.CurrentStore.LinkHost(_contextAccessor.StoreContext.CurrentHost),
                 OriginalCustomerIfImpersonated = _contextAccessor.WorkContext.OriginalCustomerIfImpersonated
             });
             if (placeOrderResult.Success)

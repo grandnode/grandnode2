@@ -52,7 +52,7 @@ public class InsertBlogCommentCommandHandler : IRequestHandler<InsertBlogComment
         //notify a store owner
         if (_blogSettings.NotifyAboutNewBlogComments)
             await _messageProviderService.SendBlogCommentMessage(request.BlogPost, comment,
-                _languageSettings.DefaultAdminLanguageId);
+                _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return comment;
     }

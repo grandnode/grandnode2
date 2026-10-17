@@ -86,10 +86,10 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
 
         //notify store owner here (email)
         await _messageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
-            _languageSettings.DefaultAdminLanguageId);
+            _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
         //notify customer
         await _messageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
-            request.Order.CustomerLanguageId);
+            request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return rr;
     }

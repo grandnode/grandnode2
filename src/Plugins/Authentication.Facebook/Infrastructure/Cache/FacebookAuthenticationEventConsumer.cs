@@ -23,6 +23,7 @@ public class FacebookAuthenticationEventConsumer : INotificationHandler<Register
 
     private string WorkingLanguageId => _contextAccessor.WorkContext.WorkingLanguage.Id;
     private Store CurrentStore => _contextAccessor.StoreContext.CurrentStore;
+    private DomainHost CurrentHost => _contextAccessor.StoreContext.CurrentHost;
 
     #endregion
 
@@ -67,10 +68,12 @@ public class FacebookAuthenticationEventConsumer : INotificationHandler<Register
 
         //notifications for admin
         if (_customerSettings.NotifyNewCustomerRegistration)
-            await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId);
+            await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId,
+                CurrentHost);
 
         //send welcome message 
-        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId);
+        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId,
+            CurrentHost);
     }
     #endregion
 }

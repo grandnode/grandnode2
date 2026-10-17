@@ -37,7 +37,7 @@ public class GetTwoFactorAuthenticationHandler : IRequestHandler<GetTwoFactorAut
         };
         if (_customerSetting.TwoFactorAuthenticationType == TwoFactorAuthenticationType.EmailVerification)
             await _messageProviderService.SendCustomerEmailTokenValidationMessage(request.Customer, request.Store,
-                request.Customer.Id);
+                request.Customer.Id, host: request.Host);
 
         return model;
     }

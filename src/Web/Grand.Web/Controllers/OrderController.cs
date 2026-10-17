@@ -146,8 +146,10 @@ public class OrderController : BasePublicController
         if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
-        await _mediator.Send(new InsertOrderNoteCommand
-            { Order = order, OrderNote = model, Language = _contextAccessor.WorkContext.WorkingLanguage });
+        await _mediator.Send(new InsertOrderNoteCommand {
+            Order = order, OrderNote = model, Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Host = _contextAccessor.StoreContext.CurrentHost
+        });
 
         //notification
         await _mediator.Publish(new OrderNoteEvent(order, model));

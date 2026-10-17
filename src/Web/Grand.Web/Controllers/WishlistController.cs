@@ -228,7 +228,8 @@ public class WishlistController : BasePublicController
             await messageProviderService.SendWishlistEmailAFriendMessage(_contextAccessor.WorkContext.CurrentCustomer,
                 _contextAccessor.StoreContext.CurrentStore,
                 _contextAccessor.WorkContext.WorkingLanguage.Id, model.YourEmailAddress,
-                model.FriendEmail, FormatText.ConvertText(model.PersonalMessage));
+                model.FriendEmail, FormatText.ConvertText(model.PersonalMessage),
+                host: _contextAccessor.StoreContext.CurrentHost);
 
             model.SuccessfullySent = true;
             model.Result = _translationService.GetResource("Wishlist.EmailAFriend.SuccessfullySent");
