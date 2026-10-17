@@ -2,12 +2,14 @@
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
@@ -256,7 +258,8 @@ public class CampaignService(
 
             if (customer != null)
                 builder.AddCustomerTokens(customer, store, contextAccessor.StoreContext.CurrentHost, language)
-                    .AddShoppingCartTokens(customer, store, language);
+                    .AddShoppingCartTokens(ShoppingCartContext(customer, store),
+                        contextAccessor.StoreContext.CurrentHost, language);
 
             var email = new QueuedEmail();
 
@@ -288,6 +291,10 @@ public class CampaignService(
         return totalEmailsSent;
     }
 
+    // TODO M1 PR 5: the currency and tax display still come from the request that sends the campaign
+    private CalculationContext ShoppingCartContext(Customer customer, Store store) =>
+        new(customer, store, contextAccessor.WorkContext.WorkingCurrency, contextAccessor.WorkContext.TaxDisplayType);
+
     /// <summary>
     ///     Sends a campaign to specified email
     /// </summary>
@@ -310,7 +317,8 @@ public class CampaignService(
         var customer = customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
         if (customer != null)
             builder.AddCustomerTokens(customer, store, contextAccessor.StoreContext.CurrentHost, language)
-                .AddShoppingCartTokens(customer, store, language);
+                .AddShoppingCartTokens(ShoppingCartContext(customer, store), contextAccessor.StoreContext.CurrentHost,
+                    language);
 
         var liquidObject = await builder.BuildAsync();
         var body = LiquidExtensions.Render(liquidObject, campaign.Body);

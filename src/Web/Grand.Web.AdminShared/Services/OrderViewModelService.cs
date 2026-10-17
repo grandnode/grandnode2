@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -1160,7 +1161,9 @@ public class OrderViewModelService : IOrderViewModelService
         if (warnings.Count == 0)
         {
             var attributeDescription =
-                await _productAttributeFormatter.FormatAttributes(product, customattributes, customer);
+                await _productAttributeFormatter.FormatAttributes(product, customattributes,
+                    _contextAccessor.CalculationContext() with { Customer = customer },
+                    _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost);
 
             //save item
             var orderItem = new OrderItem {

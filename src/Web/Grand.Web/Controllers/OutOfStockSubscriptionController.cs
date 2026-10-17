@@ -13,6 +13,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Catalog;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers;
 
@@ -181,7 +182,9 @@ public class OutOfStockSubscriptionController : BasePublicController
             Attributes = attributes,
             AttributeInfo = !attributes.Any()
                 ? ""
-                : await _productAttributeFormatter.FormatAttributes(product, attributes),
+                : await _productAttributeFormatter.FormatAttributes(product, attributes,
+                    _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage,
+                    _contextAccessor.StoreContext.CurrentHost),
             StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
             WarehouseId = warehouseId
         };
@@ -222,7 +225,9 @@ public class OutOfStockSubscriptionController : BasePublicController
                 ProductName = product.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 AttributeDescription = !subscription.Attributes.Any()
                     ? ""
-                    : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes),
+                    : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes,
+                        _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage,
+                        _contextAccessor.StoreContext.CurrentHost),
                 SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id)
             };
             model.Subscriptions.Add(subscriptionModel);

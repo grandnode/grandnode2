@@ -386,7 +386,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var details = new PlaceOrderContainer {
             Context = command.Context,
             Customer = command.Context.Customer,
-            Store = command.Context.Store
+            Store = command.Context.Store,
+            Host = command.Host
         };
         if (details.Customer == null)
             throw new ArgumentException("Customer is not set");
@@ -651,7 +652,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                      details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
             details.AppliedDiscounts.Add(disc);
         var attributeDescription =
-            await _productAttributeFormatter.FormatAttributes(product, sc.Attributes, details.Customer);
+            await _productAttributeFormatter.FormatAttributes(product, sc.Attributes, details.Context,
+                details.Language, details.Host);
         var itemWeight = await GetShoppingCartItemWeight(sc);
         var warehouseId = !string.IsNullOrEmpty(sc.WarehouseId)
             ? sc.WarehouseId

@@ -15,6 +15,11 @@ public class GetWishlist : IRequest<WishlistModel>
     public Language Language { get; set; }
     public Currency Currency { get; set; }
     public Domain.Stores.Store Store { get; set; }
+
+    /// <summary>
+    ///     Store address of the request, used for the download links of product attributes
+    /// </summary>
+    public DomainHost Host { get; set; }
     public TaxDisplayType TaxDisplayType { get; set; }
     public bool IsEditable { get; set; } = true;
     public IList<ShoppingCartItem> Cart { get; set; }

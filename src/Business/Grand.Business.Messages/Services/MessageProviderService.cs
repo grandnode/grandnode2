@@ -1328,7 +1328,7 @@ public class MessageProviderService : IMessageProviderService
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
             .AddProductTokens(product, language, store, CurrentHost)
-            .AddAttributeCombinationTokens(product, combination);
+            .AddAttributeCombinationTokens(product, combination, language, CurrentHost);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);

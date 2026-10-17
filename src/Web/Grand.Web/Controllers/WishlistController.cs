@@ -100,7 +100,8 @@ public class WishlistController : BasePublicController
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Store = _contextAccessor.StoreContext.CurrentStore,
             IsEditable = !customerGuid.HasValue,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
 
         return View(model);

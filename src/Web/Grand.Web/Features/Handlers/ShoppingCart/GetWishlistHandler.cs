@@ -123,7 +123,8 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
                 ProductSeName = sename,
                 ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                 Quantity = sci.Quantity,
-                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes),
+                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes,
+                    CalculationContextOf(request), request.Language, request.Host),
                 AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually
             };
 

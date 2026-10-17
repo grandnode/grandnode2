@@ -25,14 +25,14 @@ public class GetShoppingCartTokensCommandHandler : IRequestHandler<GetShoppingCa
     public async Task<LiquidShoppingCart> Handle(GetShoppingCartTokensCommand request,
         CancellationToken cancellationToken)
     {
-        var liquidShoppingCart = new LiquidShoppingCart(request.Customer);
+        var liquidShoppingCart = new LiquidShoppingCart(request.Context.Customer);
         await ProductList();
 
         async Task ProductList()
         {
             var attributeDescription = string.Empty;
             var pictureUrl = string.Empty;
-            foreach (var item in request.Customer.ShoppingCartItems)
+            foreach (var item in request.Context.Customer.ShoppingCartItems)
             {
                 var product = await _productService.GetProductById(item.ProductId);
 
@@ -41,13 +41,13 @@ public class GetShoppingCartTokensCommandHandler : IRequestHandler<GetShoppingCa
                         product.ProductPictures.OrderByDescending(p => p.IsDefault)  
                             .ThenBy(p => p.DisplayOrder) 
                             .FirstOrDefault()?.PictureId, 100,
-                        storeLocation: request.Store.Url);
+                        storeLocation: request.Context.Store.Url);
 
                 //attributes
                 if (item.Attributes != null && item.Attributes.Any())
                     attributeDescription =
                         await _productAttributeFormatter.FormatAttributes(product, item.Attributes,
-                            request.Customer);
+                            request.Context, request.Language, request.Host);
 
                 var result = new LiquidShoppingCartItem(product, attributeDescription, pictureUrl, item,
                     request.Language);

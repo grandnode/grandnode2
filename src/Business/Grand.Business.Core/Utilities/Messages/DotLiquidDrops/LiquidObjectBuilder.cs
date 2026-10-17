@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -122,18 +123,18 @@ public class LiquidObjectBuilder
         return this;
     }
 
-    public LiquidObjectBuilder AddShoppingCartTokens(Customer customer, Store store, Language language)
+    public LiquidObjectBuilder AddShoppingCartTokens(CalculationContext context, DomainHost host, Language language)
     {
         _chain.Add(async liquidObject =>
         {
             var liquidShoppingCart = await _mediator.Send(new GetShoppingCartTokensCommand {
-                Customer = customer,
-                Language = language,
-                Store = store
+                Context = context,
+                Host = host,
+                Language = language
             });
             liquidObject.ShoppingCart = liquidShoppingCart;
 
-            await _mediator.EntityTokensAdded(customer, liquidShoppingCart, liquidObject);
+            await _mediator.EntityTokensAdded(context.Customer, liquidShoppingCart, liquidObject);
         });
         return this;
     }
@@ -231,12 +232,13 @@ public class LiquidObjectBuilder
         return this;
     }
 
-    public LiquidObjectBuilder AddAttributeCombinationTokens(Product product, ProductAttributeCombination combination)
+    public LiquidObjectBuilder AddAttributeCombinationTokens(Product product, ProductAttributeCombination combination,
+        Language language, DomainHost host)
     {
         _chain.Add(async liquidObject =>
         {
             var liquidAttributeCombination = await _mediator.Send(new GetAttributeCombinationTokensCommand
-                { Product = product, Combination = combination });
+                { Product = product, Combination = combination, Language = language, Host = host });
             liquidObject.AttributeCombination = liquidAttributeCombination;
             await _mediator.EntityTokensAdded(combination, liquidAttributeCombination, liquidObject);
         });

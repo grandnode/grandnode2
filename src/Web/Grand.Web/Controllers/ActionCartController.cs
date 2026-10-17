@@ -241,7 +241,8 @@ public class ActionCartController : BasePublicController
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Store = _contextAccessor.StoreContext.CurrentStore,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
 
         //added to the cart/wishlist
@@ -300,7 +301,8 @@ public class ActionCartController : BasePublicController
                         Currency = _contextAccessor.WorkContext.WorkingCurrency,
                         Language = _contextAccessor.WorkContext.WorkingLanguage,
                         TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
-                        Store = _contextAccessor.StoreContext.CurrentStore
+                        Store = _contextAccessor.StoreContext.CurrentStore,
+                        Host = _contextAccessor.StoreContext.CurrentHost
                     })
                     : null;
 
@@ -433,6 +435,7 @@ public class ActionCartController : BasePublicController
             Store = _contextAccessor.StoreContext.CurrentStore,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+            Host = _contextAccessor.StoreContext.CurrentHost,
             Duration = duration,
             Parameter = parameter,
             ReservationId = model.Reservation,
@@ -496,7 +499,8 @@ public class ActionCartController : BasePublicController
                         Currency = _contextAccessor.WorkContext.WorkingCurrency,
                         Language = _contextAccessor.WorkContext.WorkingLanguage,
                         TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
-                        Store = _contextAccessor.StoreContext.CurrentStore
+                        Store = _contextAccessor.StoreContext.CurrentStore,
+                        Host = _contextAccessor.StoreContext.CurrentHost
                     })
                     : null;
 
@@ -778,7 +782,8 @@ public class ActionCartController : BasePublicController
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Store = _contextAccessor.StoreContext.CurrentStore,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
 
         return Json(new {

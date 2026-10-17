@@ -341,7 +341,8 @@ public abstract class BaseReportsController(
                 Id = product.Id,
                 Name = product.Name,
                 Attributes = await productAttributeFormatter.FormatAttributes(product, combination.Attributes,
-                    contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false),
+                    contextAccessor.CalculationContext(), contextAccessor.WorkContext.WorkingLanguage,
+                    contextAccessor.StoreContext.CurrentHost, "<br />", true, true, true, false),
                 ManageInventoryMethod = enumTranslationService.GetTranslationEnum(product.ManageInventoryMethodId),
                 StockQuantity = combination.StockQuantity,
                 Published = product.Published

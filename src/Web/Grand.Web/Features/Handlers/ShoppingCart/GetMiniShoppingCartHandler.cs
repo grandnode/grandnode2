@@ -152,7 +152,8 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
                 ProductSeName = sename,
                 ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                 Quantity = sci.Quantity,
-                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes)
+                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, context,
+                    request.Language, request.Host)
             };
             if (product.ProductTypeId == ProductType.Reservation)
             {

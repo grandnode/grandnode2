@@ -874,7 +874,9 @@ public class CustomerViewModelService : ICustomerViewModelService
                         ProductId = sci.ProductId,
                         Quantity = sci.Quantity,
                         ProductName = product.Name,
-                        AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
+                        AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes,
+                            _contextAccessor.CalculationContext() with { Customer = customer },
+                            _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost),
                         UnitPrice = priceFormatter.FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency),
                         UnitPriceValue = price,
                         Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product,
@@ -1107,7 +1109,9 @@ public class CustomerViewModelService : ICustomerViewModelService
                     ProductName = product != null ? product.Name : "Unknown",
                     AttributeDescription = x.Attributes != null || !x.Attributes!.Any()
                         ? ""
-                        : await productAttributeFormatter.FormatAttributes(product, x.Attributes),
+                        : await productAttributeFormatter.FormatAttributes(product, x.Attributes,
+                            _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage,
+                            _contextAccessor.StoreContext.CurrentHost),
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 items.Add(m);

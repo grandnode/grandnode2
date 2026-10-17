@@ -21,6 +21,12 @@ public class PlaceOrderContainer
     public Customer Customer { get; set; }
     public Store Store { get; set; }
     public Language Language { get; set; }
+
+    /// <summary>
+    ///     Store address used for file download links in the attribute descriptions
+    /// </summary>
+    public DomainHost Host { get; set; }
+
     public Currency Currency { get; set; }
     public string AffiliateId { get; set; }
     public TaxDisplayType TaxDisplayType { get; set; }
