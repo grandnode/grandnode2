@@ -132,7 +132,8 @@ public class ShoppingCartController : BasePublicController
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
-            Store = _contextAccessor.StoreContext.CurrentStore
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
         return Json(model);
     }
@@ -380,7 +381,8 @@ public class ShoppingCartController : BasePublicController
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
-            Store = _contextAccessor.StoreContext.CurrentStore
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
         if (!model.ShoppingCartPage)
             return Json(new {
@@ -429,7 +431,8 @@ public class ShoppingCartController : BasePublicController
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
-            Store = _contextAccessor.StoreContext.CurrentStore
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
 
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes());

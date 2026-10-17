@@ -72,7 +72,9 @@ public class WishlistController : BasePublicController
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Store = _contextAccessor.StoreContext.CurrentStore
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
 
         return Json(model);
@@ -96,11 +98,13 @@ public class WishlistController : BasePublicController
         var model = await _mediator.Send(new GetWishlist {
             Cart = cart,
             Customer = customer,
+            CurrentCustomer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Store = _contextAccessor.StoreContext.CurrentStore,
             IsEditable = !customerGuid.HasValue,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+            Host = _contextAccessor.StoreContext.CurrentHost
         });
 
         return View(model);

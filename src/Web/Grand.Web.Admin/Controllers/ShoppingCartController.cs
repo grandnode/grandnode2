@@ -13,6 +13,7 @@ using Grand.Web.AdminShared.Models.ShoppingCart;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -112,7 +113,9 @@ public class ShoppingCartController : BaseAdminController
                 ProductId = sci.ProductId,
                 Quantity = sci.Quantity,
                 ProductName = product.Name,
-                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
+                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes,
+                    _contextAccessor.CalculationContext() with { Customer = customer, Store = priceStore },
+                    _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost),
                 UnitPrice = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product,
                         customer, priceStore,
@@ -184,7 +187,9 @@ public class ShoppingCartController : BaseAdminController
                 ProductId = sci.ProductId,
                 Quantity = sci.Quantity,
                 ProductName = product.Name,
-                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, customer),
+                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes,
+                    _contextAccessor.CalculationContext() with { Customer = customer, Store = priceStore },
+                    _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost),
                 UnitPrice = _priceFormatter.FormatPrice((await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product,
                         customer, priceStore,

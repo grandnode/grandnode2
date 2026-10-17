@@ -2007,7 +2007,8 @@ public class ProductViewModelService(
         foreach (var x in product.ProductAttributeCombinations)
         {
             var attributes = await productAttributeFormatter.FormatAttributes(product, x.Attributes,
-                contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false, true, true);
+                contextAccessor.CalculationContext(), contextAccessor.WorkContext.WorkingLanguage,
+                contextAccessor.StoreContext.CurrentHost, "<br />", true, true, true, false, true, true);
             var pacModel = new ProductModel.ProductAttributeCombinationModel {
                 Id = x.Id,
                 ProductId = product.Id,
@@ -2058,7 +2059,8 @@ public class ProductViewModelService(
                 model.WarehouseInventoryModels = wim;
                 model.ProductId = product.Id;
                 model.Attributes = await productAttributeFormatter.FormatAttributes(product, combination.Attributes,
-                    contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false);
+                    contextAccessor.CalculationContext(), contextAccessor.WorkContext.WorkingLanguage,
+                    contextAccessor.StoreContext.CurrentHost, "<br />", true, true, true, false);
                 if (model.UseMultipleWarehouses)
                     foreach (var _winv in combination.WarehouseInventory)
                     {

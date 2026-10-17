@@ -108,8 +108,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         model.TotalProducts = cart.Sum(x => x.Quantity);
         if (!cart.Any()) return model;
 
-        var context = new CalculationContext(request.Customer, request.Store, request.Currency,
-            request.TaxDisplayType);
+        var context = request.CalculationContext();
 
         //subtotal
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
@@ -152,7 +151,8 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
                 ProductSeName = sename,
                 ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                 Quantity = sci.Quantity,
-                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes)
+                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes, context,
+                    request.Language, request.Host)
             };
             if (product.ProductTypeId == ProductType.Reservation)
             {

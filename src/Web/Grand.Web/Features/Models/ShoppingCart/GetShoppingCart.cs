@@ -9,7 +9,7 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.ShoppingCart;
 
-public class GetShoppingCart : IRequest<ShoppingCartModel>
+public class GetShoppingCart : IRequest<ShoppingCartModel>, ICartCalculationRequest
 {
     public Customer Customer { get; set; }
     public Language Language { get; set; }
@@ -17,7 +17,7 @@ public class GetShoppingCart : IRequest<ShoppingCartModel>
     public Domain.Stores.Store Store { get; set; }
 
     /// <summary>
-    ///     Store address of the request, used for the download links of checkout attributes
+    ///     Store address of the request, used for the download links of checkout and product attributes
     /// </summary>
     public DomainHost Host { get; set; }
 

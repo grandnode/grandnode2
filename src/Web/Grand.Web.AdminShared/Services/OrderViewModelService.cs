@@ -16,6 +16,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -34,6 +35,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -79,6 +81,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IMediator _mediator;
     private readonly IEnumTranslationService _enumTranslationService;
     private readonly IAdminDataScope<Order> _scope;
+    private readonly ILanguageService _languageService;
 
     #endregion
 
@@ -119,7 +122,8 @@ public class OrderViewModelService : IOrderViewModelService
         IOrderStatusService orderStatusService,
         IMediator mediator,
         IProductAttributeFormatter productAttributeFormatter, IEnumTranslationService enumTranslationService,
-        IAdminDataScope<Order> scope)
+        IAdminDataScope<Order> scope,
+        ILanguageService languageService)
     {
         _orderService = orderService;
         _pricingService = priceCalculationService;
@@ -158,6 +162,7 @@ public class OrderViewModelService : IOrderViewModelService
         _productAttributeFormatter = productAttributeFormatter;
         _enumTranslationService = enumTranslationService;
         _scope = scope;
+        _languageService = languageService;
     }
 
     #endregion
@@ -1159,8 +1164,17 @@ public class OrderViewModelService : IOrderViewModelService
                 shoppingCartItem));
         if (warnings.Count == 0)
         {
+            //the description is stored on the order, so it is rendered for the order, not for the admin
+            var store = await _storeService.GetStoreById(order.StoreId) ?? _contextAccessor.StoreContext.CurrentStore;
+            var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode) ??
+                           _contextAccessor.WorkContext.WorkingCurrency;
+            var language = await _languageService.GetLanguageById(order.CustomerLanguageId) ??
+                           _contextAccessor.WorkContext.WorkingLanguage;
+            var host = store.Domains.FirstOrDefault(x => x.Primary) ?? store.Domains.FirstOrDefault();
             var attributeDescription =
-                await _productAttributeFormatter.FormatAttributes(product, customattributes, customer);
+                await _productAttributeFormatter.FormatAttributes(product, customattributes,
+                    new CalculationContext(customer, store, currency, order.CustomerTaxDisplayTypeId),
+                    language, host);
 
             //save item
             var orderItem = new OrderItem {

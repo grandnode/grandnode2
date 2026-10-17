@@ -1,13 +1,13 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
-using Grand.Domain.Tax;
-using Grand.Infrastructure;
+using Grand.Domain.Stores;
 using Grand.SharedKernel.Extensions;
 using System.Net;
 
@@ -23,16 +23,13 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     private readonly IProductAttributeService _productAttributeService;
     private readonly IProductService _productService;
     private readonly ITaxService _taxService;
-    private readonly IContextAccessor _contextAccessor;
 
-    public ProductAttributeFormatter(IContextAccessor contextAccessor,
-        IProductAttributeService productAttributeService,
+    public ProductAttributeFormatter(IProductAttributeService productAttributeService,
         ITaxService taxService,
         IPriceFormatter priceFormatter,
         IPricingService priceCalculationService,
         IProductService productService)
     {
-        _contextAccessor = contextAccessor;
         _productAttributeService = productAttributeService;
         _taxService = taxService;
         _priceFormatter = priceFormatter;
@@ -45,19 +42,9 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     /// </summary>
     /// <param name="product">Product</param>
     /// <param name="customAttributes">Attributes</param>
-    /// <returns>Attributes</returns>
-    public virtual Task<string> FormatAttributes(Product product, IList<CustomAttribute> customAttributes)
-    {
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
-        return FormatAttributes(product, customAttributes, customer);
-    }
-
-    /// <summary>
-    ///     Formats attributes
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="customAttributes">Attributes</param>
-    /// <param name="customer">Customer</param>
+    /// <param name="context">Customer, store, currency and tax display the prices are rendered for (required when renderPrices is true)</param>
+    /// <param name="language">Language of the attribute names</param>
+    /// <param name="host">Store address used for file download links (read only when allowHyperlinks is true; without it the link is not rendered)</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="renderPrices">A value indicating whether to render prices</param>
@@ -67,7 +54,8 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     /// <param name="showInAdmin">Show in admin</param>
     /// <returns>Attributes</returns>
     public virtual async Task<string> FormatAttributes(Product product, IList<CustomAttribute> customAttributes,
-        Customer customer, string separator = "<br />", bool htmlEncode = true, bool renderPrices = true,
+        CalculationContext context, Language language, DomainHost host,
+        string separator = "<br />", bool htmlEncode = true, bool renderPrices = true,
         bool renderProductAttributes = true, bool renderGiftVoucherAttributes = true,
         bool allowHyperlinks = true, bool showInAdmin = false)
     {
@@ -76,17 +64,15 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
         if (customAttributes == null || !customAttributes.Any())
             return result.ToString();
 
-        var langId = _contextAccessor.WorkContext.WorkingLanguage != null
-            ? _contextAccessor.WorkContext.WorkingLanguage.Id
-            : customer?.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
+        if (renderPrices)
+            ArgumentNullException.ThrowIfNull(context);
 
-        if (string.IsNullOrEmpty(langId))
-            langId = "";
+        var langId = language?.Id ?? "";
 
         //attributes
         if (renderProductAttributes)
         {
-            result = await PrepareFormattedAttribute(product, customAttributes, customer, langId, separator,
+            result = await PrepareFormattedAttribute(product, customAttributes, context, langId, host, separator,
                 htmlEncode, renderPrices, allowHyperlinks, showInAdmin);
 
             if (product.ProductTypeId == ProductType.BundledProduct)
@@ -106,8 +92,8 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                     else
                         result.Append(
                             $"{(htmlEncode ? WebUtility.HtmlEncode(p1.GetTranslation(x => x.Name, langId)) : p1.GetTranslation(x => x.Name, langId))}");
-                    var formattedAttribute = await PrepareFormattedAttribute(p1, customAttributes, customer, langId,
-                        separator, htmlEncode,
+                    var formattedAttribute = await PrepareFormattedAttribute(p1, customAttributes, context, langId,
+                        host, separator, htmlEncode,
                         renderPrices, allowHyperlinks, showInAdmin);
                     if (formattedAttribute.Length > 0)
                     {
@@ -151,11 +137,10 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     }
 
     private async Task<StringBuilder> PrepareFormattedAttribute(Product product,
-        IList<CustomAttribute> customAttributes, Customer customer, string langId,
-        string separator, bool htmlEncode, bool renderPrices,
+        IList<CustomAttribute> customAttributes, CalculationContext context, string langId,
+        DomainHost host, string separator, bool htmlEncode, bool renderPrices,
         bool allowHyperlinks, bool showInAdmin)
     {
-        var priceCustomer = customer ?? _contextAccessor.WorkContext.CurrentCustomer;
         var result = new StringBuilder();
         var attributes = product.ParseProductAttributeMappings(customAttributes);
         for (var i = 0; i < attributes.Count; i++)
@@ -194,10 +179,10 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                             {
                                 var attributeText = string.Empty;
                                 var attributeName = productAttribute.GetTranslation(a => a.Name, langId);
-                                if (allowHyperlinks)
+                                if (allowHyperlinks && host != null)
                                 {
                                     var downloadLink =
-                                        $"{_contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                        $"{host.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
                                     attributeText =
                                         $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, langId)}</a>";
                                 }
@@ -236,25 +221,23 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                             {
                                 var attributeValuePriceAdjustment =
                                     await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue,
-                                        priceCustomer, _contextAccessor.StoreContext.CurrentStore,
-                                        _contextAccessor.WorkContext.WorkingCurrency);
+                                        context.Customer, context.Store, context.Currency);
                                 var (priceAdjustmentBase, _) = await _taxService.GetProductPrice(product,
                                     attributeValuePriceAdjustment,
-                                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                                    priceCustomer, _contextAccessor.StoreContext.CurrentStore);
+                                    context.IncludingTax, context.Customer, context.Store);
                                 switch (priceAdjustmentBase)
                                 {
                                     case > 0:
                                     {
                                         var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustmentBase,
-                                            _contextAccessor.WorkContext.WorkingCurrency);
+                                            context.Currency);
                                         formattedAttribute += $" [+{priceAdjustmentStr}]";
                                         break;
                                     }
                                     case < 0:
                                     {
                                         var priceAdjustmentStr = _priceFormatter.FormatPrice(-priceAdjustmentBase,
-                                            _contextAccessor.WorkContext.WorkingCurrency);
+                                            context.Currency);
                                         formattedAttribute += $" [-{priceAdjustmentStr}]";
                                         break;
                                     }

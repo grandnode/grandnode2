@@ -21,7 +21,7 @@ public class GetAttributeCombinationTokensCommandHandler : IRequestHandler<GetAt
     {
         var liquidAttributeCombination = new LiquidAttributeCombination(request.Combination) {
             Formatted = await _productAttributeFormatter.FormatAttributes(request.Product,
-                request.Combination.Attributes, null, renderPrices: false),
+                request.Combination.Attributes, null, request.Language, request.Host, renderPrices: false),
             SKU = request.Product.FormatSku(request.Combination.Attributes)
         };
         return liquidAttributeCombination;

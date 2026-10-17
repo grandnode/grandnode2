@@ -213,12 +213,16 @@ public class CampaignController : BaseAdminController
                 var subscriptions = new List<NewsLetterSubscription> {
                     subscription
                 };
-                await _campaignService.SendCampaign(campaign, emailAccount, subscriptions);
+                await _campaignService.SendCampaign(campaign, emailAccount, subscriptions,
+                    _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType,
+                    _contextAccessor.StoreContext.CurrentHost);
             }
             else
             {
                 //no subscription found
-                await _campaignService.SendCampaign(campaign, emailAccount, model.TestEmail);
+                await _campaignService.SendCampaign(campaign, emailAccount, model.TestEmail,
+                    _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType,
+                    _contextAccessor.StoreContext.CurrentHost);
             }
 
             Success(_translationService.GetResource("admin.marketing.Campaigns.TestEmailSentToCustomers"));
@@ -254,7 +258,9 @@ public class CampaignController : BaseAdminController
             //subscribers of certain store?
             var store = await _storeService.GetStoreById(campaign.StoreId);
             var subscriptions = await _campaignService.CustomerSubscriptions(campaign);
-            var totalEmailsSent = await _campaignService.SendCampaign(campaign, emailAccount, subscriptions);
+            var totalEmailsSent = await _campaignService.SendCampaign(campaign, emailAccount, subscriptions,
+                _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType,
+                _contextAccessor.StoreContext.CurrentHost);
             Success(
                 string.Format(_translationService.GetResource("admin.marketing.Campaigns.MassEmailSentToCustomers"),
                     totalEmailsSent));

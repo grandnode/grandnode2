@@ -10,6 +10,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -20,7 +21,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishlistModel>
 {
-    private readonly IContextAccessor _contextAccessor;
     private readonly LinkGenerator _linkGenerator;
     private readonly MediaSettings _mediaSettings;
     private readonly IPictureService _pictureService;
@@ -42,10 +42,8 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
         IPictureService pictureService,
         LinkGenerator linkGenerator,
         ShoppingCartSettings shoppingCartSettings,
-        MediaSettings mediaSettings,
-        IContextAccessor contextAccessor)
+        MediaSettings mediaSettings)
     {
-        _contextAccessor = contextAccessor;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;
         _translationService = translationService;
@@ -71,6 +69,7 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
 
         #region Cart items
 
+        var context = request.CalculationContext();
         foreach (var sci in request.Cart)
         {
             var product = await _productService.GetProductById(sci.ProductId);
@@ -86,7 +85,8 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
                 ProductSeName = sename,
                 ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                 Quantity = sci.Quantity,
-                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes)
+                AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes,
+                    context, request.Language, request.Host)
             };
 
             //unit prices
@@ -98,10 +98,8 @@ public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishl
             {
                 var productprice = await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                        _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
-                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                        context.Customer, context.Store, context.Currency)).unitprice,
+                        context.IncludingTax, context.Customer, context.Store);
 
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice, request.Currency);
                 cartItemModel.UnitPriceValue = productprice.productprice;

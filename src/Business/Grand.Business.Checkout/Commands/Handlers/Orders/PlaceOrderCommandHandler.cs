@@ -386,7 +386,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var details = new PlaceOrderContainer {
             Context = command.Context,
             Customer = command.Context.Customer,
-            Store = command.Context.Store
+            Store = command.Context.Store,
+            WorkingLanguage = command.Language,
+            Host = command.Host
         };
         if (details.Customer == null)
             throw new ArgumentException("Customer is not set");
@@ -442,7 +444,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 details.Store.Id);
         details.CheckoutAttributeDescription =
             await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, details.Context,
-                command.Language, command.Host);
+                details.WorkingLanguage, details.Host);
 
         //load and validate customer shopping cart
         details.Cart = details.Customer.ShoppingCartItems
@@ -651,7 +653,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                      details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
             details.AppliedDiscounts.Add(disc);
         var attributeDescription =
-            await _productAttributeFormatter.FormatAttributes(product, sc.Attributes, details.Customer);
+            await _productAttributeFormatter.FormatAttributes(product, sc.Attributes, details.Context,
+                details.WorkingLanguage, details.Host);
         var itemWeight = await GetShoppingCartItemWeight(sc);
         var warehouseId = !string.IsNullOrEmpty(sc.WarehouseId)
             ? sc.WarehouseId

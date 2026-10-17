@@ -5,10 +5,11 @@ using Grand.Business.Marketing.Services.Campaigns;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
+using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
-using Grand.Infrastructure;
+using Grand.Domain.Tax;
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,7 +30,6 @@ public class CampaignServiceTests
     private IRepository<NewsLetterSubscription> _newsLetterSubscriptionRepository;
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
     private Mock<IStoreService> _storeServiceMock;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -43,11 +43,10 @@ public class CampaignServiceTests
         _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
         _storeServiceMock = new Mock<IStoreService>();
         _languageServiceMock = new Mock<ILanguageService>();
-        _workContextMock = new Mock<IContextAccessor>();
         _campaignService = new CampaignService(_campaignRepository, _campaignHistoryRepository,
             _newsLetterSubscriptionRepository, _customerRepository,
             _emailSenderMock.Object, _queuedEmailServiceMock.Object, _storeServiceMock.Object, _mediatorMock.Object,
-            _languageServiceMock.Object, _workContextMock.Object);
+            _languageServiceMock.Object);
     }
 
     [TestMethod]
@@ -184,7 +183,8 @@ public class CampaignServiceTests
             .Returns(Task.FromResult(new Store()));
 
         //Act
-        await _campaignService.SendCampaign(campaign, new EmailAccount { Host = "host.com" }, "test@test.com");
+        await _campaignService.SendCampaign(campaign, new EmailAccount { Host = "host.com" }, "test@test.com",
+            new Currency(), TaxDisplayType.IncludingTax, new DomainHost { Url = "https://localhost/" });
 
         //Assert
         _emailSenderMock.Verify(
