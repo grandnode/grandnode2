@@ -15,7 +15,7 @@ using Grand.Infrastructure.TypeConverters;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Text.Json;
+using System.ComponentModel;
 
 namespace Grand.Business.Checkout.Tests.Services.Orders;
 
@@ -29,12 +29,16 @@ public class ShoppingCartServiceTests
     private ShoppingCartSettings _shoppingCartSettings;
     private Mock<IShoppingCartValidator> _shoppingCartValidatorMock;
 
-    [TestInitialize]
-    public void Init()
+    [ClassInitialize]
+    public static void InitClass(TestContext context)
     {
         //user fields are stored as strings; the converters read them back as typed values
         new WebTypeConverter().Register();
+    }
 
+    [TestInitialize]
+    public void Init()
+    {
         _productServiceMock = new Mock<IProductService>();
         _shoppingCartSettings = new ShoppingCartSettings();
         _customerServiceMock = new Mock<ICustomerService>();
@@ -318,7 +322,7 @@ public class ShoppingCartServiceTests
     }
 
     [TestMethod]
-    public async Task MigrateShoppingCart_AccountWithCheckoutAttributes_KeepsThemOverTheGuestAttributes()
+    public async Task MigrateShoppingCart_GuestWithCheckoutAttributes_ReplacesTheAccountAttributes()
     {
         //Arrange
         var guest = new Customer();
@@ -330,9 +334,8 @@ public class ShoppingCartServiceTests
         await _shoppingCartService.MigrateShoppingCart(guest, customer, "store", false);
 
         //Assert
-        _customerServiceMock.Verify(x => x.UpdateUserField(It.IsAny<Customer>(),
-            SystemCustomerFieldNames.CheckoutAttributes, It.IsAny<List<CustomAttribute>>(), It.IsAny<string>()),
-            Times.Never);
+        _customerServiceMock.Verify(x => x.UpdateUserField(customer, SystemCustomerFieldNames.CheckoutAttributes,
+            It.Is<List<CustomAttribute>>(a => a.Count == 1 && a[0].Value == "no"), "store"), Times.Once);
     }
 
     [TestMethod]
@@ -356,7 +359,8 @@ public class ShoppingCartServiceTests
     {
         customer.UserFields.Add(new UserField {
             Key = SystemCustomerFieldNames.CheckoutAttributes,
-            Value = JsonSerializer.Serialize(new List<CustomAttribute> { new() { Key = key, Value = value } }),
+            Value = TypeDescriptor.GetConverter(typeof(List<CustomAttribute>))
+                .ConvertToInvariantString(new List<CustomAttribute> { new() { Key = key, Value = value } }),
             StoreId = storeId
         });
     }
