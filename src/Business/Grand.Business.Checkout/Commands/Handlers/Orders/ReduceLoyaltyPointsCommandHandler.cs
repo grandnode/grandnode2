@@ -54,7 +54,9 @@ public class ReduceLoyaltyPointsCommandHandler : IRequestHandler<ReduceLoyaltyPo
 
         //reduce loyalty points
         await _loyaltyPointsService.AddLoyaltyPointsHistory(customer.Id, -points, request.Order.StoreId,
-            string.Format(_translationService.GetResource("LoyaltyPoints.Message.ReducedForOrder"),
+            string.Format(
+                _translationService.GetResource("LoyaltyPoints.Message.ReducedForOrder",
+                    request.Order.CustomerLanguageId),
                 request.Order.OrderNumber));
 
         request.Order.CalcLoyaltyPoints -= points;

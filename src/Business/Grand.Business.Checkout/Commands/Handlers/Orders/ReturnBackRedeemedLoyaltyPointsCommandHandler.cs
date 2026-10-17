@@ -30,7 +30,9 @@ public class
         //return back
         await _loyaltyPointsService.AddLoyaltyPointsHistory(request.Order.CustomerId,
             -request.Order.RedeemedLoyaltyPoints, request.Order.StoreId,
-            string.Format(_translationService.GetResource("LoyaltyPoints.Message.ReturnedForOrder"),
+            string.Format(
+                _translationService.GetResource("LoyaltyPoints.Message.ReturnedForOrder",
+                    request.Order.CustomerLanguageId),
                 request.Order.OrderNumber));
 
         return true;

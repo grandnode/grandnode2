@@ -29,14 +29,16 @@ public class ReturnBackRedeemedLoyaltyPointsCommandHandlerTests
     {
         //Arrange
         var command = new ReturnBackRedeemedLoyaltyPointsCommand {
-            Order = new Order { RedeemedLoyaltyPoints = 10 }
+            Order = new Order { RedeemedLoyaltyPoints = 10, CustomerLanguageId = "lang1" }
         };
-        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
+        //the message is written in the language the order was placed in
+        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>(), "lang1", It.IsAny<string>(),
+            It.IsAny<bool>())).Returns("Name");
         //Act
         await _handler.Handle(command, CancellationToken.None);
 
         _loyaltyPointsServiceMock.Verify(
             c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), It.Is<int>(g => g < 0), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<double>()), Times.Once);
+                "Name", It.IsAny<string>(), It.IsAny<double>()), Times.Once);
     }
 }

@@ -46,7 +46,7 @@ public class AwardLoyaltyPointsCommandHandlerTests
     {
         //Arrange
         var command = new AwardLoyaltyPointsCommand {
-            Order = new Order { StoreId = "", OrderNumber = 1 }
+            Order = new Order { StoreId = "", OrderNumber = 1, CustomerLanguageId = "lang1" }
         };
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
@@ -55,7 +55,9 @@ public class AwardLoyaltyPointsCommandHandlerTests
             .Returns(() => Task.FromResult(new Currency()));
         _currencyServiceMock.Setup(c => c.ConvertToPrimaryStoreCurrency(100, It.IsAny<Currency>()))
             .Returns(() => Task.FromResult((double)100));
-        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
+        //the message is written in the language the order was placed in
+        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>(), "lang1", It.IsAny<string>(),
+            It.IsAny<bool>())).Returns("Name");
         _mediatorMock.Setup(x => x.Send(It.IsAny<CalculateLoyaltyPointsCommand>(), default))
             .Returns(Task.FromResult(100));
 
@@ -64,7 +66,7 @@ public class AwardLoyaltyPointsCommandHandlerTests
 
         //Assert
         _loyaltyPointsServiceMock.Verify(
-            c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(),
+            c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), "Name",
                 It.IsAny<string>(), It.IsAny<double>()), Times.Once);
     }
 }

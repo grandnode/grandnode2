@@ -49,7 +49,9 @@ public class AwardLoyaltyPointsCommandHandler : IRequestHandler<AwardLoyaltyPoin
         //add loyalty points
         await _loyaltyPointsService.AddLoyaltyPointsHistory(customer.Id, points,
             request.Order.StoreId,
-            string.Format(_translationService.GetResource("LoyaltyPoints.Message.EarnedForOrder"),
+            string.Format(
+                _translationService.GetResource("LoyaltyPoints.Message.EarnedForOrder",
+                    request.Order.CustomerLanguageId),
                 request.Order.OrderNumber));
 
         request.Order.CalcLoyaltyPoints += points;
