@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.News;
 using Grand.Infrastructure;
@@ -28,7 +29,6 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
     private readonly NewsSettings _newsSettings;
 
     private string WorkingLanguageId => _contextAccessor.WorkContext.WorkingLanguage.Id;
-    private string CurrentStoreId => _contextAccessor.StoreContext.CurrentStore.Id;
 
     public GetHomePageNewsItemsHandler(ICacheBase cacheBase, IContextAccessor contextAccessor,
         INewsService newsService, IDateTimeService dateTimeService, IPictureService pictureService,
@@ -46,11 +46,12 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
 
     public async Task<HomePageNewsItemsModel> Handle(GetHomePageNewsItems request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKeyConst.HOMEPAGE_NEWSMODEL_KEY, WorkingLanguageId, CurrentStoreId);
+        var access = _contextAccessor.CatalogAccess();
+        var cacheKey = string.Format(CacheKeyConst.HOMEPAGE_NEWSMODEL_KEY, WorkingLanguageId, access.StoreId,
+            string.Join(",", access.Customer.GetCustomerGroupIds()));
         var model = await _cacheBase.GetAsync(cacheKey, async () =>
         {
-            var newsItems =
-                await _newsService.GetAllNews(_contextAccessor.CatalogAccess(), 0, _newsSettings.MainPageNewsCount);
+            var newsItems = await _newsService.GetAllNews(access, 0, _newsSettings.MainPageNewsCount);
             var hpnitemodel = new HomePageNewsItemsModel();
             foreach (var item in newsItems)
             {
