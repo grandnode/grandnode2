@@ -64,11 +64,10 @@ public interface IKnowledgebaseService
     Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id);
 
     /// <summary>
-    ///     Gets knowledge base articles
+    ///     Gets every knowledge base article, unpublished and group- or store-limited ones included
     /// </summary>
     /// <returns>List of knowledge base articles</returns>
-    /// <param name="storeId">Store ident</param>
-    Task<List<KnowledgebaseArticle>> GetKnowledgebaseArticles(string storeId = "");
+    Task<List<KnowledgebaseArticle>> GetKnowledgebaseArticles();
 
     /// <summary>
     ///     Gets public(published etc) knowledge base articles

@@ -25,7 +25,7 @@ public class KnowledgebaseViewModelServiceTests
     private void Arrange(List<KnowledgebaseCategory> categories, List<KnowledgebaseArticle> articles)
     {
         _knowledgebaseServiceMock.Setup(x => x.GetKnowledgebaseCategories()).ReturnsAsync(categories);
-        _knowledgebaseServiceMock.Setup(x => x.GetKnowledgebaseArticles(It.IsAny<string>())).ReturnsAsync(articles);
+        _knowledgebaseServiceMock.Setup(x => x.GetKnowledgebaseArticles()).ReturnsAsync(articles);
     }
 
     private async Task<List<KnowledgebaseNodeGridModel>> Level(string parentId)

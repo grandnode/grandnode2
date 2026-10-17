@@ -147,6 +147,20 @@ public class KnowledgebaseServiceTests
     }
 
     [TestMethod]
+    public async Task GetKnowledgebaseArticles_ReturnsGroupAndStoreLimitedArticles()
+    {
+        //Arrange
+        var limited = new KnowledgebaseArticle {
+            Published = true, LimitedToGroups = true, CustomerGroups = ["g1"], LimitedToStores = true, Stores = ["s1"]
+        };
+        await _repositoryKnowledgebaseArticle.InsertAsync(limited);
+        //Act
+        var result = await _knowledgebaseService.GetKnowledgebaseArticles();
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == limited.Id));
+    }
+
+    [TestMethod]
     public async Task InsertKnowledgebaseArticleTest()
     {
         //Arrange

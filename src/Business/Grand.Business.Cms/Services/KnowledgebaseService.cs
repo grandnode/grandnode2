@@ -185,15 +185,13 @@ public class KnowledgebaseService : IKnowledgebaseService
     }
 
     /// <summary>
-    ///     Gets knowledge base articles
+    ///     Gets every knowledge base article, unpublished and group- or store-limited ones included
     /// </summary>
     /// <returns>List of knowledge base articles</returns>
-    /// <param name="storeId">Store ident</param>
-    public virtual async Task<List<KnowledgebaseArticle>> GetKnowledgebaseArticles(string storeId = "")
+    public virtual async Task<List<KnowledgebaseArticle>> GetKnowledgebaseArticles()
     {
         var query = from p in _knowledgebaseArticleRepository.Table
                     select p;
-        query = ApplyStandardFilter(query);
         query = query.OrderBy(x => x.DisplayOrder);
         return (await _knowledgebaseArticleRepository.ToListAsync(query)).ToList();
     }
