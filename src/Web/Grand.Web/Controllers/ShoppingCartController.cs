@@ -68,6 +68,22 @@ public class ShoppingCartController : BasePublicController
 
     #region Utilities
 
+    private GetShoppingCart ShoppingCartRequest(IList<ShoppingCartItem> cart, bool isEditable = true,
+        bool validateCheckoutAttributes = false)
+    {
+        return new GetShoppingCart {
+            Cart = cart,
+            IsEditable = isEditable,
+            ValidateCheckoutAttributes = validateCheckoutAttributes,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Currency = _contextAccessor.WorkContext.WorkingCurrency,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Host = _contextAccessor.StoreContext.CurrentHost
+        };
+    }
+
     private ShoppingCartType[] PrepareCartTypes()
     {
         var shoppingCartTypes = new List<ShoppingCartType> {
@@ -254,16 +270,7 @@ public class ShoppingCartController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes());
-        var model = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            ValidateCheckoutAttributes = checkoutAttributes,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost
-        });
+        var model = await _mediator.Send(ShoppingCartRequest(cart, validateCheckoutAttributes: checkoutAttributes));
         return View(model);
     }
 
@@ -274,16 +281,7 @@ public class ShoppingCartController : BasePublicController
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
-        var model = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            IsEditable = false,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var model = await _mediator.Send(ShoppingCartRequest(cart, isEditable: false));
 
         return Json(model);
     }
@@ -330,15 +328,8 @@ public class ShoppingCartController : BasePublicController
             warnings.AddRange(currSciWarnings);
         }
 
-        var cartModel = await _mediator.Send(new GetShoppingCart {
-            Cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes()),
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var updatedCart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes());
+        var cartModel = await _mediator.Send(ShoppingCartRequest(updatedCart));
 
         return Json(new {
             success = !warnings.Any(),
@@ -399,15 +390,7 @@ public class ShoppingCartController : BasePublicController
             });
 
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes());
-        var shoppingcartmodel = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var shoppingcartmodel = await _mediator.Send(ShoppingCartRequest(cart));
 
         return Json(new {
             totalproducts = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"),
@@ -450,15 +433,7 @@ public class ShoppingCartController : BasePublicController
         });
 
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes());
-        var shoppingcartmodel = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var shoppingcartmodel = await _mediator.Send(ShoppingCartRequest(cart));
 
         return Json(new {
             model = shoppingcartmodel,
@@ -532,15 +507,7 @@ public class ShoppingCartController : BasePublicController
             message = string.Join(',', ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)));
         }
 
-        var cartModel = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var cartModel = await _mediator.Send(ShoppingCartRequest(cart));
 
         cartModel.DiscountBox.Message = message;
         cartModel.DiscountBox.IsApplied = isApplied;
@@ -577,15 +544,7 @@ public class ShoppingCartController : BasePublicController
             message = string.Join(',', ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)));
         }
 
-        var cartModel = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var cartModel = await _mediator.Send(ShoppingCartRequest(cart));
 
         cartModel.GiftVoucherBox.Message = message;
         cartModel.GiftVoucherBox.IsApplied = isApplied;
@@ -638,15 +597,7 @@ public class ShoppingCartController : BasePublicController
 
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes());
 
-        var model = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var model = await _mediator.Send(ShoppingCartRequest(cart));
 
         return Json(new {
             model
@@ -674,15 +625,7 @@ public class ShoppingCartController : BasePublicController
 
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor, PrepareCartTypes());
 
-        var model = await _mediator.Send(new GetShoppingCart {
-            Cart = cart,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Host = _contextAccessor.StoreContext.CurrentHost,
-            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-        });
+        var model = await _mediator.Send(ShoppingCartRequest(cart));
 
         return Json(new {
             model
