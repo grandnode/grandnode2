@@ -323,6 +323,7 @@ public class ShoppingCartController : BasePublicController
         if (cart != null)
         {
             var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_contextAccessor.WorkContext.CurrentCustomer,
+                _contextAccessor.WorkContext.WorkingLanguage,
                 cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
                 cart.RentalStartDateUtc, cart.RentalEndDateUtc,
                 model.Quantity);
@@ -473,7 +474,7 @@ public class ShoppingCartController : BasePublicController
 
         var checkoutAttributeWarnings =
             await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,
-            _contextAccessor.CalculationContext(), true, true);
+            _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage, true, true);
         if (checkoutAttributeWarnings.Any()) return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
 
         //everything is OK

@@ -1158,10 +1158,11 @@ public class OrderViewModelService : IOrderViewModelService
         };
 
         warnings.AddRange(
-            await _shoppingCartValidator.GetShoppingCartItemAttributeWarnings(customer, product, shoppingCartItem));
+            await _shoppingCartValidator.GetShoppingCartItemAttributeWarnings(customer, product, shoppingCartItem,
+                _contextAccessor.WorkContext.WorkingLanguage));
         warnings.AddRange(
             await _shoppingCartValidator.GetShoppingCartItemGiftVoucherWarnings(customer, product,
-                shoppingCartItem));
+                shoppingCartItem, _contextAccessor.WorkContext.WorkingLanguage));
         if (warnings.Count == 0)
         {
             //the description is stored on the order, so it is rendered for the order, not for the admin

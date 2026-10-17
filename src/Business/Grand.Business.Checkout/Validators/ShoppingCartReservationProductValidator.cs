@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Checkout.Validators;
@@ -11,7 +12,8 @@ namespace Grand.Business.Checkout.Validators;
 public record ShoppingCartReservationProductValidatorRecord(
     Customer Customer,
     Product Product,
-    ShoppingCartItem ShoppingCartItem);
+    ShoppingCartItem ShoppingCartItem,
+    Language Language);
 
 public class ShoppingCartReservationProductValidator : AbstractValidator<ShoppingCartReservationProductValidatorRecord>
 {
@@ -25,7 +27,7 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                 var reservations = await productReservationService.GetCustomerReservationsHelpers(value.Customer.Id);
                 if (value.Customer.ShoppingCartItems.All(x => x.Id != value.ShoppingCartItem.Id))
                     if (reservations.Any(x => x.ReservationId == value.ShoppingCartItem.ReservationId))
-                        context.AddFailure(translationService.GetResource("ShoppingCart.AlreadyReservation"));
+                        context.AddFailure(translationService.GetResource("ShoppingCart.AlreadyReservation", value.Language.Id));
             }
 
             if (value.ShoppingCartItem.RentalStartDateUtc.HasValue && value.ShoppingCartItem.RentalEndDateUtc.HasValue)
@@ -46,7 +48,7 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                 if (!canBeBook)
                 {
                     context.AddFailure(
-                        translationService.GetResource("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod"));
+                        translationService.GetResource("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod", value.Language.Id));
                     return;
                 }
             }
@@ -54,7 +56,7 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
             if (string.IsNullOrEmpty(value.ShoppingCartItem.ReservationId) &&
                 value.Product.IntervalUnitId != IntervalUnit.Day)
             {
-                context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.NoReservationFound"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.NoReservationFound", value.Language.Id));
                 return;
             }
 
@@ -64,12 +66,12 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                     await productReservationService.GetProductReservation(value.ShoppingCartItem.ReservationId);
                 if (reservation == null)
                 {
-                    context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ReservationDeleted"));
+                    context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ReservationDeleted", value.Language.Id));
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(reservation.OrderId))
-                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved"));
+                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved", value.Language.Id));
                 }
             }
             else
@@ -77,7 +79,7 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                 if (!(value.ShoppingCartItem.RentalStartDateUtc.HasValue &&
                       value.ShoppingCartItem.RentalEndDateUtc.HasValue))
                 {
-                    context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ChooseBothDates"));
+                    context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ChooseBothDates", value.Language.Id));
                 }
                 else
                 {
@@ -87,7 +89,7 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                             value.ShoppingCartItem.RentalEndDateUtc.Value)
                             context.AddFailure(
                                 translationService.GetResource(
-                                    "ShoppingCart.Reservation.EndDateMustBeLaterThanStartDate"));
+                                    "ShoppingCart.Reservation.EndDateMustBeLaterThanStartDate", value.Language.Id));
                     }
                     else
                     {
@@ -95,14 +97,14 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                             value.ShoppingCartItem.RentalEndDateUtc.Value)
                             context.AddFailure(
                                 translationService.GetResource(
-                                    "ShoppingCart.Reservation.EndDateMustBeLaterThanStartDate"));
+                                    "ShoppingCart.Reservation.EndDateMustBeLaterThanStartDate", value.Language.Id));
                     }
 
                     if (value.ShoppingCartItem.RentalStartDateUtc.Value < DateTime.UtcNow ||
                         value.ShoppingCartItem.RentalEndDateUtc.Value < DateTime.UtcNow)
                         context.AddFailure(
                             translationService.GetResource(
-                                "ShoppingCart.Reservation.ReservationDatesMustBeLaterThanToday"));
+                                "ShoppingCart.Reservation.ReservationDatesMustBeLaterThanToday", value.Language.Id));
 
                     if (value.Customer.ShoppingCartItems.Any(x => x.Id == value.ShoppingCartItem.Id))
                     {
@@ -111,7 +113,7 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                                 .Id);
                         if (!reserved.Any())
                             context.AddFailure(
-                                translationService.GetResource("ShoppingCart.Reservation.ReservationNotExists"));
+                                translationService.GetResource("ShoppingCart.Reservation.ReservationNotExists", value.Language.Id));
                         else
                             foreach (var item in reserved)
                             {
@@ -120,13 +122,13 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                                 if (reservation == null)
                                 {
                                     context.AddFailure(
-                                        translationService.GetResource("ShoppingCart.Reservation.ReservationDeleted"));
+                                        translationService.GetResource("ShoppingCart.Reservation.ReservationDeleted", value.Language.Id));
                                     break;
                                 }
 
                                 if (string.IsNullOrEmpty(reservation.OrderId)) continue;
                                 context.AddFailure(
-                                    translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved"));
+                                    translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved", value.Language.Id));
                                 break;
                             }
                     }

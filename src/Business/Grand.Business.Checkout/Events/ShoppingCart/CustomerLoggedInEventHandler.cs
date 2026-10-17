@@ -17,6 +17,6 @@ public class CustomerLoggedInEventHandler : INotificationHandler<CustomerLoggedI
     {
         //migrate shopping cart
         await _shoppingCartService.MigrateShoppingCart(notification.PreviousCustomer, notification.Customer,
-            notification.StoreId, true);
+            notification.StoreId, notification.Language, true);
     }
 }

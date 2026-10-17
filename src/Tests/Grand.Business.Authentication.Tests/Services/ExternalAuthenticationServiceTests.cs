@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -123,18 +124,20 @@ public class ExternalAuthenticationServiceTests
     }
 
     [TestMethod]
-    public async Task Authenticate_AssociatedUserFromGuest_PublishesLoggedInEventWithPassedCustomerAndStore()
+    public async Task Authenticate_AssociatedUserFromGuest_PublishesLoggedInEventWithPassedCustomerStoreAndLanguage()
     {
         var user = new Customer { Id = "user" };
         var guest = new Customer { Id = "guest" };
+        var language = new Language { Id = "lang1" };
         _customerServiceMock.Setup(c => c.GetCustomerById("user")).ReturnsAsync(user);
         var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" };
         await _externalAuthenticationService.AssociateCustomer(user, parameters);
 
-        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" });
+        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" }, language);
 
         _mediatorMock.Verify(m => m.Publish(It.Is<CustomerLoggedInEvent>(e =>
-            e.Customer == user && e.PreviousCustomer == guest && e.StoreId == "store1"), default), Times.Once);
+            e.Customer == user && e.PreviousCustomer == guest && e.StoreId == "store1" && e.Language == language),
+            default), Times.Once);
         _authenticationServiceMock.Verify(a => a.SignIn(user, false), Times.Once);
     }
 
@@ -142,15 +145,17 @@ public class ExternalAuthenticationServiceTests
     public async Task Authenticate_UnknownIdentity_RegistersPassedCustomerInPassedStore()
     {
         var guest = new Customer { Id = "guest" };
+        var language = new Language { Id = "lang1" };
         var parameters = new ExternalAuthParam {
             ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "new@test.com"
         };
 
-        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" });
+        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" }, language);
 
         _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.Is<RegistrationRequest>(r =>
             r.Customer == guest && r.StoreId == "store1" && r.Email == "new@test.com")), Times.Once);
-        _mediatorMock.Verify(m => m.Publish(It.Is<CustomerRegisteredEvent>(e => e.Customer == guest), default),
+        _mediatorMock.Verify(m => m.Publish(It.Is<CustomerRegisteredEvent>(e =>
+                e.Customer == guest && e.Language == language), default),
             Times.Once);
         _authenticationServiceMock.Verify(a => a.SignIn(guest, false), Times.Once);
         Assert.AreEqual("guest", _externalAuthenticationRecordRepository.Table.Single().CustomerId);

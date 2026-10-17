@@ -4,13 +4,15 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Checkout.Validators;
 
 public record ShoppingCartTotalAmountValidatorRecord(
     IList<ShoppingCartItem> Cart,
-    CalculationContext Context);
+    CalculationContext Context,
+    Language Language);
 
 public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTotalAmountValidatorRecord>
 {
@@ -40,9 +42,9 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
 
             if (shoppingCartTotalBase.HasValue && (shoppingCartTotalBase.Value < minOrderAmount ||
                                                    shoppingCartTotalBase.Value > maxOrderAmount))
-                context.AddFailure(translationService.GetResource("Checkout.MinMaxOrderTotalAmount"));
+                context.AddFailure(translationService.GetResource("Checkout.MinMaxOrderTotalAmount", value.Language.Id));
             else if (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value < orderSettings.MinOrderTotalAmount)
-                context.AddFailure(translationService.GetResource("Checkout.MinMaxOrderTotalAmount"));
+                context.AddFailure(translationService.GetResource("Checkout.MinMaxOrderTotalAmount", value.Language.Id));
 
             //subtotal
             var (_, _, subTotalWithoutDiscount, _, _) =
@@ -52,7 +54,7 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
                 var minOrderSubtotalAmount =
                     await currencyService.ConvertFromPrimaryStoreCurrency(orderSettings.MinOrderSubtotalAmount,
                         value.Context.Currency);
-                context.AddFailure(string.Format(translationService.GetResource("Checkout.MinOrderSubtotalAmount"),
+                context.AddFailure(string.Format(translationService.GetResource("Checkout.MinOrderSubtotalAmount", value.Language.Id),
                     priceFormatter.FormatPrice(minOrderSubtotalAmount, value.Context.Currency)));
             }
         });

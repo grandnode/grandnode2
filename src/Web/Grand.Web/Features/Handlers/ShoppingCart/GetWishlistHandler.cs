@@ -94,7 +94,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
 
         //cart warnings
         var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, null,
-            request.CalculationContext(), false, false);
+            request.CalculationContext(), request.Language, false, false);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);
 
@@ -188,7 +188,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
 
             //item warnings
             var itemWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(request.Customer, sci, product,
-                new ShoppingCartValidatorOptions());
+                new ShoppingCartValidatorOptions(), request.Language);
             foreach (var warning in itemWarnings)
                 cartItemModel.Warnings.Add(warning);
 

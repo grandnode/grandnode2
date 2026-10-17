@@ -10,6 +10,7 @@ using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
@@ -146,7 +147,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         return result;
     }
 
-    public virtual async Task<OidcLoginResult> ResolveForLogin(string sub, string email, bool emailVerified, string storeId)
+    public virtual async Task<OidcLoginResult> ResolveForLogin(string sub, string email, bool emailVerified, string storeId,
+        Language language)
     {
         if (string.IsNullOrEmpty(sub))
             return OidcLoginResult.Refused(OidcLoginRefusal.InvalidIdentity);
@@ -186,7 +188,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         {
             //provider-only with automatic accounts: the provider decides who gets in, no form and no registration type
             if (_loginConfig is { ProviderOnly: true, AutoProvision: true })
-                return await ProvisionForLogin(sub, email, emailVerified, storeId);
+                return await ProvisionForLogin(sub, email, emailVerified, storeId, language);
 
             var customerSettings = await _settingService.LoadSetting<CustomerSettings>(storeId);
             if (customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -277,7 +279,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (existing != null)
             return await Usable(await _customerService.GetCustomerById(existing.CustomerId), sub, storeId);
 
-        var (outcome, customer, winner) = await CreateLinkedAccount(sub, email, storeId);
+        //an access token carries no working language: the registration falls back to the store's
+        var (outcome, customer, winner) = await CreateLinkedAccount(sub, email, storeId, null);
         return outcome switch {
             Provisioning.UserNameTaken => OidcCustomerResult.Forbidden("The user name is already taken"),
             Provisioning.LinkedToOtherIdentity => LinkedToOtherIdentity(customer, sub),
@@ -290,14 +293,15 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     ///     ProviderOnly + AutoProvision: the account of an unknown, provider-verified e-mail, created and linked at its first
     ///     browser sign-in (the profile sync of the sign-in fills in the names)
     /// </summary>
-    private async Task<OidcLoginResult> ProvisionForLogin(string sub, string email, bool emailVerified, string storeId)
+    private async Task<OidcLoginResult> ProvisionForLogin(string sub, string email, bool emailVerified, string storeId,
+        Language language)
     {
-        var (outcome, customer, _) = await CreateLinkedAccount(sub, email, storeId);
+        var (outcome, customer, _) = await CreateLinkedAccount(sub, email, storeId, language);
         return outcome switch {
             Provisioning.UserNameTaken => OidcLoginResult.Refused(OidcLoginRefusal.AccountUnusable),
             Provisioning.LinkedToOtherIdentity => OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity),
             //another request of the same user created the account first: its link answers now
-            Provisioning.LostRace => await ResolveForLogin(sub, email, emailVerified, storeId),
+            Provisioning.LostRace => await ResolveForLogin(sub, email, emailVerified, storeId, language),
             _ => OidcLoginResult.SignIn(customer)
         };
     }
@@ -315,7 +319,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     ///     e-mail validation / admin approval does not apply: access comes from the provider and from permissions an admin grants
     /// </summary>
     private async Task<(Provisioning Outcome, Customer Customer, Customer Winner)> CreateLinkedAccount(string sub,
-        string email, string storeId)
+        string email, string storeId, Language language)
     {
         //the e-mail becomes the user name - another account may hold it as its user name without that e-mail
         var normalizedEmail = email.ToLowerInvariant();
@@ -347,7 +351,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         }
 
         //only after the link is stored, so the loser of a race sends no welcome message
-        await _mediator.Publish(new CustomerRegisteredEvent(customer));
+        await _mediator.Publish(new CustomerRegisteredEvent(customer, language));
         _logger.LogInformation("Subject {Subject} registered as customer {CustomerId} (store {StoreId})",
             sub, customer.Id, storeId);
         return (Provisioning.Created, customer, null);

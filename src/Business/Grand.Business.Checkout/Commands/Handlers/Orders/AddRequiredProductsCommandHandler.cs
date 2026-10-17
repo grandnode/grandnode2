@@ -51,7 +51,7 @@ public class AddRequiredProductsCommandHandler : IRequestHandler<AddRequiredProd
                 //not in the cart
                 if (alreadyInTheCart) continue;
                 if (!product.AutoAddRequiredProducts) continue;
-                var addToCart = await _shoppingCartService.AddToCart(customer,
+                var addToCart = await _shoppingCartService.AddToCart(customer, request.Language,
                     rp.Id,
                     shoppingCartType,
                     storeId,
@@ -63,7 +63,8 @@ public class AddRequiredProductsCommandHandler : IRequestHandler<AddRequiredProd
                         Customer = customer,
                         ShoppingCartType = shoppingCartType,
                         StoreId = storeId,
-                        Product = rp
+                        Product = rp,
+                        Language = request.Language
                     }, cancellationToken);
             }
         }

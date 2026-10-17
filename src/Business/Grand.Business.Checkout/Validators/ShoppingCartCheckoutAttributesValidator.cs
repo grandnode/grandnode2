@@ -5,6 +5,7 @@ using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 
@@ -14,7 +15,8 @@ public record ShoppingCartCheckoutAttributesValidatorRecord(
     Customer Customer,
     Store Store,
     IList<ShoppingCartItem> ShoppingCarts,
-    IList<CustomAttribute> CheckoutAttributes);
+    IList<CustomAttribute> CheckoutAttributes,
+    Language Language);
 
 public class ShoppingCartCheckoutAttributesValidator : AbstractValidator<ShoppingCartCheckoutAttributesValidatorRecord>
 {
@@ -50,7 +52,7 @@ public class ShoppingCartCheckoutAttributesValidator : AbstractValidator<Shoppin
                 //if not found
                 if (!found)
                     context.AddFailure(a2.TextPrompt ??
-                                       string.Format(translationService.GetResource("ShoppingCart.SelectAttribute"),
+                                       string.Format(translationService.GetResource("ShoppingCart.SelectAttribute", value.Language.Id),
                                            a2.Name));
             }
 
@@ -69,7 +71,7 @@ public class ShoppingCartCheckoutAttributesValidator : AbstractValidator<Shoppin
 
                         if (ca.ValidationMinLength.Value > enteredTextLength)
                             context.AddFailure(string.Format(
-                                translationService.GetResource("ShoppingCart.TextBoxMinimumLength"), ca.Name,
+                                translationService.GetResource("ShoppingCart.TextBoxMinimumLength", value.Language.Id), ca.Name,
                                 ca.ValidationMinLength.Value));
                     }
 
@@ -84,7 +86,7 @@ public class ShoppingCartCheckoutAttributesValidator : AbstractValidator<Shoppin
 
                     if (ca.ValidationMaxLength.Value < enteredTextLength)
                         context.AddFailure(string.Format(
-                            translationService.GetResource("ShoppingCart.TextBoxMaximumLength"), ca.Name,
+                            translationService.GetResource("ShoppingCart.TextBoxMaximumLength", value.Language.Id), ca.Name,
                             ca.ValidationMaxLength.Value));
                 }
             }

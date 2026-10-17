@@ -76,7 +76,8 @@ public class GoogleAuthenticationController : BasePluginController
 
         //authenticate grand user
         return await _externalAuthenticationService.Authenticate(authenticationParameters,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore, returnUrl);
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingLanguage, returnUrl);
     }
 
     public IActionResult GoogleSignInFailed(string error_message)

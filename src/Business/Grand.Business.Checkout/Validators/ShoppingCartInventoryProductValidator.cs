@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Checkout.Validators;
@@ -10,7 +11,8 @@ namespace Grand.Business.Checkout.Validators;
 public record ShoppingCartInventoryProductValidatorRecord(
     Customer Customer,
     Product Product,
-    ShoppingCartItem ShoppingCartItem);
+    ShoppingCartItem ShoppingCartItem,
+    Language Language);
 
 public class ShoppingCartInventoryProductValidator : AbstractValidator<ShoppingCartInventoryProductValidatorRecord>
 {
@@ -23,25 +25,25 @@ public class ShoppingCartInventoryProductValidator : AbstractValidator<ShoppingC
             var hasQtyWarnings = false;
             if (value.ShoppingCartItem.Quantity < value.Product.OrderMinimumQuantity)
             {
-                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.MinimumQuantity"),
+                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.MinimumQuantity", value.Language.Id),
                     value.Product.OrderMinimumQuantity));
                 hasQtyWarnings = true;
             }
 
             if (value.ShoppingCartItem.Quantity > value.Product.OrderMaximumQuantity)
             {
-                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.MaximumQuantity"),
+                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.MaximumQuantity", value.Language.Id),
                     value.Product.OrderMaximumQuantity));
                 hasQtyWarnings = true;
             }
 
             var allowedQuantities = value.Product.ParseAllowedQuantities();
             if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(value.ShoppingCartItem.Quantity))
-                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.AllowedQuantities"),
+                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.AllowedQuantities", value.Language.Id),
                     string.Join(", ", allowedQuantities)));
 
             if (shoppingCartSettings.AllowToSelectWarehouse && string.IsNullOrEmpty(value.ShoppingCartItem.WarehouseId))
-                context.AddFailure(translationService.GetResource("ShoppingCart.RequiredWarehouse"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.RequiredWarehouse", value.Language.Id));
 
             var warehouseId = !string.IsNullOrEmpty(value.ShoppingCartItem.WarehouseId)
                 ? value.ShoppingCartItem.WarehouseId
@@ -73,9 +75,9 @@ public class ShoppingCartInventoryProductValidator : AbstractValidator<ShoppingC
                                 stockQuantityService.GetTotalStockQuantity(value.Product, warehouseId: warehouseId);
                             if (maximumQuantityCanBeAdded < qty)
                                 context.AddFailure(maximumQuantityCanBeAdded <= 0
-                                    ? translationService.GetResource("ShoppingCart.OutOfStock")
+                                    ? translationService.GetResource("ShoppingCart.OutOfStock", value.Language.Id)
                                     : string.Format(
-                                        translationService.GetResource("ShoppingCart.QuantityExceedsStock"),
+                                        translationService.GetResource("ShoppingCart.QuantityExceedsStock", value.Language.Id),
                                         maximumQuantityCanBeAdded));
                         }
                     }
@@ -93,7 +95,7 @@ public class ShoppingCartInventoryProductValidator : AbstractValidator<ShoppingC
                                     stockQuantityService.GetTotalStockQuantity(p1, warehouseId: warehouseId);
                                 if (maximumQuantityCanBeAdded < qty)
                                     context.AddFailure(string.Format(
-                                        translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct"),
+                                        translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct", value.Language.Id),
                                         p1.Name));
                             }
 
@@ -110,15 +112,15 @@ public class ShoppingCartInventoryProductValidator : AbstractValidator<ShoppingC
                                     context.AddFailure(stockQuantity <= 0
                                         ? string.Format(
                                             translationService.GetResource(
-                                                "ShoppingCart.OutOfStock.BundleProduct"), p1.Name)
+                                                "ShoppingCart.OutOfStock.BundleProduct", value.Language.Id), p1.Name)
                                         : string.Format(
                                             translationService.GetResource(
-                                                "ShoppingCart.QuantityExceedsStock.BundleProduct"), p1.Name,
+                                                "ShoppingCart.QuantityExceedsStock.BundleProduct", value.Language.Id), p1.Name,
                                             stockQuantity));
                             }
                             else
                             {
-                                context.AddFailure(translationService.GetResource("ShoppingCart.Combination.NotExist"));
+                                context.AddFailure(translationService.GetResource("ShoppingCart.Combination.NotExist", value.Language.Id));
                             }
                         }
                     }
@@ -135,14 +137,14 @@ public class ShoppingCartInventoryProductValidator : AbstractValidator<ShoppingC
                                     warehouseId: warehouseId);
                             if (!combination.AllowOutOfStockOrders && stockQuantity < value.ShoppingCartItem.Quantity)
                                 context.AddFailure(stockQuantity <= 0
-                                    ? translationService.GetResource("ShoppingCart.OutOfStock")
+                                    ? translationService.GetResource("ShoppingCart.OutOfStock", value.Language.Id)
                                     : string.Format(
-                                        translationService.GetResource("ShoppingCart.QuantityExceedsStock"),
+                                        translationService.GetResource("ShoppingCart.QuantityExceedsStock", value.Language.Id),
                                         stockQuantity));
                         }
                         else
                         {
-                            context.AddFailure(translationService.GetResource("ShoppingCart.Combination.NotExist"));
+                            context.AddFailure(translationService.GetResource("ShoppingCart.Combination.NotExist", value.Language.Id));
                         }
                     }
                         break;

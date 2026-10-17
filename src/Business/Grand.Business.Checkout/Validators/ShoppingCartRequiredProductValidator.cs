@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Checkout.Validators;
@@ -11,7 +12,8 @@ public record ShoppingCartRequiredProductValidatorRecord(
     Customer Customer,
     string StoreId,
     Product Product,
-    ShoppingCartItem ShoppingCartItem);
+    ShoppingCartItem ShoppingCartItem,
+    Language Language);
 
 public class ShoppingCartRequiredProductValidator : AbstractValidator<ShoppingCartRequiredProductValidatorRecord>
 {
@@ -37,7 +39,7 @@ public class ShoppingCartRequiredProductValidator : AbstractValidator<ShoppingCa
                      let alreadyInTheCart = cart.Any(sci => sci.ProductId == rp.Id)
                      where !alreadyInTheCart
                      select rp)
-                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.RequiredProductWarning"),
+                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.RequiredProductWarning", value.Language.Id),
                     rp.Name));
         });
     }

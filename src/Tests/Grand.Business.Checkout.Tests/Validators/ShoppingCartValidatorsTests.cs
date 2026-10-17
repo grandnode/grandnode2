@@ -9,6 +9,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
@@ -20,6 +21,7 @@ namespace Grand.Business.Checkout.Tests.Validators;
 [TestClass]
 public class ShoppingCartValidatorsTests
 {
+    private static readonly Language Language = new() { Id = "lang1" };
     private Mock<IAclService> _aclServiceMock;
     private Mock<ICheckoutAttributeParser> _checkoutAttributeParserMock;
     private Mock<ICheckoutAttributeService> _checkoutAttributeServiceMock;
@@ -42,7 +44,8 @@ public class ShoppingCartValidatorsTests
         _productReservationServiceMock = new Mock<IProductReservationService>();
         _permissionServiceMock = new Mock<IPermissionService>();
         _stockQuantityService = new StockQuantityService();
-        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
+        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<bool>())).Returns("Name");
     }
 
     [TestMethod]
@@ -52,7 +55,7 @@ public class ShoppingCartValidatorsTests
         var shoppingCartAuctionValidator = new ShoppingCartAuctionValidator(_translationServiceMock.Object);
         //Act
         var result = shoppingCartAuctionValidator.Validate(new ShoppingCartAuctionValidatorRecord(new Customer(),
-            new Product { AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1) }, new ShoppingCartItem(), 10));
+            new Product { AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1) }, new ShoppingCartItem(), 10, Language));
         //Assert
         Assert.IsTrue(result.IsValid);
     }
@@ -65,7 +68,7 @@ public class ShoppingCartValidatorsTests
         //Act
         var result = shoppingCartAuctionValidator.Validate(new ShoppingCartAuctionValidatorRecord(new Customer(),
             new Product { AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1), StartPrice = 20 },
-            new ShoppingCartItem(), 10));
+            new ShoppingCartItem(), 10, Language));
         //Assert
         Assert.IsFalse(result.IsValid);
     }
@@ -85,7 +88,7 @@ public class ShoppingCartValidatorsTests
         var result = shoppingCartGiftVoucherValidator.Validate(new ShoppingCartGiftVoucherValidatorRecord(
             new Customer(), new Product {
                 GiftVoucherTypeId = GiftVoucherType.Virtual
-            }, new ShoppingCartItem { Attributes = customAttributes }));
+            }, new ShoppingCartItem { Attributes = customAttributes }, Language));
         //Assert
         Assert.IsTrue(result.IsValid);
     }
@@ -105,7 +108,7 @@ public class ShoppingCartValidatorsTests
         var result = shoppingCartGiftVoucherValidator.Validate(new ShoppingCartGiftVoucherValidatorRecord(
             new Customer(), new Product {
                 GiftVoucherTypeId = GiftVoucherType.Virtual
-            }, new ShoppingCartItem { Attributes = customAttributes }));
+            }, new ShoppingCartItem { Attributes = customAttributes }, Language));
         //Assert
         Assert.IsFalse(result.IsValid);
     }
@@ -141,7 +144,8 @@ public class ShoppingCartValidatorsTests
                 new Customer(),
                 new Store(),
                 new List<ShoppingCartItem> { new() },
-                new List<CustomAttribute> { new() { Key = "1", Value = "test" } }
+                new List<CustomAttribute> { new() { Key = "1", Value = "test" } },
+                Language
             ));
 
         //Assert
@@ -181,7 +185,8 @@ public class ShoppingCartValidatorsTests
                 new Customer(),
                 new Store(),
                 new List<ShoppingCartItem> { new() },
-                new List<CustomAttribute> { new() { Key = "1", Value = "" } }
+                new List<CustomAttribute> { new() { Key = "1", Value = "" } },
+                Language
             ));
 
         //Assert
@@ -202,7 +207,8 @@ public class ShoppingCartValidatorsTests
                 Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock
             },
-            new ShoppingCartItem { ProductId = "1", Quantity = 1 }
+            new ShoppingCartItem { ProductId = "1", Quantity = 1 },
+            Language
         ));
 
         //Assert
@@ -223,7 +229,8 @@ public class ShoppingCartValidatorsTests
                 Id = "1", StockQuantity = 0, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock
             },
-            new ShoppingCartItem { ProductId = "1", Quantity = 1 }
+            new ShoppingCartItem { ProductId = "1", Quantity = 1 },
+            Language
         ));
 
         //Assert
@@ -262,7 +269,8 @@ public class ShoppingCartValidatorsTests
                 new Customer(),
                 product,
                 new ShoppingCartItem { ProductId = "1", Quantity = 1, Attributes = attributes },
-                false
+                false,
+                Language
             ));
 
         //Assert
@@ -301,7 +309,8 @@ public class ShoppingCartValidatorsTests
                 new Customer(),
                 product,
                 new ShoppingCartItem { ProductId = "1", Quantity = 1, Attributes = attributes },
-                false
+                false,
+                Language
             ));
 
         //Assert
@@ -341,7 +350,8 @@ public class ShoppingCartValidatorsTests
                 "1",
                 product,
                 new ShoppingCartItem
-                    { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
+                    { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" },
+                Language
             ));
 
         //Assert
@@ -379,7 +389,8 @@ public class ShoppingCartValidatorsTests
                 "1",
                 product,
                 new ShoppingCartItem
-                    { ProductId = "2", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
+                    { ProductId = "2", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" },
+                Language
             ));
 
         //Assert
@@ -437,7 +448,8 @@ public class ShoppingCartValidatorsTests
                     StoreId = "1",
                     RentalStartDateUtc = DateTime.UtcNow.AddDays(1).Date,
                     RentalEndDateUtc = DateTime.UtcNow.AddDays(2).Date
-                }
+                },
+                Language
             ));
 
         //Assert
@@ -494,7 +506,8 @@ public class ShoppingCartValidatorsTests
                     StoreId = "1",
                     RentalStartDateUtc = DateTime.UtcNow.AddDays(1).Date,
                     RentalEndDateUtc = DateTime.UtcNow.AddDays(2).Date
-                }
+                },
+                Language
             ));
 
         //Assert
@@ -538,7 +551,8 @@ public class ShoppingCartValidatorsTests
                     StoreId = "1",
                     RentalStartDateUtc = DateTime.UtcNow.AddDays(1).Date,
                     RentalEndDateUtc = DateTime.UtcNow.AddDays(3).Date
-                }
+                },
+                Language
             ));
 
         //Assert
@@ -573,7 +587,7 @@ public class ShoppingCartValidatorsTests
                         ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1"
                     }
                 },
-                product, ShoppingCartType.ShoppingCart, null, null, 1, "")
+                product, ShoppingCartType.ShoppingCart, null, null, 1, "", Language)
         );
 
         //Assert
@@ -608,7 +622,7 @@ public class ShoppingCartValidatorsTests
                         ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1"
                     }
                 },
-                product, ShoppingCartType.ShoppingCart, null, null, 1, "")
+                product, ShoppingCartType.ShoppingCart, null, null, 1, "", Language)
         );
 
         //Assert
@@ -634,11 +648,34 @@ public class ShoppingCartValidatorsTests
             customer,
             product,
             new ShoppingCartItem
-                { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
+                { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" },
+            Language
         ));
 
         //Assert
         Assert.IsTrue(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task ShoppingCartStandardValidator_WritesWarningsInTheGivenLanguage()
+    {
+        //Arrange
+        var shoppingCartStandardValidator =
+            new ShoppingCartStandardValidator(_translationServiceMock.Object, _aclServiceMock.Object);
+        _aclServiceMock.Setup(x => x.Authorize(It.IsAny<Product>(), It.IsAny<Customer>())).Returns(() => true);
+        _aclServiceMock.Setup(x => x.Authorize(It.IsAny<Product>(), It.IsAny<string>())).Returns(() => true);
+        _translationServiceMock.Setup(x => x.GetResource("ShoppingCart.ProductUnpublished", "lang-pl", It.IsAny<string>(),
+            It.IsAny<bool>())).Returns("Produkt niedostępny");
+
+        //Act
+        var result = await shoppingCartStandardValidator.ValidateAsync(new ShoppingCartStandardValidatorRecord(
+            new Customer(),
+            new Product { Id = "1", Published = false },
+            new ShoppingCartItem { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart },
+            new Language { Id = "lang-pl" }));
+
+        //Assert
+        Assert.AreEqual("Produkt niedostępny", result.Errors.Single().ErrorMessage);
     }
 
     [TestMethod]
@@ -660,7 +697,8 @@ public class ShoppingCartValidatorsTests
             customer,
             product,
             new ShoppingCartItem
-                { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" }
+                { ProductId = "1", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" },
+            Language
         ));
 
         //Assert
@@ -696,7 +734,8 @@ public class ShoppingCartValidatorsTests
             new Store(),
             new List<ShoppingCartItem> {
                 new() { ProductId = "1", Quantity = 1, Attributes = attributes }
-            }
+            },
+            Language
         ));
 
         //Assert
@@ -736,7 +775,8 @@ public class ShoppingCartValidatorsTests
             new List<ShoppingCartItem> {
                 new() { ProductId = "1", Quantity = 1, Attributes = attributes },
                 new() { ProductId = "2", Quantity = 1, Attributes = attributes }
-            }
+            },
+            Language
         ));
 
         //Assert

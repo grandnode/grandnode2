@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
@@ -170,6 +171,7 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="productId">Product id</param>
     /// <param name="shoppingCartType">ShoppingCartType</param>
     /// <param name="storeId">Store id</param>
+    /// <param name="language">Language the warnings are written in</param>
     /// <param name="warehouseId">Warehouse id</param>
     /// <param name="attributes">Attributes</param>
     /// <param name="customerEnteredPrice">EnteredPrice</param>
@@ -183,7 +185,7 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="validator">ShoppingCartValidatorOptions</param>
     /// <returns>(warnings, shoppingCartItem)</returns>
     public virtual async Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer,
-        string productId,
+        Language language, string productId,
         ShoppingCartType shoppingCartType, string storeId,
         string warehouseId = null, IList<CustomAttribute> attributes = null,
         double? customerEnteredPrice = null,
@@ -206,7 +208,7 @@ public class ShoppingCartService : IShoppingCartService
 
         var warnings = (await _shoppingCartValidator.CheckCommonWarnings(customer, cart, product, shoppingCartType,
             rentalStartDate,
-            rentalEndDate, quantity, reservationId)).ToList();
+            rentalEndDate, quantity, reservationId, language)).ToList();
 
         if (warnings.Any())
             return (warnings, null);
@@ -241,12 +243,13 @@ public class ShoppingCartService : IShoppingCartService
                 Duration = duration
             };
         warnings.AddRange(
-            await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, validator));
+            await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, validator,
+                language));
 
         if (warnings.Any()) return (warnings, shoppingCartItem);
         if (update) await UpdateExistingShoppingCartItem(shoppingCartItem, customer, attributes);
         else
-            shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem,
+            shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem, language,
                 automaticallyAddRequiredProductsIfEnabled);
 
         if (product.ProductTypeId == ProductType.Reservation)
@@ -276,7 +279,7 @@ public class ShoppingCartService : IShoppingCartService
     }
 
     private async Task<ShoppingCartItem> InsertNewItem(
-        Customer customer, Product product, ShoppingCartItem shoppingCartItem,
+        Customer customer, Product product, ShoppingCartItem shoppingCartItem, Language language,
         bool automaticallyAddRequiredProductsIfEnabled)
     {
         customer.ShoppingCartItems.Add(shoppingCartItem);
@@ -289,7 +292,8 @@ public class ShoppingCartService : IShoppingCartService
                 Customer = customer,
                 Product = product,
                 ShoppingCartType = shoppingCartItem.ShoppingCartTypeId,
-                StoreId = shoppingCartItem.StoreId
+                StoreId = shoppingCartItem.StoreId,
+                Language = language
             });
 
         return shoppingCartItem;
@@ -302,6 +306,7 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="shoppingCartItemId">Shopping cart item identifier</param>
     /// <param name="warehouseId"></param>
     /// <param name="attributes">Attributes</param>
+    /// <param name="language">Language the warnings are written in</param>
     /// <param name="customerEnteredPrice">New customer entered price</param>
     /// <param name="rentalStartDate">Rental start date</param>
     /// <param name="rentalEndDate">Rental end date</param>
@@ -310,7 +315,7 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="reservationId"></param>
     /// <param name="sciId"></param>
     /// <returns>Warnings</returns>
-    public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer,
+    public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer, Language language,
         string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
@@ -342,7 +347,7 @@ public class ShoppingCartService : IShoppingCartService
             shoppingCartItem.IsGiftVoucher = product.IsGiftVoucher;
             //check warnings
             warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem,
-                product, new ShoppingCartValidatorOptions()));
+                product, new ShoppingCartValidatorOptions(), language));
             if (warnings.Any()) return warnings;
             //if everything is OK, then update a shopping cart item
             await _customerService.UpdateShoppingCartItem(customer.Id, shoppingCartItem);
@@ -395,12 +400,13 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="storeId">
     ///     Store whose selected checkout attributes move along, when the source customer has selected any there
     /// </param>
+    /// <param name="language">Language the items are validated in</param>
     /// <param name="includeCouponCodes">
     ///     A value indicating whether to coupon codes (discount and gift voucher) should be also
     ///     re-applied
     /// </param>
     public virtual async Task MigrateShoppingCart(Customer fromCustomer, Customer toCustomer, string storeId,
-        bool includeCouponCodes)
+        Language language, bool includeCouponCodes)
     {
         ArgumentNullException.ThrowIfNull(fromCustomer);
         ArgumentNullException.ThrowIfNull(toCustomer);
@@ -416,10 +422,11 @@ public class ShoppingCartService : IShoppingCartService
         {
             var product = await _productService.GetProductById(sci.ProductId);
             if (product != null &&
-                (await _shoppingCartValidator.GetRequiredProductWarnings(fromCustomer, sci, product, sci.StoreId)).Any())
+                (await _shoppingCartValidator.GetRequiredProductWarnings(fromCustomer, sci, product, sci.StoreId,
+                    language)).Any())
                 continue;
 
-            await AddToCart(toCustomer, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
+            await AddToCart(toCustomer, language, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
                 sci.Attributes, sci.EnteredPrice,
                 sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter,
                 sci.Duration,

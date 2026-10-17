@@ -3,9 +3,11 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +24,8 @@ public class ReduceLoyaltyPointsCommandHandlerTests
     private Mock<ILoyaltyPointsService> _loyaltyPointsServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IOrderService> _orderServiceMock;
+    private Mock<ILanguageService> _languageServiceMock;
+    private Mock<IStoreService> _storeServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
 
 
@@ -34,10 +38,13 @@ public class ReduceLoyaltyPointsCommandHandlerTests
         _currencyServiceMock = new Mock<ICurrencyService>();
         _orderServiceMock = new Mock<IOrderService>();
         _translationServiceMock = new Mock<ITranslationService>();
+        _languageServiceMock = new Mock<ILanguageService>();
+        _languageServiceMock.Setup(c => c.GetLanguageById("lang1")).ReturnsAsync(new Language { Id = "lang1" });
+        _storeServiceMock = new Mock<IStoreService>();
 
         _handler = new ReduceLoyaltyPointsCommandHandler(_customerServiceMock.Object, _loyaltyPointsServiceMock.Object,
             _mediatorMock.Object, _orderServiceMock.Object, _translationServiceMock.Object,
-            _currencyServiceMock.Object);
+            _languageServiceMock.Object, _storeServiceMock.Object, _currencyServiceMock.Object);
     }
 
 
@@ -46,7 +53,7 @@ public class ReduceLoyaltyPointsCommandHandlerTests
     {
         //Arrange
         var command = new ReduceLoyaltyPointsCommand {
-            Order = new Order { StoreId = "", OrderNumber = 1, CalcLoyaltyPoints = 100 }
+            Order = new Order { StoreId = "", OrderNumber = 1, CalcLoyaltyPoints = 100, CustomerLanguageId = "lang1" }
         };
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
@@ -55,7 +62,9 @@ public class ReduceLoyaltyPointsCommandHandlerTests
             .Returns(() => Task.FromResult(new Currency()));
         _currencyServiceMock.Setup(c => c.ConvertToPrimaryStoreCurrency(100, It.IsAny<Currency>()))
             .Returns(() => Task.FromResult((double)100));
-        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
+        //the message is written in the language the order was placed in
+        _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>(), "lang1", It.IsAny<string>(),
+            It.IsAny<bool>())).Returns("Name");
         _mediatorMock.Setup(x => x.Send(It.IsAny<CalculateLoyaltyPointsCommand>(), default))
             .Returns(Task.FromResult(100));
 
@@ -65,6 +74,6 @@ public class ReduceLoyaltyPointsCommandHandlerTests
         //Assert
         _loyaltyPointsServiceMock.Verify(
             c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), It.Is<int>(g => g < 0), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<double>()), Times.Once);
+                "Name", It.IsAny<string>(), It.IsAny<double>()), Times.Once);
     }
 }

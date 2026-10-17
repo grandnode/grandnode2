@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Mediator;
@@ -30,6 +31,7 @@ namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
 [TestClass]
 public class OidcLoginControllerTests
 {
+    private static readonly Language Language = new() { Id = "lang1" };
     private static readonly ExternalRegistrationIdentity Pending =
         new(OidcLoginDefaults.ProviderSystemName, "sub-1", "john@example.com", true, "John", "Doe");
 
@@ -85,6 +87,7 @@ public class OidcLoginControllerTests
         _current = new Customer { Id = "c1", Email = "John@Example.com" };
         var work = new Mock<IWorkContext>();
         work.Setup(x => x.CurrentCustomer).Returns(() => _current);
+        work.Setup(x => x.WorkingLanguage).Returns(Language);
         var store = new Mock<IStoreContext>();
         store.Setup(x => x.CurrentStore).Returns(new Store { Id = "s1" });
         var ctx = new Mock<IContextAccessor>();
@@ -165,10 +168,10 @@ public class OidcLoginControllerTests
     {
         var customer = new Customer { Id = "c9" };
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin("sub-1", "john@example.com", true, "s1")).ReturnsAsync(OidcLoginResult.SignIn(customer));
+        _resolver.Setup(x => x.ResolveForLogin("sub-1", "john@example.com", true, "s1", Language)).ReturnsAsync(OidcLoginResult.SignIn(customer));
         var result = await _controller.Callback("/cart");
         _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
-        _mediator.Verify(x => x.Publish(It.Is<CustomerLoggedInEvent>(e => e.Customer == customer), It.IsAny<CancellationToken>()), Times.Once);
+        _mediator.Verify(x => x.Publish(It.Is<CustomerLoggedInEvent>(e => e.Customer == customer && e.Language == Language), It.IsAny<CancellationToken>()), Times.Once);
         _external.Verify(x => x.Clear(), Times.Once);
         Assert.AreEqual("/cart", ((RedirectResult)result).Url);
     }
@@ -177,7 +180,7 @@ public class OidcLoginControllerTests
     public async Task Callback_RegistrationRequired_ToRegister_PendingKept()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.RegistrationRequired());
         Assert.AreEqual("Register", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
         _external.Verify(x => x.Clear(), Times.Never);
@@ -187,7 +190,7 @@ public class OidcLoginControllerTests
     public async Task Callback_LinkRequired_ToLink()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.LinkRequired(new Customer()));
         Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
     }
@@ -196,7 +199,7 @@ public class OidcLoginControllerTests
     public async Task Callback_Refused_ClearsAndFailsWithReason()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.Refused(OidcLoginRefusal.AccountInactive));
         var result = (RedirectToRouteResult)await _controller.Callback("/");
         Assert.AreEqual("OidcLoginFailed", result.RouteName);
@@ -289,7 +292,7 @@ public class OidcLoginControllerTests
         _externalAuth.Setup(x => x.AuthenticationProviderIsAvailable(It.IsAny<string>(), It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>())).Returns(false);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
         _external.Verify(x => x.Clear(), Times.Once);
-        _resolver.Verify(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
+        _resolver.Verify(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()),
             Times.Never);
     }
 
@@ -299,7 +302,7 @@ public class OidcLoginControllerTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { ProviderSystemName = "Other" });
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
         _external.Verify(x => x.Clear(), Times.Once);
-        _resolver.Verify(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
+        _resolver.Verify(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()),
             Times.Never);
     }
 
@@ -333,7 +336,7 @@ public class OidcLoginControllerTests
         var customer = new Customer { Id = "c9", Email = "john@example.com" };
         customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         Assert.AreEqual("/cart", ((RedirectResult)await _controller.Callback("/cart")).Url);
         _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
@@ -344,7 +347,7 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(new Customer { Id = "other" }));
         var result = (RedirectToRouteResult)await _controller.Callback("/");
         Assert.AreEqual("OidcLoginFailed", result.RouteName);
@@ -360,7 +363,7 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(_current));
 
         var result = (RedirectResult)await _controller.Callback("/account");
@@ -375,7 +378,7 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.RegistrationRequired());
         var result = (RedirectToRouteResult)await _controller.Callback("/");
         Assert.AreEqual("OidcLoginFailed", result.RouteName);
@@ -388,7 +391,7 @@ public class OidcLoginControllerTests
     {
         _groups.Setup(x => x.IsRegistered(_current)).ReturnsAsync(true);
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.LinkRequired(new Customer { Id = "other" }));
         Assert.AreEqual("OidcLoginLink", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
     }
@@ -462,7 +465,7 @@ public class OidcLoginControllerTests
     {
         var customer = new Customer { Id = "c2" };
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin("sub-1", "john@example.com", true, "s1")).ReturnsAsync(OidcLoginResult.SignIn(customer));
+        _resolver.Setup(x => x.ResolveForLogin("sub-1", "john@example.com", true, "s1", Language)).ReturnsAsync(OidcLoginResult.SignIn(customer));
 
         await _controller.Callback("/");
 
@@ -476,7 +479,7 @@ public class OidcLoginControllerTests
     {
         var customer = new Customer { Id = "c2" };
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         _sessions.Setup(x => x.Start(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string)null);
@@ -502,7 +505,7 @@ public class OidcLoginControllerTests
         var customer = new Customer { Id = "c2" };
         _externalItems.Clear();
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         await _controller.Callback("/");
         _sessions.Verify(x => x.Start(customer, "sub-1", null, null, "s1"), Times.Once);
@@ -513,7 +516,7 @@ public class OidcLoginControllerTests
     {
         var customer = new Customer { Id = "c9" };
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         Assert.AreEqual("HomePage", ((RedirectToRouteResult)await _controller.Callback("https://evil.example/")).RouteName);
     }
@@ -594,7 +597,7 @@ public class OidcLoginControllerTests
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
         var customer = new Customer { Id = "c9", Email = "john@example.com" };
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         await _controller.Callback("/");
         _customers.Verify(x => x.UpdateUserField(customer, SystemCustomerFieldNames.FirstName, "John", ""), Times.Once);
@@ -610,7 +613,7 @@ public class OidcLoginControllerTests
         _customers.Setup(x => x.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new InvalidOperationException());
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         await _controller.Callback("/");
         _auth.Verify(x => x.SignIn(customer, false, "session-1"), Times.Once);
@@ -621,7 +624,7 @@ public class OidcLoginControllerTests
     {
         var customer = new Customer { Id = "c9", Email = "john@example.com" };
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+        _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         await _controller.Callback("/");
         _customers.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);

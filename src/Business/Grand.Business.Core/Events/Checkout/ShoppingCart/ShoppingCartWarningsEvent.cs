@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Common;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 
@@ -7,12 +8,13 @@ namespace Grand.Business.Core.Events.Checkout.ShoppingCart;
 public class ShoppingCartWarningsEvent<T, U> : INotification where U : ShoppingCartItem
 {
     public ShoppingCartWarningsEvent(IList<T> warnings, IList<U> shoppingCartItems,
-        IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes)
+        IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes, Language language)
     {
         Warnings = warnings;
         ShoppingCartItems = shoppingCartItems;
         CheckoutAttributes = checkoutAttributes;
         ValidateCheckoutAttributes = validateCheckoutAttributes;
+        Language = language;
     }
 
     public IList<T> Warnings { get; }
@@ -22,4 +24,9 @@ public class ShoppingCartWarningsEvent<T, U> : INotification where U : ShoppingC
     public IList<CustomAttribute> CheckoutAttributes { get; }
 
     public bool ValidateCheckoutAttributes { get; }
+
+    /// <summary>
+    ///     Language the warnings are written in
+    /// </summary>
+    public Language Language { get; }
 }

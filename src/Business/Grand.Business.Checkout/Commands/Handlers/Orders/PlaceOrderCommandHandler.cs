@@ -458,7 +458,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //validate the entire shopping cart
         var warnings =
             await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, details.Context,
-                true, true);
+                details.WorkingLanguage, true, true);
         if (warnings.Any()) throw new GrandException(string.Join(", ", warnings));
 
         //validate individual cart items
@@ -466,7 +466,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         {
             var product = await _productService.GetProductById(sci.ProductId);
             var sciWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(details.Customer, sci, product,
-                new ShoppingCartValidatorOptions());
+                new ShoppingCartValidatorOptions(), details.WorkingLanguage);
             if (sciWarnings.Any())
             {
                 var warningsSb = new StringBuilder();

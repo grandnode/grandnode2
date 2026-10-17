@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.SharedKernel.Extensions;
 
@@ -12,7 +13,8 @@ public record ShoppingCartItemAttributeValidatorRecord(
     Customer Customer,
     Product Product,
     ShoppingCartItem ShoppingCartItem,
-    bool IgnoreNonCombinableAttributes);
+    bool IgnoreNonCombinableAttributes,
+    Language Language);
 
 public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCartItemAttributeValidatorRecord>
 {
@@ -73,7 +75,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                             var attributeName = productAttribute.Name;
                             var attributeValueName = attributeValue.Name;
                             warnings.Add(string.Format(
-                                translationService.GetResource("ShoppingCart.AssociatedAttributeWarning"),
+                                translationService.GetResource("ShoppingCart.AssociatedAttributeWarning", value.Language.Id),
                                 attributeName, attributeValueName, associatedProductWarning));
                         }
                     }
@@ -157,7 +159,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                     {
                         var notFoundWarning = !string.IsNullOrEmpty(a2.TextPrompt)
                             ? a2.TextPrompt
-                            : string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute"), paa.Name);
+                            : string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute", value.Language.Id), paa.Name);
 
                         warnings.Add(notFoundWarning);
                     }
@@ -201,7 +203,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                     {
                         var productAttribute =
                             await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
-                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMinimumLength"),
+                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMinimumLength", value.Language.Id),
                             productAttribute.Name, pam.ValidationMinLength.Value));
                     }
                 }
@@ -217,7 +219,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
 
                 if (pam.ValidationMaxLength.Value >= enteredTextLength) continue;
                 var productAttribute = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
-                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMaximumLength"),
+                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMaximumLength", value.Language.Id),
                     productAttribute.Name, pam.ValidationMaxLength.Value));
             }
         }

@@ -1,5 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 
@@ -11,4 +12,9 @@ public class AddRequiredProductsCommand : IRequest<bool>
     public ShoppingCartType ShoppingCartType { get; set; }
     public Product Product { get; set; }
     public string StoreId { get; set; }
+
+    /// <summary>
+    ///     Language the cart warnings are written in
+    /// </summary>
+    public Language Language { get; set; }
 }

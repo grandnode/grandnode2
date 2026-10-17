@@ -206,7 +206,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
         //cart warnings
         var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes,
-            request.CalculationContext(),
+            request.CalculationContext(), request.Language,
             request.ValidateCheckoutAttributes, true);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);
@@ -511,7 +511,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
             //item warnings
             var itemWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(request.Customer, sci, product,
-                new ShoppingCartValidatorOptions());
+                new ShoppingCartValidatorOptions(), request.Language);
             foreach (var warning in itemWarnings)
                 cartItemModel.Warnings.Add(warning);
 

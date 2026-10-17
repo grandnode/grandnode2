@@ -1,5 +1,6 @@
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using System.Security.Claims;
 
 namespace Grand.Business.Core.Interfaces.Authentication;
@@ -23,7 +24,9 @@ public interface IOidcCustomerResolver
     /// <param name="email">E-mail of the provider identity</param>
     /// <param name="emailVerified">The provider verified the e-mail</param>
     /// <param name="storeId">Current store</param>
-    Task<OidcLoginResult> ResolveForLogin(string sub, string email, bool emailVerified, string storeId);
+    /// <param name="language">Working language of the sign-in request</param>
+    Task<OidcLoginResult> ResolveForLogin(string sub, string email, bool emailVerified, string storeId,
+        Language language);
 
     /// <summary>
     ///     Stores the link between the provider subject and the customer (one subject per customer, one customer per subject;

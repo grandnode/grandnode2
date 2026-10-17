@@ -11,6 +11,7 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
@@ -77,10 +78,11 @@ public class OidcCustomerResolverLoginTests
 
 
     private const string Store = "store1";
+    private static readonly Language Language = new() { Id = "lang1" };
 
     [TestMethod]
     public async Task NoSubject_Refused_InvalidIdentity() =>
-        Assert.AreEqual(OidcLoginRefusal.InvalidIdentity, (await Resolver().ResolveForLogin(null, "a@b.c", true, Store)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.InvalidIdentity, (await Resolver().ResolveForLogin(null, "a@b.c", true, Store, Language)).Refusal);
 
     [TestMethod]
     public async Task ProviderChanged_Linked_RefusedNothingLoaded()
@@ -89,7 +91,7 @@ public class OidcCustomerResolverLoginTests
         await Link("c1");
 
         Assert.AreEqual(OidcLoginRefusal.ProviderChanged,
-            (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+            (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Refusal);
         _customerService.Verify(x => x.GetCustomerById(It.IsAny<string>()), Times.Never);
     }
 
@@ -109,7 +111,7 @@ public class OidcCustomerResolverLoginTests
         var customer = new Customer { Id = "c1", Active = true };
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
         await Link("c1");
-        var result = await Resolver().ResolveForLogin("sub-1", null, false, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", null, false, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         Assert.AreSame(customer, result.Customer);
     }
@@ -119,19 +121,19 @@ public class OidcCustomerResolverLoginTests
     {
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = false });
         await Link("c1");
-        Assert.AreEqual(OidcLoginRefusal.AccountInactive, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.AccountInactive, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Refusal);
     }
 
     [TestMethod]
     public async Task NoEmail_Refused_InvalidIdentity() =>
-        Assert.AreEqual(OidcLoginRefusal.InvalidIdentity, (await Resolver().ResolveForLogin("sub-1", " ", true, Store)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.InvalidIdentity, (await Resolver().ResolveForLogin("sub-1", " ", true, Store, Language)).Refusal);
 
     [TestMethod]
     public async Task ExistingCustomer_Verified_LinkedAndSignIn()
     {
         var customer = new Customer { Id = "c1", Active = true, Email = "john@example.com" };
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(customer);
-        var result = await Resolver().ResolveForLogin("sub-1", "John@Example.com", true, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "John@Example.com", true, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
         Assert.AreEqual("c1", link.CustomerId);
@@ -144,7 +146,7 @@ public class OidcCustomerResolverLoginTests
     {
         var customer = new Customer { Id = "c1", Active = true };
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.LinkRequired, result.Outcome);
         Assert.AreSame(customer, result.Customer);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
@@ -156,7 +158,7 @@ public class OidcCustomerResolverLoginTests
         var customer = new Customer { Id = "c1", Active = true };
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
         _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, customer)).ReturnsAsync(true);
-        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
 
@@ -167,7 +169,7 @@ public class OidcCustomerResolverLoginTests
     {
         var customer = new Customer { Id = "c1", Active = true, VendorId = vendorId, StaffStoreId = staffStoreId };
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
-        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
 
@@ -184,7 +186,7 @@ public class OidcCustomerResolverLoginTests
         _customerSettings.TwoFactorAuthenticationEnabled = true;
         var customer = TwoFactorCustomer();
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customer);
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.LinkRequired, result.Outcome);
         Assert.AreSame(customer, result.Customer);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
@@ -195,7 +197,7 @@ public class OidcCustomerResolverLoginTests
     {
         _customerSettings.TwoFactorAuthenticationEnabled = false;
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(TwoFactorCustomer());
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
         Assert.IsNotNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
 
@@ -206,7 +208,7 @@ public class OidcCustomerResolverLoginTests
         var customer = TwoFactorCustomer();
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
         await Link("c1");
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -214,7 +216,7 @@ public class OidcCustomerResolverLoginTests
     {
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         await Link("c1", byEmail: true);
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -224,7 +226,7 @@ public class OidcCustomerResolverLoginTests
         var customer = new Customer { Id = "c1", Active = true };
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
         await Link("c1", byEmail: true);
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.LinkRequired, result.Outcome);
         Assert.AreSame(customer, result.Customer);
     }
@@ -235,7 +237,7 @@ public class OidcCustomerResolverLoginTests
         _customerSettings.TwoFactorAuthenticationEnabled = true;
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(TwoFactorCustomer());
         await Link("c1", byEmail: true);
-        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -250,7 +252,7 @@ public class OidcCustomerResolverLoginTests
         if (vendorId == null && staffStoreId == null)
             _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, customer)).ReturnsAsync(true);
         await Link("c1", byEmail: true);
-        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -260,7 +262,7 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
         _permissionService.Setup(x => x.Authorize(StandardPermission.ManageAccessAdminPanel, customer)).ReturnsAsync(true);
         await Link("c1");
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -269,7 +271,7 @@ public class OidcCustomerResolverLoginTests
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
         var staff = new Customer { Id = "c1", Active = true, StaffStoreId = "s1" };
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(staff);
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         Assert.AreEqual("c1", result.Customer.Id);
         Assert.IsTrue((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
@@ -281,7 +283,7 @@ public class OidcCustomerResolverLoginTests
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
         _customerSettings.TwoFactorAuthenticationEnabled = true;
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(TwoFactorCustomer());
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         Assert.IsNotNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
@@ -292,7 +294,7 @@ public class OidcCustomerResolverLoginTests
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new Customer { Id = "c1", Active = true });
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store, Language);
         Assert.AreEqual(OidcLoginRefusal.EmailNotVerified, result.Refusal);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
@@ -301,7 +303,7 @@ public class OidcCustomerResolverLoginTests
     public async Task ProviderOnly_UnverifiedEmail_Unknown_RefusedNotRegistered()
     {
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
-        var result = await Resolver().ResolveForLogin("sub-new", "new@shop.com", false, Store);
+        var result = await Resolver().ResolveForLogin("sub-new", "new@shop.com", false, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.Refused, result.Outcome);
         Assert.AreEqual(OidcLoginRefusal.EmailNotVerified, result.Refusal);
     }
@@ -311,7 +313,7 @@ public class OidcCustomerResolverLoginTests
     {
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
         Assert.AreEqual(OidcLoginOutcome.RegistrationRequired,
-            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store)).Outcome);
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -324,7 +326,7 @@ public class OidcCustomerResolverLoginTests
         _loginConfig.AutoProvision = true;
         _customerSettings.UserRegistrationType = type;
 
-        var result = await Resolver().ResolveForLogin("sub-new", "New@Shop.com", true, Store);
+        var result = await Resolver().ResolveForLogin("sub-new", "New@Shop.com", true, Store, Language);
 
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         Assert.AreEqual("new1", result.Customer.Id);
@@ -334,7 +336,9 @@ public class OidcCustomerResolverLoginTests
         var link = LinksOf("sub-new").Single();
         Assert.AreEqual("new1", link.CustomerId);
         Assert.IsFalse(link.LinkedByEmail);
-        _mediator.Verify(x => x.Publish(It.IsAny<CustomerRegisteredEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        //the event carries the language of the sign-in request
+        _mediator.Verify(x => x.Publish(It.Is<CustomerRegisteredEvent>(e => e.Language == Language),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -344,7 +348,7 @@ public class OidcCustomerResolverLoginTests
         _loginConfig.AutoProvision = true;
 
         Assert.AreEqual(OidcLoginRefusal.EmailNotVerified,
-            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", false, Store)).Refusal);
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", false, Store, Language)).Refusal);
         _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
     }
 
@@ -357,7 +361,7 @@ public class OidcCustomerResolverLoginTests
             .ReturnsAsync(new Customer { Id = "other" });
 
         Assert.AreEqual(OidcLoginRefusal.AccountUnusable,
-            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store)).Refusal);
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store, Language)).Refusal);
         _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
     }
 
@@ -367,7 +371,7 @@ public class OidcCustomerResolverLoginTests
         _loginConfig.AutoProvision = true;
 
         Assert.AreEqual(OidcLoginOutcome.RegistrationRequired,
-            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store)).Outcome);
+            (await Resolver().ResolveForLogin("sub-new", "new@shop.com", true, Store, Language)).Outcome);
         _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
     }
 
@@ -378,7 +382,7 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerById("c1"))
             .ReturnsAsync(new Customer { Id = "c1", Active = true, StaffStoreId = "s1" });
         await Link("c1", byEmail: true);
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -388,7 +392,7 @@ public class OidcCustomerResolverLoginTests
         _loginConfig.SignInMode = OidcSignInMode.ProviderOnly;
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         await Link("c1", byEmail: true);
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -398,7 +402,7 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new Customer { Id = "c1", Active = true });
         await Link("c1", "other-sub");
-        Assert.AreEqual(OidcLoginRefusal.LinkedToOtherIdentity, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.LinkedToOtherIdentity, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Refusal);
     }
 
     [TestMethod]
@@ -406,7 +410,7 @@ public class OidcCustomerResolverLoginTests
     {
         var staff = new Customer { Id = "c1", Active = true, StaffStoreId = "s1" };
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(staff);
-        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.LinkRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
     }
 
     [TestMethod]
@@ -415,7 +419,7 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new Customer { Id = "c1", Active = true });
         await Link("c1", "other-sub");
-        Assert.AreEqual(OidcLoginRefusal.LinkedToOtherIdentity, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.LinkedToOtherIdentity, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Refusal);
     }
 
     [TestMethod]
@@ -424,14 +428,14 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new Customer { Id = "c1", Active = true });
         _groupService.Setup(x => x.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(false);
-        Assert.AreEqual(OidcLoginRefusal.AccountUnusable, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.AccountUnusable, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Refusal);
     }
 
     [TestMethod]
     public async Task PerStore_EmailLookupScopedToStore()
     {
         _customerConfig.RegisterCustomersPerStore = true;
-        await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
         _customerService.Verify(x => x.GetCustomerByEmail("a@b.c", Store), Times.Once);
     }
 
@@ -439,7 +443,7 @@ public class OidcCustomerResolverLoginTests
     public async Task NoCustomer_RegistrationRequired_NothingCreated_EvenWithAutoRegister()
     {
         _config.AutoRegister = true;
-        Assert.AreEqual(OidcLoginOutcome.RegistrationRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.RegistrationRequired, (await Resolver().ResolveForLogin("sub-1", "a@b.c", false, Store, Language)).Outcome);
         _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
     }
 
@@ -447,7 +451,7 @@ public class OidcCustomerResolverLoginTests
     public async Task NoCustomer_RegistrationDisabled_Refused()
     {
         _customerSettings.UserRegistrationType = UserRegistrationType.Disabled;
-        Assert.AreEqual(OidcLoginRefusal.RegistrationDisabled, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.RegistrationDisabled, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Refusal);
     }
 
     [TestMethod]
@@ -519,7 +523,7 @@ public class OidcCustomerResolverLoginTests
         var customer = new Customer { Id = "c1", Active = true, StoreId = Store };
         _customerService.Setup(x => x.GetCustomerByEmail("a@b.c", Store)).ReturnsAsync(customer);
 
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
 
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         Assert.AreEqual("c1", result.Customer.Id);
@@ -534,8 +538,8 @@ public class OidcCustomerResolverLoginTests
         await Link("c1", storeId: "");
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "" });
 
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store)).Outcome);
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, "store2")).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language)).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, "store2", Language)).Outcome);
     }
 
     [TestMethod]
@@ -577,12 +581,12 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerById("c9")).ReturnsAsync(new Customer { Id = "c9", Active = true, StoreId = "store2" });
         _customerService.Setup(x => x.GetCustomerByEmail("a@b.c", Store)).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = Store });
 
-        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store);
+        var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
 
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         Assert.AreEqual("c1", result.Customer.Id);
         Assert.AreEqual(Store, LinksOf("sub-1").Single(x => x.CustomerId == "c1").StoreId);
-        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, "store2")).Outcome);
+        Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, "store2", Language)).Outcome);
     }
 
     [TestMethod]
@@ -647,7 +651,7 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new Customer { Id = "c1", Active = true });
 
-        var result = await Resolver(links).ResolveForLogin("sub-1", "a@b.c", true, Store);
+        var result = await Resolver(links).ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
 
         Assert.AreEqual(OidcLoginRefusal.LinkedToOtherIdentity, result.Refusal);
         var stored = links.Table.Where(x => x.CustomerId == "c1").ToList();
