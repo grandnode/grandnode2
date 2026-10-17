@@ -184,7 +184,7 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
         //notifications
         if (_customerSettings.NotifyNewCustomerRegistration)
             await _messageProviderService.SendCustomerRegisteredMessage(request.Customer, request.Store,
-                _languageSettings.DefaultAdminLanguageId);
+                _languageSettings.DefaultAdminLanguageId, host: request.Host);
 
         //New customer has a free shipping for the first order
         if (_customerSettings.RegistrationFreeShipping)

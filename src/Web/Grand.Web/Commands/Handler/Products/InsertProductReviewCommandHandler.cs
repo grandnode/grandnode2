@@ -76,7 +76,7 @@ public class InsertProductReviewCommandHandler : IRequestHandler<InsertProductRe
         //notify store owner
         if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
             await _messageProviderService.SendProductReviewMessage(request.Product, productReview, request.Store,
-                _languageSettings.DefaultAdminLanguageId);
+                _languageSettings.DefaultAdminLanguageId, host: request.Host);
 
         return productReview;
     }

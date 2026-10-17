@@ -8,6 +8,7 @@ namespace Grand.Web.Commands.Models.Products;
 public class InsertProductReviewCommand : IRequest<ProductReview>
 {
     public Domain.Stores.Store Store { get; set; }
+    public Domain.Stores.DomainHost Host { get; set; }
     public Customer Customer { get; set; }
     public Product Product { get; set; }
     public ProductReviewsModel Model { get; set; }

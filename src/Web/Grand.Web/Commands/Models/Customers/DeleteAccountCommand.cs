@@ -7,5 +7,6 @@ public class DeleteAccountCommand : IRequest<bool>
 {
     public Customer Customer { get; set; }
     public Domain.Stores.Store Store { get; set; }
+    public Domain.Stores.DomainHost Host { get; set; }
     public string IpAddress { get; set; }
 }

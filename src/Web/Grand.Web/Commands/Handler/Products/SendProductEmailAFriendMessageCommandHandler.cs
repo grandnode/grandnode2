@@ -19,7 +19,7 @@ public class SendProductEmailAFriendMessageCommandHandler : IRequestHandler<Send
         await _messageProviderService.SendProductEmailAFriendMessage(request.Customer, request.Store,
             request.Language.Id, request.Product,
             request.Model.YourEmailAddress, request.Model.FriendEmail,
-            FormatText.ConvertText(request.Model.PersonalMessage));
+            FormatText.ConvertText(request.Model.PersonalMessage), host: request.Host);
 
         return true;
     }

@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Messages;
 
 namespace Grand.Business.Core.Interfaces.Marketing.Contacts;
@@ -18,10 +19,9 @@ public interface IContactAttributeService
     /// <summary>
     ///     Gets all Contact attributes
     /// </summary>
-    /// <param name="storeId">Store identifier</param>
-    /// <param name="ignoreAcl">Ignore acl</param>
+    /// <param name="access">Customer whose groups limit the result and the store, or every attribute of the store</param>
     /// <returns>Contact attributes</returns>
-    Task<IList<ContactAttribute>> GetAllContactAttributes(string storeId = "", bool ignoreAcl = false);
+    Task<IList<ContactAttribute>> GetAllContactAttributes(CatalogAccess access);
 
     /// <summary>
     ///     Gets a Contact attribute

@@ -168,7 +168,8 @@ public class VendorController : BasePublicController
 
             //notify store owner here (email)
             await _messageProviderService.SendNewVendorAccountApplyStoreOwnerMessage(_contextAccessor.WorkContext.CurrentCustomer,
-                vendor, _contextAccessor.StoreContext.CurrentStore, _languageSettings.DefaultAdminLanguageId);
+                vendor, _contextAccessor.StoreContext.CurrentStore, _languageSettings.DefaultAdminLanguageId,
+                host: _contextAccessor.StoreContext.CurrentHost);
 
             model.DisableFormInput = true;
             model.Result = _translationService.GetResource("Vendors.ApplyAccount.Submitted");

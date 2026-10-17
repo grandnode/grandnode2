@@ -11,4 +11,5 @@ public class GetTwoFactorAuthentication : IRequest<CustomerInfoModel.TwoFactorAu
     public Customer Customer { get; set; }
     public Language Language { get; set; }
     public Domain.Stores.Store Store { get; set; }
+    public Domain.Stores.DomainHost Host { get; set; }
 }

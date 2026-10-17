@@ -55,14 +55,16 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
                 {
                     if (!subscription.Active)
                         await _messageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
-                            _contextAccessor.WorkContext.WorkingLanguage.Id);
+                            _contextAccessor.WorkContext.WorkingLanguage.Id,
+                            host: _contextAccessor.StoreContext.CurrentHost);
                     model.Result = _translationService.GetResource("Newsletter.SubscribeEmailSent");
                 }
                 else
                 {
                     if (subscription.Active)
                         await _messageProviderService.SendNewsLetterSubscriptionDeactivationMessage(subscription,
-                            _contextAccessor.WorkContext.WorkingLanguage.Id);
+                            _contextAccessor.WorkContext.WorkingLanguage.Id,
+                            host: _contextAccessor.StoreContext.CurrentHost);
                     model.Result = _translationService.GetResource("Newsletter.UnsubscribeEmailSent");
                 }
             }
@@ -78,7 +80,7 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
                 await _newsLetterSubscriptionService.InsertNewsLetterSubscription(subscription);
 
                 await _messageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
-                    _contextAccessor.WorkContext.WorkingLanguage.Id);
+                    _contextAccessor.WorkContext.WorkingLanguage.Id, host: _contextAccessor.StoreContext.CurrentHost);
 
                 model.Result = _translationService.GetResource("Newsletter.SubscribeEmailSent");
                 var modelCategory = await PrepareNewsletterCategory(subscription.Id);

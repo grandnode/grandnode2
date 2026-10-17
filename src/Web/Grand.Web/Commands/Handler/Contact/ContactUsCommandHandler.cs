@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -47,7 +48,7 @@ public class ContactUsCommandHandler : IRequestHandler<ContactUsCommand, Contact
     {
         var model = new List<ContactUsModel.ContactAttributeModel>();
 
-        var contactAttributes = await _contactAttributeService.GetAllContactAttributes(request.Store.Id);
+        var contactAttributes = await _contactAttributeService.GetAllContactAttributes(CatalogAccess.For(request.Customer, request.Store.Id));
         foreach (var attribute in contactAttributes)
         {
             var attributeModel = new ContactUsModel.ContactAttributeModel {

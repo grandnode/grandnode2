@@ -14,6 +14,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
@@ -723,7 +724,7 @@ public class CheckoutController : BasePublicController
             var placeOrderResult = await _mediator.Send(new PlaceOrderCommand {
                 Context = _contextAccessor.CalculationContext(),
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
-                Host = _contextAccessor.StoreContext.CurrentHost,
+                Host = _contextAccessor.StoreContext.CurrentStore.LinkHost(_contextAccessor.StoreContext.CurrentHost),
                 OriginalCustomerIfImpersonated = _contextAccessor.WorkContext.OriginalCustomerIfImpersonated
             });
             if (placeOrderResult.Success)

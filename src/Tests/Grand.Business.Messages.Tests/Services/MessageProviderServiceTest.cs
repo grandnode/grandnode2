@@ -1,8 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Events.Messages;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
+using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Business.Messages.Services;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -12,7 +14,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -33,7 +34,6 @@ public class MessageProviderServiceTest
     private Mock<IMessageTokenProvider> _messageTokenProviderMock;
     private Product _product;
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
-    private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IStoreService> _storeServiceMock;
 
     [TestInitialize]
@@ -63,8 +63,6 @@ public class MessageProviderServiceTest
             .Returns(Task.FromResult(new Store { Url = "https://localhost:44350/" }));
         _storeServiceMock.Setup(x => x.GetAllStores()).Returns(Task.FromResult(new List<Store>() as IList<Store>));
 
-        _contextAccessorMock = new Mock<IContextAccessor>();
-        _contextAccessorMock.Setup(x => x.StoreContext.CurrentHost).Returns(new DomainHost { Url = "https://localhost:44350/" });
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetCustomerByIdQuery>(), default))
             .Returns(Task.FromResult(new Customer { Email = "sdfsdf@mail.com" }));
@@ -73,7 +71,6 @@ public class MessageProviderServiceTest
         _commonSetting = new Mock<CommonSettings>();
 
         _messageService = new MessageProviderService(
-            _contextAccessorMock.Object,
             _messageTemplateServiceMock.Object,
             _queuedEmailServiceMock.Object,
             _languageServiceMock.Object,
@@ -119,5 +116,42 @@ public class MessageProviderServiceTest
             toEmailAddress: null);
 
         Assert.AreEqual(0, result);
+    }
+
+    [TestMethod]
+    public async Task SendCustomerMessage_LinksPointToThePrimaryDomainOfTheStore()
+    {
+        var store = new Store {
+            Url = "https://store.example/",
+            Domains = {
+                new DomainHost { HostName = "second.example", Url = "https://second.example/" },
+                new DomainHost { HostName = "primary.example", Url = "https://primary.example/", Primary = true }
+            }
+        };
+
+        var url = await PasswordRecoveryUrl(store);
+
+        StringAssert.StartsWith(url, "https://primary.example/");
+    }
+
+    [TestMethod]
+    public async Task SendCustomerMessage_StoreWithoutDomains_LinksPointToTheStoreUrl()
+    {
+        var url = await PasswordRecoveryUrl(new Store { Url = "https://store.example/" });
+
+        StringAssert.StartsWith(url, "https://store.example/");
+    }
+
+    private async Task<string> PasswordRecoveryUrl(Store store)
+    {
+        LiquidCustomer liquidCustomer = null;
+        _mediatorMock.Setup(x => x.Publish(It.IsAny<EntityTokensAddedEvent<Customer>>(), It.IsAny<CancellationToken>()))
+            .Callback<EntityTokensAddedEvent<Customer>, CancellationToken>((e, _) =>
+                liquidCustomer = (LiquidCustomer)e.LiquidDrop);
+
+        await _messageService.SendCustomerPasswordRecoveryMessage(new Customer { Email = "a@b.c" }, store, "");
+
+        Assert.IsNotNull(liquidCustomer);
+        return liquidCustomer.PasswordRecoveryURL;
     }
 }

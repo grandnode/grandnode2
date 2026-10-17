@@ -18,7 +18,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
 using System.Net;
@@ -30,7 +29,6 @@ public class MessageProviderService : IMessageProviderService
     #region Ctor
 
     public MessageProviderService(
-        IContextAccessor contextAccessor,
         IMessageTemplateService messageTemplateService,
         IQueuedEmailService queuedEmailService,
         ILanguageService languageService,
@@ -41,7 +39,6 @@ public class MessageProviderService : IMessageProviderService
         EmailAccountSettings emailAccountSettings,
         CommonSettings commonSettings)
     {
-        _contextAccessor = contextAccessor;
         _messageTemplateService = messageTemplateService;
         _queuedEmailService = queuedEmailService;
         _languageService = languageService;
@@ -56,7 +53,6 @@ public class MessageProviderService : IMessageProviderService
     #endregion
 
     #region Fields
-    private readonly IContextAccessor _contextAccessor;
     private readonly IMessageTemplateService _messageTemplateService;
     private readonly IQueuedEmailService _queuedEmailService;
     private readonly ILanguageService _languageService;
@@ -67,8 +63,6 @@ public class MessageProviderService : IMessageProviderService
 
     private readonly EmailAccountSettings _emailAccountSettings;
     private readonly CommonSettings _commonSettings;
-
-    private DomainHost CurrentHost => _contextAccessor.StoreContext.CurrentHost;
 
     #endregion
 
@@ -119,11 +113,12 @@ public class MessageProviderService : IMessageProviderService
         return language;
     }
 
-    private void AddCustomerTokensIfNotNull(LiquidObjectBuilder builder, Customer customer, Store store, Language language)
+    private void AddCustomerTokensIfNotNull(LiquidObjectBuilder builder, Customer customer, Store store,
+        DomainHost host, Language language)
     {
         if (customer != null)
         {
-            builder.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder.AddCustomerTokens(customer, store, host, language);
         }
     }
 
@@ -142,8 +137,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="templateName">Message template name</param>
     /// <param name="toEmailAccount">Send email to email account</param>
     /// <param name="customerNote">Customer note</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     protected virtual async Task<int> SendCustomerMessage(Customer customer, Store store, string languageId,
-        string templateName, bool toEmailAccount = false, CustomerNote customerNote = null)
+        string templateName, bool toEmailAccount = false, CustomerNote customerNote = null, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -156,9 +154,10 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language, customerNote);
+            .AddCustomerTokens(customer, store, host, language, customerNote);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -178,9 +177,14 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="store">Store identifier</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    public virtual async Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId,
+        DomainHost host = null)
     {
-        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerRegistered, true);
+        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerRegistered, true,
+            host: host);
     }
 
     /// <summary>
@@ -189,9 +193,13 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string languageId,
+        DomainHost host = null)
     {
-        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerWelcome);
+        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerWelcome, host: host);
     }
 
     /// <summary>
@@ -200,9 +208,14 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendCustomerEmailValidationMessage(Customer customer, Store store, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendCustomerEmailValidationMessage(Customer customer, Store store, string languageId,
+        DomainHost host = null)
     {
-        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerEmailValidation);
+        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerEmailValidation,
+            host: host);
     }
 
     /// <summary>
@@ -211,10 +224,14 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendCustomerPasswordRecoveryMessage(Customer customer, Store store,
-        string languageId)
+        string languageId, DomainHost host = null)
     {
-        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerPasswordRecovery);
+        return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerPasswordRecovery,
+            host: host);
     }
 
     /// <summary>
@@ -238,11 +255,14 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="store">Store instance</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendCustomerEmailTokenValidationMessage(Customer customer, Store store,
-        string languageId)
+        string languageId, DomainHost host = null)
     {
         return await SendCustomerMessage(customer, store, languageId,
-            MessageTemplateNames.CustomerEmailTokenValidationMessage);
+            MessageTemplateNames.CustomerEmailTokenValidationMessage, host: host);
     }
 
     #endregion
@@ -255,10 +275,14 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer customer, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer customer, string languageId,
+        DomainHost host = null)
     {
         return await SendOrderStoreOwnerMessage(MessageTemplateNames.SendOrderPlacedStoreOwnerMessage, order, customer,
-            languageId);
+            languageId, host: host);
     }
 
     /// <summary>
@@ -307,8 +331,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <param name="refundedAmount"></param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     private async Task<int> SendOrderStoreOwnerMessage(string template, Order order, Customer customer,
-        string languageId, double refundedAmount = 0)
+        string languageId, double refundedAmount = 0, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -322,10 +349,11 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var liquidBuilder = new LiquidObjectBuilder(_mediator);
         liquidBuilder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost);
-        AddCustomerTokensIfNotNull(liquidBuilder, customer, store, language);
+            .AddOrderTokens(order, customer, store, host);
+        AddCustomerTokensIfNotNull(liquidBuilder, customer, store, host, language);
 
         var liquidObject = await liquidBuilder.BuildAsync();
         //event notification
@@ -351,11 +379,15 @@ public class MessageProviderService : IMessageProviderService
     ///     Otherwise, "AttachmentFilePath" name will be used.
     /// </param>
     /// <param name="attachments">Attachments</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null)
+        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null,
+            DomainHost host = null)
     {
         return await SendOrderCustomerMessage(MessageTemplateNames.SendOrderPlacedCustomerMessage, order, customer,
-            languageId, attachmentFilePath, attachmentFileName, attachments);
+            languageId, attachmentFilePath, attachmentFileName, attachments, host: host);
     }
 
     /// <summary>
@@ -437,9 +469,12 @@ public class MessageProviderService : IMessageProviderService
     /// </param>
     /// <param name="attachments">Attachments ident</param>
     /// <param name="refundedAmount"></param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     private async Task<int> SendOrderCustomerMessage(string message, Order order, Customer customer, string languageId,
         string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null,
-        double refundedAmount = 0)
+        double refundedAmount = 0, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -453,10 +488,11 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost);
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+            .AddOrderTokens(order, customer, store, host);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -480,11 +516,14 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="vendor">Vendor instance</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendOrderPlacedVendorMessage(Order order, Customer customer, Vendor vendor,
-        string languageId)
+        string languageId, DomainHost host = null)
     {
         return await SendOrderVendorMessage(MessageTemplateNames.SendOrderPlacedVendorMessage, order, vendor,
-            languageId);
+            languageId, host: host);
     }
 
     /// <summary>
@@ -517,7 +556,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="vendor">Vendor instance</param>
     /// <param name="languageId">Message language identifier</param>
-    private async Task<int> SendOrderVendorMessage(string message, Order order, Vendor vendor, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    private async Task<int> SendOrderVendorMessage(string message, Order order, Vendor vendor, string languageId,
+        DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
         ArgumentNullException.ThrowIfNull(vendor);
@@ -534,11 +577,12 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost, vendor: vendor);
+            .AddOrderTokens(order, customer, store, host, vendor: vendor);
 
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -599,12 +643,13 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddShipmentTokens(shipment, order, store, CurrentHost, language)
-            .AddOrderTokens(order, customer, store, CurrentHost);
+            .AddShipmentTokens(shipment, order, store, host, language)
+            .AddOrderTokens(order, customer, store, host);
 
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -624,7 +669,11 @@ public class MessageProviderService : IMessageProviderService
     /// </summary>
     /// <param name="order">Order</param>
     /// <param name="orderNote">Order note</param>
-    public virtual async Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote,
+        DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(orderNote);
         ArgumentNullException.ThrowIfNull(order);
@@ -642,11 +691,12 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost, orderNote);
+            .AddOrderTokens(order, customer, store, host, orderNote);
 
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -669,11 +719,14 @@ public class MessageProviderService : IMessageProviderService
     /// </summary>
     /// <param name="subscription">Newsletter subscription</param>
     /// <param name="languageId">Language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendNewsLetterSubscriptionActivationMessage(NewsLetterSubscription subscription,
-        string languageId)
+        string languageId, DomainHost host = null)
     {
         return await SendNewsLetterSubscriptionMessage(MessageTemplateNames.SendNewsLetterSubscriptionActivationMessage,
-            subscription, languageId);
+            subscription, languageId, host: host);
     }
 
     /// <summary>
@@ -681,11 +734,14 @@ public class MessageProviderService : IMessageProviderService
     /// </summary>
     /// <param name="subscription">Newsletter subscription</param>
     /// <param name="languageId">Language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendNewsLetterSubscriptionDeactivationMessage(NewsLetterSubscription subscription,
-        string languageId)
+        string languageId, DomainHost host = null)
     {
         return await SendNewsLetterSubscriptionMessage(
-            MessageTemplateNames.SendNewsLetterSubscriptionDeactivationMessage, subscription, languageId);
+            MessageTemplateNames.SendNewsLetterSubscriptionDeactivationMessage, subscription, languageId, host: host);
     }
 
     /// <summary>
@@ -694,8 +750,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="message">Message template</param>
     /// <param name="subscription">Newsletter subscription</param>
     /// <param name="languageId">Language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     private async Task<int> SendNewsLetterSubscriptionMessage(string message, NewsLetterSubscription subscription,
-        string languageId)
+        string languageId, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(subscription);
 
@@ -709,9 +768,10 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddNewsLetterSubscriptionTokens(subscription, store, CurrentHost);
+            .AddNewsLetterSubscriptionTokens(subscription, store, host);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -739,8 +799,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="friendsEmail">Friend's email</param>
     /// <param name="personalMessage">Personal message</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string languageId,
-        Product product, string customerEmail, string friendsEmail, string personalMessage)
+        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(product);
@@ -754,11 +817,12 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
             .AddEmailAFriendTokens(personalMessage, customerEmail, friendsEmail)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
-            .AddProductTokens(product, language, store, CurrentHost);
+            .AddCustomerTokens(customer, store, host, language)
+            .AddProductTokens(product, language, store, host);
         var liquidObject = await builder.BuildAsync();
 
         //event notification
@@ -782,8 +846,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="friendsEmail">Friend's email</param>
     /// <param name="personalMessage">Personal message</param>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string languageId,
-        string customerEmail, string friendsEmail, string personalMessage)
+        string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -797,9 +864,10 @@ public class MessageProviderService : IMessageProviderService
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
+            .AddCustomerTokens(customer, store, host, language)
             .AddEmailAFriendTokens(personalMessage, customerEmail, friendsEmail);
 
         var liquidObject = await builder.BuildAsync();
@@ -820,8 +888,12 @@ public class MessageProviderService : IMessageProviderService
     ///     Sends "email a friend" message
     /// </summary>
     /// <returns>Queued email identifier</returns>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
-        Product product, string customerEmail, string fullName, string phone, string message, string ipaddress)
+        Product product, string customerEmail, string fullName, string phone, string message, string ipaddress,
+            DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(product);
@@ -835,10 +907,11 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
-            .AddProductTokens(product, language, store, CurrentHost);
+            .AddCustomerTokens(customer, store, host, language)
+            .AddProductTokens(product, language, store, host);
         var liquidObject = await builder.BuildAsync();
         liquidObject.AskQuestion = new LiquidAskQuestion(message, customerEmail, fullName, phone);
 
@@ -896,8 +969,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="merchandiseReturn">Merchandise return</param>
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendNewMerchandiseReturnStoreOwnerMessage(MerchandiseReturn merchandiseReturn,
-        Order order, string languageId)
+        Order order, string languageId, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
@@ -914,12 +990,13 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount);
 
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, host, order, language);
 
         var liquidObject = await builder.BuildAsync();
 
@@ -971,12 +1048,13 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount);
 
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, host, order, language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -995,8 +1073,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="merchandiseReturn">Merchandise return</param>
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendNewMerchandiseReturnCustomerMessage(MerchandiseReturn merchandiseReturn,
-        Order order, string languageId)
+        Order order, string languageId, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
@@ -1013,11 +1094,12 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount);
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, host, order, language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1055,11 +1137,12 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount);
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language,
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, host, order, language,
             merchandiseReturnNote);
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -1084,8 +1167,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="vendor">Vendor</param>
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendNewVendorAccountApplyStoreOwnerMessage(Customer customer, Vendor vendor,
-        Store store, string languageId)
+        Store store, string languageId, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(vendor);
@@ -1099,8 +1185,9 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator).AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
+            .AddCustomerTokens(customer, store, host, language)
             .AddVendorTokens(vendor, language);
 
         var liquidObject = await builder.BuildAsync();
@@ -1192,8 +1279,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="productReview">Product review</param>
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendProductReviewMessage(Product product, ProductReview productReview,
-        Store store, string languageId)
+        Store store, string languageId, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(productReview);
 
@@ -1208,10 +1298,11 @@ public class MessageProviderService : IMessageProviderService
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = productReview.CustomerId });
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
             .AddProductReviewTokens(product, productReview);
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -1232,8 +1323,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="vendorReview">Vendor review</param>
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store,
-        string languageId)
+        string languageId, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(vendorReview);
 
@@ -1250,10 +1344,11 @@ public class MessageProviderService : IMessageProviderService
         //vendor
         var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = vendorReview.VendorId });
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
             .AddVendorReviewTokens(vendor, vendorReview);
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
         builder.AddVendorTokens(vendor, language);
         var liquidObject = await builder.BuildAsync();
@@ -1288,9 +1383,10 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddProductTokens(product, language, store, CurrentHost);
+            .AddProductTokens(product, language, store, host);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1325,10 +1421,11 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddProductTokens(product, language, store, CurrentHost)
-            .AddAttributeCombinationTokens(product, combination, language, CurrentHost);
+            .AddProductTokens(product, language, store, host)
+            .AddAttributeCombinationTokens(product, combination, language, host);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1346,7 +1443,11 @@ public class MessageProviderService : IMessageProviderService
     /// </summary>
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId,
+        DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -1360,9 +1461,10 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language);
+            .AddCustomerTokens(customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
 
@@ -1377,7 +1479,11 @@ public class MessageProviderService : IMessageProviderService
     /// <summary>
     ///     Sends a blog comment notification message to a store owner
     /// </summary>
-    public virtual async Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId,
+        DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(blogComment);
 
@@ -1391,13 +1497,14 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddBlogCommentTokens(blogPost, blogComment, store, CurrentHost, language);
+            .AddBlogCommentTokens(blogPost, blogComment, store, host, language);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = blogComment.CustomerId });
         if (customer != null && await _groupService.IsRegistered(customer))
-            builder.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder.AddCustomerTokens(customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -1417,8 +1524,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="article"></param>
     /// <param name="articleComment">Article comment</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendArticleCommentMessage(KnowledgebaseArticle article,
-        KnowledgebaseArticleComment articleComment, string languageId)
+        KnowledgebaseArticleComment articleComment, string languageId, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(articleComment);
 
@@ -1432,13 +1542,14 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddArticleCommentTokens(article, articleComment, store, CurrentHost, language);
+            .AddArticleCommentTokens(article, articleComment, store, host, language);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = articleComment.CustomerId });
         if (customer != null && await _groupService.IsRegistered(customer))
-            builder.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder.AddCustomerTokens(customer, store, host, language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1456,7 +1567,11 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="newsItem">News item</param>
     /// <param name="newsComment">News comment</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string languageId)
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string languageId,
+        DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(newsComment);
 
@@ -1470,11 +1585,12 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddNewsCommentTokens(newsItem, newsComment, store, CurrentHost, language);
+            .AddNewsCommentTokens(newsItem, newsComment, store, host, language);
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = newsComment.CustomerId });
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -1509,11 +1625,12 @@ public class MessageProviderService : IMessageProviderService
         //email account
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount);
-        AddCustomerTokensIfNotNull(builder, customer, store, language);
+        AddCustomerTokensIfNotNull(builder, customer, store, host, language);
 
-        builder.AddOutOfStockTokens(product, subscription, store, CurrentHost, language);
+        builder.AddOutOfStockTokens(product, subscription, store, host, language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1539,10 +1656,13 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="attrInfo">Attr info</param>
     /// <param name="customAttributes">CustomAttributes</param>
     /// <param name="ipaddress">Ip address</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendContactUsMessage(Customer customer, Store store, string languageId,
         string senderEmail,
         string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes,
-        string ipaddress)
+        string ipaddress, DomainHost host = null)
     {
         var language = await EnsureLanguageIsActive(languageId, store.Id);
         var messageTemplate = await GetMessageTemplate("Service.ContactUs", store.Id);
@@ -1568,9 +1688,10 @@ public class MessageProviderService : IMessageProviderService
             fromName = senderName;
         }
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language);
+            .AddCustomerTokens(customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
         liquidObject.ContactUs = new LiquidContactUs(senderEmail, senderName, body, attrInfo);
@@ -1615,9 +1736,12 @@ public class MessageProviderService : IMessageProviderService
     /// <param name="subject">Email subject. Pass null if you want a message template subject to be used.</param>
     /// <param name="body">Email body</param>
     /// <param name="ipaddress">Ip address</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
     public virtual async Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor,
         string languageId, string senderEmail,
-        string senderName, string subject, string body, string ipaddress)
+        string senderName, string subject, string body, string ipaddress, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(vendor);
 
@@ -1647,9 +1771,10 @@ public class MessageProviderService : IMessageProviderService
             fromName = senderName;
         }
 
+        host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language);
+            .AddCustomerTokens(customer, store, host, language);
         var liquidObject = await builder.BuildAsync();
         liquidObject.ContactUs = new LiquidContactUs(senderEmail, senderName, body, "");
         //event notification
@@ -1701,10 +1826,11 @@ public class MessageProviderService : IMessageProviderService
 
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
-            .AddProductTokens(product, language, store, CurrentHost)
+            .AddCustomerTokens(customer, store, host, language)
+            .AddProductTokens(product, language, store, host)
             .AddStoreTokens(store, language, emailAccount);
 
         var liquidObject = await builder.BuildAsync();
@@ -1736,9 +1862,10 @@ public class MessageProviderService : IMessageProviderService
 
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
-            .AddProductTokens(product, language, store, CurrentHost)
+            .AddProductTokens(product, language, store, host)
             .AddStoreTokens(store, language, emailAccount);
         var liquidObject = await builder.BuildAsync();
 
@@ -1750,7 +1877,7 @@ public class MessageProviderService : IMessageProviderService
             var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = item.Key });
             if (string.IsNullOrEmpty(languageId))
                 languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
-            builder2.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder2.AddCustomerTokens(customer, store, host, language);
             var liquidObject2 = await builder2.BuildAsync();
 
             //event notification
@@ -1781,8 +1908,9 @@ public class MessageProviderService : IMessageProviderService
         var language = await EnsureLanguageIsActive(languageId, store.Id);
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
-        builder.AddProductTokens(product, language, store, CurrentHost)
+        builder.AddProductTokens(product, language, store, host)
             .AddStoreTokens(store, language, emailAccount);
 
         var liquidObject = await builder.BuildAsync();
@@ -1797,7 +1925,7 @@ public class MessageProviderService : IMessageProviderService
                 if (string.IsNullOrEmpty(languageId))
                     languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
 
-                AddCustomerTokensIfNotNull(builder2, customer, store, language);
+                AddCustomerTokensIfNotNull(builder2, customer, store, host, language);
                 var liquidObject2 = await builder2.BuildAsync();
                 //event notification
                 await _mediator.MessageTokensAdded(messageTemplate, liquidObject2);
@@ -1838,7 +1966,7 @@ public class MessageProviderService : IMessageProviderService
 
             emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
             builder.AddAuctionTokens(product, bid)
-                .AddCustomerTokens(customer, store, CurrentHost, language)
+                .AddCustomerTokens(customer, store, store.PrimaryHost(), language)
                 .AddStoreTokens(store, language, emailAccount);
         }
         else
@@ -1850,7 +1978,7 @@ public class MessageProviderService : IMessageProviderService
                 return 0;
 
             emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
-            builder.AddProductTokens(product, language, store, CurrentHost);
+            builder.AddProductTokens(product, language, store, store.PrimaryHost());
         }
 
         var liquidObject = await builder.BuildAsync();
@@ -1890,9 +2018,10 @@ public class MessageProviderService : IMessageProviderService
 
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
+        var host = store.PrimaryHost();
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
+            .AddCustomerTokens(customer, store, host, language)
             .AddStoreTokens(store, language, emailAccount);
 
         var liquidObject = await builder.BuildAsync();

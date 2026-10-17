@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Customers;
@@ -12,36 +11,22 @@ public class CustomerCoordinatesService : ICustomerCoordinatesService
 {
     private readonly IRepository<Customer> _customerRepository;
     private readonly IMediator _mediator;
-    private readonly IContextAccessor _contextAccessor;
 
     public CustomerCoordinatesService(
         IRepository<Customer> customerRepository,
-        IContextAccessor contextAccessor,
         IMediator mediator)
     {
         _customerRepository = customerRepository;
-        _contextAccessor = contextAccessor;
         _mediator = mediator;
     }
 
-    public Task<(double longitude, double latitude)> GetGeoCoordinate()
-    {
-        return GetGeoCoordinate(_contextAccessor.WorkContext.CurrentCustomer);
-    }
-
-    public async Task<(double longitude, double latitude)> GetGeoCoordinate(Customer customer)
+    public Task<(double longitude, double latitude)> GetGeoCoordinate(Customer customer)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
-        if (customer.Coordinates == null)
-            await Task.FromResult((0, 0));
-
-        return await Task.FromResult((customer.Coordinates!.X, customer.Coordinates!.Y));
-    }
-
-    public async Task SaveGeoCoordinate(double longitude, double latitude)
-    {
-        await SaveGeoCoordinate(_contextAccessor.WorkContext.CurrentCustomer, longitude, latitude);
+        return customer.Coordinates == null
+            ? Task.FromResult((0d, 0d))
+            : Task.FromResult((customer.Coordinates.X, customer.Coordinates.Y));
     }
 
     public async Task SaveGeoCoordinate(Customer customer, double longitude, double latitude)

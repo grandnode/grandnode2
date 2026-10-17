@@ -60,7 +60,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
 
             //send email notifications
             await _messageProviderService.SendOrderPlacedStoreOwnerMessage(request.Order, request.Customer,
-                _languageSettings.DefaultAdminLanguageId);
+                _languageSettings.DefaultAdminLanguageId, request.Host);
 
             string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
             var orderPlacedAttachments = new List<string>();
@@ -87,14 +87,16 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                 _logger.LogError(ex, "Error - order placed attachment file {OrderOrderNumber}", request.Order.OrderNumber);
             }
 
-            await _messageProviderService.SendOrderPlacedCustomerMessage(request.Order, request.Customer, request.Order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName, orderPlacedAttachments);
+            await _messageProviderService.SendOrderPlacedCustomerMessage(request.Order, request.Customer,
+                request.Order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName,
+                orderPlacedAttachments, request.Host);
 
             if (request.Order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
             {
                 var vendors = await _mediator.Send(new GetVendorsInOrderQuery { Order = request.Order });
                 foreach (var vendor in vendors)
                     await _messageProviderService.SendOrderPlacedVendorMessage(request.Order, request.Customer, vendor,
-                        _languageSettings.DefaultAdminLanguageId);
+                        _languageSettings.DefaultAdminLanguageId, request.Host);
             }
         }
         catch (Exception e)

@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Messages;
@@ -21,7 +22,7 @@ public class ContactAttributeViewModelService(
     public virtual async Task<IEnumerable<ContactAttributeModel>> PrepareContactAttributeListModel()
     {
         var contactAttributes =
-            await contactAttributeService.GetAllContactAttributes(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, true);
+            await contactAttributeService.GetAllContactAttributes(CatalogAccess.IncludingHidden(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId));
         return contactAttributes.Select(x =>
         {
             var attributeModel = x.ToModel();
@@ -49,7 +50,7 @@ public class ContactAttributeViewModelService(
             EnableCondition = contactAttribute.ConditionAttribute.Any(),
             SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
             ConditionAttributes =
-                (await contactAttributeService.GetAllContactAttributes(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, true))
+                (await contactAttributeService.GetAllContactAttributes(CatalogAccess.IncludingHidden(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)))
                 //ignore this attribute and non-combinable attributes
                 .Where(x => x.Id != contactAttribute.Id && x.CanBeUsedAsCondition())
                 .Select(x =>

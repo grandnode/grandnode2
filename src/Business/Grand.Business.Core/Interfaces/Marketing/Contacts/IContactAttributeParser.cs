@@ -1,7 +1,9 @@
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Messages;
+using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Interfaces.Marketing.Contacts;
 
@@ -55,7 +57,7 @@ public interface IContactAttributeParser
     /// </summary>
     /// <param name="language">Language</param>
     /// <param name="customAttributes">Attributes </param>
-    /// <param name="customer">Customer</param>
+    /// <param name="host">Store host the file upload links point to; without one the file is named but not linked</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
@@ -63,7 +65,7 @@ public interface IContactAttributeParser
     Task<string> FormatAttributes(
         Language language,
         IList<CustomAttribute> customAttributes,
-        Customer customer,
+        DomainHost host,
         string separator = "<br />",
         bool htmlEncode = true,
         bool allowHyperlinks = true);
@@ -71,7 +73,8 @@ public interface IContactAttributeParser
     /// <summary>
     ///     Get parse contact attributes
     /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    Task<IList<CustomAttribute>> GetParseContactAttributes(IList<CustomAttribute> model);
+    /// <param name="model">Posted attributes</param>
+    /// <param name="access">Customer whose groups limit the attributes and the store</param>
+    /// <returns>Selected attributes whose conditions are met</returns>
+    Task<IList<CustomAttribute>> GetParseContactAttributes(IList<CustomAttribute> model, CatalogAccess access);
 }

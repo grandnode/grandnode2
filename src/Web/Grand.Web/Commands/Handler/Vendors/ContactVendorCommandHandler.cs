@@ -32,7 +32,8 @@ public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendComm
 
         await _messageProviderService.SendContactVendorMessage(_contextAccessor.WorkContext.CurrentCustomer, request.Store,
             request.Vendor, _contextAccessor.WorkContext.WorkingLanguage.Id,
-            request.Model.Email.Trim(), request.Model.FullName, subject, body, request.IpAddress);
+            request.Model.Email.Trim(), request.Model.FullName, subject, body, request.IpAddress,
+            host: _contextAccessor.StoreContext.CurrentHost);
 
         request.Model.SuccessfullySent = true;
         request.Model.Result = _translationService.GetResource("ContactVendor.YourEnquiryHasBeenSent");

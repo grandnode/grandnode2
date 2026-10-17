@@ -2,12 +2,14 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Contact;
@@ -60,7 +62,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         {
             var contactAttributeWarnings = await GetContactAttributesWarnings(
                 x.Attributes.Select(z => new CustomAttribute { Key = z.Key, Value = z.Value }).ToList(),
-                contextAccessor.StoreContext.CurrentStore.Id);
+                contextAccessor.CatalogAccess());
             if (contactAttributeWarnings.Any())
                 foreach (var item in contactAttributeWarnings)
                     context.AddFailure(item);
@@ -68,7 +70,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
     }
 
     private async Task<IList<string>> GetContactAttributesWarnings(IList<CustomAttribute> customAttributes,
-        string storeId)
+        CatalogAccess access)
     {
         var warnings = new List<string>();
 
@@ -76,7 +78,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         var attributes1 = await _contactAttributeParser.ParseContactAttributes(customAttributes);
 
         //existing contact attributes
-        var attributes2 = await _contactAttributeService.GetAllContactAttributes(storeId);
+        var attributes2 = await _contactAttributeService.GetAllContactAttributes(access);
         foreach (var a2 in attributes2)
         {
             var conditionMet = await _contactAttributeParser.IsConditionMet(a2, customAttributes);

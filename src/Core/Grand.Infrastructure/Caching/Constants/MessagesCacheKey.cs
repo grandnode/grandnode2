@@ -9,9 +9,10 @@ public static partial class CacheKey
     /// </summary>
     /// <remarks>
     ///     {0} : store ID
-    ///     {1} : ignore ACL?
+    ///     {1} : show hidden?
+    ///     {2} : customer group IDs, empty when hidden attributes are shown
     /// </remarks>
-    public static string CONTACTATTRIBUTES_ALL_KEY => "Grand.contactattribute.all-{0}-{1}";
+    public static string CONTACTATTRIBUTES_ALL_KEY => "Grand.contactattribute.all-{0}-{1}-{2}";
 
     /// <summary>
     ///     Key for caching

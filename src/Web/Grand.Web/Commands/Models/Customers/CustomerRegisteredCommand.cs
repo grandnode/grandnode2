@@ -9,6 +9,7 @@ public class CustomerRegisteredCommand : IRequest<bool>
 {
     public Customer Customer { get; set; }
     public Domain.Stores.Store Store { get; set; }
+    public Domain.Stores.DomainHost Host { get; set; }
     public RegisterModel Model { get; set; }
     public IList<CustomAttribute> CustomerAttributes { get; set; }
 }

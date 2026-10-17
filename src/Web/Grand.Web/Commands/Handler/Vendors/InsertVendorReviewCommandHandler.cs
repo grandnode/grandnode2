@@ -60,7 +60,7 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
         //notify store owner
         if (_vendorSettings.NotifyVendorAboutNewVendorReviews)
             await _messageProviderService.SendVendorReviewMessage(vendorReview, request.Store,
-                _languageSettings.DefaultAdminLanguageId);
+                _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return vendorReview;
     }

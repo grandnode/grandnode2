@@ -53,7 +53,7 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
         //notify a store owner;
         if (_newsSettings.NotifyAboutNewNewsComments)
             await _messageProviderService.SendNewsCommentMessage(request.NewsItem, comment,
-                _languageSettings.DefaultAdminLanguageId);
+                _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return comment;
     }

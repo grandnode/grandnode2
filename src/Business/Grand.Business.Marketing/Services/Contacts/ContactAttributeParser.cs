@@ -1,11 +1,12 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Messages;
-using Grand.Infrastructure;
+using Grand.Domain.Stores;
 using Grand.SharedKernel.Extensions;
 using System.Net;
 
@@ -17,15 +18,10 @@ namespace Grand.Business.Marketing.Services.Contacts;
 public class ContactAttributeParser : IContactAttributeParser
 {
     private readonly IContactAttributeService _contactAttributeService;
-    private readonly IContextAccessor _contextAccessor;
 
-    public ContactAttributeParser(
-        IContactAttributeService contactAttributeService,
-        IContextAccessor contextAccessor
-    )
+    public ContactAttributeParser(IContactAttributeService contactAttributeService)
     {
         _contactAttributeService = contactAttributeService;
-        _contextAccessor = contextAccessor;
     }
 
     /// <summary>
@@ -161,7 +157,7 @@ public class ContactAttributeParser : IContactAttributeParser
     /// </summary>
     /// <param name="language">Language</param>
     /// <param name="customAttributes">Attributes </param>
-    /// <param name="customer">Customer</param>
+    /// <param name="host">Store host the file upload links point to; without one the file is named but not linked</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
@@ -169,7 +165,7 @@ public class ContactAttributeParser : IContactAttributeParser
     public virtual async Task<string> FormatAttributes(
         Language language,
         IList<CustomAttribute> customAttributes,
-        Customer customer,
+        DomainHost host,
         string separator = "<br />",
         bool htmlEncode = true,
         bool allowHyperlinks = true)
@@ -212,10 +208,19 @@ public class ContactAttributeParser : IContactAttributeParser
                                 var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
                                 if (allowHyperlinks)
                                 {
-                                    var downloadLink =
-                                        $"{_contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
-                                    attributeText =
-                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, language.Id)}</a>";
+                                    var textPrompt = attribute.GetTranslation(a => a.TextPrompt, language.Id);
+                                    if (host != null)
+                                    {
+                                        var downloadLink =
+                                            $"{host.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                        attributeText =
+                                            $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{textPrompt}</a>";
+                                    }
+                                    else
+                                    {
+                                        //without a host the file cannot be linked, so name it instead of dropping it
+                                        attributeText = $"{textPrompt} ({downloadGuid})";
+                                    }
                                 }
 
                                 formattedAttribute = $"{attributeName}: {attributeText}";
@@ -256,10 +261,11 @@ public class ContactAttributeParser : IContactAttributeParser
         return result.ToString();
     }
 
-    public async Task<IList<CustomAttribute>> GetParseContactAttributes(IList<CustomAttribute> model)
+    public async Task<IList<CustomAttribute>> GetParseContactAttributes(IList<CustomAttribute> model,
+        CatalogAccess access)
     {
         var customAttributes = new List<CustomAttribute>();
-        var contactAttributes = await _contactAttributeService.GetAllContactAttributes();
+        var contactAttributes = await _contactAttributeService.GetAllContactAttributes(access);
         foreach (var attribute in contactAttributes)
             switch (attribute.AttributeControlType)
             {
