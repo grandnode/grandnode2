@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Orders;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Orders;
 
@@ -10,7 +10,7 @@ public class GiftVoucherDeleteModelValidator : BaseGrandValidator<GiftVoucherDel
 {
     public GiftVoucherDeleteModelValidator(
         IEnumerable<IValidatorConsumer<GiftVoucherDeleteModel>> validators,
-        IGiftVoucherService giftVoucherService, ITranslationService translationService)
+        IGiftVoucherService giftVoucherService, IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x).CustomAsync(async (x, context, _) =>

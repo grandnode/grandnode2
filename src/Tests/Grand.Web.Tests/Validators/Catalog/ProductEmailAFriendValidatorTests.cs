@@ -1,7 +1,6 @@
 using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -14,6 +13,7 @@ using Grand.Web.Validators.Catalog;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Validators.Catalog;
 
@@ -23,7 +23,7 @@ public class ProductEmailAFriendValidatorTests
     [TestMethod]
     public async Task Validate_UnpublishedProduct_UsesProductDisabledTranslation()
     {
-        var translationService = new Mock<ITranslationService>();
+        var translationService = new Mock<IRequestTranslationService>();
         translationService.Setup(translation => translation.GetResource(It.IsAny<string>()))
             .Returns<string>(key => key);
         var workContext = new Mock<IWorkContext>();

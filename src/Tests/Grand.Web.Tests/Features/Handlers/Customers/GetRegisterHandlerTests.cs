@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -13,6 +12,7 @@ using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Features.Handlers.Customers;
 
@@ -36,7 +36,7 @@ public class GetRegisterHandlerTests
         newsletterCategoryServiceMock.Setup(s => s.GetNewsletterCategoriesByStore(It.IsAny<string>()))
             .ReturnsAsync(new List<NewsletterCategory>());
 
-        _handler = new GetRegisterHandler(newsletterCategoryServiceMock.Object, new Mock<ITranslationService>().Object,
+        _handler = new GetRegisterHandler(newsletterCategoryServiceMock.Object, new Mock<IRequestTranslationService>().Object,
             countryServiceMock.Object, mediatorMock.Object,
             new CustomerSettings { CountryEnabled = true, StateProvinceEnabled = true },
             new TaxSettings(), new CaptchaSettings());

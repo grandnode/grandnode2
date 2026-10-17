@@ -45,7 +45,7 @@ Do not use this skill as the primary review for MongoDB query safety or security
     - `Plugin` (3) — plugin-owned resources.
     - `Vendor` (5) — vendor panel.
 14. Seed default resources for core features in `src/Modules/Grand.Module.Installer/Services/InstallDataLocaleResources.cs` via `src/Web/Grand.Web/App_Data/Resources/DefaultLanguage.xml`.
-15. Access resources in controllers and services by injecting `ITranslationService` and calling `GetResource(key)` or `GetResource(key, languageId, defaultValue)`.
+15. Access resources by language. `ITranslationService` (Business) only has `GetResource(key, languageId, defaultValue)`: code in `src/Business` or the API module passes the language it has (the customer's, the order's, the store default). Web code that runs inside a request injects `IRequestTranslationService` (`Grand.Web.Common.Localization`), which adds `GetResource(key)` in the working language of the request.
 16. Access resources in Razor views through the `Loc` indexer: `@Loc["key"]`. Do not call `ITranslationService` directly from views.
 17. Translate enum values using `IEnumTranslationService` with keys formatted as `Enums.{TypeName}.{ValueName}`.
 
@@ -145,7 +145,7 @@ Include changed files, store-scope behavior, resource area classification, valid
 - [ ] `DeleteSetting<T>` is called in plugin `Uninstall`.
 - [ ] Every resource key added in `Install` is removed in `Uninstall`.
 - [ ] Resource area is set correctly (`TranslationResourceArea`).
-- [ ] Controllers use `ITranslationService.GetResource(key)` for display messages.
+- [ ] Controllers use `IRequestTranslationService.GetResource(key)` for display messages; Business code passes a language.
 - [ ] Views use `@Loc["key"]` and do not call `ITranslationService` directly.
 - [ ] Entities that need per-language values implement `ITranslationEntity`.
 - [ ] Admin models that expose localized fields implement `ILocalizedModel<T>`.

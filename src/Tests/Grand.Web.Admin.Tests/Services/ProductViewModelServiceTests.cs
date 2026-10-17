@@ -54,7 +54,7 @@ public class ProductViewModelServiceTests
     private Mock<IAdminDataScope<Product>> _scopeMock;
     private Mock<IStoreService> _storeServiceMock;
     private Mock<ITaxCategoryService> _taxCategoryServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IVendorService> _vendorServiceMock;
     private Mock<IWarehouseService> _warehouseServiceMock;
 
@@ -71,7 +71,7 @@ public class ProductViewModelServiceTests
         _productServiceMock = new Mock<IProductService>();
         _storeServiceMock = new Mock<IStoreService>();
         _taxCategoryServiceMock = new Mock<ITaxCategoryService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _vendorServiceMock = new Mock<IVendorService>();
         _warehouseServiceMock = new Mock<IWarehouseService>();
 

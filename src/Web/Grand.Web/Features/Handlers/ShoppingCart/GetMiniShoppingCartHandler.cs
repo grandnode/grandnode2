@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.Checkout;
@@ -21,6 +20,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 
@@ -43,7 +43,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly ITaxService _taxService;
     private readonly TaxSettings _taxSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetMiniShoppingCartHandler(
         IShoppingCartService shoppingCartService,
@@ -53,7 +53,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         ICheckoutAttributeService checkoutAttributeService,
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPricingService priceCalculationService,
         IGroupService groupService,
         IPictureService pictureService,

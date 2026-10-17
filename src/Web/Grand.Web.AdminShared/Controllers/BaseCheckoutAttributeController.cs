@@ -14,6 +14,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -22,7 +23,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseCheckoutAttributeController(
     ICheckoutAttributeService checkoutAttributeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     ICurrencyService currencyService,
     CurrencySettings currencySettings,
     IMeasureService measureService,

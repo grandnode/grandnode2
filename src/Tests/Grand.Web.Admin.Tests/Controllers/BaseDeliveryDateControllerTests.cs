@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using DeliveryDate = Grand.Domain.Shipping.DeliveryDate;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -24,7 +25,7 @@ public class BaseDeliveryDateControllerTests
     private Mock<IDeliveryDateService> _deliveryDateServiceMock;
     private Mock<ILanguageService> _languageServiceMock;
     private Mock<IStoreService> _storeServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -38,7 +39,7 @@ public class BaseDeliveryDateControllerTests
             .ReturnsAsync(new List<Language>());
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("msg");
     }
 

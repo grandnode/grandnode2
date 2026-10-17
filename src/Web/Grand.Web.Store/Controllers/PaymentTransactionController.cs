@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Payments;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Controllers;
@@ -20,7 +19,7 @@ namespace Grand.Web.Store.Controllers;
 public class PaymentTransactionController(
     IPaymentTransactionService paymentTransactionService,
     IOrderService orderService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IMediator mediator,
     IEnumTranslationService enumTranslationService,

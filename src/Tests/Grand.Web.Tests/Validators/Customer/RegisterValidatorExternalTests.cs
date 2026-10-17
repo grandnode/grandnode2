@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -16,6 +15,7 @@ using Grand.Web.Validators.Customer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Validators.Customers;
 
@@ -37,7 +37,7 @@ public class RegisterValidatorExternalTests
 
     private RegisterValidator Validator()
     {
-        var translation = new Mock<ITranslationService>();
+        var translation = new Mock<IRequestTranslationService>();
         translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
         var groupService = new Mock<IGroupService>();
         groupService.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(false);

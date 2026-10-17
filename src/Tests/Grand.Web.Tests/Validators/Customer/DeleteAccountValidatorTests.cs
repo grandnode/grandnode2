@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -8,6 +7,7 @@ using Grand.Web.Models.Customer;
 using Grand.Web.Validators.Customer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Validators.Customers;
 
@@ -24,7 +24,7 @@ public class DeleteAccountValidatorTests
         work.Setup(w => w.CurrentCustomer).Returns(new Customer { Password = "pw" });
         var context = new Mock<IContextAccessor>();
         context.Setup(c => c.WorkContext).Returns(work.Object);
-        var translation = new Mock<ITranslationService>();
+        var translation = new Mock<IRequestTranslationService>();
         translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
         return new DeleteAccountValidator(new List<IValidatorConsumer<DeleteAccountModel>>(), encryption.Object,
             new CustomerSettings(), context.Object, translation.Object, config);

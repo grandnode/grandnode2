@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -9,6 +8,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -19,7 +19,7 @@ public class CustomerTagController : BaseAdminController
 
     public CustomerTagController(
         ICustomerTagViewModelService customerTagViewModelService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICustomerTagService customerTagService)
     {
         _customerTagViewModelService = customerTagViewModelService;
@@ -32,7 +32,7 @@ public class CustomerTagController : BaseAdminController
     #region Fields
 
     private readonly ICustomerTagViewModelService _customerTagViewModelService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICustomerTagService _customerTagService;
 
     #endregion

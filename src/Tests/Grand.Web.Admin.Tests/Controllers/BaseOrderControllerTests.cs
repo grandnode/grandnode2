@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Localization;
@@ -16,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -26,7 +26,7 @@ public class BaseOrderControllerTests
     private class TestOrderController(
         IOrderViewModelService orderViewModelService,
         IOrderService orderService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         IPdfService pdfService,
         IAdminDataScope<Order> scope)
@@ -52,7 +52,7 @@ public class BaseOrderControllerTests
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _pdfServiceMock = new Mock<IPdfService>();
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         var contextAccessorMock = new Mock<IContextAccessor>();
         var workContextMock = new Mock<IWorkContext>();

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Marketing.Contacts;
+﻿using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Marketing.Services.Contacts;
 using Grand.Domain.Catalog;
@@ -25,11 +24,6 @@ public class ContactAttributeParserTests
     public void Init()
     {
         _contactAttributeServiceMock = new Mock<IContactAttributeService>();
-        var _translationServiceMock = new Mock<ITranslationService>();
-        {
-            _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Warning{0}");
-        }
-
         _parser = new ContactAttributeParser(_contactAttributeServiceMock.Object);
         customAtr = [
             new CustomAttribute { Key = "key1", Value = "value1" },

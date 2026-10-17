@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
@@ -19,7 +18,7 @@ namespace Grand.Web.Admin.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.Plugins)]
 public class PluginController(
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     ILogger<PluginController> logger,
     IHostApplicationLifetime applicationLifetime,
     IContextAccessor contextAccessor,

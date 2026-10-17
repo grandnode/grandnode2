@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -27,7 +28,7 @@ public class BasePageControllerTests
         IPageViewModelService pageViewModelService,
         IPageService pageService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         IAdminDataScope<Page> scope)
         : BasePageController(pageViewModelService, pageService, languageService, translationService,
@@ -36,7 +37,7 @@ public class BasePageControllerTests
     private TestPageController _controller;
     private Mock<IPageViewModelService> _pageViewModelServiceMock;
     private Mock<IPageService> _pageServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Page>> _scopeMock;
 
     [TestInitialize]
@@ -47,7 +48,7 @@ public class BasePageControllerTests
 
         _pageViewModelServiceMock = new Mock<IPageViewModelService>();
         _pageServiceMock = new Mock<IPageService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Page>>();

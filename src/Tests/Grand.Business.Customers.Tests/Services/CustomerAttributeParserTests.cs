@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -22,11 +21,6 @@ public class CustomerAttributeParserTests
     public void Init()
     {
         _customerAtrServiceMock = new Mock<ICustomerAttributeService>();
-        var _translationServiceMock = new Mock<ITranslationService>();
-        {
-            _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Warning{0}");
-        }
-
         _parser = new CustomerAttributeParser(_customerAtrServiceMock.Object);
         customAtr = [
             new CustomAttribute { Key = "key1", Value = "value1" },

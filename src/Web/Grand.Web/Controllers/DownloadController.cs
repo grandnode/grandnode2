@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Interfaces.Storage;
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 using OperatingSystem = Grand.Infrastructure.OperatingSystem;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -29,7 +29,7 @@ public class DownloadController : BasePublicController
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IOrderService _orderService;
     private readonly IProductService _productService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public DownloadController(IDownloadService downloadService,
@@ -37,7 +37,7 @@ public class DownloadController : BasePublicController
         IOrderService orderService,
         IMerchandiseReturnService merchandiseReturnService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         CustomerSettings customerSettings)
     {
         _downloadService = downloadService;

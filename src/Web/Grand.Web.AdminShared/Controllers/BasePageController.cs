@@ -13,6 +13,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -22,7 +23,7 @@ public abstract class BasePageController(
     IPageViewModelService pageViewModelService,
     IPageService pageService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IAdminDataScope<Page> scope)
     : BaseController
@@ -35,7 +36,7 @@ public abstract class BasePageController(
     protected IPageService PageService => pageService;
     protected ILanguageService LanguageService => languageService;
     protected IDateTimeService DateTimeService => dateTimeService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<Page> Scope => scope;
 
     #region List

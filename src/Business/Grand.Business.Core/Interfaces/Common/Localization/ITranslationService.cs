@@ -50,17 +50,6 @@ public interface ITranslationService
     /// <summary>
     ///     Gets a resource string based on the specified ResourceKey property.
     /// </summary>
-    /// <param name="name">A string representing a name.</param>
-    /// <returns>A string representing the requested resource string.</returns>
-    /// <remarks>
-    ///     Reads the working language of the current request. Code that may run outside a request uses the
-    ///     overload that takes the language.
-    /// </remarks>
-    string GetResource(string name);
-
-    /// <summary>
-    ///     Gets a resource string based on the specified ResourceKey property.
-    /// </summary>
     /// <param name="resourceKey">A string representing a ResourceKey.</param>
     /// <param name="languageId">Language identifier</param>
     /// <param name="defaultValue">Default value</param>

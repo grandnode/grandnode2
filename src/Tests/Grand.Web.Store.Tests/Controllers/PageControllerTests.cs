@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Reflection;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
@@ -50,7 +51,7 @@ public class PageControllerTests
             new Mock<IPageViewModelService>().Object,
             _pageServiceMock.Object,
             _languageServiceMock.Object,
-            new Mock<ITranslationService>().Object,
+            new Mock<IRequestTranslationService>().Object,
             new Mock<IDateTimeService>().Object,
             _scopeMock.Object);
 
@@ -203,7 +204,7 @@ public class PageControllerTests
         var pageViewModelServiceMock = new Mock<IPageViewModelService>();
         var controller = new PageController(
             pageViewModelServiceMock.Object, _pageServiceMock.Object,
-            _languageServiceMock.Object, new Mock<ITranslationService>().Object,
+            _languageServiceMock.Object, new Mock<IRequestTranslationService>().Object,
             new Mock<IDateTimeService>().Object, _scopeMock.Object);
         controller.ControllerContext = _controller.ControllerContext;
         controller.TempData = _controller.TempData;
@@ -235,7 +236,7 @@ public class PageControllerTests
 
         var controller = new PageController(
             pageViewModelServiceMock.Object, _pageServiceMock.Object,
-            _languageServiceMock.Object, new Mock<ITranslationService>().Object,
+            _languageServiceMock.Object, new Mock<IRequestTranslationService>().Object,
             new Mock<IDateTimeService>().Object, _scopeMock.Object);
         controller.ControllerContext = _controller.ControllerContext;
         controller.TempData = _controller.TempData;

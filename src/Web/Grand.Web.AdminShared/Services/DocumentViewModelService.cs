@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Interfaces.Storage;
@@ -14,6 +13,7 @@ using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Documents;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -30,7 +30,7 @@ public class DocumentViewModelService : IDocumentViewModelService
     private readonly IProductService _productService;
     private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly IShipmentService _shipmentService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
 
     public DocumentViewModelService(
@@ -38,7 +38,7 @@ public class DocumentViewModelService : IDocumentViewModelService
         IDocumentTypeService documentTypeService,
         ICustomerService customerService,
         IOrderService orderService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         IShipmentService shipmentService,
         IMerchandiseReturnService merchandiseReturnService,

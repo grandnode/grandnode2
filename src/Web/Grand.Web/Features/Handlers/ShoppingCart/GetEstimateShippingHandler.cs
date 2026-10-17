@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
@@ -8,6 +7,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 
@@ -16,10 +16,10 @@ public class GetEstimateShippingHandler : IRequestHandler<GetEstimateShipping, E
     private readonly ICountryService _countryService;
 
     private readonly ShippingSettings _shippingSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetEstimateShippingHandler(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         ShippingSettings shippingSettings)
     {

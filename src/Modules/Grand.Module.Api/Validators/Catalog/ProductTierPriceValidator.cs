@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -11,13 +13,16 @@ public class ProductTierPriceValidator : BaseGrandValidator<ProductTierPriceDto>
 {
     public ProductTierPriceValidator(
         IEnumerable<IValidatorConsumer<ProductTierPriceDto>> validators,
-        ITranslationService translationService, IStoreService storeService, IGroupService groupService)
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, IStoreService storeService, IGroupService groupService)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x.Quantity).GreaterThan(0)
-            .WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.Quantity.GreaterThan0"));
+            .WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.Quantity.GreaterThan0", languageId));
         RuleFor(x => x.Price).GreaterThan(0)
-            .WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.Price.GreaterThan0"));
+            .WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.Price.GreaterThan0", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -29,7 +34,7 @@ public class ProductTierPriceValidator : BaseGrandValidator<ProductTierPriceDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.StoreId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.StoreId.NotExists", languageId));
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             if (!string.IsNullOrEmpty(x.CustomerGroupId))
@@ -40,6 +45,6 @@ public class ProductTierPriceValidator : BaseGrandValidator<ProductTierPriceDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.CustomerGroupId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.CustomerGroupId.NotExists", languageId));
     }
 }

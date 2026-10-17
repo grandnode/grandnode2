@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Queries.Catalog;
@@ -30,7 +29,7 @@ public class DiscountViewModelService : IDiscountViewModelService
     #region Constructors
 
     public DiscountViewModelService(IDiscountService discountService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICurrencyService currencyService,
         ICategoryService categoryService,
         IProductService productService,
@@ -69,7 +68,7 @@ public class DiscountViewModelService : IDiscountViewModelService
     #region Fields
 
     private readonly IDiscountService _discountService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICurrencyService _currencyService;
     private readonly ICategoryService _categoryService;
     private readonly IProductService _productService;

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -9,6 +8,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -19,12 +19,12 @@ public class DocumentController : BaseAdminController
     private readonly IDocumentService _documentService;
     private readonly IDocumentTypeService _documentTypeService;
     private readonly IDocumentViewModelService _documentViewModelService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public DocumentController(IDocumentViewModelService documentViewModelService,
         IDocumentService documentService,
         IDocumentTypeService documentTypeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICustomerService customerService)
     {
         _documentViewModelService = documentViewModelService;

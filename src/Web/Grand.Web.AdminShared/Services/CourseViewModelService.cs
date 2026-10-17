@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -24,7 +23,7 @@ public class CourseViewModelService(
     ICourseLessonService courseLessonService,
     ICourseSubjectService courseSubjectService,
     IPictureService pictureService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IProductCourseService productCourseService,
     IDownloadService downloadService,
     IProductService productService,

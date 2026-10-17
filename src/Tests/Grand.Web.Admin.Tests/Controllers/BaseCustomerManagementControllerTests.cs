@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
@@ -21,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -34,7 +34,7 @@ public class BaseCustomerManagementControllerTests
         IProductViewModelService productViewModelService, ICustomerAttributeParser customerAttributeParser,
         ICustomerAttributeService customerAttributeService, IAddressAttributeParser addressAttributeParser,
         IAddressAttributeService addressAttributeService, IMessageProviderService messageProviderService,
-        IGroupService groupService, ITranslationService translationService, IContextAccessor contextAccessor,
+        IGroupService groupService, IRequestTranslationService translationService, IContextAccessor contextAccessor,
         CustomerSettings customerSettings, IAdminDataScope<Customer> scope,
         IPermissionService permissionService, IExportManager<Customer> exportManager)
         : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
@@ -66,7 +66,7 @@ public class BaseCustomerManagementControllerTests
 
         var scopeMock = new Mock<IAdminDataScope<Customer>>();
         scopeMock.Setup(s => s.HasAccess(It.IsAny<Customer>())).ReturnsAsync(true);
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestManagementController(_customerServiceMock.Object,

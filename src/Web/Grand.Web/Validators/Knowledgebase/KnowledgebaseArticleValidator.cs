@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure;
@@ -11,6 +10,7 @@ using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Knowledgebase;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Knowledgebase;
 
@@ -23,7 +23,7 @@ public class KnowledgebaseArticleValidator : BaseGrandValidator<KnowledgebaseArt
         IKnowledgebaseService knowledgebaseService, KnowledgebaseSettings knowledgebaseSettings,
         CaptchaSettings captchaSettings,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.AddNewComment.CommentText).NotEmpty()

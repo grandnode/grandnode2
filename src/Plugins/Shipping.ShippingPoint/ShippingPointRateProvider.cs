@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
@@ -12,6 +11,7 @@ using Grand.Infrastructure;
 using Shipping.ShippingPoint.Domain;
 using Shipping.ShippingPoint.Services;
 using System.Xml.Serialization;
+using Grand.Web.Common.Localization;
 
 namespace Shipping.ShippingPoint;
 
@@ -21,7 +21,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
 
     public ShippingPointRateProvider(
         IShippingPointService shippingPointService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         ICustomerService customerService,
         ICountryService countryService,
@@ -43,7 +43,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     #region Fields
 
     private readonly IShippingPointService _shippingPointService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly ICustomerService _customerService;
     private readonly ICountryService _countryService;

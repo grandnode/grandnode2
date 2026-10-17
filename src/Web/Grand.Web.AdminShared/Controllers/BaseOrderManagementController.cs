@@ -1,6 +1,5 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
@@ -13,6 +12,7 @@ using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -20,7 +20,7 @@ public abstract class BaseOrderManagementController(
     IOrderViewModelService orderViewModelService,
     IOrderService orderService,
     IOrderStatusService orderStatusService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IMediator mediator,

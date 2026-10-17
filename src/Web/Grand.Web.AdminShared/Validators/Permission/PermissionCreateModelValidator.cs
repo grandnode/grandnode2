@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Permissions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Permission;
 
@@ -11,7 +11,7 @@ public class PermissionCreateModelValidator : BaseGrandValidator<PermissionCreat
     public PermissionCreateModelValidator(
         IEnumerable<IValidatorConsumer<PermissionCreateModel>> validators,
         IPermissionService permissionService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

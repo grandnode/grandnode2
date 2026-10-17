@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
@@ -11,6 +10,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -19,7 +19,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseOrderController(
     IOrderViewModelService orderViewModelService,
     IOrderService orderService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IAdminDataScope<Order> scope)
@@ -29,7 +29,7 @@ public abstract class BaseOrderController(
     // derived classes by name in C#).
     protected IOrderViewModelService OrderViewModelService => orderViewModelService;
     protected IOrderService OrderService => orderService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IContextAccessor ContextAccessor => contextAccessor;
     protected IPdfService PdfService => pdfService;
     protected IAdminDataScope<Order> Scope => scope;

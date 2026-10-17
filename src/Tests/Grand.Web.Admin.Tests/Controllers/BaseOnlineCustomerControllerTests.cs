@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain;
 using Grand.Domain.Customers;
@@ -10,6 +9,7 @@ using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -24,7 +24,7 @@ public class BaseOnlineCustomerControllerTests
         ICustomerService customerService,
         IDateTimeService dateTimeService,
         CustomerSettings customerSettings,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor)
         : BaseOnlineCustomerController(customerService, dateTimeService, customerSettings, translationService, contextAccessor)
     {
@@ -34,7 +34,7 @@ public class BaseOnlineCustomerControllerTests
 
     private Mock<ICustomerService> _customerServiceMock = null!;
     private Mock<IDateTimeService> _dateTimeServiceMock = null!;
-    private Mock<ITranslationService> _translationServiceMock = null!;
+    private Mock<IRequestTranslationService> _translationServiceMock = null!;
     private Mock<IContextAccessor> _contextAccessorMock = null!;
     private CustomerSettings _customerSettings = null!;
 
@@ -46,7 +46,7 @@ public class BaseOnlineCustomerControllerTests
         _dateTimeServiceMock
             .Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), It.IsAny<DateTimeKind>()))
             .Returns((DateTime dt, DateTimeKind _) => dt);
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string s) => s);
         _customerSettings = new CustomerSettings { OnlineCustomerMinutes = 20, StoreLastVisitedPage = true };
 

@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Domain.Shipping;
@@ -11,6 +10,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -20,7 +20,7 @@ public abstract class BasePickupPointController(
     IWarehouseService warehouseService,
     ICountryService countryService,
     IStoreService storeService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<PickupPoint> scope) : BaseController
 {
     protected virtual async Task PreparePickupPointModel(PickupPointModel model)

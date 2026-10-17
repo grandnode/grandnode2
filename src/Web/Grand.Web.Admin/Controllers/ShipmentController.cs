@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
@@ -13,6 +12,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -23,7 +23,7 @@ namespace Grand.Web.Admin.Controllers;
 public class ShipmentController(
     IShipmentViewModelService shipmentViewModelService,
     IOrderService orderService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IShipmentService shipmentService,

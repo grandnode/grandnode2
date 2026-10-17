@@ -20,7 +20,7 @@ namespace Grand.Web.Admin.Controllers;
 public class CheckoutAttributeController(
     ICheckoutAttributeService checkoutAttributeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     ICurrencyService currencyService,
     CurrencySettings currencySettings,
     IMeasureService measureService,

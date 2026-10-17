@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Customers;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Customers;
 
@@ -10,7 +10,7 @@ public class UserApiValidator : BaseGrandValidator<UserApiModel>
 {
     public UserApiValidator(
         IEnumerable<IValidatorConsumer<UserApiModel>> validators,
-        ITranslationService translationService, ICustomerService customerService)
+        IRequestTranslationService translationService, ICustomerService customerService)
         : base(validators)
     {
         RuleFor(x => x.Email).NotEmpty()

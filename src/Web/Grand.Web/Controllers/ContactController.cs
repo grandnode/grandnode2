@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
@@ -16,6 +15,7 @@ using Grand.Web.Events;
 using Grand.Web.Models.Contact;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -25,7 +25,7 @@ public class ContactController : BasePublicController
     #region Constructors
 
     public ContactController(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         IMediator mediator)
     {
@@ -197,7 +197,7 @@ public class ContactController : BasePublicController
 
     #region Fields
 
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
 

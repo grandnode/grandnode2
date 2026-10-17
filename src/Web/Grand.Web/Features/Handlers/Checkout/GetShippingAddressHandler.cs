@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
@@ -12,6 +11,7 @@ using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Checkout;
 
@@ -28,7 +28,7 @@ public class GetShippingAddressHandler : IRequestHandler<GetShippingAddress, Che
     private readonly IShippingService _shippingService;
     private readonly ShippingSettings _shippingSettings;
     private readonly ITaxService _taxService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetShippingAddressHandler(
         IShippingService shippingService,
@@ -36,7 +36,7 @@ public class GetShippingAddressHandler : IRequestHandler<GetShippingAddress, Che
         ITaxService taxService,
         ICurrencyService currencyService,
         IPriceFormatter priceFormatter,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         IAclService aclService,
         IMediator mediator,

@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Web.AdminShared.Controllers;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -21,13 +21,13 @@ public class BaseProductReviewControllerTests
 {
     private Mock<IProductReviewViewModelService> _viewModelService;
     private Mock<IProductReviewService> _productReviewService;
-    private Mock<ITranslationService> _translationService;
+    private Mock<IRequestTranslationService> _translationService;
     private Mock<IAdminDataScope<ProductReview>> _scope;
 
     private class TestableProductReviewController(
         IProductReviewViewModelService viewModelService,
         IProductReviewService productReviewService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminDataScope<ProductReview> scope)
         : BaseProductReviewController(viewModelService, productReviewService, translationService, scope);
 
@@ -56,7 +56,7 @@ public class BaseProductReviewControllerTests
     {
         _viewModelService = new Mock<IProductReviewViewModelService>();
         _productReviewService = new Mock<IProductReviewService>();
-        _translationService = new Mock<ITranslationService>();
+        _translationService = new Mock<IRequestTranslationService>();
         _scope = new Mock<IAdminDataScope<ProductReview>>();
     }
 

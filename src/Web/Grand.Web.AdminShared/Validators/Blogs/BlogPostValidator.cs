@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Blogs;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Blogs;
 
@@ -9,7 +9,7 @@ public class BlogPostValidator : BaseGrandValidator<BlogPostModel>
 {
     public BlogPostValidator(
         IEnumerable<IValidatorConsumer<BlogPostModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Title)

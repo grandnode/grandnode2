@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
@@ -20,6 +19,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -35,14 +35,14 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
     private readonly IMediator _mediator;
     private readonly ISearchTermService _searchTermService;
     private readonly ISpecificationAttributeService _specificationAttributeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly VendorSettings _vendorSettings;
 
     public GetSearchHandler(
         ICategoryService categoryService,
         ICacheBase cacheBase,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICollectionService collectionService,
         IVendorService vendorService,
         ICurrencyService currencyService,

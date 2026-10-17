@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -23,7 +24,7 @@ public class BaseHomeControllerTests
 {
     private class TestHomeController(
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         string selectStateKey,
         string logoutRoute)
         : BaseHomeController(countryService, translationService)
@@ -34,7 +35,7 @@ public class BaseHomeControllerTests
 
     private class TestHomeControllerWithSetLanguage(
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         string selectStateKey,
         string logoutRoute,
@@ -47,13 +48,13 @@ public class BaseHomeControllerTests
     }
 
     private Mock<ICountryService> _countryServiceMock = null!;
-    private Mock<ITranslationService> _translationServiceMock = null!;
+    private Mock<IRequestTranslationService> _translationServiceMock = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _countryServiceMock = new Mock<ICountryService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string key) => key);
     }
 

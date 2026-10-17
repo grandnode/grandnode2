@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
@@ -21,7 +20,7 @@ public class CustomerGroupViewModelService : ICustomerGroupViewModelService
     private readonly IGroupService _groupService;
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IEnumTranslationService _enumTranslationService;
     
@@ -30,7 +29,7 @@ public class CustomerGroupViewModelService : ICustomerGroupViewModelService
     public CustomerGroupViewModelService(
         IGroupService groupService,
         ICustomerGroupProductService customerGroupProductService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         IStoreService storeService,
         IVendorService vendorService, 

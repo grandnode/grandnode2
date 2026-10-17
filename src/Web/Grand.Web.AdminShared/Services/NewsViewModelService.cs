@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
@@ -12,6 +11,7 @@ using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.News;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -21,7 +21,7 @@ public class NewsViewModelService : INewsViewModelService
 
     private readonly INewsService _newsService;
     private readonly IDateTimeService _dateTimeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IPictureService _pictureService;
     private readonly ICustomerService _customerService;
     private readonly ISeNameService _seNameService;
@@ -32,7 +32,7 @@ public class NewsViewModelService : INewsViewModelService
 
     public NewsViewModelService(INewsService newsService,
         IDateTimeService dateTimeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPictureService pictureService,
         ICustomerService customerService,
         ISeNameService seNameService)

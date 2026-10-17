@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Shipping.ShippingPoint.Models;
 using Shipping.ShippingPoint.Services;
+using Grand.Web.Common.Localization;
 
 namespace Shipping.ShippingPoint.Areas.Store.Controllers;
 
@@ -28,10 +28,10 @@ public class ShippingPointController : BaseController
     private readonly IContextAccessor _contextAccessor;
     private readonly ICountryService _countryService;
     private readonly IShippingPointService _shippingPointService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public ShippingPointController(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IShippingPointService shippingPointService,
         ICountryService countryService,
         IContextAccessor contextAccessor

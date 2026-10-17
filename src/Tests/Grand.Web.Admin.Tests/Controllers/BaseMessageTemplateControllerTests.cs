@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -25,7 +26,7 @@ public class BaseMessageTemplateControllerTests
     private Mock<IMessageTemplateService> _messageTemplateService;
     private Mock<IEmailAccountService> _emailAccountService;
     private Mock<ILanguageService> _languageService;
-    private Mock<ITranslationService> _translationService;
+    private Mock<IRequestTranslationService> _translationService;
     private Mock<IMessageTokenProvider> _messageTokenProvider;
     private Mock<IDownloadService> _downloadService;
     private Mock<IAdminDataScope<MessageTemplate>> _scope;
@@ -35,7 +36,7 @@ public class BaseMessageTemplateControllerTests
         IMessageTemplateService messageTemplateService,
         IEmailAccountService emailAccountService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMessageTokenProvider messageTokenProvider,
         IDownloadService downloadService,
         IAdminDataScope<MessageTemplate> scope,
@@ -73,7 +74,7 @@ public class BaseMessageTemplateControllerTests
         _messageTemplateService = new Mock<IMessageTemplateService>();
         _emailAccountService = new Mock<IEmailAccountService>();
         _languageService = new Mock<ILanguageService>();
-        _translationService = new Mock<ITranslationService>();
+        _translationService = new Mock<IRequestTranslationService>();
         _messageTokenProvider = new Mock<IMessageTokenProvider>();
         _downloadService = new Mock<IDownloadService>();
         _scope = new Mock<IAdminDataScope<MessageTemplate>>();

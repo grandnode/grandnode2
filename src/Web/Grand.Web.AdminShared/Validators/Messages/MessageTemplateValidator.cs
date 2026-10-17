@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Messages;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Messages;
 
@@ -9,7 +9,7 @@ public class MessageTemplateValidator : BaseGrandValidator<MessageTemplateModel>
 {
     public MessageTemplateValidator(
         IEnumerable<IValidatorConsumer<MessageTemplateModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Subject).NotEmpty()

@@ -9,6 +9,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -18,13 +19,13 @@ public class StoreController : BaseAdminController
     private readonly ILanguageService _languageService;
     private readonly IStoreService _storeService;
     private readonly IStoreViewModelService _storeViewModelService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public StoreController(
         IStoreViewModelService storeViewModelService,
         IStoreService storeService,
         ILanguageService languageService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _storeViewModelService = storeViewModelService;
         _storeService = storeService;

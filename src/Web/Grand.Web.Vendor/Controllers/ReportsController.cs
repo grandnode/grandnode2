@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
@@ -33,7 +32,7 @@ public class ReportsController(
     IProductService productService,
     IProductAttributeFormatter productAttributeFormatter,
     IStockQuantityService stockQuantityService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     ICountryService countryService,
     IVendorService vendorService,

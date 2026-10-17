@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Customer;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -14,7 +14,7 @@ public class SubAccountCreateValidator : BaseGrandValidator<SubAccountCreateMode
     public SubAccountCreateValidator(
         IEnumerable<IValidatorConsumer<SubAccountCreateModel>> validators,
         ICustomerService customerService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         CustomerSettings customerSettings,
         IContextAccessor contextAccessor, CustomerConfig customerConfig)
         : base(validators)

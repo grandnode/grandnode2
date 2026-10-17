@@ -1,7 +1,6 @@
 ﻿using DotLiquid.Util;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -10,6 +9,7 @@ using Grand.Web.AdminShared.Models.Permissions;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -21,7 +21,7 @@ public class PermissionController : BaseAdminController
     public PermissionController(IContextAccessor contextAccessor,
         IPermissionService permissionService,
         IGroupService groupService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _contextAccessor = contextAccessor;
         _permissionService = permissionService;
@@ -36,7 +36,7 @@ public class PermissionController : BaseAdminController
     private readonly IContextAccessor _contextAccessor;
     private readonly IPermissionService _permissionService;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     #endregion
 

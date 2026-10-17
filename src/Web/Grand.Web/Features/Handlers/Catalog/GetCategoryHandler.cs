@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
@@ -18,6 +17,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -31,14 +31,14 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
     private readonly IMediator _mediator;
     private readonly IPictureService _pictureService;
     private readonly ISpecificationAttributeService _specificationAttributeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetCategoryHandler(
         IMediator mediator,
         ICacheBase cacheBase,
         ICategoryService categoryService,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ISpecificationAttributeService specificationAttributeService,
         IHttpContextAccessor httpContextAccessor,
         CatalogSettings catalogSettings,

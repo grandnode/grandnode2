@@ -17,6 +17,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -30,7 +31,7 @@ public class MaintenanceController : BaseAdminController
         ISlugService slugService,
         IDateTimeService dateTimeService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IRobotsTxtService robotsTxtService,
         IMediator mediator,
         IMediaFileStore mediaFileStore)
@@ -53,7 +54,7 @@ public class MaintenanceController : BaseAdminController
     private readonly ISlugService _slugService;
     private readonly IDateTimeService _dateTimeService;
     private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IRobotsTxtService _robotsTxtService;
     private readonly IMediator _mediator;
     private readonly IMediaFileStore _mediaFileStore;

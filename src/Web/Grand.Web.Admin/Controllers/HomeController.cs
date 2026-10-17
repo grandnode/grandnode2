@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
@@ -15,6 +14,7 @@ using Grand.Web.AdminShared.Models.Home;
 using Grand.Mediator;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -28,7 +28,7 @@ public class HomeController : BaseHomeControllerWithSetLanguage
 
     public HomeController(
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         IStoreService storeService,
         ICustomerService customerService,

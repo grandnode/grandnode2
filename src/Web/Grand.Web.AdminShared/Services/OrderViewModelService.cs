@@ -49,7 +49,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IDateTimeService _dateTimeService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IDiscountService _discountService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly ICurrencyService _currencyService;
     private readonly IPaymentService _paymentService;
@@ -92,7 +92,7 @@ public class OrderViewModelService : IOrderViewModelService
         IDateTimeService dateTimeService,
         IPriceFormatter priceFormatter,
         IDiscountService discountService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         ICurrencyService currencyService,
         IPaymentService paymentService,

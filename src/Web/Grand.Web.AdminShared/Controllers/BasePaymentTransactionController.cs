@@ -2,7 +2,6 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Permissions;
@@ -24,7 +23,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BasePaymentTransactionController(
     IPaymentTransactionService paymentTransactionService,
     IOrderService orderService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IMediator mediator,
     IEnumTranslationService enumTranslationService,
@@ -36,7 +35,7 @@ public abstract class BasePaymentTransactionController(
     // every other Base*Controller and so Task 3/4's own file sections can reference them).
     protected IPaymentTransactionService PaymentTransactionService => paymentTransactionService;
     protected IOrderService OrderService => orderService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IDateTimeService DateTimeService => dateTimeService;
     protected IMediator Mediator => mediator;
     protected IEnumTranslationService EnumTranslationService => enumTranslationService;

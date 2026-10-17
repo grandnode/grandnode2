@@ -1,17 +1,17 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
+using Grand.Web.Common.Localization;
 
 namespace DiscountRules.Standard.Providers;
 
 public class HadSpentAmountDiscountRule : IDiscountRule
 {
     private readonly IOrderService _orderService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public HadSpentAmountDiscountRule(IOrderService orderService, ITranslationService translationService)
+    public HadSpentAmountDiscountRule(IOrderService orderService, IRequestTranslationService translationService)
     {
         _orderService = orderService;
         _translationService = translationService;

@@ -11,6 +11,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Widgets.Slider.Models;
 using Widgets.Slider.Services;
+using Grand.Web.Common.Localization;
 
 namespace Widgets.Slider.Areas.Admin.Controllers;
 
@@ -23,11 +24,11 @@ public class WidgetsSliderController : BaseAdminPluginController
     private readonly ISettingService _settingService;
     private readonly ISliderService _sliderService;
     private readonly SliderWidgetSettings _sliderWidgetSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public WidgetsSliderController(
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ISliderService sliderService,
         ILanguageService languageService,
         ISettingService settingService,

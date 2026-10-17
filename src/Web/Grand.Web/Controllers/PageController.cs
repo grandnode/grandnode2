@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
@@ -8,6 +7,7 @@ using Grand.Web.Features.Models.Pages;
 using Grand.Web.Models.Pages;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -17,7 +17,7 @@ public class PageController : BasePublicController
     #region Constructors
 
     public PageController(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPermissionService permissionService,
         IMediator mediator)
     {
@@ -30,7 +30,7 @@ public class PageController : BasePublicController
 
     #region Fields
 
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IPermissionService _permissionService;
     private readonly IMediator _mediator;
 

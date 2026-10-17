@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
@@ -27,7 +26,7 @@ public class MerchandiseReturnViewModelService(
     IProductService productService,
     ICustomerService customerService,
     IDateTimeService dateTimeService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IMessageProviderService messageProviderService,
     LanguageSettings languageSettings,
     IMerchandiseReturnService merchandiseReturnService,

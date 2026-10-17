@@ -2,7 +2,6 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Orders;
@@ -16,6 +15,7 @@ using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -27,7 +27,7 @@ public class OrderController(
     IOrderViewModelService orderViewModelService,
     IOrderService orderService,
     IOrderStatusService orderStatusService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IMediator mediator,

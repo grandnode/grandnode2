@@ -1,6 +1,6 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Localization
 @model DocumentListModel
-@inject ITranslationService translationService 
+@inject Grand.Web.Common.Localization.IRequestTranslationService translationService 
 @{
     //page title
     ViewBag.Title = Loc["Admin.Documents.Document.Manage"];

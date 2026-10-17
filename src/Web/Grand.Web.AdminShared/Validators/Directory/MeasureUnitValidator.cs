@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Directory;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Directory;
 
@@ -9,7 +9,7 @@ public class MeasureUnitValidator : BaseGrandValidator<MeasureUnitModel>
 {
     public MeasureUnitValidator(
         IEnumerable<IValidatorConsumer<MeasureUnitModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

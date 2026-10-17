@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Customers;
@@ -20,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -70,7 +70,7 @@ public class AccountControllerProviderOnlyTests
         _customerManager = new Mock<ICustomerManagerService>();
         _customers = new Mock<ICustomerService>();
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object,
-            new Mock<ITranslationService>().Object, context.Object, _customers.Object,
+            new Mock<IRequestTranslationService>().Object, context.Object, _customers.Object,
             _groups.Object, _customerManager.Object, new Mock<ICountryService>().Object,
             mediator.Object, new Mock<IMessageProviderService>().Object, new CaptchaSettings(),
             _customerSettings = new CustomerSettings {

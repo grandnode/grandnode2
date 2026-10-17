@@ -1,18 +1,18 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Marketing.Newsletters;
+﻿using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Web.Commands.Models.Newsletter;
 using Grand.Web.Models.Newsletter;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Commands.Handler.Newsletter;
 
 public class SubscriptionActivationHandler : IRequestHandler<SubscriptionActivationCommand, SubscriptionActivationModel>
 {
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public SubscriptionActivationHandler(INewsLetterSubscriptionService newsLetterSubscriptionService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _translationService = translationService;

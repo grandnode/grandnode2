@@ -51,7 +51,7 @@ public class ProductViewModelService(
     ICategoryService categoryService,
     IProductCategoryService productCategoryService,
     IVendorService vendorService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IProductLayoutService productLayoutService,
     ISpecificationAttributeService specificationAttributeService,
     IContextAccessor contextAccessor,

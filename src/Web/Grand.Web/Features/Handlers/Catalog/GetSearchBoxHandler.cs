@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
@@ -9,6 +8,7 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -18,12 +18,12 @@ public class GetSearchBoxHandler : IRequestHandler<GetSearchBox, SearchBoxModel>
     private readonly CatalogSettings _catalogSettings;
     private readonly ICategoryService _categoryService;
     private readonly StoreInformationSettings _storeInformationSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetSearchBoxHandler(
         ICacheBase cacheBase,
         ICategoryService categoryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         CatalogSettings catalogSettings,
         StoreInformationSettings storeInformationSettings)
     {

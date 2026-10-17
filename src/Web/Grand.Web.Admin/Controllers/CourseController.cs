@@ -15,6 +15,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.AdminShared.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -28,11 +29,11 @@ public class CourseController : BaseAdminController
     private readonly ICourseViewModelService _courseViewModelService;
     private readonly ILanguageService _languageService;
 
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public CourseController(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICourseLevelService courseLevelService,
         ICourseService courseService,
         ICourseSubjectService courseSubjectService,

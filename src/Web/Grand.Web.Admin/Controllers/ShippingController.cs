@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
 using Grand.Domain;
@@ -20,6 +19,7 @@ using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -33,7 +33,7 @@ public class ShippingController : BaseAdminController
         IShippingMethodService shippingMethodService,
         ISettingService settingService,
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IGroupService groupService)
     {
@@ -54,7 +54,7 @@ public class ShippingController : BaseAdminController
     private readonly IShippingMethodService _shippingMethodService;
     private readonly ISettingService _settingService;
     private readonly ICountryService _countryService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IStoreService _storeService;
     private readonly IGroupService _groupService;
 

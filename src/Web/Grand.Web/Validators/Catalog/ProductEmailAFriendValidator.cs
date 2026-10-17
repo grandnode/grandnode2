@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
@@ -10,6 +9,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Catalog;
 
@@ -21,7 +21,7 @@ public class ProductEmailAFriendValidator : BaseGrandValidator<ProductEmailAFrie
         CaptchaSettings captchaSettings, CatalogSettings catalogSettings,
         IContextAccessor contextAccessor, IGroupService groupService, IProductService productService,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.FriendEmail).NotEmpty()

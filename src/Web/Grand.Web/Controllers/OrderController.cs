@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -22,6 +21,7 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -35,7 +35,7 @@ public class OrderController : BasePublicController
         IContextAccessor contextAccessor,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IGroupService groupService,
         IMediator mediator,
         OrderSettings orderSettings)
@@ -58,7 +58,7 @@ public class OrderController : BasePublicController
     private readonly IContextAccessor _contextAccessor;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IGroupService _groupService;
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;

@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Domain.Permissions;
@@ -10,6 +9,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -20,7 +20,7 @@ namespace Grand.Web.Store.Controllers;
 public class EmailAccountController(
     IEmailAccountViewModelService emailAccountViewModelService,
     IEmailAccountService emailAccountService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<EmailAccount> scope)
     : BaseEmailAccountController(emailAccountViewModelService, emailAccountService, translationService, scope)
 {

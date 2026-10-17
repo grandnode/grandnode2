@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Addresses;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Validators.Common;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Customers;
 
@@ -16,7 +16,7 @@ public class CustomerAddressValidator : BaseGrandValidator<CustomerAddressModel>
         IEnumerable<IValidatorConsumer<AddressModel>> addressvalidators,
         IAddressAttributeParser addressAttributeParser,
         IAddressAttributeService addressAttributeService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Address).SetValidator(new AddressValidator(addressvalidators, translationService));

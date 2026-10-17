@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Vendors;
 using Grand.Web.AdminShared.Controllers;
@@ -12,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -22,7 +22,7 @@ public class BaseVendorReviewControllerTests
     private class TestVendorReviewController(
         IVendorViewModelService vendorViewModelService,
         IVendorService vendorService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminDataScope<VendorReview> scope)
         : BaseVendorReviewController(vendorViewModelService, vendorService, translationService, scope);
 
@@ -39,7 +39,7 @@ public class BaseVendorReviewControllerTests
         _scopeMock = new Mock<IAdminDataScope<VendorReview>>();
         _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestVendorReviewController(

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -20,6 +19,7 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -36,7 +36,7 @@ public class KnowledgebaseController : BasePublicController
     private readonly LanguageSettings _languageSettings;
     private readonly IMessageProviderService _messageProviderService;
     private readonly IPermissionService _permissionService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public KnowledgebaseController(
@@ -45,7 +45,7 @@ public class KnowledgebaseController : BasePublicController
         IContextAccessor contextAccessor,
         ICacheBase cacheBase,
         IAclService aclService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMessageProviderService messageProviderService,
         IDateTimeService dateTimeService,
         IPermissionService permissionService,

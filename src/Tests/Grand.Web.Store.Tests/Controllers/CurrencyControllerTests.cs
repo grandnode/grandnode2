@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
@@ -12,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using DomainStore = Grand.Domain.Stores.Store;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
@@ -23,7 +23,7 @@ public class CurrencyControllerTests
     private CurrencyController _controller;
     private Mock<ICurrencyService> _currencyServiceMock;
     private Mock<IStoreService> _storeServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private CurrencySettings _currencySettings;
 
     [TestInitialize]
@@ -31,7 +31,7 @@ public class CurrencyControllerTests
     {
         _currencyServiceMock = new Mock<ICurrencyService>();
         _storeServiceMock = new Mock<IStoreService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(x => x);
         _currencySettings = new CurrencySettings();
 

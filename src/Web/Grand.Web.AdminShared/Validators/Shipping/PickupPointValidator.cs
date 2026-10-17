@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Shipping;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Shipping;
 
@@ -9,7 +9,7 @@ public class PickupPointValidator : BaseGrandValidator<PickupPointModel>
 {
     public PickupPointValidator(
         IEnumerable<IValidatorConsumer<PickupPointModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

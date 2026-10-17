@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
@@ -29,6 +28,7 @@ using Grand.Web.Models.Checkout;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -40,7 +40,7 @@ public class CheckoutController : BasePublicController
 
     public CheckoutController(
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICustomerService customerService,
         IGroupService groupService,
         IShoppingCartService shoppingCartService,
@@ -824,7 +824,7 @@ public class CheckoutController : BasePublicController
     #region Fields
 
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly IShoppingCartService _shoppingCartService;

@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -10,12 +12,15 @@ namespace Grand.Module.Api.Validators.Catalog;
 public class BrandValidator : BaseGrandValidator<BrandDto>
 {
     public BrandValidator(IEnumerable<IValidatorConsumer<BrandDto>> validators,
-        ITranslationService translationService, IPictureService pictureService, IBrandService brandService,
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, IPictureService pictureService, IBrandService brandService,
         IBrandLayoutService brandLayoutService)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x.Name).NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.Name.Required"));
+            .WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.Name.Required", languageId));
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             if (!string.IsNullOrEmpty(x.PictureId))
@@ -26,7 +31,7 @@ public class BrandValidator : BaseGrandValidator<BrandDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.PictureId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.PictureId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -38,7 +43,7 @@ public class BrandValidator : BaseGrandValidator<BrandDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.BrandLayoutId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.BrandLayoutId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -50,6 +55,6 @@ public class BrandValidator : BaseGrandValidator<BrandDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.Id.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Brand.Fields.Id.NotExists", languageId));
     }
 }

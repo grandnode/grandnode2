@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
@@ -7,6 +6,7 @@ using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Vendors;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Vendors;
 
@@ -17,7 +17,7 @@ public class ContactVendorValidator : BaseGrandValidator<ContactVendorModel>
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService, CommonSettings commonSettings)
+        IRequestTranslationService translationService, CommonSettings commonSettings)
         : base(validators)
     {
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("ContactVendor.Email.Required"));

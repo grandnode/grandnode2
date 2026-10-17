@@ -2,13 +2,13 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Orders;
 
@@ -18,7 +18,7 @@ public class MerchandiseReturnValidator : BaseGrandValidator<MerchandiseReturnMo
         IEnumerable<IValidatorConsumer<MerchandiseReturnModel>> validators,
         OrderSettings orderSettings, IOrderService orderService, IProductService productService,
         IMediator mediator, IAddressAttributeParser addressAttributeParser,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor)
         : base(validators)
     {

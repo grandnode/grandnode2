@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Catalog.Collections;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
@@ -15,6 +14,7 @@ using Grand.Web.Features.Models.Catalog;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Features.Handlers.Catalog;
 
@@ -37,7 +37,7 @@ public class GetHomepageCollectionsHandlerTests
                 return new PagedList<Collection>(collections, 0, int.MaxValue);
             });
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(s => s.GetResource(It.IsAny<string>())).Returns("{0}");
 
         var cacheBase = new MemoryCacheBase(new MemoryCache(new MemoryCacheOptions()), new Mock<IMediator>().Object,

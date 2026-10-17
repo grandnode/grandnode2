@@ -25,7 +25,7 @@ public class BlogController(
     IBlogService blogService,
     IBlogViewModelService blogViewModelService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     IDateTimeService dateTimeService,
     IPictureViewModelService pictureViewModelService,

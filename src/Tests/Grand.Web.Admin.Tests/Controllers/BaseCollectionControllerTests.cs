@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -33,7 +34,7 @@ public class BaseCollectionControllerTests
         ICollectionService collectionService,
         IStoreService storeService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPictureViewModelService pictureViewModelService,
         IProductService productService,
         IAdminDataScope<Collection> scope)
@@ -44,7 +45,7 @@ public class BaseCollectionControllerTests
     private Mock<ICollectionService> _collectionServiceMock;
     private Mock<ICollectionViewModelService> _collectionViewModelServiceMock;
     private Mock<IStoreService> _storeServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Collection>> _scopeMock;
 
     [TestInitialize]
@@ -57,7 +58,7 @@ public class BaseCollectionControllerTests
         _collectionViewModelServiceMock = new Mock<ICollectionViewModelService>();
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Collection>>();

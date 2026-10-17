@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
@@ -51,7 +50,7 @@ public class CustomerViewModelServiceTests
     private Mock<IDateTimeService> _dateTimeServiceMock;
     private Mock<IDownloadService> _downloadServiceMock;
     private Mock<INewsLetterSubscriptionService> _newsLetterSubscriptionServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Customer _currentCustomer;
     private CustomerViewModelService _customerViewModelService;
 
@@ -72,7 +71,7 @@ public class CustomerViewModelServiceTests
         _dateTimeServiceMock = new Mock<IDateTimeService>();
         _downloadServiceMock = new Mock<IDownloadService>();
         _newsLetterSubscriptionServiceMock = new Mock<INewsLetterSubscriptionService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
 
         _dateTimeServiceMock.Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), It.IsAny<DateTimeKind>()))

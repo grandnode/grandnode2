@@ -3,7 +3,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
@@ -27,6 +26,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -38,7 +38,7 @@ public class ProductController : BasePublicController
     public ProductController(
         IProductService productService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IRecentlyViewedProductsService recentlyViewedProductsService,
         IShoppingCartService shoppingCartService,
         IAclService aclService,
@@ -260,7 +260,7 @@ public class ProductController : BasePublicController
 
     private readonly IProductService _productService;
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IRecentlyViewedProductsService _recentlyViewedProductsService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IAclService _aclService;

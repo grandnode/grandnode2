@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Services;
 
@@ -13,7 +14,7 @@ namespace Grand.Web.Admin.Tests.Services;
 public class LanguageViewModelServiceTests
 {
     private Mock<ILanguageService> _languageServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<ICurrencyService> _currencyServiceMock;
     private Mock<IWebHostEnvironment> _hostingEnvironmentMock;
     private LanguageViewModelService _service;
@@ -22,7 +23,7 @@ public class LanguageViewModelServiceTests
     public void Setup()
     {
         _languageServiceMock = new Mock<ILanguageService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _currencyServiceMock = new Mock<ICurrencyService>();
         _hostingEnvironmentMock = new Mock<IWebHostEnvironment>();
 

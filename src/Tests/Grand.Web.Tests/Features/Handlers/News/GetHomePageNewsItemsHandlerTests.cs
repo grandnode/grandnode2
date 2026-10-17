@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
@@ -17,6 +16,7 @@ using Grand.Web.Features.Models.News;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Features.Handlers.News;
 
@@ -51,7 +51,7 @@ public class GetHomePageNewsItemsHandlerTests
 
         _handler = new GetHomePageNewsItemsHandler(cacheBase, contextAccessorMock.Object, _newsServiceMock.Object,
             new Mock<IDateTimeService>().Object, new Mock<IPictureService>().Object,
-            new Mock<ITranslationService>().Object, new NewsSettings(), new MediaSettings(),
+            new Mock<IRequestTranslationService>().Object, new NewsSettings(), new MediaSettings(),
             _accessControlConfig);
     }
 

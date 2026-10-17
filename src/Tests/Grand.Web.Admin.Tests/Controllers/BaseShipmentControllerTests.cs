@@ -2,7 +2,6 @@ using Grand.Business.Core.Commands.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
@@ -21,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -31,7 +31,7 @@ public class BaseShipmentControllerTests
     private class TestShipmentController(
         IShipmentViewModelService shipmentViewModelService,
         IOrderService orderService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         IPdfService pdfService,
         IShipmentService shipmentService,
@@ -67,7 +67,7 @@ public class BaseShipmentControllerTests
         _orderScopeMock = new Mock<IAdminDataScope<Order>>();
         _orderScopeMock.Setup(s => s.HasAccess(It.IsAny<Order>())).ReturnsAsync(true);
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         var contextAccessorMock = new Mock<IContextAccessor>();
         var workContextMock = new Mock<IWorkContext>();

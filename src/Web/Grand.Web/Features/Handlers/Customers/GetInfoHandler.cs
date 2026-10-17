@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -27,13 +26,13 @@ public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly TaxSettings _taxSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
     
     public GetInfoHandler(
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         INewsletterCategoryService newsletterCategoryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         IExternalAuthenticationService externalAuthenticationService,
         IMediator mediator,

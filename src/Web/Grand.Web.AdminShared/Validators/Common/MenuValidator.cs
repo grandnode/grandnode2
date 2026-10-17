@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Menu;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Common;
 
@@ -9,7 +9,7 @@ public class MenuValidator : BaseGrandValidator<MenuModel>
 {
     public MenuValidator(
         IEnumerable<IValidatorConsumer<MenuModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.SystemName)

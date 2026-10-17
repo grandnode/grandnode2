@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -17,6 +16,7 @@ using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Vendors;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -24,7 +24,7 @@ public class VendorViewModelService(
     IDiscountService discountService,
     IVendorService vendorService,
     ICustomerService customerService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     ICountryService countryService,
     IStoreService storeService,

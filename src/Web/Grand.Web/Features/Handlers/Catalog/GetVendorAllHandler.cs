@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
@@ -10,6 +9,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -19,14 +19,14 @@ public class GetVendorAllHandler : IRequestHandler<GetVendorAll, VendorListModel
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
     private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly VendorSettings _vendorSettings;
 
     public GetVendorAllHandler(
         IVendorService vendorService,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         CatalogSettings catalogSettings,
         IMediator mediator,
         MediaSettings mediaSettings,

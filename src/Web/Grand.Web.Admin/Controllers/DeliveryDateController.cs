@@ -10,6 +10,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -23,7 +24,7 @@ public class DeliveryDateController(
     IDeliveryDateService deliveryDateService,
     ILanguageService languageService,
     IStoreService storeService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<Grand.Domain.Shipping.DeliveryDate> scope)
     : BaseDeliveryDateController(deliveryDateService, languageService, storeService, translationService, scope)
 {

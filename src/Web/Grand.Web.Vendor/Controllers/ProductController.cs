@@ -23,7 +23,7 @@ public class ProductController(
     IProductService productService,
     IInventoryManageService inventoryManageService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IProductReservationService productReservationService,
     IAuctionService auctionService,
     IDateTimeService dateTimeService,

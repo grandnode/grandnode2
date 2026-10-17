@@ -1,7 +1,6 @@
 #nullable enable
 
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
@@ -20,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -31,13 +31,13 @@ public class BaseTaxCategoryControllerTests
     private class TestTaxCategoryController(
         ITaxCategoryService taxCategoryService,
         IStoreService storeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminDataScope<TaxCategory> scope)
         : BaseTaxCategoryController(taxCategoryService, storeService, translationService, scope);
 
     private Mock<ITaxCategoryService> _taxCategoryServiceMock = null!;
     private Mock<IStoreService> _storeServiceMock = null!;
-    private Mock<ITranslationService> _translationServiceMock = null!;
+    private Mock<IRequestTranslationService> _translationServiceMock = null!;
 
     [TestInitialize]
     public void Setup()
@@ -48,7 +48,7 @@ public class BaseTaxCategoryControllerTests
         _taxCategoryServiceMock = new Mock<ITaxCategoryService>();
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string s) => s);
     }
 

@@ -2,7 +2,6 @@ extern alias StoreHost;
 extern alias VendorHost;
 
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
@@ -19,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -30,7 +30,7 @@ public class BaseMerchandiseReturnControllerTests
     // own override is tested separately in Task 8's tests.
     protected class TestMerchandiseReturnController(
         IMerchandiseReturnViewModelService merchandiseReturnViewModelService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMerchandiseReturnService merchandiseReturnService,
         IOrderService orderService,
         IAdminDataScope<MerchandiseReturn> scope)
@@ -52,7 +52,7 @@ public class BaseMerchandiseReturnControllerTests
         _scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestMerchandiseReturnController(
@@ -550,7 +550,7 @@ public class BaseMerchandiseReturnControllerTests
     {
         var storeController = new StoreHost::Grand.Web.Store.Controllers.MerchandiseReturnController(
             _merchandiseReturnViewModelServiceMock.Object,
-            new Mock<ITranslationService>().Object,
+            new Mock<IRequestTranslationService>().Object,
             _merchandiseReturnServiceMock.Object,
             _orderServiceMock.Object,
             _scopeMock.Object);
@@ -571,7 +571,7 @@ public class BaseMerchandiseReturnControllerTests
     {
         var realScope = new GlobalAdminDataScope<MerchandiseReturn>();
         var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
-            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+            new Mock<IRequestTranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
         controller.ControllerContext = _controller.ControllerContext;
         controller.TempData = _controller.TempData;
         var entity = new MerchandiseReturn { Id = "mr1", StoreId = "any-store", VendorId = "any-vendor", SeId = "any-se" };
@@ -593,7 +593,7 @@ public class BaseMerchandiseReturnControllerTests
         var realScope = new StoreMerchandiseReturnDataScope(contextAccessorMock.Object);
 
         var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
-            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+            new Mock<IRequestTranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
         controller.ControllerContext = _controller.ControllerContext;
         controller.TempData = _controller.TempData;
         var entity = new MerchandiseReturn { Id = "mr1", StoreId = "store-2" };
@@ -615,7 +615,7 @@ public class BaseMerchandiseReturnControllerTests
         var realScope = new VendorMerchandiseReturnDataScope(contextAccessorMock.Object);
 
         var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
-            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+            new Mock<IRequestTranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
         controller.ControllerContext = _controller.ControllerContext;
         controller.TempData = _controller.TempData;
         var entity = new MerchandiseReturn { Id = "mr1", VendorId = "vendor-B" };
@@ -637,7 +637,7 @@ public class BaseMerchandiseReturnControllerTests
         var realScope = new StoreMerchandiseReturnDataScope(contextAccessorMock.Object);
 
         var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
-            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+            new Mock<IRequestTranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
         controller.ControllerContext = _controller.ControllerContext;
         controller.TempData = _controller.TempData;
         var entity = new MerchandiseReturn { Id = "mr1", StoreId = "store-1" };

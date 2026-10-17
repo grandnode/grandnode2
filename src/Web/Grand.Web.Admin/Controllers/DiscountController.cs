@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain;
 using Grand.Domain.Discounts;
@@ -16,6 +15,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -26,7 +26,7 @@ namespace Grand.Web.Admin.Controllers;
 public class DiscountController(
     IDiscountViewModelService discountViewModelService,
     IDiscountService discountService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IMediator mediator,
     IDiscountProviderLoader discountProviderLoader,

@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Customers;
 
@@ -10,10 +10,10 @@ public class
     GetPasswordRecoveryConfirmHandler : IRequestHandler<GetPasswordRecoveryConfirm, PasswordRecoveryConfirmModel>
 {
     private readonly CustomerSettings _customerSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetPasswordRecoveryConfirmHandler(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         CustomerSettings customerSettings)
     {
         _translationService = translationService;

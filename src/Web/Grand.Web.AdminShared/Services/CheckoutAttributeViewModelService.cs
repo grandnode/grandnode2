@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -19,7 +18,7 @@ namespace Grand.Web.AdminShared.Services;
 public class CheckoutAttributeViewModelService(
     ICheckoutAttributeService checkoutAttributeService,
     ICheckoutAttributeParser checkoutAttributeParser,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     ITaxCategoryService taxCategoryService,
     ICurrencyService currencyService,
     CurrencySettings currencySettings,

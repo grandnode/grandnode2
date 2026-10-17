@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -11,6 +10,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Common;
 
@@ -21,11 +21,11 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
     private readonly AddressSettings _addressSettings;
     private readonly ICountryService _countryService;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetAddressModelHandler(
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAddressAttributeService addressAttributeService,
         IAddressAttributeParser addressAttributeParser,
         IGroupService groupService,

@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Permissions;
 using Grand.Domain;
@@ -21,13 +20,13 @@ public class QueuedEmailController : BaseAdminController
     private readonly IDateTimeService _dateTimeService;
     private readonly IEmailAccountService _emailAccountService;
     private readonly IQueuedEmailService _queuedEmailService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
     
     public QueuedEmailController(IQueuedEmailService queuedEmailService,
         IEmailAccountService emailAccountService,
         IDateTimeService dateTimeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IEnumTranslationService enumTranslationService)
     {
         _queuedEmailService = queuedEmailService;

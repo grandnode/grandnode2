@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain;
 using Grand.Domain.Customers;
@@ -11,6 +10,7 @@ using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Validators.Customers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Validators;
 
@@ -27,7 +27,7 @@ public class CustomerValidatorTests
     [TestInitialize]
     public void Setup()
     {
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
 
         _groupServiceMock = new Mock<IGroupService>();

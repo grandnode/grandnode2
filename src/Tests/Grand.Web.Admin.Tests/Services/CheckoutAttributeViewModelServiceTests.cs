@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -34,7 +33,7 @@ public class CheckoutAttributeViewModelServiceTests
             .ReturnsAsync(new List<CheckoutAttributeValue>());
 
         _service = new CheckoutAttributeViewModelService(_checkoutAttributeServiceMock.Object, parserMock.Object,
-            new Mock<ITranslationService>().Object, new Mock<ITaxCategoryService>().Object,
+            new Mock<IRequestTranslationService>().Object, new Mock<ITaxCategoryService>().Object,
             new Mock<ICurrencyService>().Object, new CurrencySettings(), new Mock<IMeasureService>().Object,
             new MeasureSettings(), new Mock<IEnumTranslationService>().Object);
     }

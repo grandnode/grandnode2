@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
@@ -9,19 +8,20 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Vendors;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Common;
 
 public class GetVendorAddressHandler : IRequestHandler<GetVendorAddress, VendorAddressModel>
 {
     private readonly ICountryService _countryService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     private readonly VendorSettings _vendorSettings;
 
     public GetVendorAddressHandler(
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         VendorSettings vendorSettings)
     {
         _countryService = countryService;

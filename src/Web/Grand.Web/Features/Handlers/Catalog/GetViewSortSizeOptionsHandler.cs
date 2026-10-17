@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using Grand.Infrastructure.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Catalog;
@@ -15,9 +14,9 @@ public class GetViewSortSizeOptionsHandler : IRequestHandler<GetViewSortSizeOpti
 {
     private readonly CatalogSettings _catalogSettings;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
-    public GetViewSortSizeOptionsHandler(ITranslationService translationService, CatalogSettings catalogSettings,
+    public GetViewSortSizeOptionsHandler(IRequestTranslationService translationService, CatalogSettings catalogSettings,
         IHttpContextAccessor httpContextAccessor, IEnumTranslationService enumTranslationService)
     {
         _translationService = translationService;

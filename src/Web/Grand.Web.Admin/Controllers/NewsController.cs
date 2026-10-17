@@ -20,7 +20,7 @@ public class NewsController(
     INewsViewModelService newsViewModelService,
     INewsService newsService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     IDateTimeService dateTimeService,
     IAdminDataScope<NewsItem> scope)

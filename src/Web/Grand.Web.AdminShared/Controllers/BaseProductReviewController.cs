@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
@@ -10,6 +9,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -18,7 +18,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseProductReviewController(
     IProductReviewViewModelService productReviewViewModelService,
     IProductReviewService productReviewService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<ProductReview> scope)
     : BaseController
 {

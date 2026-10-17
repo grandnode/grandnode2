@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -29,7 +30,7 @@ public class BaseBlogControllerTests
         IBlogService blogService,
         IBlogViewModelService blogViewModelService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IDateTimeService dateTimeService,
         IPictureViewModelService pictureViewModelService,
@@ -42,7 +43,7 @@ public class BaseBlogControllerTests
     private TestBlogController _controller;
     private Mock<IBlogService> _blogServiceMock;
     private Mock<IBlogViewModelService> _blogViewModelServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<BlogPost>> _postScopeMock;
     private Mock<IAdminDataScope<BlogCategory>> _categoryScopeMock;
 
@@ -58,7 +59,7 @@ public class BaseBlogControllerTests
 
         _blogServiceMock = new Mock<IBlogService>();
         _blogViewModelServiceMock = new Mock<IBlogViewModelService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _postScopeMock = new Mock<IAdminDataScope<BlogPost>>();

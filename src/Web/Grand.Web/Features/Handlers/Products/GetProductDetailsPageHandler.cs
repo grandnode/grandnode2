@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
@@ -34,6 +33,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Products;
 
@@ -66,7 +66,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly IStockQuantityService _stockQuantityService;
     private readonly ITaxService _taxService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly VendorSettings _vendorSettings;
     private readonly IWarehouseService _warehouseService;
@@ -75,7 +75,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     public GetProductDetailsPageHandler(
         IPermissionService permissionService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         IPricingService priceCalculationService,
         ITaxService taxService,

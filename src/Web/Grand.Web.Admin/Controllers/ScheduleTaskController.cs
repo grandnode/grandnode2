@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Domain.Permissions;
@@ -11,6 +10,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -21,7 +21,7 @@ public class ScheduleTaskController : BaseAdminController
 
     public ScheduleTaskController(
         IScheduleTaskService scheduleTaskService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         IStoreService storeService)
     {
@@ -36,7 +36,7 @@ public class ScheduleTaskController : BaseAdminController
     #region Fields
 
     private readonly IScheduleTaskService _scheduleTaskService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IStoreService _storeService;
 

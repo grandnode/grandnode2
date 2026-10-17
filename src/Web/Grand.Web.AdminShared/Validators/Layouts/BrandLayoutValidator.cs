@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Layouts;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Layouts;
 
@@ -9,7 +9,7 @@ public class BrandLayoutValidator : BaseGrandValidator<BrandLayoutModel>
 {
     public BrandLayoutValidator(
         IEnumerable<IValidatorConsumer<BrandLayoutModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

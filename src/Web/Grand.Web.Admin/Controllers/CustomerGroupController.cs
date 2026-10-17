@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -12,6 +11,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -23,7 +23,7 @@ public class CustomerGroupController : BaseAdminController
     public CustomerGroupController(
         ICustomerGroupViewModelService customerGroupViewModelService,
         IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPermissionService permissionService,
         IContextAccessor contextAccessor,
         ICustomerGroupProductService customerGroupProductService)
@@ -42,7 +42,7 @@ public class CustomerGroupController : BaseAdminController
 
     private readonly ICustomerGroupViewModelService _customerGroupViewModelService;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IPermissionService _permissionService;
     private readonly IContextAccessor _contextAccessor;
     private readonly ICustomerGroupProductService _customerGroupProductService;

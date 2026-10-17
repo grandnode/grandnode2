@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Payments.BrainTree;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Modules.Tests.Plugins.Payments;
 
@@ -37,6 +38,7 @@ public class BrainTreePaymentProviderTests
         var services = new ServiceCollection();
         services.AddSingleton(_settings);
         services.AddSingleton(Mock.Of<ITranslationService>());
+        services.AddSingleton(Mock.Of<IRequestTranslationService>());
         services.AddSingleton(Mock.Of<ICustomerService>());
         //the card form lives in the session, but no request is running here: HttpContext is null
         services.AddSingleton<IHttpContextAccessor>(new HttpContextAccessor());

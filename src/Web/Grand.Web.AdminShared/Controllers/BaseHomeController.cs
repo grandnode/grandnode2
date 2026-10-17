@@ -1,14 +1,14 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
 public abstract class BaseHomeController(
     ICountryService countryService,
-    ITranslationService translationService)
+    IRequestTranslationService translationService)
     : BaseController
 {
     /// <summary>

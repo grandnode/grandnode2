@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.News;
 using Grand.Infrastructure;
@@ -10,6 +9,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.News;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.News;
 
@@ -21,7 +21,7 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
         IContextAccessor contextAccessor, IGroupService groupService, INewsService newsService,
         CaptchaSettings captchaSettings, NewsSettings newsSettings,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.CommentTitle).NotEmpty()

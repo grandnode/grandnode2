@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Messages;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Messages;
 
@@ -12,7 +12,7 @@ public class ContactAttributeValueValidator : BaseGrandValidator<ContactAttribut
     public ContactAttributeValueValidator(
         IEnumerable<IValidatorConsumer<ContactAttributeValueModel>> validators,
         IContactAttributeService contactAttributeService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
@@ -14,6 +13,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -28,7 +28,7 @@ public class ShoppingCartController : BaseAdminController
         IStoreService storeService,
         ITaxService taxService,
         IPricingService priceCalculationService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductAttributeFormatter productAttributeFormatter,
         IProductService productService,
         IContextAccessor contextAccessor)
@@ -55,7 +55,7 @@ public class ShoppingCartController : BaseAdminController
     private readonly IStoreService _storeService;
     private readonly ITaxService _taxService;
     private readonly IPricingService _pricingService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IProductService _productService;
     private readonly IContextAccessor _contextAccessor;

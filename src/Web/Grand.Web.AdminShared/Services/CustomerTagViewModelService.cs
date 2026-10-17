@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
@@ -20,12 +19,12 @@ public class CustomerTagViewModelService : ICustomerTagViewModelService
     private readonly ICustomerTagService _customerTagService;
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IEnumTranslationService _enumTranslationService;
 
     public CustomerTagViewModelService(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         IStoreService storeService,
         IVendorService vendorService,

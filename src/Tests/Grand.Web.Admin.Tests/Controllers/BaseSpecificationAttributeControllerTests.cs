@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Collections.Generic;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -27,7 +28,7 @@ public class BaseSpecificationAttributeControllerTests
     private class TestSpecificationAttributeController(
         ISpecificationAttributeService specificationAttributeService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         SeoSettings seoSettings,
         IAdminDataScope<SpecificationAttribute> scope)
@@ -46,7 +47,7 @@ public class BaseSpecificationAttributeControllerTests
         _productService = new Mock<IProductService>();
         _scope = new Mock<IAdminDataScope<SpecificationAttribute>>();
         _sut = new TestSpecificationAttributeController(_service.Object, Mock.Of<ILanguageService>(),
-            Mock.Of<ITranslationService>(), _productService.Object, new SeoSettings(), _scope.Object);
+            Mock.Of<IRequestTranslationService>(), _productService.Object, new SeoSettings(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();

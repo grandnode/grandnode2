@@ -3,7 +3,6 @@ using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
@@ -15,6 +14,7 @@ using Payments.BrainTree.Models;
 using Payments.BrainTree.Validators;
 using Environment = Braintree.Environment;
 using TransactionStatus = Grand.Domain.Payments.TransactionStatus;
+using Grand.Web.Common.Localization;
 
 namespace Payments.BrainTree;
 
@@ -26,10 +26,10 @@ public class BrainTreePaymentProvider : IPaymentProvider
     private readonly ICustomerService _customerService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public BrainTreePaymentProvider(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICustomerService customerService,
         IHttpContextAccessor httpContextAccessor,
         IShoppingCartSubTotalService shoppingCartSubTotalService,

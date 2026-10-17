@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
@@ -8,6 +7,7 @@ using Grand.Web.Features.Handlers.Common;
 using Grand.Web.Features.Models.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Features.Handlers.Common;
 
@@ -32,7 +32,7 @@ public class GetAddressModelHandlerTests
         addressAttributeServiceMock.Setup(s => s.GetAllAddressAttributes(It.IsAny<string>()))
             .ReturnsAsync(new List<AddressAttribute>());
 
-        _handler = new GetAddressModelHandler(_countryServiceMock.Object, new Mock<ITranslationService>().Object,
+        _handler = new GetAddressModelHandler(_countryServiceMock.Object, new Mock<IRequestTranslationService>().Object,
             addressAttributeServiceMock.Object, new Mock<IAddressAttributeParser>().Object,
             new Mock<IGroupService>().Object,
             new AddressSettings { CountryEnabled = true, StateProvinceEnabled = true });

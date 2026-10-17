@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.News;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.News;
 
@@ -9,7 +9,7 @@ public class NewsItemValidator : BaseGrandValidator<NewsItemModel>
 {
     public NewsItemValidator(
         IEnumerable<IValidatorConsumer<NewsItemModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Title).NotEmpty()

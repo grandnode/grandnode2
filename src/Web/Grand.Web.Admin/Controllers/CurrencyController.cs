@@ -14,6 +14,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -29,7 +30,7 @@ public class CurrencyController : BaseAdminController
         CurrencySettings currencySettings,
         ISettingService settingService,
         IDateTimeService dateTimeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ILanguageService languageService)
     {
         _currencyService = currencyService;
@@ -52,7 +53,7 @@ public class CurrencyController : BaseAdminController
     private readonly CurrencySettings _currencySettings;
     private readonly ISettingService _settingService;
     private readonly IDateTimeService _dateTimeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ILanguageService _languageService;
 
     #endregion
