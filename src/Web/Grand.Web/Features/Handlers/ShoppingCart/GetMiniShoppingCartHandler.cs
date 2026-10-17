@@ -108,8 +108,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         model.TotalProducts = cart.Sum(x => x.Quantity);
         if (!cart.Any()) return model;
 
-        var context = new CalculationContext(request.Customer, request.Store, request.Currency,
-            request.TaxDisplayType);
+        var context = request.CalculationContext();
 
         //subtotal
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&

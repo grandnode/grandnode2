@@ -28,7 +28,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 
 public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
 {
-    private readonly IContextAccessor _contextAccessor;
     private readonly CatalogSettings _catalogSettings;
     private readonly LinkGenerator _linkGenerator;
     private readonly MediaSettings _mediaSettings;
@@ -57,10 +56,8 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
         MediaSettings mediaSettings, 
-        IEnumTranslationService enumTranslationService,
-        IContextAccessor contextAccessor)
+        IEnumTranslationService enumTranslationService)
     {
-        _contextAccessor = contextAccessor;
         _permissionService = permissionService;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;
@@ -76,9 +73,6 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         _mediaSettings = mediaSettings;
         _enumTranslationService = enumTranslationService;
     }
-
-    private static CalculationContext CalculationContextOf(GetWishlist request) =>
-        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
 
     public async Task<WishlistModel> Handle(GetWishlist request, CancellationToken cancellationToken)
     {
@@ -100,7 +94,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
 
         //cart warnings
         var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, null,
-            CalculationContextOf(request), false, false);
+            request.CalculationContext(), false, false);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);
 
@@ -108,6 +102,8 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
 
         #region Cart items
 
+        //on a shared wishlist the prices are the viewer's, not the owner's
+        var priceContext = request.CalculationContext() with { Customer = request.CurrentCustomer };
         foreach (var sci in request.Cart)
         {
             var product = await _productService.GetProductById(sci.ProductId);
@@ -124,7 +120,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
                 ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                 Quantity = sci.Quantity,
                 AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes,
-                    CalculationContextOf(request), request.Language, request.Host),
+                    priceContext, request.Language, request.Host),
                 AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually
             };
 
@@ -154,10 +150,8 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
             {
                 var productprice = await _taxService.GetProductPrice(product,
                     (await _pricingService.GetUnitPrice(sci, product,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                        _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
-                        _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                        priceContext.Customer, priceContext.Store, priceContext.Currency)).unitprice,
+                        priceContext.IncludingTax, priceContext.Customer, priceContext.Store);
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice, request.Currency);
             }
 
@@ -170,12 +164,10 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
             {
                 //sub total
                 var subtotal = await _pricingService.GetSubTotal(sci, product,
-                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                    _contextAccessor.WorkContext.WorkingCurrency);
+                    priceContext.Customer, priceContext.Store, priceContext.Currency);
                 var shoppingCartItemDiscountBase = subtotal.discountAmount;
                 var productprices = await _taxService.GetProductPrice(product, subtotal.subTotal,
-                    _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
+                    priceContext.IncludingTax, priceContext.Customer, priceContext.Store);
                 cartItemModel.SubTotal = _priceFormatter.FormatPrice(productprices.productprice, request.Currency);
 
                 //display an applied discount amount
@@ -183,8 +175,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
                 {
                     shoppingCartItemDiscountBase =
                         (await _taxService.GetProductPrice(product, shoppingCartItemDiscountBase,
-                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
+                            priceContext.IncludingTax, priceContext.Customer, priceContext.Store)).productprice;
                     if (shoppingCartItemDiscountBase > 0)
                         cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase,
                             request.Currency);

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Utilities.Checkout;
+﻿using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
@@ -16,9 +16,9 @@ public interface IProductAttributeFormatter
     /// </summary>
     /// <param name="product">Product</param>
     /// <param name="customAttributes">Attributes</param>
-    /// <param name="context">Customer, store, currency and tax display the prices are rendered for (read only when renderPrices is true)</param>
+    /// <param name="context">Customer, store, currency and tax display the prices are rendered for (required when renderPrices is true)</param>
     /// <param name="language">Language of the attribute names</param>
-    /// <param name="host">Store address used for file download links (read only when allowHyperlinks is true)</param>
+    /// <param name="host">Store address used for file download links (read only when allowHyperlinks is true; without it the link is not rendered)</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="renderPrices">A value indicating whether to render prices</param>

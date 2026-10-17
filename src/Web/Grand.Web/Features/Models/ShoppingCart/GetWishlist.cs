@@ -9,9 +9,17 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.ShoppingCart;
 
-public class GetWishlist : IRequest<WishlistModel>
+public class GetWishlist : IRequest<WishlistModel>, ICartCalculationRequest
 {
+    /// <summary>
+    ///     Owner of the wishlist
+    /// </summary>
     public Customer Customer { get; set; }
+
+    /// <summary>
+    ///     Customer viewing the wishlist; prices are calculated for them, which differs from Customer on a shared wishlist
+    /// </summary>
+    public Customer CurrentCustomer { get; set; }
     public Language Language { get; set; }
     public Currency Currency { get; set; }
     public Domain.Stores.Store Store { get; set; }

@@ -8,7 +8,7 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.ShoppingCart;
 
-public class GetMiniShoppingCart : IRequest<MiniShoppingCartModel>
+public class GetMiniShoppingCart : IRequest<MiniShoppingCartModel>, ICartCalculationRequest
 {
     public Customer Customer { get; set; }
     public Language Language { get; set; }

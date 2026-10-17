@@ -11,7 +11,7 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.ShoppingCart;
 
-public class GetAddToCart : IRequest<AddToCartModel>
+public class GetAddToCart : IRequest<AddToCartModel>, ICartCalculationRequest
 {
     public Product Product { get; set; }
     public Customer Customer { get; set; }

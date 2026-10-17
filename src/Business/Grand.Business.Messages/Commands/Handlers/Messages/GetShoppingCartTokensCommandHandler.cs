@@ -30,11 +30,14 @@ public class GetShoppingCartTokensCommandHandler : IRequestHandler<GetShoppingCa
 
         async Task ProductList()
         {
-            var attributeDescription = string.Empty;
-            var pictureUrl = string.Empty;
             foreach (var item in request.Context.Customer.ShoppingCartItems)
             {
                 var product = await _productService.GetProductById(item.ProductId);
+                if (product == null)
+                    continue;
+
+                var attributeDescription = string.Empty;
+                var pictureUrl = string.Empty;
 
                 if (product.ProductPictures.Any())
                     pictureUrl = await _pictureService.GetPictureUrl(

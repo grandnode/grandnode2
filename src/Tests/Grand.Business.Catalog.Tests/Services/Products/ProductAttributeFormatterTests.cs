@@ -166,4 +166,31 @@ public class ProductAttributeFormatterTests
             $"test: <a href=\"https://shop.example/download/getfileupload/?downloadId={downloadGuid}\" class=\"fileuploadattribute\">file</a>",
             result);
     }
+
+    [TestMethod]
+    public async Task FormatAttributes_FileUpload_WithoutHost_RendersNoLink()
+    {
+        //Arrange
+        var product = new Product();
+        product.ProductAttributeMappings.Add(new ProductAttributeMapping
+            { Id = "1", AttributeControlTypeId = AttributeControlType.FileUpload, TextPrompt = "file" });
+        //Act
+        var result = await _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute> {
+            new() { Key = "1", Value = Guid.NewGuid().ToString() }
+        }, _context, _language, null);
+        //Assert
+        Assert.AreEqual("test: ", result);
+    }
+
+    [TestMethod]
+    public async Task FormatAttributes_WithPrices_RequiresAContext()
+    {
+        //Arrange
+        var product = ProductWithCheckboxValue(5);
+        //Act & Assert
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
+            _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute> {
+                new() { Key = "1", Value = "1" }
+            }, null, _language, _host));
+    }
 }

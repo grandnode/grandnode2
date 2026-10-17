@@ -8,9 +8,10 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Directory;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
-using Grand.Infrastructure;
+using Grand.Domain.Tax;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 
@@ -25,8 +26,7 @@ public class CampaignService(
     IQueuedEmailService queuedEmailService,
     IStoreService storeService,
     IMediator mediator,
-    ILanguageService languageService,
-    IContextAccessor contextAccessor)
+    ILanguageService languageService)
     : ICampaignService
 {
     /// <summary>
@@ -226,9 +226,13 @@ public class CampaignService(
     /// <param name="campaign">Campaign</param>
     /// <param name="emailAccount">Email account</param>
     /// <param name="subscriptions">Subscriptions</param>
+    /// <param name="currency">Currency the shopping cart prices are rendered in</param>
+    /// <param name="taxDisplayType">Whether the shopping cart prices include tax</param>
+    /// <param name="host">Store address used for the links in the email</param>
     /// <returns>Total emails sent</returns>
     public virtual async Task<int> SendCampaign(Campaign campaign, EmailAccount emailAccount,
-        IEnumerable<NewsLetterSubscription> subscriptions)
+        IEnumerable<NewsLetterSubscription> subscriptions, Currency currency, TaxDisplayType taxDisplayType,
+        DomainHost host)
     {
         ArgumentNullException.ThrowIfNull(campaign);
         ArgumentNullException.ThrowIfNull(emailAccount);
@@ -254,12 +258,12 @@ public class CampaignService(
                         (await storeService.GetAllStores()).FirstOrDefault();
 
             builder.AddStoreTokens(store, language, emailAccount)
-                .AddNewsLetterSubscriptionTokens(subscription, store, contextAccessor.StoreContext.CurrentHost);
+                .AddNewsLetterSubscriptionTokens(subscription, store, host);
 
             if (customer != null)
-                builder.AddCustomerTokens(customer, store, contextAccessor.StoreContext.CurrentHost, language)
-                    .AddShoppingCartTokens(ShoppingCartContext(customer, store),
-                        contextAccessor.StoreContext.CurrentHost, language);
+                builder.AddCustomerTokens(customer, store, host, language)
+                    .AddShoppingCartTokens(new CalculationContext(customer, store, currency, taxDisplayType),
+                        host, language);
 
             var email = new QueuedEmail();
 
@@ -291,17 +295,17 @@ public class CampaignService(
         return totalEmailsSent;
     }
 
-    // TODO M1 PR 5: the currency and tax display still come from the request that sends the campaign
-    private CalculationContext ShoppingCartContext(Customer customer, Store store) =>
-        new(customer, store, contextAccessor.WorkContext.WorkingCurrency, contextAccessor.WorkContext.TaxDisplayType);
-
     /// <summary>
     ///     Sends a campaign to specified email
     /// </summary>
     /// <param name="campaign">Campaign</param>
     /// <param name="emailAccount">Email account</param>
     /// <param name="email">Email</param>
-    public virtual async Task SendCampaign(Campaign campaign, EmailAccount emailAccount, string email)
+    /// <param name="currency">Currency the shopping cart prices are rendered in</param>
+    /// <param name="taxDisplayType">Whether the shopping cart prices include tax</param>
+    /// <param name="host">Store address used for the links in the email</param>
+    public virtual async Task SendCampaign(Campaign campaign, EmailAccount emailAccount, string email,
+        Currency currency, TaxDisplayType taxDisplayType, DomainHost host)
     {
         ArgumentNullException.ThrowIfNull(campaign);
         ArgumentNullException.ThrowIfNull(emailAccount);
@@ -316,8 +320,8 @@ public class CampaignService(
         builder.AddStoreTokens(store, language, emailAccount);
         var customer = customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
         if (customer != null)
-            builder.AddCustomerTokens(customer, store, contextAccessor.StoreContext.CurrentHost, language)
-                .AddShoppingCartTokens(ShoppingCartContext(customer, store), contextAccessor.StoreContext.CurrentHost,
+            builder.AddCustomerTokens(customer, store, host, language)
+                .AddShoppingCartTokens(new CalculationContext(customer, store, currency, taxDisplayType), host,
                     language);
 
         var liquidObject = await builder.BuildAsync();

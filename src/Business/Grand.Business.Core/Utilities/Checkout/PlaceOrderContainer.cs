@@ -23,6 +23,11 @@ public class PlaceOrderContainer
     public Language Language { get; set; }
 
     /// <summary>
+    ///     Language of the request placing the order, used for the attribute descriptions
+    /// </summary>
+    public Language WorkingLanguage { get; set; }
+
+    /// <summary>
     ///     Store address used for file download links in the attribute descriptions
     /// </summary>
     public DomainHost Host { get; set; }

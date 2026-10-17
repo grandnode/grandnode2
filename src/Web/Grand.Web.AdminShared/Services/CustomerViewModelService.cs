@@ -875,7 +875,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                         Quantity = sci.Quantity,
                         ProductName = product.Name,
                         AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes,
-                            _contextAccessor.CalculationContext() with { Customer = customer },
+                            _contextAccessor.CalculationContext() with { Customer = customer, Store = priceStore },
                             _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost),
                         UnitPrice = priceFormatter.FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency),
                         UnitPriceValue = price,
@@ -1107,7 +1107,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                     StoreName = store != null ? store.Shortcut : "Unknown",
                     ProductId = x.ProductId,
                     ProductName = product != null ? product.Name : "Unknown",
-                    AttributeDescription = x.Attributes != null || !x.Attributes!.Any()
+                    AttributeDescription = x.Attributes == null || !x.Attributes.Any()
                         ? ""
                         : await productAttributeFormatter.FormatAttributes(product, x.Attributes,
                             _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage,

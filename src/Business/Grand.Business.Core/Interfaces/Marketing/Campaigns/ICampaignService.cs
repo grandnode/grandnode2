@@ -1,5 +1,8 @@
 ﻿using Grand.Domain;
+using Grand.Domain.Directory;
 using Grand.Domain.Messages;
+using Grand.Domain.Stores;
+using Grand.Domain.Tax;
 
 namespace Grand.Business.Core.Interfaces.Marketing.Campaigns;
 
@@ -65,9 +68,13 @@ public interface ICampaignService
     /// <param name="campaign">Campaign</param>
     /// <param name="emailAccount">Email account</param>
     /// <param name="subscriptions">Subscriptions</param>
+    /// <param name="currency">Currency the shopping cart prices are rendered in</param>
+    /// <param name="taxDisplayType">Whether the shopping cart prices include tax</param>
+    /// <param name="host">Store address used for the links in the email</param>
     /// <returns>Total emails sent</returns>
     Task<int> SendCampaign(Campaign campaign, EmailAccount emailAccount,
-        IEnumerable<NewsLetterSubscription> subscriptions);
+        IEnumerable<NewsLetterSubscription> subscriptions, Currency currency, TaxDisplayType taxDisplayType,
+        DomainHost host);
 
     /// <summary>
     ///     Sends a campaign to specified email
@@ -75,5 +82,9 @@ public interface ICampaignService
     /// <param name="campaign">Campaign</param>
     /// <param name="emailAccount">Email account</param>
     /// <param name="email">Email</param>
-    Task SendCampaign(Campaign campaign, EmailAccount emailAccount, string email);
+    /// <param name="currency">Currency the shopping cart prices are rendered in</param>
+    /// <param name="taxDisplayType">Whether the shopping cart prices include tax</param>
+    /// <param name="host">Store address used for the links in the email</param>
+    Task SendCampaign(Campaign campaign, EmailAccount emailAccount, string email, Currency currency,
+        TaxDisplayType taxDisplayType, DomainHost host);
 }

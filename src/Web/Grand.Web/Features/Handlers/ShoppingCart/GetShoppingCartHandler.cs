@@ -146,9 +146,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         return model;
     }
 
-    private static CalculationContext CalculationContextOf(GetShoppingCart request) =>
-        new(request.Customer, request.Store, request.Currency, request.TaxDisplayType);
-
     private async Task PrepareSimpleProperties(ShoppingCartModel model, GetShoppingCart request)
     {
         #region Simple properties
@@ -164,7 +161,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             request.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 request.Store.Id);
         model.CheckoutAttributeInfo =
-            await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, CalculationContextOf(request),
+            await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, request.CalculationContext(),
                 request.Language, request.Host);
         if (!request.Cart.Where(x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions)
                 .ToList().Any())
@@ -174,7 +171,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         else
         {
             var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
-                Context = CalculationContextOf(request),
+                Context = request.CalculationContext(),
                 Cart = request.Cart.Where(x =>
                     x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
             });
@@ -209,7 +206,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
         //cart warnings
         var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes,
-            CalculationContextOf(request),
+            request.CalculationContext(),
             request.ValidateCheckoutAttributes, true);
         foreach (var warning in cartWarnings)
             model.Warnings.Add(warning);
@@ -365,7 +362,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                 Quantity = sci.Quantity,
                 AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes,
-                    CalculationContextOf(request), request.Language, request.Host),
+                    request.CalculationContext(), request.Language, request.Host),
                 AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually
             };
 

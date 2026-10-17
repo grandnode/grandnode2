@@ -69,7 +69,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
         var model = new AddToCartModel {
             AttributeDescription =
                 await _productAttributeFormatter.FormatAttributes(request.Product, request.Attributes,
-                    new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType),
+                    request.CalculationContext(),
                     request.Language, request.Host),
             ProductSeName = request.Product.GetSeName(request.Language.Id),
             CartType = request.CartType,
@@ -160,8 +160,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                                            !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal =
                     await _orderTotalCalculationService.GetShoppingCartSubTotal(cart,
-                        new CalculationContext(request.Customer, request.Store, request.Currency,
-                            request.TaxDisplayType), subTotalIncludingTax);
+                        request.CalculationContext(), subTotalIncludingTax);
                 model.SubTotalIncludingTax = subTotalIncludingTax;
                 model.SubTotal =
                     _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
