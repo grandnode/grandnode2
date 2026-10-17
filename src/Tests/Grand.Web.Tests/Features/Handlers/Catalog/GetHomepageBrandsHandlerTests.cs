@@ -22,12 +22,13 @@ namespace Grand.Web.Tests.Features.Handlers.Catalog;
 public class GetHomepageBrandsHandlerTests
 {
     private GetHomepageBrandsHandler _handler;
+    private Mock<IBrandService> _brandServiceMock;
 
     [TestInitialize]
     public void Init()
     {
-        var brandServiceMock = new Mock<IBrandService>();
-        brandServiceMock.Setup(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+        _brandServiceMock = new Mock<IBrandService>();
+        _brandServiceMock.Setup(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var brands = new List<Brand> { new() { Id = "public", ShowOnHomePage = true } };
@@ -42,18 +43,23 @@ public class GetHomepageBrandsHandlerTests
         var cacheBase = new MemoryCacheBase(new MemoryCache(new MemoryCacheOptions()), new Mock<IMediator>().Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _handler = new GetHomepageBrandsHandler(cacheBase, brandServiceMock.Object,
+        _handler = new GetHomepageBrandsHandler(cacheBase, _brandServiceMock.Object,
             new Mock<IPictureService>().Object, translationServiceMock.Object, new MediaSettings());
     }
 
     private Task<IList<Web.Models.Catalog.BrandModel>> Handle(params string[] groups)
     {
+        return HandleIn("store-1", "lang-1", groups);
+    }
+
+    private Task<IList<Web.Models.Catalog.BrandModel>> HandleIn(string storeId, string languageId, params string[] groups)
+    {
         var customer = new Customer();
         foreach (var group in groups) customer.Groups.Add(group);
         return _handler.Handle(new GetHomepageBrands {
             Customer = customer,
-            Store = new Domain.Stores.Store { Id = "store-1" },
-            Language = new Language { Id = "lang-1" }
+            Store = new Domain.Stores.Store { Id = storeId },
+            Language = new Language { Id = languageId }
         }, CancellationToken.None);
     }
 
@@ -74,5 +80,17 @@ public class GetHomepageBrandsHandlerTests
         var vip = await Handle("registered", "vip");
 
         CollectionAssert.AreEquivalent(new[] { "public", "vip-only" }, vip.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Handle_OtherStoreOrLanguage_DoesNotReuseCachedEntry()
+    {
+        await HandleIn("store-1", "lang-1", "guests");
+        await HandleIn("store-2", "lang-1", "guests");
+        await HandleIn("store-1", "lang-2", "guests");
+        await HandleIn("store-1", "lang-1", "guests");
+
+        _brandServiceMock.Verify(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+            It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(3));
     }
 }

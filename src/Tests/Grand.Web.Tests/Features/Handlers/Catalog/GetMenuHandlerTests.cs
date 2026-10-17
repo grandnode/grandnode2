@@ -28,12 +28,14 @@ namespace Grand.Web.Tests.Features.Handlers.Catalog;
 public class GetMenuHandlerTests
 {
     private GetMenuHandler _handler;
+    private Mock<IBrandService> _brandServiceMock;
+    private Mock<ICollectionService> _collectionServiceMock;
 
     [TestInitialize]
     public void Init()
     {
-        var brandServiceMock = new Mock<IBrandService>();
-        brandServiceMock.Setup(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+        _brandServiceMock = new Mock<IBrandService>();
+        _brandServiceMock.Setup(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var brands = new List<Brand> { new() { Id = "public", IncludeInMenu = true } };
@@ -42,8 +44,8 @@ public class GetMenuHandlerTests
                 return new PagedList<Brand>(brands, 0, int.MaxValue);
             });
 
-        var collectionServiceMock = new Mock<ICollectionService>();
-        collectionServiceMock.Setup(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+        _collectionServiceMock = new Mock<ICollectionService>();
+        _collectionServiceMock.Setup(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var collections = new List<Collection> { new() { Id = "public", IncludeInMenu = true } };
@@ -63,19 +65,24 @@ public class GetMenuHandlerTests
         var cacheBase = new MemoryCacheBase(new MemoryCache(new MemoryCacheOptions()), new Mock<IMediator>().Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _handler = new GetMenuHandler(categoryServiceMock.Object, brandServiceMock.Object, pageServiceMock.Object,
-            cacheBase, collectionServiceMock.Object, new Mock<IPictureService>().Object, new CatalogSettings(),
+        _handler = new GetMenuHandler(categoryServiceMock.Object, _brandServiceMock.Object, pageServiceMock.Object,
+            cacheBase, _collectionServiceMock.Object, new Mock<IPictureService>().Object, new CatalogSettings(),
             new BlogSettings(), new MenuItemSettings(), new MediaSettings());
     }
 
     private Task<MenuModel> Handle(params string[] groups)
     {
+        return HandleIn("store-1", "lang-1", groups);
+    }
+
+    private Task<MenuModel> HandleIn(string storeId, string languageId, params string[] groups)
+    {
         var customer = new Customer();
         foreach (var group in groups) customer.Groups.Add(group);
         return _handler.Handle(new GetMenu {
             Customer = customer,
-            Store = new Domain.Stores.Store { Id = "store-1" },
-            Language = new Language { Id = "lang-1" }
+            Store = new Domain.Stores.Store { Id = storeId },
+            Language = new Language { Id = languageId }
         }, CancellationToken.None);
     }
 
@@ -97,5 +104,19 @@ public class GetMenuHandlerTests
 
         CollectionAssert.AreEquivalent(new[] { "public", "vip-only" }, vip.Brands.Select(x => x.Id).ToArray());
         CollectionAssert.AreEquivalent(new[] { "public", "vip-only" }, vip.Collections.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Handle_OtherStoreOrLanguage_DoesNotReuseCachedEntry()
+    {
+        await HandleIn("store-1", "lang-1", "guests");
+        await HandleIn("store-2", "lang-1", "guests");
+        await HandleIn("store-1", "lang-2", "guests");
+        await HandleIn("store-1", "lang-1", "guests");
+
+        _brandServiceMock.Verify(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+            It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(3));
+        _collectionServiceMock.Verify(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+            It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(3));
     }
 }

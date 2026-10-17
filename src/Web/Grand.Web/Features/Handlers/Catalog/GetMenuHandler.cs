@@ -58,9 +58,10 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
 
     public async Task<MenuModel> Handle(GetMenu request, CancellationToken cancellationToken)
     {
+        var customerGroups = string.Join(",", request.Customer.GetCustomerGroupIds());
         var cacheKey = string.Format(CacheKeyConst.CATEGORIES_BY_MENU,
             request.Language.Id,
-            request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
+            request.Store.Id, customerGroups);
         var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () => await PrepareCategorySimpleModels(
             request.Language,
             await _categoryService.GetMenuCategories(customer: request.Customer, storeId: request.Store.Id)));
@@ -78,7 +79,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
             }).ToList();
 
         var brandCacheKey = string.Format(CacheKeyConst.BRAND_NAVIGATION_MENU,
-            request.Language.Id, request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
+            request.Language.Id, request.Store.Id, customerGroups);
 
         var cachedBrandModel = await _cacheBase.GetAsync(brandCacheKey, async () =>
             (await _brandService.GetAllBrands(brandName: "",
@@ -94,7 +95,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
         );
 
         var collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MENU,
-            request.Language.Id, request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
+            request.Language.Id, request.Store.Id, customerGroups);
 
         var cachedCollectionModel = await _cacheBase.GetAsync(collectionCacheKey, async () =>
             (await _collectionService.GetAllCollections(collectionName: "",

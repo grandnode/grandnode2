@@ -22,12 +22,13 @@ namespace Grand.Web.Tests.Features.Handlers.Catalog;
 public class GetHomepageCollectionsHandlerTests
 {
     private GetHomepageCollectionsHandler _handler;
+    private Mock<ICollectionService> _collectionServiceMock;
 
     [TestInitialize]
     public void Init()
     {
-        var collectionServiceMock = new Mock<ICollectionService>();
-        collectionServiceMock.Setup(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+        _collectionServiceMock = new Mock<ICollectionService>();
+        _collectionServiceMock.Setup(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var collections = new List<Collection> { new() { Id = "public", ShowOnHomePage = true } };
@@ -42,18 +43,23 @@ public class GetHomepageCollectionsHandlerTests
         var cacheBase = new MemoryCacheBase(new MemoryCache(new MemoryCacheOptions()), new Mock<IMediator>().Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _handler = new GetHomepageCollectionsHandler(cacheBase, collectionServiceMock.Object,
+        _handler = new GetHomepageCollectionsHandler(cacheBase, _collectionServiceMock.Object,
             new Mock<IPictureService>().Object, translationServiceMock.Object, new MediaSettings());
     }
 
     private Task<IList<Web.Models.Catalog.CollectionModel>> Handle(params string[] groups)
     {
+        return HandleIn("store-1", "lang-1", groups);
+    }
+
+    private Task<IList<Web.Models.Catalog.CollectionModel>> HandleIn(string storeId, string languageId, params string[] groups)
+    {
         var customer = new Customer();
         foreach (var group in groups) customer.Groups.Add(group);
         return _handler.Handle(new GetHomepageCollections {
             Customer = customer,
-            Store = new Domain.Stores.Store { Id = "store-1" },
-            Language = new Language { Id = "lang-1" }
+            Store = new Domain.Stores.Store { Id = storeId },
+            Language = new Language { Id = languageId }
         }, CancellationToken.None);
     }
 
@@ -74,5 +80,17 @@ public class GetHomepageCollectionsHandlerTests
         var vip = await Handle("registered", "vip");
 
         CollectionAssert.AreEquivalent(new[] { "public", "vip-only" }, vip.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Handle_OtherStoreOrLanguage_DoesNotReuseCachedEntry()
+    {
+        await HandleIn("store-1", "lang-1", "guests");
+        await HandleIn("store-2", "lang-1", "guests");
+        await HandleIn("store-1", "lang-2", "guests");
+        await HandleIn("store-1", "lang-1", "guests");
+
+        _collectionServiceMock.Verify(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+            It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(3));
     }
 }
