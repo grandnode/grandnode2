@@ -100,7 +100,8 @@ public class PageService : IPageService
 
         var storeId = access.StoreId;
         var ignoreAcl = access.ShowHidden;
-        var key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, ignoreAcl);
+        var groupIds = ignoreAcl ? "" : string.Join(",", access.Customer.GetCustomerGroupIds());
+        var key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, ignoreAcl, groupIds);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _pageRepository.Table

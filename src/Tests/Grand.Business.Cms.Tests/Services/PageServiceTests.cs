@@ -6,6 +6,7 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Pages;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
@@ -169,6 +170,51 @@ public class PageServiceTests
         //Assert
         Assert.IsTrue(forMember.Any(x => x.Id == page.Id));
         Assert.IsFalse(forOther.Any(x => x.Id == page.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_DifferentGroups_DoNotShareTheCachedList()
+    {
+        //Arrange
+        var page = new Page { SystemName = "vip", LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repository.InsertAsync(page);
+        //Act
+        var forMember = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("g1"), ""));
+        var forOther = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("g2"), ""));
+        var includingHidden = await _pageService.GetAllPages(CatalogAccess.IncludingHidden());
+        //Assert
+        Assert.IsTrue(forMember.Any(x => x.Id == page.Id));
+        Assert.IsFalse(forOther.Any(x => x.Id == page.Id));
+        Assert.IsTrue(includingHidden.Any(x => x.Id == page.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_SameGroupsInAnotherOrder_SeeTheSamePages()
+    {
+        //Arrange
+        var page = new Page { SystemName = "a-only", LimitedToGroups = true, CustomerGroups = ["a"] };
+        await _repository.InsertAsync(page);
+        //Act
+        var first = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("a", "b"), ""));
+        var second = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("b", "a"), ""));
+        //Assert
+        Assert.IsTrue(first.Any(x => x.Id == page.Id));
+        Assert.IsTrue(second.Any(x => x.Id == page.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_AfterPagePrefixIsCleared_ReturnsNewPages()
+    {
+        //Arrange
+        var access = CatalogAccess.For(CustomerIn("g1"), "");
+        await _pageService.GetAllPages(access);
+        var page = new Page { SystemName = "late" };
+        await _repository.InsertAsync(page);
+        //Act
+        await _cacheBase.RemoveByPrefix(CacheKey.PAGES_PATTERN_KEY);
+        var result = await _pageService.GetAllPages(access);
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == page.Id));
     }
 
     [TestMethod]
