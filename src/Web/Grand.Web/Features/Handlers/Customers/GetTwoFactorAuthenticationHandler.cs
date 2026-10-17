@@ -29,7 +29,7 @@ public class GetTwoFactorAuthenticationHandler : IRequestHandler<GetTwoFactorAut
     {
         var secretkey = Guid.NewGuid().ToString();
         var setupInfo = await _twoFactorAuthenticationService.GenerateCodeSetup(secretkey, request.Customer,
-            request.Language, _customerSetting.TwoFactorAuthenticationType);
+            request.Store, request.Language, _customerSetting.TwoFactorAuthenticationType);
         var model = new CustomerInfoModel.TwoFactorAuthenticationModel {
             CustomValues = setupInfo.CustomValues,
             SecretKey = secretkey,

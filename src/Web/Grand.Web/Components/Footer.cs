@@ -12,6 +12,7 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
@@ -65,7 +66,7 @@ public class FooterViewComponent : BaseViewComponent
     private async Task<FooterModel> PrepareFooter()
     {
         var now = DateTime.UtcNow;
-        var pageModel = (await _pageService.GetAllPages(_contextAccessor.StoreContext.CurrentStore.Id))
+        var pageModel = (await _pageService.GetAllPages(_contextAccessor.CatalogAccess()))
             .PreferStoreOverrides(_contextAccessor.StoreContext.CurrentStore.Id)
             .Where(t => (t.IncludeInFooterRow1 || t.IncludeInFooterRow2 || t.IncludeInFooterRow3) && t.Published &&
                         (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&

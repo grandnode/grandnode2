@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Pages;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
@@ -138,7 +139,7 @@ public class PageControllerTests
         var owned = new Page { Id = "owned", LimitedToStores = true, Stores = ["store-1"] };
         var shared = new Page { Id = "shared", LimitedToStores = true, Stores = ["store-1", "store-2"] };
         var global = new Page { Id = "global", LimitedToStores = false };
-        _pageServiceMock.Setup(p => p.GetAllPages("store-1", true)).ReturnsAsync(new List<Page> { owned, shared, global });
+        _pageServiceMock.Setup(p => p.GetAllPages(CatalogAccess.IncludingHidden("store-1"))).ReturnsAsync(new List<Page> { owned, shared, global });
 
         var result = await _controller.StorePagesList(new DataSourceRequest { Page = 1, PageSize = 10 }, new PageListModel());
 
@@ -153,7 +154,7 @@ public class PageControllerTests
         var owned = new Page { Id = "owned", LimitedToStores = true, Stores = ["store-1"] };
         var shared = new Page { Id = "shared", LimitedToStores = true, Stores = ["store-1", "store-2"] };
         var global = new Page { Id = "global", LimitedToStores = false };
-        _pageServiceMock.Setup(p => p.GetAllPages("store-1", true)).ReturnsAsync(new List<Page> { owned, shared, global });
+        _pageServiceMock.Setup(p => p.GetAllPages(CatalogAccess.IncludingHidden("store-1"))).ReturnsAsync(new List<Page> { owned, shared, global });
 
         var result = await _controller.GlobalPagesList(new DataSourceRequest { Page = 1, PageSize = 10 }, new PageListModel());
 
@@ -197,7 +198,7 @@ public class PageControllerTests
         var page = new Page { Id = "p1", SystemName = "about-us", LimitedToStores = false };
         var existing = new Page { Id = "p2", SystemName = "about-us" };
         _pageServiceMock.Setup(p => p.GetPageById("p1")).ReturnsAsync(page);
-        _pageServiceMock.Setup(p => p.GetAllPages("store-1", true)).ReturnsAsync(new List<Page> { page, existing });
+        _pageServiceMock.Setup(p => p.GetAllPages(CatalogAccess.IncludingHidden("store-1"))).ReturnsAsync(new List<Page> { page, existing });
 
         var pageViewModelServiceMock = new Mock<IPageViewModelService>();
         var controller = new PageController(
@@ -220,7 +221,7 @@ public class PageControllerTests
     {
         var page = new Page { Id = "p1", SystemName = "about-us", LimitedToStores = true, Stores = ["store-1", "store-2"] };
         _pageServiceMock.Setup(p => p.GetPageById("p1")).ReturnsAsync(page);
-        _pageServiceMock.Setup(p => p.GetAllPages("store-1", true)).ReturnsAsync(new List<Page> { page });
+        _pageServiceMock.Setup(p => p.GetAllPages(CatalogAccess.IncludingHidden("store-1"))).ReturnsAsync(new List<Page> { page });
 
         var pageViewModelServiceMock = new Mock<IPageViewModelService>();
         var newPage = new Page { Id = "new-1" };

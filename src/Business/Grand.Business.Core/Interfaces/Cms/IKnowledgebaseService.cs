@@ -1,4 +1,5 @@
-﻿using Grand.Domain;
+﻿using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain;
 using Grand.Domain.Knowledgebase;
 
 namespace Grand.Business.Core.Interfaces.Cms;
@@ -16,8 +17,9 @@ public interface IKnowledgebaseService
     ///     Gets public knowledge base category
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>knowledge base category</returns>
-    Task<KnowledgebaseCategory> GetPublicKnowledgebaseCategory(string id);
+    Task<KnowledgebaseCategory> GetPublicKnowledgebaseCategory(string id, CatalogAccess access);
 
     /// <summary>
     ///     Gets knowledge base categories
@@ -28,8 +30,9 @@ public interface IKnowledgebaseService
     /// <summary>
     ///     Gets public(published etc) knowledge base categories
     /// </summary>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>List of public knowledge base categories</returns>
-    Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategories();
+    Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategories(CatalogAccess access);
 
     /// <summary>
     ///     Inserts knowledge base category
@@ -60,21 +63,22 @@ public interface IKnowledgebaseService
     ///     Gets public knowledge base article
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>knowledge base article</returns>
-    Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id);
+    Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id, CatalogAccess access);
 
     /// <summary>
-    ///     Gets knowledge base articles
+    ///     Gets every knowledge base article, unpublished and group- or store-limited ones included
     /// </summary>
     /// <returns>List of knowledge base articles</returns>
-    /// <param name="storeId">Store ident</param>
-    Task<List<KnowledgebaseArticle>> GetKnowledgebaseArticles(string storeId = "");
+    Task<List<KnowledgebaseArticle>> GetKnowledgebaseArticles();
 
     /// <summary>
     ///     Gets public(published etc) knowledge base articles
     /// </summary>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>List of public knowledge base articles</returns>
-    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles();
+    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(CatalogAccess access);
 
     /// <summary>
     ///     Gets public(published etc) knowledge base articles for an explicit store and customer groups,
@@ -88,26 +92,31 @@ public interface IKnowledgebaseService
     /// <summary>
     ///     Gets homepage knowledge base articles
     /// </summary>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>List of homepage knowledge base articles</returns>
-    Task<List<KnowledgebaseArticle>> GetHomepageKnowledgebaseArticles();
+    Task<List<KnowledgebaseArticle>> GetHomepageKnowledgebaseArticles(CatalogAccess access);
 
     /// <summary>
     ///     Gets public(published etc) knowledge base articles for category id
     /// </summary>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>List of public knowledge base articles</returns>
-    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByCategory(string categoryId);
+    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByCategory(string categoryId, CatalogAccess access);
 
     /// <summary>
     ///     Gets public(published etc) knowledge base articles for keyword
     /// </summary>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>List of public knowledge base articles</returns>
-    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByKeyword(string keyword);
+    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByKeyword(string keyword, CatalogAccess access);
 
     /// <summary>
     ///     Gets public(published etc) knowledge base categories for keyword
     /// </summary>
+    /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>List of public knowledge base categories</returns>
-    Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategoriesByKeyword(string keyword);
+    Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategoriesByKeyword(string keyword,
+        CatalogAccess access);
 
     /// <summary>
     ///     Inserts knowledge base article

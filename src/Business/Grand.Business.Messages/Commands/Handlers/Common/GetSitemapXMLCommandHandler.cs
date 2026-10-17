@@ -328,7 +328,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     private async Task<IEnumerable<SitemapUrl>> GetPagesUrls(Language language, Store store)
     {
         var now = DateTime.UtcNow;
-        return (await _pageService.GetAllPages(store.Id, ignoreAcl: true))
+        return (await _pageService.GetAllPages(CatalogAccess.IncludingHidden(store.Id)))
             .Where(IsVisibleToGuests)
             .PreferStoreOverrides(store.Id)
             .Where(t => t.Published && t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&

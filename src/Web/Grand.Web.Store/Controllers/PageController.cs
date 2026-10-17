@@ -2,6 +2,7 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Pages;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
@@ -42,7 +43,7 @@ public class PageController(
     [HttpPost]
     public async Task<IActionResult> StorePagesList(DataSourceRequest command, PageListModel model)
     {
-        var pages = await PageService.GetAllPages(Scope.DefaultStoreId, true);
+        var pages = await PageService.GetAllPages(CatalogAccess.IncludingHidden(Scope.DefaultStoreId));
 
         var pageModels = pages
             .Where(x => x.LimitedToStores && x.Stores.Count == 1)
@@ -65,7 +66,7 @@ public class PageController(
     [HttpPost]
     public async Task<IActionResult> GlobalPagesList(DataSourceRequest command, PageListModel model)
     {
-        var pages = await PageService.GetAllPages(Scope.DefaultStoreId, true);
+        var pages = await PageService.GetAllPages(CatalogAccess.IncludingHidden(Scope.DefaultStoreId));
 
         var pageModels = pages
             .Where(x => !x.LimitedToStores || x.Stores.Count > 1)
@@ -101,7 +102,7 @@ public class PageController(
         if (page.LimitedToStores && page.Stores.Count <= 1)
             return RedirectToAction("Edit", new { id });
 
-        var storePages = await PageService.GetAllPages(storeId, true);
+        var storePages = await PageService.GetAllPages(CatalogAccess.IncludingHidden(storeId));
         if (storePages.Any(p => p.Id != page.Id &&
                                  p.SystemName.Equals(page.SystemName, StringComparison.OrdinalIgnoreCase)))
         {

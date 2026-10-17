@@ -1,12 +1,12 @@
 ﻿using Grand.Business.Cms.Services;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Pages;
-using Grand.Domain.Stores;
-using Grand.Infrastructure;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
@@ -25,7 +25,6 @@ public class PageServiceTests
     private PageService _pageService;
 
     private IRepository<Page> _repository;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -33,17 +32,13 @@ public class PageServiceTests
         _repository = new MongoDBRepositoryTest<Page>();
 
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IContextAccessor>();
 
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
         _aclService = new AclService(new AccessControlConfig());
 
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
-
-        _pageService = new PageService(_repository, _workContextMock.Object, _aclService, _mediatorMock.Object,
+        _pageService = new PageService(_repository, _aclService, _mediatorMock.Object,
             _cacheBase, new AccessControlConfig());
     }
 
@@ -147,9 +142,103 @@ public class PageServiceTests
         var page = new Page { SystemName = "test", Published = true };
         await _repository.InsertAsync(page);
         //Act
-        var result = await _pageService.GetAllPages("");
+        var result = await _pageService.GetAllPages(CatalogAccess.IncludingHidden());
         //Assert
         Assert.IsTrue(result.Any());
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_InAStore_KeepsTheDisplayOrder()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Page { Id = "second", SystemName = "a", DisplayOrder = 2 });
+        await _repository.InsertAsync(new Page { Id = "first", SystemName = "b", DisplayOrder = 1 });
+        //Act
+        var result = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("g1"), "store-1"));
+        //Assert
+        CollectionAssert.AreEqual(new[] { "first", "second" }, result.Select(x => x.Id).ToArray());
+    }
+
+    private static Customer CustomerIn(params string[] groupIds)
+    {
+        var customer = new Customer();
+        foreach (var groupId in groupIds)
+            customer.Groups.Add(groupId);
+        return customer;
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_For_FiltersByTheGivenCustomersGroups()
+    {
+        //Arrange
+        var page = new Page { SystemName = "vip", LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repository.InsertAsync(page);
+        var member = CustomerIn("g1");
+        var other = CustomerIn("g2");
+        //Act
+        var forMember = await _pageService.GetAllPages(CatalogAccess.For(member, ""));
+        await _cacheBase.Clear();
+        var forOther = await _pageService.GetAllPages(CatalogAccess.For(other, ""));
+        //Assert
+        Assert.IsTrue(forMember.Any(x => x.Id == page.Id));
+        Assert.IsFalse(forOther.Any(x => x.Id == page.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_DifferentGroups_DoNotShareTheCachedList()
+    {
+        //Arrange
+        var page = new Page { SystemName = "vip", LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repository.InsertAsync(page);
+        //Act
+        var forMember = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("g1"), ""));
+        var forOther = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("g2"), ""));
+        var includingHidden = await _pageService.GetAllPages(CatalogAccess.IncludingHidden());
+        //Assert
+        Assert.IsTrue(forMember.Any(x => x.Id == page.Id));
+        Assert.IsFalse(forOther.Any(x => x.Id == page.Id));
+        Assert.IsTrue(includingHidden.Any(x => x.Id == page.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_SameGroupsInAnotherOrder_SeeTheSamePages()
+    {
+        //Arrange
+        var page = new Page { SystemName = "a-only", LimitedToGroups = true, CustomerGroups = ["a"] };
+        await _repository.InsertAsync(page);
+        //Act
+        var first = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("a", "b"), ""));
+        var second = await _pageService.GetAllPages(CatalogAccess.For(CustomerIn("b", "a"), ""));
+        //Assert
+        Assert.IsTrue(first.Any(x => x.Id == page.Id));
+        Assert.IsTrue(second.Any(x => x.Id == page.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_AfterPagePrefixIsCleared_ReturnsNewPages()
+    {
+        //Arrange
+        var access = CatalogAccess.For(CustomerIn("g1"), "");
+        await _pageService.GetAllPages(access);
+        var page = new Page { SystemName = "late" };
+        await _repository.InsertAsync(page);
+        //Act
+        await _cacheBase.RemoveByPrefix(CacheKey.PAGES_PATTERN_KEY);
+        var result = await _pageService.GetAllPages(access);
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == page.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllPages_EmptyStore_DoesNotFilterByStore()
+    {
+        //Arrange
+        var page = new Page { SystemName = "s1page", LimitedToStores = true, Stores = ["s1"] };
+        await _repository.InsertAsync(page);
+        //Act
+        var result = await _pageService.GetAllPages(CatalogAccess.For(new Customer(), ""));
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == page.Id));
     }
 
     [TestMethod]

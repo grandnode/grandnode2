@@ -8,6 +8,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Knowledgebase;
 
@@ -35,7 +36,8 @@ public class KnowledgebaseArticleValidator : BaseGrandValidator<KnowledgebaseArt
                 !knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments)
                 context.AddFailure(
                     translationService.GetResource("Knowledgebase.Article.Comments.OnlyRegisteredUsersLeaveComments"));
-            var article = await knowledgebaseService.GetPublicKnowledgebaseArticle(x.ArticleId);
+            var article = await knowledgebaseService.GetPublicKnowledgebaseArticle(x.ArticleId,
+                contextAccessor.CatalogAccess());
             if (article is not { AllowComments: true })
                 context.AddFailure(translationService.GetResource("Knowledgebase.Article.Comments.NotAllowed"));
         });

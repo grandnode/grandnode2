@@ -248,7 +248,8 @@ public abstract class BaseLoginController : BaseController
 
         if (_customerSettings.TwoFactorAuthenticationType != TwoFactorAuthenticationType.AppVerification)
         {
-            await twoFactorAuthenticationService.GenerateCodeSetup("", customer, _contextAccessor.WorkContext.WorkingLanguage,
+            await twoFactorAuthenticationService.GenerateCodeSetup("", customer,
+                _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage,
                 _customerSettings.TwoFactorAuthenticationType);
             if (_customerSettings.TwoFactorAuthenticationType == TwoFactorAuthenticationType.EmailVerification)
                 await _messageProviderService.SendCustomerEmailTokenValidationMessage(customer,

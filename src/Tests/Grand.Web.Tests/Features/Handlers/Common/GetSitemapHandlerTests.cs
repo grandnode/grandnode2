@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Blogs;
 using Grand.Domain.Common;
@@ -41,7 +42,8 @@ public class GetSitemapHandlerTests
             .ReturnsAsync(new PagedList<BlogPost>());
 
         var knowledgebaseMock = new Mock<IKnowledgebaseService>();
-        knowledgebaseMock.Setup(s => s.GetPublicKnowledgebaseArticles()).ReturnsAsync(new List<KnowledgebaseArticle>());
+        knowledgebaseMock.Setup(s => s.GetPublicKnowledgebaseArticles(It.IsAny<CatalogAccess>()))
+            .ReturnsAsync(new List<KnowledgebaseArticle>());
 
         _handler = new GetSitemapHandler(cacheMock.Object, new Mock<ICategoryService>().Object,
             new Mock<IBrandService>().Object, new Mock<IProductService>().Object, _pageServiceMock.Object,
@@ -63,7 +65,8 @@ public class GetSitemapHandlerTests
     [TestMethod]
     public async Task Handle_ListsOnlyPublishedPagesIncludedInSitemap()
     {
-        _pageServiceMock.Setup(s => s.GetAllPages("store-1", It.IsAny<bool>())).ReturnsAsync(new List<Page> {
+        _pageServiceMock.Setup(s => s.GetAllPages(It.Is<CatalogAccess>(a => a.StoreId == "store-1")))
+            .ReturnsAsync(new List<Page> {
             CreatePage("published", true, true),
             CreatePage("unpublished", false, true),
             CreatePage("hidden", true, false)

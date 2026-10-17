@@ -1,10 +1,9 @@
 ﻿using Grand.Business.Cms.Services;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.News;
-using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +18,6 @@ public class NewsServiceTests
     private NewsService _newsService;
 
     private IRepository<NewsItem> _repository;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -27,13 +25,7 @@ public class NewsServiceTests
         _repository = new MongoDBRepositoryTest<NewsItem>();
 
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IContextAccessor>();
-
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
-
-        _newsService = new NewsService(_repository, _mediatorMock.Object, _workContextMock.Object,
-            new AccessControlConfig());
+        _newsService = new NewsService(_repository, _mediatorMock.Object, new AccessControlConfig());
     }
 
     [TestMethod]
@@ -55,9 +47,59 @@ public class NewsServiceTests
         var newsItem = new NewsItem { Published = true };
         await _repository.InsertAsync(newsItem);
         //Act
-        var result = await _newsService.GetAllNews(storeId: "");
+        var result = await _newsService.GetAllNews(CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsTrue(result.Any());
+    }
+
+    private static Customer CustomerIn(params string[] groupIds)
+    {
+        var customer = new Customer();
+        foreach (var groupId in groupIds)
+            customer.Groups.Add(groupId);
+        return customer;
+    }
+
+    [TestMethod]
+    public async Task GetAllNews_For_FiltersByTheGivenCustomersGroups()
+    {
+        //Arrange
+        var newsItem = new NewsItem { Published = true, LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repository.InsertAsync(newsItem);
+        //Act
+        var forMember = await _newsService.GetAllNews(CatalogAccess.For(CustomerIn("g1"), ""));
+        var forOther = await _newsService.GetAllNews(CatalogAccess.For(CustomerIn("g2"), ""));
+        var includingHidden = await _newsService.GetAllNews(CatalogAccess.IncludingHidden());
+        //Assert
+        Assert.IsTrue(forMember.Any(x => x.Id == newsItem.Id));
+        Assert.IsFalse(forOther.Any(x => x.Id == newsItem.Id));
+        Assert.IsTrue(includingHidden.Any(x => x.Id == newsItem.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllNews_EmptyStore_DoesNotFilterByStore()
+    {
+        //Arrange
+        var newsItem = new NewsItem { Published = true, LimitedToStores = true, Stores = ["s1"] };
+        await _repository.InsertAsync(newsItem);
+        //Act
+        var result = await _newsService.GetAllNews(CatalogAccess.For(new Customer(), ""));
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == newsItem.Id));
+    }
+
+    [TestMethod]
+    public async Task GetAllNews_IncludeUnpublished_ReturnsUnpublishedItems()
+    {
+        //Arrange
+        var newsItem = new NewsItem { Published = false };
+        await _repository.InsertAsync(newsItem);
+        //Act
+        var published = await _newsService.GetAllNews(CatalogAccess.IncludingHidden());
+        var all = await _newsService.GetAllNews(CatalogAccess.IncludingHidden(), includeUnpublished: true);
+        //Assert
+        Assert.IsFalse(published.Any(x => x.Id == newsItem.Id));
+        Assert.IsTrue(all.Any(x => x.Id == newsItem.Id));
     }
 
     [TestMethod]

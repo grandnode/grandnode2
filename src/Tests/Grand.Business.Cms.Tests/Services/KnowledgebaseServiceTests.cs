@@ -1,10 +1,9 @@
 ﻿using Grand.Business.Cms.Services;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
-using Grand.Domain.Stores;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
@@ -25,7 +24,6 @@ public class KnowledgebaseServiceTests
     private IRepository<KnowledgebaseArticleComment> _repositoryKnowledgebaseArticleComment;
 
     private IRepository<KnowledgebaseCategory> _repositoryKnowledgebaseCategory;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -35,16 +33,11 @@ public class KnowledgebaseServiceTests
         _repositoryKnowledgebaseArticleComment = new MongoDBRepositoryTest<KnowledgebaseArticleComment>();
 
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IContextAccessor>();
-
-        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
-
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _knowledgebaseService = new KnowledgebaseService(_repositoryKnowledgebaseCategory,
             _repositoryKnowledgebaseArticle, _repositoryKnowledgebaseArticleComment, _mediatorMock.Object,
-            _workContextMock.Object, _cacheBase, new AccessControlConfig());
+            _cacheBase, new AccessControlConfig());
     }
 
     [TestMethod]
@@ -93,7 +86,8 @@ public class KnowledgebaseServiceTests
         var knowledgebaseCategory = new KnowledgebaseCategory { Published = true };
         await _repositoryKnowledgebaseCategory.InsertAsync(knowledgebaseCategory);
         //Act
-        var result = await _knowledgebaseService.GetPublicKnowledgebaseCategory(knowledgebaseCategory.Id);
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseCategory(knowledgebaseCategory.Id,
+            CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsNotNull(result);
     }
@@ -144,6 +138,20 @@ public class KnowledgebaseServiceTests
         var result = await _knowledgebaseService.GetKnowledgebaseArticles();
         //Assert
         Assert.IsTrue(result.Any());
+    }
+
+    [TestMethod]
+    public async Task GetKnowledgebaseArticles_ReturnsGroupAndStoreLimitedArticles()
+    {
+        //Arrange
+        var limited = new KnowledgebaseArticle {
+            Published = true, LimitedToGroups = true, CustomerGroups = ["g1"], LimitedToStores = true, Stores = ["s1"]
+        };
+        await _repositoryKnowledgebaseArticle.InsertAsync(limited);
+        //Act
+        var result = await _knowledgebaseService.GetKnowledgebaseArticles();
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == limited.Id));
     }
 
     [TestMethod]
@@ -201,7 +209,8 @@ public class KnowledgebaseServiceTests
         var knowledgebaseCategory = new KnowledgebaseCategory { Published = true };
         await _repositoryKnowledgebaseCategory.InsertAsync(knowledgebaseCategory);
         //Act
-        var result = await _knowledgebaseService.GetPublicKnowledgebaseCategories();
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseCategories(
+            CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -213,7 +222,7 @@ public class KnowledgebaseServiceTests
         var knowledgebaseArticle = new KnowledgebaseArticle { Published = true };
         await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
         //Act
-        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticles();
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticles(CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -225,7 +234,8 @@ public class KnowledgebaseServiceTests
         var knowledgebaseArticle = new KnowledgebaseArticle { Published = true };
         await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
         //Act
-        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticle(knowledgebaseArticle.Id);
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticle(knowledgebaseArticle.Id,
+            CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsNotNull(result);
     }
@@ -238,7 +248,8 @@ public class KnowledgebaseServiceTests
         await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
         //Act
         var result =
-            await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(knowledgebaseArticle.ParentCategoryId);
+            await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(knowledgebaseArticle.ParentCategoryId,
+                CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -250,7 +261,8 @@ public class KnowledgebaseServiceTests
         var knowledgebaseArticle = new KnowledgebaseArticle { Published = true, Name = "test" };
         await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
         //Act
-        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByKeyword("test");
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByKeyword("test",
+            CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -262,7 +274,8 @@ public class KnowledgebaseServiceTests
         var knowledgebaseCategory = new KnowledgebaseCategory { Published = true, Name = "test" };
         await _repositoryKnowledgebaseCategory.InsertAsync(knowledgebaseCategory);
         //Act
-        var result = await _knowledgebaseService.GetPublicKnowledgebaseCategoriesByKeyword("test");
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseCategoriesByKeyword("test",
+            CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -274,7 +287,8 @@ public class KnowledgebaseServiceTests
         var knowledgebaseArticle = new KnowledgebaseArticle { Published = true, Name = "test", ShowOnHomepage = true };
         await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
         //Act
-        var result = await _knowledgebaseService.GetHomepageKnowledgebaseArticles();
+        var result = await _knowledgebaseService.GetHomepageKnowledgebaseArticles(
+            CatalogAccess.For(new Customer(), ""));
         //Assert
         Assert.IsTrue(result.Any());
     }
@@ -378,13 +392,76 @@ public class KnowledgebaseServiceTests
             _repositoryKnowledgebaseArticleComment.Table.FirstOrDefault(x => x.Id == knowledgebaseArticleComment.Id));
     }
 
+    private static Customer CustomerIn(params string[] groupIds)
+    {
+        var customer = new Customer();
+        foreach (var groupId in groupIds)
+            customer.Groups.Add(groupId);
+        return customer;
+    }
+
+    [TestMethod]
+    public async Task GetPublicKnowledgebaseCategories_DifferentGroups_DoNotShareTheCachedList()
+    {
+        //Arrange
+        var category = new KnowledgebaseCategory { Published = true, LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repositoryKnowledgebaseCategory.InsertAsync(category);
+        //Act
+        var forMember = await _knowledgebaseService.GetPublicKnowledgebaseCategories(
+            CatalogAccess.For(CustomerIn("g1"), "s1"));
+        var forOther = await _knowledgebaseService.GetPublicKnowledgebaseCategories(
+            CatalogAccess.For(CustomerIn("g2"), "s1"));
+        //Assert
+        Assert.IsTrue(forMember.Any(x => x.Id == category.Id));
+        Assert.IsFalse(forOther.Any(x => x.Id == category.Id));
+    }
+
+    [TestMethod]
+    public async Task GetPublicKnowledgebaseArticles_IncludingHidden_DoesNotNeedACustomer()
+    {
+        //Arrange
+        var article = new KnowledgebaseArticle { Published = true, LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repositoryKnowledgebaseArticle.InsertAsync(article);
+        //Act
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticles(CatalogAccess.IncludingHidden());
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == article.Id));
+    }
+
+    [TestMethod]
+    public async Task GetPublicKnowledgebaseArticles_IncludingHiddenWithoutStore_ReturnsEveryStoresArticles()
+    {
+        //Arrange
+        var article = new KnowledgebaseArticle { Published = true, LimitedToStores = true, Stores = ["s1"] };
+        await _repositoryKnowledgebaseArticle.InsertAsync(article);
+        //Act
+        var result = await _knowledgebaseService.GetPublicKnowledgebaseArticles(CatalogAccess.IncludingHidden());
+        //Assert
+        Assert.IsTrue(result.Any(x => x.Id == article.Id));
+    }
+
+    [TestMethod]
+    public async Task GetPublicKnowledgebaseArticles_IncludingHiddenThenNoGroups_DoNotShareTheCachedList()
+    {
+        //Arrange
+        var article = new KnowledgebaseArticle { Published = true, LimitedToGroups = true, CustomerGroups = ["g1"] };
+        await _repositoryKnowledgebaseArticle.InsertAsync(article);
+        //Act
+        var hidden = await _knowledgebaseService.GetPublicKnowledgebaseArticles(CatalogAccess.IncludingHidden("s1"));
+        var noGroups = await _knowledgebaseService.GetPublicKnowledgebaseArticles(
+            CatalogAccess.For(CustomerIn(), "s1"));
+        //Assert
+        Assert.IsTrue(hidden.Any(x => x.Id == article.Id));
+        Assert.IsFalse(noGroups.Any(x => x.Id == article.Id));
+    }
+
     [TestMethod]
     public async Task GetPublicKnowledgebaseArticles_WhenScopeGivenWithoutContext_FiltersByStoreAndGroups()
     {
         //Arrange - no ambient work or store context, as in a scheduled task
         var service = new KnowledgebaseService(_repositoryKnowledgebaseCategory,
             _repositoryKnowledgebaseArticle, _repositoryKnowledgebaseArticleComment, _mediatorMock.Object,
-            new Mock<IContextAccessor>().Object, _cacheBase, new AccessControlConfig());
+            _cacheBase, new AccessControlConfig());
         await _repositoryKnowledgebaseArticle.InsertAsync(new KnowledgebaseArticle { Id = "open", Published = true });
         await _repositoryKnowledgebaseArticle.InsertAsync(new KnowledgebaseArticle {
             Id = "guests", Published = true, LimitedToGroups = true, CustomerGroups = ["guests-group"]

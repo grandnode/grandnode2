@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
-using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -54,24 +53,6 @@ public static class TranslateExtensions
         //set default value if required
         if (string.IsNullOrEmpty(resultStr) && returnDefaultValue) result = (string)propInfo.GetValue(entity);
         return result;
-    }
-
-    /// <summary>
-    ///     Get translation value of enum
-    /// </summary>
-    /// <typeparam name="T">Enum</typeparam>
-    /// <param name="enumValue">Enum value</param>
-    /// <param name="translationService">Translation service</param>
-    /// <param name="workContext">Work context</param>
-    /// <returns>Translation value</returns>
-    public static string GetTranslationEnum<T>(this T enumValue,
-        ITranslationService translationService,
-        IContextAccessor contextAccessor)
-        where T : struct
-    {
-        ArgumentNullException.ThrowIfNull(contextAccessor);
-
-        return GetTranslationEnum(enumValue, translationService, contextAccessor.WorkContext.WorkingLanguage.Id);
     }
 
     /// <summary>

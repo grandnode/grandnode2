@@ -59,7 +59,7 @@ public class GetMenuHandlerTests
             .ReturnsAsync(new List<Category>());
 
         var pageServiceMock = new Mock<IPageService>();
-        pageServiceMock.Setup(s => s.GetAllPages(It.IsAny<string>(), It.IsAny<bool>()))
+        pageServiceMock.Setup(s => s.GetAllPages(It.IsAny<CatalogAccess>()))
             .ReturnsAsync(new List<Page>());
 
         var cacheBase = new MemoryCacheBase(new MemoryCache(new MemoryCacheOptions()), new Mock<IMediator>().Object,

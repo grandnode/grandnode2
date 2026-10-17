@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Media;
 using Grand.Domain.News;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.News;
@@ -47,7 +48,7 @@ public class GetNewsItemListHandler : IRequestHandler<GetNewsItemList, NewsItemL
         if (request.Command.PageSize <= 0) request.Command.PageSize = _newsSettings.NewsArchivePageSize;
         if (request.Command.PageNumber <= 0) request.Command.PageNumber = 1;
 
-        var newsItems = await _newsService.GetAllNews(_contextAccessor.StoreContext.CurrentStore.Id,
+        var newsItems = await _newsService.GetAllNews(_contextAccessor.CatalogAccess(),
             request.Command.PageNumber - 1, request.Command.PageSize);
         model.PagingFilteringContext.LoadPagedList(newsItems);
         foreach (var item in newsItems)

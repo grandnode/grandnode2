@@ -272,8 +272,9 @@ public static class CacheKeyConst
     /// <remarks>
     ///     {0} : language ID
     ///     {1} : current store ID
+    ///     {2} : customer group ids
     /// </remarks>
-    public const string HOMEPAGE_NEWSMODEL_KEY = "Grand.pres.news.homepage-{0}-{1}";
+    public const string HOMEPAGE_NEWSMODEL_KEY = "Grand.pres.news.homepage-{0}-{1}-{2}";
 
     public const string NEWS_PATTERN_KEY = "Grand.pres.news";
 

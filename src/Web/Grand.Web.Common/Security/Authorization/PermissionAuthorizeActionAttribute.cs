@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -35,9 +36,11 @@ public class PermissionAuthorizeActionAttribute : Attribute, IAsyncAuthorization
             return;
 
         var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
+        var contextAccessor = context.HttpContext.RequestServices.GetRequiredService<IContextAccessor>();
 
         //check whether current customer has access to a public store
-        if (await permissionService.AuthorizeAction(permissionAuthorize.Permission, PermissionAction))
+        if (await permissionService.AuthorizeAction(permissionAuthorize.Permission, PermissionAction,
+                contextAccessor.WorkContext.CurrentCustomer))
             return;
 
         //authorize permission of access to the admin area

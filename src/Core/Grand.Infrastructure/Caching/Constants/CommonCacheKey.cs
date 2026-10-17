@@ -190,8 +190,9 @@ public static partial class CacheKey
     /// <remarks>
     ///     {0} : store ID
     ///     {1} : ignore ACL?
+    ///     {2} : customer group ids; empty when ACL is ignored
     /// </remarks>
-    public static string PAGES_ALL_KEY => "Grand.pages.all-{0}-{1}";
+    public static string PAGES_ALL_KEY => "Grand.pages.all-{0}-{1}-{2}";
 
     /// <summary>
     ///     Key for caching

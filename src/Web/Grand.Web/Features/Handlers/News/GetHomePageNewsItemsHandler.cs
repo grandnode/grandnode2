@@ -3,10 +3,13 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.Media;
@@ -17,6 +20,7 @@ namespace Grand.Web.Features.Handlers.News;
 
 public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems, HomePageNewsItemsModel>
 {
+    private readonly AccessControlConfig _accessControlConfig;
     private readonly ICacheBase _cacheBase;
     private readonly IDateTimeService _dateTimeService;
     private readonly IPictureService _pictureService;
@@ -27,11 +31,11 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
     private readonly NewsSettings _newsSettings;
 
     private string WorkingLanguageId => _contextAccessor.WorkContext.WorkingLanguage.Id;
-    private string CurrentStoreId => _contextAccessor.StoreContext.CurrentStore.Id;
 
     public GetHomePageNewsItemsHandler(ICacheBase cacheBase, IContextAccessor contextAccessor,
         INewsService newsService, IDateTimeService dateTimeService, IPictureService pictureService,
-        ITranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings)
+        ITranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _contextAccessor = contextAccessor;
@@ -41,15 +45,18 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
         _translationService = translationService;
         _newsSettings = newsSettings;
         _mediaSettings = mediaSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<HomePageNewsItemsModel> Handle(GetHomePageNewsItems request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKeyConst.HOMEPAGE_NEWSMODEL_KEY, WorkingLanguageId, CurrentStoreId);
+        var access = _contextAccessor.CatalogAccess();
+        //with the ACL off every customer sees the same news, so the groups stay out of the key
+        var groupIds = _accessControlConfig.IgnoreAcl ? "" : string.Join(",", access.Customer.GetCustomerGroupIds());
+        var cacheKey = string.Format(CacheKeyConst.HOMEPAGE_NEWSMODEL_KEY, WorkingLanguageId, access.StoreId, groupIds);
         var model = await _cacheBase.GetAsync(cacheKey, async () =>
         {
-            var newsItems =
-                await _newsService.GetAllNews(CurrentStoreId, 0, _newsSettings.MainPageNewsCount);
+            var newsItems = await _newsService.GetAllNews(access, 0, _newsSettings.MainPageNewsCount);
             var hpnitemodel = new HomePageNewsItemsModel();
             foreach (var item in newsItems)
             {
