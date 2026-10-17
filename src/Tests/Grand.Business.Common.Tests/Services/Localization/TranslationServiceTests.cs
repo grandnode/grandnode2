@@ -172,6 +172,19 @@ public class TranslationServiceTests
     }
 
     [TestMethod]
+    public async Task ImportResourcesFromXml_WithoutCurrentCustomer_InsertsResources()
+    {
+        //Arrange - no customer, as outside a request
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => null);
+        //Act
+        await _translationService.ImportResourcesFromXml(new Language { Id = "1", Name = "en" },
+            "<?xml version=\"1.0\" encoding=\"utf-16\"?><Language Name=\"en\"><Resource Name=\"name2\" Area=\"Common\"><Value>value2</Value></Resource></Language>");
+
+        //Assert
+        Assert.IsTrue(_repository.Table.Any(x => x.Name == "name2"));
+    }
+
+    [TestMethod]
     public async Task ImportResourcesFromXmlInstallTest()
     {
         //Act

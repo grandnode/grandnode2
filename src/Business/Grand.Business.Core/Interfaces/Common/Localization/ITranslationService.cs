@@ -52,6 +52,10 @@ public interface ITranslationService
     /// </summary>
     /// <param name="name">A string representing a name.</param>
     /// <returns>A string representing the requested resource string.</returns>
+    /// <remarks>
+    ///     Reads the working language of the current request. Code that may run outside a request uses the
+    ///     overload that takes the language.
+    /// </remarks>
     string GetResource(string name);
 
     /// <summary>

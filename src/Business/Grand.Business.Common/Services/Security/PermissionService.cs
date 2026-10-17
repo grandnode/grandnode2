@@ -160,6 +160,10 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="permission">Permission record</param>
     /// <returns>true - authorized; otherwise, false</returns>
+    /// <remarks>
+    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
+    ///     takes the customer.
+    /// </remarks>
     public virtual async Task<bool> Authorize(Permission permission)
     {
         return await Authorize(permission, _contextAccessor.WorkContext.CurrentCustomer);
@@ -187,6 +191,10 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="permissionSystemName">Permission system name</param>
     /// <returns>true - authorized; otherwise, false</returns>
+    /// <remarks>
+    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
+    ///     takes the customer.
+    /// </remarks>
     public virtual async Task<bool> Authorize(string permissionSystemName)
     {
         return await Authorize(permissionSystemName, _contextAccessor.WorkContext.CurrentCustomer);
@@ -258,16 +266,18 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="permissionSystemName">Permission system name</param>
     /// <param name="permissionActionName">Permission action name</param>
+    /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    public virtual async Task<bool> AuthorizeAction(string permissionSystemName, string permissionActionName)
+    public virtual async Task<bool> AuthorizeAction(string permissionSystemName, string permissionActionName,
+        Customer customer)
     {
         if (string.IsNullOrEmpty(permissionSystemName) || string.IsNullOrEmpty(permissionActionName))
             return false;
 
-        if (!await Authorize(permissionSystemName))
+        if (!await Authorize(permissionSystemName, customer))
             return false;
 
-        var customerGroups = await _groupService.GetAllByIds(_contextAccessor.WorkContext.CurrentCustomer.Groups.ToArray());
+        var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
         foreach (var group in customerGroups)
         {
             if (!await Authorize(permissionSystemName, group))

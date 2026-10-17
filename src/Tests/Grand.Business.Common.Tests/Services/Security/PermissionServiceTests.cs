@@ -61,6 +61,35 @@ public class PermissionServiceTests
         Assert.IsFalse(await _service.Authorize(permission));
     }
 
+    private Customer CustomerAuthorizedFor(string groupId, PermissionAction deniedAction)
+    {
+        var customer = new Customer();
+        customer.Groups.Add(groupId);
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>()))
+            .Returns(Task.FromResult(true));
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<PermissionAction>>>()))
+            .Returns(Task.FromResult(deniedAction));
+        _groupServiceMock.Setup(c => c.GetAllByIds(It.Is<string[]>(ids => ids.SequenceEqual(new[] { groupId }))))
+            .Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup> { new() { Id = groupId } }));
+        return customer;
+    }
+
+    [TestMethod]
+    public async Task AuthorizeAction_GivenCustomersGroupDenied_ReturnsFalse()
+    {
+        var customer = CustomerAuthorizedFor("g1", new PermissionAction { Action = "Edit" });
+
+        Assert.IsFalse(await _service.AuthorizeAction("ManageProducts", "Edit", customer));
+    }
+
+    [TestMethod]
+    public async Task AuthorizeAction_NoActionDeniedForGivenCustomer_ReturnsTrue()
+    {
+        var customer = CustomerAuthorizedFor("g1", null);
+
+        Assert.IsTrue(await _service.AuthorizeAction("ManageProducts", "Edit", customer));
+    }
+
     [TestMethod]
     public async Task InsertPermission_InovokeMethods()
     {

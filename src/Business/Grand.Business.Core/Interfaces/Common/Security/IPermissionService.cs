@@ -51,6 +51,10 @@ public interface IPermissionService
     /// </summary>
     /// <param name="permission">Permission</param>
     /// <returns>true - authorized; otherwise, false</returns>
+    /// <remarks>
+    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
+    ///     takes the customer.
+    /// </remarks>
     Task<bool> Authorize(Permission permission);
 
     /// <summary>
@@ -66,6 +70,10 @@ public interface IPermissionService
     /// </summary>
     /// <param name="permissionSystemName">Permission system name</param>
     /// <returns>true - authorized; otherwise, false</returns>
+    /// <remarks>
+    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
+    ///     takes the customer.
+    /// </remarks>
     Task<bool> Authorize(string permissionSystemName);
 
     /// <summary>
@@ -101,6 +109,7 @@ public interface IPermissionService
     /// </summary>
     /// <param name="permissionSystemName">Permission record system name</param>
     /// <param name="permissionActionName">Permission action name</param>
+    /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    Task<bool> AuthorizeAction(string permissionSystemName, string permissionActionName);
+    Task<bool> AuthorizeAction(string permissionSystemName, string permissionActionName, Customer customer);
 }
