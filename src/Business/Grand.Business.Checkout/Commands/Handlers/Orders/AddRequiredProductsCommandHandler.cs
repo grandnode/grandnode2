@@ -55,6 +55,7 @@ public class AddRequiredProductsCommandHandler : IRequestHandler<AddRequiredProd
                     rp.Id,
                     shoppingCartType,
                     storeId,
+                    request.Language,
                     automaticallyAddRequiredProductsIfEnabled: false,
                     validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false });
 
@@ -63,7 +64,8 @@ public class AddRequiredProductsCommandHandler : IRequestHandler<AddRequiredProd
                         Customer = customer,
                         ShoppingCartType = shoppingCartType,
                         StoreId = storeId,
-                        Product = rp
+                        Product = rp,
+                        Language = request.Language
                     }, cancellationToken);
             }
         }

@@ -164,7 +164,10 @@ public class OrderController : BasePublicController
         if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
-        var warnings = await _mediator.Send(new ReOrderCommand { Order = order });
+        var warnings = await _mediator.Send(new ReOrderCommand {
+            Order = order,
+            Language = _contextAccessor.WorkContext.WorkingLanguage
+        });
         if (warnings.Any())
             Notification(NotifyType.Error, string.Join(",", warnings), true);
 

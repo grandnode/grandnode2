@@ -106,7 +106,7 @@ public class OidcLoginController : BasePluginController
 
         returnUrl = LocalOrNull(returnUrl);
         var result = await _oidcCustomerResolver.ResolveForLogin(pending.Subject, pending.Email, pending.EmailVerified,
-            _contextAccessor.StoreContext.CurrentStore.Id);
+            _contextAccessor.StoreContext.CurrentStore.Id, _contextAccessor.WorkContext.WorkingLanguage);
 
         //a store session is never replaced by another account, and a signed-in visitor does not register; the same
         //account signing in again (for example right after "Connect your account") gets a session-backed cookie
@@ -145,7 +145,8 @@ public class OidcLoginController : BasePluginController
 
                 //the identity provider is the sign-in: its multi-factor policy applies, not the store's two-factor code
                 await _mediator.Publish(new CustomerLoggedInEvent(result.Customer,
-                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id));
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+                    _contextAccessor.WorkContext.WorkingLanguage));
                 await _authenticationService.SignIn(result.Customer, false, sessionId);
                 return RedirectLocal(returnUrl);
             }

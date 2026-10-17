@@ -222,7 +222,8 @@ public abstract class BaseLoginController : BaseController
 
         //raise event       
         await _mediator.Publish(new CustomerLoggedInEvent(customer,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id));
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+            _contextAccessor.WorkContext.WorkingLanguage));
 
         return RedirectToRoute($"{GetCurrentArea()}Index");
     }

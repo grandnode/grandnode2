@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 
@@ -11,7 +12,8 @@ namespace Grand.Business.Checkout.Validators;
 public record ShoppingCartWarningsValidatorRecord(
     Customer Customer,
     Store Store,
-    IList<ShoppingCartItem> ShoppingCarts);
+    IList<ShoppingCartItem> ShoppingCarts,
+    Language Language);
 
 public class ShoppingCartWarningsValidator : AbstractValidator<ShoppingCartWarningsValidatorRecord>
 {
@@ -31,7 +33,7 @@ public class ShoppingCartWarningsValidator : AbstractValidator<ShoppingCartWarni
                 var product = await productService.GetProductById(sci.ProductId);
                 if (product == null)
                 {
-                    context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.CannotLoadProduct"),
+                    context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.CannotLoadProduct", value.Language.Id),
                         sci.ProductId));
                     return;
                 }
@@ -56,11 +58,11 @@ public class ShoppingCartWarningsValidator : AbstractValidator<ShoppingCartWarni
 
             //don't mix standard and recurring products
             if (hasStandardProducts && hasRecurringProducts)
-                context.AddFailure(translationService.GetResource("ShoppingCart.CannotMixStandardAndAutoshipProducts"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.CannotMixStandardAndAutoshipProducts", value.Language.Id));
 
             //don't mix recurring products
             if (hasRecurringProducts && hasRecurringProductsMix)
-                context.AddFailure(translationService.GetResource("ShoppingCart.CannotMixRecurringProducts"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.CannotMixRecurringProducts", value.Language.Id));
         });
     }
 }

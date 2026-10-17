@@ -77,7 +77,8 @@ public class FacebookAuthenticationController : BasePluginController
 
         //authenticate Grand user
         return await _externalAuthenticationService.Authenticate(authenticationParameters,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore, returnUrl);
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingLanguage, returnUrl);
     }
 
     public IActionResult FacebookSignInFailed(string error_code, string error_message, string state)

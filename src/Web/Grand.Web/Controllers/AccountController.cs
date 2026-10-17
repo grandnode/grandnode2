@@ -358,7 +358,8 @@ public class AccountController : BasePublicController
     {
         //raise event       
         await _mediator.Publish(new CustomerLoggedInEvent(customer,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id));
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+            _contextAccessor.WorkContext.WorkingLanguage));
 
         //sign in new customer
         await _authenticationService.SignIn(customer, createPersistentCookie);
@@ -613,7 +614,8 @@ public class AccountController : BasePublicController
                 await _authenticationService.SignIn(_contextAccessor.WorkContext.CurrentCustomer, true);
 
             //raise event       
-            await _mediator.Publish(new CustomerRegisteredEvent(_contextAccessor.WorkContext.CurrentCustomer));
+            await _mediator.Publish(new CustomerRegisteredEvent(_contextAccessor.WorkContext.CurrentCustomer,
+                _contextAccessor.WorkContext.WorkingLanguage));
 
             IActionResult result;
             switch (registrationType)

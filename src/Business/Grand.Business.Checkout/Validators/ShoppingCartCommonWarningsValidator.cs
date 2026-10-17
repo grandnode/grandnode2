@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 
@@ -16,7 +17,8 @@ public record ShoppingCartCommonWarningsValidatorRecord(
     DateTime? RentalStartDate,
     DateTime? RentalEndDate,
     int Quantity,
-    string ReservationId);
+    string ReservationId,
+    Language Language);
 
 public class ShoppingCartCommonWarningsValidator : AbstractValidator<ShoppingCartCommonWarningsValidatorRecord>
 {
@@ -32,7 +34,7 @@ public class ShoppingCartCommonWarningsValidator : AbstractValidator<ShoppingCar
                 {
                     if (value.ShoppingCarts.Count >= shoppingCartSettings.MaximumShoppingCartItems)
                         context.AddFailure(string.Format(
-                            translationService.GetResource("ShoppingCart.MaximumShoppingCartItems"),
+                            translationService.GetResource("ShoppingCart.MaximumShoppingCartItems", value.Language.Id),
                             shoppingCartSettings.MaximumShoppingCartItems));
                 }
                     break;
@@ -40,7 +42,7 @@ public class ShoppingCartCommonWarningsValidator : AbstractValidator<ShoppingCar
                 {
                     if (value.ShoppingCarts.Count >= shoppingCartSettings.MaximumWishlistItems)
                         context.AddFailure(string.Format(
-                            translationService.GetResource("ShoppingCart.MaximumWishlistItems"),
+                            translationService.GetResource("ShoppingCart.MaximumWishlistItems", value.Language.Id),
                             shoppingCartSettings.MaximumWishlistItems));
                 }
                     break;
@@ -59,7 +61,7 @@ public class ShoppingCartCommonWarningsValidator : AbstractValidator<ShoppingCar
             }
 
             if (value.Quantity <= 0)
-                context.AddFailure(translationService.GetResource("ShoppingCart.QuantityShouldPositive"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.QuantityShouldPositive", value.Language.Id));
         });
     }
 }

@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Customers.Events.Handlers;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -29,7 +30,8 @@ public class CustomerLoggedInNotificationHandlerTests
             CannotLoginUntilDateUtc = DateTime.Now
         };
         //Act
-        await _handler.Handle(new CustomerLoggedInEvent(customer, new Customer(), ""), CancellationToken.None);
+        await _handler.Handle(new CustomerLoggedInEvent(customer, new Customer(), "", new Language()),
+            CancellationToken.None);
 
         //Assert
         Assert.AreEqual(0, customer.FailedLoginAttempts);

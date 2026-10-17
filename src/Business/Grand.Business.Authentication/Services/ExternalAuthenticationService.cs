@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
@@ -70,14 +71,15 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="currentLoggedInUser">Current logged-in user</param>
     /// <param name="customer">Customer of the request (a guest when nobody is logged in)</param>
     /// <param name="storeId">Store identifier</param>
+    /// <param name="language">Working language of the request</param>
     /// <param name="returnUrl">URL to which the user will return after authentication</param>
     /// <returns>Result of an authentication</returns>
     protected virtual async Task<IActionResult> AuthenticateExistingUser(Customer associatedUser,
-        Customer currentLoggedInUser, Customer customer, string storeId, string returnUrl)
+        Customer currentLoggedInUser, Customer customer, string storeId, Language language, string returnUrl)
     {
         //log in guest user
         if (currentLoggedInUser == null)
-            return await LoginUser(associatedUser, customer, storeId, returnUrl);
+            return await LoginUser(associatedUser, customer, storeId, language, returnUrl);
 
         //account is already assigned to another user
         if (currentLoggedInUser.Id != associatedUser.Id)
@@ -95,10 +97,11 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="parameters">Authentication parameters received from external authentication method</param>
     /// <param name="customer">Customer of the request (a guest when nobody is logged in)</param>
     /// <param name="storeId">Store identifier</param>
+    /// <param name="language">Working language of the request</param>
     /// <param name="returnUrl">URL to which the user will return after authentication</param>
     /// <returns>Result of an authentication</returns>
     protected virtual async Task<IActionResult> AuthenticateNewUser(Customer currentLoggedInUser,
-        ExternalAuthParam parameters, Customer customer, string storeId, string returnUrl)
+        ExternalAuthParam parameters, Customer customer, string storeId, Language language, string returnUrl)
     {
         //associate external account with logged-in user
         if (currentLoggedInUser != null)
@@ -111,7 +114,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
 
         //or try to register new user
         if (_customerSettings.UserRegistrationType != UserRegistrationType.Disabled)
-            return await RegisterNewUser(parameters, customer, storeId, returnUrl);
+            return await RegisterNewUser(parameters, customer, storeId, language, returnUrl);
 
         //registration is disabled
         return Error(["Registration is disabled"]);
@@ -123,10 +126,11 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="parameters">Authentication parameters received from external authentication method</param>
     /// <param name="customer">Guest customer of the request; registration turns it into the new user</param>
     /// <param name="storeId">Store identifier</param>
+    /// <param name="language">Working language of the request</param>
     /// <param name="returnUrl">URL to which the user will return after authentication</param>
     /// <returns>Result of an authentication</returns>
     protected virtual async Task<IActionResult> RegisterNewUser(ExternalAuthParam parameters, Customer customer,
-        string storeId, string returnUrl)
+        string storeId, Language language, string returnUrl)
     {
         var approved =
             _customerSettings.UserRegistrationType is UserRegistrationType.Standard
@@ -147,7 +151,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         await _mediator.Publish(new RegisteredByExternalMethod(customer, parameters));
 
         //raise customer registered event
-        await _mediator.Publish(new CustomerRegisteredEvent(customer));
+        await _mediator.Publish(new CustomerRegisteredEvent(customer, language));
 
         //associate external account with registered user
         await AssociateCustomer(customer, parameters);
@@ -169,13 +173,14 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="user">User to login</param>
     /// <param name="previousCustomer">Customer of the request before the login (the guest whose cart is merged)</param>
     /// <param name="storeId">Store identifier</param>
+    /// <param name="language">Working language of the request</param>
     /// <param name="returnUrl">URL to which the user will return after authentication</param>
     /// <returns>Result of an authentication</returns>
     protected virtual async Task<IActionResult> LoginUser(Customer user, Customer previousCustomer, string storeId,
-        string returnUrl)
+        Language language, string returnUrl)
     {
         //raise event
-        await _mediator.Publish(new CustomerLoggedInEvent(user, previousCustomer, storeId));
+        await _mediator.Publish(new CustomerLoggedInEvent(user, previousCustomer, storeId, language));
 
         //authenticate
         await _authenticationService.SignIn(user, false);
@@ -270,14 +275,16 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="parameters">External authentication parameters</param>
     /// <param name="customer">Customer of the request (a guest when nobody is logged in)</param>
     /// <param name="store">Store of the request</param>
+    /// <param name="language">Working language of the request</param>
     /// <param name="returnUrl">URL to which the user will return after authentication</param>
     /// <returns>Result of an authentication</returns>
     public virtual async Task<IActionResult> Authenticate(ExternalAuthParam parameters, Customer customer, Store store,
-        string returnUrl = null)
+        Language language, string returnUrl = null)
     {
         ArgumentNullException.ThrowIfNull(parameters);
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(language);
 
         if (!AuthenticationProviderIsAvailable(parameters.ProviderSystemName, customer, store))
             return Error(["External authentication method cannot be loaded"]);
@@ -288,10 +295,11 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         //authenticate associated user if already exists
         var associatedUser = await GetCustomer(parameters);
         if (associatedUser != null)
-            return await AuthenticateExistingUser(associatedUser, currentLoggedInUser, customer, store.Id, returnUrl);
+            return await AuthenticateExistingUser(associatedUser, currentLoggedInUser, customer, store.Id, language,
+                returnUrl);
 
         //or associate and authenticate new user
-        return await AuthenticateNewUser(currentLoggedInUser, parameters, customer, store.Id, returnUrl);
+        return await AuthenticateNewUser(currentLoggedInUser, parameters, customer, store.Id, language, returnUrl);
     }
 
     #endregion

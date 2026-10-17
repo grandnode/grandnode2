@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -42,6 +43,7 @@ public class AddRequiredProductsCommandHandlerTests
             { Id = "1", RequireOtherProducts = true, RequiredProductIds = "2,3", AutoAddRequiredProducts = true };
         command.ShoppingCartType = ShoppingCartType.ShoppingCart;
         command.StoreId = "";
+        command.Language = new Language { Id = "lang1" };
 
         _productServiceMock.Setup(a => a.GetProductById("2", false)).Returns(() =>
             Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
@@ -53,7 +55,8 @@ public class AddRequiredProductsCommandHandlerTests
 
         //Assert
         _shoppingCartServiceMock.Verify(
-            c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), ShoppingCartType.ShoppingCart, "", null, null,
+            c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), ShoppingCartType.ShoppingCart, "",
+                command.Language, null, null,
                 null, null, null, 1, false, "", "", "", It.IsAny<ShoppingCartValidatorOptions>()), Times.AtLeastOnce);
     }
 }

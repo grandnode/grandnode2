@@ -201,7 +201,7 @@ public class ActionCartController : BasePublicController
                     Quantity = quantityToValidate
                 }, product, new ShoppingCartValidatorOptions {
                     GetRequiredProductWarnings = false
-                });
+                }, _contextAccessor.WorkContext.WorkingLanguage);
 
             if (addToCartWarnings.Any())
                 //cannot be added to the cart
@@ -216,6 +216,7 @@ public class ActionCartController : BasePublicController
             product.Id,
             model.ShoppingCartTypeId,
             _contextAccessor.StoreContext.CurrentStore.Id,
+            _contextAccessor.WorkContext.WorkingLanguage,
             warehouseId,
             quantity: model.Quantity,
             validator: new ShoppingCartValidatorOptions {
@@ -402,7 +403,8 @@ public class ActionCartController : BasePublicController
 
         //add to the cart
         var (warnings, shoppingCartItem) = await _shoppingCartService.AddToCart(_contextAccessor.WorkContext.CurrentCustomer,
-            product.Id, model.ShoppingCartTypeId, _contextAccessor.StoreContext.CurrentStore.Id, warehouseId,
+            product.Id, model.ShoppingCartTypeId, _contextAccessor.StoreContext.CurrentStore.Id,
+            _contextAccessor.WorkContext.WorkingLanguage, warehouseId,
             attributes, customerEnteredPriceConverted,
             rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
             new ShoppingCartValidatorOptions {
@@ -642,8 +644,8 @@ public class ActionCartController : BasePublicController
 
         //update existing item
         addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_contextAccessor.WorkContext.CurrentCustomer,
-            cart.Id, warehouseId, attributes, customerEnteredPriceConverted,
-            rentalStartDate, rentalEndDate, model.EnteredQuantity));
+            cart.Id, warehouseId, attributes, _contextAccessor.WorkContext.WorkingLanguage,
+            customerEnteredPriceConverted, rentalStartDate, rentalEndDate, model.EnteredQuantity));
 
         if (addToCartWarnings.Any())
             //cannot be updated the cart/wishlist
@@ -756,8 +758,10 @@ public class ActionCartController : BasePublicController
             Quantity = 1
         };
 
-        var warnings = (await _shoppingCartValidator.GetStandardWarnings(customer, product, shoppingCartItem)).ToList();
-        warnings.AddRange(await _shoppingCartValidator.GetAuctionProductWarning(bid, product, customer));
+        var language = _contextAccessor.WorkContext.WorkingLanguage;
+        var warnings = (await _shoppingCartValidator.GetStandardWarnings(customer, product, shoppingCartItem, language))
+            .ToList();
+        warnings.AddRange(await _shoppingCartValidator.GetAuctionProductWarning(bid, product, customer, language));
 
         if (warnings.Any())
         {

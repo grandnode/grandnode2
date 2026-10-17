@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Checkout.Validators;
@@ -10,7 +11,8 @@ namespace Grand.Business.Checkout.Validators;
 public record ShoppingCartStandardValidatorRecord(
     Customer Customer,
     Product Product,
-    ShoppingCartItem ShoppingCartItem);
+    ShoppingCartItem ShoppingCartItem,
+    Language Language);
 
 public class ShoppingCartStandardValidator : AbstractValidator<ShoppingCartStandardValidatorRecord>
 {
@@ -19,7 +21,7 @@ public class ShoppingCartStandardValidator : AbstractValidator<ShoppingCartStand
         RuleFor(x => x).Custom((value, context) =>
         {
             if (!value.Product.Published)
-                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished", value.Language.Id));
 
             //we can't add grouped value.Product
             if (value.Product.ProductTypeId == ProductType.GroupedProduct)
@@ -27,27 +29,27 @@ public class ShoppingCartStandardValidator : AbstractValidator<ShoppingCartStand
 
             //ACL
             if (!aclService.Authorize(value.Product, value.Customer))
-                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished", value.Language.Id));
 
             //Store acl
             if (!aclService.Authorize(value.Product, value.ShoppingCartItem.StoreId))
-                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished", value.Language.Id));
 
             switch (value.ShoppingCartItem.ShoppingCartTypeId)
             {
                 //disabled "add to cart" button
                 case ShoppingCartType.ShoppingCart when value.Product.DisableBuyButton:
-                    context.AddFailure(translationService.GetResource("ShoppingCart.BuyingDisabled"));
+                    context.AddFailure(translationService.GetResource("ShoppingCart.BuyingDisabled", value.Language.Id));
                     break;
                 //disabled "add to wishlist" button
                 case ShoppingCartType.Wishlist when value.Product.DisableWishlistButton:
-                    context.AddFailure(translationService.GetResource("ShoppingCart.WishlistDisabled"));
+                    context.AddFailure(translationService.GetResource("ShoppingCart.WishlistDisabled", value.Language.Id));
                     break;
             }
 
             //call for price
             if (value.ShoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart &&
-                value.Product.CallForPrice) context.AddFailure(translationService.GetResource("Products.CallForPrice"));
+                value.Product.CallForPrice) context.AddFailure(translationService.GetResource("Products.CallForPrice", value.Language.Id));
 
             //customer entered price
             if (value.Product.EnteredPrice)
@@ -56,7 +58,7 @@ public class ShoppingCartStandardValidator : AbstractValidator<ShoppingCartStand
                 if (shoppingCartItemEnteredPrice < value.Product.MinEnteredPrice ||
                     shoppingCartItemEnteredPrice > value.Product.MaxEnteredPrice)
                     context.AddFailure(string.Format(
-                        translationService.GetResource("ShoppingCart.CustomerEnteredPrice.RangeError"),
+                        translationService.GetResource("ShoppingCart.CustomerEnteredPrice.RangeError", value.Language.Id),
                         value.Product.MinEnteredPrice,
                         value.Product.MaxEnteredPrice));
             }
@@ -70,7 +72,7 @@ public class ShoppingCartStandardValidator : AbstractValidator<ShoppingCartStand
                     DateTime.SpecifyKind(value.Product.AvailableStartDateTimeUtc.Value, DateTimeKind.Utc);
                 if (availableStartDateTime.CompareTo(now) > 0)
                 {
-                    context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable"));
+                    context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable", value.Language.Id));
                     availableStartDateError = true;
                 }
             }
@@ -82,7 +84,7 @@ public class ShoppingCartStandardValidator : AbstractValidator<ShoppingCartStand
                 var availableEndDateTime =
                     DateTime.SpecifyKind(value.Product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc);
                 if (availableEndDateTime.CompareTo(now) < 0)
-                    context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable"));
+                    context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable", value.Language.Id));
             }
         });
     }

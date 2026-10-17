@@ -32,6 +32,7 @@ public class ReOrderCommandHandler : IRequestHandler<ReOrderCommand, IList<strin
     public async Task<IList<string>> Handle(ReOrderCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request.Order);
+        ArgumentNullException.ThrowIfNull(request.Language);
 
         var warnings = new List<string>();
         var customer = await _customerService.GetCustomerById(request.Order.CustomerId);
@@ -43,7 +44,7 @@ public class ReOrderCommandHandler : IRequestHandler<ReOrderCommand, IList<strin
             {
                 if (product.ProductTypeId == ProductType.SimpleProduct)
                     warnings.AddRange((await _shoppingCartService.AddToCart(customer, orderItem.ProductId,
-                        ShoppingCartType.ShoppingCart, request.Order.StoreId, orderItem.WarehouseId,
+                        ShoppingCartType.ShoppingCart, request.Order.StoreId, request.Language, orderItem.WarehouseId,
                         orderItem.Attributes,
                         product.EnteredPrice
                             ? _taxSettings.PricesIncludeTax ? orderItem.UnitPriceInclTax : orderItem.UnitPriceExclTax

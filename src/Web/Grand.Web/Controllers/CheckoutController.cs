@@ -103,7 +103,7 @@ public class CheckoutController : BasePublicController
         //validation (cart)
         var checkoutAttributes = customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, _contextAccessor.StoreContext.CurrentStore.Id);
         var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,
-            _contextAccessor.CalculationContext(), true, true);
+            _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage, true, true);
         if (scWarnings.Any())
             return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
 
@@ -113,7 +113,7 @@ public class CheckoutController : BasePublicController
             var product = await _productService.GetProductById(sci.ProductId);
             var sciWarnings =
                 await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, sci, product,
-                    new ShoppingCartValidatorOptions());
+                    new ShoppingCartValidatorOptions(), _contextAccessor.WorkContext.WorkingLanguage);
             if (sciWarnings.Any())
                 return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
         }
@@ -144,7 +144,7 @@ public class CheckoutController : BasePublicController
             .GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                 _contextAccessor.StoreContext.CurrentStore.Id);
         var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,
-            _contextAccessor.CalculationContext(), true, true);
+            _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage, true, true);
         if (cartWarnings.Any())
             return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
 
@@ -153,7 +153,7 @@ public class CheckoutController : BasePublicController
         {
             var product = await _productService.GetProductById(sci.ProductId);
             var sciWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(_contextAccessor.WorkContext.CurrentCustomer,
-                sci, product, new ShoppingCartValidatorOptions());
+                sci, product, new ShoppingCartValidatorOptions(), _contextAccessor.WorkContext.WorkingLanguage);
             if (sciWarnings.Any())
                 return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
         }

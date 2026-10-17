@@ -1,6 +1,7 @@
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -48,6 +49,7 @@ public interface IShoppingCartService
     /// <param name="productId">Product id</param>
     /// <param name="shoppingCartType">ShoppingCartType</param>
     /// <param name="storeId">Store id</param>
+    /// <param name="language">Language the warnings are written in</param>
     /// <param name="warehouseId">Warehouse id</param>
     /// <param name="attributes">Attributes</param>
     /// <param name="customerEnteredPrice">EnteredPrice</param>
@@ -61,7 +63,7 @@ public interface IShoppingCartService
     /// <param name="validator">ShoppingCartValidatorOptions</param>
     /// <returns>(warnings, shoppingCartItem)</returns>
     Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer, string productId,
-        ShoppingCartType shoppingCartType, string storeId, string warehouseId = null,
+        ShoppingCartType shoppingCartType, string storeId, Language language, string warehouseId = null,
         IList<CustomAttribute> attributes = null,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
@@ -77,6 +79,7 @@ public interface IShoppingCartService
     /// <param name="shoppingCartItemId">Shopping cart item identifier</param>
     /// <param name="warehouseId">Warehouse ident</param>
     /// <param name="attributes">Attributes</param>
+    /// <param name="language">Language the warnings are written in</param>
     /// <param name="customerEnteredPrice">New customer entered price</param>
     /// <param name="rentalStartDate">Rental start date</param>
     /// <param name="rentalEndDate">Rental end date</param>
@@ -86,7 +89,7 @@ public interface IShoppingCartService
     /// <param name="sciId"></param>
     /// <returns>Warnings</returns>
     Task<IList<string>> UpdateShoppingCartItem(Customer customer,
-        string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
+        string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes, Language language,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
         int quantity = 1, bool resetCheckoutData = true, string reservationId = "", string sciId = "");
@@ -110,9 +113,11 @@ public interface IShoppingCartService
     /// <param name="fromCustomer">From customer</param>
     /// <param name="toCustomer">To customer</param>
     /// <param name="storeId">Store whose selected checkout attributes move along</param>
+    /// <param name="language">Language the items are validated in</param>
     /// <param name="includeCouponCodes">
     ///     A value indicating whether to coupon codes (discount and gift voucher) should be also
     ///     re-applied
     /// </param>
-    Task MigrateShoppingCart(Customer fromCustomer, Customer toCustomer, string storeId, bool includeCouponCodes);
+    Task MigrateShoppingCart(Customer fromCustomer, Customer toCustomer, string storeId, Language language,
+        bool includeCouponCodes);
 }

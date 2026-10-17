@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Checkout.Validators;
@@ -10,7 +11,8 @@ public record ShoppingCartAuctionValidatorRecord(
     Customer Customer,
     Product Product,
     ShoppingCartItem ShoppingCartItem,
-    double Bid);
+    double Bid,
+    Language Language);
 
 public class ShoppingCartAuctionValidator : AbstractValidator<ShoppingCartAuctionValidatorRecord>
 {
@@ -19,13 +21,13 @@ public class ShoppingCartAuctionValidator : AbstractValidator<ShoppingCartAuctio
         RuleFor(x => x).Custom((value, context) =>
         {
             if (value.Bid <= value.Product.HighestBid || value.Bid <= value.Product.StartPrice)
-                context.AddFailure(translationService.GetResource("ShoppingCart.BidMustBeHigher"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.BidMustBeHigher", value.Language.Id));
 
             if (!value.Product.AvailableEndDateTimeUtc.HasValue)
-                context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable", value.Language.Id));
 
             if (value.Product.AvailableEndDateTimeUtc < DateTime.UtcNow)
-                context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable"));
+                context.AddFailure(translationService.GetResource("ShoppingCart.NotAvailable", value.Language.Id));
         });
     }
 }

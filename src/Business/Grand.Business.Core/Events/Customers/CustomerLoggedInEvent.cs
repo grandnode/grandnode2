@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Mediator;
 
 namespace Grand.Business.Core.Events.Customers;
@@ -8,11 +9,12 @@ namespace Grand.Business.Core.Events.Customers;
 /// </summary>
 public class CustomerLoggedInEvent : INotification
 {
-    public CustomerLoggedInEvent(Customer customer, Customer previousCustomer, string storeId)
+    public CustomerLoggedInEvent(Customer customer, Customer previousCustomer, string storeId, Language language)
     {
         Customer = customer;
         PreviousCustomer = previousCustomer;
         StoreId = storeId;
+        Language = language;
     }
 
     /// <summary>
@@ -32,4 +34,9 @@ public class CustomerLoggedInEvent : INotification
     ///     Store of the request the customer logged in through
     /// </summary>
     public string StoreId { get; }
+
+    /// <summary>
+    ///     Working language of the request the customer logged in through
+    /// </summary>
+    public Language Language { get; }
 }

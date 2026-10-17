@@ -919,6 +919,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                     shoppingCartId,
                     cart.WarehouseId,
                     cart.Attributes,
+                    _contextAccessor.WorkContext.WorkingLanguage,
                     unitprice,
                     cart.RentalStartDateUtc,
                     cart.RentalEndDateUtc,

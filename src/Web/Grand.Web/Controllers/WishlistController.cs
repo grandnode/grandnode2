@@ -124,7 +124,8 @@ public class WishlistController : BasePublicController
             {
                 var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(
                     _contextAccessor.WorkContext.CurrentCustomer,
-                    cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
+                    cart.Id, cart.WarehouseId, cart.Attributes, _contextAccessor.WorkContext.WorkingLanguage,
+                    cart.EnteredPrice,
                     cart.RentalStartDateUtc, cart.RentalEndDateUtc,
                     model.Quantity);
                 warnings.AddRange(currSciWarnings);
@@ -170,7 +171,8 @@ public class WishlistController : BasePublicController
 
         var warnings = (await _shoppingCartService.AddToCart(_contextAccessor.WorkContext.CurrentCustomer,
             itemCart.ProductId, ShoppingCartType.ShoppingCart,
-            _contextAccessor.StoreContext.CurrentStore.Id, itemCart.WarehouseId,
+            _contextAccessor.StoreContext.CurrentStore.Id, _contextAccessor.WorkContext.WorkingLanguage,
+            itemCart.WarehouseId,
             itemCart.Attributes, itemCart.EnteredPrice,
             itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity,
             validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false })).warnings;

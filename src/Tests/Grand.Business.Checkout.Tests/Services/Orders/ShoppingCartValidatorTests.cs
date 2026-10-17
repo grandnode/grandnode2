@@ -7,6 +7,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
@@ -21,6 +22,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders;
 [TestClass]
 public class ShoppingCartValidatorTests
 {
+    private static readonly Language Language = new() { Id = "lang1" };
     private readonly List<object> _records = [];
     private ShoppingCartValidator _validator;
     private Mock<IValidatorFactory> _validatorFactoryMock;
@@ -54,17 +56,20 @@ public class ShoppingCartValidatorTests
         var cart = new List<ShoppingCartItem>();
 
         //Act
-        await _validator.GetShoppingCartWarnings(cart, new List<CustomAttribute>(), context, true, true);
+        await _validator.GetShoppingCartWarnings(cart, new List<CustomAttribute>(), context, Language, true, true);
 
         //Assert
         var warnings = _records.OfType<ShoppingCartWarningsValidatorRecord>().Single();
         Assert.AreSame(context.Customer, warnings.Customer);
         Assert.AreSame(context.Store, warnings.Store);
+        Assert.AreSame(Language, warnings.Language);
         var attributes = _records.OfType<ShoppingCartCheckoutAttributesValidatorRecord>().Single();
         Assert.AreSame(context.Customer, attributes.Customer);
         Assert.AreSame(context.Store, attributes.Store);
+        Assert.AreSame(Language, attributes.Language);
         var amount = _records.OfType<ShoppingCartTotalAmountValidatorRecord>().Single();
         Assert.AreSame(context, amount.Context);
+        Assert.AreSame(Language, amount.Language);
     }
 
     [TestMethod]
@@ -75,11 +80,12 @@ public class ShoppingCartValidatorTests
         var product = new Product { RequireOtherProducts = true };
 
         //Act
-        await _validator.GetRequiredProductWarnings(customer, new ShoppingCartItem(), product, "store-b");
+        await _validator.GetRequiredProductWarnings(customer, new ShoppingCartItem(), product, "store-b", Language);
 
         //Assert
         var record = _records.OfType<ShoppingCartRequiredProductValidatorRecord>().Single();
         Assert.AreSame(customer, record.Customer);
         Assert.AreEqual("store-b", record.StoreId);
+        Assert.AreSame(Language, record.Language);
     }
 }
