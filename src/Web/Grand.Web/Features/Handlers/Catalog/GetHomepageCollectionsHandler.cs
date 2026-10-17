@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
@@ -38,8 +39,8 @@ public class GetHomepageCollectionsHandler : IRequestHandler<GetHomepageCollecti
     public async Task<IList<CollectionModel>> Handle(GetHomepageCollections request,
         CancellationToken cancellationToken)
     {
-        var collectionsCacheKey =
-            string.Format(CacheKeyConst.COLLECTION_HOMEPAGE_KEY, request.Store.Id, request.Language.Id);
+        var collectionsCacheKey = string.Format(CacheKeyConst.COLLECTION_HOMEPAGE_KEY, request.Store.Id,
+            request.Language.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
 
         var model = await _cacheBase.GetAsync(collectionsCacheKey, async () =>
         {
