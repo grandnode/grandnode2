@@ -212,11 +212,10 @@ public class ActionCartController : BasePublicController
         }
 
         //try adding product to the cart 
-        var addToCart = await _shoppingCartService.AddToCart(customer,
+        var addToCart = await _shoppingCartService.AddToCart(customer, _contextAccessor.WorkContext.WorkingLanguage,
             product.Id,
             model.ShoppingCartTypeId,
             _contextAccessor.StoreContext.CurrentStore.Id,
-            _contextAccessor.WorkContext.WorkingLanguage,
             warehouseId,
             quantity: model.Quantity,
             validator: new ShoppingCartValidatorOptions {
@@ -403,8 +402,8 @@ public class ActionCartController : BasePublicController
 
         //add to the cart
         var (warnings, shoppingCartItem) = await _shoppingCartService.AddToCart(_contextAccessor.WorkContext.CurrentCustomer,
-            product.Id, model.ShoppingCartTypeId, _contextAccessor.StoreContext.CurrentStore.Id,
-            _contextAccessor.WorkContext.WorkingLanguage, warehouseId,
+            _contextAccessor.WorkContext.WorkingLanguage,
+            product.Id, model.ShoppingCartTypeId, _contextAccessor.StoreContext.CurrentStore.Id, warehouseId,
             attributes, customerEnteredPriceConverted,
             rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
             new ShoppingCartValidatorOptions {
@@ -644,7 +643,8 @@ public class ActionCartController : BasePublicController
 
         //update existing item
         addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_contextAccessor.WorkContext.CurrentCustomer,
-            cart.Id, warehouseId, attributes, _contextAccessor.WorkContext.WorkingLanguage,
+            _contextAccessor.WorkContext.WorkingLanguage,
+            cart.Id, warehouseId, attributes,
             customerEnteredPriceConverted, rentalStartDate, rentalEndDate, model.EnteredQuantity));
 
         if (addToCartWarnings.Any())

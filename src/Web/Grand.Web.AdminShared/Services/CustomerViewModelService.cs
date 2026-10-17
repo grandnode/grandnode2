@@ -915,11 +915,10 @@ public class CustomerViewModelService : ICustomerViewModelService
         if (cart != null)
             return await _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IShoppingCartService>()
                 .UpdateShoppingCartItem(
-                    customer,
+                    customer, _contextAccessor.WorkContext.WorkingLanguage,
                     shoppingCartId,
                     cart.WarehouseId,
                     cart.Attributes,
-                    _contextAccessor.WorkContext.WorkingLanguage,
                     unitprice,
                     cart.RentalStartDateUtc,
                     cart.RentalEndDateUtc,

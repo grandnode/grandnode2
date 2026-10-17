@@ -67,8 +67,9 @@ public class EndAuctionsTaskTests
         _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product> { new() { Id = "id" } });
         _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(() => new PagedList<Bid> { new() });
-        _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(),
-                It.IsAny<string>(), It.IsAny<Language>(),
+        _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(),
+                It.IsAny<Language>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(),
+                It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
                 It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -77,8 +78,9 @@ public class EndAuctionsTaskTests
         await _task.Execute();
 
         //the warnings only reach the log, so they are written in the admin language
-        _shoppingCartMock.Verify(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(),
-            It.IsAny<ShoppingCartType>(), It.IsAny<string>(), It.Is<Language>(l => l.Id == "admin-lang"),
+        _shoppingCartMock.Verify(c => c.AddToCart(It.IsAny<Customer>(),
+            It.Is<Language>(l => l.Id == "admin-lang"), It.IsAny<string>(),
+            It.IsAny<ShoppingCartType>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
             It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<ShoppingCartValidatorOptions>()), Times.Once);
@@ -96,8 +98,9 @@ public class EndAuctionsTaskTests
         _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product> { new() { Id = "id" } });
         _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(() => new PagedList<Bid> { new() });
-        _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(),
-                It.IsAny<string>(), It.IsAny<Language>(),
+        _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(),
+                It.IsAny<Language>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(),
+                It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
                 It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<ShoppingCartValidatorOptions>()))
@@ -122,5 +125,47 @@ public class EndAuctionsTaskTests
         _messageProviderMock.Verify(
             c => c.SendAuctionEndedLostCustomerMessage(It.IsAny<Product>(), It.IsAny<string>(), It.IsAny<Bid>()),
             Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Execute_DeletedAdminLanguage_UsesAPublishedLanguage()
+    {
+        _languageServiceMock.Setup(c => c.GetLanguageById("admin-lang")).ReturnsAsync((Language)null);
+        _languageServiceMock.Setup(c => c.GetAllLanguages(false, ""))
+            .ReturnsAsync(new List<Language> { new() { Id = "published-lang" } });
+        _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product> { new() { Id = "id" } });
+        _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(() => new PagedList<Bid> { new() });
+        _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<Language>(), It.IsAny<string>(),
+                It.IsAny<ShoppingCartType>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
+                It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<ShoppingCartValidatorOptions>()))
+            .ReturnsAsync((new List<string>(), null));
+
+        await _task.Execute();
+
+        _shoppingCartMock.Verify(c => c.AddToCart(It.IsAny<Customer>(),
+            It.Is<Language>(l => l.Id == "published-lang"), It.IsAny<string>(), It.IsAny<ShoppingCartType>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(),
+            It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ShoppingCartValidatorOptions>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Execute_NoLanguageAtAll_SkipsTheBidWithoutThrowing()
+    {
+        _languageServiceMock.Setup(c => c.GetLanguageById("admin-lang")).ReturnsAsync((Language)null);
+        _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Language>());
+        _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product> { new() { Id = "id" } });
+        _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(() => new PagedList<Bid> { new() });
+
+        await _task.Execute();
+
+        _shoppingCartMock.VerifyNoOtherCalls();
+        _auctionMock.Verify(c => c.UpdateAuctionEnded(It.IsAny<Product>(), It.IsAny<bool>(), It.IsAny<bool>()),
+            Times.Never);
     }
 }

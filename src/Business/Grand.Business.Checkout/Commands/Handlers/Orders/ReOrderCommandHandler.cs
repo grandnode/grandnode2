@@ -43,8 +43,9 @@ public class ReOrderCommandHandler : IRequestHandler<ReOrderCommand, IList<strin
             if (product != null)
             {
                 if (product.ProductTypeId == ProductType.SimpleProduct)
-                    warnings.AddRange((await _shoppingCartService.AddToCart(customer, orderItem.ProductId,
-                        ShoppingCartType.ShoppingCart, request.Order.StoreId, request.Language, orderItem.WarehouseId,
+                    warnings.AddRange((await _shoppingCartService.AddToCart(customer,
+                        request.Language, orderItem.ProductId,
+                        ShoppingCartType.ShoppingCart, request.Order.StoreId, orderItem.WarehouseId,
                         orderItem.Attributes,
                         product.EnteredPrice
                             ? _taxSettings.PricesIncludeTax ? orderItem.UnitPriceInclTax : orderItem.UnitPriceExclTax

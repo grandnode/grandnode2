@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -47,8 +48,8 @@ public class EndAuctionsTask : IScheduleTask
         if (!auctionsToEnd.Any()) return;
 
         //cart warnings only reach the log, so they are written in the admin language
-        var language = await _languageService.GetLanguageById(_languageSettings.DefaultAdminLanguageId) ??
-                       (await _languageService.GetAllLanguages()).FirstOrDefault();
+        var language =
+            await _languageService.GetLanguageOrStoreDefault(_languageSettings.DefaultAdminLanguageId, null);
         foreach (var auctionToEnd in auctionsToEnd)
         {
             var bid = (await _auctionService.GetBidsByProductId(auctionToEnd.Id)).MaxBy(x => x.Amount);
@@ -60,9 +61,17 @@ public class EndAuctionsTask : IScheduleTask
                 continue;
             }
 
+            if (language == null)
+            {
+                _logger.LogWarning("EndAuctionTask - Product {Name} - no language exists to validate the bid",
+                    auctionToEnd.Name);
+                continue;
+            }
+
             var warnings = (await _shoppingCartService.AddToCart(await _customerService.GetCustomerById(bid.CustomerId),
+                language,
                 bid.ProductId, ShoppingCartType.Auctions,
-                bid.StoreId, language, bid.WarehouseId, customerEnteredPrice: bid.Amount,
+                bid.StoreId, bid.WarehouseId, customerEnteredPrice: bid.Amount,
                 validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false })).warnings;
 
             if (!warnings.Any())

@@ -110,7 +110,7 @@ public class ShoppingCartServiceTests
             .Returns(() => Task.FromResult((IList<string>)new List<string>()));
 
         //Act
-        var result = await _shoppingCartService.AddToCart(customer, "2", ShoppingCartType.ShoppingCart, "", Language);
+        var result = await _shoppingCartService.AddToCart(customer, Language, "2", ShoppingCartType.ShoppingCart, "");
 
         //Assert
         Assert.IsNotNull(result.shoppingCartItem);
@@ -135,7 +135,7 @@ public class ShoppingCartServiceTests
             .Returns(() => Task.FromResult((IList<string>)new List<string> { "Error" }));
 
         //Act
-        var result = await _shoppingCartService.AddToCart(customer, "2", ShoppingCartType.ShoppingCart, "", Language);
+        var result = await _shoppingCartService.AddToCart(customer, Language, "2", ShoppingCartType.ShoppingCart, "");
 
         //Assert
         Assert.HasCount(1, result.warnings);
@@ -159,10 +159,10 @@ public class ShoppingCartServiceTests
                 It.IsAny<Language>()))
             .Returns(() => Task.FromResult((IList<string>)new List<string>()));
 
-        var item = await _shoppingCartService.AddToCart(customer, "2", ShoppingCartType.ShoppingCart, "", Language);
+        var item = await _shoppingCartService.AddToCart(customer, Language, "2", ShoppingCartType.ShoppingCart, "");
         //Act
-        var result = await _shoppingCartService.UpdateShoppingCartItem(customer, item.shoppingCartItem.Id, "",
-            new List<CustomAttribute>(), Language, null);
+        var result = await _shoppingCartService.UpdateShoppingCartItem(customer, Language, item.shoppingCartItem.Id, "",
+            new List<CustomAttribute>(), null);
         //Assert
         _customerServiceMock.Verify(x => x.UpdateShoppingCartItem(It.IsAny<string>(), It.IsAny<ShoppingCartItem>()),
             Times.Once);
@@ -186,7 +186,7 @@ public class ShoppingCartServiceTests
                 It.IsAny<Language>()))
             .Returns(() => Task.FromResult((IList<string>)new List<string>()));
 
-        var item = await _shoppingCartService.AddToCart(customer, "2", ShoppingCartType.ShoppingCart, "", Language);
+        var item = await _shoppingCartService.AddToCart(customer, Language, "2", ShoppingCartType.ShoppingCart, "");
         //Act
         await _shoppingCartService.DeleteShoppingCartItem(customer, item.shoppingCartItem);
         //Assert
@@ -215,7 +215,7 @@ public class ShoppingCartServiceTests
                 It.IsAny<ShoppingCartItem>(), It.IsAny<Product>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(new List<string>());
 
-        var item = await _shoppingCartService.AddToCart(customer, "2", ShoppingCartType.ShoppingCart, "", Language);
+        var item = await _shoppingCartService.AddToCart(customer, Language, "2", ShoppingCartType.ShoppingCart, "");
         var customer2 = new Customer();
         //Act
         await _shoppingCartService.MigrateShoppingCart(customer, customer2, "", Language, false);

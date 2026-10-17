@@ -55,8 +55,8 @@ public class AddRequiredProductsCommandHandlerTests
 
         //Assert
         _shoppingCartServiceMock.Verify(
-            c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), ShoppingCartType.ShoppingCart, "",
-                command.Language, null, null,
+            c => c.AddToCart(It.IsAny<Customer>(),
+                command.Language, It.IsAny<string>(), ShoppingCartType.ShoppingCart, "", null, null,
                 null, null, null, 1, false, "", "", "", It.IsAny<ShoppingCartValidatorOptions>()), Times.AtLeastOnce);
     }
 }

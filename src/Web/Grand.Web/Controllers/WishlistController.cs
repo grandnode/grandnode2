@@ -123,8 +123,8 @@ public class WishlistController : BasePublicController
             if (cart != null)
             {
                 var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(
-                    _contextAccessor.WorkContext.CurrentCustomer,
-                    cart.Id, cart.WarehouseId, cart.Attributes, _contextAccessor.WorkContext.WorkingLanguage,
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.WorkContext.WorkingLanguage,
+                    cart.Id, cart.WarehouseId, cart.Attributes,
                     cart.EnteredPrice,
                     cart.RentalStartDateUtc, cart.RentalEndDateUtc,
                     model.Quantity);
@@ -170,8 +170,9 @@ public class WishlistController : BasePublicController
             return Json(new { success = false, message = "Shopping cart ident not found" });
 
         var warnings = (await _shoppingCartService.AddToCart(_contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.WorkContext.WorkingLanguage,
             itemCart.ProductId, ShoppingCartType.ShoppingCart,
-            _contextAccessor.StoreContext.CurrentStore.Id, _contextAccessor.WorkContext.WorkingLanguage,
+            _contextAccessor.StoreContext.CurrentStore.Id,
             itemCart.WarehouseId,
             itemCart.Attributes, itemCart.EnteredPrice,
             itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity,

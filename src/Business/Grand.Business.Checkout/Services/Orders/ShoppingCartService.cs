@@ -185,8 +185,8 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="validator">ShoppingCartValidatorOptions</param>
     /// <returns>(warnings, shoppingCartItem)</returns>
     public virtual async Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer,
-        string productId,
-        ShoppingCartType shoppingCartType, string storeId, Language language,
+        Language language, string productId,
+        ShoppingCartType shoppingCartType, string storeId,
         string warehouseId = null, IList<CustomAttribute> attributes = null,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
@@ -315,8 +315,8 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="reservationId"></param>
     /// <param name="sciId"></param>
     /// <returns>Warnings</returns>
-    public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer,
-        string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes, Language language,
+    public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer, Language language,
+        string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
         int quantity = 1, bool resetCheckoutData = true, string reservationId = "", string sciId = "")
@@ -426,7 +426,7 @@ public class ShoppingCartService : IShoppingCartService
                     language)).Any())
                 continue;
 
-            await AddToCart(toCustomer, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, language, sci.WarehouseId,
+            await AddToCart(toCustomer, language, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
                 sci.Attributes, sci.EnteredPrice,
                 sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter,
                 sci.Duration,

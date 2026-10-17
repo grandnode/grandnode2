@@ -51,11 +51,10 @@ public class AddRequiredProductsCommandHandler : IRequestHandler<AddRequiredProd
                 //not in the cart
                 if (alreadyInTheCart) continue;
                 if (!product.AutoAddRequiredProducts) continue;
-                var addToCart = await _shoppingCartService.AddToCart(customer,
+                var addToCart = await _shoppingCartService.AddToCart(customer, request.Language,
                     rp.Id,
                     shoppingCartType,
                     storeId,
-                    request.Language,
                     automaticallyAddRequiredProductsIfEnabled: false,
                     validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false });
 

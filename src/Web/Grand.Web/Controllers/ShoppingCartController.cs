@@ -323,7 +323,8 @@ public class ShoppingCartController : BasePublicController
         if (cart != null)
         {
             var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_contextAccessor.WorkContext.CurrentCustomer,
-                cart.Id, cart.WarehouseId, cart.Attributes, _contextAccessor.WorkContext.WorkingLanguage, cart.EnteredPrice,
+                _contextAccessor.WorkContext.WorkingLanguage,
+                cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
                 cart.RentalStartDateUtc, cart.RentalEndDateUtc,
                 model.Quantity);
             warnings.AddRange(currSciWarnings);
