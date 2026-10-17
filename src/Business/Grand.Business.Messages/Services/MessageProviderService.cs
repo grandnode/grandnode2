@@ -18,7 +18,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
 using System.Net;
@@ -30,7 +29,6 @@ public class MessageProviderService : IMessageProviderService
     #region Ctor
 
     public MessageProviderService(
-        IContextAccessor contextAccessor,
         IMessageTemplateService messageTemplateService,
         IQueuedEmailService queuedEmailService,
         ILanguageService languageService,
@@ -41,7 +39,6 @@ public class MessageProviderService : IMessageProviderService
         EmailAccountSettings emailAccountSettings,
         CommonSettings commonSettings)
     {
-        _contextAccessor = contextAccessor;
         _messageTemplateService = messageTemplateService;
         _queuedEmailService = queuedEmailService;
         _languageService = languageService;
@@ -56,7 +53,6 @@ public class MessageProviderService : IMessageProviderService
     #endregion
 
     #region Fields
-    private readonly IContextAccessor _contextAccessor;
     private readonly IMessageTemplateService _messageTemplateService;
     private readonly IQueuedEmailService _queuedEmailService;
     private readonly ILanguageService _languageService;
@@ -68,11 +64,22 @@ public class MessageProviderService : IMessageProviderService
     private readonly EmailAccountSettings _emailAccountSettings;
     private readonly CommonSettings _commonSettings;
 
-    private DomainHost CurrentHost => _contextAccessor.StoreContext.CurrentHost;
-
     #endregion
 
     #region Utilities
+
+    /// <summary>
+    ///     Gets the host the links of a message point to: the store's primary domain, so a message links to the
+    ///     store it is about whoever sends it, in a request to any host or in a background task
+    /// </summary>
+    protected static DomainHost StoreHost(Store store)
+    {
+        return store.Domains.FirstOrDefault(x => x.Primary) ?? store.Domains.FirstOrDefault() ?? new DomainHost {
+            Id = int.MinValue.ToString(),
+            Url = store.Url,
+            HostName = "temporary-store"
+        };
+    }
 
     protected virtual async Task<Store> GetStore(string storeId)
     {
@@ -123,7 +130,7 @@ public class MessageProviderService : IMessageProviderService
     {
         if (customer != null)
         {
-            builder.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder.AddCustomerTokens(customer, store, StoreHost(store), language);
         }
     }
 
@@ -158,7 +165,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language, customerNote);
+            .AddCustomerTokens(customer, store, StoreHost(store), language, customerNote);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -324,7 +331,7 @@ public class MessageProviderService : IMessageProviderService
 
         var liquidBuilder = new LiquidObjectBuilder(_mediator);
         liquidBuilder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost);
+            .AddOrderTokens(order, customer, store, StoreHost(store));
         AddCustomerTokensIfNotNull(liquidBuilder, customer, store, language);
 
         var liquidObject = await liquidBuilder.BuildAsync();
@@ -455,7 +462,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost);
+            .AddOrderTokens(order, customer, store, StoreHost(store));
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
         var liquidObject = await builder.BuildAsync();
@@ -536,7 +543,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost, vendor: vendor);
+            .AddOrderTokens(order, customer, store, StoreHost(store), vendor: vendor);
 
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
@@ -601,8 +608,8 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddShipmentTokens(shipment, order, store, CurrentHost, language)
-            .AddOrderTokens(order, customer, store, CurrentHost);
+            .AddShipmentTokens(shipment, order, store, StoreHost(store), language)
+            .AddOrderTokens(order, customer, store, StoreHost(store));
 
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
@@ -644,7 +651,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddOrderTokens(order, customer, store, CurrentHost, orderNote);
+            .AddOrderTokens(order, customer, store, StoreHost(store), orderNote);
 
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
@@ -711,7 +718,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddNewsLetterSubscriptionTokens(subscription, store, CurrentHost);
+            .AddNewsLetterSubscriptionTokens(subscription, store, StoreHost(store));
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -757,8 +764,8 @@ public class MessageProviderService : IMessageProviderService
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
             .AddEmailAFriendTokens(personalMessage, customerEmail, friendsEmail)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
-            .AddProductTokens(product, language, store, CurrentHost);
+            .AddCustomerTokens(customer, store, StoreHost(store), language)
+            .AddProductTokens(product, language, store, StoreHost(store));
         var liquidObject = await builder.BuildAsync();
 
         //event notification
@@ -799,7 +806,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
+            .AddCustomerTokens(customer, store, StoreHost(store), language)
             .AddEmailAFriendTokens(personalMessage, customerEmail, friendsEmail);
 
         var liquidObject = await builder.BuildAsync();
@@ -837,8 +844,8 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
-            .AddProductTokens(product, language, store, CurrentHost);
+            .AddCustomerTokens(customer, store, StoreHost(store), language)
+            .AddProductTokens(product, language, store, StoreHost(store));
         var liquidObject = await builder.BuildAsync();
         liquidObject.AskQuestion = new LiquidAskQuestion(message, customerEmail, fullName, phone);
 
@@ -919,7 +926,7 @@ public class MessageProviderService : IMessageProviderService
 
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, StoreHost(store), order, language);
 
         var liquidObject = await builder.BuildAsync();
 
@@ -976,7 +983,7 @@ public class MessageProviderService : IMessageProviderService
 
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, StoreHost(store), order, language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1017,7 +1024,7 @@ public class MessageProviderService : IMessageProviderService
         builder.AddStoreTokens(store, language, emailAccount);
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, StoreHost(store), order, language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1059,7 +1066,7 @@ public class MessageProviderService : IMessageProviderService
         builder.AddStoreTokens(store, language, emailAccount);
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, CurrentHost, order, language,
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, StoreHost(store), order, language,
             merchandiseReturnNote);
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -1100,7 +1107,7 @@ public class MessageProviderService : IMessageProviderService
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator).AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
+            .AddCustomerTokens(customer, store, StoreHost(store), language)
             .AddVendorTokens(vendor, language);
 
         var liquidObject = await builder.BuildAsync();
@@ -1290,7 +1297,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddProductTokens(product, language, store, CurrentHost);
+            .AddProductTokens(product, language, store, StoreHost(store));
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1327,8 +1334,8 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddProductTokens(product, language, store, CurrentHost)
-            .AddAttributeCombinationTokens(product, combination, language, CurrentHost);
+            .AddProductTokens(product, language, store, StoreHost(store))
+            .AddAttributeCombinationTokens(product, combination, language, StoreHost(store));
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1362,7 +1369,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language);
+            .AddCustomerTokens(customer, store, StoreHost(store), language);
 
         var liquidObject = await builder.BuildAsync();
 
@@ -1393,11 +1400,11 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddBlogCommentTokens(blogPost, blogComment, store, CurrentHost, language);
+            .AddBlogCommentTokens(blogPost, blogComment, store, StoreHost(store), language);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = blogComment.CustomerId });
         if (customer != null && await _groupService.IsRegistered(customer))
-            builder.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder.AddCustomerTokens(customer, store, StoreHost(store), language);
 
         var liquidObject = await builder.BuildAsync();
         //event notification
@@ -1434,11 +1441,11 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddArticleCommentTokens(article, articleComment, store, CurrentHost, language);
+            .AddArticleCommentTokens(article, articleComment, store, StoreHost(store), language);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = articleComment.CustomerId });
         if (customer != null && await _groupService.IsRegistered(customer))
-            builder.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder.AddCustomerTokens(customer, store, StoreHost(store), language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1472,7 +1479,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddNewsCommentTokens(newsItem, newsComment, store, CurrentHost, language);
+            .AddNewsCommentTokens(newsItem, newsComment, store, StoreHost(store), language);
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = newsComment.CustomerId });
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
@@ -1513,7 +1520,7 @@ public class MessageProviderService : IMessageProviderService
         builder.AddStoreTokens(store, language, emailAccount);
         AddCustomerTokensIfNotNull(builder, customer, store, language);
 
-        builder.AddOutOfStockTokens(product, subscription, store, CurrentHost, language);
+        builder.AddOutOfStockTokens(product, subscription, store, StoreHost(store), language);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1570,7 +1577,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language);
+            .AddCustomerTokens(customer, store, StoreHost(store), language);
 
         var liquidObject = await builder.BuildAsync();
         liquidObject.ContactUs = new LiquidContactUs(senderEmail, senderName, body, attrInfo);
@@ -1649,7 +1656,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
-            .AddCustomerTokens(customer, store, CurrentHost, language);
+            .AddCustomerTokens(customer, store, StoreHost(store), language);
         var liquidObject = await builder.BuildAsync();
         liquidObject.ContactUs = new LiquidContactUs(senderEmail, senderName, body, "");
         //event notification
@@ -1703,8 +1710,8 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
-            .AddProductTokens(product, language, store, CurrentHost)
+            .AddCustomerTokens(customer, store, StoreHost(store), language)
+            .AddProductTokens(product, language, store, StoreHost(store))
             .AddStoreTokens(store, language, emailAccount);
 
         var liquidObject = await builder.BuildAsync();
@@ -1738,7 +1745,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
-            .AddProductTokens(product, language, store, CurrentHost)
+            .AddProductTokens(product, language, store, StoreHost(store))
             .AddStoreTokens(store, language, emailAccount);
         var liquidObject = await builder.BuildAsync();
 
@@ -1750,7 +1757,7 @@ public class MessageProviderService : IMessageProviderService
             var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = item.Key });
             if (string.IsNullOrEmpty(languageId))
                 languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
-            builder2.AddCustomerTokens(customer, store, CurrentHost, language);
+            builder2.AddCustomerTokens(customer, store, StoreHost(store), language);
             var liquidObject2 = await builder2.BuildAsync();
 
             //event notification
@@ -1782,7 +1789,7 @@ public class MessageProviderService : IMessageProviderService
         var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
-        builder.AddProductTokens(product, language, store, CurrentHost)
+        builder.AddProductTokens(product, language, store, StoreHost(store))
             .AddStoreTokens(store, language, emailAccount);
 
         var liquidObject = await builder.BuildAsync();
@@ -1838,7 +1845,7 @@ public class MessageProviderService : IMessageProviderService
 
             emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
             builder.AddAuctionTokens(product, bid)
-                .AddCustomerTokens(customer, store, CurrentHost, language)
+                .AddCustomerTokens(customer, store, StoreHost(store), language)
                 .AddStoreTokens(store, language, emailAccount);
         }
         else
@@ -1850,7 +1857,7 @@ public class MessageProviderService : IMessageProviderService
                 return 0;
 
             emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
-            builder.AddProductTokens(product, language, store, CurrentHost);
+            builder.AddProductTokens(product, language, store, StoreHost(store));
         }
 
         var liquidObject = await builder.BuildAsync();
@@ -1892,7 +1899,7 @@ public class MessageProviderService : IMessageProviderService
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
-            .AddCustomerTokens(customer, store, CurrentHost, language)
+            .AddCustomerTokens(customer, store, StoreHost(store), language)
             .AddStoreTokens(store, language, emailAccount);
 
         var liquidObject = await builder.BuildAsync();
