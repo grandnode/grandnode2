@@ -392,7 +392,9 @@ public class ShoppingCartService : IShoppingCartService
     /// </summary>
     /// <param name="fromCustomer">From customer</param>
     /// <param name="toCustomer">To customer</param>
-    /// <param name="storeId">Store whose selected checkout attributes move along</param>
+    /// <param name="storeId">
+    ///     Store whose selected checkout attributes move along, when the source customer has selected any there
+    /// </param>
     /// <param name="includeCouponCodes">
     ///     A value indicating whether to coupon codes (discount and gift voucher) should be also
     ///     re-applied
@@ -440,10 +442,13 @@ public class ShoppingCartService : IShoppingCartService
             await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultGift);
         }
 
-        //move selected checkout attributes
+        //move selected checkout attributes; the source customer's selection is the most recent one,
+        //but when it has none, the target keeps its own, so logging in from a fresh browser
+        //does not clear a choice saved on the account
         var checkoutAttributes = fromCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, storeId);
-        await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.CheckoutAttributes, checkoutAttributes,
-            storeId);
+        if (checkoutAttributes is { Count: > 0 })
+            await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.CheckoutAttributes, checkoutAttributes,
+                storeId);
     }
 
     #endregion

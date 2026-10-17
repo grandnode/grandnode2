@@ -11,9 +11,11 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Infrastructure.TypeConverters;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.ComponentModel;
 
 namespace Grand.Business.Checkout.Tests.Services.Orders;
 
@@ -26,6 +28,13 @@ public class ShoppingCartServiceTests
     private ShoppingCartService _shoppingCartService;
     private ShoppingCartSettings _shoppingCartSettings;
     private Mock<IShoppingCartValidator> _shoppingCartValidatorMock;
+
+    [ClassInitialize]
+    public static void InitClass(TestContext context)
+    {
+        //user fields are stored as strings; the converters read them back as typed values
+        new WebTypeConverter().Register();
+    }
 
     [TestInitialize]
     public void Init()
@@ -283,6 +292,7 @@ public class ShoppingCartServiceTests
     {
         //Arrange
         var fromCustomer = new Customer();
+        AddCheckoutAttributes(fromCustomer, "store-b", "gift-wrapping", "yes");
         var toCustomer = new Customer();
 
         //Act
@@ -290,6 +300,68 @@ public class ShoppingCartServiceTests
 
         //Assert
         _customerServiceMock.Verify(x => x.UpdateUserField(toCustomer, SystemCustomerFieldNames.CheckoutAttributes,
-            It.IsAny<List<CustomAttribute>>(), "store-b"), Times.Once);
+            It.Is<List<CustomAttribute>>(a => a.Count == 1 && a[0].Key == "gift-wrapping" && a[0].Value == "yes"),
+            "store-b"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MigrateShoppingCart_GuestWithoutCheckoutAttributes_KeepsTheAccountAttributes()
+    {
+        //Arrange
+        var guest = new Customer();
+        var customer = new Customer();
+        AddCheckoutAttributes(customer, "store", "gift-wrapping", "yes");
+
+        //Act
+        await _shoppingCartService.MigrateShoppingCart(guest, customer, "store", false);
+
+        //Assert
+        _customerServiceMock.Verify(x => x.UpdateUserField(It.IsAny<Customer>(),
+            SystemCustomerFieldNames.CheckoutAttributes, It.IsAny<List<CustomAttribute>>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MigrateShoppingCart_GuestWithCheckoutAttributes_ReplacesTheAccountAttributes()
+    {
+        //Arrange
+        var guest = new Customer();
+        AddCheckoutAttributes(guest, "store", "gift-wrapping", "no");
+        var customer = new Customer();
+        AddCheckoutAttributes(customer, "store", "gift-wrapping", "yes");
+
+        //Act
+        await _shoppingCartService.MigrateShoppingCart(guest, customer, "store", false);
+
+        //Assert
+        _customerServiceMock.Verify(x => x.UpdateUserField(customer, SystemCustomerFieldNames.CheckoutAttributes,
+            It.Is<List<CustomAttribute>>(a => a.Count == 1 && a[0].Value == "no"), "store"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MigrateShoppingCart_AccountWithAttributesInAnotherStore_TakesTheGuestAttributes()
+    {
+        //Arrange
+        var guest = new Customer();
+        AddCheckoutAttributes(guest, "store-b", "gift-wrapping", "yes");
+        var customer = new Customer();
+        AddCheckoutAttributes(customer, "store-a", "gift-wrapping", "no");
+
+        //Act
+        await _shoppingCartService.MigrateShoppingCart(guest, customer, "store-b", false);
+
+        //Assert
+        _customerServiceMock.Verify(x => x.UpdateUserField(customer, SystemCustomerFieldNames.CheckoutAttributes,
+            It.Is<List<CustomAttribute>>(a => a.Count == 1 && a[0].Value == "yes"), "store-b"), Times.Once);
+    }
+
+    private static void AddCheckoutAttributes(Customer customer, string storeId, string key, string value)
+    {
+        customer.UserFields.Add(new UserField {
+            Key = SystemCustomerFieldNames.CheckoutAttributes,
+            Value = TypeDescriptor.GetConverter(typeof(List<CustomAttribute>))
+                .ConvertToInvariantString(new List<CustomAttribute> { new() { Key = key, Value = value } }),
+            StoreId = storeId
+        });
     }
 }
