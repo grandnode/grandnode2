@@ -35,10 +35,20 @@ public class McExchangeRateProvider : IExchangeRateProvider
     ///     Gets currency live rates
     /// </summary>
     /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
+    /// <returns>Exchange rates</returns>
+    public Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode)
+    {
+        return GetCurrencyLiveRates(exchangeRateCurrencyCode, CancellationToken.None);
+    }
+
+    /// <summary>
+    ///     Gets currency live rates
+    /// </summary>
+    /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
     /// <param name="cancellationToken">Cancels the outbound request</param>
     /// <returns>Exchange rates</returns>
     public Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(exchangeRateCurrencyCode))
             throw new ArgumentNullException(nameof(exchangeRateCurrencyCode));

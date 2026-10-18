@@ -1,6 +1,7 @@
 using Grand.Domain.Common;
 using Grand.Web.Common.Security.Captcha;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Net;
@@ -21,7 +22,7 @@ public class GoogleReCaptchaValidatorTests
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.Setup(x => x.HttpContext).Returns(new DefaultHttpContext());
         return new GoogleReCaptchaValidator(new CaptchaSettings { ReCaptchaPrivateKey = "secret" }, accessor.Object,
-            new HttpClient(handler));
+            new HttpClient(handler), NullLogger<GoogleReCaptchaValidator>.Instance);
     }
 
     [TestMethod]
@@ -36,9 +37,10 @@ public class GoogleReCaptchaValidatorTests
         Assert.IsTrue(result.Success);
     }
 
-    //the visitor left: the call to Google stops instead of holding the request until the client timeout
+    //the visitor left: the call to Google stops instead of holding the request until the client timeout,
+    //and the cancellation reaches the caller instead of passing for a failed captcha
     [TestMethod]
-    public async Task Validate_Cancelled_FailsWithoutWaitingForGoogle()
+    public async Task Validate_Cancelled_StopsWaitingForGoogle()
     {
         var validator = Validator(new StubHandler(async ct => {
             await Task.Delay(Timeout.Infinite, ct);
@@ -46,8 +48,20 @@ public class GoogleReCaptchaValidatorTests
         }));
         using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
 
-        var result = await validator.Validate("token", cts.Token).WaitAsync(TimeSpan.FromSeconds(10));
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            validator.Validate("token", cts.Token).WaitAsync(TimeSpan.FromSeconds(10)));
+    }
+
+    //Google timed out: the visitor gets a plain failure, not the exception text
+    [TestMethod]
+    public async Task Validate_GoogleTimesOut_FailsWithoutExceptionDetails()
+    {
+        var validator = Validator(new StubHandler(_ =>
+            throw new TaskCanceledException("The request was canceled due to the configured HttpClient.Timeout")));
+
+        var result = await validator.Validate("token");
 
         Assert.IsFalse(result.Success);
+        Assert.AreEqual("Unknown error", result.ErrorCodes.Single());
     }
 }

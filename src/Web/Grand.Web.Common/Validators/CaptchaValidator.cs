@@ -19,14 +19,15 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
         _contextAccessor = contextAccessor;
         _googleReCaptchaValidator = googleReCaptchaValidator;
 
-        RuleFor(x => x).CustomAsync(async (x, context, _) =>
+        RuleFor(x => x).CustomAsync(async (x, context, cancellationToken) =>
         {
-            var result = await ValidateCaptcha(x);
+            var result = await ValidateCaptcha(x, cancellationToken);
             if (!result.isValid) context.AddFailure(result.error);
         });
     }
 
-    private async Task<(bool isValid, string error)> ValidateCaptcha(ICaptchaValidModel captcha)
+    private async Task<(bool isValid, string error)> ValidateCaptcha(ICaptchaValidModel captcha,
+        CancellationToken cancellationToken)
     {
         var isValid = false;
         string captchaChallengeValue;
@@ -42,7 +43,7 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
         }
         else
         {
-            var form = await _contextAccessor.HttpContext!.Request.ReadFormAsync();
+            var form = await _contextAccessor.HttpContext!.Request.ReadFormAsync(cancellationToken);
             captchaChallengeValue = form[ChallengeFieldKey];
             captchaResponseValue = form[ResponseFieldKey];
             gCaptchaResponseValue = string.Empty;
@@ -61,7 +62,7 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
         var recaptchaResponse = await _googleReCaptchaValidator.Validate(
             !StringValues.IsNullOrEmpty(captchaResponseValue)
                 ? captchaResponseValue
-                : gCaptchaResponseValue, _contextAccessor.HttpContext!.RequestAborted);
+                : gCaptchaResponseValue, cancellationToken);
         isValid = recaptchaResponse.Success;
 
         return isValid ? (true, string.Empty) : (false, string.Join(',', recaptchaResponse.ErrorCodes));

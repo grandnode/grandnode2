@@ -79,7 +79,7 @@ public class CurrencyController : BaseAdminController
                 ViewBag.Rates = await _exchangeRateService.GetCurrencyLiveRates(primaryExchangeCurrency.CurrencyCode,
                     HttpContext.RequestAborted);
             }
-            catch (Exception exc)
+            catch (Exception exc) when (!IsRequestAborted(exc))
             {
                 Error(exc, false);
             }

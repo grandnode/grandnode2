@@ -13,6 +13,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications;
 public class PushNotificationsService : IPushNotificationsService
 {
     private const string FcmUrl = "https://fcm.googleapis.com/fcm/send";
+    private const int MaxRegistrationIdsPerRequest = 1000;
     private readonly HttpClient _httpClient;
     private readonly ILogger<PushNotificationsService> _logger;
     private readonly IMediator _mediator;
@@ -146,8 +147,7 @@ public class PushNotificationsService : IPushNotificationsService
     public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl,
         string clickUrl, List<string> registrationIds = null, CancellationToken cancellationToken = default)
     {
-        var ids = new List<string>();
-
+        List<string> ids;
         if (registrationIds != null && registrationIds.Any())
         {
             ids = registrationIds;
@@ -156,20 +156,46 @@ public class PushNotificationsService : IPushNotificationsService
         {
             var receivers = await GetAllowedPushReceivers();
             if (!receivers.Any()) return (false, "Admin.PushNotifications.Error.NoReceivers");
-
-            const int batchSize = 1000;
-            for (var batch = 0;
-                 batch <= Math.Round((double)(receivers.Count / batchSize), 0, MidpointRounding.ToEven);
-                 batch++)
-            {
-                var t = receivers.Skip(batch * batchSize).Take(batchSize);
-                foreach (var receiver in receivers.Where(receiver => !ids.Contains(receiver.Token)))
-                    ids.Add(receiver.Token);
-            }
+            ids = receivers.Select(x => x.Token).Distinct().ToList();
         }
 
+        var numberOfReceivers = 0;
+        try
+        {
+            //the push service accepts at most 1000 registration ids per request
+            foreach (var batch in ids.Chunk(MaxRegistrationIdsPerRequest))
+            {
+                var (success, result, delivered) =
+                    await SendBatch(title, text, pictureUrl, clickUrl, batch, cancellationToken);
+                if (!success) return (false, result);
+                numberOfReceivers += delivered;
+            }
+
+            return (true, "Admin.PushNotifications.MessageSent");
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "Error occured while sending push notification");
+            return (false, ex.Message);
+        }
+        finally
+        {
+            //record what was delivered, also when a later batch failed or the caller cancelled
+            if (numberOfReceivers > 0)
+                await InsertPushMessage(new PushMessage {
+                    NumberOfReceivers = numberOfReceivers,
+                    SentOn = DateTime.UtcNow,
+                    Text = text,
+                    Title = title
+                });
+        }
+    }
+
+    private async Task<(bool success, string result, int delivered)> SendBatch(string title, string text,
+        string pictureUrl, string clickUrl, string[] registrationIds, CancellationToken cancellationToken)
+    {
         var data = new {
-            registration_ids = ids,
+            registration_ids = registrationIds,
             notification = new {
                 body = text,
                 title,
@@ -179,38 +205,24 @@ public class PushNotificationsService : IPushNotificationsService
         };
 
         var json = JsonSerializer.Serialize(data);
-        try
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, FcmUrl);
+        httpRequest.Headers.Add("Authorization", $"key = {_pushNotificationsSettings.PrivateApiKey}");
+        httpRequest.Headers.Add("Sender", $"id = {_pushNotificationsSettings.SenderId}");
+
+        httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+        var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (!response.IsSuccessStatusCode)
         {
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, FcmUrl);
-            httpRequest.Headers.Add("Authorization", $"key = {_pushNotificationsSettings.PrivateApiKey}");
-            httpRequest.Headers.Add("Sender", $"id = {_pushNotificationsSettings.SenderId}");
-
-            httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
-            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogError("Error occured while sending push notification {ResponseString}", responseString);
-                return (false, responseString);
-            }
-
-            var responseMessage = JsonSerializer.Deserialize<JsonResponse>(responseString);
-            if (responseMessage == null) return (false, "PushNotifications.ResponseMessage.Empty");
-
-            await InsertPushMessage(new PushMessage {
-                NumberOfReceivers = responseMessage.success,
-                SentOn = DateTime.UtcNow,
-                Text = text,
-                Title = title
-            });
-
-            return (true, "Admin.PushNotifications.MessageSent");
+            _logger.LogError("Error occured while sending push notification {ResponseString}", responseString);
+            return (false, responseString, 0);
         }
-        catch (Exception ex)
-        {
-            return (false, ex.Message);
-        }
+
+        var responseMessage = JsonSerializer.Deserialize<JsonResponse>(responseString);
+        return responseMessage == null
+            ? (false, "PushNotifications.ResponseMessage.Empty", 0)
+            : (true, string.Empty, responseMessage.success);
     }
 
     /// <summary>
@@ -226,8 +238,10 @@ public class PushNotificationsService : IPushNotificationsService
     public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl,
         string customerId, string clickUrl, CancellationToken cancellationToken = default)
     {
-        return await SendPushNotification(title, text, pictureUrl, clickUrl,
-            [GetPushReceiverByCustomerId(customerId).Id.ToString()], cancellationToken);
+        var receiver = await GetPushReceiverByCustomerId(customerId);
+        if (receiver == null) return (false, "Admin.PushNotifications.Error.NoReceivers");
+
+        return await SendPushNotification(title, text, pictureUrl, clickUrl, [receiver.Token], cancellationToken);
     }
 
     /// <summary>

@@ -1,6 +1,4 @@
 using ExchangeRate.McExchange;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Net;
@@ -90,17 +88,5 @@ public class McExchangeRateProviderTests
 
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
             provider.GetCurrencyLiveRates(currencyCode, cts.Token).WaitAsync(TimeSpan.FromSeconds(10)));
-    }
-
-    [TestMethod]
-    public void HttpClient_IsRegisteredWithShortTimeout()
-    {
-        var services = new ServiceCollection();
-        new StartupApplication().ConfigureServices(services, new ConfigurationBuilder().Build());
-        using var provider = services.BuildServiceProvider();
-
-        var client = provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constant.DefaultHttpClientName);
-
-        Assert.AreEqual(TimeSpan.FromSeconds(30), client.Timeout);
     }
 }

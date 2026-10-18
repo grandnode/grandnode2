@@ -53,8 +53,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<INewsletterCategoryService, NewsletterCategoryService>();
         serviceCollection.AddScoped<ICampaignService, CampaignService>();
 
-        serviceCollection.AddHttpClient<IPushNotificationsService, PushNotificationsService>(client =>
-            client.Timeout = TimeSpan.FromSeconds(30));
+        serviceCollection.AddHttpClient<IPushNotificationsService, PushNotificationsService>();
     }
 
     private static void RegisterCoursesService(IServiceCollection serviceCollection)

@@ -19,10 +19,10 @@ public class CaptchaValidatorTests
     }
 
     [TestMethod]
-    public async Task Validate_PassesRequestAbortedToGoogle()
+    public async Task Validate_PassesValidationTokenToGoogle()
     {
         using var aborted = new CancellationTokenSource();
-        var httpContext = new DefaultHttpContext { RequestAborted = aborted.Token };
+        var httpContext = new DefaultHttpContext();
         httpContext.Request.ContentType = "application/json";
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.Setup(x => x.HttpContext).Returns(httpContext);
@@ -31,7 +31,7 @@ public class CaptchaValidatorTests
             .ReturnsAsync(new GoogleReCaptchaResponse { Success = true });
         var validator = new CaptchaValidator([], accessor.Object, google.Object);
 
-        var result = await validator.ValidateAsync(new CaptchaModel { ReCaptchaResponse = "token" });
+        var result = await validator.ValidateAsync(new CaptchaModel { ReCaptchaResponse = "token" }, aborted.Token);
 
         Assert.IsTrue(result.IsValid);
         google.Verify(x => x.Validate("token", aborted.Token), Times.Once);

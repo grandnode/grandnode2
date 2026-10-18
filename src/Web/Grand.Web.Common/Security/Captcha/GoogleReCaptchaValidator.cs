@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Captcha;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Grand.Web.Common.Security.Captcha;
@@ -14,14 +15,17 @@ public class GoogleReCaptchaValidator : IGoogleReCaptchaValidator
     private readonly CaptchaSettings _captchaSettings;
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<GoogleReCaptchaValidator> _logger;
 
     public GoogleReCaptchaValidator(CaptchaSettings captchaSettings,
         IHttpContextAccessor httpContextAccessor,
-        HttpClient httpClient)
+        HttpClient httpClient,
+        ILogger<GoogleReCaptchaValidator> logger)
     {
         _captchaSettings = captchaSettings;
         _httpContextAccessor = httpContextAccessor;
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<GoogleReCaptchaResponse> Validate(string response,
@@ -34,15 +38,17 @@ public class GoogleReCaptchaValidator : IGoogleReCaptchaValidator
 
         try
         {
-            var responseMessage = await _httpClient.GetAsync(requestUri, cancellationToken);
+            using var responseMessage = await _httpClient.GetAsync(requestUri, cancellationToken);
             responseMessage.EnsureSuccessStatusCode();
             var contentResult = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
             result = ParseResponseResult(contentResult);
         }
-        catch (Exception exc)
+        catch (Exception exc) when (exc is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
+            //Google failed or timed out: keep the details in the log, not in the visitor's validation message
+            _logger.LogWarning(exc, "reCAPTCHA verification failed");
             result = new GoogleReCaptchaResponse { Success = false };
-            result.ErrorCodes.Add("Unknown error" + exc.Message);
+            result.ErrorCodes.Add("Unknown error");
         }
 
         return result;
