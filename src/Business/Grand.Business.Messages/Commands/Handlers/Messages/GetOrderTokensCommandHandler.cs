@@ -129,10 +129,7 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
             await _addressAttributeParser.FormatAttributes(language, request.Order.ShippingAddress?.Attributes);
 
         var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(request.Order.PaymentMethodSystemName);
-        liquidOrder.PaymentMethod =
-            paymentMethod != null
-                ? paymentMethod.GetFriendlyName(request.Order.CustomerLanguageId)
-                : request.Order.PaymentMethodSystemName;
+        liquidOrder.PaymentMethod = paymentMethod.GetPaymentMethodName(request.Order);
 
         var dict = new Dictionary<string, string>();
         foreach (var item in request.Order.OrderTaxes)

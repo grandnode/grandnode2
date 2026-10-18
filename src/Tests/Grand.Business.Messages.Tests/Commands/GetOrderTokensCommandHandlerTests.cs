@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Commands.Messages.Tokens;
+using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
