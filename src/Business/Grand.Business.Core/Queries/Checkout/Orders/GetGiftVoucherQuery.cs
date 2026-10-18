@@ -1,9 +1,10 @@
-﻿using Grand.Domain.Orders;
+﻿using Grand.Domain;
+using Grand.Domain.Orders;
 using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Checkout.Orders;
 
-public class GetGiftVoucherQuery : IRequest<IQueryable<GiftVoucher>>
+public class GetGiftVoucherQuery : IRequest<IPagedList<GiftVoucher>>
 {
     public string GiftVoucherId { get; set; } = "";
     public string StoreId { get; set; } = "";

@@ -1,12 +1,13 @@
 ﻿using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Payments;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
 
 public class
-    GetPaymentTransactionQueryHandler : IRequestHandler<GetPaymentTransactionQuery, IQueryable<PaymentTransaction>>
+    GetPaymentTransactionQueryHandler : IRequestHandler<GetPaymentTransactionQuery, IPagedList<PaymentTransaction>>
 {
     private readonly IRepository<PaymentTransaction> _paymentTransactionRepository;
 
@@ -15,7 +16,7 @@ public class
         _paymentTransactionRepository = paymentTransactionRepository;
     }
 
-    public Task<IQueryable<PaymentTransaction>> Handle(GetPaymentTransactionQuery request,
+    public async Task<IPagedList<PaymentTransaction>> Handle(GetPaymentTransactionQuery request,
         CancellationToken cancellationToken)
     {
         var query = from p in _paymentTransactionRepository.Table
@@ -41,6 +42,6 @@ public class
 
         query = query.OrderByDescending(rr => rr.CreatedOnUtc);
 
-        return Task.FromResult(query);
+        return await _paymentTransactionRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
     }
 }

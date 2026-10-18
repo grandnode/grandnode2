@@ -31,6 +31,19 @@ public class GetCustomerQueryHandlerTests
         var result = await handler.Handle(customerQuery, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(4, result.Count());
+        Assert.AreEqual(4, result.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_PageSizeTwo_ReturnsFirstPageAndTotal()
+    {
+        //Act
+        var result = await handler.Handle(new GetCustomerQuery { PageIndex = 0, PageSize = 2 },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(2, result.Count);
+        Assert.AreEqual(4, result.TotalCount);
+        Assert.AreEqual(2, result.TotalPages);
     }
 }

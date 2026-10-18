@@ -35,10 +35,8 @@ public class MerchandiseReturnServiceTests
 
         _mediatorMock = new Mock<IMediator>();
 
-        var query = from p in _repository.Table
-            select p;
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetMerchandiseReturnQuery>(), default))
-            .Returns(Task.FromResult(query));
+            .Returns(() => _repository.PagedAsync(_repository.Table, 0, int.MaxValue));
 
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });

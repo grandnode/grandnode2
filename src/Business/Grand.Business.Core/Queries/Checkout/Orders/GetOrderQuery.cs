@@ -1,11 +1,12 @@
-﻿using Grand.Domain.Orders;
+﻿using Grand.Domain;
+using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Checkout.Orders;
 
-public class GetOrderQuery : IRequest<IQueryable<Order>>
+public class GetOrderQuery : IRequest<IPagedList<Order>>
 {
     public string OrderId { get; set; } = "";
     public string StoreId { get; set; } = "";

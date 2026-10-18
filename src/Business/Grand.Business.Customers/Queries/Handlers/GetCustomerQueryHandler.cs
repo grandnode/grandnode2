@@ -1,12 +1,13 @@
 ﻿using Grand.Business.Core.Queries.Customers;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Mediator;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Customers.Queries.Handlers;
 
-public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IQueryable<Customer>>
+public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IPagedList<Customer>>
 {
     private readonly IRepository<Customer> _customerRepository;
 
@@ -15,7 +16,7 @@ public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IQuerya
         _customerRepository = customerRepository;
     }
 
-    public Task<IQueryable<Customer>> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
+    public async Task<IPagedList<Customer>> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
     {
         var query = from p in _customerRepository.Table
             select p;
@@ -87,7 +88,7 @@ public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IQuerya
             query = OrderingHelper(query, propName);
         }
 
-        return Task.FromResult(query);
+        return await _customerRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
     }
 
     private static string GetName(Expression<Func<Customer, object>> exp)

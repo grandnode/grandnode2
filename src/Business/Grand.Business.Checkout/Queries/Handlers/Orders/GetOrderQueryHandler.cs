@@ -1,11 +1,12 @@
 ﻿using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
 
-public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IQueryable<Order>>
+public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IPagedList<Order>>
 {
     private readonly IRepository<Order> _orderRepository;
 
@@ -14,7 +15,7 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IQueryable<Or
         _orderRepository = orderRepository;
     }
 
-    public Task<IQueryable<Order>> Handle(GetOrderQuery request, CancellationToken cancellationToken)
+    public async Task<IPagedList<Order>> Handle(GetOrderQuery request, CancellationToken cancellationToken)
     {
         var query = from p in _orderRepository.Table
             select p;
@@ -29,9 +30,6 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IQueryable<Or
             query = query
                 .Where(o => o.OrderItems
                     .Any(orderItem => orderItem.VendorId == request.VendorId));
-
-        if (!string.IsNullOrEmpty(request.CustomerId))
-            query = query.Where(o => o.CustomerId == request.CustomerId);
 
         if (!string.IsNullOrEmpty(request.CustomerId))
             query = query.Where(o => o.CustomerId == request.CustomerId);
@@ -97,6 +95,6 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IQueryable<Or
         query = query.Where(o => !o.Deleted);
         query = query.OrderByDescending(o => o.CreatedOnUtc);
 
-        return Task.FromResult(query);
+        return await _orderRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
     }
 }

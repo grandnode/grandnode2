@@ -1,12 +1,13 @@
 ﻿using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
 
 public class
-    GetMerchandiseReturnQueryHandler : IRequestHandler<GetMerchandiseReturnQuery, IQueryable<MerchandiseReturn>>
+    GetMerchandiseReturnQueryHandler : IRequestHandler<GetMerchandiseReturnQuery, IPagedList<MerchandiseReturn>>
 {
     private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
 
@@ -15,7 +16,7 @@ public class
         _merchandiseReturnRepository = merchandiseReturnRepository;
     }
 
-    public Task<IQueryable<MerchandiseReturn>> Handle(GetMerchandiseReturnQuery request,
+    public async Task<IPagedList<MerchandiseReturn>> Handle(GetMerchandiseReturnQuery request,
         CancellationToken cancellationToken)
     {
         var query = from p in _merchandiseReturnRepository.Table
@@ -50,6 +51,6 @@ public class
 
         query = query.OrderByDescending(rr => rr.CreatedOnUtc);
 
-        return Task.FromResult(query);
+        return await _merchandiseReturnRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
     }
 }

@@ -1,11 +1,12 @@
 ﻿using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
 
-public class GetGiftVoucherQueryHandler : IRequestHandler<GetGiftVoucherQuery, IQueryable<GiftVoucher>>
+public class GetGiftVoucherQueryHandler : IRequestHandler<GetGiftVoucherQuery, IPagedList<GiftVoucher>>
 {
     private readonly IRepository<GiftVoucher> _giftVoucherRepository;
 
@@ -14,7 +15,7 @@ public class GetGiftVoucherQueryHandler : IRequestHandler<GetGiftVoucherQuery, I
         _giftVoucherRepository = giftVoucherRepository;
     }
 
-    public Task<IQueryable<GiftVoucher>> Handle(GetGiftVoucherQuery request, CancellationToken cancellationToken)
+    public async Task<IPagedList<GiftVoucher>> Handle(GetGiftVoucherQuery request, CancellationToken cancellationToken)
     {
         var query = from p in _giftVoucherRepository.Table
             select p;
@@ -41,6 +42,6 @@ public class GetGiftVoucherQueryHandler : IRequestHandler<GetGiftVoucherQuery, I
 
         query = query.OrderByDescending(gc => gc.CreatedOnUtc);
 
-        return Task.FromResult(query);
+        return await _giftVoucherRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
     }
 }
