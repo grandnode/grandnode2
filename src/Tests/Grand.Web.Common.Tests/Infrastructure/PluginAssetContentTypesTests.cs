@@ -13,9 +13,11 @@ public class PluginAssetContentTypesTests
     [DataRow("/Widgets.Slider/script.js", "text/javascript")]
     [DataRow("/Widgets.Slider/icon.svg", "image/svg+xml")]
     [DataRow("/Shipping.ShippingPoint/Docs/Terms.PDF", "application/pdf")]
-    public void Provider_ServesStaticAssets(string subpath, string expected)
+    public void Create_ServesStaticAssets(string subpath, string expected)
     {
-        Assert.IsTrue(PluginAssetContentTypes.Provider.TryGetContentType(subpath, out var contentType));
+        var provider = PluginAssetContentTypes.Create(null);
+
+        Assert.IsTrue(provider.TryGetContentType(subpath, out var contentType));
         Assert.AreEqual(expected, contentType);
     }
 
@@ -26,8 +28,33 @@ public class PluginAssetContentTypesTests
     [DataRow("/Payments.StripeCheckout/appsettings.xml")]
     [DataRow("/Payments.StripeCheckout/readme.txt")]
     [DataRow("/Payments.StripeCheckout/page.html")]
-    public void Provider_DoesNotServePluginInternals(string subpath)
+    [DataRow("/Payments.StripeCheckout/video.mp4")]
+    public void Create_DoesNotServePluginInternals(string subpath)
     {
-        Assert.IsFalse(PluginAssetContentTypes.Provider.TryGetContentType(subpath, out _));
+        Assert.IsFalse(PluginAssetContentTypes.Create(null).TryGetContentType(subpath, out _));
+    }
+
+    [TestMethod]
+    [DataRow("/Widgets.Video/intro.mp4", "video/mp4")]
+    [DataRow("/Widgets.Video/archive.zip", "application/x-zip-compressed")]
+    [DataRow("/Widgets.Video/data.custom", "application/octet-stream")]
+    public void Create_AdditionalExtensions_AreServed(string subpath, string expected)
+    {
+        var provider = PluginAssetContentTypes.Create([".mp4", "ZIP", " custom ", ""]);
+
+        Assert.IsTrue(provider.TryGetContentType(subpath, out var contentType));
+        Assert.AreEqual(expected, contentType);
+    }
+
+    [TestMethod]
+    [DataRow("/Payments.StripeCheckout/Payments.StripeCheckout.dll")]
+    [DataRow("/Payments.StripeCheckout/Payments.StripeCheckout.pdb")]
+    [DataRow("/Payments.StripeCheckout/tool.exe")]
+    [DataRow("/Payments.StripeCheckout/web.config")]
+    public void Create_AssembliesAndBuildFiles_AreNeverServed(string subpath)
+    {
+        var provider = PluginAssetContentTypes.Create([".dll", "pdb", ".EXE", ".config"]);
+
+        Assert.IsFalse(provider.TryGetContentType(subpath, out _));
     }
 }
