@@ -29,7 +29,7 @@ public class AffiliateDeleteValidator : BaseGrandValidator<AffiliateDeleteModel>
                 AffiliateId = affiliate.Id,
                 PageSize = 1
             };
-            var queryCustomer = (await mediator.Send(customers)).Count();
+            var queryCustomer = (await mediator.Send(customers)).TotalCount;
             if (queryCustomer > 0)
                 context.AddFailure("There are exist customers related with affiliate");
 
@@ -38,7 +38,7 @@ public class AffiliateDeleteValidator : BaseGrandValidator<AffiliateDeleteModel>
                 PageSize = 1
             };
 
-            var queryOrder = (await mediator.Send(orders)).Count();
+            var queryOrder = (await mediator.Send(orders)).TotalCount;
             if (queryOrder > 0)
                 context.AddFailure("There are exist orders related with affiliate");
         });

@@ -49,12 +49,12 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
                 context.AddFailure(translationService.GetResource("VendorReviews.OnlyRegisteredUsersCanWriteReviews"));
             //allow reviews only by customer that bought something from this vendor
             if (vendorSettings.VendorReviewPossibleOnlyAfterPurchasing &&
-                !(await mediator.Send(new GetOrderQuery {
+                (await mediator.Send(new GetOrderQuery {
                     CustomerId = contextAccessor.WorkContext.CurrentCustomer.Id,
                     VendorId = x.VendorId,
                     Os = (int)OrderStatusSystem.Complete,
                     PageSize = 1
-                }, _)).Any())
+                }, _)).TotalCount == 0)
                 context.AddFailure(
                     translationService.GetResource("VendorReviews.VendorReviewPossibleOnlyAfterPurchasing"));
 

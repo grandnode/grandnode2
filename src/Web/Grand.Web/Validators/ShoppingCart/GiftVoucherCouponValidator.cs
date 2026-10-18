@@ -28,7 +28,9 @@ public class GiftVoucherCouponValidator : BaseGrandValidator<GiftVoucherCouponMo
 
             var giftVoucher =
                 (await mediator.Send(
-                    new GetGiftVoucherQuery { Code = x.GiftVoucherCouponCode, IsGiftVoucherActivated = true }, _))
+                    new GetGiftVoucherQuery {
+                        Code = x.GiftVoucherCouponCode, IsGiftVoucherActivated = true, PageSize = 1
+                    }, _))
                 .FirstOrDefault();
             var isGiftVoucherValid = giftVoucher != null
                                      && giftVoucher.IsGiftVoucherValid(contextAccessor.WorkContext.WorkingCurrency,
