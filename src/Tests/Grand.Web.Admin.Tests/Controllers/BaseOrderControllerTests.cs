@@ -319,6 +319,22 @@ public class BaseOrderControllerTests
     }
 
     [TestMethod]
+    public async Task PdfInvoiceAll_PassesTheRequestAbortedToken()
+    {
+        var orders = new List<Order> { new() { Id = "o1" } };
+        _orderViewModelServiceMock.Setup(v => v.PrepareOrders(It.IsAny<OrderListModel>()))
+            .ReturnsAsync((IList<Order>)orders);
+        using var requestAborted = new CancellationTokenSource();
+        _controller.HttpContext.RequestAborted = requestAborted.Token;
+
+        await _controller.PdfInvoiceAll(new OrderListModel());
+
+        _pdfServiceMock.Verify(
+            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.IsAny<IList<Order>>(), It.IsAny<string>(),
+                It.IsAny<string>(), requestAborted.Token), Times.Once);
+    }
+
+    [TestMethod]
     public async Task PdfInvoiceSelected_ThreadsScopeDefaultVendorId()
     {
         // Direct regression guard for the final review C2 fix: PdfInvoiceSelected must pass

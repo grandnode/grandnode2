@@ -619,6 +619,24 @@ public class BaseShipmentControllerTests
     }
 
     [TestMethod]
+    public async Task PdfPackagingSlipSelected_PassesTheRequestAbortedToken()
+    {
+        var shipment = new Shipment { Id = "s1" };
+        _shipmentServiceMock
+            .Setup(s => s.GetShipmentsByIds(new[] { "s1" }))
+            .ReturnsAsync((IList<Shipment>)new List<Shipment> { shipment });
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+        using var requestAborted = new CancellationTokenSource();
+        _controller.HttpContext.RequestAborted = requestAborted.Token;
+
+        await _controller.PdfPackagingSlipSelected("s1");
+
+        _pdfServiceMock.Verify(
+            p => p.PrintPackagingSlipsToPdf(It.IsAny<Stream>(), It.IsAny<IList<Shipment>>(), It.IsAny<string>(),
+                requestAborted.Token), Times.Once);
+    }
+
+    [TestMethod]
     public async Task PdfPackagingSlipSelected_FiltersToAccessibleShipments()
     {
         var accessibleShipment = new Shipment { Id = "s1" };
