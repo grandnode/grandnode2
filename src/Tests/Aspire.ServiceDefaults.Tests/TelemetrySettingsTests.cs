@@ -100,35 +100,23 @@ public class TelemetrySettingsTests
     }
 
     [TestMethod]
-    public void Resolve_AzureMonitorEnvironmentVariable_WinsOverFileAndLegacy()
+    public void Resolve_AzureMonitorEnvironmentVariable_WinsOverFile()
     {
         var settings = Resolve(new() {
             ["APPLICATIONINSIGHTS_CONNECTION_STRING"] = "InstrumentationKey=env",
-            ["Telemetry:AzureMonitor:ConnectionString"] = "InstrumentationKey=file",
-            ["ApplicationInsights:ConnectionString"] = "InstrumentationKey=legacy"
+            ["Telemetry:AzureMonitor:ConnectionString"] = "InstrumentationKey=file"
         });
 
         Assert.AreEqual("InstrumentationKey=env", settings.AzureMonitorConnectionString);
     }
 
     [TestMethod]
-    public void Resolve_AzureMonitorInFile_WinsOverLegacy()
+    public void Resolve_OldApplicationInsightsKey_IsNotRead()
     {
-        var settings = Resolve(new() {
-            ["Telemetry:AzureMonitor:ConnectionString"] = "InstrumentationKey=file",
-            ["ApplicationInsights:ConnectionString"] = "InstrumentationKey=legacy"
-        });
+        var settings = Resolve(new() { ["ApplicationInsights:ConnectionString"] = "InstrumentationKey=old" });
 
-        Assert.AreEqual("InstrumentationKey=file", settings.AzureMonitorConnectionString);
-    }
-
-    [TestMethod]
-    public void Resolve_OnlyLegacyKey_IsStillUsed()
-    {
-        var settings = Resolve(new() { ["ApplicationInsights:ConnectionString"] = "InstrumentationKey=legacy" });
-
-        Assert.AreEqual("InstrumentationKey=legacy", settings.AzureMonitorConnectionString);
-        Assert.IsTrue(settings.HasAnySink);
+        Assert.IsNull(settings.AzureMonitorConnectionString);
+        Assert.IsFalse(settings.HasAnySink);
     }
 
     [TestMethod]

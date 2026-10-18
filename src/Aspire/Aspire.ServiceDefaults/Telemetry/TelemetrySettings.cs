@@ -9,8 +9,7 @@ namespace Aspire.ServiceDefaults.Telemetry;
 
 /// <summary>
 ///     The telemetry configuration the pipeline is built from: the "Telemetry" section merged with the standard
-///     environment variables, which win, and the legacy ApplicationInsights:ConnectionString key, which loses
-///     (still read in 2.5, removed in 2.6).
+///     environment variables, which win.
 /// </summary>
 public sealed record TelemetrySettings(
     bool Enabled,
@@ -27,8 +26,6 @@ public sealed record TelemetrySettings(
     string? TracesSamplerArg,
     IReadOnlyList<string> ExcludePaths)
 {
-    private const string LegacyAzureMonitorKey = "ApplicationInsights:ConnectionString";
-
     private static readonly string[] DefaultExcludePaths = ["/health", "/_content", "/bundles"];
 
     public bool HasAnySink => OtlpEndpoint is not null || AzureMonitorConnectionString is not null || Console;
@@ -56,8 +53,7 @@ public sealed record TelemetrySettings(
                 $"{TelemetryConfig.SectionName}:Otlp:Endpoint must be an absolute URI, was \"{otlpEndpoint}\".");
 
         var azureConnectionString = Value(configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])
-                                    ?? Value(config.AzureMonitor.ConnectionString)
-                                    ?? Value(configuration[LegacyAzureMonitorKey]);
+                                    ?? Value(config.AzureMonitor.ConnectionString);
 
         return new TelemetrySettings(
             config.Enabled,
