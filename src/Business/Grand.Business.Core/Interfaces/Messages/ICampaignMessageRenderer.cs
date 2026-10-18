@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Messages;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
@@ -29,5 +30,3 @@ public interface ICampaignMessageRenderer
         DomainHost host, Customer customer, Currency currency, TaxDisplayType taxDisplayType,
         NewsLetterSubscription subscription = null, string queuedEmailId = null);
 }
-
-public sealed record CampaignMessage(string Subject, string Body);

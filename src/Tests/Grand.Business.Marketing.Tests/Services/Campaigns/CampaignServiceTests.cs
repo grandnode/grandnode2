@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Messages;
 using Grand.Business.Marketing.Services.Campaigns;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
