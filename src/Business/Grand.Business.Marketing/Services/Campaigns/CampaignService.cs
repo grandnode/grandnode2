@@ -2,8 +2,6 @@
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Common;
@@ -26,7 +24,8 @@ public class CampaignService(
     IQueuedEmailService queuedEmailService,
     IStoreService storeService,
     IMediator mediator,
-    ILanguageService languageService)
+    ILanguageService languageService,
+    ICampaignMessageRenderer campaignMessageRenderer)
     : ICampaignService
 {
     /// <summary>
@@ -253,25 +252,13 @@ public class CampaignService(
             if (customer != null && (!customer.Active || customer.Deleted))
                 continue;
 
-            var builder = new LiquidObjectBuilder(mediator);
             var store = await storeService.GetStoreById(campaign.StoreId) ??
                         (await storeService.GetAllStores()).FirstOrDefault();
 
-            builder.AddStoreTokens(store, language, emailAccount)
-                .AddNewsLetterSubscriptionTokens(subscription, store, host);
-
-            if (customer != null)
-                builder.AddCustomerTokens(customer, store, host, language)
-                    .AddShoppingCartTokens(new CalculationContext(customer, store, currency, taxDisplayType),
-                        host, language);
-
             var email = new QueuedEmail();
 
-            var liquidObject = await builder.BuildAsync();
-            liquidObject.Email = new LiquidEmail(email.Id);
-
-            var body = LiquidExtensions.Render(liquidObject, campaign.Body);
-            var subject = LiquidExtensions.Render(liquidObject, campaign.Subject);
+            var (subject, body) = await campaignMessageRenderer.Render(campaign, store, language, emailAccount, host,
+                customer, currency, taxDisplayType, subscription, email.Id);
 
             email.PriorityId = QueuedEmailPriority.Low;
             email.From = emailAccount.Email;
@@ -316,17 +303,9 @@ public class CampaignService(
         var store = await storeService.GetStoreById(campaign.StoreId) ??
                     (await storeService.GetAllStores()).FirstOrDefault();
 
-        var builder = new LiquidObjectBuilder(mediator);
-        builder.AddStoreTokens(store, language, emailAccount);
         var customer = customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
-        if (customer != null)
-            builder.AddCustomerTokens(customer, store, host, language)
-                .AddShoppingCartTokens(new CalculationContext(customer, store, currency, taxDisplayType), host,
-                    language);
-
-        var liquidObject = await builder.BuildAsync();
-        var body = LiquidExtensions.Render(liquidObject, campaign.Body);
-        var subject = LiquidExtensions.Render(liquidObject, campaign.Subject);
+        var (subject, body) = await campaignMessageRenderer.Render(campaign, store, language, emailAccount, host,
+            customer, currency, taxDisplayType);
 
         await emailSender.SendEmail(emailAccount, subject, body, emailAccount.Email, emailAccount.DisplayName, email,
             null);

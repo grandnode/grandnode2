@@ -24,6 +24,7 @@ public class CampaignServiceTests
     private IRepository<Campaign> _campaignRepository;
     private CampaignService _campaignService;
     private IRepository<Customer> _customerRepository;
+    private Mock<ICampaignMessageRenderer> _campaignMessageRendererMock;
     private Mock<IEmailSender> _emailSenderMock;
     private Mock<ILanguageService> _languageServiceMock;
     private Mock<IMediator> _mediatorMock;
@@ -43,10 +44,15 @@ public class CampaignServiceTests
         _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
         _storeServiceMock = new Mock<IStoreService>();
         _languageServiceMock = new Mock<ILanguageService>();
+        _campaignMessageRendererMock = new Mock<ICampaignMessageRenderer>();
+        _campaignMessageRendererMock.Setup(x => x.Render(It.IsAny<Campaign>(), It.IsAny<Store>(), It.IsAny<Language>(),
+                It.IsAny<EmailAccount>(), It.IsAny<DomainHost>(), It.IsAny<Customer>(), It.IsAny<Currency>(),
+                It.IsAny<TaxDisplayType>(), It.IsAny<NewsLetterSubscription>(), It.IsAny<string>()))
+            .ReturnsAsync(new CampaignMessage("subject", "body"));
         _campaignService = new CampaignService(_campaignRepository, _campaignHistoryRepository,
             _newsLetterSubscriptionRepository, _customerRepository,
             _emailSenderMock.Object, _queuedEmailServiceMock.Object, _storeServiceMock.Object, _mediatorMock.Object,
-            _languageServiceMock.Object);
+            _languageServiceMock.Object, _campaignMessageRendererMock.Object);
     }
 
     [TestMethod]
@@ -188,7 +194,7 @@ public class CampaignServiceTests
 
         //Assert
         _emailSenderMock.Verify(
-            c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            c => c.SendEmail(It.IsAny<EmailAccount>(), "subject", "body", It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null, null, null, null, null, null, null),
             Times.Once);
     }
