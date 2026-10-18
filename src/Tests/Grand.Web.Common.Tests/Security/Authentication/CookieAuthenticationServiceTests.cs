@@ -1,11 +1,11 @@
-﻿using Grand.Business.Authentication.Services;
-using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,7 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
 
-namespace Grand.Business.Authentication.Tests.Services;
+namespace Grand.Web.Common.Tests.Security.Authentication;
 
 [TestClass]
 public class CookieAuthenticationServiceTests

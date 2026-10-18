@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Grand.Business.Core.Interfaces.Authentication;
+namespace Grand.Web.Common.Security.Authentication;
 
 // <summary>
 /// Interface for factory creating secure cookie options

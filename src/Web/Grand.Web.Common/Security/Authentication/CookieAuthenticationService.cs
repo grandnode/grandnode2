@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
-namespace Grand.Business.Authentication.Services;
+namespace Grand.Web.Common.Security.Authentication;
 
 /// <summary>
 ///     Represents service using cookie middleware for the authentication

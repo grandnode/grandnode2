@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Domain.Stores;
+﻿using Grand.Domain.Stores;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Themes;
 
 namespace Grand.Web.Admin.Infrastructure;

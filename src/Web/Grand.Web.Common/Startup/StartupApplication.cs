@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Data;
@@ -15,6 +16,7 @@ using Grand.Web.Common.Middleware;
 using Grand.Web.Common.Page;
 using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Routing;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.TagHelpers;
@@ -122,6 +124,9 @@ public class StartupApplication : IStartupApplication
 
         serviceCollection.AddScoped<IRequestTranslationService, RequestTranslationService>();
         serviceCollection.AddScoped<IRequestPermissionService, RequestPermissionService>();
+        serviceCollection.AddScoped<IGrandAuthenticationService, CookieAuthenticationService>();
+        serviceCollection.AddScoped<ICookieOptionsFactory, CookieOptionsFactory>();
+        serviceCollection.AddScoped<IApiAuthenticationService, ApiAuthenticationService>();
         serviceCollection.AddScoped<IEnumTranslationService, EnumTranslationService>();
         if (DataSettingsManager.DatabaseIsInstalled())
         {

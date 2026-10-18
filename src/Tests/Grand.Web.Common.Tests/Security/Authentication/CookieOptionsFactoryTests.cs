@@ -1,9 +1,9 @@
-﻿using Grand.Business.Authentication.Services;
-using Grand.Infrastructure.Configuration;
+﻿using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Authentication.Tests.Services;
+namespace Grand.Web.Common.Tests.Security.Authentication;
 
 [TestClass]
 public class CookieOptionsFactoryTests

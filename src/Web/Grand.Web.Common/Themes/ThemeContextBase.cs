@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Common.Themes;
