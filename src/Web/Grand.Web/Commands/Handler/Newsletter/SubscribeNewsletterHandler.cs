@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
@@ -8,6 +7,7 @@ using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Newsletter;
 using Grand.Web.Models.Newsletter;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Commands.Handler.Newsletter;
 
@@ -16,12 +16,12 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
     private readonly IMessageProviderService _messageProviderService;
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
 
     public SubscribeNewsletterHandler(INewsLetterSubscriptionService newsLetterSubscriptionService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMessageProviderService messageProviderService, IContextAccessor contextAccessor,
         INewsletterCategoryService newsletterCategoryService)
     {

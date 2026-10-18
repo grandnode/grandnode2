@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
@@ -12,6 +11,7 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -21,13 +21,13 @@ public class GetHomepageCategoryHandler : IRequestHandler<GetHomepageCategory, I
     private readonly ICategoryService _categoryService;
     private readonly MediaSettings _mediaSettings;
     private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetHomepageCategoryHandler(
         ICategoryService categoryService,
         ICacheBase cacheBase,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         MediaSettings mediaSettings)
     {
         _categoryService = categoryService;

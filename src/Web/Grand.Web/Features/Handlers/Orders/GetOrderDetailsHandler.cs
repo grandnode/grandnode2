@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Catalog;
@@ -44,7 +43,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     private readonly IProductService _productService;
     private readonly IShipmentService _shipmentService;
     private readonly TaxSettings _taxSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
     
     private Currency _orderCurrency;
@@ -52,7 +51,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     public GetOrderDetailsHandler(
         IDateTimeService dateTimeService,
         IProductService productService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IShipmentService shipmentService,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,

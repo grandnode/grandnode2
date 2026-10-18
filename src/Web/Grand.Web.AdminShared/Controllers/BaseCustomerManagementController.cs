@@ -3,7 +3,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
@@ -18,6 +17,7 @@ using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -35,7 +35,7 @@ public abstract class BaseCustomerManagementController(
     IAddressAttributeService addressAttributeService,
     IMessageProviderService messageProviderService,
     IGroupService groupService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
     IAdminDataScope<Customer> scope,

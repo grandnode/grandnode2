@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -10,11 +12,14 @@ public class SpecificationAttributeValidator : BaseGrandValidator<SpecificationA
 {
     public SpecificationAttributeValidator(
         IEnumerable<IValidatorConsumer<SpecificationAttributeDto>> validators,
-        ITranslationService translationService, ISpecificationAttributeService specificationAttributeService)
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, ISpecificationAttributeService specificationAttributeService)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x.Name).NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Catalog.SpecificationAttribute.Fields.Name.Required"));
+            .WithMessage(translationService.GetResource("Api.Catalog.SpecificationAttribute.Fields.Name.Required", languageId));
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             if (!string.IsNullOrEmpty(x.Id))
@@ -25,11 +30,11 @@ public class SpecificationAttributeValidator : BaseGrandValidator<SpecificationA
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.SpecificationAttribute.Fields.Id.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.SpecificationAttribute.Fields.Id.NotExists", languageId));
         RuleFor(x => x).Must((x, _) =>
         {
             return x.SpecificationAttributeOptions.All(item => !string.IsNullOrEmpty(item.Name));
         }).WithMessage(
-            translationService.GetResource("Api.Catalog.SpecificationAttributeOptions.Fields.Name.Required"));
+            translationService.GetResource("Api.Catalog.SpecificationAttributeOptions.Fields.Name.Required", languageId));
     }
 }

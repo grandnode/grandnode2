@@ -10,6 +10,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -18,7 +19,7 @@ public abstract class BaseDeliveryDateController(
     IDeliveryDateService deliveryDateService,
     ILanguageService languageService,
     IStoreService storeService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<DeliveryDate> scope) : BaseController
 {
     protected virtual async Task PrepareDeliveryDateModel(DeliveryDateModel model)

@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
@@ -45,7 +44,7 @@ public class GetInfoHandlerTests
         newsletterCategories.Setup(s => s.GetAllNewsletterCategory()).ReturnsAsync(new List<NewsletterCategory>());
 
         var handler = new GetInfoHandler(new Mock<INewsLetterSubscriptionService>().Object,
-            newsletterCategories.Object, new Mock<ITranslationService>().Object, new Mock<ICountryService>().Object,
+            newsletterCategories.Object, new Mock<IRequestTranslationService>().Object, new Mock<ICountryService>().Object,
             external.Object, mediator.Object,
             new CustomerSettings { AllowUsersToChangeEmail = true, TwoFactorAuthenticationEnabled = true },
             new TaxSettings(), new Mock<IEnumTranslationService>().Object, config);

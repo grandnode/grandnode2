@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Authentication;
@@ -21,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -63,7 +63,7 @@ public class AccountControllerExternalRegisterTests
         groups.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(false);
 
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object,
-            new Mock<ITranslationService>().Object, context.Object, new Mock<ICustomerService>().Object,
+            new Mock<IRequestTranslationService>().Object, context.Object, new Mock<ICustomerService>().Object,
             groups.Object, _manager.Object, new Mock<ICountryService>().Object, mediator.Object, _messages.Object,
             new CaptchaSettings(), _settings, new CustomerConfig());
         _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };

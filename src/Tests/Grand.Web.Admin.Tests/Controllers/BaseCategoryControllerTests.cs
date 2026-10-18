@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -31,7 +32,7 @@ public class BaseCategoryControllerTests
         ICategoryService categoryService,
         ICategoryViewModelService categoryViewModelService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPictureViewModelService pictureViewModelService,
         IProductService productService,
         IAdminDataScope<Category> scope)
@@ -41,7 +42,7 @@ public class BaseCategoryControllerTests
     private TestCategoryController _controller;
     private Mock<ICategoryService> _categoryServiceMock;
     private Mock<ICategoryViewModelService> _categoryViewModelServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Category>> _scopeMock;
 
     [TestInitialize]
@@ -52,7 +53,7 @@ public class BaseCategoryControllerTests
 
         _categoryServiceMock = new Mock<ICategoryService>();
         _categoryViewModelServiceMock = new Mock<ICategoryViewModelService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Category>>();

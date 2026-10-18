@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Permissions;
@@ -13,6 +12,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -23,13 +23,13 @@ public class NewsLetterSubscriptionController : BaseAdminController
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public NewsLetterSubscriptionController(INewsLetterSubscriptionService newsLetterSubscriptionService,
         INewsletterCategoryService newsletterCategoryService,
         IDateTimeService dateTimeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IContextAccessor contextAccessor)
     {

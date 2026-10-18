@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
@@ -13,6 +12,7 @@ using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Vendors;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Vendors;
 
@@ -25,7 +25,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
         IGroupService groupService, IContextAccessor contextAccessor, IVendorService vendorService,
         CaptchaSettings captchaSettings, VendorSettings vendorSettings,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.AddVendorReview.Title).NotEmpty()

@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
@@ -16,6 +15,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.InteropServices;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -30,7 +30,7 @@ public class SystemController : BaseAdminController
         IMeasureService measureService,
         IDateTimeService dateTimeService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IHostApplicationLifetime applicationLifetime,
         IWebHostEnvironment webHostEnvironment,
         ILogger<SystemController> logger,
@@ -64,7 +64,7 @@ public class SystemController : BaseAdminController
     private readonly IMeasureService _measureService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILogger<SystemController> _logger;

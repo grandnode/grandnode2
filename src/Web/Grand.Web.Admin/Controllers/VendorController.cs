@@ -11,6 +11,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -21,7 +22,7 @@ public class VendorController : BaseAdminController
 
     public VendorController(
         IVendorViewModelService vendorViewModelService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IVendorService vendorService,
         ILanguageService languageService,
         IMediator mediator)
@@ -68,7 +69,7 @@ public class VendorController : BaseAdminController
     #region Fields
 
     private readonly IVendorViewModelService _vendorViewModelService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly ILanguageService _languageService;
     private readonly IMediator _mediator;

@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -9,6 +8,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.ShoppingCart;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.ShoppingCart;
 
@@ -20,7 +20,7 @@ public class WishlistEmailAFriendValidator : BaseGrandValidator<WishlistEmailAFr
         IContextAccessor contextAccessor, IGroupService groupService,
         CaptchaSettings captchaSettings, ShoppingCartSettings shoppingCartSettings,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.FriendEmail).NotEmpty()

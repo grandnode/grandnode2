@@ -1,12 +1,12 @@
 using Authentication.OpenIdConnect.Models;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Authentication.OpenIdConnect.Areas.Admin.Controllers;
 
@@ -19,7 +19,7 @@ public class OidcLoginSettingsController : BaseAdminPluginController
         OidcLoginSettings oidcLoginSettings,
         OidcResourceServerConfig resourceServerConfig,
         OidcLoginConfig oidcLoginConfig,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPermissionService permissionService,
         ISettingService settingService)
     {
@@ -38,7 +38,7 @@ public class OidcLoginSettingsController : BaseAdminPluginController
     private readonly OidcLoginSettings _oidcLoginSettings;
     private readonly OidcResourceServerConfig _resourceServerConfig;
     private readonly OidcLoginConfig _oidcLoginConfig;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IPermissionService _permissionService;
     private readonly ISettingService _settingService;
 

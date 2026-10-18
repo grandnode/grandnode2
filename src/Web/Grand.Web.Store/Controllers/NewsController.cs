@@ -12,6 +12,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -23,7 +24,7 @@ public class NewsController(
     INewsViewModelService newsViewModelService,
     INewsService newsService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     IDateTimeService dateTimeService,
     IAdminDataScope<NewsItem> scope)

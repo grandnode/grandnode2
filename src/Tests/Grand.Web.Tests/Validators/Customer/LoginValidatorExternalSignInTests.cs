@@ -1,7 +1,6 @@
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
@@ -18,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Validators.Customers;
 
@@ -30,7 +30,7 @@ public class LoginValidatorExternalSignInTests
     private Mock<IGroupService> _groups;
     private Mock<IExternalSignInPolicy> _policy;
     private Mock<IExternalAuthenticationProvider> _provider;
-    private Mock<ITranslationService> _translation;
+    private Mock<IRequestTranslationService> _translation;
 
     [TestInitialize]
     public void Init()
@@ -49,7 +49,7 @@ public class LoginValidatorExternalSignInTests
                 It.IsAny<string>(), It.IsAny<HashedPasswordFormat>()))
             .Returns((string entered, PasswordFormat _, string stored, string _, HashedPasswordFormat _) =>
                 entered == stored);
-        _translation = new Mock<ITranslationService>();
+        _translation = new Mock<IRequestTranslationService>();
         _translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
         _translation.Setup(t => t.GetResource("Account.Login.WrongCredentials.ExternalSignInRequired"))
             .Returns("Sign in with {0}");

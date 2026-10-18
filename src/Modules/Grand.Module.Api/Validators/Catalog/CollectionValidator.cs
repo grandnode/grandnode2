@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -10,12 +12,15 @@ namespace Grand.Module.Api.Validators.Catalog;
 public class CollectionValidator : BaseGrandValidator<CollectionDto>
 {
     public CollectionValidator(IEnumerable<IValidatorConsumer<CollectionDto>> validators,
-        ITranslationService translationService, IPictureService pictureService, ICollectionService collectionService,
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, IPictureService pictureService, ICollectionService collectionService,
         ICollectionLayoutService collectionLayoutService)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x.Name).NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.Name.Required"));
+            .WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.Name.Required", languageId));
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             if (!string.IsNullOrEmpty(x.PictureId))
@@ -26,7 +31,7 @@ public class CollectionValidator : BaseGrandValidator<CollectionDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.PictureId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.PictureId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -38,7 +43,7 @@ public class CollectionValidator : BaseGrandValidator<CollectionDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.CollectionLayoutId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.CollectionLayoutId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -50,6 +55,6 @@ public class CollectionValidator : BaseGrandValidator<CollectionDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.Id.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.Id.NotExists", languageId));
     }
 }

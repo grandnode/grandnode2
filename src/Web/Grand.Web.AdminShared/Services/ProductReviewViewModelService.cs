@@ -2,7 +2,6 @@
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
@@ -13,6 +12,7 @@ using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.Extensions;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -24,7 +24,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
     private readonly IProductReviewService _productReviewService;
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public ProductReviewViewModelService(
         IProductService productService,
@@ -32,7 +32,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         ICustomerService customerService,
         IStoreService storeService,
         IDateTimeService dateTimeService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IMediator mediator)
     {
         _productService = productService;

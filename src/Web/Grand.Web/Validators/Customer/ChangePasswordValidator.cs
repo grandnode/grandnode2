@@ -1,12 +1,12 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Customer;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -17,7 +17,7 @@ public class ChangePasswordValidator : BaseGrandValidator<ChangePasswordModel>
         ICustomerService customerService, IContextAccessor contextAccessor, IGroupService groupService,
         IEncryptionService encryptionService, ICustomerHistoryPasswordService customerHistoryPasswordService,
         ICustomerManagerService customerManagerService,
-        ITranslationService translationService, CustomerSettings customerSettings)
+        IRequestTranslationService translationService, CustomerSettings customerSettings)
         : base(validators)
     {
         RuleFor(x => x.OldPassword).NotEmpty()

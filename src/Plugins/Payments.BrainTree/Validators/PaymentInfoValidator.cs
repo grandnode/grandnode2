@@ -1,13 +1,13 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Payments.BrainTree.Models;
+using Grand.Web.Common.Localization;
 
 namespace Payments.BrainTree.Validators;
 
 public class PaymentInfoValidator : AbstractValidator<PaymentInfoModel>
 {
     public PaymentInfoValidator(BrainTreePaymentSettings brainTreePaymentSettings,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         if (brainTreePaymentSettings.Use3DS)
             return;

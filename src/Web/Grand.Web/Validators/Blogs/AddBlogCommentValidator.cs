@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Blogs;
 using Grand.Domain.Common;
@@ -11,6 +10,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Blogs;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Blogs;
 
@@ -23,7 +23,7 @@ public class AddBlogCommentValidator : BaseGrandValidator<AddBlogCommentModel>
         IGoogleReCaptchaValidator googleReCaptchaValidator,
         BlogSettings blogSettings,
         IGroupService groupService, IContextAccessor contextAccessor, IBlogService blogService, IAclService aclService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.CommentText).NotEmpty()

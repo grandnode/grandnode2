@@ -1,6 +1,5 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
@@ -16,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -26,7 +26,7 @@ public class BaseOrderManagementControllerTests
         IOrderViewModelService orderViewModelService,
         IOrderService orderService,
         IOrderStatusService orderStatusService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         IPdfService pdfService,
         IMediator mediator,
@@ -48,7 +48,7 @@ public class BaseOrderManagementControllerTests
         _mediatorMock = new Mock<IMediator>();
         _scopeMock = new Mock<IAdminDataScope<Order>>();
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestOrderManagementController(

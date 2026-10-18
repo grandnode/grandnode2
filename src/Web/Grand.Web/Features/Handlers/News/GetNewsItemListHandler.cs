@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Media;
 using Grand.Domain.News;
@@ -11,6 +10,7 @@ using Grand.Web.Features.Models.News;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.News;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.News;
 
@@ -19,7 +19,7 @@ public class GetNewsItemListHandler : IRequestHandler<GetNewsItemList, NewsItemL
     private readonly IDateTimeService _dateTimeService;
     private readonly INewsService _newsService;
     private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly MediaSettings _mediaSettings;
     private readonly NewsSettings _newsSettings;
@@ -28,7 +28,7 @@ public class GetNewsItemListHandler : IRequestHandler<GetNewsItemList, NewsItemL
 
     public GetNewsItemListHandler(IContextAccessor contextAccessor,
         INewsService newsService, IDateTimeService dateTimeService, IPictureService pictureService,
-        ITranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings)
+        IRequestTranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings)
     {
         _contextAccessor = contextAccessor;
         _newsService = newsService;

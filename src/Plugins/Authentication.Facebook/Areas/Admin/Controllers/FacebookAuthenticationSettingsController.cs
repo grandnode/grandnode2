@@ -1,6 +1,5 @@
 ﻿using Authentication.Facebook.Models;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
@@ -8,6 +7,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Grand.Web.Common.Localization;
 
 namespace Authentication.Facebook.Areas.Admin.Controllers;
 
@@ -19,7 +19,7 @@ public class FacebookAuthenticationSettingsController : BasePluginController
     #region Ctor
 
     public FacebookAuthenticationSettingsController(FacebookExternalAuthSettings facebookExternalAuthSettings,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPermissionService permissionService,
         ISettingService settingService,
         IConfiguration configuration)
@@ -36,7 +36,7 @@ public class FacebookAuthenticationSettingsController : BasePluginController
     #region Fields
 
     private readonly FacebookExternalAuthSettings _facebookExternalAuthSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IPermissionService _permissionService;
     private readonly ISettingService _settingService;
     private readonly IConfiguration _configuration;

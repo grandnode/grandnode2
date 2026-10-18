@@ -18,6 +18,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -32,7 +33,7 @@ public abstract class BaseCategoryController(
     ICategoryService categoryService,
     ICategoryViewModelService categoryViewModelService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IPictureViewModelService pictureViewModelService,
     IProductService productService,
     IAdminDataScope<Category> scope)
@@ -45,7 +46,7 @@ public abstract class BaseCategoryController(
 
     // Exposed for host subclasses: primary-constructor parameters are not visible to derived
     // classes by name in C#, so Store's EditWarningCheck override needs this.
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<Category> Scope => scope;
 
     #region List

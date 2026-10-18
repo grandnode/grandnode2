@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
@@ -48,7 +49,7 @@ public class BrandControllerTests
 
         private BrandController _controller;
         private Mock<IBrandService> _brandServiceMock;
-        private Mock<ITranslationService> _translationServiceMock;
+        private Mock<IRequestTranslationService> _translationServiceMock;
         private Mock<IAdminDataScope<Brand>> _scopeMock;
 
         [TestInitialize]
@@ -58,7 +59,7 @@ public class BrandControllerTests
             AutoMapperConfig.Init(mapperConfig);
 
             _brandServiceMock = new Mock<IBrandService>();
-            _translationServiceMock = new Mock<ITranslationService>();
+            _translationServiceMock = new Mock<IRequestTranslationService>();
             _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
             _scopeMock = new Mock<IAdminDataScope<Brand>>();

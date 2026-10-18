@@ -16,6 +16,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -29,7 +30,7 @@ public abstract class BaseBlogController(
     IBlogService blogService,
     IBlogViewModelService blogViewModelService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     IDateTimeService dateTimeService,
     IPictureViewModelService pictureViewModelService,
@@ -52,7 +53,7 @@ public abstract class BaseBlogController(
     // by name in C#.
     protected IBlogService BlogService => blogService;
     protected IDateTimeService DateTimeService => dateTimeService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<BlogPost> PostScope => postScope;
     protected IAdminDataScope<BlogCategory> CategoryScope => categoryScope;
 

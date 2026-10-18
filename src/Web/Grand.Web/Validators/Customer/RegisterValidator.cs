@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -15,6 +14,7 @@ using Grand.Web.Common.Validators;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -23,7 +23,7 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
     public RegisterValidator(
         IEnumerable<IValidatorConsumer<RegisterModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         CustomerSettings customerSettings, CaptchaSettings captchaSettings,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,

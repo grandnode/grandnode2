@@ -1,14 +1,14 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Web.Common.Localization;
 
 namespace Widgets.Slider;
 
 public class SliderWidgetProvider : IWidgetProvider
 {
     private readonly SliderWidgetSettings _sliderWidgetSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public SliderWidgetProvider(ITranslationService translationService, SliderWidgetSettings sliderWidgetSettings)
+    public SliderWidgetProvider(IRequestTranslationService translationService, SliderWidgetSettings sliderWidgetSettings)
     {
         _translationService = translationService;
         _sliderWidgetSettings = sliderWidgetSettings;

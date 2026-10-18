@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Customers;
 
@@ -13,10 +13,10 @@ public class GetReviewsHandler : IRequestHandler<GetReviews, CustomerProductRevi
     private readonly IDateTimeService _dateTimeService;
     private readonly IProductReviewService _productReviewService;
     private readonly IProductService _productService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetReviewsHandler(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         IProductReviewService productReviewService,
         IDateTimeService dateTimeService)

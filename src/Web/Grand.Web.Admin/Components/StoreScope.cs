@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Web.AdminShared.Models.Settings;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Components;
 
@@ -15,7 +15,7 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
 
     private readonly IStoreService _storeService;
     private readonly IAdminStoreService _adminStoreService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     #endregion
 
@@ -24,7 +24,7 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
     public StoreScopeViewComponent(
         IStoreService storeService,
         IAdminStoreService adminStoreService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _adminStoreService = adminStoreService;
         _storeService = storeService;

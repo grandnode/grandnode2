@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Catalog;
 
@@ -13,7 +13,7 @@ public class TierPriceModelValidator : BaseStoreAccessValidator<ProductModel.Tie
 
     public TierPriceModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.TierPriceModel>> validators,
-        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
+        IRequestTranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
        : base(validators, translationService, contextAccessor)
     {
         _productService = productService;
@@ -31,7 +31,7 @@ public class TierPriceDeleteModelValidator : BaseStoreAccessValidator<ProductMod
 
     public TierPriceDeleteModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.TierPriceDeleteModel>> validators,
-        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
+        IRequestTranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
        : base(validators, translationService, contextAccessor)
     {
         _productService = productService;

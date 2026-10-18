@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Localization;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Localization;
 
@@ -9,7 +9,7 @@ public class LanguageResourceValidator : BaseGrandValidator<LanguageResourceMode
 {
     public LanguageResourceValidator(
         IEnumerable<IValidatorConsumer<LanguageResourceModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

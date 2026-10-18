@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Menu;
@@ -7,6 +6,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -17,7 +17,7 @@ public class MenuController : BaseAdminController
 
     public MenuController(
         IMenuViewModelService menuViewModelService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _menuViewModelService = menuViewModelService;
         _translationService = translationService;
@@ -28,7 +28,7 @@ public class MenuController : BaseAdminController
     #region Fields
 
     private readonly IMenuViewModelService _menuViewModelService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     #endregion
 

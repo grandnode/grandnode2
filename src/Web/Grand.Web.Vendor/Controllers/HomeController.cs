@@ -1,9 +1,9 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Vendor.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Vendor.Controllers;
 
@@ -17,7 +17,7 @@ public class HomeController : BaseHomeController
 
     public HomeController(
         ICountryService countryService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ILogger<HomeController> logger)
         : base(countryService, translationService)
     {

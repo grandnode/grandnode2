@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.ShoppingCart;
 
@@ -14,7 +14,7 @@ public class GiftVoucherCouponValidator : BaseGrandValidator<GiftVoucherCouponMo
     public GiftVoucherCouponValidator(
         IEnumerable<IValidatorConsumer<GiftVoucherCouponModel>> validators,
         IMediator mediator, IContextAccessor contextAccessor,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.GiftVoucherCouponCode).NotEmpty()

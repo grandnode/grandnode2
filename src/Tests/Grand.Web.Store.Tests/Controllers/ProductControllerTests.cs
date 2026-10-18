@@ -29,7 +29,7 @@ public class ProductControllerTests
     {
         _productServiceMock = new Mock<IProductService>();
         var productViewModelServiceMock = new Mock<IProductViewModelService>();
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         var workContextMock = new Mock<IWorkContext>();

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Domain.Localization;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
@@ -20,15 +19,12 @@ public class TranslationService : ITranslationService
     /// <summary>
     ///     Ctor
     /// </summary>
-    /// <param name="workContext">Work context</param>
     /// <param name="trRepository">Translate resource repository</param>
     /// <param name="mediator">Mediator</param>
     public TranslationService(
-        IContextAccessor contextAccessor,
         IRepository<TranslationResource> trRepository,
         IMediator mediator)
     {
-        _contextAccessor = contextAccessor;
         _translationRepository = trRepository;
         _mediator = mediator;
     }
@@ -40,7 +36,6 @@ public class TranslationService : ITranslationService
     private static readonly ConcurrentDictionary<string, IDictionary<string, string>> _cachedResources = new();
 
     private readonly IRepository<TranslationResource> _translationRepository;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
 
     #endregion
@@ -134,20 +129,6 @@ public class TranslationService : ITranslationService
 
         //event notification
         await _mediator.EntityDeleted(translateResource);
-    }
-
-    /// <summary>
-    ///     Gets a resource string based on the specified ResourceKey property.
-    /// </summary>
-    /// <param name="name">A string representing a name.</param>
-    /// <returns>A string representing the requested resource string.</returns>
-    /// <remarks>
-    ///     Reads the working language of the current request. Code that may run outside a request uses the
-    ///     overload that takes the language.
-    /// </remarks>
-    public virtual string GetResource(string name)
-    {
-        return _contextAccessor.WorkContext.WorkingLanguage != null ? GetResource(name, _contextAccessor.WorkContext.WorkingLanguage.Id) : "";
     }
 
     /// <summary>

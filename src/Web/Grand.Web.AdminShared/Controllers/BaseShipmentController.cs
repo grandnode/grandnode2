@@ -2,7 +2,6 @@ using Grand.Business.Core.Commands.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
@@ -17,6 +16,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -25,7 +25,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseShipmentController(
     IShipmentViewModelService shipmentViewModelService,
     IOrderService orderService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IShipmentService shipmentService,
@@ -40,7 +40,7 @@ public abstract class BaseShipmentController(
     // C#).
     protected IShipmentViewModelService ShipmentViewModelService => shipmentViewModelService;
     protected IOrderService OrderService => orderService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IContextAccessor ContextAccessor => contextAccessor;
     protected IPdfService PdfService => pdfService;
     protected IShipmentService ShipmentService => shipmentService;

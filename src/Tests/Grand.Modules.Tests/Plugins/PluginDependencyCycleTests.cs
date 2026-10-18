@@ -39,6 +39,7 @@ using Payments.BrainTree;
 using Payments.CashOnDelivery;
 using Shipping.ByWeight;
 using Shipping.ByWeight.Services;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Modules.Tests.Plugins;
 
@@ -76,7 +77,7 @@ public class PluginDependencyCycleTests
             typeof(IShippingService), typeof(ICheckoutAttributeParser), typeof(IDiscountService),
             typeof(IGiftVoucherService), typeof(ILoyaltyPointsService), typeof(IProductService),
             typeof(ICurrencyService), typeof(IGroupService), typeof(IDiscountValidationService),
-            typeof(ISettingService), typeof(ITranslationService), typeof(IPaymentTransactionService),
+            typeof(ISettingService), typeof(ITranslationService), typeof(IRequestTranslationService), typeof(IPaymentTransactionService),
             typeof(ICustomerService), typeof(IHttpContextAccessor));
         services.AddSingleton(new TaxSettings());
         services.AddSingleton(new LoyaltyPointsSettings());
@@ -106,7 +107,7 @@ public class PluginDependencyCycleTests
         AddMocks(services, typeof(IContextAccessor), typeof(IProductService), typeof(IMediator),
             typeof(ICurrencyService), typeof(IDiscountService), typeof(ICategoryService), typeof(IBrandService),
             typeof(ICollectionService), typeof(IVendorService), typeof(IRepository<DiscountCoupon>),
-            typeof(IOrderService), typeof(ITranslationService));
+            typeof(IOrderService), typeof(ITranslationService), typeof(IRequestTranslationService));
         services.AddSingleton(new ShoppingCartSettings());
         services.AddSingleton(new CatalogSettings());
 
@@ -134,7 +135,7 @@ public class PluginDependencyCycleTests
             typeof(IContextAccessor), typeof(IProductService), typeof(IMediator), typeof(ICurrencyService),
             typeof(IDiscountService), typeof(ICategoryService), typeof(IBrandService), typeof(ICollectionService),
             typeof(IVendorService), typeof(IRepository<DiscountCoupon>), typeof(IOrderService),
-            typeof(ITranslationService));
+            typeof(ITranslationService), typeof(IRequestTranslationService));
         services.AddSingleton(new ShippingProviderSettings());
         services.AddSingleton(new ShippingSettings());
         services.AddSingleton(new ByWeightShippingSettings());

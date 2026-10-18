@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
@@ -17,6 +16,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Products;
 
@@ -34,7 +34,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly IStockQuantityService _stockQuantityService;
     private readonly ITaxService _taxService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetProductDetailsAttributeChangeHandler(
         IMediator mediator,
@@ -44,7 +44,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
         ITaxService taxService,
         IPriceFormatter priceFormatter,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPictureService pictureService,
         ShoppingCartSettings shoppingCartSettings,
         MediaSettings mediaSettings,

@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
@@ -20,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -43,7 +43,7 @@ public class BaseCustomerControllerTests
         IAddressAttributeService addressAttributeService,
         Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
         IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings,
         IAdminDataScope<Customer> scope)
@@ -62,7 +62,7 @@ public class BaseCustomerControllerTests
     protected Mock<ICustomerManagerService> CustomerManagerServiceMock;
     protected Mock<IGroupService> GroupServiceMock;
     protected Mock<IAdminDataScope<Customer>> ScopeMock;
-    protected Mock<ITranslationService> TranslationServiceMock;
+    protected Mock<IRequestTranslationService> TranslationServiceMock;
     protected Mock<IAddressAttributeService> AddressAttributeServiceMock;
     protected Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService> ProductReviewServiceMock;
     protected Mock<ICustomerProductService> CustomerProductServiceMock;
@@ -76,7 +76,7 @@ public class BaseCustomerControllerTests
         GroupServiceMock = new Mock<IGroupService>();
         ScopeMock = new Mock<IAdminDataScope<Customer>>();
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        TranslationServiceMock = new Mock<ITranslationService>();
+        TranslationServiceMock = new Mock<IRequestTranslationService>();
         TranslationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         AddressAttributeServiceMock = new Mock<IAddressAttributeService>();
         AddressAttributeServiceMock.Setup(a => a.GetAllAddressAttributes())

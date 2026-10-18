@@ -8,6 +8,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -19,7 +20,7 @@ public class LanguageController : BaseAdminController
     public LanguageController(
         ILanguageViewModelService languageViewModelService,
         ILanguageService languageService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _languageViewModelService = languageViewModelService;
         _translationService = translationService;
@@ -32,7 +33,7 @@ public class LanguageController : BaseAdminController
 
     private readonly ILanguageViewModelService _languageViewModelService;
     private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     #endregion
 

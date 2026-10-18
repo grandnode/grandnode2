@@ -1,6 +1,5 @@
 #nullable enable
 
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Mapper;
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -28,13 +28,13 @@ public class BaseEmailAccountControllerTests
     private class TestEmailAccountController(
         IEmailAccountViewModelService emailAccountViewModelService,
         IEmailAccountService emailAccountService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAdminDataScope<EmailAccount> scope)
         : BaseEmailAccountController(emailAccountViewModelService, emailAccountService, translationService, scope);
 
     private Mock<IEmailAccountViewModelService> _emailAccountViewModelServiceMock = null!;
     private Mock<IEmailAccountService> _emailAccountServiceMock = null!;
-    private Mock<ITranslationService> _translationServiceMock = null!;
+    private Mock<IRequestTranslationService> _translationServiceMock = null!;
 
     [TestInitialize]
     public void Setup()
@@ -44,7 +44,7 @@ public class BaseEmailAccountControllerTests
 
         _emailAccountViewModelServiceMock = new Mock<IEmailAccountViewModelService>();
         _emailAccountServiceMock = new Mock<IEmailAccountService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string s) => s);
     }
 

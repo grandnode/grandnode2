@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Orders;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Orders;
 
@@ -12,7 +12,7 @@ public class CheckoutAttributeValueValidator : BaseGrandValidator<CheckoutAttrib
     public CheckoutAttributeValueValidator(
         IEnumerable<IValidatorConsumer<CheckoutAttributeValueModel>> validators,
         ICheckoutAttributeService checkoutAttributeService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

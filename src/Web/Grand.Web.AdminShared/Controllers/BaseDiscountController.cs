@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Discounts;
@@ -19,6 +18,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -27,7 +27,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseDiscountController(
     IDiscountViewModelService discountViewModelService,
     IDiscountService discountService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IMediator mediator,
     IDiscountProviderLoader discountProviderLoader,

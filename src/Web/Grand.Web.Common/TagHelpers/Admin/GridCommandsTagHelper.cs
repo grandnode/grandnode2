@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure;
 using Grand.Web.Common.TagHelpers.Admin.Grid;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Common.TagHelpers.Admin;
 
@@ -100,9 +100,9 @@ public class GridCommandTagHelper : TagHelper
 [HtmlTargetElement("grid-toolbar-create", ParentTag = "admin-grid", TagStructure = TagStructure.WithoutEndTag)]
 public class GridToolbarCreateTagHelper : TagHelper
 {
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public GridToolbarCreateTagHelper(ITranslationService translationService)
+    public GridToolbarCreateTagHelper(IRequestTranslationService translationService)
     {
         _translationService = translationService;
     }
@@ -124,9 +124,9 @@ public class GridToolbarCreateTagHelper : TagHelper
 public class GridToolbarSaveTagHelper : TagHelper
 {
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public GridToolbarSaveTagHelper(ITranslationService translationService, IContextAccessor contextAccessor)
+    public GridToolbarSaveTagHelper(IRequestTranslationService translationService, IContextAccessor contextAccessor)
     {
         _translationService = translationService;
         _contextAccessor = contextAccessor;
@@ -151,9 +151,9 @@ public class GridToolbarSaveTagHelper : TagHelper
 public class GridToolbarCancelTagHelper : TagHelper
 {
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public GridToolbarCancelTagHelper(ITranslationService translationService, IContextAccessor contextAccessor)
+    public GridToolbarCancelTagHelper(IRequestTranslationService translationService, IContextAccessor contextAccessor)
     {
         _translationService = translationService;
         _contextAccessor = contextAccessor;
@@ -179,7 +179,7 @@ internal static class GridToolbarText
     ///     The resource in the working language, or the Kendo default text when the resource is
     ///     missing (a database that never imported the upgrade resources), never the raw key.
     /// </summary>
-    public static string Get(ITranslationService translationService, IContextAccessor contextAccessor, string key, string fallback)
+    public static string Get(IRequestTranslationService translationService, IContextAccessor contextAccessor, string key, string fallback)
     {
         var languageId = contextAccessor.WorkContext?.WorkingLanguage?.Id;
         var value = languageId is null ? null : translationService.GetResource(key, languageId, string.Empty, true);

@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
@@ -12,6 +11,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Catalog;
 
@@ -19,7 +19,7 @@ public class AddProductReviewValidator : BaseGrandValidator<AddProductReviewMode
 {
     public AddProductReviewValidator(
         IEnumerable<IValidatorConsumer<AddProductReviewModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Title).NotEmpty().WithMessage(translationService.GetResource("Reviews.Fields.Title.Required"));
@@ -42,7 +42,7 @@ public class ProductReviewsValidator : BaseGrandValidator<ProductReviewsModel>
         CaptchaSettings captchaSettings, CatalogSettings catalogSettings,
         IContextAccessor contextAccessor,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.AddProductReview.Title).NotEmpty()

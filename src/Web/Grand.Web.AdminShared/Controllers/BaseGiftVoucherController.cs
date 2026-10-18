@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Interfaces;
@@ -9,6 +8,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -17,7 +17,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseGiftVoucherController(
     IGiftVoucherViewModelService giftVoucherViewModelService,
     IGiftVoucherService giftVoucherService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<GiftVoucher> scope)
     : BaseController
 {
@@ -28,7 +28,7 @@ public abstract class BaseGiftVoucherController(
 
     // Exposed for host subclasses: primary-constructor parameters are not visible to derived
     // classes by name in C#, so Store's EditWarningCheck override needs this.
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<GiftVoucher> Scope => scope;
 
     #region List

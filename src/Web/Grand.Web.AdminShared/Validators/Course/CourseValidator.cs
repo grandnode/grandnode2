@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Courses;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Course;
 
@@ -10,7 +10,7 @@ public class CourseValidator : BaseGrandValidator<CourseModel>
 {
     public CourseValidator(
         IEnumerable<IValidatorConsumer<CourseModel>> validators,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IProductService productService,
         IProductCourseService productCourseService)
         : base(validators)

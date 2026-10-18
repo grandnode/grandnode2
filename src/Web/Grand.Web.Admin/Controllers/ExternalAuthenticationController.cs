@@ -4,13 +4,13 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Permissions;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Models.ExternalAuthentication;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -64,7 +64,7 @@ public class ExternalAuthenticationController : BaseAdminController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> RemoveOidcLinks([FromServices] IOidcLinkService linkService,
-        [FromServices] ITranslationService translationService, [FromServices] OidcResourceServerConfig resourceServerConfig)
+        [FromServices] IRequestTranslationService translationService, [FromServices] OidcResourceServerConfig resourceServerConfig)
     {
         //the links are recorded for the configured provider: without one there is nothing to record them for
         if (!ResourceServerConfigured(resourceServerConfig))
@@ -80,7 +80,7 @@ public class ExternalAuthenticationController : BaseAdminController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> KeepOidcLinks([FromServices] IOidcLinkService linkService,
-        [FromServices] ITranslationService translationService, [FromServices] OidcResourceServerConfig resourceServerConfig)
+        [FromServices] IRequestTranslationService translationService, [FromServices] OidcResourceServerConfig resourceServerConfig)
     {
         if (!ResourceServerConfigured(resourceServerConfig))
             return RedirectToAction("Methods");

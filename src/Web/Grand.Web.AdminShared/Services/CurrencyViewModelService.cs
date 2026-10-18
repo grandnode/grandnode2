@@ -1,12 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Directory;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -18,7 +18,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
     private readonly IStoreService _storeService;
     private readonly CurrencySettings _currencySettings;
     private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICacheBase _cacheBase;
 
     #endregion
@@ -29,7 +29,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
         IStoreService storeService,
         CurrencySettings currencySettings,
         ISettingService settingService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICacheBase cacheBase)
     {
         _currencyService = currencyService;

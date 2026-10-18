@@ -2,11 +2,11 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
+using Grand.Web.Common.Localization;
 
 namespace Payments.CashOnDelivery;
 
@@ -17,10 +17,10 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
     private readonly ICurrencyService _currencyService;
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public CashOnDeliveryPaymentProvider(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IShoppingCartSubTotalService shoppingCartSubTotalService,
         ICurrencyService currencyService,
         IContextAccessor contextAccessor,

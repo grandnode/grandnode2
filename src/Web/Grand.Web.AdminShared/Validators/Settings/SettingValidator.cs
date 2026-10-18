@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Settings;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Settings;
 
@@ -9,7 +9,7 @@ public class SettingValidator : BaseGrandValidator<SettingModel>
 {
     public SettingValidator(
         IEnumerable<IValidatorConsumer<SettingModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

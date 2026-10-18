@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
@@ -11,6 +10,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -25,7 +25,7 @@ public class PickupPointController(
     IWarehouseService warehouseService,
     ICountryService countryService,
     IStoreService storeService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<Grand.Domain.Shipping.PickupPoint> scope)
     : BasePickupPointController(pickupPointService, warehouseService, countryService, storeService, translationService, scope)
 {

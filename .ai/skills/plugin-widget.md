@@ -29,7 +29,7 @@ Do not use this skill for admin-only functionality with no storefront output, or
 | `GetWidgetZones()` | Return the list of zone names where this widget renders. Use existing zone name constants from `Defaults` or string literals matching the zones used in storefront views. |
 | `GetPublicViewComponentName(widgetZone)` | Return the view component name to invoke for the given zone. Can return different component names per zone, or the same name for all zones. |
 
-3. Resolve `FriendlyName` through `ITranslationService.GetResource(Defaults.FriendlyName)`.
+3. Resolve `FriendlyName` through `IRequestTranslationService.GetResource(Defaults.FriendlyName)`.
 4. Resolve `Priority` from settings `DisplayOrder`.
 
 #### View Component

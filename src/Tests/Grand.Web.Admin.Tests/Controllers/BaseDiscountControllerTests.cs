@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
@@ -30,6 +29,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -40,7 +40,7 @@ public class BaseDiscountControllerTests
     private class TestDiscountController(
         IDiscountViewModelService discountViewModelService,
         IDiscountService discountService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         IMediator mediator,
         IDiscountProviderLoader discountProviderLoader,
@@ -67,7 +67,7 @@ public class BaseDiscountControllerTests
         _mediator = new Mock<IMediator>();
         _loader = new Mock<IDiscountProviderLoader>();
 
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _sut = new TestDiscountController(_vmService.Object, _service.Object,

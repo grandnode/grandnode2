@@ -1,16 +1,16 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Web.Common.Localization;
 
 namespace Widgets.FacebookPixel;
 
 public class FacebookPixelProvider : IWidgetProvider
 {
     private readonly FacebookPixelSettings _facebookPixelSettings;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public FacebookPixelProvider(
         FacebookPixelSettings facebookPixelSettings,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _facebookPixelSettings = facebookPixelSettings;
         _translationService = translationService;

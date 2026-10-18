@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
@@ -10,6 +9,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -20,7 +20,7 @@ public class MeasureController : BaseAdminController
 
     public MeasureController(IMeasureService measureService,
         ISettingService settingService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         MeasureSettings measureSettings,
         ICacheBase cacheBase)
     {
@@ -37,7 +37,7 @@ public class MeasureController : BaseAdminController
 
     private readonly IMeasureService _measureService;
     private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly MeasureSettings _measureSettings;
     private readonly ICacheBase _cacheBase;
 

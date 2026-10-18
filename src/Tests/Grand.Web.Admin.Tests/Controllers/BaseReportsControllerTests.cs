@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
@@ -40,7 +39,7 @@ public class BaseReportsControllerTests
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
         IStockQuantityService stockQuantityService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         ICountryService countryService,
         IVendorService vendorService,
@@ -77,7 +76,7 @@ public class BaseReportsControllerTests
         _productServiceMock = new Mock<IProductService>();
         var productAttributeFormatterMock = new Mock<IProductAttributeFormatter>();
         var stockQuantityServiceMock = new Mock<IStockQuantityService>();
-        var translationServiceMock = new Mock<ITranslationService>();
+        var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());

@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Knowledgebase;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Knowledgebase;
 
@@ -10,7 +10,7 @@ public class KnowledgebaseArticleModelValidator : BaseGrandValidator<Knowledgeba
 {
     public KnowledgebaseArticleModelValidator(
         IEnumerable<IValidatorConsumer<KnowledgebaseArticleModel>> validators,
-        ITranslationService translationService, IKnowledgebaseService knowledgebaseService)
+        IRequestTranslationService translationService, IKnowledgebaseService knowledgebaseService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

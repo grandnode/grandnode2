@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
@@ -14,6 +13,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
@@ -26,13 +26,13 @@ public class GetVendorHandler : IRequestHandler<GetVendor, VendorModel>
     private readonly IMediator _mediator;
     private readonly IPictureService _pictureService;
     private readonly ISpecificationAttributeService _specificationAttributeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly VendorSettings _vendorSettings;
 
     public GetVendorHandler(
         IMediator mediator,
         IPictureService pictureService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         VendorSettings vendorSettings,
         MediaSettings mediaSettings,
         ISpecificationAttributeService specificationAttributeService,

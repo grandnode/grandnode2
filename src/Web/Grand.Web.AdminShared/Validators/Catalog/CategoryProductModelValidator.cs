@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Catalog;
 
@@ -12,7 +12,7 @@ public class CategoryProductModelValidator : BaseStoreAccessValidator<CategoryMo
     private readonly ICategoryService _categoryService;
     public CategoryProductModelValidator(
         IEnumerable<IValidatorConsumer<CategoryModel.CategoryProductModel>> validators,
-        ITranslationService translationService, ICategoryService categoryService, IContextAccessor contextAccessor)
+        IRequestTranslationService translationService, ICategoryService categoryService, IContextAccessor contextAccessor)
         : base(validators, translationService, contextAccessor)
     {
         _categoryService = categoryService;

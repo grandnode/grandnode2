@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Marketing.Contacts;
+﻿using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -14,11 +14,11 @@ public class ContactFormController : BaseAdminController
 {
     private readonly IContactFormViewModelService _contactFormViewModelService;
     private readonly IContactUsService _contactUsService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public ContactFormController(IContactUsService contactUsService,
         IContactFormViewModelService contactFormViewModelService,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         _contactUsService = contactUsService;
         _contactFormViewModelService = contactFormViewModelService;

@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain;
 using Grand.Domain.Directory;
@@ -18,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PickupPoint = Grand.Domain.Shipping.PickupPoint;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -28,7 +28,7 @@ public class BasePickupPointControllerTests
     private Mock<IWarehouseService> _warehouseServiceMock;
     private Mock<ICountryService> _countryServiceMock;
     private Mock<IStoreService> _storeServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -45,7 +45,7 @@ public class BasePickupPointControllerTests
             .ReturnsAsync(new List<Country>());
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("msg");
     }
 

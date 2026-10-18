@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -10,17 +12,19 @@ public class ProductSpecificationAttributeValidator : BaseGrandValidator<Product
 {
     public ProductSpecificationAttributeValidator(
         IEnumerable<IValidatorConsumer<ProductSpecificationAttributeDto>> validators,
-        ITranslationService translationService, ISpecificationAttributeService specificationAttributeService)
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, ISpecificationAttributeService specificationAttributeService)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             var specification =
                 await specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
             return specification != null;
         }).WithMessage(
-            translationService.GetResource(
-                "Api.Catalog.ProductSpecificationAttribute.Fields.SpecificationAttributeId.NotExists"));
+            translationService.GetResource("Api.Catalog.ProductSpecificationAttribute.Fields.SpecificationAttributeId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -33,7 +37,6 @@ public class ProductSpecificationAttributeValidator : BaseGrandValidator<Product
             }
 
             return true;
-        }).WithMessage(translationService.GetResource(
-            "Api.Catalog.ProductSpecificationAttribute.Fields.SpecificationAttributeOptionId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.ProductSpecificationAttribute.Fields.SpecificationAttributeOptionId.NotExists", languageId));
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Blogs;
@@ -15,6 +14,7 @@ using Grand.Web.Models.Blogs;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -26,7 +26,7 @@ public class BlogController : BasePublicController
     public BlogController(
         IMediator mediator,
         IBlogService blogService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         BlogSettings blogSettings)
     {
@@ -43,7 +43,7 @@ public class BlogController : BasePublicController
 
     private readonly IMediator _mediator;
     private readonly IBlogService _blogService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly BlogSettings _blogSettings;
 

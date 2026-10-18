@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Vendors;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Vendors;
 
@@ -11,7 +11,7 @@ public class VendorAddressValidator : BaseGrandValidator<VendorAddressModel>
 {
     public VendorAddressValidator(
         IEnumerable<IValidatorConsumer<VendorAddressModel>> validators,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICountryService countryService,
         VendorSettings addressSettings)
         : base(validators)

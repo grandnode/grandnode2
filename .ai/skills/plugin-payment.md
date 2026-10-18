@@ -48,7 +48,7 @@ Do not use this skill for order processing business logic outside the payment fl
    - `TransactionStatus.Pending` — order placed but not yet confirmed.
    - `TransactionStatus.Authorized` — gateway authorized; capture is separate.
    - `TransactionStatus.Paid` — payment fully captured immediately.
-4. Resolve `FriendlyName` through `ITranslationService.GetResource(Defaults.FriendlyName)`.
+4. Resolve `FriendlyName` through `IRequestTranslationService.GetResource(Defaults.FriendlyName)`.
 5. Set `LogoURL` to `"/Plugins/{SystemName}/logo.jpg"`.
 
 #### Redirect Payment Flow

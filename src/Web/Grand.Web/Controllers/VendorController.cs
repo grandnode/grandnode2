@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -21,6 +20,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Vendors;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -31,7 +31,7 @@ public class VendorController : BasePublicController
 
     public VendorController(
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICustomerService customerService,
         IMessageProviderService messageProviderService,
         IVendorService vendorService,
@@ -75,7 +75,7 @@ public class VendorController : BasePublicController
     #region Fields
 
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICustomerService _customerService;
     private readonly IMessageProviderService _messageProviderService;
     private readonly IVendorService _vendorService;

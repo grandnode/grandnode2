@@ -19,7 +19,7 @@ public class CategoryController(
     ICategoryService categoryService,
     ICategoryViewModelService categoryViewModelService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IPictureViewModelService pictureViewModelService,
     IProductService productService,
     IAdminDataScope<Category> scope)

@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Customers;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Customers;
@@ -11,29 +13,32 @@ public class AddressValidator : BaseGrandValidator<AddressDto>
 {
     public AddressValidator(
         IEnumerable<IValidatorConsumer<AddressDto>> validators,
-        ITranslationService translationService, ICountryService countryService, AddressSettings addressSettings)
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, ICountryService countryService, AddressSettings addressSettings)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x.FirstName)
             .NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.FirstName.Required"));
+            .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.FirstName.Required", languageId));
         RuleFor(x => x.LastName)
             .NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.LastName.Required"));
+            .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.LastName.Required", languageId));
         RuleFor(x => x.Email)
             .NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Email.Required"));
+            .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Email.Required", languageId));
         RuleFor(x => x.Email)
             .EmailAddress()
-            .WithMessage(translationService.GetResource("Api.Customers.Address.Common.WrongEmail"));
+            .WithMessage(translationService.GetResource("Api.Customers.Address.Common.WrongEmail", languageId));
         if (addressSettings.CountryEnabled)
         {
             RuleFor(x => x.CountryId)
                 .NotNull()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Country.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Country.Required", languageId));
             RuleFor(x => x.CountryId)
                 .NotEqual("")
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Country.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Country.Required", languageId));
         }
 
         if (addressSettings.CountryEnabled && addressSettings.StateProvinceEnabled)
@@ -50,30 +55,30 @@ public class AddressValidator : BaseGrandValidator<AddressDto>
                 }
 
                 return false;
-            }).WithMessage(translationService.GetResource("Api.Customers.Address.Fields.StateProvince.Required"));
+            }).WithMessage(translationService.GetResource("Api.Customers.Address.Fields.StateProvince.Required", languageId));
         if (addressSettings.CompanyRequired && addressSettings.CompanyEnabled)
             RuleFor(x => x.Company).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Company.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Company.Required", languageId));
         if (addressSettings.VatNumberRequired && addressSettings.VatNumberEnabled)
             RuleFor(x => x.VatNumber).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.VatNumber.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.VatNumber.Required", languageId));
         if (addressSettings.StreetAddressRequired && addressSettings.StreetAddressEnabled)
             RuleFor(x => x.Address1).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.StreetAddress.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.StreetAddress.Required", languageId));
         if (addressSettings.StreetAddress2Required && addressSettings.StreetAddress2Enabled)
             RuleFor(x => x.Address2).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.StreetAddress2.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.StreetAddress2.Required", languageId));
         if (addressSettings.ZipPostalCodeRequired && addressSettings.ZipPostalCodeEnabled)
             RuleFor(x => x.ZipPostalCode).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.ZipPostalCode.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.ZipPostalCode.Required", languageId));
         if (addressSettings.CityRequired && addressSettings.CityEnabled)
             RuleFor(x => x.City).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.City.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.City.Required", languageId));
         if (addressSettings.PhoneRequired && addressSettings.PhoneEnabled)
             RuleFor(x => x.PhoneNumber).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Phone.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Phone.Required", languageId));
         if (addressSettings.FaxRequired && addressSettings.FaxEnabled)
             RuleFor(x => x.FaxNumber).NotEmpty()
-                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Fax.Required"));
+                .WithMessage(translationService.GetResource("Api.Customers.Address.Fields.Fax.Required", languageId));
     }
 }

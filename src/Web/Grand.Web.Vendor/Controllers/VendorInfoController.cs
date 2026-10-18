@@ -11,6 +11,7 @@ using Grand.Web.Vendor.Models.Common;
 using Grand.Web.Vendor.Models.Vendor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Vendor.Controllers;
 
@@ -19,7 +20,7 @@ public class VendorInfoController : BaseVendorController
     #region Constructors
 
     public VendorInfoController(
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IVendorService vendorService,
         ILanguageService languageService,
         IContextAccessor contextAccessor,
@@ -41,7 +42,7 @@ public class VendorInfoController : BaseVendorController
     #region Fields
 
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly ILanguageService _languageService;
     private readonly ICountryService _countryService;

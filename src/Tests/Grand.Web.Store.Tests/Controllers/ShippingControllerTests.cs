@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
@@ -15,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
@@ -28,7 +28,7 @@ public class ShippingControllerTests
     private Mock<ICountryService> _countryServiceMock;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IShippingMethodService> _shippingMethodServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -36,7 +36,7 @@ public class ShippingControllerTests
         _shippingMethodServiceMock = new Mock<IShippingMethodService>();
         _countryServiceMock = new Mock<ICountryService>();
         _groupServiceMock = new Mock<IGroupService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         var workContextMock = new Mock<IWorkContext>();

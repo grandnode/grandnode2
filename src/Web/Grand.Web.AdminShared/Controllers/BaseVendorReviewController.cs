@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Vendors;
@@ -9,6 +8,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -17,7 +17,7 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseVendorReviewController(
     IVendorViewModelService vendorViewModelService,
     IVendorService vendorService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<VendorReview> scope)
     : BaseController
 {
@@ -26,7 +26,7 @@ public abstract class BaseVendorReviewController(
     // C#).
     protected IVendorViewModelService VendorViewModelService => vendorViewModelService;
     protected IVendorService VendorService => vendorService;
-    protected ITranslationService TranslationService => translationService;
+    protected IRequestTranslationService TranslationService => translationService;
     protected IAdminDataScope<VendorReview> Scope => scope;
 
     /// <summary>DRY replacement for the repeated "load vendor review, redirect to List if not found

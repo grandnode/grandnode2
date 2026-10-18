@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Customers;
@@ -15,6 +14,7 @@ using Grand.Web.Models.News;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -25,7 +25,7 @@ public class NewsController : BasePublicController
 
     public NewsController(INewsService newsService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IAclService aclService,
         IPermissionService permissionService,
         IMediator mediator,
@@ -46,7 +46,7 @@ public class NewsController : BasePublicController
 
     private readonly INewsService _newsService;
     private readonly IContextAccessor _contextAccessor;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IAclService _aclService;
     private readonly IPermissionService _permissionService;
     private readonly IMediator _mediator;

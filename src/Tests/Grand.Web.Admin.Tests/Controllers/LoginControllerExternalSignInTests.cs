@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
@@ -16,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -32,7 +32,7 @@ public class LoginControllerExternalSignInTests
         _externalAuthenticationService = new Mock<IExternalAuthenticationService>();
         _groupService = new Mock<IGroupService>();
         _controller = new LoginController(new CustomerSettings(), new CaptchaSettings(),
-            new Mock<ITranslationService>().Object, new Mock<ICustomerManagerService>().Object,
+            new Mock<IRequestTranslationService>().Object, new Mock<ICustomerManagerService>().Object,
             new Mock<ICustomerService>().Object, new Mock<IGrandAuthenticationService>().Object,
             new Mock<IMessageProviderService>().Object, new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock }.Object,
             new Mock<IMediator>().Object);

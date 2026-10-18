@@ -1,12 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Common;
+﻿using Grand.Domain.Common;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Common.Security.Captcha;
 
 public static class CaptchaSettingsExtension
 {
     public static string GetWrongCaptchaMessage(this CaptchaSettings captchaSettings,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
     {
         return captchaSettings.ReCaptchaVersion switch {
             GoogleReCaptchaVersion.V2 => translationService.GetResource("Common.WrongCaptchaV2"),

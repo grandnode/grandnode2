@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -34,7 +35,7 @@ public class BaseBrandControllerTests
         IBrandService brandService,
         IStoreService storeService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPictureViewModelService pictureViewModelService,
         IAdminDataScope<Brand> scope)
         : BaseBrandController(brandViewModelService, brandService, storeService, languageService,
@@ -44,7 +45,7 @@ public class BaseBrandControllerTests
     private Mock<IBrandService> _brandServiceMock;
     private Mock<IBrandViewModelService> _brandViewModelServiceMock;
     private Mock<IStoreService> _storeServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Brand>> _scopeMock;
 
     [TestInitialize]
@@ -57,7 +58,7 @@ public class BaseBrandControllerTests
         _brandViewModelServiceMock = new Mock<IBrandViewModelService>();
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Brand>>();

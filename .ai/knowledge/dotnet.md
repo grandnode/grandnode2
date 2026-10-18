@@ -68,10 +68,10 @@ Use `switch` with `when` guards rather than nested `if/else`:
 switch (cartItem.ShoppingCartTypeId)
 {
     case ShoppingCartType.ShoppingCart when product.DisableBuyButton:
-        context.AddFailure(translationService.GetResource("ShoppingCart.BuyingDisabled"));
+        context.AddFailure(translationService.GetResource("ShoppingCart.BuyingDisabled", value.Language.Id));
         break;
     case ShoppingCartType.Wishlist when product.DisableWishlistButton:
-        context.AddFailure(translationService.GetResource("ShoppingCart.WishlistDisabled"));
+        context.AddFailure(translationService.GetResource("ShoppingCart.WishlistDisabled", value.Language.Id));
         break;
 }
 ```

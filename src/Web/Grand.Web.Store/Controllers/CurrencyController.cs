@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
@@ -8,6 +7,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Models;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -15,7 +15,7 @@ namespace Grand.Web.Store.Controllers;
 public class CurrencyController(
     ICurrencyService currencyService,
     CurrencySettings currencySettings,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IStoreService storeService,
     IContextAccessor contextAccessor) : BaseStoreController
 {

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -14,6 +13,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -26,7 +26,7 @@ public class OutOfStockSubscriptionController : BasePublicController
     public OutOfStockSubscriptionController(IProductService productService,
         IContextAccessor contextAccessor,
         IGroupService groupService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
         IProductAttributeFormatter productAttributeFormatter,
         IStockQuantityService stockQuantityService,
@@ -53,7 +53,7 @@ public class OutOfStockSubscriptionController : BasePublicController
     private readonly IProductService _productService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IStockQuantityService _stockQuantityService;

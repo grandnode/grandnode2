@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -16,6 +15,7 @@ using Shipping.ByWeight.Domain;
 using Shipping.ByWeight.Models;
 using Shipping.ByWeight.Services;
 using System.Text;
+using Grand.Web.Common.Localization;
 
 namespace Shipping.ByWeight.Areas.Store.Controllers;
 
@@ -41,7 +41,7 @@ public class ShippingByWeightController : BaseController
     private readonly ISettingService _settingService;
     private readonly IShippingByWeightService _shippingByWeightService;
     private readonly IShippingMethodService _shippingMethodService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IWarehouseService _warehouseService;
 
     public ShippingByWeightController(
@@ -50,7 +50,7 @@ public class ShippingByWeightController : BaseController
         ICountryService countryService,
         IShippingByWeightService shippingByWeightService,
         ISettingService settingService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICurrencyService currencyService,
         CurrencySettings currencySettings,
         IMeasureService measureService,

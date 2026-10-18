@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
@@ -9,6 +8,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Customer;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Customer;
 
@@ -19,7 +19,7 @@ public class PasswordRecoveryValidator : BaseGrandValidator<PasswordRecoveryMode
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor workContextAccessor, CustomerConfig customerConfig)
         : base(validators)
     {

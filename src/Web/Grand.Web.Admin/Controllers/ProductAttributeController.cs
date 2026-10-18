@@ -7,6 +7,7 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -18,7 +19,7 @@ public class ProductAttributeController(
     IProductService productService,
     IProductAttributeService productAttributeService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     SeoSettings seoSettings,
     IAdminDataScope<ProductAttribute> scope)
     : BaseProductAttributeController(productService, productAttributeService, languageService,

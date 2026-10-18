@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
@@ -15,6 +14,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -27,13 +27,13 @@ public abstract class BaseLoginController : BaseController
     private readonly CustomerSettings _customerSettings;
     private readonly IMediator _mediator;
     private readonly IMessageProviderService _messageProviderService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public BaseLoginController(
         CustomerSettings customerSettings,
         CaptchaSettings captchaSettings,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICustomerManagerService customerManagerService,
         ICustomerService customerService,
         IGrandAuthenticationService authenticationService,

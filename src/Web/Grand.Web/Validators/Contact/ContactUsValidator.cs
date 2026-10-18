@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
@@ -13,6 +12,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Contact;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Validators.Contact;
 
@@ -20,7 +20,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
 {
     private readonly IContactAttributeParser _contactAttributeParser;
     private readonly IContactAttributeService _contactAttributeService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     public ContactUsValidator(
@@ -29,7 +29,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         IContactAttributeParser contactAttributeParser,
         IContactAttributeService contactAttributeService,
         IContextAccessor contextAccessor,
-        ITranslationService translationService, CommonSettings commonSettings,
+        IRequestTranslationService translationService, CommonSettings commonSettings,
         CaptchaSettings captchaSettings,
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator)
         : base(validators)

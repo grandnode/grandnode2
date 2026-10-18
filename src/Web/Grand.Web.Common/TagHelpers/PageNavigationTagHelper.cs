@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Common.Extensions;
+﻿using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Page.Paging;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using CommonExtensions = Grand.Infrastructure.Extensions.CommonExtensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Common.TagHelpers;
 
@@ -50,9 +50,9 @@ public class PageNavigationTagHelper : TagHelper
     private const string BooleanParamAttributeName = "asp-boolean-params";
     private readonly IHtmlHelper _htmlHelper;
 
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
-    public PageNavigationTagHelper(ITranslationService translationService, IHtmlHelper htmlHelper)
+    public PageNavigationTagHelper(IRequestTranslationService translationService, IHtmlHelper htmlHelper)
     {
         _translationService = translationService;
         _htmlHelper = htmlHelper;

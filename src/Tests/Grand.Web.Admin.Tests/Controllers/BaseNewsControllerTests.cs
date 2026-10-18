@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -28,7 +29,7 @@ public class BaseNewsControllerTests
         INewsViewModelService newsViewModelService,
         INewsService newsService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IStoreService storeService,
         IDateTimeService dateTimeService,
         IAdminDataScope<NewsItem> scope)
@@ -38,7 +39,7 @@ public class BaseNewsControllerTests
     private TestNewsController _controller;
     private Mock<INewsViewModelService> _newsViewModelServiceMock;
     private Mock<INewsService> _newsServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<NewsItem>> _scopeMock;
 
     [TestInitialize]
@@ -49,7 +50,7 @@ public class BaseNewsControllerTests
 
         _newsViewModelServiceMock = new Mock<INewsViewModelService>();
         _newsServiceMock = new Mock<INewsService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<NewsItem>>();

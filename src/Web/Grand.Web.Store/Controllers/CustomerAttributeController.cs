@@ -22,7 +22,7 @@ public class CustomerAttributeController(
     ICustomerAttributeService customerAttributeService,
     ICustomerAttributeViewModelService customerAttributeViewModelService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<CustomerAttribute> scope)
     : BaseCustomerAttributeController(customerAttributeService, customerAttributeViewModelService,
         languageService, translationService, scope)

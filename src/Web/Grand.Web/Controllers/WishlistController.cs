@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -17,6 +16,7 @@ using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -28,7 +28,7 @@ public class WishlistController : BasePublicController
     public WishlistController(
         IContextAccessor contextAccessor,
         IShoppingCartService shoppingCartService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICustomerService customerService,
         IPermissionService permissionService,
         IMediator mediator,
@@ -49,7 +49,7 @@ public class WishlistController : BasePublicController
 
     private readonly IContextAccessor _contextAccessor;
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly ICustomerService _customerService;
     private readonly IPermissionService _permissionService;
     private readonly IMediator _mediator;

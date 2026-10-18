@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Directory;
 using System.Globalization;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Directory;
 
@@ -10,7 +10,7 @@ public class CurrencyValidator : BaseGrandValidator<CurrencyModel>
 {
     public CurrencyValidator(
         IEnumerable<IValidatorConsumer<CurrencyModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name)

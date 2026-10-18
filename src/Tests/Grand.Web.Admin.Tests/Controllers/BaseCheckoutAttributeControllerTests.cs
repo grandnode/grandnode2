@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -28,7 +29,7 @@ public class BaseCheckoutAttributeControllerTests
     private class TestCheckoutAttributeController(
         ICheckoutAttributeService checkoutAttributeService,
         ILanguageService languageService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ICurrencyService currencyService,
         CurrencySettings currencySettings,
         IMeasureService measureService,
@@ -51,7 +52,7 @@ public class BaseCheckoutAttributeControllerTests
         _vmService = new Mock<ICheckoutAttributeViewModelService>();
         _scope = new Mock<IAdminDataScope<CheckoutAttribute>>();
         _sut = new TestCheckoutAttributeController(_service.Object, Mock.Of<ILanguageService>(),
-            Mock.Of<ITranslationService>(), Mock.Of<ICurrencyService>(), new CurrencySettings(),
+            Mock.Of<IRequestTranslationService>(), Mock.Of<ICurrencyService>(), new CurrencySettings(),
             Mock.Of<IMeasureService>(), new MeasureSettings(), _vmService.Object, _scope.Object);
 
         var httpContext = new DefaultHttpContext();

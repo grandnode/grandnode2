@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
@@ -8,6 +7,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Filters;
 using Grand.Web.Admin.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -19,7 +19,7 @@ namespace Grand.Web.Admin.Controllers;
 public class VendorReviewController(
     IVendorViewModelService vendorViewModelService,
     IVendorService vendorService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<VendorReview> scope)
     : BaseVendorReviewController(vendorViewModelService, vendorService, translationService, scope)
 {

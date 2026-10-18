@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Catalog;
@@ -10,12 +12,15 @@ namespace Grand.Module.Api.Validators.Catalog;
 public class CategoryValidator : BaseGrandValidator<CategoryDto>
 {
     public CategoryValidator(IEnumerable<IValidatorConsumer<CategoryDto>> validators,
-        ITranslationService translationService, IPictureService pictureService, ICategoryService categoryService,
+        ITranslationService translationService,
+        IContextAccessor contextAccessor, IPictureService pictureService, ICategoryService categoryService,
         ICategoryLayoutService
             categoryLayoutService) : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x.Name).NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.Name.Required"));
+            .WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.Name.Required", languageId));
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             if (!string.IsNullOrEmpty(x.PictureId))
@@ -26,7 +31,7 @@ public class CategoryValidator : BaseGrandValidator<CategoryDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.PictureId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.PictureId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -38,7 +43,7 @@ public class CategoryValidator : BaseGrandValidator<CategoryDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.ParentCategoryId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.ParentCategoryId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -50,7 +55,7 @@ public class CategoryValidator : BaseGrandValidator<CategoryDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.CategoryLayoutId.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.CategoryLayoutId.NotExists", languageId));
 
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
@@ -62,6 +67,6 @@ public class CategoryValidator : BaseGrandValidator<CategoryDto>
             }
 
             return true;
-        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.Id.NotExists"));
+        }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.Id.NotExists", languageId));
     }
 }

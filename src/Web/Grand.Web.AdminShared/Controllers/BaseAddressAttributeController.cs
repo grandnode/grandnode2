@@ -10,6 +10,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -19,7 +20,7 @@ public abstract class BaseAddressAttributeController(
     IAddressAttributeService addressAttributeService,
     IAddressAttributeViewModelService addressAttributeViewModelService,
     ILanguageService languageService,
-    ITranslationService translationService,
+    IRequestTranslationService translationService,
     IAdminDataScope<AddressAttribute> scope) : BaseController
 {
     #region Address attributes

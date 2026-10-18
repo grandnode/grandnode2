@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Plugins;
@@ -15,6 +14,7 @@ using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -27,7 +27,7 @@ public class PaymentController : BaseAdminController
         ISettingService settingService,
         ICountryService countryService,
         IShippingMethodService shippingMethodService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IServiceProvider serviceProvider)
     {
         _paymentService = paymentService;
@@ -46,7 +46,7 @@ public class PaymentController : BaseAdminController
     private readonly ISettingService _settingService;
     private readonly ICountryService _countryService;
     private readonly IShippingMethodService _shippingMethodService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IServiceProvider _serviceProvider;
 
     #endregion

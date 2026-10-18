@@ -1,7 +1,6 @@
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -12,6 +11,7 @@ using Grand.Web.Models.Customer;
 using Grand.Web.Validators.Customer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Tests.Validators.Customers;
 
@@ -39,7 +39,7 @@ public class PasswordRecoveryConfirmValidatorExternalSignInTests
         customerService.Setup(x => x.GetCustomerByEmail("u@x.com", It.IsAny<string>())).ReturnsAsync(_customer);
         var groupService = new Mock<IGroupService>();
         groupService.Setup(x => x.IsRegistered(_customer)).ReturnsAsync(true);
-        var translation = new Mock<ITranslationService>();
+        var translation = new Mock<IRequestTranslationService>();
         translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
         _signInPolicy = new Mock<IExternalSignInPolicy>();
         _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))

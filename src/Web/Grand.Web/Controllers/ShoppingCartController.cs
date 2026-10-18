@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
@@ -26,6 +25,7 @@ using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
 
@@ -37,7 +37,7 @@ public class ShoppingCartController : BasePublicController
     public ShoppingCartController(
         IContextAccessor contextAccessor,
         IShoppingCartService shoppingCartService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IDiscountService discountService,
         ICustomerService customerService,
         IGroupService groupService,
@@ -102,7 +102,7 @@ public class ShoppingCartController : BasePublicController
 
     private readonly IContextAccessor _contextAccessor;
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IDiscountService _discountService;
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;

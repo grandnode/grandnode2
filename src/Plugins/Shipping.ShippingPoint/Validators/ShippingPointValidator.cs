@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Shipping.ShippingPoint.Models;
+using Grand.Web.Common.Localization;
 
 namespace Shipping.ShippingPoint.Validators;
 
@@ -9,7 +9,7 @@ public class ShippingPointValidator : BaseGrandValidator<ShippingPointModel>
 {
     public ShippingPointValidator(
         IEnumerable<IValidatorConsumer<ShippingPointModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.ShippingPointName).NotEmpty()

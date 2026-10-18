@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
@@ -7,6 +6,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.BrainTree.Models;
+using Grand.Web.Common.Localization;
 
 namespace Payments.BrainTree.Areas.Store.Controllers;
 
@@ -30,7 +30,7 @@ public class PaymentBrainTreeController : BasePaymentController
     #region Ctor
 
     public PaymentBrainTreeController(ISettingService settingService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IContextAccessor contextAccessor)
     {
         _settingService = settingService;
@@ -43,7 +43,7 @@ public class PaymentBrainTreeController : BasePaymentController
     #region Fields
 
     private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
     /// <summary>

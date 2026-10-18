@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Common;
 
@@ -9,7 +9,7 @@ public class AddressAttributeValidator : BaseGrandValidator<AddressAttributeMode
 {
     public AddressAttributeValidator(
         IEnumerable<IValidatorConsumer<AddressAttributeModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

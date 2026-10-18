@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Courses;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Course;
 
@@ -9,7 +9,7 @@ public class CourseSubjectValidator : BaseGrandValidator<CourseSubjectModel>
 {
     public CourseSubjectValidator(
         IEnumerable<IValidatorConsumer<CourseSubjectModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty()

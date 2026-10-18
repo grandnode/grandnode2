@@ -10,6 +10,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -19,11 +20,11 @@ public class KnowledgebaseController : BaseAdminController
     private readonly IKnowledgebaseService _knowledgebaseService;
     private readonly IKnowledgebaseViewModelService _knowledgebaseViewModelService;
     private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public KnowledgebaseController(
         IKnowledgebaseViewModelService knowledgebaseViewModelService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IKnowledgebaseService knowledgebaseService,
         ILanguageService languageService)
     {

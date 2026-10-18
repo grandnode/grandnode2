@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
+using Grand.Module.Api.Extensions;
 using Grand.Module.Api.DTOs.Common;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Module.Api.Validators.Common;
@@ -9,15 +11,18 @@ public class PictureValidator : BaseGrandValidator<PictureDto>
 {
     public PictureValidator(
         IEnumerable<IValidatorConsumer<PictureDto>> validators,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IContextAccessor contextAccessor)
         : base(validators)
     {
+        var languageId = contextAccessor.WorkingLanguageId();
+
         RuleFor(x => x.MimeType).NotEmpty()
-            .WithMessage(translationService.GetResource("Api.Common.Picture.Fields.MimeType.Required"));
+            .WithMessage(translationService.GetResource("Api.Common.Picture.Fields.MimeType.Required", languageId));
         RuleFor(x => x.PictureBinary).Must((x, _) =>
         {
             if (!string.IsNullOrEmpty(x.Id) && (x.PictureBinary == null || x.PictureBinary.Length == 0)) return true;
             return !string.IsNullOrEmpty(x.Id) || (x.PictureBinary != null && x.PictureBinary.Length != 0);
-        }).WithMessage(translationService.GetResource("Api.Common.Picture.Fields.PictureBinary.Required"));
+        }).WithMessage(translationService.GetResource("Api.Common.Picture.Fields.PictureBinary.Required", languageId));
     }
 }

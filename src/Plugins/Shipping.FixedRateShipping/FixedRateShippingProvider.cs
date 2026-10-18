@@ -3,12 +3,12 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Shipping.FixedRateShipping.Models;
+using Grand.Web.Common.Localization;
 
 namespace Shipping.FixedRateShipping;
 
@@ -19,7 +19,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
     private readonly ShippingFixedRateSettings _shippingFixedRateSettings;
 
     private readonly IShippingMethodService _shippingMethodService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
 
@@ -28,7 +28,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
         IContextAccessor contextAccessor,
         ISettingService settingService,
         ICurrencyService currencyService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         ShippingFixedRateSettings shippingFixedRateSettings
     )
     {

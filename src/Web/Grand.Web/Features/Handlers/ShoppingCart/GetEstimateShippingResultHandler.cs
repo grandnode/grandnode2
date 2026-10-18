@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
@@ -12,6 +11,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 
@@ -25,14 +25,14 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
 
     private readonly ShippingSettings _shippingSettings;
     private readonly ITaxService _taxService;
-    private readonly ITranslationService _translationService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetEstimateShippingResultHandler(
         IShippingService shippingService,
         IPickupPointService pickupPointService,
         IOrderCalculationService orderTotalCalculationService,
         ITaxService taxService,
-        ITranslationService translationService,
+        IRequestTranslationService translationService,
         IPriceFormatter priceFormatter,
         ShippingSettings shippingSettings,
         IContextAccessor contextAccessor)

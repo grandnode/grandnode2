@@ -1,15 +1,15 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
+using Grand.Web.Common.Localization;
 
 namespace Widgets.Slider.Validators;
 
 public class SliderValidator : BaseGrandValidator<SlideModel>
 {
     public SliderValidator(IEnumerable<IValidatorConsumer<SlideModel>> validators,
-        ITranslationService translationService) : base(validators)
+        IRequestTranslationService translationService) : base(validators)
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Widgets.Slider.Name.Required"));
         RuleFor(x => x.SliderTypeId == (int)SliderType.Category && string.IsNullOrEmpty(x.CategoryId)).Equal(false)

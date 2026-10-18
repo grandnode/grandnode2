@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -16,6 +15,7 @@ using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Services;
 
@@ -25,7 +25,7 @@ public class VendorViewModelServiceTests
     private Mock<IDiscountService> _discountServiceMock;
     private Mock<IVendorService> _vendorServiceMock;
     private Mock<ICustomerService> _customerServiceMock;
-    private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IDateTimeService> _dateTimeServiceMock;
     private Mock<ICountryService> _countryServiceMock;
     private Mock<IStoreService> _storeServiceMock;
@@ -39,7 +39,7 @@ public class VendorViewModelServiceTests
         _discountServiceMock = new Mock<IDiscountService>();
         _vendorServiceMock = new Mock<IVendorService>();
         _customerServiceMock = new Mock<ICustomerService>();
-        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock = new Mock<IRequestTranslationService>();
         _dateTimeServiceMock = new Mock<IDateTimeService>();
         _countryServiceMock = new Mock<ICountryService>();
         _storeServiceMock = new Mock<IStoreService>();

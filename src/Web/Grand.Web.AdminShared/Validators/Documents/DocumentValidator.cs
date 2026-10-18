@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Documents;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Validators.Documents;
 
@@ -9,7 +9,7 @@ public class DocumentValidator : BaseGrandValidator<DocumentModel>
 {
     public DocumentValidator(
         IEnumerable<IValidatorConsumer<DocumentModel>> validators,
-        ITranslationService translationService)
+        IRequestTranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x.Name)
