@@ -1,6 +1,6 @@
-﻿using Grand.Business.Messages.Commands.Tokens;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Mediator;
 using System.Globalization;

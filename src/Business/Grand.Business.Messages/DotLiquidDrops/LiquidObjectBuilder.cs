@@ -1,6 +1,6 @@
-﻿using Grand.Business.Messages.Commands.Tokens;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Business.Messages.Commands.Tokens;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;

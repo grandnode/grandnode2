@@ -18,8 +18,8 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
+using Grand.SharedKernel.Extensions;
 using System.Net;
 
 namespace Grand.Business.Messages.Services;

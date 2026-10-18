@@ -1,5 +1,5 @@
-﻿using Grand.Business.Messages.Commands.Tokens;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Mediator;
 

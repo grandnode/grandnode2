@@ -1,4 +1,3 @@
-using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
@@ -8,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Messages.Commands.Handlers.Messages;
+using Grand.Business.Messages.Commands.Tokens;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
