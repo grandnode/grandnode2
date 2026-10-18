@@ -2,6 +2,8 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Exporter;
+using OpenTelemetry.Trace;
+using System.Globalization;
 
 namespace Aspire.ServiceDefaults.Telemetry;
 
@@ -21,7 +23,8 @@ public sealed record TelemetrySettings(
     bool UsesLegacyAzureMonitorKey,
     bool Console,
     double SamplingRatio,
-    bool SamplerFromEnvironment,
+    string? TracesSampler,
+    string? TracesSamplerArg,
     IReadOnlyList<string> ExcludePaths)
 {
     public const string LegacyAzureMonitorKey = "ApplicationInsights:ConnectionString";
@@ -68,8 +71,34 @@ public sealed record TelemetrySettings(
             legacyConnectionString is not null,
             config.Console,
             config.Tracing.SamplingRatio,
-            Value(configuration["OTEL_TRACES_SAMPLER"]) is not null,
+            Value(configuration["OTEL_TRACES_SAMPLER"])?.ToLowerInvariant(),
+            Value(configuration["OTEL_TRACES_SAMPLER_ARG"]),
             config.Tracing.ExcludePaths ?? DefaultExcludePaths);
+    }
+
+    /// <summary>
+    ///     The sampler for the trace pipeline: the standard OTEL_TRACES_SAMPLER values win over SamplingRatio.
+    ///     Returns null for any other value (e.g. the Azure Monitor microsoft.* samplers), leaving the choice to
+    ///     the exporter. Set explicitly because the Azure Monitor trace exporter installs its own sampler, which
+    ///     would otherwise hide OTEL_TRACES_SAMPLER from the SDK.
+    /// </summary>
+    public Sampler? CreateSampler()
+    {
+        var ratio = double.TryParse(TracesSamplerArg, NumberStyles.Float, CultureInfo.InvariantCulture, out var arg) &&
+                    arg is >= 0 and <= 1
+            ? arg
+            : 1.0;
+
+        return TracesSampler switch {
+            null => new ParentBasedSampler(new TraceIdRatioBasedSampler(SamplingRatio)),
+            "always_on" => new AlwaysOnSampler(),
+            "always_off" => new AlwaysOffSampler(),
+            "traceidratio" => new TraceIdRatioBasedSampler(ratio),
+            "parentbased_always_on" => new ParentBasedSampler(new AlwaysOnSampler()),
+            "parentbased_always_off" => new ParentBasedSampler(new AlwaysOffSampler()),
+            "parentbased_traceidratio" => new ParentBasedSampler(new TraceIdRatioBasedSampler(ratio)),
+            _ => null
+        };
     }
 
     public static string DefaultServiceName(string applicationName)

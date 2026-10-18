@@ -143,11 +143,39 @@ public class TelemetrySettingsTests
     }
 
     [TestMethod]
-    public void Resolve_OtelTracesSampler_IsLeftToTheSdk()
+    public void CreateSampler_NoOtelTracesSampler_UsesParentBasedRatio()
     {
-        var settings = Resolve(new() { ["OTEL_TRACES_SAMPLER"] = "always_off" });
+        var settings = Resolve(new() { ["Telemetry:Tracing:SamplingRatio"] = "0.25" });
 
-        Assert.IsTrue(settings.SamplerFromEnvironment);
+        Assert.AreEqual("ParentBased{TraceIdRatioBasedSampler{0.250000}}", settings.CreateSampler()?.Description);
+    }
+
+    [TestMethod]
+    [DataRow("always_on", null, "AlwaysOnSampler")]
+    [DataRow("always_off", null, "AlwaysOffSampler")]
+    [DataRow("traceidratio", "0.5", "TraceIdRatioBasedSampler{0.500000}")]
+    [DataRow("parentbased_always_on", null, "ParentBased{AlwaysOnSampler}")]
+    [DataRow("parentbased_always_off", null, "ParentBased{AlwaysOffSampler}")]
+    [DataRow("parentbased_traceidratio", "0.1", "ParentBased{TraceIdRatioBasedSampler{0.100000}}")]
+    [DataRow("parentbased_traceidratio", "nonsense", "ParentBased{TraceIdRatioBasedSampler{1.000000}}")]
+    [DataRow("PARENTBASED_TRACEIDRATIO", null, "ParentBased{TraceIdRatioBasedSampler{1.000000}}")]
+    public void CreateSampler_OtelTracesSampler_WinsOverSamplingRatio(string sampler, string? arg, string expected)
+    {
+        var settings = Resolve(new() {
+            ["Telemetry:Tracing:SamplingRatio"] = "0.25",
+            ["OTEL_TRACES_SAMPLER"] = sampler,
+            ["OTEL_TRACES_SAMPLER_ARG"] = arg
+        });
+
+        Assert.AreEqual(expected, settings.CreateSampler()?.Description);
+    }
+
+    [TestMethod]
+    public void CreateSampler_VendorOtelTracesSampler_IsLeftToTheExporter()
+    {
+        var settings = Resolve(new() { ["OTEL_TRACES_SAMPLER"] = "microsoft.rate_limited" });
+
+        Assert.IsNull(settings.CreateSampler());
     }
 
     [TestMethod]

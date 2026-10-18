@@ -3,6 +3,8 @@
     <Import Project="..\..\Build\Grand.Common.props" />
     <PropertyGroup>
         <IsPackable>false</IsPackable>
+        <Nullable>enable</Nullable>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
