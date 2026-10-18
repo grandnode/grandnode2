@@ -158,12 +158,36 @@ public class TelemetrySettingsTests
     }
 
     [TestMethod]
-    public void Resolve_OldApplicationInsightsKey_IsNotRead()
+    public void Resolve_OldApplicationInsightsKey_IsStillRead()
     {
         var settings = Resolve(new() { ["ApplicationInsights:ConnectionString"] = "InstrumentationKey=old" });
 
-        Assert.IsNull(settings.AzureMonitorConnectionString);
-        Assert.IsFalse(settings.HasAnySink);
+        Assert.AreEqual("InstrumentationKey=old", settings.AzureMonitorConnectionString);
+        Assert.IsTrue(settings.HasAnySink);
+    }
+
+    [TestMethod]
+    public void Resolve_NewAzureMonitorKey_WinsOverOldApplicationInsightsKey()
+    {
+        var settings = Resolve(new() {
+            ["ApplicationInsights:ConnectionString"] = "InstrumentationKey=old",
+            ["Telemetry:AzureMonitor:ConnectionString"] = "InstrumentationKey=file"
+        });
+
+        Assert.AreEqual("InstrumentationKey=file", settings.AzureMonitorConnectionString);
+    }
+
+    [TestMethod]
+    public void Resolve_OtlpEndpointInEnvironment_IgnoresHeadersFromFile()
+    {
+        var settings = Resolve(new() {
+            ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://localhost:4317",
+            ["Telemetry:Otlp:Endpoint"] = "https://otlp.vendor.com",
+            ["Telemetry:Otlp:Headers"] = "x-api-key=secret"
+        });
+
+        Assert.AreEqual("http://localhost:4317", settings.OtlpEndpoint);
+        Assert.IsNull(settings.OtlpHeaders);
     }
 
     [TestMethod]

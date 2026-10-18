@@ -36,6 +36,8 @@ public sealed record TelemetrySettings(
         ".woff", ".woff2", ".ttf", ".otf", ".eot"
     ];
 
+    public const string LegacyAzureMonitorConnectionStringKey = "ApplicationInsights:ConnectionString";
+
     public bool HasAnySink => OtlpEndpoint is not null || AzureMonitorConnectionString is not null || Console;
 
     public static TelemetrySettings Resolve(IConfiguration configuration, IHostEnvironment environment)
@@ -63,8 +65,10 @@ public sealed record TelemetrySettings(
             throw new InvalidOperationException(
                 $"{TelemetryConfig.SectionName}:Otlp:Endpoint must be an absolute http or https URI, was \"{otlpEndpoint}\".");
 
+        //ApplicationInsights:ConnectionString is the key of earlier versions, still read so an upgrade keeps exporting
         var azureConnectionString = Value(configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])
-                                    ?? Value(config.AzureMonitor.ConnectionString);
+                                    ?? Value(config.AzureMonitor.ConnectionString)
+                                    ?? Value(configuration[LegacyAzureMonitorConnectionStringKey]);
 
         return new TelemetrySettings(
             config.Enabled,
@@ -72,7 +76,8 @@ public sealed record TelemetrySettings(
             Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion,
             otlpEndpoint,
             protocol,
-            Value(config.Otlp.Headers),
+            //the headers in the file belong to the endpoint in the file - an API key must not reach another host
+            envOtlpEndpoint is null ? Value(config.Otlp.Headers) : null,
             azureConnectionString,
             config.Console,
             config.Tracing.SamplingRatio,

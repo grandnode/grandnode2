@@ -133,7 +133,7 @@ public class TelemetryPipelineTests
     }
 
     [TestMethod]
-    public void OtlpEndpointInEnvironment_KeepsProtocolAndHeadersFromFile()
+    public void OtlpEndpointInEnvironment_KeepsProtocolButNotHeadersFromFile()
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> {
@@ -147,6 +147,6 @@ public class TelemetryPipelineTests
 
         Assert.AreEqual("https://otlp.vendor:4318", builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
         Assert.AreEqual("http/protobuf", builder.Configuration["OTEL_EXPORTER_OTLP_PROTOCOL"]);
-        Assert.AreEqual("x-api-key=from-file", builder.Configuration["OTEL_EXPORTER_OTLP_HEADERS"]);
+        Assert.IsNull(builder.Configuration["OTEL_EXPORTER_OTLP_HEADERS"]);
     }
 }

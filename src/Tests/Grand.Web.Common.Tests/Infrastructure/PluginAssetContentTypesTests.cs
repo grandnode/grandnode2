@@ -57,4 +57,17 @@ public class PluginAssetContentTypesTests
 
         Assert.IsFalse(provider.TryGetContentType(subpath, out _));
     }
+
+    [TestMethod]
+    [DataRow("/Payments.StripeCheckout/Payments.StripeCheckout.deps.json")]
+    [DataRow("/Payments.StripeCheckout/Payments.StripeCheckout.DEPS.JSON")]
+    [DataRow("/Payments.StripeCheckout/Payments.StripeCheckout.runtimeconfig.json")]
+    [DataRow("/Payments.StripeCheckout/Payments.StripeCheckout.runtimeconfig.dev.json")]
+    public void Create_JsonAllowed_BuildFilesAreStillNeverServed(string subpath)
+    {
+        var provider = PluginAssetContentTypes.Create([".json"]);
+
+        Assert.IsFalse(provider.TryGetContentType(subpath, out _));
+        Assert.IsTrue(provider.TryGetContentType("/Widgets.Slider/locale/en.json", out _));
+    }
 }
