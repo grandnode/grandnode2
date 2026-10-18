@@ -1,0 +1,14 @@
+﻿using Grand.Business.Messages.DotLiquidDrops;
+using Grand.Domain.Localization;
+using Grand.Domain.Messages;
+using Grand.Domain.Stores;
+using Grand.Mediator;
+
+namespace Grand.Business.Messages.Commands.Tokens;
+
+public class GetStoreTokensCommand : IRequest<LiquidStore>
+{
+    public Store Store { get; set; }
+    public Language Language { get; set; }
+    public EmailAccount EmailAccount { get; set; }
+}

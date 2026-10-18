@@ -1,7 +1,7 @@
-﻿using Grand.Business.Core.Commands.Messages.Tokens;
+﻿using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Mediator;
 
 namespace Grand.Business.Messages.Commands.Handlers.Messages;

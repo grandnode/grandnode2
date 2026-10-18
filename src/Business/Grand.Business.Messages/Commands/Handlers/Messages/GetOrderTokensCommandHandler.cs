@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Commands.Messages.Tokens;
+﻿using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -8,7 +8,7 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
