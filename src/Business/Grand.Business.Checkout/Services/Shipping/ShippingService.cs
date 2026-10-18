@@ -200,7 +200,7 @@ public class ShippingService : IShippingService
                 foreach (var error in getShippingOptionResponse.Errors)
                 {
                     result.AddError(error);
-                    _logger.LogWarning("Shipping ({FriendlyName}) {Error}", shippingRateMethod.FriendlyName, error);
+                    _logger.LogWarning("Shipping ({SystemName}) {Error}", shippingRateMethod.SystemName, error);
                 }
 
                 //clear the shipping options in this case

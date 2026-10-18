@@ -218,7 +218,7 @@ public class TaxService : ITaxService
         else
         {
             foreach (var error in calculateTaxResult.Errors)
-                _logger.LogError("{FriendlyName} - {Error}", activeTaxProvider.FriendlyName, error);
+                _logger.LogError("{SystemName} - {Error}", activeTaxProvider.SystemName, error);
         }
 
         return (taxRate, isTaxable);

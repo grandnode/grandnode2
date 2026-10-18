@@ -106,6 +106,13 @@ public interface IPaymentProvider : IProvider
     /// </summary>
     Task<string> GetControllerRouteName();
 
+    /// <summary>
+    ///     Gets a friendly name in the given language, for text that does not follow the current request
+    ///     (e.g. order e-mails). Defaults to <see cref="IProvider.FriendlyName" />.
+    /// </summary>
+    /// <param name="languageId">Language identifier</param>
+    string GetFriendlyName(string languageId) => FriendlyName;
+
     #endregion
 
     #region Properties

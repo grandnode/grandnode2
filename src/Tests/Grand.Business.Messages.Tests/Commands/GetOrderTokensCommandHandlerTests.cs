@@ -24,6 +24,7 @@ public class GetOrderTokensCommandHandlerTests
 {
     private readonly Currency _orderCurrency = new() { CurrencyCode = "EUR" };
     private GetOrderTokensCommandHandler _handler;
+    private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPriceFormatter> _priceFormatterMock;
 
     [TestInitialize]
@@ -41,10 +42,12 @@ public class GetOrderTokensCommandHandlerTests
         _priceFormatterMock.Setup(x => x.FormatPrice(It.IsAny<double>(), It.IsAny<Currency>()))
             .Returns((double price, Currency currency) => $"{currency?.CurrencyCode}{price}");
 
+        _paymentServiceMock = new Mock<IPaymentService>();
+
         _handler = new GetOrderTokensCommandHandler(languageService.Object, currencyService.Object,
             new Mock<IProductService>().Object, new Mock<IVendorService>().Object, _priceFormatterMock.Object,
             new Mock<ICountryService>().Object, new Mock<IAddressAttributeParser>().Object,
-            new Mock<IPaymentService>().Object, giftVoucherService.Object, new TaxSettings());
+            _paymentServiceMock.Object, giftVoucherService.Object, new TaxSettings());
     }
 
     [TestMethod]
@@ -61,5 +64,27 @@ public class GetOrderTokensCommandHandlerTests
 
         //Assert
         Assert.AreEqual("EUR10", result.TaxRates["23"]);
+    }
+
+    [TestMethod]
+    public async Task Handle_PaymentMethodNameInTheCustomerLanguage()
+    {
+        //Arrange
+        var paymentProvider = new Mock<IPaymentProvider>();
+        paymentProvider.Setup(x => x.FriendlyName).Returns("Request language");
+        paymentProvider.Setup(x => x.GetFriendlyName("1")).Returns("Customer language");
+        _paymentServiceMock.Setup(x => x.LoadPaymentMethodBySystemName("Payments.Test"))
+            .Returns(paymentProvider.Object);
+        var order = new Order {
+            CustomerCurrencyCode = "EUR", CustomerLanguageId = "1", PaymentMethodSystemName = "Payments.Test"
+        };
+
+        //Act
+        var result = await _handler.Handle(new GetOrderTokensCommand {
+            Order = order, Customer = new Customer(), Store = new Store(), Host = new DomainHost { Url = "https://localhost/" }
+        }, CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual("Customer language", result.PaymentMethod);
     }
 }
