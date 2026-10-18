@@ -7,7 +7,7 @@ namespace Aspire.ServiceDefaults.Tests;
 [TestClass]
 public class TelemetryPathFilterTests
 {
-    private static readonly string[] ExcludePaths = ["/health", "/_content", "/bundles"];
+    private static readonly PathString[] ExcludePaths = ["/health", "/_content", "/bundles"];
     private static readonly string[] ExcludeExtensions = [".css", ".jpg", ".woff2"];
 
     [TestMethod]

@@ -99,8 +99,7 @@ public static class Extensions
 
         if (settings.OtlpEndpoint is not null)
         {
-            if (!settings.OtlpFromEnvironment)
-                builder.Configuration.AddOtlpSettings(settings);
+            builder.Configuration.AddOtlpSettings(settings);
 
             //the exporter reads the OTEL_EXPORTER_OTLP_* keys itself
             telemetry.UseOtlpExporter();

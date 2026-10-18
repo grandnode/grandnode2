@@ -9,7 +9,7 @@ public static class TelemetryPathFilter
     ///     the excluded extensions. Prefixes match whole segments only: "/health" excludes "/health/live" but not
     ///     "/healthy".
     /// </summary>
-    public static bool ShouldTrace(PathString path, IReadOnlyList<string> excludePaths, IReadOnlyList<string> excludeExtensions)
+    public static bool ShouldTrace(PathString path, IReadOnlyList<PathString> excludePaths, IReadOnlyList<string> excludeExtensions)
     {
         foreach (var excludePath in excludePaths)
             if (path.StartsWithSegments(excludePath, StringComparison.OrdinalIgnoreCase))

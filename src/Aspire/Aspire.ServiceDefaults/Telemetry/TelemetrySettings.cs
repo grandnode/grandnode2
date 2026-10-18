@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Exporter;
@@ -18,19 +19,22 @@ public sealed record TelemetrySettings(
     string? OtlpEndpoint,
     OtlpExportProtocol OtlpProtocol,
     string? OtlpHeaders,
-    bool OtlpFromEnvironment,
     string? AzureMonitorConnectionString,
     bool Console,
     double SamplingRatio,
     string? TracesSampler,
     string? TracesSamplerArg,
-    IReadOnlyList<string> ExcludePaths,
+    IReadOnlyList<PathString> ExcludePaths,
     IReadOnlyList<string> ExcludeExtensions)
 {
-    private static readonly string[] DefaultExcludePaths = ["/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico"];
+    private static readonly PathString[] DefaultExcludePaths =
+        ["/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico"];
 
-    private static readonly string[] DefaultExcludeExtensions =
-        [".css", ".js", ".map", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".eot"];
+    private static readonly string[] DefaultExcludeExtensions = [
+        ".css", ".js", ".map",
+        ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".avif", ".ico",
+        ".woff", ".woff2", ".ttf", ".otf", ".eot"
+    ];
 
     public bool HasAnySink => OtlpEndpoint is not null || AzureMonitorConnectionString is not null || Console;
 
@@ -52,9 +56,12 @@ public sealed record TelemetrySettings(
 
         var envOtlpEndpoint = Value(configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
         var otlpEndpoint = envOtlpEndpoint ?? Value(config.Otlp.Endpoint);
-        if (envOtlpEndpoint is null && otlpEndpoint is not null && !Uri.TryCreate(otlpEndpoint, UriKind.Absolute, out _))
+        //Uri.TryCreate alone takes "collector:4317" for a URI with the scheme "collector"
+        if (envOtlpEndpoint is null && otlpEndpoint is not null &&
+            !(Uri.TryCreate(otlpEndpoint, UriKind.Absolute, out var otlpUri) &&
+              (otlpUri.Scheme == Uri.UriSchemeHttp || otlpUri.Scheme == Uri.UriSchemeHttps)))
             throw new InvalidOperationException(
-                $"{TelemetryConfig.SectionName}:Otlp:Endpoint must be an absolute URI, was \"{otlpEndpoint}\".");
+                $"{TelemetryConfig.SectionName}:Otlp:Endpoint must be an absolute http or https URI, was \"{otlpEndpoint}\".");
 
         var azureConnectionString = Value(configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])
                                     ?? Value(config.AzureMonitor.ConnectionString);
@@ -66,13 +73,17 @@ public sealed record TelemetrySettings(
             otlpEndpoint,
             protocol,
             Value(config.Otlp.Headers),
-            envOtlpEndpoint is not null,
             azureConnectionString,
             config.Console,
             config.Tracing.SamplingRatio,
             Value(configuration["OTEL_TRACES_SAMPLER"])?.ToLowerInvariant(),
             Value(configuration["OTEL_TRACES_SAMPLER_ARG"]),
-            config.Tracing.ExcludePaths ?? DefaultExcludePaths,
+            //an empty entry would match every path and one without a leading slash is not a valid PathString
+            config.Tracing.ExcludePaths?
+                .Select(p => Value(p)?.Trim('/')).OfType<string>()
+                .Where(p => p.Length > 0)
+                .Select(p => new PathString("/" + p))
+                .ToArray() ?? DefaultExcludePaths,
             config.Tracing.ExcludeExtensions?
                 .Select(Value).OfType<string>()
                 .Select(e => (e.StartsWith('.') ? e : "." + e).ToLowerInvariant())

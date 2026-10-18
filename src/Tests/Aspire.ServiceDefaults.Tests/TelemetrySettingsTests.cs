@@ -60,7 +60,7 @@ public class TelemetrySettingsTests
         Assert.IsFalse(settings.Console);
         Assert.AreEqual(1.0, settings.SamplingRatio);
         Assert.AreEqual(OtlpExportProtocol.Grpc, settings.OtlpProtocol);
-        CollectionAssert.AreEqual(new[] { "/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico" }, settings.ExcludePaths.ToArray());
+        CollectionAssert.AreEqual(new[] { "/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico" }, settings.ExcludePaths.Select(p => p.Value).ToArray());
     }
 
     [TestMethod]
@@ -69,7 +69,10 @@ public class TelemetrySettingsTests
         var settings = Resolve([]);
 
         CollectionAssert.AreEqual(
-            new[] { ".css", ".js", ".map", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".eot" },
+            new[] {
+                ".css", ".js", ".map", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".avif", ".ico",
+                ".woff", ".woff2", ".ttf", ".otf", ".eot"
+            },
             settings.ExcludeExtensions.ToArray());
     }
 
@@ -89,7 +92,20 @@ public class TelemetrySettingsTests
     {
         var settings = Resolve(new() { ["Telemetry:Tracing:ExcludePaths:0"] = "/robots.txt" });
 
-        CollectionAssert.AreEqual(new[] { "/robots.txt" }, settings.ExcludePaths.ToArray());
+        CollectionAssert.AreEqual(new[] { "/robots.txt" }, settings.ExcludePaths.Select(p => p.Value).ToArray());
+    }
+
+    [TestMethod]
+    public void Resolve_ExcludePathsInFile_DropEmptyEntriesAndGetALeadingSlash()
+    {
+        var settings = Resolve(new() {
+            ["Telemetry:Tracing:ExcludePaths:0"] = "",
+            ["Telemetry:Tracing:ExcludePaths:1"] = " health ",
+            ["Telemetry:Tracing:ExcludePaths:2"] = "/",
+            ["Telemetry:Tracing:ExcludePaths:3"] = "/api/status/"
+        });
+
+        CollectionAssert.AreEqual(new[] { "/health", "/api/status" }, settings.ExcludePaths.Select(p => p.Value).ToArray());
     }
 
     [TestMethod]
@@ -105,7 +121,6 @@ public class TelemetrySettingsTests
         Assert.AreEqual("http://collector:4318", settings.OtlpEndpoint);
         Assert.AreEqual(OtlpExportProtocol.HttpProtobuf, settings.OtlpProtocol);
         Assert.AreEqual("x-api-key=abc", settings.OtlpHeaders);
-        Assert.IsFalse(settings.OtlpFromEnvironment);
     }
 
     [TestMethod]
@@ -117,7 +132,18 @@ public class TelemetrySettingsTests
         });
 
         Assert.AreEqual("http://localhost:4317", settings.OtlpEndpoint);
-        Assert.IsTrue(settings.OtlpFromEnvironment);
+    }
+
+    [TestMethod]
+    [DataRow("collector:4317")]
+    [DataRow("ftp://collector:4317")]
+    [DataRow("/collector")]
+    public void Resolve_OtlpEndpointInFileWithoutHttpScheme_Throws(string endpoint)
+    {
+        var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
+            Resolve(new() { ["Telemetry:Otlp:Endpoint"] = endpoint }));
+
+        StringAssert.Contains(ex.Message, "Telemetry:Otlp:Endpoint");
     }
 
     [TestMethod]
