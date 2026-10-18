@@ -36,7 +36,6 @@ public class PermissionAuthorizeActionAttribute : Attribute, IAsyncAuthorization
             return;
 
         var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
-        var requestPermissionService = context.HttpContext.RequestServices.GetRequiredService<IRequestPermissionService>();
         var contextAccessor = context.HttpContext.RequestServices.GetRequiredService<IContextAccessor>();
 
         //check whether current customer has access to a public store
@@ -46,7 +45,7 @@ public class PermissionAuthorizeActionAttribute : Attribute, IAsyncAuthorization
             return;
 
         //authorize permission of access to the admin area
-        if (!await requestPermissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
+        if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer))
         {
             context.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
         }

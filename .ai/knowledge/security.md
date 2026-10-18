@@ -10,12 +10,12 @@ Patterns from `Grand.Web`, `Grand.Module.Api`, `Grand.Business.*`. Complementary
 
 Every API and admin controller action must enforce permissions (either via `[PermissionAuthorize]` / `[PermissionAuthorizeAction]` attributes or explicit `Authorize` checks) before returning any data or performing any mutation.
 
-`IPermissionService` (Business) only authorizes a customer you pass in. Code in Web, the admin panels and plugins injects `IRequestPermissionService` (`Grand.Web.Common.Security.Authorization`), which adds `Authorize(permission)` for the customer of the current request. `Grand.Module.Api` has no Web.Common reference, so its controllers pass `_contextAccessor.WorkContext.CurrentCustomer`. Code in `src/Business` never authorizes "the current customer".
+`IPermissionService` (Business) only authorizes a customer you pass in. Code in Web, the admin panels and plugins injects `IRequestPermissionService` (`Grand.Web.Common.Security.Authorization`), which provides `Authorize(permission)` for the customer of the current request. `Grand.Module.Api` has no Web.Common reference, so its controllers keep `IPermissionService` and pass `CurrentCustomer` from `BaseApiController`. Code in `src/Business` never authorizes "the current customer".
 
 ```csharp
 public async Task<IActionResult> Get()
 {
-    if (!await _permissionService.Authorize(PermissionSystemName.Brands, _contextAccessor.WorkContext.CurrentCustomer))
+    if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer))
         return Forbid();
     
     return Ok(await _mediator.Send(new GetGenericQuery<BrandDto, Brand>()));
