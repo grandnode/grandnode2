@@ -1,9 +1,10 @@
-﻿using Grand.Domain.Payments;
+﻿using Grand.Domain;
+using Grand.Domain.Payments;
 using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Checkout.Orders;
 
-public class GetPaymentTransactionQuery : IRequest<IQueryable<PaymentTransaction>>
+public class GetPaymentTransactionQuery : IRequest<IPagedList<PaymentTransaction>>
 {
     public string StoreId { get; set; } = "";
     public string CustomerEmail { get; set; } = "";

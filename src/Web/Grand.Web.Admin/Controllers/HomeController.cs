@@ -63,7 +63,7 @@ public class HomeController : BaseHomeControllerWithSetLanguage
             (await _orderReportService.GetOrderAverageReportLine(storeId, os: (int)OrderStatusSystem.Pending))
             .CountOrders;
         model.AbandonedCarts = (await _mediator.Send(new GetCustomerQuery
-            { StoreId = storeId, LoadOnlyWithShoppingCart = true })).Count();
+            { StoreId = storeId, LoadOnlyWithShoppingCart = true, PageSize = 1 })).TotalCount;
 
         var lowStockProducts = await _productsReportService.LowStockProducts(storeId: storeId);
         model.LowStockProducts = lowStockProducts.products.Count + lowStockProducts.combinations.Count;
@@ -76,8 +76,9 @@ public class HomeController : BaseHomeControllerWithSetLanguage
                 CustomerGroupIds = [
                     (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id
                 ],
-                CreatedFromUtc = DateTime.UtcNow.Date
-            })).Count();
+                CreatedFromUtc = DateTime.UtcNow.Date,
+                PageSize = 1
+            })).TotalCount;
         return model;
     }
 

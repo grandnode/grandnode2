@@ -204,8 +204,7 @@ public class OrderService : IOrderService
             OwnerId = ownerId,
             SalesEmployeeId = salesEmployeeId
         };
-        var query = await _mediator.Send(queryModel);
-        return await _orderRepository.PagedAsync(query, pageIndex, pageSize);
+        return await _mediator.Send(queryModel);
     }
 
     /// <summary>

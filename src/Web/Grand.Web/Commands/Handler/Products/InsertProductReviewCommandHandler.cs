@@ -51,7 +51,7 @@ public class InsertProductReviewCommandHandler : IRequestHandler<InsertProductRe
                 ProductId = request.Product.Id,
                 Os = (int)OrderStatusSystem.Complete,
                 PageSize = 1
-            }, cancellationToken)).Any();
+            }, cancellationToken)).TotalCount > 0;
 
         var productReview = new ProductReview {
             ProductId = request.Product.Id,

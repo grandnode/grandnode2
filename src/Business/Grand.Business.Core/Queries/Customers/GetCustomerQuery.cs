@@ -1,11 +1,12 @@
-﻿using Grand.Domain.Customers;
+﻿using Grand.Domain;
+using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Core.Queries.Customers;
 
-public class GetCustomerQuery : IRequest<IQueryable<Customer>>
+public class GetCustomerQuery : IRequest<IPagedList<Customer>>
 {
     public DateTime? CreatedFromUtc { get; set; } = null;
 

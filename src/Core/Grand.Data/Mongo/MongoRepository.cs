@@ -435,8 +435,10 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         if (pageSize <= 0)
             pageSize = 1;
 
-        var totalCount = await CountAsync(query, cancellationToken);
-        var items = await ToListAsync(query.Skip(pageIndex * pageSize).Take(pageSize), cancellationToken);
+        var skip = PagedQuery.Skip(pageIndex, pageSize);
+        var items = await ToListAsync(query.Skip(skip).Take(pageSize), cancellationToken);
+        var totalCount = PagedQuery.TotalFromPage(skip, pageSize, items.Count)
+                         ?? await CountAsync(query, cancellationToken);
 
         return new PagedList<TResult>(items, pageIndex, pageSize, totalCount);
     }

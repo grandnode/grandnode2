@@ -1,9 +1,10 @@
-﻿using Grand.Domain.Orders;
+﻿using Grand.Domain;
+using Grand.Domain.Orders;
 using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Checkout.Orders;
 
-public class GetMerchandiseReturnQuery : IRequest<IQueryable<MerchandiseReturn>>
+public class GetMerchandiseReturnQuery : IRequest<IPagedList<MerchandiseReturn>>
 {
     public string StoreId { get; set; } = "";
     public string CustomerId { get; set; } = "";

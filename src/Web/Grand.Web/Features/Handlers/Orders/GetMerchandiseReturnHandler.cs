@@ -114,7 +114,8 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
 
             var merchandiseReturns =
                 await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id);
-            var qtyReturn = merchandiseReturns.Sum(rr => rr.MerchandiseReturnItems.Sum(rrItem => rrItem.Quantity));
+            var qtyReturn = merchandiseReturns.SelectMany(rr => rr.MerchandiseReturnItems)
+                .Where(rrItem => rrItem.OrderItemId == orderItem.Id).Sum(rrItem => rrItem.Quantity);
 
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
             if (product.NotReturnable) continue;

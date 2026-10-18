@@ -493,8 +493,9 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
         if (pageSize <= 0)
             pageSize = 1;
 
-        var totalCount = query.Count();
-        var items = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+        var skip = PagedQuery.Skip(pageIndex, pageSize);
+        var items = query.Skip(skip).Take(pageSize).ToList();
+        var totalCount = PagedQuery.TotalFromPage(skip, pageSize, items.Count) ?? query.Count();
 
         return Task.FromResult<IPagedList<TResult>>(new PagedList<TResult>(items, pageIndex, pageSize, totalCount));
     }

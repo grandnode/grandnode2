@@ -111,8 +111,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
             Rs = rs
         };
 
-        var query = await _mediator.Send(model);
-        return await _merchandiseReturnRepository.PagedAsync(query, pageIndex, pageSize);
+        return await _mediator.Send(model);
     }
 
     /// <summary>

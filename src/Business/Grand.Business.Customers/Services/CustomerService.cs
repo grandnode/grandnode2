@@ -113,8 +113,7 @@ public class CustomerService : ICustomerService
             PageSize = pageSize,
             OrderBySelector = orderBySelector
         };
-        var query = await _mediator.Send(queryModel);
-        return await _customerRepository.PagedAsync(query, pageIndex, pageSize);
+        return await _mediator.Send(queryModel);
     }
 
     /// <summary>
