@@ -24,7 +24,8 @@ public class GoogleReCaptchaValidator : IGoogleReCaptchaValidator
         _httpClient = httpClient;
     }
 
-    public async Task<GoogleReCaptchaResponse> Validate(string response)
+    public async Task<GoogleReCaptchaResponse> Validate(string response,
+        CancellationToken cancellationToken = default)
     {
         GoogleReCaptchaResponse result;
         if (_httpContextAccessor.HttpContext == null) return null;
@@ -33,9 +34,9 @@ public class GoogleReCaptchaValidator : IGoogleReCaptchaValidator
 
         try
         {
-            var responseMessage = await _httpClient.GetAsync(requestUri);
+            var responseMessage = await _httpClient.GetAsync(requestUri, cancellationToken);
             responseMessage.EnsureSuccessStatusCode();
-            var contentResult = await responseMessage.Content.ReadAsStringAsync();
+            var contentResult = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
             result = ParseResponseResult(contentResult);
         }
         catch (Exception exc)

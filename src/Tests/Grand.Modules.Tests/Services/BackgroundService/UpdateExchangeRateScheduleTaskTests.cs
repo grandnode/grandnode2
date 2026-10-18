@@ -31,7 +31,7 @@ public class UpdateExchangeRateScheduleTaskTests
         _currencyServiceMock.Setup(c => c.GetPrimaryExchangeRateCurrency())
             .ReturnsAsync(new Currency { CurrencyCode = "EU" });
         _exchangeRateServiceMock.Setup(c => c.GetCurrencyLiveRates(It.IsAny<string>()))
-            .ReturnsAsync(new List<ExchangeRate> { new() { CurrencyCode = "PL", Rate = 10 } });
+            .ReturnsAsync(new List<Grand.Domain.Directory.ExchangeRate> { new() { CurrencyCode = "PL", Rate = 10 } });
         _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>()))
             .ReturnsAsync(new Currency { Rate = 10 });
         await _task.Execute();

@@ -141,9 +141,10 @@ public class PushNotificationsService : IPushNotificationsService
     /// <param name="pictureUrl"></param>
     /// <param name="registrationIds"></param>
     /// <param name="clickUrl"></param>
+    /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
     public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl,
-        string clickUrl, List<string> registrationIds = null)
+        string clickUrl, List<string> registrationIds = null, CancellationToken cancellationToken = default)
     {
         var ids = new List<string>();
 
@@ -186,8 +187,8 @@ public class PushNotificationsService : IPushNotificationsService
 
             httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            using var response = await _httpClient.SendAsync(httpRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
+            using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Error occured while sending push notification {ResponseString}", responseString);
@@ -220,12 +221,13 @@ public class PushNotificationsService : IPushNotificationsService
     /// <param name="pictureUrl"></param>
     /// <param name="customerId"></param>
     /// <param name="clickUrl"></param>
+    /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
     public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl,
-        string customerId, string clickUrl)
+        string customerId, string clickUrl, CancellationToken cancellationToken = default)
     {
         return await SendPushNotification(title, text, pictureUrl, clickUrl,
-            [GetPushReceiverByCustomerId(customerId).Id.ToString()]);
+            [GetPushReceiverByCustomerId(customerId).Id.ToString()], cancellationToken);
     }
 
     /// <summary>

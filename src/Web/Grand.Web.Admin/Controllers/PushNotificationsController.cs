@@ -48,7 +48,7 @@ public class PushNotificationsController(
             var pictureUrl = await pictureService.GetPictureUrl(model.PictureId);
             var result =
                 await pushNotificationsService.SendPushNotification(model.Title, model.MessageText, pictureUrl,
-                    model.ClickUrl);
+                    model.ClickUrl, cancellationToken: HttpContext.RequestAborted);
             if (result.Item1)
                 Success(translationService.GetResource(result.Item2));
             else

@@ -142,7 +142,8 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddSingleton<IPoweredByMiddlewareOptions, PoweredByMiddlewareOptions>();
 
         //request reCAPTCHA service
-        serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>();
+        serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>(client =>
+            client.Timeout = TimeSpan.FromSeconds(10));
 
         serviceCollection.AddScoped<IViewRenderService, ViewRenderService>();
     }

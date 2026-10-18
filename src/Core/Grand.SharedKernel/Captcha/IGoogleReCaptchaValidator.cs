@@ -1,5 +1,5 @@
 ﻿namespace Grand.SharedKernel.Captcha;
 public interface IGoogleReCaptchaValidator
 {
-    Task<GoogleReCaptchaResponse> Validate(string response);
+    Task<GoogleReCaptchaResponse> Validate(string response, CancellationToken cancellationToken = default);
 }

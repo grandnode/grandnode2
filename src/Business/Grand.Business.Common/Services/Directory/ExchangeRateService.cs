@@ -21,13 +21,15 @@ public class ExchangeRateService : IExchangeRateService
     ///     Gets currency live rates
     /// </summary>
     /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
+    /// <param name="cancellationToken">Cancels the outbound request</param>
     /// <returns>Exchange rates</returns>
-    public virtual Task<IList<ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode)
+    public virtual Task<IList<ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode,
+        CancellationToken cancellationToken = default)
     {
         var exchangeRateProvider = LoadActiveExchangeRateProvider();
         if (exchangeRateProvider == null)
             throw new Exception("Active exchange rate provider cannot be loaded");
-        return exchangeRateProvider.GetCurrencyLiveRates(exchangeRateCurrencyCode);
+        return exchangeRateProvider.GetCurrencyLiveRates(exchangeRateCurrencyCode, cancellationToken);
     }
 
 

@@ -35,15 +35,18 @@ public class McExchangeRateProvider : IExchangeRateProvider
     ///     Gets currency live rates
     /// </summary>
     /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
+    /// <param name="cancellationToken">Cancels the outbound request</param>
     /// <returns>Exchange rates</returns>
-    public Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode)
+    public Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(exchangeRateCurrencyCode))
             throw new ArgumentNullException(nameof(exchangeRateCurrencyCode));
 
         exchangeRateCurrencyCode = exchangeRateCurrencyCode.ToLowerInvariant();
 
-        if (_providers.TryGetValue(exchangeRateCurrencyCode, out var provider)) return provider.GetCurrencyLiveRates();
+        if (_providers.TryGetValue(exchangeRateCurrencyCode, out var provider))
+            return provider.GetCurrencyLiveRates(cancellationToken);
 
         throw new GrandException(
             "You can use ECB (European central bank) exchange rate provider only when the primary exchange rate currency is set to EURO");

@@ -76,7 +76,8 @@ public class CurrencyController : BaseAdminController
                 if (primaryExchangeCurrency == null)
                     throw new GrandException("Primary exchange rate currency is not set");
 
-                ViewBag.Rates = await _exchangeRateService.GetCurrencyLiveRates(primaryExchangeCurrency.CurrencyCode);
+                ViewBag.Rates = await _exchangeRateService.GetCurrencyLiveRates(primaryExchangeCurrency.CurrencyCode,
+                    HttpContext.RequestAborted);
             }
             catch (Exception exc)
             {

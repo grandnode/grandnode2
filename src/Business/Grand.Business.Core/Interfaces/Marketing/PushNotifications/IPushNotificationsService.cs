@@ -74,9 +74,10 @@ public interface IPushNotificationsService
     /// <param name="pictureUrl"></param>
     /// <param name="registrationIds"></param>
     /// <param name="clickUrl"></param>
+    /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
     Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl, string clickUrl,
-        List<string> registrationIds = null);
+        List<string> registrationIds = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Sends push notification to all receivers
@@ -86,7 +87,8 @@ public interface IPushNotificationsService
     /// <param name="pictureUrl"></param>
     /// <param name="customerId"></param>
     /// <param name="clickUrl"></param>
+    /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
     Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl, string customerId,
-        string clickUrl);
+        string clickUrl, CancellationToken cancellationToken = default);
 }

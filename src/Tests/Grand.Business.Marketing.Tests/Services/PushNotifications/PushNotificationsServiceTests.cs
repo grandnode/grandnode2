@@ -196,6 +196,32 @@ public class PushNotificationsServiceTests
         Assert.IsTrue(result.Item1);
     }
 
+    [TestMethod]
+    public async Task SendPushNotification_Cancelled_FailsAndStoresNoMessage()
+    {
+        //Arrange
+        var hangingHandler = new Mock<HttpMessageHandler>();
+        hangingHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .Returns(async (HttpRequestMessage _, CancellationToken ct) => {
+                await Task.Delay(Timeout.Infinite, ct);
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            });
+        var service = new PushNotificationsService(_repositoryPushRegistration, _repositoryPushMessage,
+            _mediatorMock.Object, new PushNotificationsSettings(), _loggerMock.Object,
+            new HttpClient(hangingHandler.Object));
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+
+        //Act
+        var result = await service.SendPushNotification("my title", "sample text", "", "", ["token"], cts.Token)
+            .WaitAsync(TimeSpan.FromSeconds(10));
+
+        //Assert
+        Assert.IsFalse(result.Item1);
+        Assert.IsEmpty(_repositoryPushMessage.Table);
+    }
+
 
     [TestMethod]
     public async Task GetPushReceiverTest()

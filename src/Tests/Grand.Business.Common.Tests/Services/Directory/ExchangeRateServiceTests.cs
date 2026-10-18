@@ -30,6 +30,21 @@ public class ExchangeRateServiceTests
     }
 
     [TestMethod]
+    public async Task GetCurrencyLiveRates_PassesTokenToProvider()
+    {
+        var provider = new Mock<IExchangeRateProvider>();
+        provider.Setup(c => c.SystemName).Returns("sysname");
+        _settings.ActiveExchangeRateProviderSystemName = "sysname";
+        var exchangeRateService =
+            new ExchangeRateService(new List<IExchangeRateProvider> { provider.Object }, _settings);
+        using var cts = new CancellationTokenSource();
+
+        await exchangeRateService.GetCurrencyLiveRates("rate", cts.Token);
+
+        provider.Verify(c => c.GetCurrencyLiveRates("rate", cts.Token), Times.Once);
+    }
+
+    [TestMethod]
     public void LoadBySystemName_ReturnExpectedValue()
     {
         var provider = new Mock<IExchangeRateProvider>();

@@ -11,6 +11,7 @@ public class StartupApplication : IStartupApplication
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddHttpClient(Constant.DefaultHttpClientName, client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<IExchangeRateProvider, McExchangeRateProvider>();
     }
 
