@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Permissions;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Mvc;
@@ -34,16 +35,18 @@ public class PermissionAuthorizeActionAttribute : Attribute, IAsyncAuthorization
         if (permissionAuthorize == null || string.IsNullOrEmpty(permissionAuthorize.Permission))
             return;
 
-        var permissionService = context.HttpContext.RequestServices.GetRequiredService<IRequestPermissionService>();
+        var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
+        var requestPermissionService = context.HttpContext.RequestServices.GetRequiredService<IRequestPermissionService>();
         var contextAccessor = context.HttpContext.RequestServices.GetRequiredService<IContextAccessor>();
 
         //check whether current customer has access to a public store
-        if (await permissionService.AuthorizeAction(permissionAuthorize.Permission, PermissionAction,
-                contextAccessor.WorkContext.CurrentCustomer))
+        var customer = contextAccessor.WorkContext?.CurrentCustomer;
+        if (customer != null &&
+            await permissionService.AuthorizeAction(permissionAuthorize.Permission, PermissionAction, customer))
             return;
 
         //authorize permission of access to the admin area
-        if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
+        if (!await requestPermissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
         {
             context.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
         }

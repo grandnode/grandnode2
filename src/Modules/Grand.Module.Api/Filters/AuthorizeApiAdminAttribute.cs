@@ -75,7 +75,7 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
             {
                 //authorize permission of access to the admin area
                 if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel,
-                        contextAccessor.WorkContext.CurrentCustomer))
+                        contextAccessor.WorkContext?.CurrentCustomer))
                     filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
 
                 //get allowed IP addresses

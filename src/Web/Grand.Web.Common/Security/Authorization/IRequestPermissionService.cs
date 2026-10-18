@@ -1,12 +1,11 @@
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 
 namespace Grand.Web.Common.Security.Authorization;
 
 /// <summary>
-///     Permission service for code that runs inside a request
+///     Permission checks for the customer of the current request
 /// </summary>
-public interface IRequestPermissionService : IPermissionService
+public interface IRequestPermissionService
 {
     /// <summary>
     ///     Authorizes the customer of the current request.

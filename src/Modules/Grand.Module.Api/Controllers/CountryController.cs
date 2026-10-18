@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -16,13 +15,11 @@ public class CountryController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
-    private readonly IContextAccessor _contextAccessor;
 
-    public CountryController(IMediator mediator, IPermissionService permissionService, IContextAccessor contextAccessor)
+    public CountryController(IMediator mediator, IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
-        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from Country by key")]
@@ -33,7 +30,7 @@ public class CountryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Countries, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Countries, CurrentCustomer)) return Forbid();
 
         //Domain.Directory.Country
         var country = await _mediator.Send(new GetGenericQuery<CountryDto, Country>(key));
@@ -50,7 +47,7 @@ public class CountryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CountryDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Countries, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Countries, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<CountryDto, Country>()));
     }

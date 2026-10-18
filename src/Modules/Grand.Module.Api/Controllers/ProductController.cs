@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -18,15 +17,13 @@ public class ProductController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
-    private readonly IContextAccessor _contextAccessor;
 
     public ProductController(
         IMediator mediator,
-        IPermissionService permissionService, IContextAccessor contextAccessor)
+        IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
-        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from Product by key")]
@@ -37,7 +34,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -53,7 +50,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<ProductDto, Product>()));
     }
@@ -66,7 +63,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] ProductDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddProductCommand { Model = model });
         return Ok(model);
@@ -80,7 +77,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] ProductDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         await _mediator.Send(new UpdateProductCommand { Model = model });
         return Ok();
@@ -95,7 +92,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<ProductDto> model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
@@ -117,7 +114,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -138,7 +135,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateStock([FromRoute] string key, [FromBody] ProductUpdateStock model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -161,7 +158,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateProductCategory([FromRoute] string key, [FromBody] ProductCategoryDto productCategory)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productCategory == null) return BadRequest();
 
@@ -190,7 +187,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProductCategory([FromRoute] string key, [FromBody] ProductCategoryDto productCategory)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productCategory == null) return BadRequest();
 
@@ -219,7 +216,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProductCategory([FromRoute] string key, [FromBody] ProductCategoryDeleteDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (model == null) return BadRequest();
 
@@ -257,7 +254,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateProductCollection([FromRoute] string key, [FromBody] ProductCollectionDto productCollection)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productCollection == null) return BadRequest();
 
@@ -285,7 +282,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProductCollection([FromRoute] string key, [FromBody] ProductCollectionDto productCollection)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productCollection == null) return BadRequest();
 
@@ -314,7 +311,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProductCollection([FromRoute] string key, [FromBody] ProductCollectionDeleteDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (model == null) return BadRequest();
 
@@ -352,7 +349,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateProductPicture([FromRoute] string key, [FromBody] ProductPictureDto productPicture)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productPicture == null) return BadRequest();
 
@@ -380,7 +377,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProductPicture([FromRoute] string key, [FromBody] ProductPictureDto productPicture)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productPicture == null) return BadRequest();
 
@@ -408,7 +405,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProductPicture([FromRoute] string key, [FromBody] ProductPictureDeleteDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (model == null) return BadRequest();
 
@@ -446,7 +443,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateProductSpecification([FromRoute] string key, [FromBody] ProductSpecificationAttributeDto productSpecification)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productSpecification == null) return BadRequest();
 
@@ -475,7 +472,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProductSpecification([FromRoute] string key, [FromBody] ProductSpecificationAttributeDto productSpecification)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productSpecification == null) return BadRequest();
 
@@ -504,7 +501,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProductSpecification([FromRoute] string key, [FromBody] ProductSpecificationAttributeDeleteDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (model == null) return BadRequest();
 
@@ -543,7 +540,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateProductTierPrice([FromRoute] string key, [FromBody] ProductTierPriceDto productTierPrice)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productTierPrice == null) return BadRequest();
 
@@ -571,7 +568,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProductTierPrice([FromRoute] string key, [FromBody] ProductTierPriceDto productTierPrice)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productTierPrice == null) return BadRequest();
 
@@ -599,7 +596,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProductTierPrice([FromRoute] string key, [FromBody] ProductTierPriceDeleteDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (model == null) return BadRequest();
 
@@ -637,7 +634,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateProductAttributeMapping([FromRoute] string key, [FromBody] ProductAttributeMappingDto productAttributeMapping)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productAttributeMapping == null) return BadRequest();
 
@@ -666,7 +663,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProductAttributeMapping([FromRoute] string key, [FromBody] ProductAttributeMappingDto productAttributeMapping)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (productAttributeMapping == null) return BadRequest();
 
@@ -695,7 +692,7 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProductAttributeMapping([FromRoute] string key, [FromBody] ProductAttributeMappingDeleteDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Products, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
         if (model == null) return BadRequest();
 

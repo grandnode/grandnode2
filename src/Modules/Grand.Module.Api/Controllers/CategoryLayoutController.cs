@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -16,15 +15,13 @@ public class CategoryLayoutController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
-    private readonly IContextAccessor _contextAccessor;
 
     public CategoryLayoutController(
         IMediator mediator,
-        IPermissionService permissionService, IContextAccessor contextAccessor)
+        IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
-        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from CategoryLayout by key")]
@@ -35,7 +32,7 @@ public class CategoryLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, CurrentCustomer)) return Forbid();
 
         var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>(key));
         if (!layout.Any()) return NotFound();
@@ -51,7 +48,7 @@ public class CategoryLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LayoutDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>()));
     }

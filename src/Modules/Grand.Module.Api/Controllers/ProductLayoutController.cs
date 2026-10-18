@@ -9,7 +9,6 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -19,13 +18,11 @@ public class ProductLayoutController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
-    private readonly IContextAccessor _contextAccessor;
 
-    public ProductLayoutController(IMediator mediator, IPermissionService permissionService, IContextAccessor contextAccessor)
+    public ProductLayoutController(IMediator mediator, IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
-        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from ProductLayout by key")]
@@ -36,7 +33,7 @@ public class ProductLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, CurrentCustomer)) return Forbid();
 
         var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, ProductLayout>(key));
         if (!layout.Any()) return NotFound();
@@ -52,7 +49,7 @@ public class ProductLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LayoutDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, CurrentCustomer)) return Forbid();
         return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, ProductLayout>()));
     }
 }

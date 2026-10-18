@@ -14,6 +14,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Mediator;
+using Grand.Web.Common.Page;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Controllers;
 using Grand.Web.Features.Handlers.Pages;
@@ -24,6 +25,8 @@ using Grand.Web.Models.Blogs;
 using Grand.Web.Models.News;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
@@ -71,9 +74,11 @@ public class ContentPreviewTests
             .ReturnsAsync(new BlogPostModel());
     }
 
-    private static ControllerContext GetContext()
+    private static ControllerContext GetContext(IServiceProvider requestServices = null)
     {
-        return new ControllerContext { HttpContext = new DefaultHttpContext { Request = { Method = "GET" } } };
+        return new ControllerContext {
+            HttpContext = new DefaultHttpContext { Request = { Method = "GET" }, RequestServices = requestServices }
+        };
     }
 
     private NewsController NewsController(NewsItem newsItem)
@@ -105,7 +110,11 @@ public class ContentPreviewTests
             _aclServiceMock.Object, new Mock<IRequestTranslationService>().Object,
             new Mock<IMessageProviderService>().Object, new Mock<IDateTimeService>().Object,
             _permissionServiceMock.Object, new CustomerSettings(), new CaptchaSettings(), new LanguageSettings()) {
-            ControllerContext = GetContext()
+            ControllerContext = GetContext(new ServiceCollection()
+                .AddSingleton(new Mock<IPageHeadBuilder>().Object)
+                .BuildServiceProvider()),
+            Url = new Mock<IUrlHelper>().Object,
+            TempData = new Mock<ITempDataDictionary>().Object
         };
     }
 
