@@ -9,7 +9,8 @@ namespace Aspire.ServiceDefaults.Telemetry;
 
 /// <summary>
 ///     The telemetry configuration the pipeline is built from: the "Telemetry" section merged with the standard
-///     environment variables, which win, and the legacy ApplicationInsights:ConnectionString key, which loses.
+///     environment variables, which win, and the legacy ApplicationInsights:ConnectionString key, which loses
+///     (still read in 2.5, removed in 2.6).
 /// </summary>
 public sealed record TelemetrySettings(
     bool Enabled,
@@ -20,14 +21,13 @@ public sealed record TelemetrySettings(
     string? OtlpHeaders,
     bool OtlpFromEnvironment,
     string? AzureMonitorConnectionString,
-    bool UsesLegacyAzureMonitorKey,
     bool Console,
     double SamplingRatio,
     string? TracesSampler,
     string? TracesSamplerArg,
     IReadOnlyList<string> ExcludePaths)
 {
-    public const string LegacyAzureMonitorKey = "ApplicationInsights:ConnectionString";
+    private const string LegacyAzureMonitorKey = "ApplicationInsights:ConnectionString";
 
     private static readonly string[] DefaultExcludePaths = ["/health", "/_content", "/bundles"];
 
@@ -56,8 +56,8 @@ public sealed record TelemetrySettings(
                 $"{TelemetryConfig.SectionName}:Otlp:Endpoint must be an absolute URI, was \"{otlpEndpoint}\".");
 
         var azureConnectionString = Value(configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])
-                                    ?? Value(config.AzureMonitor.ConnectionString);
-        var legacyConnectionString = azureConnectionString is null ? Value(configuration[LegacyAzureMonitorKey]) : null;
+                                    ?? Value(config.AzureMonitor.ConnectionString)
+                                    ?? Value(configuration[LegacyAzureMonitorKey]);
 
         return new TelemetrySettings(
             config.Enabled,
@@ -67,8 +67,7 @@ public sealed record TelemetrySettings(
             protocol,
             Value(config.Otlp.Headers),
             envOtlpEndpoint is not null,
-            azureConnectionString ?? legacyConnectionString,
-            legacyConnectionString is not null,
+            azureConnectionString,
             config.Console,
             config.Tracing.SamplingRatio,
             Value(configuration["OTEL_TRACES_SAMPLER"])?.ToLowerInvariant(),

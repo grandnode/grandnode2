@@ -46,9 +46,6 @@ public static class Extensions
         if (!settings.Enabled)
             return builder;
 
-        if (settings.UsesLegacyAzureMonitorKey)
-            builder.Services.AddHostedService<LegacyTelemetryConfigWarning>();
-
         var telemetry = builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource => resource
                 .AddService(settings.ServiceName, serviceNamespace: "grandnode", serviceVersion: settings.ServiceVersion,

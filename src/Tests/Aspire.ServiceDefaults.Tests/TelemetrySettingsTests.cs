@@ -109,7 +109,6 @@ public class TelemetrySettingsTests
         });
 
         Assert.AreEqual("InstrumentationKey=env", settings.AzureMonitorConnectionString);
-        Assert.IsFalse(settings.UsesLegacyAzureMonitorKey);
     }
 
     [TestMethod]
@@ -121,16 +120,14 @@ public class TelemetrySettingsTests
         });
 
         Assert.AreEqual("InstrumentationKey=file", settings.AzureMonitorConnectionString);
-        Assert.IsFalse(settings.UsesLegacyAzureMonitorKey);
     }
 
     [TestMethod]
-    public void Resolve_OnlyLegacyKey_IsStillUsedAndFlagged()
+    public void Resolve_OnlyLegacyKey_IsStillUsed()
     {
         var settings = Resolve(new() { ["ApplicationInsights:ConnectionString"] = "InstrumentationKey=legacy" });
 
         Assert.AreEqual("InstrumentationKey=legacy", settings.AzureMonitorConnectionString);
-        Assert.IsTrue(settings.UsesLegacyAzureMonitorKey);
         Assert.IsTrue(settings.HasAnySink);
     }
 

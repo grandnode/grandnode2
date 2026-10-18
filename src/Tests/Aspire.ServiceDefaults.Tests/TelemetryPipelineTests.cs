@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Aspire.ServiceDefaults.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -131,25 +130,5 @@ public class TelemetryPipelineTests
         Assert.AreEqual("http://collector:4318", builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
         Assert.AreEqual("http/protobuf", builder.Configuration["OTEL_EXPORTER_OTLP_PROTOCOL"]);
         Assert.AreEqual("x-api-key=from-env", builder.Configuration["OTEL_EXPORTER_OTLP_HEADERS"]);
-    }
-
-    [TestMethod]
-    public void LegacyKey_RegistersTheDeprecationWarning()
-    {
-        var (host, _) = BuildHost(new() { ["ApplicationInsights:ConnectionString"] = AzureConnectionString });
-        using (host)
-        {
-            Assert.IsTrue(host.Services.GetServices<IHostedService>().OfType<LegacyTelemetryConfigWarning>().Any());
-        }
-    }
-
-    [TestMethod]
-    public void NewKey_DoesNotRegisterTheDeprecationWarning()
-    {
-        var (host, _) = BuildHost(new() { ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString });
-        using (host)
-        {
-            Assert.IsFalse(host.Services.GetServices<IHostedService>().OfType<LegacyTelemetryConfigWarning>().Any());
-        }
     }
 }
