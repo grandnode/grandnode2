@@ -61,6 +61,15 @@ public class TelemetrySettingsTests
         Assert.AreEqual(1.0, settings.SamplingRatio);
         Assert.AreEqual(OtlpExportProtocol.Grpc, settings.OtlpProtocol);
         CollectionAssert.AreEqual(new[] { "/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico" }, settings.ExcludePaths.Select(p => p.Value).ToArray());
+        Assert.IsFalse(settings.AzureSdkTracing);
+    }
+
+    [TestMethod]
+    public void Resolve_Instrumentation_IsBoundFromFile()
+    {
+        var settings = Resolve(new() { ["Telemetry:Instrumentation:AzureSdk"] = "true" });
+
+        Assert.IsTrue(settings.AzureSdkTracing);
     }
 
     [TestMethod]

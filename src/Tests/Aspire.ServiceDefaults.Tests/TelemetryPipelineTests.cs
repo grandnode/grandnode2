@@ -2,7 +2,9 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Aspire.ServiceDefaults.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MongoDB.Driver;
 using OpenTelemetry.Trace;
 
 namespace Aspire.ServiceDefaults.Tests;
@@ -112,6 +114,127 @@ public class TelemetryPipelineTests
             var recorded = Enumerable.Range(0, 50).Count(_ => IsRootActivityRecorded(sourceName));
             Assert.AreEqual(0, recorded);
         }
+    }
+
+    [TestMethod]
+    public void MongoDb_WithASink_RecordsDriverActivities()
+    {
+        var (host, _) = BuildHost(new() { ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString });
+        using (host)
+        {
+            Assert.IsTrue(IsRootActivityRecorded("MongoDB.Driver"));
+        }
+    }
+
+    [TestMethod]
+    public void MongoDb_NoSink_DoesNotListenToTheDriver()
+    {
+        var (host, _) = BuildHost([]);
+        using (host)
+        {
+            Assert.IsFalse(IsRootActivityRecorded("MongoDB.Driver"));
+        }
+    }
+
+    [TestMethod]
+    public void MongoDbActivitySourceName_IsTheDriverSource()
+    {
+        Assert.AreEqual(MongoTelemetry.ActivitySourceName, TelemetrySettings.MongoDbActivitySourceName);
+    }
+
+    [TestMethod]
+    public void AzureSdk_ByDefault_IsNotListenedTo()
+    {
+        var (host, _) = BuildHost(new() { ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString });
+        using (host)
+        {
+            Assert.IsFalse(IsRootActivityRecorded("Azure.Storage.Blobs.BlobContainerClient"));
+        }
+    }
+
+    [TestMethod]
+    public void AzureSdkEnabled_ListensToItsSourcesAndTurnsOnTheSwitch()
+    {
+        var (host, _) = BuildHost(new() {
+            ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString,
+            ["Telemetry:Instrumentation:AzureSdk"] = "true"
+        });
+        try
+        {
+            using (host)
+            {
+                Assert.IsTrue(IsRootActivityRecorded("Azure.Storage.Blobs.BlobContainerClient"));
+                Assert.IsTrue(AppContext.TryGetSwitch("Azure.Experimental.EnableActivitySource", out var enabled) && enabled);
+            }
+        }
+        finally
+        {
+            //the switch is process-wide - left on it would leak into the other tests
+            AppContext.SetSwitch(TelemetrySettings.AzureSdkActivitySourceSwitch, false);
+        }
+    }
+
+    [TestMethod]
+    public async Task HttpClient_UnderAzureSdkHttpSpan_IsNotRecorded()
+    {
+        //the Azure SDK span has to be recorded itself - under an unsampled parent the child is dropped anyway
+        var (host, _) = BuildHost(new() {
+            ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString,
+            ["Telemetry:Instrumentation:AzureSdk"] = "true"
+        });
+        try
+        {
+            using (host)
+            {
+                Assert.IsFalse(await IsHttpClientActivityRecorded(TelemetrySettings.AzureSdkHttpActivitySourceName));
+            }
+        }
+        finally
+        {
+            AppContext.SetSwitch(TelemetrySettings.AzureSdkActivitySourceSwitch, false);
+        }
+    }
+
+    [TestMethod]
+    public async Task HttpClient_OutsideAzureSdk_IsRecorded()
+    {
+        var (host, _) = BuildHost(new() { ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString });
+        using (host)
+        {
+            Assert.IsTrue(await IsHttpClientActivityRecorded(null));
+        }
+    }
+
+    private static async Task<bool> IsHttpClientActivityRecorded(string? parentSourceName)
+    {
+        Activity? httpActivity = null;
+        //only observes - the sampling decision stays with the pipeline
+        using var listener = new ActivityListener {
+            ShouldListenTo = source => source.Name == "System.Net.Http" || source.Name == parentSourceName,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.PropagationData,
+            ActivityStopped = activity => {
+                if (activity.Source.Name == "System.Net.Http")
+                    httpActivity = activity;
+            }
+        };
+        ActivitySource.AddActivityListener(listener);
+
+        using var parentSource = parentSourceName is null ? null : new ActivitySource(parentSourceName);
+        using var parent = parentSource?.StartActivity("parent");
+        //fails before any connection is made - only the client span is wanted
+        using var client = new HttpClient(new SocketsHttpHandler {
+            ConnectCallback = (_, _) => throw new HttpRequestException("offline")
+        });
+        try
+        {
+            await client.GetAsync("http://127.0.0.1:9/");
+        }
+        catch (HttpRequestException)
+        {
+        }
+
+        Assert.IsNotNull(httpActivity);
+        return httpActivity.Recorded;
     }
 
     [TestMethod]

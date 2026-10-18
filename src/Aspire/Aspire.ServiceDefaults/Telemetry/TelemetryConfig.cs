@@ -33,6 +33,8 @@ public class TelemetryConfig
 
     public TracingConfig Tracing { get; set; } = new();
 
+    public InstrumentationConfig Instrumentation { get; set; } = new();
+
     public class OtlpConfig
     {
         /// <summary>
@@ -80,5 +82,19 @@ public class TelemetryConfig
         ///     .json - robots.txt, sitemap.xml and JSON endpoints are served by controllers.
         /// </summary>
         public string[]? ExcludeExtensions { get; set; }
+    }
+
+    /// <summary>
+    ///     Instrumentation:MongoDb is applied where the MongoDB client is built, see
+    ///     Grand.Infrastructure.Configuration.MongoDbTracingConfig - read there, it also sees Azure App Configuration.
+    /// </summary>
+    public class InstrumentationConfig
+    {
+        /// <summary>
+        ///     Gets or sets a value indicating whether the Azure SDK clients (Blob Storage, Key Vault) produce their
+        ///     own spans; their HTTP span (Azure.Core.Http) then replaces the HttpClient one. The Azure SDK still marks its tracing as
+        ///     experimental, so it is off by default.
+        /// </summary>
+        public bool AzureSdk { get; set; }
     }
 }
