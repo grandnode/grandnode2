@@ -14,6 +14,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Mediator;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;

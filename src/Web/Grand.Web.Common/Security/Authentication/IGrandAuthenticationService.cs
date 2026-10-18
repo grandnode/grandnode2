@@ -1,6 +1,6 @@
 using Grand.Domain.Customers;
 
-namespace Grand.Business.Core.Interfaces.Authentication;
+namespace Grand.Web.Common.Security.Authentication;
 
 /// <summary>
 ///     Authentication service interface

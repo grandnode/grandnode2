@@ -12,6 +12,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Mediator;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Localization;

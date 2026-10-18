@@ -16,6 +16,7 @@ using Grand.SharedKernel.Attributes;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Security.ExternalRegistration;

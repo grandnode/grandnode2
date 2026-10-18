@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Data;
@@ -125,6 +124,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IRequestTranslationService, RequestTranslationService>();
         serviceCollection.AddScoped<IRequestPermissionService, RequestPermissionService>();
         serviceCollection.AddScoped<IGrandAuthenticationService, CookieAuthenticationService>();
+        serviceCollection.AddScoped<IExternalSignInService, ExternalSignInService>();
         serviceCollection.AddScoped<ICookieOptionsFactory, CookieOptionsFactory>();
         serviceCollection.AddScoped<IApiAuthenticationService, ApiAuthenticationService>();
         serviceCollection.AddScoped<IEnumTranslationService, EnumTranslationService>();

@@ -8,6 +8,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;

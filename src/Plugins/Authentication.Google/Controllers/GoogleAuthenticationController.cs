@@ -4,6 +4,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,12 @@ public class GoogleAuthenticationController : BasePluginController
     #region Ctor
 
     public GoogleAuthenticationController(IExternalAuthenticationService externalAuthenticationService,
+        IExternalSignInService externalSignInService,
         IConfiguration configuration,
         IContextAccessor contextAccessor)
     {
         _externalAuthenticationService = externalAuthenticationService;
+        _externalSignInService = externalSignInService;
         _configuration = configuration;
         _contextAccessor = contextAccessor;
     }
@@ -30,6 +33,7 @@ public class GoogleAuthenticationController : BasePluginController
     #region Fields
 
     private readonly IExternalAuthenticationService _externalAuthenticationService;
+    private readonly IExternalSignInService _externalSignInService;
     private readonly IConfiguration _configuration;
     private readonly IContextAccessor _contextAccessor;
 
@@ -75,7 +79,7 @@ public class GoogleAuthenticationController : BasePluginController
         };
 
         //authenticate grand user
-        return await _externalAuthenticationService.Authenticate(authenticationParameters,
+        return await _externalSignInService.Authenticate(authenticationParameters,
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
             _contextAccessor.WorkContext.WorkingLanguage, returnUrl);
     }

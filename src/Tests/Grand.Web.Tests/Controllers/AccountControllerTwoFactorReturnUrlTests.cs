@@ -9,6 +9,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
 using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Http;

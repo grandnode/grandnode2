@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

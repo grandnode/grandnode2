@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -7,6 +6,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Mediator;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Localization;
 

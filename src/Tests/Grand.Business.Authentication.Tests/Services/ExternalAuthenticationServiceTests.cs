@@ -19,7 +19,6 @@ namespace Grand.Business.Authentication.Tests.Services;
 [TestClass]
 public class ExternalAuthenticationServiceTests
 {
-    private Mock<IGrandAuthenticationService> _authenticationServiceMock;
     private Mock<ICustomerManagerService> _customerManagerServiceMock;
     private Mock<ICustomerService> _customerServiceMock;
     private IEnumerable<IExternalAuthenticationProvider> _externalAuthenticationProviders;
@@ -34,24 +33,27 @@ public class ExternalAuthenticationServiceTests
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
-        _authenticationServiceMock = new Mock<IGrandAuthenticationService>();
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
         _mediatorMock = new Mock<IMediator>();
         _externalAuthenticationRecordRepository = new MongoDBRepositoryTest<ExternalAuthentication>();
         _externalAuthenticationProviders = new List<IExternalAuthenticationProvider>
             { new ExternalAuthenticationProviderTest() };
 
+        _externalAuthenticationService = CreateService(UserRegistrationType.Standard);
+    }
+
+    private ExternalAuthenticationService CreateService(UserRegistrationType userRegistrationType)
+    {
         var externalAuthenticationSetting = new ExternalAuthenticationSettings {
             ActiveAuthenticationMethodSystemNames = [
                 "ExternalAuthenticationProviderTest"
             ]
         };
 
-        _externalAuthenticationService = new ExternalAuthenticationService(_authenticationServiceMock.Object,
-            _customerManagerServiceMock.Object, _customerServiceMock.Object,
+        return new ExternalAuthenticationService(_customerManagerServiceMock.Object, _customerServiceMock.Object,
             _groupServiceMock.Object, _mediatorMock.Object, _externalAuthenticationRecordRepository,
             _externalAuthenticationProviders,
-            new CustomerSettings { UserRegistrationType = UserRegistrationType.Standard }, externalAuthenticationSetting);
+            new CustomerSettings { UserRegistrationType = userRegistrationType }, externalAuthenticationSetting);
     }
 
 
@@ -133,12 +135,14 @@ public class ExternalAuthenticationServiceTests
         var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" };
         await _externalAuthenticationService.AssociateCustomer(user, parameters);
 
-        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" }, language);
+        var result =
+            await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" }, language);
 
         _mediatorMock.Verify(m => m.Publish(It.Is<CustomerLoggedInEvent>(e =>
             e.Customer == user && e.PreviousCustomer == guest && e.StoreId == "store1" && e.Language == language),
             default), Times.Once);
-        _authenticationServiceMock.Verify(a => a.SignIn(user, false), Times.Once);
+        Assert.AreEqual(ExternalAuthStatus.LoggedIn, result.Status);
+        Assert.AreSame(user, result.Customer);
     }
 
     [TestMethod]
@@ -150,15 +154,87 @@ public class ExternalAuthenticationServiceTests
             ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "new@test.com"
         };
 
-        await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" }, language);
+        var result =
+            await _externalAuthenticationService.Authenticate(parameters, guest, new Store { Id = "store1" }, language);
 
         _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.Is<RegistrationRequest>(r =>
             r.Customer == guest && r.StoreId == "store1" && r.Email == "new@test.com")), Times.Once);
         _mediatorMock.Verify(m => m.Publish(It.Is<CustomerRegisteredEvent>(e =>
                 e.Customer == guest && e.Language == language), default),
             Times.Once);
-        _authenticationServiceMock.Verify(a => a.SignIn(guest, false), Times.Once);
         Assert.AreEqual("guest", _externalAuthenticationRecordRepository.Table.Single().CustomerId);
+        Assert.AreEqual(ExternalAuthStatus.Registered, result.Status);
+        Assert.AreSame(guest, result.Customer);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnknownIdentityWithAdminApproval_IsAwaitingApproval()
+    {
+        var guest = new Customer { Id = "guest" };
+        var parameters = new ExternalAuthParam {
+            ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "new@test.com"
+        };
+
+        var result = await CreateService(UserRegistrationType.AdminApproval)
+            .Authenticate(parameters, guest, new Store { Id = "store1" }, new Language());
+
+        _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.Is<RegistrationRequest>(r =>
+            r.Customer == guest && !r.IsApproved)), Times.Once);
+        Assert.AreEqual(ExternalAuthStatus.AwaitingApproval, result.Status);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnknownIdentityWithRegistrationDisabled_RegistersNobody()
+    {
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new" };
+
+        var result = await CreateService(UserRegistrationType.Disabled)
+            .Authenticate(parameters, new Customer { Id = "guest" }, new Store(), new Language());
+
+        _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
+        Assert.AreEqual(ExternalAuthStatus.RegistrationDisabled, result.Status);
+        Assert.IsFalse(_externalAuthenticationRecordRepository.Table.Any());
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnknownIdentityWhileLoggedIn_AssociatesItWithLoggedInCustomer()
+    {
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.Associated, result.Status);
+        Assert.AreEqual("registered", _externalAuthenticationRecordRepository.Table.Single().CustomerId);
+        _mediatorMock.Verify(m => m.Publish(It.IsAny<CustomerLoggedInEvent>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_IdentityOfAnotherCustomerWhileLoggedIn_IsAlreadyAssigned()
+    {
+        var owner = new Customer { Id = "owner" };
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner")).ReturnsAsync(owner);
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" };
+        await _externalAuthenticationService.AssociateCustomer(owner, parameters);
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.AlreadyAssigned, result.Status);
+        CollectionAssert.AreEqual(new[] { "Account is already assigned" }, result.Errors.ToArray());
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnavailableProvider_IsError()
+    {
+        var parameters = new ExternalAuthParam { ProviderSystemName = "Unknown", Identifier = "1" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, new Customer(), new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.Error, result.Status);
+        _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
     }
 
     [TestMethod]
