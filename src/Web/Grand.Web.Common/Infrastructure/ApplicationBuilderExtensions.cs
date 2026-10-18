@@ -175,6 +175,7 @@ public static class ApplicationBuilderExtensions
             application.UseStaticFiles(new StaticFileOptions {
                 FileProvider = new PhysicalFileProvider(pluginsPath),
                 RequestPath = new PathString($"/{CommonPath.Plugins}"),
+                ContentTypeProvider = PluginAssetContentTypes.Create(appConfig.PluginStaticFileExtensions),
                 OnPrepareResponse = ctx =>
                 {
                     if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
