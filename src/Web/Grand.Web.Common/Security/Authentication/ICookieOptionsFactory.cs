@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Common.Security.Authentication;
 
-// <summary>
+/// <summary>
 /// Interface for factory creating secure cookie options
 /// </summary>
 public interface ICookieOptionsFactory
