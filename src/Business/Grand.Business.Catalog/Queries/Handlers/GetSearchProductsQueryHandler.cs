@@ -54,7 +54,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         query = OrderByQueryable(request, query);
 
         // Create paged list
-        var products = await _productRepository.PagedAsync(query, request.PageIndex, request.PageSize);
+        var products = await _productRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
 
         // Get filterable specification attributes if needed
         if (ShouldLoadFilterableSpecifications(request))
