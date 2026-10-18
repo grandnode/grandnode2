@@ -199,4 +199,40 @@ public class CampaignServiceTests
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null, null, null, null, null, null, null),
             Times.Once);
     }
+
+    [TestMethod]
+    public async Task SendCampaign_ToSubscriptions_RendersEachRecipientWithItsQueuedEmail()
+    {
+        //Arrange
+        var campaign = new Campaign { Name = "test", StoreId = "1" };
+        var customer = new Customer { Email = "test@test.com", Active = true };
+        await _customerRepository.InsertAsync(customer);
+        var subscription = new NewsLetterSubscription
+            { StoreId = "1", Active = true, Email = "test@test.com", CustomerId = customer.Id };
+        var store = new Store { Id = "1" };
+        var language = new Language();
+        var emailAccount = new EmailAccount { Email = "from@test.com" };
+        var currency = new Currency();
+        var host = new DomainHost { Url = "https://localhost/" };
+
+        _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>())).ReturnsAsync(language);
+        _storeServiceMock.Setup(x => x.GetStoreById("1")).ReturnsAsync(store);
+        QueuedEmail queuedEmail = null;
+        _queuedEmailServiceMock.Setup(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()))
+            .Callback<QueuedEmail>(x => queuedEmail = x);
+
+        //Act
+        var sent = await _campaignService.SendCampaign(campaign, emailAccount, [subscription], currency,
+            TaxDisplayType.IncludingTax, host);
+
+        //Assert
+        Assert.AreEqual(1, sent);
+        Assert.IsNotNull(queuedEmail);
+        Assert.AreEqual("subject", queuedEmail.Subject);
+        Assert.AreEqual("body", queuedEmail.Body);
+        _campaignMessageRendererMock.Verify(x => x.Render(campaign, store, language, emailAccount, host,
+                It.Is<Customer>(c => c.Id == customer.Id), currency, TaxDisplayType.IncludingTax, subscription,
+                queuedEmail.Id),
+            Times.Once);
+    }
 }

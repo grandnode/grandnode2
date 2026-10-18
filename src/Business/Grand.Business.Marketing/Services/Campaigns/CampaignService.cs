@@ -240,6 +240,9 @@ public class CampaignService(
         var language = await languageService.GetLanguageById(campaign.LanguageId) ??
                        (await languageService.GetAllLanguages()).FirstOrDefault();
 
+        var store = await storeService.GetStoreById(campaign.StoreId) ??
+                    (await storeService.GetAllStores()).FirstOrDefault();
+
         foreach (var subscription in subscriptions)
         {
             Customer customer = null;
@@ -251,9 +254,6 @@ public class CampaignService(
             //ignore deleted or inactive customers when sending newsletter campaigns
             if (customer != null && (!customer.Active || customer.Deleted))
                 continue;
-
-            var store = await storeService.GetStoreById(campaign.StoreId) ??
-                        (await storeService.GetAllStores()).FirstOrDefault();
 
             var email = new QueuedEmail();
 
