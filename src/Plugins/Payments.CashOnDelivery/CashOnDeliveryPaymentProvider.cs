@@ -41,6 +41,9 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
 
     public string FriendlyName => _translationService.GetResource(CashOnDeliveryPaymentDefaults.FriendlyName);
 
+    public string GetFriendlyName(string languageId) =>
+        _translationService.GetResource(CashOnDeliveryPaymentDefaults.FriendlyName, languageId);
+
     public int Priority => _cashOnDeliveryPaymentSettings.DisplayOrder;
 
     public IList<string> LimitedToStores => new List<string>();

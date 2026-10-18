@@ -347,6 +347,9 @@ public class BrainTreePaymentProvider : IPaymentProvider
 
     public string FriendlyName => _translationService.GetResource(BrainTreeDefaults.FriendlyName);
 
+    public string GetFriendlyName(string languageId) =>
+        _translationService.GetResource(BrainTreeDefaults.FriendlyName, languageId);
+
     public int Priority => _brainTreePaymentSettings.DisplayOrder;
 
     public IList<string> LimitedToStores => new List<string>();

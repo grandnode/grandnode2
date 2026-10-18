@@ -41,6 +41,9 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
 
     public string FriendlyName => _translationService.GetResource(StripeCheckoutDefaults.FriendlyName);
 
+    public string GetFriendlyName(string languageId) =>
+        _translationService.GetResource(StripeCheckoutDefaults.FriendlyName, languageId);
+
     public int Priority => _stripeCheckoutPaymentSettings.DisplayOrder;
 
     public IList<string> LimitedToStores => new List<string>();

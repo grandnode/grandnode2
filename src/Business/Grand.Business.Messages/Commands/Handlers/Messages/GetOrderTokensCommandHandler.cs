@@ -130,7 +130,9 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
 
         var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(request.Order.PaymentMethodSystemName);
         liquidOrder.PaymentMethod =
-            paymentMethod != null ? paymentMethod.FriendlyName : request.Order.PaymentMethodSystemName;
+            paymentMethod != null
+                ? paymentMethod.GetFriendlyName(request.Order.CustomerLanguageId)
+                : request.Order.PaymentMethodSystemName;
 
         var dict = new Dictionary<string, string>();
         foreach (var item in request.Order.OrderTaxes)
