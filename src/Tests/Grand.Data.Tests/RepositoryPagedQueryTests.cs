@@ -104,6 +104,35 @@ public class RepositoryPagedQueryTests
     [TestMethod]
     [DataRow(Mongo)]
     [DataRow(LiteDb)]
+    public async Task PagedAsync_UnboundedPageSize_ReturnsEverythingWithTotals(string provider)
+    {
+        var repository = Repository(provider);
+        var query = repository.Table.OrderBy(x => x.Count);
+
+        var result = await repository.PagedAsync(query, 0, int.MaxValue);
+
+        Assert.AreEqual(25, result.Count);
+        Assert.AreEqual(25, result.TotalCount);
+        Assert.AreEqual(1, result.TotalPages);
+    }
+
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
+    public async Task PagedAsync_SkipOverflowingInt_ReturnsEmptyPageWithTotals(string provider)
+    {
+        var repository = Repository(provider);
+        var query = repository.Table.OrderBy(x => x.Count);
+
+        var result = await repository.PagedAsync(query, 2, int.MaxValue);
+
+        Assert.AreEqual(0, result.Count);
+        Assert.AreEqual(25, result.TotalCount);
+    }
+
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_NonPositivePageSize_NormalizesToOne(string provider)
     {
         var repository = Repository(provider);
