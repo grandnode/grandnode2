@@ -115,6 +115,63 @@ public class TelemetryPipelineTests
     }
 
     [TestMethod]
+    public void MongoDb_WithASink_RecordsDriverActivities()
+    {
+        var (host, _) = BuildHost(new() { ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString });
+        using (host)
+        {
+            Assert.IsTrue(IsRootActivityRecorded("MongoDB.Driver"));
+        }
+    }
+
+    [TestMethod]
+    public void MongoDb_NoSink_DoesNotListenToTheDriver()
+    {
+        var (host, _) = BuildHost([]);
+        using (host)
+        {
+            Assert.IsFalse(IsRootActivityRecorded("MongoDB.Driver"));
+        }
+    }
+
+    [TestMethod]
+    public void MongoDbDisabled_DoesNotListenToTheDriver()
+    {
+        var (host, _) = BuildHost(new() {
+            ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString,
+            ["Telemetry:Instrumentation:MongoDb:Enabled"] = "false"
+        });
+        using (host)
+        {
+            Assert.IsFalse(IsRootActivityRecorded("MongoDB.Driver"));
+        }
+    }
+
+    [TestMethod]
+    public void AzureSdk_ByDefault_IsNotListenedTo()
+    {
+        var (host, _) = BuildHost(new() { ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString });
+        using (host)
+        {
+            Assert.IsFalse(IsRootActivityRecorded("Azure.Storage.Blobs.BlobContainerClient"));
+        }
+    }
+
+    [TestMethod]
+    public void AzureSdkEnabled_ListensToItsSourcesAndTurnsOnTheSwitch()
+    {
+        var (host, _) = BuildHost(new() {
+            ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString,
+            ["Telemetry:Instrumentation:AzureSdk"] = "true"
+        });
+        using (host)
+        {
+            Assert.IsTrue(IsRootActivityRecorded("Azure.Storage.Blobs.BlobContainerClient"));
+            Assert.IsTrue(AppContext.TryGetSwitch("Azure.Experimental.EnableActivitySource", out var enabled) && enabled);
+        }
+    }
+
+    [TestMethod]
     public void OtlpEndpointInFile_IsExposedUnderTheStandardKeys()
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());

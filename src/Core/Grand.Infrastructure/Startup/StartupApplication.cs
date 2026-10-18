@@ -51,6 +51,9 @@ public class StartupApplication : IStartupApplication
                 var mongoUrl = new MongoUrl(connectionString);
                 var databaseName = mongoUrl.DatabaseName;
                 var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+                var tracingConfig = new MongoDbTracingConfig();
+                configuration.GetSection(MongoDbTracingConfig.SectionName).Bind(tracingConfig);
+                tracingConfig.ApplyTo(clientSettings);
                 //the driver expects a single client per connection string - it owns the connection
                 //pool and the cluster monitoring, and is thread-safe
                 serviceCollection.AddSingleton<IMongoClient>(_ => new MongoClient(clientSettings));

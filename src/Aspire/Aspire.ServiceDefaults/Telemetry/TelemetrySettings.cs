@@ -25,8 +25,25 @@ public sealed record TelemetrySettings(
     string? TracesSampler,
     string? TracesSamplerArg,
     IReadOnlyList<PathString> ExcludePaths,
-    IReadOnlyList<string> ExcludeExtensions)
+    IReadOnlyList<string> ExcludeExtensions,
+    bool MongoDbTracing,
+    bool AzureSdkTracing)
 {
+    /// <summary>
+    ///     The ActivitySource of the MongoDB driver (MongoDB.Driver.MongoTelemetry.ActivitySourceName).
+    /// </summary>
+    public const string MongoDbActivitySourceName = "MongoDB.Driver";
+
+    /// <summary>
+    ///     The Azure SDK clients emit to one ActivitySource per client type, all named Azure.*.
+    /// </summary>
+    public const string AzureSdkActivitySourceName = "Azure.*";
+
+    /// <summary>
+    ///     The AppContext switch without which the Azure SDK creates no activities.
+    /// </summary>
+    public const string AzureSdkActivitySourceSwitch = "Azure.Experimental.EnableActivitySource";
+
     private static readonly PathString[] DefaultExcludePaths =
         ["/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico"];
 
@@ -92,7 +109,9 @@ public sealed record TelemetrySettings(
             config.Tracing.ExcludeExtensions?
                 .Select(Value).OfType<string>()
                 .Select(e => (e.StartsWith('.') ? e : "." + e).ToLowerInvariant())
-                .ToArray() ?? DefaultExcludeExtensions);
+                .ToArray() ?? DefaultExcludeExtensions,
+            config.Instrumentation.MongoDb.Enabled,
+            config.Instrumentation.AzureSdk);
     }
 
     /// <summary>

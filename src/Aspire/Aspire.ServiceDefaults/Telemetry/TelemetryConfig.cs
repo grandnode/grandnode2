@@ -33,6 +33,8 @@ public class TelemetryConfig
 
     public TracingConfig Tracing { get; set; } = new();
 
+    public InstrumentationConfig Instrumentation { get; set; } = new();
+
     public class OtlpConfig
     {
         /// <summary>
@@ -80,5 +82,28 @@ public class TelemetryConfig
         ///     .json - robots.txt, sitemap.xml and JSON endpoints are served by controllers.
         /// </summary>
         public string[]? ExcludeExtensions { get; set; }
+    }
+
+    public class InstrumentationConfig
+    {
+        public MongoDbConfig MongoDb { get; set; } = new();
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the Azure SDK clients (Blob Storage, Key Vault) produce their
+        ///     own spans on top of the HTTP spans they already have. The Azure SDK still marks its tracing as
+        ///     experimental, so it is off by default.
+        /// </summary>
+        public bool AzureSdk { get; set; }
+    }
+
+    public class MongoDbConfig
+    {
+        /// <summary>
+        ///     Gets or sets a value indicating whether MongoDB operations produce spans. With no sink configured they
+        ///     are never produced - two activities per database call would cost without being exported. The query text is left out
+        ///     unless QueryTextMaxLength is set - it is applied where the client is built, see
+        ///     Grand.Infrastructure.Configuration.MongoDbTracingConfig.
+        /// </summary>
+        public bool Enabled { get; set; } = true;
     }
 }

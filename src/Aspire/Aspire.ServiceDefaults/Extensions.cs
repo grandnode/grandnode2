@@ -86,6 +86,17 @@ public static class Extensions
                     })
                     .AddHttpClientInstrumentation();
 
+                //the driver traces every client by default; with no listener on its source it creates no activities -
+                //two per database call, so with nothing to export them to the source is left alone
+                if (settings.MongoDbTracing && settings.HasAnySink)
+                    tracing.AddSource(TelemetrySettings.MongoDbActivitySourceName);
+
+                if (settings.AzureSdkTracing && settings.HasAnySink)
+                {
+                    AppContext.SetSwitch(TelemetrySettings.AzureSdkActivitySourceSwitch, true);
+                    tracing.AddSource(TelemetrySettings.AzureSdkActivitySourceName);
+                }
+
                 if (settings.AzureMonitorConnectionString is not null)
                     tracing.AddAzureMonitorTraceExporter(o => o.ConnectionString = settings.AzureMonitorConnectionString);
                 if (settings.Console)
