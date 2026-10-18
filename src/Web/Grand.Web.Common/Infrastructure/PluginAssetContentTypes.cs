@@ -8,11 +8,12 @@ public static class PluginAssetContentTypes
     [
         ".css", ".js", ".map",
         ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".avif", ".ico",
-        ".woff", ".woff2", ".ttf", ".otf", ".eot"
+        ".woff", ".woff2", ".ttf", ".otf", ".eot",
+        ".pdf"
     ];
 
     /// <summary>
-    ///     Content types served from the Plugins folder: static assets only. The folder also holds the plugin
+    ///     Content types served from the Plugins folder: static assets and documents (pdf) only. The folder also holds the plugin
     ///     assemblies with their deps.json and pdb files, which must never be served.
     /// </summary>
     public static IContentTypeProvider Provider { get; } = CreateProvider();
