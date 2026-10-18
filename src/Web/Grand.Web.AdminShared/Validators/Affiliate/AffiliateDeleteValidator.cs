@@ -16,7 +16,7 @@ public class AffiliateDeleteValidator : BaseGrandValidator<AffiliateDeleteModel>
         ITranslationService translationService)
         : base(validators)
     {
-        RuleFor(x => x).CustomAsync(async (x, context, _) =>
+        RuleFor(x => x).CustomAsync(async (x, context, cancellationToken) =>
         {
             var affiliate = await affiliateService.GetAffiliateById(x.Id);
             if (affiliate == null)
@@ -29,7 +29,7 @@ public class AffiliateDeleteValidator : BaseGrandValidator<AffiliateDeleteModel>
                 AffiliateId = affiliate.Id,
                 PageSize = 1
             };
-            var queryCustomer = (await mediator.Send(customers)).TotalCount;
+            var queryCustomer = (await mediator.Send(customers, cancellationToken)).TotalCount;
             if (queryCustomer > 0)
                 context.AddFailure("There are exist customers related with affiliate");
 
@@ -38,7 +38,7 @@ public class AffiliateDeleteValidator : BaseGrandValidator<AffiliateDeleteModel>
                 PageSize = 1
             };
 
-            var queryOrder = (await mediator.Send(orders)).TotalCount;
+            var queryOrder = (await mediator.Send(orders, cancellationToken)).TotalCount;
             if (queryOrder > 0)
                 context.AddFailure("There are exist orders related with affiliate");
         });

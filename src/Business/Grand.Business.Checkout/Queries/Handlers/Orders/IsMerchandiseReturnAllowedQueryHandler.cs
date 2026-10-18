@@ -53,7 +53,8 @@ public class IsMerchandiseReturnAllowedQueryHandler : IRequestHandler<IsMerchand
                 .Where(x => x.OrderItemId == item.Id).Sum(x => x.Quantity);
             var merchandiseReturns =
                 await _mediator.Send(new GetMerchandiseReturnQuery { OrderItemId = item.Id }, cancellationToken);
-            var qtyReturn = merchandiseReturns.Sum(rr => rr.MerchandiseReturnItems.Sum(rrItem => rrItem.Quantity));
+            var qtyReturn = merchandiseReturns.SelectMany(rr => rr.MerchandiseReturnItems)
+                .Where(rrItem => rrItem.OrderItemId == item.Id).Sum(rrItem => rrItem.Quantity);
 
             if (!product.NotReturnable && qtyDelivery - qtyReturn > 0)
                 return true;
