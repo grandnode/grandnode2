@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace Grand.Business.Core.Utilities.System;
+namespace Grand.Business.Catalog.Services.ExportImport;
 
 /// <summary>
 ///     Downloads images referenced by URL in import files. The URL comes from whoever prepared the file,
