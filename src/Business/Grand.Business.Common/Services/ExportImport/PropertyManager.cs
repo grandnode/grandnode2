@@ -1,4 +1,6 @@
-﻿namespace Grand.Business.Core.Utilities.ExportImport;
+using Grand.Business.Core.Utilities.ExportImport;
+
+namespace Grand.Business.Common.Services.ExportImport;
 
 /// <summary>
 ///     Class for working with PropertyByName object list
