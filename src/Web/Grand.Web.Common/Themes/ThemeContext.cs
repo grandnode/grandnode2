@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Domain.Stores;
+﻿using Grand.Domain.Stores;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Common.Themes;

@@ -10,6 +10,7 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.RequestCustomerResolvers;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.Oidc;
 using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Authentication;

@@ -1,8 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Infrastructure.Configuration;
+﻿using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 
-namespace Grand.Business.Authentication.Services;
+namespace Grand.Web.Common.Security.Authentication;
 
 /// <summary>
 /// Factory for creating secure cookie options
