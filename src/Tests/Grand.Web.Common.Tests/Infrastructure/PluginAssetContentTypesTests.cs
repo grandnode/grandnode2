@@ -12,6 +12,7 @@ public class PluginAssetContentTypesTests
     [DataRow("/Theme.Modern/fonts/font.woff2", "font/woff2")]
     [DataRow("/Widgets.Slider/script.js", "text/javascript")]
     [DataRow("/Widgets.Slider/icon.svg", "image/svg+xml")]
+    [DataRow("/Shipping.ShippingPoint/Docs/Terms.PDF", "application/pdf")]
     public void Provider_ServesStaticAssets(string subpath, string expected)
     {
         Assert.IsTrue(PluginAssetContentTypes.Provider.TryGetContentType(subpath, out var contentType));
