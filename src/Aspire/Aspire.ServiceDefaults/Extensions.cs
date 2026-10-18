@@ -1,7 +1,10 @@
-using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Aspire.ServiceDefaults.Telemetry;
+using Azure.Monitor.OpenTelemetry.Exporter;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -16,7 +19,7 @@ public static class Extensions
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         builder.ConfigureOpenTelemetry();
-        
+
         builder.Services.AddServiceDiscovery();
 
         builder.Services.ConfigureHttpClientDefaults(http =>
@@ -39,57 +42,85 @@ public static class Extensions
 
     public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
-        builder.Logging.AddOpenTelemetry(logging =>
-        {
-            logging.IncludeFormattedMessage = true;
-            logging.IncludeScopes = true;
-        });
+        var settings = TelemetrySettings.Resolve(builder.Configuration, builder.Environment);
+        if (!settings.Enabled)
+            return builder;
 
-        builder.Services.AddOpenTelemetry()
+        var telemetry = builder.Services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource
+                .AddService(settings.ServiceName, serviceNamespace: "grandnode", serviceVersion: settings.ServiceVersion,
+                    autoGenerateServiceInstanceId: false, serviceInstanceId: Environment.MachineName)
+                .AddAttributes([new("deployment.environment.name", builder.Environment.EnvironmentName)])
+                //added last so OTEL_SERVICE_NAME and OTEL_RESOURCE_ATTRIBUTES win over the values above
+                .AddEnvironmentVariableDetector())
+            .WithLogging(logging =>
+            {
+                if (settings.AzureMonitorConnectionString is not null)
+                    logging.AddAzureMonitorLogExporter(o => o.ConnectionString = settings.AzureMonitorConnectionString);
+                if (settings.Console)
+                    logging.AddConsoleExporter();
+            }, options =>
+            {
+                options.IncludeFormattedMessage = true;
+                options.IncludeScopes = true;
+            })
             .WithMetrics(metrics =>
             {
                 metrics.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation();
+
+                if (settings.AzureMonitorConnectionString is not null)
+                    metrics.AddAzureMonitorMetricExporter(o => o.ConnectionString = settings.AzureMonitorConnectionString);
+                if (settings.Console)
+                    metrics.AddConsoleExporter();
             })
             .WithTracing(tracing =>
             {
                 tracing.AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation()
-                    // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
-                    //.AddGrpcClientInstrumentation()
+                    .AddAspNetCoreInstrumentation(options =>
+                    {
+                        options.Filter = context =>
+                            TelemetryPathFilter.ShouldTrace(context.Request.Path, settings.ExcludePaths, settings.ExcludeExtensions);
+                        options.RecordException = true;
+                    })
                     .AddHttpClientInstrumentation();
+
+                if (settings.AzureMonitorConnectionString is not null)
+                    tracing.AddAzureMonitorTraceExporter(o => o.ConnectionString = settings.AzureMonitorConnectionString);
+                if (settings.Console)
+                    tracing.AddConsoleExporter();
+
+                //after the exporters: the Azure Monitor trace exporter sets its own sampler and the last one wins
+                var sampler = settings.CreateSampler();
+                if (sampler is not null)
+                    tracing.SetSampler(sampler);
             });
 
-        builder.AddOpenTelemetryExporters();
+        if (settings.OtlpEndpoint is not null)
+        {
+            builder.Configuration.AddOtlpSettings(settings);
+
+            //the exporter reads the OTEL_EXPORTER_OTLP_* keys itself
+            telemetry.UseOtlpExporter();
+        }
 
         return builder;
     }
 
-    private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    /// <summary>
+    ///     Exposes Telemetry:Otlp under the standard OTEL_EXPORTER_OTLP_* keys, skipping any key an environment
+    ///     variable already sets, so the variables keep winning.
+    /// </summary>
+    private static void AddOtlpSettings(this IConfigurationManager configuration, TelemetrySettings settings)
     {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+        var values = new Dictionary<string, string?> {
+            ["OTEL_EXPORTER_OTLP_ENDPOINT"] = settings.OtlpEndpoint,
+            ["OTEL_EXPORTER_OTLP_PROTOCOL"] = settings.OtlpProtocol == OtlpExportProtocol.HttpProtobuf ? "http/protobuf" : "grpc",
+            ["OTEL_EXPORTER_OTLP_HEADERS"] = settings.OtlpHeaders
+        };
 
-        if (useOtlpExporter)
-        {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
-        }
-
-        // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-        if (!string.IsNullOrEmpty(builder.Configuration["ApplicationInsights:ConnectionString"]))
-        {
-            builder.Services.AddOpenTelemetry().UseAzureMonitor(o =>
-            {
-                o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
-            }).ConfigureResource(resource =>
-            {                
-                resource.AddAttributes(
-                [
-                    new("service.name", "Grandnode")
-                ]);
-            });
-        }
-
-        return builder;
+        configuration.AddInMemoryCollection(values
+            .Where(pair => pair.Value is not null && string.IsNullOrWhiteSpace(configuration[pair.Key])));
     }
 }

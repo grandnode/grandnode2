@@ -9,10 +9,11 @@
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
+		<PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
 
 		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" />
 		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />

@@ -65,6 +65,7 @@
   </Folder>
   <Folder Name="/src/Web/" />
   <Folder Name="/Tests/">
+    <Project Path="src/Tests/Aspire.ServiceDefaults.Tests/Aspire.ServiceDefaults.Tests.csproj" />
     <Project Path="src/Tests/Grand.Business.Authentication.Tests/Grand.Business.Authentication.Tests.csproj" />
     <Project Path="src/Tests/Grand.Business.Catalog.Tests/Grand.Business.Catalog.Tests.csproj" />
     <Project Path="src/Tests/Grand.Business.Checkout.Tests/Grand.Business.Checkout.Tests.csproj" />

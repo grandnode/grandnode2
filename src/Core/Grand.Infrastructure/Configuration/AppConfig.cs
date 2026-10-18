@@ -18,6 +18,13 @@ public class AppConfig
     public string StaticFilesCacheControl { get; set; }
 
     /// <summary>
+    ///     Gets or sets the file extensions served from the Plugins folder on top of the built-in css, js, images,
+    ///     fonts and pdf (e.g. ".mp4"). The folder also holds the plugin assemblies and their build files - add only
+    ///     extensions that are safe to publish; .dll, .pdb, .exe and .config are never served.
+    /// </summary>
+    public string[] PluginStaticFileExtensions { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether to display the full error in production environment.
     ///     It's ignored (always enabled) in development environment
     /// </summary>
