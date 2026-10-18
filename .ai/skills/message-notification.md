@@ -46,8 +46,8 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 9. Use the generic `SendNotification` overload directly when a one-off or plugin-triggered send does not justify a dedicated typed method.
 
 #### DotLiquid Drops and Tokens
-10. Add new token properties to an existing `Liquid*` drop class in `src/Business/Grand.Business.Core/Utilities/Messages/DotLiquidDrops/` when the data already belongs to that drop's entity. Do not add properties that require loading additional entities unless those are already available in the drop constructor.
-11. Add a new drop class inheriting from `DotLiquid.Drop` only when the new template uses a domain entity that has no existing drop. Place it in the drops folder and wire it via a new `GetXxxTokensCommand` following the pattern of existing token commands under `src/Business/Grand.Business.Core/Commands/Messages/Tokens/`.
+10. Add new token properties to an existing `Liquid*` drop class in `src/Business/Grand.Business.Messages/DotLiquidDrops/` when the data already belongs to that drop's entity. Do not add properties that require loading additional entities unless those are already available in the drop constructor.
+11. Add a new drop class inheriting from `DotLiquid.Drop` only when the new template uses a domain entity that has no existing drop. Place it in the drops folder and wire it via a new `GetXxxTokensCommand` following the pattern of existing token commands under `src/Business/Grand.Business.Messages/Commands/Tokens/`.
 12. Handle `MessageTokensAddedEvent` in an `INotificationHandler` to inject extra tokens from a plugin without modifying core drop classes. The event carries the `MessageTemplate` name and the current `LiquidObject`.
 13. Never access `ITranslationService`, repositories, or services directly from inside a `Liquid*` drop property getter. Populate all values in the command handler that constructs the drop.
 
@@ -99,7 +99,7 @@ Task<int> SendNotification(
     Reference reference = Reference.None, string objectId = "");
 ```
 
-### LiquidObjectBuilder (`src/Business/Grand.Business.Core/Utilities/Messages/DotLiquidDrops/LiquidObjectBuilder.cs`)
+### LiquidObjectBuilder (`src/Business/Grand.Business.Messages/DotLiquidDrops/LiquidObjectBuilder.cs`)
 ```csharp
 var liquidObject = await new LiquidObjectBuilder(_mediator)
     .AddStoreTokens(store, language, emailAccount)
@@ -107,6 +107,8 @@ var liquidObject = await new LiquidObjectBuilder(_mediator)
     .AddCustomerTokens(customer, store, host, language)
     .Build();
 ```
+
+The drops, the builder and the token commands belong to `Grand.Business.Messages`, not to `Grand.Business.Core`. Other Business projects and plugins compile against Core only, so they never use them directly: a campaign renders through `ICampaignMessageRenderer`, and a plugin adds tokens through `MessageTokensAddedEvent` / `EntityTokensAddedEvent<T>` and `LiquidObject.AdditionalTokens`, which expose drops only as `DotLiquid.Drop`.
 
 ### MessageTokensAddedEvent (`src/Business/Grand.Business.Core/Events/Messages/MessageTokensAddedEvent.cs`)
 ```csharp
@@ -130,9 +132,9 @@ public class MessageTokensAddedEvent : INotification {
 | IQueuedEmailService interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IQueuedEmailService.cs` |
 | IEmailAccountService interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IEmailAccountService.cs` |
 | IEmailSender interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IEmailSender.cs` |
-| DotLiquid drop classes | `src/Business/Grand.Business.Core/Utilities/Messages/DotLiquidDrops/` |
-| LiquidObjectBuilder | `src/Business/Grand.Business.Core/Utilities/Messages/DotLiquidDrops/LiquidObjectBuilder.cs` |
-| Token commands | `src/Business/Grand.Business.Core/Commands/Messages/Tokens/` |
+| DotLiquid drop classes | `src/Business/Grand.Business.Messages/DotLiquidDrops/` |
+| LiquidObjectBuilder | `src/Business/Grand.Business.Messages/DotLiquidDrops/LiquidObjectBuilder.cs` |
+| Token commands | `src/Business/Grand.Business.Messages/Commands/Tokens/` |
 | MessageTokensAddedEvent | `src/Business/Grand.Business.Core/Events/Messages/MessageTokensAddedEvent.cs` |
 | IMessageTokenProvider interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IMessageTokenProvider.cs` |
 | MessageTokenProvider implementation | `src/Business/Grand.Business.Messages/Services/MessageTokenProvider.cs` |
