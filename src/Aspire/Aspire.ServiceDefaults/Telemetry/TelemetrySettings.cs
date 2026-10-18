@@ -26,7 +26,7 @@ public sealed record TelemetrySettings(
     string? TracesSamplerArg,
     IReadOnlyList<string> ExcludePaths)
 {
-    private static readonly string[] DefaultExcludePaths = ["/health", "/_content", "/bundles"];
+    private static readonly string[] DefaultExcludePaths = ["/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico"];
 
     public bool HasAnySink => OtlpEndpoint is not null || AzureMonitorConnectionString is not null || Console;
 

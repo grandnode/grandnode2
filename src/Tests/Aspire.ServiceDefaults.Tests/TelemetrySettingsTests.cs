@@ -60,7 +60,7 @@ public class TelemetrySettingsTests
         Assert.IsFalse(settings.Console);
         Assert.AreEqual(1.0, settings.SamplingRatio);
         Assert.AreEqual(OtlpExportProtocol.Grpc, settings.OtlpProtocol);
-        CollectionAssert.AreEqual(new[] { "/health", "/_content", "/bundles" }, settings.ExcludePaths.ToArray());
+        CollectionAssert.AreEqual(new[] { "/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico" }, settings.ExcludePaths.ToArray());
     }
 
     [TestMethod]

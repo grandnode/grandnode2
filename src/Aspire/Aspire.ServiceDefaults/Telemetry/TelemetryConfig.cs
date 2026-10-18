@@ -68,8 +68,9 @@ public class TelemetryConfig
         public double SamplingRatio { get; set; } = 1.0;
 
         /// <summary>
-        ///     Gets or sets the request path prefixes that never produce a trace. Not set uses
-        ///     /health, /_content and /bundles.
+        ///     Gets or sets the request path prefixes that never produce a trace. Not set uses the health checks
+        ///     and the static content of wwwroot: /health, /_content, /bundles, /assets, /theme, /favicon.ico.
+        ///     Do not add /Plugins - next to plugin assets it holds plugin endpoints such as payment webhooks.
         /// </summary>
         public string[]? ExcludePaths { get; set; }
     }
