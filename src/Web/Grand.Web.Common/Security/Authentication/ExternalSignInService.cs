@@ -1,15 +1,18 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Common.Security.Authentication;
 
 public class ExternalSignInService(
     IExternalAuthenticationService externalAuthenticationService,
-    IGrandAuthenticationService authenticationService) : IExternalSignInService
+    IGrandAuthenticationService authenticationService,
+    ITranslationService translationService) : IExternalSignInService
 {
     public virtual async Task<IActionResult> Authenticate(ExternalAuthParam parameters, Customer customer,
         Store store, Language language, string returnUrl = null)
@@ -28,14 +31,26 @@ public class ExternalSignInService(
                 return ReturnUrl(returnUrl);
             case ExternalAuthStatus.AwaitingApproval:
                 return RegisterResult(UserRegistrationType.AdminApproval);
-            default:
+            case ExternalAuthStatus.AlreadyAssigned:
+                return Error([
+                    translationService.GetResource("Account.AssociatedExternalAuth.AlreadyAssigned", language.Id)
+                ]);
+            case ExternalAuthStatus.RegistrationDisabled:
+                return Error([
+                    translationService.GetResource("Account.AssociatedExternalAuth.RegistrationDisabled", language.Id)
+                ]);
+            case ExternalAuthStatus.Error:
                 return Error(result.Errors);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(result.Status), result.Status,
+                    "Unhandled external authentication status");
         }
     }
 
     protected virtual IActionResult ReturnUrl(string returnUrl)
     {
-        if (string.IsNullOrEmpty(returnUrl))
+        //the return URL comes from the query string of the login request; never leave the store with it
+        if (string.IsNullOrEmpty(returnUrl) || !RedirectHttpResult.IsLocalUrl(returnUrl))
             return new RedirectToRouteResult("HomePage", new { area = "" });
 
         return new RedirectResult(returnUrl);

@@ -145,12 +145,8 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         //associate external account with registered user
         await AssociateCustomer(customer, parameters);
 
-        if (approved)
-            return ExternalAuthResult.Registered(customer);
-
-        return _customerSettings.UserRegistrationType == UserRegistrationType.AdminApproval
-            ? ExternalAuthResult.AwaitingApproval(customer)
-            : ExternalAuthResult.Error("Error on registration");
+        //Disabled never gets here, so the only unapproved registration type is AdminApproval
+        return approved ? ExternalAuthResult.Registered(customer) : ExternalAuthResult.AwaitingApproval(customer);
     }
 
     /// <summary>

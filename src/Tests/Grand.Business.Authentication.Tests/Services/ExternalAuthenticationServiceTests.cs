@@ -223,7 +223,7 @@ public class ExternalAuthenticationServiceTests
         var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
 
         Assert.AreEqual(ExternalAuthStatus.AlreadyAssigned, result.Status);
-        CollectionAssert.AreEqual(new[] { "Account is already assigned" }, result.Errors.ToArray());
+        Assert.IsEmpty(result.Errors);
     }
 
     [TestMethod]

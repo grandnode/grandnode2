@@ -13,8 +13,10 @@ public interface IExternalAuthenticationService
     #region Authentication
 
     /// <summary>
-    ///     Use passed parameters to find, associate or register the customer; the caller signs in the customer of a
-    ///     LoggedIn or Registered result
+    ///     Use passed parameters to find, associate or register the customer. Nothing is signed in here: the caller
+    ///     must sign in the customer of a LoggedIn or Registered result (IExternalSignInService in Grand.Web.Common
+    ///     does it). A LoggedIn result has already published CustomerLoggedInEvent, which merges the guest's cart into
+    ///     the customer, so a caller that skips the sign-in leaves the request as a guest with an emptied cart.
     /// </summary>
     /// <param name="parameters">External authentication parameters</param>
     /// <param name="customer">Customer of the request (a guest when nobody is logged in)</param>

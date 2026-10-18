@@ -19,16 +19,20 @@ public enum ExternalAuthStatus
     /// <summary>The external account belongs to another customer than the one signed in</summary>
     AlreadyAssigned,
 
+    /// <summary>The external account is unknown and registration of new customers is disabled</summary>
     RegistrationDisabled,
+
+    /// <summary>The authentication failed; <see cref="ExternalAuthResult.Errors" /> says why</summary>
     Error
 }
 
 /// <summary>
-///     Outcome of an external authentication; signing in and redirecting is left to the caller
+///     Outcome of an external authentication; signing in, redirecting and the texts shown to the customer are left
+///     to the caller
 /// </summary>
 public class ExternalAuthResult
 {
-    private ExternalAuthResult(ExternalAuthStatus status, Customer customer, IList<string> errors)
+    private ExternalAuthResult(ExternalAuthStatus status, Customer customer, IReadOnlyList<string> errors)
     {
         Status = status;
         Customer = customer;
@@ -40,7 +44,8 @@ public class ExternalAuthResult
     /// <summary>The customer to sign in (LoggedIn, Registered) or the one the account was associated with</summary>
     public Customer Customer { get; }
 
-    public IList<string> Errors { get; }
+    /// <summary>Technical reasons of an Error result; empty for every other status</summary>
+    public IReadOnlyList<string> Errors { get; }
 
     public static ExternalAuthResult LoggedIn(Customer customer) => new(ExternalAuthStatus.LoggedIn, customer, []);
     public static ExternalAuthResult Registered(Customer customer) => new(ExternalAuthStatus.Registered, customer, []);
@@ -50,10 +55,10 @@ public class ExternalAuthResult
         new(ExternalAuthStatus.AwaitingApproval, customer, []);
 
     public static ExternalAuthResult AlreadyAssigned() =>
-        new(ExternalAuthStatus.AlreadyAssigned, null, ["Account is already assigned"]);
+        new(ExternalAuthStatus.AlreadyAssigned, null, []);
 
     public static ExternalAuthResult RegistrationDisabled() =>
-        new(ExternalAuthStatus.RegistrationDisabled, null, ["Registration is disabled"]);
+        new(ExternalAuthStatus.RegistrationDisabled, null, []);
 
     public static ExternalAuthResult Error(string error) => new(ExternalAuthStatus.Error, null, [error]);
 }

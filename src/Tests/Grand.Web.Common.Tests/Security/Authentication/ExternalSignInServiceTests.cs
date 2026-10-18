@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
@@ -16,6 +17,7 @@ public class ExternalSignInServiceTests
     private readonly Customer _customer = new() { Id = "customer" };
     private Mock<IGrandAuthenticationService> _authenticationServiceMock;
     private Mock<IExternalAuthenticationService> _externalAuthenticationServiceMock;
+    private Mock<ITranslationService> _translationServiceMock;
     private ExternalSignInService _service;
 
     [TestInitialize]
@@ -23,8 +25,11 @@ public class ExternalSignInServiceTests
     {
         _externalAuthenticationServiceMock = new Mock<IExternalAuthenticationService>();
         _authenticationServiceMock = new Mock<IGrandAuthenticationService>();
+        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>(), "lang1", It.IsAny<string>(),
+            It.IsAny<bool>())).Returns<string, string, string, bool>((key, _, _, _) => $"{key}@lang1");
         _service = new ExternalSignInService(_externalAuthenticationServiceMock.Object,
-            _authenticationServiceMock.Object);
+            _authenticationServiceMock.Object, _translationServiceMock.Object);
     }
 
     private Task<IActionResult> Authenticate(ExternalAuthResult result, string returnUrl = null)
@@ -33,7 +38,8 @@ public class ExternalSignInServiceTests
             .Setup(s => s.Authenticate(It.IsAny<ExternalAuthParam>(), It.IsAny<Customer>(), It.IsAny<Store>(),
                 It.IsAny<Language>()))
             .ReturnsAsync(result);
-        return _service.Authenticate(new ExternalAuthParam(), new Customer(), new Store(), new Language(), returnUrl);
+        return _service.Authenticate(new ExternalAuthParam(), new Customer(), new Store(), new Language { Id = "lang1" },
+            returnUrl);
     }
 
     [TestMethod]
@@ -85,20 +91,58 @@ public class ExternalSignInServiceTests
     }
 
     [TestMethod]
-    public async Task Refusals_RedirectToExternalAuthenticationErrorWithoutSignIn()
+    [DataRow("https://evil.example")]
+    [DataRow("//evil.example")]
+    [DataRow("/\evil.example")]
+    [DataRow("javascript:alert(1)")]
+    public async Task LoggedIn_WithExternalReturnUrl_RedirectsToHomePage(string returnUrl)
     {
-        foreach (var refusal in new[] {
-                     ExternalAuthResult.AlreadyAssigned(), ExternalAuthResult.RegistrationDisabled(),
-                     ExternalAuthResult.Error("failed")
-                 })
-        {
-            var result = (RedirectToActionResult)await Authenticate(refusal);
+        var result = await Authenticate(ExternalAuthResult.LoggedIn(_customer), returnUrl);
 
-            Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
-            Assert.AreEqual("Common", result.ControllerName);
-            Assert.AreSame(refusal.Errors, result.RouteValues!["Errors"]);
-        }
+        _authenticationServiceMock.Verify(a => a.SignIn(_customer, false), Times.Once);
+        Assert.AreEqual("HomePage", ((RedirectToRouteResult)result).RouteName);
+    }
 
+    [TestMethod]
+    public async Task Associated_WithExternalReturnUrl_RedirectsToHomePage()
+    {
+        var result = await Authenticate(ExternalAuthResult.Associated(_customer), "https://evil.example");
+
+        Assert.AreEqual("HomePage", ((RedirectToRouteResult)result).RouteName);
+    }
+
+    [TestMethod]
+    public async Task AlreadyAssigned_ShowsTranslatedErrorWithoutSignIn()
+    {
+        var result = (RedirectToActionResult)await Authenticate(ExternalAuthResult.AlreadyAssigned());
+
+        Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
+        Assert.AreEqual("Common", result.ControllerName);
+        CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.AlreadyAssigned@lang1" },
+            ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
+        _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RegistrationDisabled_ShowsTranslatedErrorWithoutSignIn()
+    {
+        var result = (RedirectToActionResult)await Authenticate(ExternalAuthResult.RegistrationDisabled());
+
+        Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
+        CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.RegistrationDisabled@lang1" },
+            ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
+        _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Error_ShowsErrorsOfTheResultWithoutSignIn()
+    {
+        var error = ExternalAuthResult.Error("failed");
+
+        var result = (RedirectToActionResult)await Authenticate(error);
+
+        Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
+        Assert.AreSame(error.Errors, result.RouteValues!["Errors"]);
         _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
     }
 }
