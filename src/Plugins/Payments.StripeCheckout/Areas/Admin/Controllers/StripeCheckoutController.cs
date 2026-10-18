@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -16,7 +15,7 @@ namespace Payments.StripeCheckout.Areas.Admin.Controllers;
 [PermissionAuthorize(PermissionSystemName.PaymentMethods)]
 public class StripeCheckoutController : BasePaymentController
 {
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly ISettingService _settingService;
     private readonly IRequestTranslationService _translationService;
     private readonly IAdminStoreService _adminStoreService;
@@ -24,7 +23,7 @@ public class StripeCheckoutController : BasePaymentController
     public StripeCheckoutController(
         ISettingService settingService,
         IRequestTranslationService translationService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IAdminStoreService adminStoreService)
     {
         _adminStoreService = adminStoreService;

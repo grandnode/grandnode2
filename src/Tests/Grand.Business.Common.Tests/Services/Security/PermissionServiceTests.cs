@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,18 +17,15 @@ public class PermissionServiceTests
     private Mock<IRepository<PermissionAction>> _permissionActionRepositoryMock;
     private Mock<IRepository<Permission>> _permissionRepositoryMock;
     private PermissionService _service;
-    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _permissionRepositoryMock = new Mock<IRepository<Permission>>();
         _permissionActionRepositoryMock = new Mock<IRepository<PermissionAction>>();
-        _workContextMock = new Mock<IContextAccessor>();
         _groupServiceMock = new Mock<IGroupService>();
         _cacheMock = new Mock<ICacheBase>();
         _service = new PermissionService(_permissionRepositoryMock.Object, _permissionActionRepositoryMock.Object,
-            _workContextMock.Object,
             _groupServiceMock.Object, _cacheMock.Object);
     }
 
@@ -39,12 +35,11 @@ public class PermissionServiceTests
         var permission = new Permission { SystemName = "permistion" };
         var fakeCustomer = new Customer();
         fakeCustomer.Groups.Add("group1");
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(fakeCustomer);
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>()))
             .Returns(Task.FromResult(true));
         _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
             .Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup> { new() }));
-        Assert.IsTrue(await _service.Authorize(permission));
+        Assert.IsTrue(await _service.Authorize(permission, fakeCustomer));
     }
 
     [TestMethod]
@@ -53,12 +48,19 @@ public class PermissionServiceTests
         Permission permission = null;
         var fakeCustomer = new Customer();
         fakeCustomer.Groups.Add("group1");
-        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(fakeCustomer);
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>()))
             .Returns(Task.FromResult(true));
         _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
             .Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup> { new() }));
-        Assert.IsFalse(await _service.Authorize(permission));
+        Assert.IsFalse(await _service.Authorize(permission, fakeCustomer));
+    }
+
+    [TestMethod]
+    public async Task Authorize_NullCustomer_ReturnFalse()
+    {
+        Assert.IsFalse(await _service.Authorize(new Permission { SystemName = "permission" }, null));
+        Assert.IsFalse(await _service.Authorize("permission", (Customer)null));
+        _groupServiceMock.VerifyNoOtherCalls();
     }
 
     private Customer CustomerAuthorizedFor(string groupId, PermissionAction deniedAction)

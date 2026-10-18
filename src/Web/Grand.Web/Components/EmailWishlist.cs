@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Models.ShoppingCart;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Extensions;
@@ -14,7 +14,7 @@ namespace Grand.Web.Components;
 public class EmailWishlistViewComponent : BaseViewComponent
 {
     private readonly CaptchaSettings _captchaSettings;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly IContextAccessor _contextAccessor;
@@ -22,7 +22,7 @@ public class EmailWishlistViewComponent : BaseViewComponent
     public EmailWishlistViewComponent(
         IContextAccessor contextAccessor,
         IShoppingCartService shoppingCartService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         ShoppingCartSettings shoppingCartSettings,
         CaptchaSettings captchaSettings
     )

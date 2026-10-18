@@ -1,15 +1,15 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain.Permissions;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Components;
 
 public class CustomerReportTimeChartViewComponent : BaseAdminViewComponent
 {
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
 
-    public CustomerReportTimeChartViewComponent(IPermissionService permissionService)
+    public CustomerReportTimeChartViewComponent(IRequestPermissionService permissionService)
     {
         _permissionService = permissionService;
     }

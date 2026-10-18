@@ -30,7 +30,7 @@ public class VendorController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Vendors)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Vendors, CurrentCustomer)) return Forbid();
 
         var vendor = await _mediator.Send(new GetGenericQuery<VendorDto, Vendor>(key));
         if (!vendor.Any()) return NotFound();
@@ -46,7 +46,7 @@ public class VendorController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VendorDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Vendors)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Vendors, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<VendorDto, Vendor>()));
     }

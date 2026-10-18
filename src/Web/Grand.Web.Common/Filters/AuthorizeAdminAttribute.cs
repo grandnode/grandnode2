@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Security;
 using Grand.Infrastructure;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
@@ -32,7 +32,7 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that confirms access to the admin panel
     /// </summary>
-    private class AuthorizeAdminFilter(bool ignoreFilter, IPermissionService permissionService,
+    private class AuthorizeAdminFilter(bool ignoreFilter, IRequestPermissionService permissionService,
         SecuritySettings securitySettings, IContextAccessor contextAccessor, IGroupService groupService) : IAsyncAuthorizationFilter
     {
         const string routeName = "AdminLogin";

@@ -50,31 +50,9 @@ public interface IPermissionService
     ///     Authorize permission
     /// </summary>
     /// <param name="permission">Permission</param>
-    /// <returns>true - authorized; otherwise, false</returns>
-    /// <remarks>
-    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
-    ///     takes the customer.
-    /// </remarks>
-    Task<bool> Authorize(Permission permission);
-
-    /// <summary>
-    ///     Authorize permission
-    /// </summary>
-    /// <param name="permission">Permission</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
     Task<bool> Authorize(Permission permission, Customer customer);
-
-    /// <summary>
-    ///     Authorize permission
-    /// </summary>
-    /// <param name="permissionSystemName">Permission system name</param>
-    /// <returns>true - authorized; otherwise, false</returns>
-    /// <remarks>
-    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
-    ///     takes the customer.
-    /// </remarks>
-    Task<bool> Authorize(string permissionSystemName);
 
     /// <summary>
     ///     Authorize permission

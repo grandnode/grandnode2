@@ -1,7 +1,7 @@
-﻿@using Grand.Business.Core.Interfaces.Common.Security
+﻿@using Grand.Web.Common.Security.Authorization
 @using Grand.Domain.Permissions
 @model BrandModel
-@inject IPermissionService permissionService
+@inject IRequestPermissionService permissionService
 @{
     //has "Manage Documents" permission?
     var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);

@@ -30,7 +30,7 @@ public class StoreController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Stores)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Stores, CurrentCustomer)) return Forbid();
 
         var store = await _mediator.Send(new GetGenericQuery<StoreDto, Store>(key));
         if (!store.Any()) return NotFound();
@@ -46,7 +46,7 @@ public class StoreController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<StoreDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Stores)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Stores, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<StoreDto, Store>()));
     }

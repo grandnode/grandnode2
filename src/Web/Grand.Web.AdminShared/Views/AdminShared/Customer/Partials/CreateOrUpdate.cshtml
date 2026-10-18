@@ -1,8 +1,8 @@
-@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Web.Common.Security.Authorization
 @using Grand.Domain.Customers
 @using Grand.Domain.Permissions
 @model CustomerModel
-@inject IPermissionService permissionService
+@inject IRequestPermissionService permissionService
 @inject IAdminDataScope<Customer> Scope
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();

@@ -1,6 +1,5 @@
 ﻿using Authentication.Facebook.Models;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -20,7 +19,7 @@ public class FacebookAuthenticationSettingsController : BasePluginController
 
     public FacebookAuthenticationSettingsController(FacebookExternalAuthSettings facebookExternalAuthSettings,
         IRequestTranslationService translationService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         ISettingService settingService,
         IConfiguration configuration)
     {
@@ -37,7 +36,7 @@ public class FacebookAuthenticationSettingsController : BasePluginController
 
     private readonly FacebookExternalAuthSettings _facebookExternalAuthSettings;
     private readonly IRequestTranslationService _translationService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly ISettingService _settingService;
     private readonly IConfiguration _configuration;
 

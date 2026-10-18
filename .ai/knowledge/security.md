@@ -8,12 +8,14 @@ Patterns from `Grand.Web`, `Grand.Module.Api`, `Grand.Business.*`. Complementary
 
 ### Check permission before touching data
 
-Every API and admin controller action must enforce permissions (either via `[PermissionAuthorize]` / `[PermissionAuthorizeAction]` attributes or explicit `IPermissionService.Authorize` checks) before returning any data or performing any mutation.
+Every API and admin controller action must enforce permissions (either via `[PermissionAuthorize]` / `[PermissionAuthorizeAction]` attributes or explicit `Authorize` checks) before returning any data or performing any mutation.
+
+`IPermissionService` (Business) only authorizes a customer you pass in. Code in Web, the admin panels and plugins injects `IRequestPermissionService` (`Grand.Web.Common.Security.Authorization`), which provides `Authorize(permission)` for the customer of the current request. `Grand.Module.Api` has no Web.Common reference, so its controllers keep `IPermissionService` and pass `CurrentCustomer` from `BaseApiController`. Code in `src/Business` never authorizes "the current customer".
 
 ```csharp
 public async Task<IActionResult> Get()
 {
-    if (!await _permissionService.Authorize(PermissionSystemName.Brands))
+    if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer))
         return Forbid();
     
     return Ok(await _mediator.Send(new GetGenericQuery<BrandDto, Brand>()));
@@ -110,7 +112,7 @@ Never commit connection strings, API keys, or credentials to source. Use `appset
 
 ## Summary Checklist
 
-- [ ] Every action checks `IPermissionService.Authorize` before data access
+- [ ] Every action checks a permission (attribute or `Authorize`) before data access
 - [ ] Returns `Forbid()` not `Unauthorized()` for permission failures
 - [ ] Business rule validation uses FluentValidation with record input types
 - [ ] Service entry points guard null arguments with `ArgumentNullException.ThrowIfNull`

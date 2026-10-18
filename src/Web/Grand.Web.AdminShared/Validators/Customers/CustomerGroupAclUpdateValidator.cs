@@ -4,18 +4,20 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Customers;
+using Grand.Web.Common.Security.Authorization;
 
 namespace Grand.Web.AdminShared.Validators.Customers;
 
 public class CustomerGroupAclUpdateValidator : BaseGrandValidator<CustomerGroupAclUpdateModel>
 {
     public CustomerGroupAclUpdateValidator(IEnumerable<IValidatorConsumer<CustomerGroupAclUpdateModel>> validators,
-        IGroupService groupService, IPermissionService permissionService)
+        IGroupService groupService, IPermissionService permissionService,
+        IRequestPermissionService requestPermissionService)
         : base(validators)
     {
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            if (!await permissionService.Authorize(StandardPermission.ManageAcl))
+            if (!await requestPermissionService.Authorize(StandardPermission.ManageAcl))
                 context.AddFailure("You don't have permission to the update");
 
             var customerGroup = await groupService.GetCustomerGroupById(x.CustomerGroupId);

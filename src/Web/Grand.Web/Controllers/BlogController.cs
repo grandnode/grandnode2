@@ -8,6 +8,7 @@ using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Blogs;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
@@ -104,7 +105,7 @@ public class BlogController : BasePublicController
     [HttpGet]
     public virtual async Task<ActionResult<BlogPostModel>> BlogPost(string blogPostId,
         [FromServices] IAclService aclService,
-        [FromServices] IPermissionService permissionService)
+        [FromServices] IRequestPermissionService permissionService)
     {
         if (!_blogSettings.Enabled)
             return RedirectToRoute("HomePage");

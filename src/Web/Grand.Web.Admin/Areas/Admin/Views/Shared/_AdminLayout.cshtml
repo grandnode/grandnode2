@@ -1,11 +1,11 @@
 ﻿@using System.Text.Encodings.Web
 @using Grand.Business.Core.Interfaces.Common.Directory
-@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Web.Common.Security.Authorization
 @using Grand.Domain.Permissions
 @using Grand.Domain.Customers
 @using Grand.Domain.Localization
 @inject IContextAccessor contextAccessor
-@inject IPermissionService permissionService
+@inject IRequestPermissionService permissionService
 @inject CustomerSettings customerSettings
 @inject LanguageSettings languageSettings
 @inject IGroupService groupService

@@ -32,7 +32,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
 
         var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();
@@ -48,7 +48,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CollectionDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>()));
     }
@@ -61,7 +61,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CollectionDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCollectionCommand { Model = model });
         return Ok(model);
@@ -75,7 +75,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CollectionDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
         return Ok(model);
@@ -93,7 +93,7 @@ public class CollectionController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
 
         var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();
@@ -112,7 +112,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
 
         var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();

@@ -32,7 +32,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BrandDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<BrandDto, Brand>()));
     }
@@ -45,7 +45,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     public async Task<IActionResult> GetById([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
 
         var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
         if (!brand.Any()) return NotFound();
@@ -61,7 +61,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] BrandDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddBrandCommand { Model = model });
         return Ok(model);
@@ -75,7 +75,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] BrandDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateBrandCommand { Model = model });
         return Ok(model);
@@ -100,7 +100,7 @@ public class BrandController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
 
         var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
         if (!brand.Any()) return NotFound();
@@ -119,7 +119,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
 
         var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
         if (!brand.Any()) return NotFound();

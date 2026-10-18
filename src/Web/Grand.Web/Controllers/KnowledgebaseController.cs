@@ -15,6 +15,7 @@ using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
@@ -35,7 +36,7 @@ public class KnowledgebaseController : BasePublicController
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
     private readonly LanguageSettings _languageSettings;
     private readonly IMessageProviderService _messageProviderService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
@@ -48,7 +49,7 @@ public class KnowledgebaseController : BasePublicController
         IRequestTranslationService translationService,
         IMessageProviderService messageProviderService,
         IDateTimeService dateTimeService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         CustomerSettings customerSettings,
         CaptchaSettings captchaSettings,
         LanguageSettings languageSettings)
@@ -112,9 +113,8 @@ public class KnowledgebaseController : BasePublicController
         }));
 
         //display "edit" (manage) link
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
-        if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
-            await _permissionService.Authorize(StandardPermission.ManageKnowledgebase, customer))
+        if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+            await _permissionService.Authorize(StandardPermission.ManageKnowledgebase))
             DisplayEditLink(Url.Action("EditCategory", "Knowledgebase", new { id = categoryId, area = "Admin" }));
 
         model.CurrentCategoryId = categoryId;
@@ -216,8 +216,8 @@ public class KnowledgebaseController : BasePublicController
             return NotFound();
 
         //display "edit" (manage) link
-        if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
-            await _permissionService.Authorize(StandardPermission.ManageKnowledgebase, customer))
+        if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) &&
+            await _permissionService.Authorize(StandardPermission.ManageKnowledgebase))
             DisplayEditLink(Url.Action("EditArticle", "Knowledgebase", new { id = article.Id, area = "Admin" }));
 
         var model = new KnowledgebaseArticleModel();

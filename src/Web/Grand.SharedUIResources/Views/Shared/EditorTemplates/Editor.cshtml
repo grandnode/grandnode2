@@ -1,9 +1,9 @@
-﻿@using Grand.Business.Core.Interfaces.Common.Security
+﻿@using Grand.Web.Common.Security.Authorization
 @using Grand.Domain.Permissions
 @using Grand.SharedKernel.Extensions
 
 @model string
-@inject IPermissionService permissionService
+@inject IRequestPermissionService permissionService
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 @{
     var allowFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);

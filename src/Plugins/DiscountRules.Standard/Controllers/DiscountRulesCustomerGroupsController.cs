@@ -1,9 +1,9 @@
 using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Discounts;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -13,12 +13,12 @@ public class DiscountRulesCustomerGroupsController : BaseDiscountRulePluginContr
 {
     private readonly IDiscountService _discountService;
     private readonly IGroupService _groupService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
 
     public DiscountRulesCustomerGroupsController(
         IDiscountService discountService,
         IGroupService groupService,
-        IPermissionService permissionService)
+        IRequestPermissionService permissionService)
     {
         _discountService = discountService;
         _groupService = groupService;

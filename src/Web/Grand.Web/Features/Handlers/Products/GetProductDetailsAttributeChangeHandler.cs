@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
@@ -10,6 +9,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
@@ -27,7 +27,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
     private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IPricingService _pricingService;
@@ -39,7 +39,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
     public GetProductDetailsAttributeChangeHandler(
         IMediator mediator,
         IStockQuantityService stockQuantityService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IPricingService priceCalculationService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
         ITaxService taxService,

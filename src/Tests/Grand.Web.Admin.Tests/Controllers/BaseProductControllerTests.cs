@@ -2,7 +2,6 @@ using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
@@ -19,6 +18,7 @@ using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -44,7 +44,7 @@ public class BaseProductControllerTests
         IProductReservationService productReservationService,
         IAuctionService auctionService,
         IDateTimeService dateTimeService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IEnumTranslationService enumTranslationService,
         IAdminDataScope<Product> scope)
         : BaseProductController(productViewModelService, productService, inventoryManageService,
@@ -56,7 +56,7 @@ public class BaseProductControllerTests
     private Mock<IProductViewModelService> _productViewModelServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Product>> _scopeMock;
-    private Mock<IPermissionService> _permissionServiceMock;
+    private Mock<IRequestPermissionService> _permissionServiceMock;
     private Mock<IProductReservationService> _productReservationServiceMock;
     private Mock<IAuctionService> _auctionServiceMock;
 
@@ -79,7 +79,7 @@ public class BaseProductControllerTests
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
 
-        _permissionServiceMock = new Mock<IPermissionService>();
+        _permissionServiceMock = new Mock<IRequestPermissionService>();
         _permissionServiceMock.Setup(p => p.Authorize(It.IsAny<Permission>())).ReturnsAsync(true);
 
         var languageServiceMock = new Mock<ILanguageService>();
@@ -2234,7 +2234,7 @@ public class BaseProductControllerTests
     // --- Product pictures ---------------------------------------------------------------------------
     // ProductPictureAdd is deliberately not covered here (same rationale as Store's original
     // ProductControllerTests): reaching its HasAccess check requires a non-empty IFormFileCollection and
-    // a prior Pictures-permission check via IPermissionService, disproportionate setup for what is
+    // a prior Pictures-permission check via IRequestPermissionService, disproportionate setup for what is
     // otherwise the same one-line HasAccess condition covered everywhere else in this region.
 
     // --- ProductPictureList --------------------------------------------------------------------------

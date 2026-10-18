@@ -1,9 +1,12 @@
-﻿using Grand.Module.Api.Attributes;
+﻿using Grand.Domain.Customers;
+using Grand.Infrastructure;
+using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Constants;
 using Grand.Module.Api.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -15,6 +18,12 @@ namespace Grand.Module.Api.Controllers;
 [Produces("application/json")]
 public abstract class BaseApiController : ControllerBase
 {
+    /// <summary>
+    ///     Customer of the current request
+    /// </summary>
+    protected Customer CurrentCustomer =>
+        HttpContext.RequestServices.GetRequiredService<IContextAccessor>().WorkContext?.CurrentCustomer;
+
     public override ForbidResult Forbid()
     {
         return new ForbidResult(JwtBearerDefaults.AuthenticationScheme);

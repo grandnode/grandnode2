@@ -1,8 +1,8 @@
-@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Web.Common.Security.Authorization
 @using Grand.Domain.Permissions
 @using Grand.Domain.Orders
 @model OrderModel
-@inject IPermissionService permissionService;
+@inject IRequestPermissionService permissionService;
 @inject IAdminDataScope<Order> Scope
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();

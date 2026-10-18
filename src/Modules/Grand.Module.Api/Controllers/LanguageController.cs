@@ -30,7 +30,7 @@ public class LanguageController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Languages, CurrentCustomer)) return Forbid();
 
         var language = await _mediator.Send(new GetGenericQuery<LanguageDto, Language>(key));
         if (!language.Any()) return NotFound();
@@ -46,7 +46,7 @@ public class LanguageController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LanguageDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Languages, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<LanguageDto, Language>()));
     }

@@ -34,7 +34,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
         var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
         if (!category.Any()) return NotFound();
@@ -50,7 +50,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<CategoryDto, Category>()));
     }
@@ -63,7 +63,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CategoryDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCategoryCommand { Model = model });
         return Ok(model);
@@ -77,7 +77,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CategoryDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
         return Ok(model);
@@ -95,7 +95,7 @@ public class CategoryController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
         var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
         if (!category.Any()) return NotFound();
@@ -114,7 +114,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
         var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
         if (!category.Any()) return NotFound();

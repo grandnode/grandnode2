@@ -30,7 +30,7 @@ public class CountryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Countries, CurrentCustomer)) return Forbid();
 
         //Domain.Directory.Country
         var country = await _mediator.Send(new GetGenericQuery<CountryDto, Country>(key));
@@ -47,7 +47,7 @@ public class CountryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CountryDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Countries, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<CountryDto, Country>()));
     }

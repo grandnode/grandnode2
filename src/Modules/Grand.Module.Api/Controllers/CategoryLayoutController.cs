@@ -32,7 +32,7 @@ public class CategoryLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, CurrentCustomer)) return Forbid();
 
         var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>(key));
         if (!layout.Any()) return NotFound();
@@ -48,7 +48,7 @@ public class CategoryLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LayoutDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>()));
     }

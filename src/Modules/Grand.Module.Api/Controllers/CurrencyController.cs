@@ -30,7 +30,7 @@ public class CurrencyController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Currencies)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Currencies, CurrentCustomer)) return Forbid();
 
         var currency = await _mediator.Send(new GetGenericQuery<CurrencyDto, Currency>(key));
         if (!currency.Any()) return NotFound();
@@ -46,7 +46,7 @@ public class CurrencyController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CurrencyDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Currencies)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Currencies, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<CurrencyDto, Currency>()));
     }

@@ -15,6 +15,7 @@ using Grand.Web.Common.Middleware;
 using Grand.Web.Common.Page;
 using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Routing;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.TagHelpers;
 using Grand.Web.Common.Themes;
@@ -120,6 +121,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IValidatorFactory, ValidatorFactory>();
 
         serviceCollection.AddScoped<IRequestTranslationService, RequestTranslationService>();
+        serviceCollection.AddScoped<IRequestPermissionService, RequestPermissionService>();
         serviceCollection.AddScoped<IEnumTranslationService, EnumTranslationService>();
         if (DataSettingsManager.DatabaseIsInstalled())
         {

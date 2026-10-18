@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
@@ -23,6 +22,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -50,7 +50,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IPricingService _pricingService;
@@ -71,7 +71,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         ICurrencyService currencyService,
         IDiscountService discountService,
         ICheckoutAttributeService checkoutAttributeService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         ITaxService taxService,
         IPriceFormatter priceFormatter,
         ICheckoutAttributeParser checkoutAttributeParser,

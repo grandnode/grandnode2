@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
@@ -22,6 +21,7 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Events.Cache;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Extensions;
@@ -54,7 +54,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
 
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IPricingService _pricingService;
@@ -73,7 +73,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     private readonly IContextAccessor _contextAccessor;
 
     public GetProductDetailsPageHandler(
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IContextAccessor contextAccessor,
         IRequestTranslationService translationService,
         IProductService productService,

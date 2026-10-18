@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
@@ -20,6 +19,7 @@ using Grand.Web.Commands.Models.ShoppingCart;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
@@ -42,7 +42,7 @@ public class ShoppingCartController : BasePublicController
         ICustomerService customerService,
         IGroupService groupService,
         ICheckoutAttributeService checkoutAttributeService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
         ShoppingCartSettings shoppingCartSettings,
@@ -107,7 +107,7 @@ public class ShoppingCartController : BasePublicController
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly ICheckoutAttributeService _checkoutAttributeService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IMediator _mediator;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly ShoppingCartSettings _shoppingCartSettings;

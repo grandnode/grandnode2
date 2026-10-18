@@ -32,7 +32,7 @@ public class CustomerGroupController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
 
         var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
         if (!customerGroup.Any()) return NotFound();
@@ -48,7 +48,7 @@ public class CustomerGroupController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerGroupDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>()));
     }
@@ -61,7 +61,7 @@ public class CustomerGroupController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CustomerGroupDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCustomerGroupCommand { Model = model });
         return Ok(model);
@@ -75,7 +75,7 @@ public class CustomerGroupController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CustomerGroupDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
 
         if (!model.IsSystem)
         {
@@ -98,7 +98,7 @@ public class CustomerGroupController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
 
         var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
         if (!customerGroup.Any()) return NotFound();
@@ -122,7 +122,7 @@ public class CustomerGroupController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
 
         var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
         if (!customerGroup.Any()) return NotFound();

@@ -30,7 +30,7 @@ public class ShippingMethodController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, CurrentCustomer)) return Forbid();
 
         var shipping = await _mediator.Send(new GetGenericQuery<ShippingMethodDto, ShippingMethod>(key));
         if (!shipping.Any()) return NotFound();
@@ -46,7 +46,7 @@ public class ShippingMethodController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ShippingMethodDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<ShippingMethodDto, ShippingMethod>()));
     }

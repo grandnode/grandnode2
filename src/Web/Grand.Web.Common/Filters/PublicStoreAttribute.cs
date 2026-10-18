@@ -1,7 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Stores;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
@@ -30,7 +30,7 @@ public class PublicStoreAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that confirms access to public store
     /// </summary>
-    private class AccessPublicStoreFilter(bool ignoreFilter, IPermissionService permissionService,
+    private class AccessPublicStoreFilter(bool ignoreFilter, IRequestPermissionService permissionService,
         StoreInformationSettings storeInformationSettings) : IAsyncAuthorizationFilter
     {
 

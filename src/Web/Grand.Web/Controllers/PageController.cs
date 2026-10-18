@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain.Permissions;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Features.Models.Pages;
 using Grand.Web.Models.Pages;
 using Grand.Mediator;
@@ -18,7 +18,7 @@ public class PageController : BasePublicController
 
     public PageController(
         IRequestTranslationService translationService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IMediator mediator)
     {
         _translationService = translationService;
@@ -31,7 +31,7 @@ public class PageController : BasePublicController
     #region Fields
 
     private readonly IRequestTranslationService _translationService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IMediator _mediator;
 
     #endregion

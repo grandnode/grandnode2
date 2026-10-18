@@ -32,7 +32,7 @@ public class SpecificationAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes, CurrentCustomer)) return Forbid();
 
         var specificationAttribute = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key));
         if (!specificationAttribute.Any()) return NotFound();
@@ -48,7 +48,7 @@ public class SpecificationAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SpecificationAttributeDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes, CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>()));
     }
@@ -61,7 +61,7 @@ public class SpecificationAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] SpecificationAttributeDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddSpecificationAttributeCommand { Model = model });
         return Ok(model);
@@ -75,7 +75,7 @@ public class SpecificationAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] SpecificationAttributeDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = model });
         return Ok(model);
@@ -93,7 +93,7 @@ public class SpecificationAttributeController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes, CurrentCustomer)) return Forbid();
 
         var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key));
         if (!specification.Any()) return NotFound();
@@ -112,7 +112,7 @@ public class SpecificationAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes, CurrentCustomer)) return Forbid();
 
         var specification =
             await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key));

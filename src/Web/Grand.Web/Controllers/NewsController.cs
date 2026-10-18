@@ -8,6 +8,7 @@ using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.News;
@@ -27,7 +28,7 @@ public class NewsController : BasePublicController
         IContextAccessor contextAccessor,
         IRequestTranslationService translationService,
         IAclService aclService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IMediator mediator,
         NewsSettings newsSettings)
     {
@@ -48,7 +49,7 @@ public class NewsController : BasePublicController
     private readonly IContextAccessor _contextAccessor;
     private readonly IRequestTranslationService _translationService;
     private readonly IAclService _aclService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IMediator _mediator;
     private readonly NewsSettings _newsSettings;
 

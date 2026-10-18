@@ -30,7 +30,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, CurrentCustomer)) return Forbid();
 
         var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key));
         if (picture == null || !picture.Any()) return NotFound();
@@ -46,7 +46,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] PictureDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddPictureCommand { PictureDto = model });
         return Ok(model);
@@ -60,7 +60,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] PictureDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, CurrentCustomer)) return Forbid();
 
         var result = await _mediator.Send(new UpdatePictureCommand { Model = model });
         return Ok(result);
@@ -74,7 +74,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, CurrentCustomer)) return Forbid();
 
         var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key));
         if (picture == null || !picture.Any()) return NotFound();

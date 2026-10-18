@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -578,7 +577,7 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> OrderList(string customerId, DataSourceRequest command,
         [FromServices] Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService orderService,
         [FromServices] Grand.Web.AdminShared.Interfaces.IOrderViewModelService orderViewModelService,
-        [FromServices] IPermissionService permissionService)
+        [FromServices] IRequestPermissionService permissionService)
     {
         if (scope.DefaultStoreId is not null)
         {
@@ -603,7 +602,7 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> OrderDetails(string orderId,
         [FromServices] Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService orderService,
         [FromServices] Grand.Web.AdminShared.Interfaces.IOrderViewModelService orderViewModelService,
-        [FromServices] IPermissionService permissionService)
+        [FromServices] IRequestPermissionService permissionService)
     {
         Grand.Domain.Orders.Order order;
         if (scope.DefaultStoreId is null)

@@ -1,7 +1,9 @@
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
+using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Security;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Module.Api.Filters;
 using Microsoft.AspNetCore.Http;
@@ -18,6 +20,8 @@ namespace Grand.Module.Api.Tests.Filters;
 [TestClass]
 public class AuthorizeApiAdminAttributeTests
 {
+    private readonly Customer _customer = new();
+    private Mock<IContextAccessor> _contextAccessor;
     private Mock<IPermissionService> _permissionService;
 
     [TestInitialize]
@@ -26,15 +30,18 @@ public class AuthorizeApiAdminAttributeTests
         DataSettingsManager.Initialize(Path.Join(Path.GetTempPath(), "grand-api-tests-settings.json"));
         DataSettingsManager.Instance.LoadDataSettings(new DataSettings { ConnectionString = "mongodb://localhost" });
         _permissionService = new Mock<IPermissionService>();
+        _contextAccessor = new Mock<IContextAccessor>();
+        _contextAccessor.Setup(x => x.WorkContext.CurrentCustomer).Returns(_customer);
     }
 
     private async Task<AuthorizationFilterContext> Run(bool apiEnabled, bool ignore, bool permitted)
     {
-        _permissionService.Setup(x => x.Authorize(It.IsAny<Permission>())).ReturnsAsync(permitted);
+        _permissionService.Setup(x => x.Authorize(It.IsAny<Permission>(), _customer)).ReturnsAsync(permitted);
         var attribute = new AuthorizeApiAdminAttribute(ignore);
         var filter = (IAsyncAuthorizationFilter)ActivatorUtilities.CreateInstance(
             new ServiceCollection()
                 .AddSingleton(_permissionService.Object)
+                .AddSingleton(_contextAccessor.Object)
                 .AddSingleton(new SecuritySettings())
                 .AddSingleton(new BackendAPIConfig { Enabled = apiEnabled })
                 .BuildServiceProvider(),
@@ -52,7 +59,7 @@ public class AuthorizeApiAdminAttributeTests
     {
         var context = await Run(apiEnabled: false, ignore: false, permitted: true);
         Assert.IsInstanceOfType<ForbidResult>(context.Result);
-        _permissionService.Verify(x => x.Authorize(It.IsAny<Permission>()), Times.Never);
+        _permissionService.Verify(x => x.Authorize(It.IsAny<Permission>(), _customer), Times.Never);
     }
 
     [TestMethod]
@@ -68,7 +75,7 @@ public class AuthorizeApiAdminAttributeTests
     {
         var context = await Run(apiEnabled: true, ignore: true, permitted: false);
         Assert.IsNull(context.Result);
-        _permissionService.Verify(x => x.Authorize(It.IsAny<Permission>()), Times.Never);
+        _permissionService.Verify(x => x.Authorize(It.IsAny<Permission>(), _customer), Times.Never);
     }
 
     [TestMethod]
@@ -76,7 +83,7 @@ public class AuthorizeApiAdminAttributeTests
     {
         var context = await Run(apiEnabled: true, ignore: false, permitted: false);
         Assert.IsInstanceOfType<ForbidResult>(context.Result);
-        _permissionService.Verify(x => x.Authorize(It.IsAny<Permission>()), Times.Once);
+        _permissionService.Verify(x => x.Authorize(It.IsAny<Permission>(), _customer), Times.Once);
     }
 
     [TestMethod]
