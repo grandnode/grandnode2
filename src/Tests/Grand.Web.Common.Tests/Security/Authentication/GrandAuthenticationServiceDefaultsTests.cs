@@ -1,8 +1,8 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Domain.Customers;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Authentication.Tests.Services;
+namespace Grand.Web.Common.Tests.Security.Authentication;
 
 [TestClass]
 public class GrandAuthenticationServiceDefaultsTests

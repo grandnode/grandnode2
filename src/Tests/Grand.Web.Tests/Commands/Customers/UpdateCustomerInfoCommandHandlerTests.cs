@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
@@ -7,6 +6,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Handler.Customers;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Models.Customer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

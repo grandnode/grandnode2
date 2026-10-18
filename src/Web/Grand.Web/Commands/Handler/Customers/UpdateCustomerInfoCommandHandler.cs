@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Catalog.Tax;
+﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Domain.Common;
@@ -9,6 +8,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Mediator;
+using Grand.Web.Common.Security.Authentication;
 
 namespace Grand.Web.Commands.Handler.Customers;
 

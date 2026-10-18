@@ -10,6 +10,7 @@ using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Controllers;
 using Grand.Web.Features.Models.Customers;

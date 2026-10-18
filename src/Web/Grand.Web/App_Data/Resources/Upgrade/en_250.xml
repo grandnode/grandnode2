@@ -60,4 +60,10 @@
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.OidcLinks.Kept" Area="Admin">
 		<Value>The account links now belong to the configured identity provider.</Value>
 	</Resource>
+	<Resource Name="Account.AssociatedExternalAuth.AlreadyAssigned" Area="Front">
+		<Value>This external account is already connected to another customer account.</Value>
+	</Resource>
+	<Resource Name="Account.AssociatedExternalAuth.RegistrationDisabled" Area="Front">
+		<Value>Registration of new customers is disabled, so this external account cannot be used to create one.</Value>
+	</Resource>
 </Language>
