@@ -24,9 +24,13 @@ public sealed record TelemetrySettings(
     double SamplingRatio,
     string? TracesSampler,
     string? TracesSamplerArg,
-    IReadOnlyList<string> ExcludePaths)
+    IReadOnlyList<string> ExcludePaths,
+    IReadOnlyList<string> ExcludeExtensions)
 {
     private static readonly string[] DefaultExcludePaths = ["/health", "/_content", "/bundles", "/assets", "/theme", "/favicon.ico"];
+
+    private static readonly string[] DefaultExcludeExtensions =
+        [".css", ".js", ".map", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".eot"];
 
     public bool HasAnySink => OtlpEndpoint is not null || AzureMonitorConnectionString is not null || Console;
 
@@ -68,7 +72,11 @@ public sealed record TelemetrySettings(
             config.Tracing.SamplingRatio,
             Value(configuration["OTEL_TRACES_SAMPLER"])?.ToLowerInvariant(),
             Value(configuration["OTEL_TRACES_SAMPLER_ARG"]),
-            config.Tracing.ExcludePaths ?? DefaultExcludePaths);
+            config.Tracing.ExcludePaths ?? DefaultExcludePaths,
+            config.Tracing.ExcludeExtensions?
+                .Select(Value).OfType<string>()
+                .Select(e => (e.StartsWith('.') ? e : "." + e).ToLowerInvariant())
+                .ToArray() ?? DefaultExcludeExtensions);
     }
 
     /// <summary>

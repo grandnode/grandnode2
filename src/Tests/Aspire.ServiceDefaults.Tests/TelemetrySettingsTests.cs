@@ -64,6 +64,27 @@ public class TelemetrySettingsTests
     }
 
     [TestMethod]
+    public void Resolve_NoExcludeExtensions_UsesStaticAssetDefaults()
+    {
+        var settings = Resolve([]);
+
+        CollectionAssert.AreEqual(
+            new[] { ".css", ".js", ".map", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".eot" },
+            settings.ExcludeExtensions.ToArray());
+    }
+
+    [TestMethod]
+    public void Resolve_ExcludeExtensionsInFile_ReplaceDefaultsAndGetALeadingDot()
+    {
+        var settings = Resolve(new() {
+            ["Telemetry:Tracing:ExcludeExtensions:0"] = "avif",
+            ["Telemetry:Tracing:ExcludeExtensions:1"] = ".PDF"
+        });
+
+        CollectionAssert.AreEqual(new[] { ".avif", ".pdf" }, settings.ExcludeExtensions.ToArray());
+    }
+
+    [TestMethod]
     public void Resolve_ExcludePathsInFile_ReplaceDefaults()
     {
         var settings = Resolve(new() { ["Telemetry:Tracing:ExcludePaths:0"] = "/robots.txt" });

@@ -73,5 +73,12 @@ public class TelemetryConfig
         ///     Do not add /Plugins - next to plugin assets it holds plugin endpoints such as payment webhooks.
         /// </summary>
         public string[]? ExcludePaths { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the file extensions of requests that never produce a trace, e.g. plugin assets under
+        ///     /Plugins. Not set uses the static asset types (.css, .js, images, fonts). Leave out .txt, .xml and
+        ///     .json - robots.txt, sitemap.xml and JSON endpoints are served by controllers.
+        /// </summary>
+        public string[]? ExcludeExtensions { get; set; }
     }
 }

@@ -8,6 +8,7 @@ namespace Aspire.ServiceDefaults.Tests;
 public class TelemetryPathFilterTests
 {
     private static readonly string[] ExcludePaths = ["/health", "/_content", "/bundles"];
+    private static readonly string[] ExcludeExtensions = [".css", ".jpg", ".woff2"];
 
     [TestMethod]
     [DataRow("/health", false)]
@@ -20,12 +21,26 @@ public class TelemetryPathFilterTests
     [DataRow("/cart", true)]
     public void ShouldTrace_MatchesWholeSegments(string path, bool expected)
     {
-        Assert.AreEqual(expected, TelemetryPathFilter.ShouldTrace(new PathString(path), ExcludePaths));
+        Assert.AreEqual(expected, TelemetryPathFilter.ShouldTrace(new PathString(path), ExcludePaths, []));
     }
 
     [TestMethod]
-    public void ShouldTrace_NoExcludePaths_TracesEverything()
+    [DataRow("/Plugins/Payments.StripeCheckout/logo.jpg", false)]
+    [DataRow("/Plugins/Widgets.Slider/Assets/slider.CSS", false)]
+    [DataRow("/Plugins/Theme/fonts/font.woff2", false)]
+    [DataRow("/Plugins/PaymentStripeCheckout/WebHook", true)]
+    [DataRow("/Plugins/Payments.StripeCheckout/Payments.StripeCheckout.dll", true)]
+    [DataRow("/robots.txt", true)]
+    [DataRow("/v1.css/product", true)]
+    [DataRow("/", true)]
+    public void ShouldTrace_MatchesExtensionOfLastSegment(string path, bool expected)
     {
-        Assert.IsTrue(TelemetryPathFilter.ShouldTrace(new PathString("/health"), []));
+        Assert.AreEqual(expected, TelemetryPathFilter.ShouldTrace(new PathString(path), [], ExcludeExtensions));
+    }
+
+    [TestMethod]
+    public void ShouldTrace_NothingExcluded_TracesEverything()
+    {
+        Assert.IsTrue(TelemetryPathFilter.ShouldTrace(new PathString("/health/site.css"), [], []));
     }
 }

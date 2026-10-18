@@ -80,7 +80,8 @@ public static class Extensions
                 tracing.AddSource(builder.Environment.ApplicationName)
                     .AddAspNetCoreInstrumentation(options =>
                     {
-                        options.Filter = context => TelemetryPathFilter.ShouldTrace(context.Request.Path, settings.ExcludePaths);
+                        options.Filter = context =>
+                            TelemetryPathFilter.ShouldTrace(context.Request.Path, settings.ExcludePaths, settings.ExcludeExtensions);
                         options.RecordException = true;
                     })
                     .AddHttpClientInstrumentation();
