@@ -3,7 +3,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
@@ -39,7 +38,7 @@ public abstract class BaseCustomerManagementController(
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
     IAdminDataScope<Customer> scope,
-    IPermissionService permissionService,
+    IRequestPermissionService permissionService,
     IExportManager<Customer> exportManager)
     : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,

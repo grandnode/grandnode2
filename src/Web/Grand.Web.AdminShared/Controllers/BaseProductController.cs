@@ -3,7 +3,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
@@ -41,7 +40,7 @@ public abstract class BaseProductController(
     IProductReservationService productReservationService,
     IAuctionService auctionService,
     IDateTimeService dateTimeService,
-    IPermissionService permissionService,
+    IRequestPermissionService permissionService,
     IEnumTranslationService enumTranslationService,
     IAdminDataScope<Product> scope)
     : BaseController

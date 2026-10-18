@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Localization;
 using Grand.Domain.Pages;
 using Grand.Domain.Permissions;
@@ -7,6 +6,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Security;
 using Grand.Web.Admin.Components;
 using Grand.Web.Admin.Models.Cms;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,7 +20,7 @@ public class AdminPageViewComponentTests
     private const string SystemName = "AdminPortalInfo";
 
     private Mock<IPageService> _pageServiceMock;
-    private Mock<IPermissionService> _permissionServiceMock;
+    private Mock<IRequestPermissionService> _permissionServiceMock;
     private Mock<IHtmlSanitizationService> _sanitizerMock;
     private AdminPageViewComponent _component;
 
@@ -28,7 +28,7 @@ public class AdminPageViewComponentTests
     public void Init()
     {
         _pageServiceMock = new Mock<IPageService>();
-        _permissionServiceMock = new Mock<IPermissionService>();
+        _permissionServiceMock = new Mock<IRequestPermissionService>();
         _sanitizerMock = new Mock<IHtmlSanitizationService>();
 
         var workContextMock = new Mock<IWorkContext>();

@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -35,7 +35,7 @@ public class ClosedStoreAttribute : TypeFilterAttribute
     ///     Represents a filter that confirms access to closed store
     /// </summary>
     private class CheckAccessClosedStoreFilter(bool ignoreFilter,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IContextAccessor contextAccessor,
         IPageService pageService,
         StoreInformationSettings storeInformationSettings) : IAsyncActionFilter

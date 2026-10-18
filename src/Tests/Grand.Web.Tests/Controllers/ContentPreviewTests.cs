@@ -14,6 +14,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Mediator;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Controllers;
 using Grand.Web.Features.Handlers.Pages;
 using Grand.Web.Features.Models.Blogs;
@@ -40,7 +41,7 @@ public class ContentPreviewTests
     private Mock<IContextAccessor> _contextAccessorMock;
     private Customer _customer;
     private Mock<IMediator> _mediatorMock;
-    private Mock<IPermissionService> _permissionServiceMock;
+    private Mock<IRequestPermissionService> _permissionServiceMock;
 
     [TestInitialize]
     public void Init()
@@ -62,7 +63,7 @@ public class ContentPreviewTests
         _aclServiceMock.Setup(x => x.Authorize(It.IsAny<KnowledgebaseArticle>(), It.IsAny<Customer>())).Returns(true);
         _aclServiceMock.Setup(x => x.Authorize(It.IsAny<KnowledgebaseArticle>(), It.IsAny<string>())).Returns(true);
 
-        _permissionServiceMock = new Mock<IPermissionService>();
+        _permissionServiceMock = new Mock<IRequestPermissionService>();
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetNewsItem>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new NewsItemModel());

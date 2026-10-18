@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
@@ -20,6 +19,7 @@ using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
@@ -45,7 +45,7 @@ public abstract class BaseFullReportsController(
     IReportDataScope scope,
     IOrderService orderService,
     ICustomerReportService customerReportService,
-    IPermissionService permissionService)
+    IRequestPermissionService permissionService)
     : BaseReportsController(orderReportService, productsReportService, customerReportViewModelService,
         priceFormatter, currencyService, productService, productAttributeFormatter, stockQuantityService,
         translationService, storeService, countryService, vendorService, dateTimeService, orderStatusService,
@@ -53,7 +53,7 @@ public abstract class BaseFullReportsController(
 {
     protected IOrderService OrderService => orderService;
     protected ICustomerReportService CustomerReportService => customerReportService;
-    protected IPermissionService PermissionService => permissionService;
+    protected IRequestPermissionService PermissionService => permissionService;
 
     #region Bestsellers-brief ManageOrders overrides
 

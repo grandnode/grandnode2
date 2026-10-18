@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Checkout;
@@ -11,6 +10,7 @@ using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
@@ -30,7 +30,7 @@ public class WishlistController : BasePublicController
         IShoppingCartService shoppingCartService,
         IRequestTranslationService translationService,
         ICustomerService customerService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IMediator mediator,
         ShoppingCartSettings shoppingCartSettings)
     {
@@ -51,7 +51,7 @@ public class WishlistController : BasePublicController
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IRequestTranslationService _translationService;
     private readonly ICustomerService _customerService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IMediator _mediator;
     private readonly ShoppingCartSettings _shoppingCartSettings;
 

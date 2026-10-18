@@ -1,16 +1,16 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Customers;
+using Grand.Web.Common.Security.Authorization;
 
 namespace Grand.Web.AdminShared.Validators.Customers;
 
 public class CustomerGroupAclUpdateValidator : BaseGrandValidator<CustomerGroupAclUpdateModel>
 {
     public CustomerGroupAclUpdateValidator(IEnumerable<IValidatorConsumer<CustomerGroupAclUpdateModel>> validators,
-        IGroupService groupService, IPermissionService permissionService)
+        IGroupService groupService, IRequestPermissionService permissionService)
         : base(validators)
     {
         RuleFor(x => x).CustomAsync(async (x, context, _) =>

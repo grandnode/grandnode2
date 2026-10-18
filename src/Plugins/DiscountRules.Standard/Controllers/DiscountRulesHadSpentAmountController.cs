@@ -1,8 +1,8 @@
 using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Discounts;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
@@ -11,11 +11,11 @@ namespace DiscountRules.Standard.Controllers;
 public class DiscountRulesHadSpentAmountController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
 
     public DiscountRulesHadSpentAmountController(
         IDiscountService discountService,
-        IPermissionService permissionService)
+        IRequestPermissionService permissionService)
     {
         _discountService = discountService;
         _permissionService = permissionService;

@@ -1,17 +1,17 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Interfaces.System.Admin;
+﻿using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Domain.Admin;
+using Grand.Web.Common.Security.Authorization;
 
 namespace Grand.Web.Common.Menu;
 
 public class SiteMap
 {
     private readonly IAdminSiteMapService _adminSiteMapService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
 
     public SiteMap(
         IAdminSiteMapService adminSiteMapService,
-        IPermissionService permissionService)
+        IRequestPermissionService permissionService)
     {
         _adminSiteMapService = adminSiteMapService;
         _permissionService = permissionService;

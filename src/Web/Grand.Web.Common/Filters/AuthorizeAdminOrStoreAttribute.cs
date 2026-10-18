@@ -1,9 +1,9 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Security;
 using Grand.Infrastructure;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
@@ -32,7 +32,7 @@ public class AuthorizeAdminOrStoreAttribute : TypeFilterAttribute
 
     private class AuthorizeAdminOrStoreFilter(
         bool ignoreFilter,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         SecuritySettings securitySettings,
         IContextAccessor contextAccessor,
         IGroupService groupService) : IAsyncAuthorizationFilter

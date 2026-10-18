@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
@@ -13,6 +12,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +26,7 @@ public class FooterViewComponent : BaseViewComponent
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
     private readonly NewsSettings _newsSettings;
     private readonly IPageService _pageService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
 
     private readonly StoreInformationSettings _storeInformationSettings;
     private readonly VendorSettings _vendorSettings;
@@ -35,7 +35,7 @@ public class FooterViewComponent : BaseViewComponent
     public FooterViewComponent(
         IContextAccessor contextAccessor,
         IPageService pageService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         StoreInformationSettings storeInformationSettings,
         CatalogSettings catalogSettings,
         BlogSettings blogSettings,

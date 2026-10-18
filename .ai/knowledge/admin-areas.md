@@ -65,7 +65,7 @@ Use existing permission patterns from nearby controllers.
 
 Check:
 - `StandardPermission` usage
-- `_permissionService.Authorize(...)`
+- `_permissionService.Authorize(...)` (`IRequestPermissionService`)
 - area-specific access checks
 - menu permission names in `src/Modules/Grand.Module.Installer/Utilities/StandardAdminSiteMap.cs`
 - seeded permission names in installer utilities when adding new management areas

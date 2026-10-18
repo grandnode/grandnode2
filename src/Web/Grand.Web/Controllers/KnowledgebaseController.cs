@@ -15,6 +15,7 @@ using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
@@ -35,7 +36,7 @@ public class KnowledgebaseController : BasePublicController
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
     private readonly LanguageSettings _languageSettings;
     private readonly IMessageProviderService _messageProviderService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
@@ -48,7 +49,7 @@ public class KnowledgebaseController : BasePublicController
         IRequestTranslationService translationService,
         IMessageProviderService messageProviderService,
         IDateTimeService dateTimeService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         CustomerSettings customerSettings,
         CaptchaSettings captchaSettings,
         LanguageSettings languageSettings)

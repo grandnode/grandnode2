@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Affiliates;
@@ -18,7 +17,7 @@ public class AffiliateController : BaseAdminController
 
     public AffiliateController(IRequestTranslationService translationService,
         IAffiliateService affiliateService, IAffiliateViewModelService affiliateViewModelService,
-        IPermissionService permissionService)
+        IRequestPermissionService permissionService)
     {
         _translationService = translationService;
         _affiliateService = affiliateService;
@@ -33,7 +32,7 @@ public class AffiliateController : BaseAdminController
     private readonly IRequestTranslationService _translationService;
     private readonly IAffiliateService _affiliateService;
     private readonly IAffiliateViewModelService _affiliateViewModelService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
 
     #endregion
 

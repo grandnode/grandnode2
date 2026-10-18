@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +11,7 @@ public class ElFinderController : BaseAdminController
     #region Ctor
 
     public ElFinderController(
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IElFinderViewModelService elFinderViewModelService
     )
     {
@@ -24,7 +23,7 @@ public class ElFinderController : BaseAdminController
 
     #region Fields
 
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IElFinderViewModelService _elFinderViewModelService;
 
     #endregion

@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shipping.FixedRateShipping.Models;
 
@@ -14,14 +14,14 @@ namespace Shipping.FixedRateShipping.Areas.Admin.Controllers;
 [AuthorizeAdmin]
 public class ShippingFixedRateController : BaseShippingController
 {
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly ISettingService _settingService;
     private readonly IShippingMethodService _shippingMethodService;
 
     public ShippingFixedRateController(
         IShippingMethodService shippingMethodService,
         ISettingService settingService,
-        IPermissionService permissionService)
+        IRequestPermissionService permissionService)
     {
         _shippingMethodService = shippingMethodService;
         _settingService = settingService;

@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
@@ -17,7 +16,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [AutoValidateAntiforgeryToken]
 public abstract class BasePictureController(
     IPictureService pictureService,
-    IPermissionService permissionService,
+    IRequestPermissionService permissionService,
     IMediaFileStore mediaFileStore,
     MediaSettings mediaSettings)
     : BaseController

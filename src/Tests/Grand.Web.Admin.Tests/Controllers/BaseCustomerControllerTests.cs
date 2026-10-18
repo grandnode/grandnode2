@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Domain.Customers;
@@ -20,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -450,7 +450,7 @@ public class BaseCustomerControllerTests
 
         var result = await Controller.OrderDetails("o1", orderServiceMock.Object,
             new Mock<Grand.Web.AdminShared.Interfaces.IOrderViewModelService>().Object,
-            new Mock<Grand.Business.Core.Interfaces.Common.Security.IPermissionService>().Object);
+            new Mock<IRequestPermissionService>().Object);
 
         var json = result as JsonResult;
         var data = json.Value as DataSourceResult;
@@ -461,7 +461,7 @@ public class BaseCustomerControllerTests
     public async Task OrderDetails_GlobalScope_NotFound_ThrowsArgumentException()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        var permissionServiceMock = new Mock<Grand.Business.Core.Interfaces.Common.Security.IPermissionService>();
+        var permissionServiceMock = new Mock<IRequestPermissionService>();
         permissionServiceMock.Setup(p => p.Authorize(Grand.Domain.Permissions.StandardPermission.ManageOrders)).ReturnsAsync(true);
         var orderServiceMock = new Mock<Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService>();
         orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Grand.Domain.Orders.Order)null);

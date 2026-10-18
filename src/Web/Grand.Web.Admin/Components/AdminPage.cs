@@ -1,11 +1,11 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Security;
 using Grand.Web.Admin.Models.Cms;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Components;
@@ -18,14 +18,14 @@ namespace Grand.Web.Admin.Components;
 public class AdminPageViewComponent : BaseAdminViewComponent
 {
     private readonly IPageService _pageService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IHtmlSanitizationService _htmlSanitizationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly ILogger<AdminPageViewComponent> _logger;
 
     public AdminPageViewComponent(
         IPageService pageService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IHtmlSanitizationService htmlSanitizationService,
         IContextAccessor contextAccessor,
         ILogger<AdminPageViewComponent> logger)

@@ -1,12 +1,12 @@
 ﻿@using Grand.Business.Core.Interfaces.Catalog.Prices
 @using Grand.Business.Core.Interfaces.Common.Directory
-@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Web.Common.Security.Authorization
 @using Grand.Business.Core.Interfaces.Customers
 @using Grand.Business.Core.Interfaces.System.Reports
 @using Grand.Domain.Permissions
 @using Grand.Domain.Customers
 @inject CustomerSettings customerSettings
-@inject IPermissionService permissionService
+@inject IRequestPermissionService permissionService
 @inject ICustomerService customerService
 @inject IOrderReportService orderReportService
 @inject IPriceFormatter priceFormatter

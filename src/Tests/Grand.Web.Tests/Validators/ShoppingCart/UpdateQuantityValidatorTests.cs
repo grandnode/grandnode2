@@ -1,10 +1,10 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Web.Validators.ShoppingCart;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,7 +17,7 @@ public class UpdateQuantityValidatorTests
 {
     private static UpdateQuantityValidator Validator(ShoppingCartItem item, bool cartEnabled, bool wishlistEnabled)
     {
-        var permissionService = new Mock<IPermissionService>();
+        var permissionService = new Mock<IRequestPermissionService>();
         permissionService.Setup(p => p.Authorize(It.Is<Permission>(x =>
                 x.SystemName == StandardPermission.EnableShoppingCart.SystemName)))
             .ReturnsAsync(cartEnabled);

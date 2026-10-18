@@ -1,7 +1,6 @@
 using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Catalog;
@@ -11,6 +10,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -19,7 +19,7 @@ namespace DiscountRules.Standard.Controllers;
 public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
     private readonly IRequestTranslationService _translationService;
@@ -29,7 +29,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
 
     private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
     public DiscountRulesHasAllProductsController(IDiscountService discountService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IContextAccessor contextAccessor,
         IRequestTranslationService translationService,
         IStoreService storeService,

@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
@@ -21,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
 
@@ -36,7 +36,7 @@ public class BaseCustomerManagementControllerTests
         IAddressAttributeService addressAttributeService, IMessageProviderService messageProviderService,
         IGroupService groupService, IRequestTranslationService translationService, IContextAccessor contextAccessor,
         CustomerSettings customerSettings, IAdminDataScope<Customer> scope,
-        IPermissionService permissionService, IExportManager<Customer> exportManager)
+        IRequestPermissionService permissionService, IExportManager<Customer> exportManager)
         : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
             customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
             customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
@@ -50,7 +50,7 @@ public class BaseCustomerManagementControllerTests
     private TestManagementController _controller;
     private Mock<ICustomerService> _customerServiceMock;
     private Mock<IGroupService> _groupServiceMock;
-    private Mock<IPermissionService> _permissionServiceMock;
+    private Mock<IRequestPermissionService> _permissionServiceMock;
     private Mock<IContextAccessor> _contextAccessorMock;
 
     [TestInitialize]
@@ -58,7 +58,7 @@ public class BaseCustomerManagementControllerTests
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
-        _permissionServiceMock = new Mock<IPermissionService>();
+        _permissionServiceMock = new Mock<IRequestPermissionService>();
         _contextAccessorMock = new Mock<IContextAccessor>();
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { Id = "admin-self" });

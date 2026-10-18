@@ -8,6 +8,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -15,11 +16,13 @@ public class LanguageController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
+    private readonly IContextAccessor _contextAccessor;
 
-    public LanguageController(IMediator mediator, IPermissionService permissionService)
+    public LanguageController(IMediator mediator, IPermissionService permissionService, IContextAccessor contextAccessor)
     {
         _mediator = mediator;
         _permissionService = permissionService;
+        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from Languages by key")]
@@ -30,7 +33,7 @@ public class LanguageController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Languages, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var language = await _mediator.Send(new GetGenericQuery<LanguageDto, Language>(key));
         if (!language.Any()) return NotFound();
@@ -46,7 +49,7 @@ public class LanguageController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LanguageDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Languages, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<LanguageDto, Language>()));
     }

@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Media;
 using Grand.Web.Admin.Extensions;
@@ -15,7 +14,7 @@ namespace Grand.Web.Admin.Controllers;
 [AuthorizeMenu]
 public class PictureController(
     IPictureService pictureService,
-    IPermissionService permissionService,
+    IRequestPermissionService permissionService,
     IMediaFileStore mediaFileStore,
     MediaSettings mediaSettings)
     : BasePictureController(pictureService, permissionService, mediaFileStore, mediaSettings)

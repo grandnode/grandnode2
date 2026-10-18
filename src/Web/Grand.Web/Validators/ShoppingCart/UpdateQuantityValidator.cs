@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Web.Common.Extensions;
 
@@ -14,7 +14,7 @@ public class UpdateQuantityValidator : BaseGrandValidator<UpdateQuantityModel>
 {
     public UpdateQuantityValidator(
         IEnumerable<IValidatorConsumer<UpdateQuantityModel>> validators,
-        IPermissionService permissionService, ShoppingCartSettings shoppingCartSettings,
+        IRequestPermissionService permissionService, ShoppingCartSettings shoppingCartSettings,
         IShoppingCartService shoppingCartService, IContextAccessor contextAccessor)
         : base(validators)
     {

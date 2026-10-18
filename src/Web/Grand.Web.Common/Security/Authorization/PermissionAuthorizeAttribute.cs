@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain.Permissions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
@@ -26,7 +25,7 @@ public class PermissionAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         if (string.IsNullOrEmpty(Permission))
             return;
 
-        var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
+        var permissionService = context.HttpContext.RequestServices.GetRequiredService<IRequestPermissionService>();
         //check whether current customer has access to a public store
         if (await permissionService.Authorize(Permission))
             return;

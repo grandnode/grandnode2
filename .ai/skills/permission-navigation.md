@@ -47,7 +47,7 @@ Do not use this skill as the primary review for MongoDB query safety or authenti
 10. Ensure Store Owner controllers inherit from `BaseStoreController` (it already applies `[AuthorizeStore]`) to enforce store panel access.
 11. Apply `[PermissionAuthorize(PermissionSystemName.X)]` at class level on Admin, Store, or Vendor controllers to gate the entire controller on a specific feature permission. This must come after the panel-level attribute.
 12. Apply `[PermissionAuthorizeAction(PermissionActionName.X)]` at action method level to enforce granular action gating within a controller that already carries `[PermissionAuthorize(...)]`. This checks both the class-level permission and the named action.
-13. Never substitute `IPermissionService.Authorize(...)` in a controller action for the attribute-based approach unless the check is conditional on runtime data. Attribute checks run before the action body executes.
+13. Never substitute `IRequestPermissionService.Authorize(...)` in a controller action for the attribute-based approach unless the check is conditional on runtime data. Attribute checks run before the action body executes.
 
 #### Admin Sitemap (Navigation)
 14. Add a new `AdminSiteMap` entry to `StandardAdminSiteMap.SiteMap` in `src/Modules/Grand.Module.Installer/Utilities/StandardAdminSiteMap.cs` for new installations. Set:
@@ -133,7 +133,8 @@ public class AdminSiteMap : BaseEntity {
 | DefaultPermission entity | `src/Core/Grand.Domain/Permissions/DefaultPermission.cs` |
 | IPermissionProvider interface | `src/Business/Grand.Business.Core/Interfaces/Common/Security/IPermissionProvider.cs` |
 | PermissionProvider implementation | `src/Business/Grand.Business.Common/Services/Security/PermissionProvider.cs` |
-| IPermissionService interface | `src/Business/Grand.Business.Core/Interfaces/Common/Security/IPermissionService.cs` |
+| IPermissionService interface (explicit customer) | `src/Business/Grand.Business.Core/Interfaces/Common/Security/IPermissionService.cs` |
+| IRequestPermissionService (customer of the request) | `src/Web/Grand.Web.Common/Security/Authorization/IRequestPermissionService.cs` |
 | AuthorizeAdmin attribute | `src/Web/Grand.Web.Common/Filters/AuthorizeAdminAttribute.cs` |
 | AuthorizeVendor attribute | `src/Web/Grand.Web.Common/Filters/AuthorizeVendorAttribute.cs` |
 | AuthorizeStore attribute | `src/Web/Grand.Web.Common/Filters/AuthorizeStoreAttribute.cs` |

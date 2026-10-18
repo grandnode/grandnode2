@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Permissions;
@@ -16,6 +15,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -30,7 +30,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
     private readonly CatalogSettings _catalogSettings;
     private readonly LinkGenerator _linkGenerator;
     private readonly MediaSettings _mediaSettings;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IPricingService _pricingService;
@@ -42,7 +42,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
     private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
     public GetWishlistHandler(
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
         IRequestTranslationService translationService,

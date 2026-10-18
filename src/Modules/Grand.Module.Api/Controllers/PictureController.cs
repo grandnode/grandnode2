@@ -8,6 +8,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -15,11 +16,13 @@ public class PictureController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
+    private readonly IContextAccessor _contextAccessor;
 
-    public PictureController(IMediator mediator, IPermissionService permissionService)
+    public PictureController(IMediator mediator, IPermissionService permissionService, IContextAccessor contextAccessor)
     {
         _mediator = mediator;
         _permissionService = permissionService;
+        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entities from Picture by key")]
@@ -30,7 +33,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key));
         if (picture == null || !picture.Any()) return NotFound();
@@ -46,7 +49,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] PictureDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddPictureCommand { PictureDto = model });
         return Ok(model);
@@ -60,7 +63,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] PictureDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var result = await _mediator.Send(new UpdatePictureCommand { Model = model });
         return Ok(result);
@@ -74,7 +77,7 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Pictures, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key));
         if (picture == null || !picture.Any()) return NotFound();

@@ -1,6 +1,5 @@
 using Authentication.OpenIdConnect.Models;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Controllers;
@@ -20,7 +19,7 @@ public class OidcLoginSettingsController : BaseAdminPluginController
         OidcResourceServerConfig resourceServerConfig,
         OidcLoginConfig oidcLoginConfig,
         IRequestTranslationService translationService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         ISettingService settingService)
     {
         _oidcLoginSettings = oidcLoginSettings;
@@ -39,7 +38,7 @@ public class OidcLoginSettingsController : BaseAdminPluginController
     private readonly OidcResourceServerConfig _resourceServerConfig;
     private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly IRequestTranslationService _translationService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly ISettingService _settingService;
 
     #endregion

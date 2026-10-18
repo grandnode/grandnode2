@@ -1,6 +1,5 @@
 ﻿using Authentication.Google.Models;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.Authorization;
@@ -18,7 +17,7 @@ public class GoogleAuthenticationSettingsController : BaseAdminPluginController
     public GoogleAuthenticationSettingsController(
         GoogleExternalAuthSettings googleExternalAuthSettings,
         IRequestTranslationService translationService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         ISettingService settingService,
         IConfiguration configuration)
     {
@@ -35,7 +34,7 @@ public class GoogleAuthenticationSettingsController : BaseAdminPluginController
 
     private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
     private readonly IRequestTranslationService _translationService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
     private readonly ISettingService _settingService;
     private readonly IConfiguration _configuration;
 

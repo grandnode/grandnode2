@@ -1,12 +1,12 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -54,7 +54,7 @@ public class ProductControllerTests
             new Mock<IProductReservationService>().Object,
             new Mock<IAuctionService>().Object,
             new Mock<IDateTimeService>().Object,
-            new Mock<IPermissionService>().Object,
+            new Mock<IRequestPermissionService>().Object,
             new Mock<IEnumTranslationService>().Object,
             _scopeMock.Object);
 

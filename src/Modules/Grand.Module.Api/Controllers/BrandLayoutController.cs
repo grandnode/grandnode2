@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -15,11 +16,13 @@ public class BrandLayoutController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
+    private readonly IContextAccessor _contextAccessor;
 
-    public BrandLayoutController(IMediator mediator, IPermissionService permissionService)
+    public BrandLayoutController(IMediator mediator, IPermissionService permissionService, IContextAccessor contextAccessor)
     {
         _mediator = mediator;
         _permissionService = permissionService;
+        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from BrandLayout by key")]
@@ -30,7 +33,7 @@ public class BrandLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, BrandLayout>(key));
         if (!layout.Any()) return NotFound();
@@ -46,7 +49,7 @@ public class BrandLayoutController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LayoutDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, BrandLayout>()));
     }

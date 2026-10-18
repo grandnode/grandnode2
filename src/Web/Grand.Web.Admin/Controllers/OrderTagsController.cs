@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
@@ -14,10 +13,10 @@ public class OrderTagsController : BaseAdminController
 {
     private readonly IOrderService _orderService;
     private readonly IOrderTagService _orderTagService;
-    private readonly IPermissionService _permissionService;
+    private readonly IRequestPermissionService _permissionService;
 
     public OrderTagsController(IOrderTagService orderTagService, IOrderService orderService,
-        IPermissionService permissionService)
+        IRequestPermissionService permissionService)
     {
         _orderTagService = orderTagService;
         _orderService = orderService;

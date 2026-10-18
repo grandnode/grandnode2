@@ -8,6 +8,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -15,11 +16,13 @@ public class DeliveryDateController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
+    private readonly IContextAccessor _contextAccessor;
 
-    public DeliveryDateController(IMediator mediator, IPermissionService permissionService)
+    public DeliveryDateController(IMediator mediator, IPermissionService permissionService, IContextAccessor contextAccessor)
     {
         _mediator = mediator;
         _permissionService = permissionService;
+        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from Delivery Date by key")]
@@ -30,7 +33,7 @@ public class DeliveryDateController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var deliverydate = await _mediator.Send(new GetGenericQuery<DeliveryDateDto, DeliveryDate>(key));
         if (!deliverydate.Any()) return NotFound();
@@ -46,7 +49,7 @@ public class DeliveryDateController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DeliveryDateDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<DeliveryDateDto, DeliveryDate>()));
     }

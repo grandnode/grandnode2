@@ -1,8 +1,8 @@
 ﻿@using Grand.Business.Core.Interfaces.Checkout.Orders
-@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Web.Common.Security.Authorization
 @using Grand.Domain.Permissions
 @inject IContextAccessor contextAccessor
-@inject IPermissionService permissionService
+@inject IRequestPermissionService permissionService
 @inject ShoppingCartSettings shoppingCartSettings
 @inject CatalogSettings catalogSettings
 @*

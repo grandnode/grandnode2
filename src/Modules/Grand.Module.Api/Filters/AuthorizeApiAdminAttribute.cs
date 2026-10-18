@@ -2,6 +2,7 @@
 using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Security;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
     ///     Represents a filter that confirms access to the admin panel
     /// </summary>
     private class AuthorizeApiAdminFilter(bool ignoreFilter, IPermissionService permissionService,
-        SecuritySettings securitySettings, BackendAPIConfig backendApiConfig) : IAsyncAuthorizationFilter
+        IContextAccessor contextAccessor, SecuritySettings securitySettings, BackendAPIConfig backendApiConfig) : IAsyncAuthorizationFilter
     {
 
         #region Ctor
@@ -73,7 +74,8 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
             if (filterContext.Filters.Any(filter => filter is AuthorizeApiAdminFilter))
             {
                 //authorize permission of access to the admin area
-                if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
+                if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel,
+                        contextAccessor.WorkContext.CurrentCustomer))
                     filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
 
                 //get allowed IP addresses

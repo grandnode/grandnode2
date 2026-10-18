@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 
@@ -21,19 +20,16 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="permissionRepository">Permission repository</param>
     /// <param name="permissionActionRepository">Permission action repository</param>
-    /// <param name="workContext">Work context</param>
     /// <param name="groupService">Group service</param>
     /// <param name="cacheBase">Cache manager</param>
     public PermissionService(
         IRepository<Permission> permissionRepository,
         IRepository<PermissionAction> permissionActionRepository,
-        IContextAccessor contextAccessor,
         IGroupService groupService,
         ICacheBase cacheBase)
     {
         _permissionRepository = permissionRepository;
         _permissionActionRepository = permissionActionRepository;
-        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _cacheBase = cacheBase;
     }
@@ -69,7 +65,6 @@ public class PermissionService : IPermissionService
 
     private readonly IRepository<Permission> _permissionRepository;
     private readonly IRepository<PermissionAction> _permissionActionRepository;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
     private readonly ICacheBase _cacheBase;
 
@@ -158,20 +153,6 @@ public class PermissionService : IPermissionService
     /// <summary>
     ///     Authorize permission
     /// </summary>
-    /// <param name="permission">Permission record</param>
-    /// <returns>true - authorized; otherwise, false</returns>
-    /// <remarks>
-    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
-    ///     takes the customer.
-    /// </remarks>
-    public virtual async Task<bool> Authorize(Permission permission)
-    {
-        return await Authorize(permission, _contextAccessor.WorkContext.CurrentCustomer);
-    }
-
-    /// <summary>
-    ///     Authorize permission
-    /// </summary>
     /// <param name="permission">Permission</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
@@ -190,25 +171,14 @@ public class PermissionService : IPermissionService
     ///     Authorize permission
     /// </summary>
     /// <param name="permissionSystemName">Permission system name</param>
-    /// <returns>true - authorized; otherwise, false</returns>
-    /// <remarks>
-    ///     Reads the customer of the current request. Code that may run outside a request uses the overload that
-    ///     takes the customer.
-    /// </remarks>
-    public virtual async Task<bool> Authorize(string permissionSystemName)
-    {
-        return await Authorize(permissionSystemName, _contextAccessor.WorkContext.CurrentCustomer);
-    }
-
-    /// <summary>
-    ///     Authorize permission
-    /// </summary>
-    /// <param name="permissionSystemName">Permission system name</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
     public virtual async Task<bool> Authorize(string permissionSystemName, Customer customer)
     {
         if (string.IsNullOrEmpty(permissionSystemName))
+            return false;
+
+        if (customer == null)
             return false;
 
         var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());

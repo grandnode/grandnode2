@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
@@ -9,6 +8,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Vendor.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +27,7 @@ public class ProductController(
     IProductReservationService productReservationService,
     IAuctionService auctionService,
     IDateTimeService dateTimeService,
-    IPermissionService permissionService,
+    IRequestPermissionService permissionService,
     IEnumTranslationService enumTranslationService,
     IAdminDataScope<Product> scope,
     IContextAccessor contextAccessor)

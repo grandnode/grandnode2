@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Grand.Infrastructure;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -17,11 +18,13 @@ public class CollectionController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
+    private readonly IContextAccessor _contextAccessor;
 
-    public CollectionController(IMediator mediator, IPermissionService permissionService)
+    public CollectionController(IMediator mediator, IPermissionService permissionService, IContextAccessor contextAccessor)
     {
         _mediator = mediator;
         _permissionService = permissionService;
+        _contextAccessor = contextAccessor;
     }
 
     [EndpointDescription("Get entity from Collection by key")]
@@ -32,7 +35,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();
@@ -48,7 +51,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CollectionDto>))]
     public async Task<IActionResult> Get()
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         return Ok(await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>()));
     }
@@ -61,7 +64,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CollectionDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCollectionCommand { Model = model });
         return Ok(model);
@@ -75,7 +78,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CollectionDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
         return Ok(model);
@@ -93,7 +96,7 @@ public class CollectionController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();
@@ -112,7 +115,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
+        if (!await _permissionService.Authorize(PermissionSystemName.Collections, _contextAccessor.WorkContext.CurrentCustomer)) return Forbid();
 
         var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();

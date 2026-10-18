@@ -3,6 +3,7 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -28,7 +29,7 @@ public class CustomerController(
     Grand.Infrastructure.IContextAccessor contextAccessor,
     Grand.Domain.Customers.CustomerSettings customerSettings,
     Grand.Web.AdminShared.Interfaces.IAdminDataScope<Grand.Domain.Customers.Customer> scope,
-    Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService,
+    IRequestPermissionService permissionService,
     Grand.Business.Core.Interfaces.ExportImport.IExportManager<Grand.Domain.Customers.Customer> exportManager)
     : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,

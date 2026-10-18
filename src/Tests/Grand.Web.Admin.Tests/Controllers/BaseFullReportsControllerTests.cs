@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
@@ -21,6 +20,7 @@ using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -53,7 +53,7 @@ public class BaseFullReportsControllerTests
         IReportDataScope scope,
         IOrderService orderService,
         ICustomerReportService customerReportService,
-        IPermissionService permissionService)
+        IRequestPermissionService permissionService)
         : BaseFullReportsController(orderReportService, productsReportService, customerReportViewModelService,
             priceFormatter, currencyService, productService, productAttributeFormatter, stockQuantityService,
             translationService, storeService, countryService, vendorService, dateTimeService,
@@ -63,7 +63,7 @@ public class BaseFullReportsControllerTests
     private TestFullReportsController _controller = null!;
     private Mock<IOrderReportService> _orderReportServiceMock = null!;
     private Mock<IOrderService> _orderServiceMock = null!;
-    private Mock<IPermissionService> _permissionServiceMock = null!;
+    private Mock<IRequestPermissionService> _permissionServiceMock = null!;
     private Mock<IReportDataScope> _scopeMock = null!;
     private Mock<ICustomerReportViewModelService> _customerReportViewModelServiceMock = null!;
     private Mock<ICustomerReportService> _customerReportServiceMock = null!;
@@ -96,7 +96,7 @@ public class BaseFullReportsControllerTests
         _scopeMock.Setup(s => s.VendorId).Returns("");
         _orderServiceMock = new Mock<IOrderService>();
         _customerReportServiceMock = new Mock<ICustomerReportService>();
-        _permissionServiceMock = new Mock<IPermissionService>();
+        _permissionServiceMock = new Mock<IRequestPermissionService>();
         _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.ManageOrders)).ReturnsAsync(true);
 
         _controller = new TestFullReportsController(_orderReportServiceMock.Object, productsReportServiceMock.Object,

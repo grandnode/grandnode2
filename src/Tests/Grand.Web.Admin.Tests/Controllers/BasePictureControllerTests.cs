@@ -1,9 +1,9 @@
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,13 +18,13 @@ public class BasePictureControllerTests
     // same pattern as BaseTaxCategoryControllerTests/BaseEmailAccountControllerTests.
     private class TestPictureController(
         IPictureService pictureService,
-        IPermissionService permissionService,
+        IRequestPermissionService permissionService,
         IMediaFileStore mediaFileStore,
         MediaSettings mediaSettings)
         : BasePictureController(pictureService, permissionService, mediaFileStore, mediaSettings);
 
     private Mock<IPictureService> _pictureServiceMock = null!;
-    private Mock<IPermissionService> _permissionServiceMock = null!;
+    private Mock<IRequestPermissionService> _permissionServiceMock = null!;
     private Mock<IMediaFileStore> _mediaFileStoreMock = null!;
     private MediaSettings _mediaSettings = null!;
 
@@ -32,7 +32,7 @@ public class BasePictureControllerTests
     public void Setup()
     {
         _pictureServiceMock = new Mock<IPictureService>();
-        _permissionServiceMock = new Mock<IPermissionService>();
+        _permissionServiceMock = new Mock<IRequestPermissionService>();
         _mediaFileStoreMock = new Mock<IMediaFileStore>();
         _mediaSettings = new MediaSettings { AllowedFileTypes = ".jpg,.png" };
     }
