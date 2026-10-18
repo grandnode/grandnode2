@@ -41,6 +41,23 @@ public class MongoDbTracingConfigTests
     }
 
     [TestMethod]
+    public void ApplyTo_DisabledFromConfiguration_TurnsTracingOffInTheDriver()
+    {
+        //Arrange
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string> {
+            ["Telemetry:Instrumentation:MongoDb:Enabled"] = "false",
+            ["Telemetry:Instrumentation:MongoDb:QueryTextMaxLength"] = "500"
+        }).Build();
+        var config = new MongoDbTracingConfig();
+        configuration.GetSection(MongoDbTracingConfig.SectionName).Bind(config);
+        var clientSettings = MongoClientSettings.FromConnectionString(ConnectionString);
+        //Act
+        config.ApplyTo(clientSettings);
+        //Assert
+        Assert.IsTrue(clientSettings.TracingOptions.Disabled);
+    }
+
+    [TestMethod]
     public void ApplyTo_NegativeQueryTextMaxLength_Throws()
     {
         //Arrange

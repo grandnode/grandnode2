@@ -84,26 +84,17 @@ public class TelemetryConfig
         public string[]? ExcludeExtensions { get; set; }
     }
 
+    /// <summary>
+    ///     Instrumentation:MongoDb is applied where the MongoDB client is built, see
+    ///     Grand.Infrastructure.Configuration.MongoDbTracingConfig - read there, it also sees Azure App Configuration.
+    /// </summary>
     public class InstrumentationConfig
     {
-        public MongoDbConfig MongoDb { get; set; } = new();
-
         /// <summary>
         ///     Gets or sets a value indicating whether the Azure SDK clients (Blob Storage, Key Vault) produce their
-        ///     own spans on top of the HTTP spans they already have. The Azure SDK still marks its tracing as
+        ///     own spans; their HTTP span (Azure.Core.Http) then replaces the HttpClient one. The Azure SDK still marks its tracing as
         ///     experimental, so it is off by default.
         /// </summary>
         public bool AzureSdk { get; set; }
-    }
-
-    public class MongoDbConfig
-    {
-        /// <summary>
-        ///     Gets or sets a value indicating whether MongoDB operations produce spans. With no sink configured they
-        ///     are never produced - two activities per database call would cost without being exported. The query text is left out
-        ///     unless QueryTextMaxLength is set - it is applied where the client is built, see
-        ///     Grand.Infrastructure.Configuration.MongoDbTracingConfig.
-        /// </summary>
-        public bool Enabled { get; set; } = true;
     }
 }

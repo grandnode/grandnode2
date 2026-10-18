@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Aspire.ServiceDefaults.Telemetry;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.Configuration;
@@ -84,15 +85,23 @@ public static class Extensions
                             TelemetryPathFilter.ShouldTrace(context.Request.Path, settings.ExcludePaths, settings.ExcludeExtensions);
                         options.RecordException = true;
                     })
-                    .AddHttpClientInstrumentation();
+                    .AddHttpClientInstrumentation(options =>
+                    {
+                        //an Azure SDK call already has its own HTTP span (Azure.Core.Http) around the HttpClient one
+                        options.FilterHttpRequestMessage = _ =>
+                            Activity.Current?.Parent?.Source.Name != TelemetrySettings.AzureSdkHttpActivitySourceName;
+                    });
 
-                //the driver traces every client by default; with no listener on its source it creates no activities -
-                //two per database call, so with nothing to export them to the source is left alone
-                if (settings.MongoDbTracing && settings.HasAnySink)
+                //the driver traces every client unless Telemetry:Instrumentation:MongoDb:Enabled turns it off where the
+                //client is built; with no listener on its source it creates no activities - two per database call, so
+                //with nothing to export them to the source is left alone
+                if (settings.HasAnySink)
                     tracing.AddSource(TelemetrySettings.MongoDbActivitySourceName);
 
                 if (settings.AzureSdkTracing && settings.HasAnySink)
                 {
+                    //Azure.Core reads the switch once per process, when its first client is used - nothing in the
+                    //hosts uses one before AddServiceDefaults
                     AppContext.SetSwitch(TelemetrySettings.AzureSdkActivitySourceSwitch, true);
                     tracing.AddSource(TelemetrySettings.AzureSdkActivitySourceName);
                 }

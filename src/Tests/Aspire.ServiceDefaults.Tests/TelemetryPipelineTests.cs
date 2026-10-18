@@ -2,7 +2,9 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Aspire.ServiceDefaults.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MongoDB.Driver;
 using OpenTelemetry.Trace;
 
 namespace Aspire.ServiceDefaults.Tests;
@@ -135,16 +137,9 @@ public class TelemetryPipelineTests
     }
 
     [TestMethod]
-    public void MongoDbDisabled_DoesNotListenToTheDriver()
+    public void MongoDbActivitySourceName_IsTheDriverSource()
     {
-        var (host, _) = BuildHost(new() {
-            ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString,
-            ["Telemetry:Instrumentation:MongoDb:Enabled"] = "false"
-        });
-        using (host)
-        {
-            Assert.IsFalse(IsRootActivityRecorded("MongoDB.Driver"));
-        }
+        Assert.AreEqual(MongoTelemetry.ActivitySourceName, TelemetrySettings.MongoDbActivitySourceName);
     }
 
     [TestMethod]
@@ -164,11 +159,82 @@ public class TelemetryPipelineTests
             ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString,
             ["Telemetry:Instrumentation:AzureSdk"] = "true"
         });
+        try
+        {
+            using (host)
+            {
+                Assert.IsTrue(IsRootActivityRecorded("Azure.Storage.Blobs.BlobContainerClient"));
+                Assert.IsTrue(AppContext.TryGetSwitch("Azure.Experimental.EnableActivitySource", out var enabled) && enabled);
+            }
+        }
+        finally
+        {
+            //the switch is process-wide - left on it would leak into the other tests
+            AppContext.SetSwitch(TelemetrySettings.AzureSdkActivitySourceSwitch, false);
+        }
+    }
+
+    [TestMethod]
+    public async Task HttpClient_UnderAzureSdkHttpSpan_IsNotRecorded()
+    {
+        //the Azure SDK span has to be recorded itself - under an unsampled parent the child is dropped anyway
+        var (host, _) = BuildHost(new() {
+            ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString,
+            ["Telemetry:Instrumentation:AzureSdk"] = "true"
+        });
+        try
+        {
+            using (host)
+            {
+                Assert.IsFalse(await IsHttpClientActivityRecorded(TelemetrySettings.AzureSdkHttpActivitySourceName));
+            }
+        }
+        finally
+        {
+            AppContext.SetSwitch(TelemetrySettings.AzureSdkActivitySourceSwitch, false);
+        }
+    }
+
+    [TestMethod]
+    public async Task HttpClient_OutsideAzureSdk_IsRecorded()
+    {
+        var (host, _) = BuildHost(new() { ["Telemetry:AzureMonitor:ConnectionString"] = AzureConnectionString });
         using (host)
         {
-            Assert.IsTrue(IsRootActivityRecorded("Azure.Storage.Blobs.BlobContainerClient"));
-            Assert.IsTrue(AppContext.TryGetSwitch("Azure.Experimental.EnableActivitySource", out var enabled) && enabled);
+            Assert.IsTrue(await IsHttpClientActivityRecorded(null));
         }
+    }
+
+    private static async Task<bool> IsHttpClientActivityRecorded(string? parentSourceName)
+    {
+        Activity? httpActivity = null;
+        //only observes - the sampling decision stays with the pipeline
+        using var listener = new ActivityListener {
+            ShouldListenTo = source => source.Name == "System.Net.Http" || source.Name == parentSourceName,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.PropagationData,
+            ActivityStopped = activity => {
+                if (activity.Source.Name == "System.Net.Http")
+                    httpActivity = activity;
+            }
+        };
+        ActivitySource.AddActivityListener(listener);
+
+        using var parentSource = parentSourceName is null ? null : new ActivitySource(parentSourceName);
+        using var parent = parentSource?.StartActivity("parent");
+        //fails before any connection is made - only the client span is wanted
+        using var client = new HttpClient(new SocketsHttpHandler {
+            ConnectCallback = (_, _) => throw new HttpRequestException("offline")
+        });
+        try
+        {
+            await client.GetAsync("http://127.0.0.1:9/");
+        }
+        catch (HttpRequestException)
+        {
+        }
+
+        Assert.IsNotNull(httpActivity);
+        return httpActivity.Recorded;
     }
 
     [TestMethod]
