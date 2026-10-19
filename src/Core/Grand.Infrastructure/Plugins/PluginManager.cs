@@ -132,11 +132,12 @@ public static class PluginManager
                                 }
                         }
 
-                        //main plugin file
-                        AddApplicationPart(mvcCoreBuilder, plugin.ReferencedAssembly, plugin.SystemName,
-                            plugin.PluginFileName);
+                        //controllers and views only for an installed plugin - an uninstalled one must not be routable
+                        if (plugin.Installed)
+                            AddApplicationPart(mvcCoreBuilder, plugin.ReferencedAssembly, plugin.SystemName,
+                                plugin.PluginFileName);
 
-                        //register interface for IPlugin 
+                        //register interface for IPlugin - also when not installed, Install resolves it from DI
                         RegisterPluginInterface(mvcCoreBuilder, plugin.ReferencedAssembly);
 
                         //init plugin type
