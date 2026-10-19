@@ -47,14 +47,14 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
 
     #region Utilities
 
-    protected IList<RecentlyViewedProduct> GetRecentlyViewedProducts(string customerId)
+    protected Task<IList<RecentlyViewedProduct>> GetRecentlyViewedProducts(string customerId)
     {
         var query = from p in _recentlyViewedProducts.Table
             where p.CustomerId == customerId
             orderby p.CreatedOnUtc descending
             select p;
 
-        return query.ToList();
+        return _recentlyViewedProducts.ToListAsync(query);
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
         if (!_catalogSettings.RecentlyViewedProductsEnabled)
             return;
 
-        var recentlyViewedProducts = GetRecentlyViewedProducts(customerId);
+        var recentlyViewedProducts = await GetRecentlyViewedProducts(customerId);
         var recentlyViewedProduct = recentlyViewedProducts.FirstOrDefault(x => x.ProductId == productId);
         if (recentlyViewedProduct == null)
             await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct

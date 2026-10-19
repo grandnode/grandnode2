@@ -90,4 +90,41 @@ public class GetSearchProductsQueryHandlerTests
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
             handler.Handle(searchProductsQuery, cancellation.Token));
     }
+
+    [TestMethod]
+    public async Task Handle_WhenFilterableSpecificationsRequested_ReturnsDistinctFilterableOptionIdsOfMatchingProducts()
+    {
+        //Arrange
+        var filteringHandler = new GetSearchProductsQueryHandler(_repository,
+            new Mock<ISpecificationAttributeService>().Object,
+            new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig());
+        await _repository.InsertAsync(new Product {
+            Published = true, VisibleIndividually = true,
+            ProductSpecificationAttributes = {
+                new ProductSpecificationAttribute { SpecificationAttributeOptionId = "red", AllowFiltering = true },
+                new ProductSpecificationAttribute { SpecificationAttributeOptionId = "cotton", AllowFiltering = false }
+            }
+        });
+        await _repository.InsertAsync(new Product {
+            Published = true, VisibleIndividually = true,
+            ProductSpecificationAttributes = {
+                new ProductSpecificationAttribute { SpecificationAttributeOptionId = "red", AllowFiltering = true },
+                new ProductSpecificationAttribute { SpecificationAttributeOptionId = "large", AllowFiltering = true }
+            }
+        });
+        await _repository.InsertAsync(new Product {
+            Published = false, VisibleIndividually = true,
+            ProductSpecificationAttributes = {
+                new ProductSpecificationAttribute { SpecificationAttributeOptionId = "blue", AllowFiltering = true }
+            }
+        });
+        var searchProductsQuery = new GetSearchProductsQuery {
+            Customer = new Customer(), LoadFilterableSpecificationAttributeOptionIds = true
+        };
+        //Act
+        var result = await filteringHandler.Handle(searchProductsQuery, CancellationToken.None);
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "red", "large" },
+            result.filterableSpecificationAttributeOptionIds.ToList());
+    }
 }
