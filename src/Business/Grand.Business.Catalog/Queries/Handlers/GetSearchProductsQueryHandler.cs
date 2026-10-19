@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Data;
+using Grand.Data.Mongo;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -13,6 +14,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
 {
     private readonly AccessControlConfig _accessControlConfig;
     private readonly CatalogSettings _catalogSettings;
+    private readonly DatabaseConfig _databaseConfig;
     private readonly IRepository<Product> _productRepository;
     private readonly ISpecificationAttributeService _specificationAttributeService;
 
@@ -20,12 +22,14 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         IRepository<Product> productRepository,
         ISpecificationAttributeService specificationAttributeService,
         CatalogSettings catalogSettings,
-        AccessControlConfig accessControlConfig)
+        AccessControlConfig accessControlConfig,
+        DatabaseConfig databaseConfig)
     {
         _productRepository = productRepository;
         _specificationAttributeService = specificationAttributeService;
         _catalogSettings = catalogSettings;
         _accessControlConfig = accessControlConfig;
+        _databaseConfig = databaseConfig;
     }
     public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Handle(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
@@ -169,6 +173,8 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
 
     private IQueryable<Product> FilterQueryable(GetSearchProductsQuery request, IQueryable<Product> query, string[] allowedCustomerGroupsIds)
     {
+        //$text is accepted only in the first stage of the pipeline
+        query = ApplyTextSearch(request, query);
         query = ApplyCategoryFiltering(request, query);
         query = ApplyBrandFiltering(request, query);
         query = ApplyCollectionFiltering(request, query);
@@ -293,6 +299,19 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
             query = query.Where(p => (!p.MarkAsNewStartDateTimeUtc.HasValue || p.MarkAsNewStartDateTimeUtc.Value < nowUtc) && (!p.MarkAsNewEndDateTimeUtc.HasValue || p.MarkAsNewEndDateTimeUtc.Value > nowUtc));
         }
         return query;
+    }
+
+    private IQueryable<Product> ApplyTextSearch(GetSearchProductsQuery request, IQueryable<Product> query)
+    {
+        //narrows the candidates to products with a whole query word; ApplyKeywordFiltering still decides the match.
+        //The text index does not cover descriptions
+        if (!_databaseConfig.UseProductTextSearch || _databaseConfig.UseLiteDb || request.SearchDescriptions ||
+            string.IsNullOrWhiteSpace(request.Keywords))
+            return query;
+
+        //quotes and minus would be read as a phrase and a negation
+        var search = request.Keywords.Replace('"', ' ').Replace('-', ' ');
+        return query.WhereText(search);
     }
 
     private static IQueryable<Product> ApplyKeywordFiltering(GetSearchProductsQuery request, IQueryable<Product> query)

@@ -22,7 +22,8 @@ public class GetSearchProductsQueryHandlerTests
     {
         _repository = new MongoDBRepositoryTest<Product>();
         handler = new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object,
-            new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig());
+            new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
+            new DatabaseConfig());
     }
 
 
