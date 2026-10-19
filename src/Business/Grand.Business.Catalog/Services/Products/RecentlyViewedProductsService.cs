@@ -47,16 +47,6 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
 
     #region Utilities
 
-    protected Task<IList<RecentlyViewedProduct>> GetRecentlyViewedProducts(string customerId)
-    {
-        var query = from p in _recentlyViewedProducts.Table
-            where p.CustomerId == customerId
-            orderby p.CreatedOnUtc descending
-            select p;
-
-        return _recentlyViewedProducts.ToListAsync(query);
-    }
-
     /// <summary>
     ///     Gets a "recently viewed products" identifier list
     /// </summary>
@@ -70,7 +60,7 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
         {
             var query = from p in _recentlyViewedProducts.Table
                 where p.CustomerId == customerId
-                orderby p.CreatedOnUtc descending
+                orderby p.CreatedOnUtc descending, p.Id descending
                 select p.ProductId;
             return await _recentlyViewedProducts.ToListAsync(query.Take(number));
         });
@@ -105,20 +95,23 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
         if (!_catalogSettings.RecentlyViewedProductsEnabled)
             return;
 
-        var recentlyViewedProducts = await GetRecentlyViewedProducts(customerId);
-        var recentlyViewedProduct = recentlyViewedProducts.FirstOrDefault(x => x.ProductId == productId);
-        if (recentlyViewedProduct == null)
-            await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct
-                { CustomerId = customerId, ProductId = productId });
-        else
-            await _recentlyViewedProducts.UpdateAsync(recentlyViewedProduct);
+        //a product viewed again is inserted anew, so it moves to the top of the list
+        await _recentlyViewedProducts.DeleteManyAsync(x => x.CustomerId == customerId && x.ProductId == productId);
+        await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct
+            { CustomerId = customerId, ProductId = productId });
+
         var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
         if (maxProducts <= 0)
             maxProducts = 10;
 
-        if (recentlyViewedProducts.Count > _catalogSettings.RecentlyViewedProductsNumber)
-            await _recentlyViewedProducts.DeleteAsync(recentlyViewedProducts.OrderBy(x => x.CreatedOnUtc)
-                .Take(recentlyViewedProducts.Count - _catalogSettings.RecentlyViewedProductsNumber));
+        //only the ids of the rows beyond the limit leave the database
+        var query = from p in _recentlyViewedProducts.Table
+            where p.CustomerId == customerId
+            orderby p.CreatedOnUtc descending, p.Id descending
+            select p.Id;
+        var staleIds = await _recentlyViewedProducts.ToListAsync(query.Skip(maxProducts));
+        if (staleIds.Any())
+            await _recentlyViewedProducts.DeleteManyAsync(x => staleIds.Contains(x.Id));
 
         //Clear cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.RECENTLY_VIEW_PRODUCTS_PATTERN_KEY, customerId));

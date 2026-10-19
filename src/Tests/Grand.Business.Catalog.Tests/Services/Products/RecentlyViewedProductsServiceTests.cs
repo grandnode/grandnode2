@@ -72,4 +72,60 @@ public class RecentlyViewedProductsServiceTests
         //Assert
         Assert.AreEqual(4, _repository.Table.Count());
     }
+
+    [TestMethod]
+    public async Task AddProductToRecentlyViewedList_KeepsOnlyTheNewestProducts()
+    {
+        //Arrange
+        var service = CreateService(2);
+
+        //Act
+        await service.AddProductToRecentlyViewedList("1", "1");
+        await service.AddProductToRecentlyViewedList("1", "2");
+        await service.AddProductToRecentlyViewedList("1", "3");
+
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "2", "3" },
+            _repository.Table.Where(x => x.CustomerId == "1").Select(x => x.ProductId).ToList());
+    }
+
+    [TestMethod]
+    public async Task AddProductToRecentlyViewedList_ProductViewedAgain_MovesToTheTop()
+    {
+        //Arrange
+        var service = CreateService(2);
+        await service.AddProductToRecentlyViewedList("1", "1");
+        await service.AddProductToRecentlyViewedList("1", "2");
+
+        //Act
+        await service.AddProductToRecentlyViewedList("1", "1");
+        await service.AddProductToRecentlyViewedList("1", "3");
+
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "1", "3" },
+            _repository.Table.Where(x => x.CustomerId == "1").Select(x => x.ProductId).ToList());
+    }
+
+    [TestMethod]
+    public async Task AddProductToRecentlyViewedList_NoLimitSet_KeepsTenProducts()
+    {
+        //Arrange
+        var service = CreateService(0);
+
+        //Act
+        for (var i = 1; i <= 12; i++)
+            await service.AddProductToRecentlyViewedList("1", i.ToString());
+
+        //Assert
+        Assert.AreEqual(10, _repository.Table.Count(x => x.CustomerId == "1"));
+    }
+
+    private RecentlyViewedProductsService CreateService(int recentlyViewedProductsNumber)
+    {
+        return new RecentlyViewedProductsService(_productServiceMock.Object, _cacheBase,
+            new CatalogSettings {
+                RecentlyViewedProductsEnabled = true, RecentlyViewedProductsNumber = recentlyViewedProductsNumber
+            },
+            _repository);
+    }
 }
