@@ -141,8 +141,14 @@ public class StartupApplication : IStartupApplication
         //powered by
         serviceCollection.AddSingleton<IPoweredByMiddlewareOptions, PoweredByMiddlewareOptions>();
 
+        //bound every outbound call: the 100 s framework default holds a request far too long;
+        //a client registration can still set its own timeout, which runs after these defaults
+        serviceCollection.ConfigureHttpClientDefaults(builder =>
+            builder.ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(30)));
+
         //request reCAPTCHA service
-        serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>();
+        serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>(client =>
+            client.Timeout = TimeSpan.FromSeconds(10));
 
         serviceCollection.AddScoped<IViewRenderService, ViewRenderService>();
     }

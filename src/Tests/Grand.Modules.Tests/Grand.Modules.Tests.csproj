@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\Modules\Grand.Module.ScheduledTasks\Grand.Module.ScheduledTasks.csproj" />
     <ProjectReference Include="..\..\Plugins\Authentication.OpenIdConnect\Authentication.OpenIdConnect.csproj" />
     <ProjectReference Include="..\..\Plugins\DiscountRules.Standard\DiscountRules.Standard.csproj" />
+    <ProjectReference Include="..\..\Plugins\ExchangeRate.McExchange\ExchangeRate.McExchange.csproj" />
     <ProjectReference Include="..\..\Plugins\Payments.BrainTree\Payments.BrainTree.csproj" />
     <ProjectReference Include="..\..\Plugins\Payments.CashOnDelivery\Payments.CashOnDelivery.csproj" />
     <ProjectReference Include="..\..\Plugins\Shipping.ByWeight\Shipping.ByWeight.csproj" />

@@ -196,6 +196,102 @@ public class PushNotificationsServiceTests
         Assert.IsTrue(result.Item1);
     }
 
+    [TestMethod]
+    public async Task SendPushNotification_Cancelled_ThrowsAndStoresNoMessage()
+    {
+        //Arrange
+        var hangingHandler = new Mock<HttpMessageHandler>();
+        hangingHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .Returns(async (HttpRequestMessage _, CancellationToken ct) => {
+                await Task.Delay(Timeout.Infinite, ct);
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            });
+        var service = new PushNotificationsService(_repositoryPushRegistration, _repositoryPushMessage,
+            _mediatorMock.Object, new PushNotificationsSettings(), _loggerMock.Object,
+            new HttpClient(hangingHandler.Object));
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+
+        //Act
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            service.SendPushNotification("my title", "sample text", "", "", ["token"], cts.Token)
+                .WaitAsync(TimeSpan.FromSeconds(10)));
+
+        //Assert
+        Assert.IsEmpty(_repositoryPushMessage.Table);
+    }
+
+    //answers every request as delivered to all of its registration ids, and keeps the ids of each request
+    private PushNotificationsService ServiceRecordingRequests(List<string[]> requests)
+    {
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .Returns(async (HttpRequestMessage request, CancellationToken ct) => {
+                using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(ct));
+                var ids = body.RootElement.GetProperty("registration_ids").EnumerateArray()
+                    .Select(x => x.GetString()).ToArray();
+                requests.Add(ids);
+                return new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(JsonSerializer.Serialize(new JsonResponse { success = ids.Length }))
+                };
+            });
+        return new PushNotificationsService(_repositoryPushRegistration, _repositoryPushMessage,
+            _mediatorMock.Object, new PushNotificationsSettings(), _loggerMock.Object,
+            new HttpClient(handler.Object));
+    }
+
+    [TestMethod]
+    public async Task SendPushNotification_ManyReceivers_SendsBatchesOfAtMostThousand()
+    {
+        //Arrange
+        for (var i = 0; i < 2500; i++)
+            await _repositoryPushRegistration.InsertAsync(new PushRegistration { Allowed = true, Token = $"t{i}" });
+        var requests = new List<string[]>();
+        var service = ServiceRecordingRequests(requests);
+
+        //Act
+        var result = await service.SendPushNotification("my title", "sample text", "", "");
+
+        //Assert
+        Assert.IsTrue(result.Item1);
+        CollectionAssert.AreEqual(new[] { 1000, 1000, 500 }, requests.Select(x => x.Length).ToArray());
+        Assert.AreEqual(2500, requests.SelectMany(x => x).Distinct().Count());
+        Assert.AreEqual(2500, _repositoryPushMessage.Table.Single().NumberOfReceivers);
+    }
+
+    [TestMethod]
+    public async Task SendPushNotification_ToCustomer_SendsCustomerToken()
+    {
+        //Arrange
+        await _repositoryPushRegistration.InsertAsync(new PushRegistration {
+            CustomerId = "c1", Allowed = true, Token = "customer-token"
+        });
+        var requests = new List<string[]>();
+        var service = ServiceRecordingRequests(requests);
+
+        //Act
+        var result = await service.SendPushNotification("my title", "sample text", "", "c1", "");
+
+        //Assert
+        Assert.IsTrue(result.Item1);
+        CollectionAssert.AreEqual(new[] { "customer-token" }, requests.Single());
+    }
+
+    [TestMethod]
+    public async Task SendPushNotification_ToCustomerWithoutRegistration_Fails()
+    {
+        var requests = new List<string[]>();
+        var service = ServiceRecordingRequests(requests);
+
+        var result = await service.SendPushNotification("my title", "sample text", "", "unknown", "");
+
+        Assert.IsFalse(result.Item1);
+        Assert.IsEmpty(requests);
+    }
+
 
     [TestMethod]
     public async Task GetPushReceiverTest()

@@ -50,7 +50,7 @@ public class ValidationFilter : IAsyncActionFilter
                 if (validator is null) continue;
 
                 var contextValidator = new ValidationContext<object>(argument.Value);
-                var result = await validator.ValidateAsync(contextValidator);
+                var result = await validator.ValidateAsync(contextValidator, context.HttpContext.RequestAborted);
                 if (result.IsValid) continue;
                 foreach (var error in result.Errors)
                     context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);

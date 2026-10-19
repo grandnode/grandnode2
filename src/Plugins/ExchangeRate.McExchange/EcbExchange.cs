@@ -12,12 +12,14 @@ internal class EcbExchange : IRateProvider
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates()
+    public async Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(
+        CancellationToken cancellationToken)
     {
         var httpClient = _httpClientFactory.CreateClient(Constant.DefaultHttpClientName);
-        await using var response = await httpClient.GetStreamAsync(Constant.EcbUrl);
+        //read the whole body here: the client timeout does not cover a stream read after the headers
+        var response = await httpClient.GetStringAsync(Constant.EcbUrl, cancellationToken);
         var document = new XmlDocument();
-        document.Load(response);
+        document.LoadXml(response);
         var nameTable = new XmlNamespaceManager(document.NameTable);
         nameTable.AddNamespace("ns", "http://www.ecb.int/vocabulary/2002-08-01/eurofxref");
         nameTable.AddNamespace("gesmes", "http://www.gesmes.org/xml/2002-08-01");
