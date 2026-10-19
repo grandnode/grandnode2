@@ -20,14 +20,14 @@ public class MigrationUpdateAdminSiteMap : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateAdminSiteMap>>();
 
         try
         {
-            var sitemapSystem = repository.Table.FirstOrDefault(x => x.SystemName == "Marketing");
+            var sitemapSystem = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Marketing"));
             if (sitemapSystem != null)
             {
                 sitemapSystem.PermissionNames = new List<string> {
@@ -44,7 +44,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
                 sitemapSystem.ChildNodes.Remove(
                     sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == "Customer actions"));
 
-                repository.Update(sitemapSystem);
+                await repository.UpdateAsync(sitemapSystem);
             }
         }
         catch (Exception ex)

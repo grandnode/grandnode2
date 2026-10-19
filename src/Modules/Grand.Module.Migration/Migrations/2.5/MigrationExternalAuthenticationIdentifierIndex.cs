@@ -18,7 +18,7 @@ public class MigrationExternalAuthenticationIdentifierIndex : IMigration
     public Guid Identity => new("5d33a2b4-84d9-467b-8067-3b2fc2336225");
     public string Name => "Unique index on ExternalAuthentication provider + external identifier + store";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<ExternalAuthentication>>();
         var databaseContext = serviceProvider.GetRequiredService<IDatabaseContext>();
@@ -26,8 +26,8 @@ public class MigrationExternalAuthenticationIdentifierIndex : IMigration
 
         try
         {
-            var duplicates = repository.Table
-                .Select(x => new { x.ProviderSystemName, x.ExternalIdentifier, x.StoreId }).ToList()
+            var duplicates = (await repository.ToListAsync(repository.Table
+                    .Select(x => new { x.ProviderSystemName, x.ExternalIdentifier, x.StoreId })))
                 //the same key as the index: a missing store and an empty one are different values
                 .GroupBy(x => (x.ProviderSystemName, x.ExternalIdentifier, x.StoreId))
                 .Where(x => x.Count() > 1)
@@ -45,11 +45,10 @@ public class MigrationExternalAuthenticationIdentifierIndex : IMigration
                     IndexName, string.Join(", ", duplicates));
 
             //the two-field unique index would forbid a second link of the subject in another store
-            databaseContext.DeleteIndex(repository, PreviousIndexName).GetAwaiter().GetResult();
-            databaseContext.CreateIndex(repository,
+            await databaseContext.DeleteIndex(repository, PreviousIndexName);
+            await databaseContext.CreateIndex(repository,
                 OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.ProviderSystemName)
-                    .Ascending(x => x.ExternalIdentifier).Ascending(x => x.StoreId), IndexName, unique)
-                .GetAwaiter().GetResult();
+                    .Ascending(x => x.ExternalIdentifier).Ascending(x => x.StoreId), IndexName, unique);
         }
         catch (Exception ex)
         {

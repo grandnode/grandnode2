@@ -31,7 +31,7 @@ public class MigrationAddAdminPortalInfoPage : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationAddAdminPortalInfoPage>>();
         try
@@ -41,10 +41,10 @@ public class MigrationAddAdminPortalInfoPage : IMigration
             var entityUrlRepository = serviceProvider.GetRequiredService<IRepository<EntityUrl>>();
 
             var systemName = PageSystemName.ToLowerInvariant();
-            var page = pageRepository.Table.FirstOrDefault(x => x.SystemName.ToLower() == systemName);
+            var page = await pageRepository.FirstOrDefaultAsync(pageRepository.Table.Where(x => x.SystemName.ToLower() == systemName));
             if (page == null)
             {
-                var defaultPageLayout = pageLayoutRepository.Table.FirstOrDefault(x => x.Name == "Default layout");
+                var defaultPageLayout = await pageLayoutRepository.FirstOrDefaultAsync(pageLayoutRepository.Table.Where(x => x.Name == "Default layout"));
                 page = new Page {
                     SystemName = PageSystemName,
                     IncludeInSitemap = false,
@@ -56,13 +56,14 @@ public class MigrationAddAdminPortalInfoPage : IMigration
                     PageLayoutId = defaultPageLayout?.Id,
                     Published = false
                 };
-                pageRepository.Insert(page);
+                await pageRepository.InsertAsync(page);
             }
 
-            if (!entityUrlRepository.Table.Any(x => x.EntityId == page.Id && x.EntityName == "Page"))
+            if (!await entityUrlRepository.AnyAsync(
+                    entityUrlRepository.Table.Where(x => x.EntityId == page.Id && x.EntityName == "Page")))
             {
-                var slug = UniqueSlug(entityUrlRepository, systemName);
-                entityUrlRepository.Insert(new EntityUrl {
+                var slug = await UniqueSlug(entityUrlRepository, systemName);
+                await entityUrlRepository.InsertAsync(new EntityUrl {
                     EntityId = page.Id,
                     EntityName = "Page",
                     LanguageId = "",
@@ -72,13 +73,14 @@ public class MigrationAddAdminPortalInfoPage : IMigration
                 if (string.IsNullOrEmpty(page.SeName))
                 {
                     page.SeName = slug;
-                    pageRepository.Update(page);
+                    await pageRepository.UpdateAsync(page);
                 }
             }
 
             //a dashboard rendered before the upgrade may have cached "no such page"
             var cache = serviceProvider.GetService<ICacheBase>();
-            cache?.RemoveByPrefix(CacheKey.PAGES_PATTERN_KEY).GetAwaiter().GetResult();
+            if (cache != null)
+                await cache.RemoveByPrefix(CacheKey.PAGES_PATTERN_KEY);
         }
         catch (Exception ex)
         {
@@ -89,11 +91,11 @@ public class MigrationAddAdminPortalInfoPage : IMigration
         return true;
     }
 
-    private static string UniqueSlug(IRepository<EntityUrl> entityUrlRepository, string slug)
+    private static async Task<string> UniqueSlug(IRepository<EntityUrl> entityUrlRepository, string slug)
     {
         var candidate = slug;
         var suffix = 2;
-        while (entityUrlRepository.Table.Any(x => x.Slug == candidate))
+        while (await entityUrlRepository.AnyAsync(entityUrlRepository.Table.Where(x => x.Slug == candidate)))
             candidate = $"{slug}-{suffix++}";
         return candidate;
     }

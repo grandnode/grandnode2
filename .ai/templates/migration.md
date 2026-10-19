@@ -25,9 +25,10 @@ public class Migration{WhatItDoes} : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         // resolve services from serviceProvider — there is no ambient context here
+        // await the async repository and service calls; never block with .GetAwaiter().GetResult()
         return true;
     }
 }
@@ -57,7 +58,7 @@ Namespace convention: version folder `2.4/` maps to namespace segment `_2._4`.
 Do not write resource strings inline. Add them to the upgrade XML and import:
 
 ```csharp
-public bool UpgradeProcess(IServiceProvider serviceProvider)
+public Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
 {
     return serviceProvider.ImportLanguageResourcesFromXml("App_Data/Resources/Upgrade/en_240.xml");
 }

@@ -39,7 +39,7 @@ public class MigrationCustomerGuidUniqueIndexTests
         var guid = Guid.NewGuid();
         await _repository.InsertAsync(new Customer { CustomerGuid = guid });
 
-        Assert.IsTrue(MigrationCustomerGuidUniqueIndex.MakeUnique(_repository, _context, NullLogger.Instance));
+        Assert.IsTrue(await MigrationCustomerGuidUniqueIndex.MakeUnique(_repository, _context, NullLogger.Instance));
 
         await Assert.ThrowsExactlyAsync<DuplicateKeyGrandException>(() => _repository.InsertAsync(new Customer { CustomerGuid = guid }));
     }
@@ -51,7 +51,7 @@ public class MigrationCustomerGuidUniqueIndexTests
         await _repository.InsertAsync(new Customer { CustomerGuid = guid });
         await _repository.InsertAsync(new Customer { CustomerGuid = guid });
 
-        Assert.IsFalse(MigrationCustomerGuidUniqueIndex.MakeUnique(_repository, _context, NullLogger.Instance));
+        Assert.IsFalse(await MigrationCustomerGuidUniqueIndex.MakeUnique(_repository, _context, NullLogger.Instance));
 
         await _repository.InsertAsync(new Customer { CustomerGuid = guid });
         Assert.AreEqual(3, _repository.Table.Count(x => x.CustomerGuid == guid));
@@ -71,7 +71,7 @@ public class MigrationCustomerGuidUniqueIndexTests
         services.AddSingleton(context.Object);
         services.AddSingleton<ILogger<MigrationCustomerGuidUniqueIndex>>(NullLogger<MigrationCustomerGuidUniqueIndex>.Instance);
 
-        Assert.IsFalse(new MigrationCustomerGuidUniqueIndex().UpgradeProcess(services.BuildServiceProvider()));
+        Assert.IsFalse(await new MigrationCustomerGuidUniqueIndex().UpgradeProcess(services.BuildServiceProvider()));
 
         context.Verify(x => x.CreateIndex(_repository, It.IsAny<OrderBuilder<Customer>>(), "CustomerGuid_1", false),
             Times.Once);

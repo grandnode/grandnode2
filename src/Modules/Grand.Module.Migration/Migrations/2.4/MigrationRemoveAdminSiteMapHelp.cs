@@ -22,16 +22,16 @@ public class MigrationRemoveAdminSiteMapHelp : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationRemoveAdminSiteMapHelp>>();
 
         try
         {
-            var help = repository.Table.FirstOrDefault(x => x.SystemName == "Help");
+            var help = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Help"));
             if (help != null)
-                repository.Delete(help);
+                await repository.DeleteAsync(help);
             return true;
         }
         catch (Exception ex)

@@ -30,7 +30,8 @@ public class StartupApplication : IStartupApplication
         //and otherwise roots the repository graph for the lifetime of the process
         using var scope = application.Services.CreateScope();
         var migrationProcess = scope.ServiceProvider.GetRequiredService<IMigrationProcess>();
-        migrationProcess.RunMigrationProcess();
+        //Configure is synchronous - the only place the migration process is waited on
+        migrationProcess.RunMigrationProcess().GetAwaiter().GetResult();
     }
 
     public int Priority => 100;

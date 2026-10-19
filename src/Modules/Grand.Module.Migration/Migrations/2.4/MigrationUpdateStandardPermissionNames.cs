@@ -27,7 +27,7 @@ public class MigrationUpdateStandardPermissionNames : IMigration
     public Guid Identity => new("DAEE04E0-573A-4001-9613-E682BE45BCE3");
     public string Name => "Unify wording of standard permission names and drop leftover 'Area. ' prefixes";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var permissionRepository = serviceProvider.GetRequiredService<IRepository<Permission>>();
         var translationRepository = serviceProvider.GetRequiredService<IRepository<TranslationResource>>();
@@ -41,11 +41,11 @@ public class MigrationUpdateStandardPermissionNames : IMigration
         foreach (var standard in standardPermissions)
             try
             {
-                var permission = permissionRepository.Table.FirstOrDefault(x => x.SystemName == standard.SystemName);
+                var permission = await permissionRepository.FirstOrDefaultAsync(permissionRepository.Table.Where(x => x.SystemName == standard.SystemName));
                 if (permission != null && permission.Name != standard.Name)
                 {
                     permission.Name = standard.Name;
-                    permissionRepository.Update(permission);
+                    await permissionRepository.UpdateAsync(permission);
                 }
 
                 //the display text is also cached as translation resources, under a couple of historical
@@ -57,14 +57,13 @@ public class MigrationUpdateStandardPermissionNames : IMigration
                     $"permission.{standard.SystemName}".ToLowerInvariant()
                 };
 
-                var translations = translationRepository.Table
-                    .Where(x => candidateKeys.Contains(x.Name))
-                    .ToList();
+                var translations = await translationRepository.ToListAsync(translationRepository.Table
+                    .Where(x => candidateKeys.Contains(x.Name)));
 
                 foreach (var translation in translations.Where(x => x.Value != standard.Name))
                 {
                     translation.Value = standard.Name;
-                    translationRepository.Update(translation);
+                    await translationRepository.UpdateAsync(translation);
                 }
             }
             catch (InvalidOperationException ex)

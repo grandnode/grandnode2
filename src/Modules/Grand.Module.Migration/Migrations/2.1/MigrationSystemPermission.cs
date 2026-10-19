@@ -19,16 +19,16 @@ public class MigrationSystemPermission : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
         try
         {
-            var permissionManageActions = repository.Table.FirstOrDefault(x => x.SystemName == "ManageActions");
-            if (permissionManageActions != null) repository.Delete(permissionManageActions);
-            var permissionManageReminders = repository.Table.FirstOrDefault(x => x.SystemName == "ManageReminders");
-            if (permissionManageReminders != null) repository.Delete(permissionManageReminders);
+            var permissionManageActions = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "ManageActions"));
+            if (permissionManageActions != null) await repository.DeleteAsync(permissionManageActions);
+            var permissionManageReminders = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "ManageReminders"));
+            if (permissionManageReminders != null) await repository.DeleteAsync(permissionManageReminders);
         }
         catch (Exception ex)
         {

@@ -10,8 +10,7 @@ public interface IMigration : IBaseMigration
     /// <summary>
     ///     Upgrade process
     /// </summary>
-    /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    bool UpgradeProcess(IServiceProvider serviceProvider);
+    Task<bool> UpgradeProcess(IServiceProvider serviceProvider);
 }

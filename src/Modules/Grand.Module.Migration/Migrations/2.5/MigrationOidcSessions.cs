@@ -16,7 +16,7 @@ public class MigrationOidcSessions : IMigration
     public Guid Identity => new("3f6a9e21-7c4b-4d0e-9b8a-5e2c1d7f4a63");
     public string Name => "OpenID Connect sessions: indexes and cleanup task";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var sessionRepository = serviceProvider.GetRequiredService<IRepository<OidcSession>>();
         var taskRepository = serviceProvider.GetRequiredService<IRepository<ScheduleTask>>();
@@ -26,14 +26,14 @@ public class MigrationOidcSessions : IMigration
 
         try
         {
-            databaseContext.CreateIndex(sessionRepository,
-                OrderBuilder<OidcSession>.Create().Ascending(x => x.Sid), "Sid").GetAwaiter().GetResult();
-            databaseContext.CreateIndex(sessionRepository,
-                OrderBuilder<OidcSession>.Create().Ascending(x => x.Subject), "Subject").GetAwaiter().GetResult();
-            databaseContext.CreateIndex(sessionRepository,
-                OrderBuilder<OidcSession>.Create().Ascending(x => x.CustomerId), "CustomerId").GetAwaiter().GetResult();
-            databaseContext.CreateIndex(sessionRepository,
-                OrderBuilder<OidcSession>.Create().Ascending(x => x.EndedUtc), "EndedUtc").GetAwaiter().GetResult();
+            await databaseContext.CreateIndex(sessionRepository,
+                OrderBuilder<OidcSession>.Create().Ascending(x => x.Sid), "Sid");
+            await databaseContext.CreateIndex(sessionRepository,
+                OrderBuilder<OidcSession>.Create().Ascending(x => x.Subject), "Subject");
+            await databaseContext.CreateIndex(sessionRepository,
+                OrderBuilder<OidcSession>.Create().Ascending(x => x.CustomerId), "CustomerId");
+            await databaseContext.CreateIndex(sessionRepository,
+                OrderBuilder<OidcSession>.Create().Ascending(x => x.EndedUtc), "EndedUtc");
         }
         catch (Exception ex)
         {
@@ -43,8 +43,8 @@ public class MigrationOidcSessions : IMigration
 
         try
         {
-            if (!taskRepository.Table.Any(x => x.ScheduleTaskName == TaskName))
-                taskRepository.Insert(new ScheduleTask {
+            if (!await taskRepository.AnyAsync(taskRepository.Table.Where(x => x.ScheduleTaskName == TaskName)))
+                await taskRepository.InsertAsync(new ScheduleTask {
                     ScheduleTaskName = TaskName, Enabled = true, StopOnError = false, TimeInterval = 1440
                 });
         }

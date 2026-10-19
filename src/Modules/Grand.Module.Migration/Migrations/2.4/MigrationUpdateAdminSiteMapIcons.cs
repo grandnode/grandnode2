@@ -45,7 +45,7 @@ public class MigrationUpdateAdminSiteMapIcons : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateAdminSiteMapIcons>>();
@@ -53,10 +53,10 @@ public class MigrationUpdateAdminSiteMapIcons : IMigration
         try
         {
             var unknown = new HashSet<string>();
-            foreach (var node in repository.Table.ToList())
+            foreach (var node in await repository.ToListAsync(repository.Table))
             {
                 if (!Rewrite(node, unknown)) continue;
-                repository.Update(node);
+                await repository.UpdateAsync(node);
             }
 
             if (unknown.Count > 0)

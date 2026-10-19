@@ -27,21 +27,21 @@ public class MigrationUpdateStoreManagerCustomerGroup : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var customerGroupRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroup>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateStoreManagerCustomerGroup>>();
 
         try
         {
-            var staffGroup = customerGroupRepository.Table.FirstOrDefault(x => x.SystemName == "Staff");
+            var staffGroup = await customerGroupRepository.FirstOrDefaultAsync(customerGroupRepository.Table.Where(x => x.SystemName == "Staff"));
             if (staffGroup == null) return true;
 
             staffGroup.SystemName = SystemCustomerGroupNames.StoreManager;
             if (staffGroup.Name == "Staff")
                 staffGroup.Name = "Store manager";
 
-            customerGroupRepository.Update(staffGroup);
+            await customerGroupRepository.UpdateAsync(staffGroup);
         }
         catch (InvalidOperationException ex)
         {

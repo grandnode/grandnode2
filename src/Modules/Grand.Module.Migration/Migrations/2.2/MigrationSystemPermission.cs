@@ -22,37 +22,37 @@ public class MigrationSystemPermission : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
         var customerGroupRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroup>>();
-        var vendor = customerGroupRepository.Table.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Vendors);
+        var vendor = await customerGroupRepository.FirstOrDefaultAsync(customerGroupRepository.Table.Where(x => x.SystemName == SystemCustomerGroupNames.Vendors));
 
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
 
         try
         {
             var permissionAccessVendor =
-                repository.Table.FirstOrDefault(x => x.SystemName == PermissionSystemName.AccessVendorPanel);
+                await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == PermissionSystemName.AccessVendorPanel));
             if (permissionAccessVendor == null)
             {
                 permissionAccessVendor = StandardPermission.ManageAccessVendorPanel;
                 permissionAccessVendor.CustomerGroups.Add(vendor!.Id);
-                repository.Insert(permissionAccessVendor);
+                await repository.InsertAsync(permissionAccessVendor);
             }
 
             var permissionAccessAdmin =
-                repository.Table.FirstOrDefault(x => x.SystemName == PermissionSystemName.AccessAdminPanel);
+                await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == PermissionSystemName.AccessAdminPanel));
             if (permissionAccessAdmin != null)
             {
                 permissionAccessAdmin.CustomerGroups.Remove(vendor!.Id);
-                repository.Update(permissionAccessAdmin);
+                await repository.UpdateAsync(permissionAccessAdmin);
             }
 
-            var permissionManageSystemLog = repository.Table.FirstOrDefault(x => x.SystemName == "ManageSystemLog");
-            if (permissionManageSystemLog != null) repository.Delete(permissionManageSystemLog);
-            var permissionManageActivityLog = repository.Table.FirstOrDefault(x => x.SystemName == "ManageActivityLog");
-            if (permissionManageActivityLog != null) repository.Delete(permissionManageActivityLog);
+            var permissionManageSystemLog = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "ManageSystemLog"));
+            if (permissionManageSystemLog != null) await repository.DeleteAsync(permissionManageSystemLog);
+            var permissionManageActivityLog = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "ManageActivityLog"));
+            if (permissionManageActivityLog != null) await repository.DeleteAsync(permissionManageActivityLog);
         }
         catch (Exception ex)
         {

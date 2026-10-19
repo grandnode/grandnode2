@@ -19,7 +19,7 @@ public class MigrationProductRating : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var productRepository = serviceProvider.GetRequiredService<IRepository<Product>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationProductRating>>();
@@ -33,7 +33,7 @@ public class MigrationProductRating : IMigration
                             ? 0
                             : Math.Round((double)product.ApprovedRatingSum / product.ApprovedTotalReviews, 2));
 
-                productRepository.UpdateOneAsync(x => x.Id == product.Id, update).GetAwaiter().GetResult();
+                await productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
             }
         }
         catch (Exception ex)

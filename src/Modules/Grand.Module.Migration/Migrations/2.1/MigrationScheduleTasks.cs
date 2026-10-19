@@ -19,7 +19,7 @@ public class MigrationScheduleTasks : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<ScheduleTask>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationScheduleTasks>>();
@@ -35,7 +35,7 @@ public class MigrationScheduleTasks : IMigration
                     x.ScheduleTaskName == "Customer reminder - Completed order" ||
                     x.ScheduleTaskName == "Customer reminder - Unpaid order"
                 );
-            foreach (var item in scheduleTasks) repository.Delete(item);
+            foreach (var item in scheduleTasks) await repository.DeleteAsync(item);
         }
         catch (Exception ex)
         {

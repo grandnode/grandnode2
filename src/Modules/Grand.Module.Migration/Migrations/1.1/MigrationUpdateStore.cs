@@ -19,7 +19,7 @@ public class MigrationUpdateStore : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Store>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateStore>>();
@@ -35,7 +35,7 @@ public class MigrationUpdateStore : IMigration
                         Primary = true
                     };
                     store.Domains.Add(domain);
-                    repository.Update(store);
+                    await repository.UpdateAsync(store);
                 }
         }
         catch (Exception ex)

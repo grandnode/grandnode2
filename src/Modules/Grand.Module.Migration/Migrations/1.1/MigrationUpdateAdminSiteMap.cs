@@ -20,14 +20,14 @@ public class MigrationUpdateAdminSiteMap : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateAdminSiteMap>>();
 
         try
         {
-            var sitemapSystem = repository.Table.FirstOrDefault(x => x.SystemName == "System");
+            var sitemapSystem = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "System"));
             if (sitemapSystem != null)
             {
                 sitemapSystem.PermissionNames = new List<string> {
@@ -76,10 +76,10 @@ public class MigrationUpdateAdminSiteMap : IMigration
                 if (childnodeMaintenance != null)
                     childnodeMaintenance.ControllerName = "Maintenance";
 
-                repository.Update(sitemapSystem);
+                await repository.UpdateAsync(sitemapSystem);
             }
 
-            var sitemapConfiguration = repository.Table.FirstOrDefault(x => x.SystemName == "Configuration");
+            var sitemapConfiguration = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Configuration"));
             if (sitemapConfiguration != null)
             {
                 var childnodeSeo =
@@ -87,7 +87,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
                 if (childnodeSeo != null)
                     childnodeSeo.ControllerName = "Maintenance";
 
-                repository.Update(sitemapConfiguration);
+                await repository.UpdateAsync(sitemapConfiguration);
             }
         }
         catch (Exception ex)

@@ -19,14 +19,14 @@ public class MigrationUpdateAdminSiteMap : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateAdminSiteMap>>();
 
         try
         {
-            var sitemapSettings = repository.Table.FirstOrDefault(x => x.SystemName == "Settings");
+            var sitemapSettings = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Settings"));
             if (sitemapSettings == null) return true;
 
             var adminOnlyItems = new[] {
@@ -43,7 +43,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
                     item.PermissionNames.Add(PermissionSystemName.System);
             }
 
-            repository.Update(sitemapSettings);
+            await repository.UpdateAsync(sitemapSettings);
         }
         catch (InvalidOperationException ex)
         {

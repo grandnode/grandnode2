@@ -9,7 +9,7 @@ namespace Grand.Module.Migration.Migrations;
 
 public static class MigrationUpdateResource
 {
-    public static bool ImportLanguageResourcesFromXml(this IServiceProvider serviceProvider,
+    public static async Task<bool> ImportLanguageResourcesFromXml(this IServiceProvider serviceProvider,
         string filename)
     {
         var langRepository = serviceProvider.GetRequiredService<IRepository<Language>>();
@@ -19,10 +19,11 @@ public static class MigrationUpdateResource
 
         try
         {
-            var language = langRepository.Table.FirstOrDefault(l => l.Name == "English") ?? langRepository.Table.FirstOrDefault();
+            var language = await langRepository.FirstOrDefaultAsync(langRepository.Table.Where(l => l.Name == "English")) ??
+                           await langRepository.FirstOrDefaultAsync(langRepository.Table);
 
             var filePath = Path.Combine(hostingEnvironment.ContentRootPath, filename);
-            var localesXml = File.ReadAllText(filePath);
+            var localesXml = await File.ReadAllTextAsync(filePath);
 
             var xmlDoc = XmlExtensions.LanguageXmlDocument(localesXml);
 
@@ -32,7 +33,7 @@ public static class MigrationUpdateResource
             {
                 _ = Enum.TryParse(item.Area, out TranslationResourceArea areaEnum);
 
-                lsrRepository.Insert(new TranslationResource {
+                await lsrRepository.InsertAsync(new TranslationResource {
                     LanguageId = language!.Id,
                     Name = item.Name.ToLowerInvariant(),
                     Value = item.Value,

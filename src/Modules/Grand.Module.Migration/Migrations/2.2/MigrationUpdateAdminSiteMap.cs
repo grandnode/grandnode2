@@ -20,14 +20,14 @@ public class MigrationUpdateAdminSiteMap : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateAdminSiteMap>>();
 
         try
         {
-            var sitemapConfiguration = repository.Table.FirstOrDefault(x => x.SystemName == "Configuration");
+            var sitemapConfiguration = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Configuration"));
             if (sitemapConfiguration != null)
             {
                 if (sitemapConfiguration.ChildNodes.FirstOrDefault(x => x.SystemName == "Admin menu") == null)
@@ -41,43 +41,43 @@ public class MigrationUpdateAdminSiteMap : IMigration
                         IconClass = "fa fa-dot-circle-o"
                     });
                 sitemapConfiguration.PermissionNames.Remove("ManageActivityLog");
-                repository.Update(sitemapConfiguration);
+                await repository.UpdateAsync(sitemapConfiguration);
             }
 
-            var sitemapSystem = repository.Table.FirstOrDefault(x => x.SystemName == "System");
+            var sitemapSystem = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "System"));
             var log = sitemapSystem?.ChildNodes.FirstOrDefault(x => x.SystemName == "Log");
             if (log != null)
             {
                 sitemapSystem!.ChildNodes.Remove(log);
                 sitemapSystem.PermissionNames.Remove("ManageSystemLog");
-                repository.Update(sitemapSystem);
+                await repository.UpdateAsync(sitemapSystem);
             }
 
-            var sitemapCustomers = repository.Table.FirstOrDefault(x => x.SystemName == "Customers");
+            var sitemapCustomers = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Customers"));
             var activityLog = sitemapCustomers?.ChildNodes.FirstOrDefault(x => x.SystemName == "Activity Log");
             if (activityLog != null)
             {
                 sitemapCustomers!.ChildNodes.Remove(activityLog);
                 sitemapCustomers.PermissionNames.Remove("ManageActivityLog");
-                repository.Update(sitemapCustomers);
+                await repository.UpdateAsync(sitemapCustomers);
             }
 
-            var sitemapReports = repository.Table.FirstOrDefault(x => x.SystemName == "Reports");
+            var sitemapReports = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Reports"));
             var activityStatLog = sitemapReports?.ChildNodes.FirstOrDefault(x => x.SystemName == "Activity Stats");
             if (activityStatLog != null)
             {
                 sitemapReports!.ChildNodes.Remove(activityStatLog);
                 sitemapReports.PermissionNames.Remove("ManageActivityLog");
-                repository.Update(sitemapReports);
+                await repository.UpdateAsync(sitemapReports);
             }
 
-            var sitemapSettings = repository.Table.FirstOrDefault(x => x.SystemName == "Settings");
+            var sitemapSettings = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Settings"));
             var activityTypes = sitemapSettings?.ChildNodes.FirstOrDefault(x => x.SystemName == "Activity Types");
             if (activityTypes != null)
             {
                 sitemapSettings!.ChildNodes.Remove(activityTypes);
                 sitemapSettings.PermissionNames.Remove("ManageActivityLog");
-                repository.Update(sitemapSettings);
+                await repository.UpdateAsync(sitemapSettings);
             }
         }
         catch (Exception ex)

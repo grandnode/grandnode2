@@ -21,10 +21,10 @@ public class MigrationUpdateMediaSettings : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Setting>>();
-        var mediaSettings = repository.Table.FirstOrDefault(x => x.Name == "mediasettings");        
+        var mediaSettings = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.Name == "mediasettings"));        
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateMediaSettings>>();
 
         try
@@ -36,7 +36,7 @@ public class MigrationUpdateMediaSettings : IMigration
                 if (settingsLogo != null)
                 {
                     var setting = SettingExtensions.CreateSetting(new StorageSettings { PictureStoreInDb = settingsLogo.StoreInDb },  "");
-                    repository.Insert(setting);
+                    await repository.InsertAsync(setting);
                 }
             }
         }
