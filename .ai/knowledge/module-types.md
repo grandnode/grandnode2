@@ -70,6 +70,8 @@ Check:
 ## Migration Module
 Use `Grand.Module.Migration` for versioned data and configuration migrations.
 
+The migrations run in `MigrationHostedService.StartingAsync` (`IHostedLifecycleService`). The host completes every `StartingAsync` before any hosted service's `StartAsync`, so the database is migrated before Kestrel accepts a request and before the scheduled tasks start, and after every `IStartupApplication.Configure`. A `Configure` method must therefore not depend on data a pending migration has yet to write.
+
 Check:
 - version ordering
 - idempotency
