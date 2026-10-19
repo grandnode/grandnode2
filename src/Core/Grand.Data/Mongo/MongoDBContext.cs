@@ -70,6 +70,18 @@ public class MongoDBContext : IDatabaseContext
             new CreateIndexOptions { Name = indexName, Unique = unique }));
     }
 
+    public async Task CreateTextIndex<T>(IRepository<T> repository, string[] fieldNames, string indexName)
+        where T : BaseEntity
+    {
+        ArgumentNullException.ThrowIfNullOrEmpty(indexName);
+        ArgumentNullException.ThrowIfNull(fieldNames);
+
+        //no stemming or stop words - product names are in many languages
+        await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
+            Builders<T>.IndexKeys.Combine(fieldNames.Select(x => Builders<T>.IndexKeys.Text(x))),
+            new CreateIndexOptions { Name = indexName, DefaultLanguage = "none" }));
+    }
+
     public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
     {
         ArgumentNullException.ThrowIfNullOrEmpty(indexName);

@@ -46,6 +46,12 @@ public class LiteDBContext : IDatabaseContext
         return Task.CompletedTask;
     }
 
+    public Task CreateTextIndex<T>(IRepository<T> repository, string[] fieldNames, string indexName)
+        where T : BaseEntity
+    {
+        throw new NotSupportedException("LiteDB has no text indexes");
+    }
+
     public Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
     {
         if (string.IsNullOrEmpty(indexName))

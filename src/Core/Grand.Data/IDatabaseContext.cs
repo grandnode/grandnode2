@@ -10,4 +10,5 @@ public interface IDatabaseContext
     Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false)
         where T : BaseEntity;
     Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity;
+    Task CreateTextIndex<T>(IRepository<T> repository, string[] fieldNames, string indexName) where T : BaseEntity;
 }
