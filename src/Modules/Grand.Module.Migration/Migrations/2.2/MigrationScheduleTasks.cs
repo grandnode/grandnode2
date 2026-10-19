@@ -19,15 +19,15 @@ public class MigrationScheduleTasks : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<ScheduleTask>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationScheduleTasks>>();
         try
         {
-            var scheduleTask = repository.Table.FirstOrDefault(x => x.ScheduleTaskName == "Clear log");
+            var scheduleTask = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.ScheduleTaskName == "Clear log"));
             if (scheduleTask != null)
-                repository.Delete(scheduleTask);
+                await repository.DeleteAsync(scheduleTask);
         }
         catch (Exception ex)
         {

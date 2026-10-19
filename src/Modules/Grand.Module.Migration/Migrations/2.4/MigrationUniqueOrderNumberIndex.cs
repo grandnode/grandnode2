@@ -20,7 +20,7 @@ public class MigrationUniqueOrderNumberIndex : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Order>>();
         var databaseContext = serviceProvider.GetRequiredService<IDatabaseContext>();
@@ -28,7 +28,7 @@ public class MigrationUniqueOrderNumberIndex : IMigration
 
         try
         {
-            var duplicates = repository.Table.Select(x => x.OrderNumber).ToList()
+            var duplicates = (await repository.ToListAsync(repository.Table.Select(x => x.OrderNumber)))
                 .GroupBy(x => x)
                 .Where(x => x.Count() > 1)
                 .Select(x => x.Key)
@@ -46,15 +46,15 @@ public class MigrationUniqueOrderNumberIndex : IMigration
 
             //the non-unique index of the same name is dropped first - the driver rejects a redefinition
             var keys = OrderBuilder<Order>.Create().Descending(x => x.OrderNumber);
-            databaseContext.DeleteIndex(repository, IndexName).GetAwaiter().GetResult();
+            await databaseContext.DeleteIndex(repository, IndexName);
             try
             {
-                databaseContext.CreateIndex(repository, keys, IndexName, true).GetAwaiter().GetResult();
+                await databaseContext.CreateIndex(repository, keys, IndexName, true);
             }
             catch
             {
                 //e.g. a duplicate saved after the check above - keep the lookup index until the retry
-                databaseContext.CreateIndex(repository, keys, IndexName).GetAwaiter().GetResult();
+                await databaseContext.CreateIndex(repository, keys, IndexName);
                 throw;
             }
         }

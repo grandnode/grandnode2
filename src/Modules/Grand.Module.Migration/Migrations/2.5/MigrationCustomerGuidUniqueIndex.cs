@@ -19,7 +19,7 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
     public Guid Identity => new("f0c98624-441d-42b6-95ae-429bfb64d266");
     public string Name => "Unique index on Customer.CustomerGuid";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Customer>>();
         var databaseContext = serviceProvider.GetRequiredService<IDatabaseContext>();
@@ -27,7 +27,7 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
 
         try
         {
-            MakeUnique(repository, databaseContext, logService);
+            await MakeUnique(repository, databaseContext, logService);
         }
         catch (Exception ex)
         {
@@ -42,14 +42,13 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
     ///     Recreates the CustomerGuid index as unique. Returns false when duplicates keep it non-unique;
     ///     throws, with the non-unique index restored, when the database rejects the unique one
     /// </summary>
-    public static bool MakeUnique(IRepository<Customer> repository, IDatabaseContext databaseContext, ILogger logService)
+    public static async Task<bool> MakeUnique(IRepository<Customer> repository, IDatabaseContext databaseContext, ILogger logService)
     {
-        var duplicates = repository.Table
+        var duplicates = await repository.ToListAsync(repository.Table
             .GroupBy(x => x.CustomerGuid)
             .Where(x => x.Count() > 1)
             .Select(x => x.Key)
-            .Take(20)
-            .ToList();
+            .Take(20));
 
         //duplicates must not stop the upgrade - keep the non-unique index for the lookups and report them
         if (duplicates.Count != 0)
@@ -62,17 +61,16 @@ public class MigrationCustomerGuidUniqueIndex : IMigration
 
         var keys = OrderBuilder<Customer>.Create().Ascending(x => x.CustomerGuid);
 
-        databaseContext.DeleteIndex(repository, repository is MongoRepository<Customer> ? IndexName : LiteDbIndexName)
-            .GetAwaiter().GetResult();
+        await databaseContext.DeleteIndex(repository, repository is MongoRepository<Customer> ? IndexName : LiteDbIndexName);
         try
         {
-            databaseContext.CreateIndex(repository, keys, IndexName, true).GetAwaiter().GetResult();
+            await databaseContext.CreateIndex(repository, keys, IndexName, true);
         }
         catch
         {
             //e.g. a duplicate saved by a running instance after the check above - keep the lookup index
             //until the retry
-            databaseContext.CreateIndex(repository, keys, IndexName).GetAwaiter().GetResult();
+            await databaseContext.CreateIndex(repository, keys, IndexName);
             throw;
         }
 

@@ -12,11 +12,11 @@ public class MigrationAddLandingPage : IMigration
     public Guid Identity => new("0833f104-54d5-41d0-83da-375d2520f709");
     public string Name => "Add new landing page - VendorPortalInfo";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var pageLayoutRepository = serviceProvider.GetRequiredService<IRepository<PageLayout>>();
         var defaultPageLayout =
-            pageLayoutRepository.Table.FirstOrDefault(tt => tt.Name == "Default layout");
+            await pageLayoutRepository.FirstOrDefaultAsync(pageLayoutRepository.Table.Where(tt => tt.Name == "Default layout"));
 
         var repository = serviceProvider.GetRequiredService<IRepository<Page>>();
         var page = new Page {
@@ -30,7 +30,7 @@ public class MigrationAddLandingPage : IMigration
             PageLayoutId = defaultPageLayout?.Id,
             Published = true
         };
-        repository.Insert(page);
+        await repository.InsertAsync(page);
         return true;
     }
 }

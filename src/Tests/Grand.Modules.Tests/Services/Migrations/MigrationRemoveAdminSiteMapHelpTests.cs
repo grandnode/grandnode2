@@ -37,47 +37,47 @@ public class MigrationRemoveAdminSiteMapHelpTests
     };
 
     [TestMethod]
-    public void UpgradeProcess_StockHelpNode_RemovesTheWholeNode()
+    public async Task UpgradeProcess_StockHelpNode_RemovesTheWholeNode()
     {
         _repository.Insert(new AdminSiteMap { SystemName = "Plugins" });
         _repository.Insert(new AdminSiteMap { SystemName = "Help", ChildNodes = [SupportServices()] });
 
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.IsNull(_repository.Table.FirstOrDefault(x => x.SystemName == "Help"));
         Assert.AreEqual("Plugins", _repository.Table.Single().SystemName);
     }
 
     [TestMethod]
-    public void UpgradeProcess_HelpWithOtherEntries_RemovesTheWholeNode()
+    public async Task UpgradeProcess_HelpWithOtherEntries_RemovesTheWholeNode()
     {
         _repository.Insert(new AdminSiteMap {
             SystemName = "Help",
             ChildNodes = [SupportServices(), new AdminSiteMap { SystemName = "Our wiki", Url = "https://wiki.example.com" }]
         });
 
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.AreEqual(0, _repository.Table.Count());
     }
 
     [TestMethod]
-    public void UpgradeProcess_NoHelpNode_ChangesNothing()
+    public async Task UpgradeProcess_NoHelpNode_ChangesNothing()
     {
         _repository.Insert(new AdminSiteMap { SystemName = "Plugins" });
 
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.AreEqual("Plugins", _repository.Table.Single().SystemName);
     }
 
     [TestMethod]
-    public void UpgradeProcess_RunTwice_IsIdempotent()
+    public async Task UpgradeProcess_RunTwice_IsIdempotent()
     {
         _repository.Insert(new AdminSiteMap { SystemName = "Help", ChildNodes = [SupportServices()] });
 
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.AreEqual(0, _repository.Table.Count());
     }

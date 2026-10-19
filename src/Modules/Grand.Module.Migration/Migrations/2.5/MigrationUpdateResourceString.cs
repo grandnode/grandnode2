@@ -9,7 +9,7 @@ public class MigrationUpdateResourceString : IMigration
     public Guid Identity => new("15EDC88E-A865-4BA2-9E43-FB97839F1B92");
     public string Name => "Update resource string for english language 2.5";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         return serviceProvider.ImportLanguageResourcesFromXml("App_Data/Resources/Upgrade/en_250.xml");
     }

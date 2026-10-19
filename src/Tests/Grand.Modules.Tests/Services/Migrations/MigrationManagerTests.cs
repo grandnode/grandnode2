@@ -80,7 +80,7 @@ public class MigrationManagerTests
     }
 
     [TestMethod]
-    public void VersionStamp_RecordsItsOwnVersion()
+    public async Task VersionStamp_RecordsItsOwnVersion()
     {
         var stamps = AllShippedMigrations.OfType<IMigrationVersionStamp>().ToList();
         Assert.IsNotEmpty(stamps);
@@ -91,11 +91,13 @@ public class MigrationManagerTests
 
             var repository = new Mock<IRepository<GrandNodeVersion>>();
             repository.Setup(x => x.Table).Returns(new List<GrandNodeVersion> { dbVersion }.AsQueryable());
+            repository.Setup(x => x.FirstOrDefaultAsync(It.IsAny<IQueryable<GrandNodeVersion>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(dbVersion);
 
             var services = new ServiceCollection();
             services.AddSingleton(repository.Object);
 
-            Assert.IsTrue(stamp.UpgradeProcess(services.BuildServiceProvider()), $"{stamp.Name} failed");
+            Assert.IsTrue(await stamp.UpgradeProcess(services.BuildServiceProvider()), $"{stamp.Name} failed");
 
             Assert.AreEqual(stamp.Version.ToString(), dbVersion.DataBaseVersion,
                 $"{stamp.Name} must record its own version, not the version the build supports");

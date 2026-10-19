@@ -19,23 +19,20 @@ public class MigrationScheduleTasks : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<ScheduleTask>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationScheduleTasks>>();
         try
         {
-            var scheduleTasks = repository
-                .Table.Where(x =>
-                    x.ScheduleTaskName == "Customer reminder - AbandonedCart" ||
-                    x.ScheduleTaskName == "Customer reminder - RegisteredCustomer" ||
-                    x.ScheduleTaskName == "Customer reminder - LastActivity" ||
-                    x.ScheduleTaskName == "Customer reminder - LastPurchase" ||
-                    x.ScheduleTaskName == "Customer reminder - Birthday" ||
-                    x.ScheduleTaskName == "Customer reminder - Completed order" ||
-                    x.ScheduleTaskName == "Customer reminder - Unpaid order"
-                );
-            foreach (var item in scheduleTasks) repository.Delete(item);
+            await repository.DeleteManyAsync(x =>
+                x.ScheduleTaskName == "Customer reminder - AbandonedCart" ||
+                x.ScheduleTaskName == "Customer reminder - RegisteredCustomer" ||
+                x.ScheduleTaskName == "Customer reminder - LastActivity" ||
+                x.ScheduleTaskName == "Customer reminder - LastPurchase" ||
+                x.ScheduleTaskName == "Customer reminder - Birthday" ||
+                x.ScheduleTaskName == "Customer reminder - Completed order" ||
+                x.ScheduleTaskName == "Customer reminder - Unpaid order");
         }
         catch (Exception ex)
         {

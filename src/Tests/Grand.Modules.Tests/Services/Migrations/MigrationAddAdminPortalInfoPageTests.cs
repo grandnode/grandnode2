@@ -43,11 +43,11 @@ public class MigrationAddAdminPortalInfoPageTests
     }
 
     [TestMethod]
-    public void UpgradeProcess_NoPage_AddsUnpublishedPageWithSlug()
+    public async Task UpgradeProcess_NoPage_AddsUnpublishedPageWithSlug()
     {
         _pageLayoutRepository.Insert(new PageLayout { Name = "Default layout" });
 
-        var result = _migration.UpgradeProcess(_serviceProvider);
+        var result = await _migration.UpgradeProcess(_serviceProvider);
 
         Assert.IsTrue(result);
         var page = _pageRepository.Table.Single();
@@ -70,17 +70,17 @@ public class MigrationAddAdminPortalInfoPageTests
     }
 
     [TestMethod]
-    public void UpgradeProcess_RunTwice_DoesNotDuplicate()
+    public async Task UpgradeProcess_RunTwice_DoesNotDuplicate()
     {
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.AreEqual(1, _pageRepository.Table.Count());
         Assert.AreEqual(1, _entityUrlRepository.Table.Count());
     }
 
     [TestMethod]
-    public void UpgradeProcess_PageAlreadyExists_KeepsOperatorContent()
+    public async Task UpgradeProcess_PageAlreadyExists_KeepsOperatorContent()
     {
         var existing = new Page {
             SystemName = "adminportalinfo", Title = "Our own title", Body = "<p>Our own text</p>", Published = true
@@ -90,7 +90,7 @@ public class MigrationAddAdminPortalInfoPageTests
             EntityId = existing.Id, EntityName = "Page", Slug = "adminportalinfo", LanguageId = "", IsActive = true
         });
 
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         var page = _pageRepository.Table.Single();
         Assert.AreEqual("Our own title", page.Title);
@@ -100,12 +100,12 @@ public class MigrationAddAdminPortalInfoPageTests
     }
 
     [TestMethod]
-    public void UpgradeProcess_PageWithoutSlug_AddsOnlyTheSlug()
+    public async Task UpgradeProcess_PageWithoutSlug_AddsOnlyTheSlug()
     {
         var existing = new Page { SystemName = "AdminPortalInfo", Title = "Kept" };
         _pageRepository.Insert(existing);
 
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.AreEqual(1, _pageRepository.Table.Count());
         Assert.AreEqual("Kept", _pageRepository.Table.Single().Title);
@@ -113,13 +113,13 @@ public class MigrationAddAdminPortalInfoPageTests
     }
 
     [TestMethod]
-    public void UpgradeProcess_SlugTakenByAnotherEntity_UsesAFreeSlug()
+    public async Task UpgradeProcess_SlugTakenByAnotherEntity_UsesAFreeSlug()
     {
         _entityUrlRepository.Insert(new EntityUrl {
             EntityId = "other", EntityName = "Product", Slug = "adminportalinfo", LanguageId = "", IsActive = true
         });
 
-        Assert.IsTrue(_migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         var page = _pageRepository.Table.Single();
         var slug = _entityUrlRepository.Table.Single(x => x.EntityId == page.Id);
@@ -128,7 +128,7 @@ public class MigrationAddAdminPortalInfoPageTests
     }
 
     [TestMethod]
-    public void UpgradeProcess_RepositoryThrows_ReturnsFalse()
+    public async Task UpgradeProcess_RepositoryThrows_ReturnsFalse()
     {
         var failing = new Mock<IRepository<Page>>();
         failing.Setup(x => x.Table).Throws(new InvalidOperationException("database down"));
@@ -139,6 +139,6 @@ public class MigrationAddAdminPortalInfoPageTests
         services.AddSingleton<ILogger<MigrationAddAdminPortalInfoPage>>(
             NullLogger<MigrationAddAdminPortalInfoPage>.Instance);
 
-        Assert.IsFalse(_migration.UpgradeProcess(services.BuildServiceProvider()));
+        Assert.IsFalse(await _migration.UpgradeProcess(services.BuildServiceProvider()));
     }
 }

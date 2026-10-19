@@ -26,11 +26,11 @@ public abstract class MigrationUpgradeDbVersionBase : IMigrationVersionStamp
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<GrandNodeVersion>>();
 
-        var dbversion = repository.Table.FirstOrDefault();
+        var dbversion = await repository.FirstOrDefaultAsync(repository.Table);
         if (dbversion == null)
             return false;
 
@@ -38,7 +38,7 @@ public abstract class MigrationUpgradeDbVersionBase : IMigrationVersionStamp
         //the latest supported version here makes every migration in between unreachable
         dbversion.InstalledVersion = Version.ToString();
         dbversion.DataBaseVersion = Version.ToString();
-        repository.Update(dbversion);
+        await repository.UpdateAsync(dbversion);
 
         return true;
     }

@@ -19,7 +19,7 @@ Add an upgrade migration that seeds or changes data for existing installations �
    - `Version` — `new DbVersion(major, minor)`.
    - `Identity` — a **newly generated** GUID, never copied from another migration.
    - `Name` — a short human-readable description including the version.
-   - `UpgradeProcess(IServiceProvider)` — returns `false` on failure, and must not throw.
+   - `UpgradeProcess(IServiceProvider)` — async, returns `Task<bool>`: `false` on failure, and must not throw. Await repository and service calls; do not block on them.
 5. For localization resources, add the strings to `App_Data/Resources/Upgrade/en_{version}.xml` and call `serviceProvider.ImportLanguageResourcesFromXml(...)` rather than writing resources inline.
 6. For permissions, admin sitemap, or scheduled tasks, follow the existing `MigrationSystemPermission`, `MigrationUpdateAdminSiteMap`, and `MigrationScheduleTasks` files in the nearest version folder.
 7. Bump the DB version with a `MigrationUpgradeDbVersion_{version}` class when introducing a new version folder.

@@ -20,15 +20,15 @@ public class MigrationSystemPermission : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
         var customerGroupRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroup>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
-        var administrator = customerGroupRepository.Table.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Administrators);
         try
         {
-            var permission = repository.Table.FirstOrDefault(x => x.SystemName == PermissionSystemName.System);
+            var administrator = await customerGroupRepository.FirstOrDefaultAsync(customerGroupRepository.Table.Where(x => x.SystemName == SystemCustomerGroupNames.Administrators));
+            var permission = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == PermissionSystemName.System));
             if (permission == null)
             {
                 permission = new Permission {
@@ -38,7 +38,7 @@ public class MigrationSystemPermission : IMigration
                     Category = "System"
                 };
                 permission.CustomerGroups.Add(administrator!.Id);
-                repository.Insert(permission);
+                await repository.InsertAsync(permission);
             }
         }
         catch (Exception ex)

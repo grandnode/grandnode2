@@ -19,13 +19,14 @@ public class MigrationUpdateStore : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Store>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateStore>>();
         try
         {
-            foreach (var store in repository.Table)
+            var stores = await repository.ToListAsync(repository.Table);
+            foreach (var store in stores)
                 if (!store.Domains.Any())
                 {
                     var storeUri = new Uri(store.Url);
@@ -35,7 +36,7 @@ public class MigrationUpdateStore : IMigration
                         Primary = true
                     };
                     store.Domains.Add(domain);
-                    repository.Update(store);
+                    await repository.UpdateAsync(store);
                 }
         }
         catch (Exception ex)

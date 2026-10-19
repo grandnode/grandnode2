@@ -19,9 +19,9 @@ namespace Grand.Modules.Tests.Services.Migrations
         /// <param name="database"></param>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        public bool UpgradeProcess(IServiceProvider serviceProvider)
+        public Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
         { 
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

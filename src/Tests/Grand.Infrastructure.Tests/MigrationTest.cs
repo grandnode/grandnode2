@@ -12,9 +12,9 @@ public class MigrationTest1 : IMigration
 
     public string Name => "SampleMigration";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
-        return true;
+        return Task.FromResult(true);
     }
 }
 
@@ -28,8 +28,8 @@ public class MigrationTest2 : IMigration
 
     public string Name => "SampleMigration";
 
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
-        return true;
+        return Task.FromResult(true);
     }
 }

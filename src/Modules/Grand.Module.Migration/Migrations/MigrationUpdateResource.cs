@@ -9,7 +9,7 @@ namespace Grand.Module.Migration.Migrations;
 
 public static class MigrationUpdateResource
 {
-    public static bool ImportLanguageResourcesFromXml(this IServiceProvider serviceProvider,
+    public static async Task<bool> ImportLanguageResourcesFromXml(this IServiceProvider serviceProvider,
         string filename)
     {
         var langRepository = serviceProvider.GetRequiredService<IRepository<Language>>();
@@ -19,22 +19,38 @@ public static class MigrationUpdateResource
 
         try
         {
-            var language = langRepository.Table.FirstOrDefault(l => l.Name == "English") ?? langRepository.Table.FirstOrDefault();
+            var language = await langRepository.FirstOrDefaultAsync(langRepository.Table.Where(l => l.Name == "English")) ??
+                           await langRepository.FirstOrDefaultAsync(langRepository.Table);
+            if (language == null)
+            {
+                //no language to import into - nothing to do
+                logService.LogWarning("UpgradeProcess - ImportLanguageResourcesFromXml {Filename}: no language found", filename);
+                return true;
+            }
 
             var filePath = Path.Combine(hostingEnvironment.ContentRootPath, filename);
-            var localesXml = File.ReadAllText(filePath);
+            var localesXml = await File.ReadAllTextAsync(filePath);
 
             var xmlDoc = XmlExtensions.LanguageXmlDocument(localesXml);
 
             var translateResources = XmlExtensions.ParseTranslationResources(xmlDoc);
 
+            //a failed run is retried on the next start - skip the resources it already inserted
+            var existingNames = (await lsrRepository.ToListAsync(lsrRepository.Table
+                    .Where(x => x.LanguageId == language.Id)
+                    .Select(x => x.Name)))
+                .ToHashSet();
+
             foreach (var item in translateResources)
             {
+                var name = item.Name.ToLowerInvariant();
+                if (!existingNames.Add(name)) continue;
+
                 _ = Enum.TryParse(item.Area, out TranslationResourceArea areaEnum);
 
-                lsrRepository.Insert(new TranslationResource {
-                    LanguageId = language!.Id,
-                    Name = item.Name.ToLowerInvariant(),
+                await lsrRepository.InsertAsync(new TranslationResource {
+                    LanguageId = language.Id,
+                    Name = name,
                     Value = item.Value,
                     Area = areaEnum,
                     CreatedBy = "System"
@@ -44,6 +60,7 @@ public static class MigrationUpdateResource
         catch (Exception ex)
         {
             logService.LogError(ex, "UpgradeProcess - ImportLanguageResourcesFromXml {Filename}", filename);
+            return false;
         }
 
         return true;

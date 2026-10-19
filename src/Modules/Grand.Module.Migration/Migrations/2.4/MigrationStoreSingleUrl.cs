@@ -32,14 +32,14 @@ public class MigrationStoreSingleUrl : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Store>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationStoreSingleUrl>>();
 
         try
         {
-            foreach (var store in repository.Table.ToList())
+            foreach (var store in await repository.ToListAsync(repository.Table))
             {
                 var effectiveUrl = store.Domains?.FirstOrDefault(x => x.Primary)?.Url;
                 if (string.IsNullOrWhiteSpace(effectiveUrl) ||
@@ -62,7 +62,7 @@ public class MigrationStoreSingleUrl : IMigration
                     continue;
 
                 store.Url = effectiveUrl;
-                repository.Update(store);
+                await repository.UpdateAsync(store);
             }
         }
         catch (Exception ex)

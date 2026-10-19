@@ -27,23 +27,24 @@ public class MigrationRobotsTxtAiCrawlers : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationRobotsTxtAiCrawlers>>();
         try
         {
             var repository = serviceProvider.GetRequiredService<IRepository<RobotsTxt>>();
-            foreach (var robotsTxt in repository.Table.ToList())
+            foreach (var robotsTxt in await repository.ToListAsync(repository.Table))
             {
                 var text = AddAiCrawlers(robotsTxt.Text);
                 if (text == robotsTxt.Text) continue;
 
                 robotsTxt.Text = text;
-                repository.Update(robotsTxt);
+                await repository.UpdateAsync(robotsTxt);
             }
 
             var cache = serviceProvider.GetService<ICacheBase>();
-            cache?.RemoveByPrefix(CacheKey.ROBOTS_ALL_KEY).GetAwaiter().GetResult();
+            if (cache != null)
+                await cache.RemoveByPrefix(CacheKey.ROBOTS_ALL_KEY);
         }
         catch (Exception ex)
         {

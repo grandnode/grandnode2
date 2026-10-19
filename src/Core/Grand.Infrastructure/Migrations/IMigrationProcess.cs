@@ -2,6 +2,6 @@
 
 public interface IMigrationProcess
 {
-    void RunMigrationProcess();
-    MigrationResult RunProcess(IMigration migration);
+    Task RunMigrationProcess();
+    Task<MigrationResult> RunProcess(IMigration migration);
 }

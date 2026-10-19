@@ -14,7 +14,7 @@ public class MigrationUpdateResourceString : IMigration
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IServiceProvider serviceProvider)
+    public Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         return serviceProvider.ImportLanguageResourcesFromXml("App_Data/Resources/Upgrade/en_240.xml");
     }

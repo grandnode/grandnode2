@@ -29,14 +29,14 @@ public class MigrationProcess : IMigrationProcess
         _repositoryVersion = repositoryVersion;
     }
 
-    public virtual MigrationResult RunProcess(IMigration migration)
+    public virtual async Task<MigrationResult> RunProcess(IMigration migration)
     {
-        var result = RunProcessInternal(migration);
+        var result = await RunProcessInternal(migration);
         try
         {
             if (result.Success)
             {
-                SaveMigration(result);
+                await SaveMigration(result);
                 _logger.LogInformation(
                     $"The migration of {migration.Name} ({migration.Version}) has been completed successfully.");
             }
@@ -53,10 +53,10 @@ public class MigrationProcess : IMigrationProcess
         }
     }
 
-    public virtual void RunMigrationProcess()
+    public virtual async Task RunMigrationProcess()
     {
-        var migrationsDb = GetMigrationDb();
-        var version = _repositoryVersion.Table.FirstOrDefault();
+        var migrationsDb = await GetMigrationDb();
+        var version = await _repositoryVersion.FirstOrDefaultAsync(_repositoryVersion.Table);
         if (version == null)
             return;
 
@@ -70,13 +70,12 @@ public class MigrationProcess : IMigrationProcess
             return;
         }
 
-        var migrationManager = new MigrationManager();
-        foreach (var item in migrationManager.GetCurrentMigrations(installedVersion))
+        foreach (var item in GetCurrentMigrations(installedVersion))
         {
             if (migrationsDb.Any(x => x.Identity == item.Identity))
                 continue;
 
-            if (RunProcess(item).Success) continue;
+            if ((await RunProcess(item)).Success) continue;
 
             //stop before the version stamp of this version runs - recording a version whose
             //migrations did not all succeed puts them below the installed version, and
@@ -85,6 +84,11 @@ public class MigrationProcess : IMigrationProcess
                 item.Name, item.Version);
             return;
         }
+    }
+
+    protected virtual IEnumerable<IMigration> GetCurrentMigrations(DbVersion installedVersion)
+    {
+        return new MigrationManager().GetCurrentMigrations(installedVersion);
     }
 
     private static DbVersion? ParseDbVersion(string? version)
@@ -98,26 +102,37 @@ public class MigrationProcess : IMigrationProcess
             : null;
     }
 
-    private MigrationResult RunProcessInternal(IMigration migration)
+    private async Task<MigrationResult> RunProcessInternal(IMigration migration)
     {
-        var model = new MigrationResult {
-            Success = migration.UpgradeProcess(_serviceProvider),
+        bool success;
+        try
+        {
+            success = await migration.UpgradeProcess(_serviceProvider);
+        }
+        catch (Exception ex)
+        {
+            //a migration that throws counts as failed - it is not recorded and runs again on the next start
+            _logger.LogError(ex, "Migration {MigrationName} threw an exception", migration.Name);
+            success = false;
+        }
+
+        return new MigrationResult {
+            Success = success,
             Migration = migration
         };
-        return model;
     }
 
-    private void SaveMigration(MigrationResult migrationResult, bool install = false)
+    private Task SaveMigration(MigrationResult migrationResult, bool install = false)
     {
-        _repositoryMigration.Insert(new MigrationDb {
+        return _repositoryMigration.InsertAsync(new MigrationDb {
             Identity = migrationResult.Migration.Identity,
             Name = migrationResult.Migration.Name,
             Version = migrationResult.Migration.Version.ToString()
         });
     }
 
-    private IList<MigrationDb> GetMigrationDb()
+    private Task<IList<MigrationDb>> GetMigrationDb()
     {
-        return _repositoryMigration.Table.ToList();
+        return _repositoryMigration.ToListAsync(_repositoryMigration.Table);
     }
 }
