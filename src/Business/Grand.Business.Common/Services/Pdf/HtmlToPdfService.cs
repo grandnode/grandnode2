@@ -40,13 +40,15 @@ public class HtmlToPdfService : IPdfService
     }
 
     public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "",
-        string vendorId = "")
+        string vendorId = "", CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(orders);
 
         var html = await _viewRenderService.RenderToStringAsync(OrderTemplate,
             new ValueTuple<IList<Order>, string>(orders, vendorId));
+        //the PDF layout is the costly, synchronous part; skip it when nobody waits for the file
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             using var sr = new StringReader(html);
@@ -80,7 +82,8 @@ public class HtmlToPdfService : IPdfService
         return filePath;
     }
 
-    public async Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string languageId = "")
+    public async Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string languageId = "",
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(shipments);
@@ -90,6 +93,7 @@ public class HtmlToPdfService : IPdfService
             throw new ArgumentException($"Cannot load language. ID={languageId}");
 
         var html = await _viewRenderService.RenderToStringAsync(ShipmentsTemplate, shipments);
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             using TextReader sr = new StringReader(html);
