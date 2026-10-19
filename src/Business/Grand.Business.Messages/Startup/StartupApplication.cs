@@ -18,6 +18,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IEmailAccountService, EmailAccountService>();
         services.AddScoped<IMessageProviderService, MessageProviderService>();
         services.AddScoped<IMessageTokenProvider, MessageTokenProvider>();
+        services.AddScoped<ICampaignMessageRenderer, CampaignMessageRenderer>();
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IMimeMappingService, MimeMappingService>(_ =>
         {

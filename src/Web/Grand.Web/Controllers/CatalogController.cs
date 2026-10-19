@@ -125,7 +125,7 @@ public class CatalogController : BasePublicController
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
 
         //layout
         var layoutViewPath =
@@ -185,7 +185,7 @@ public class CatalogController : BasePublicController
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Brand = brand,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
 
         //template
         var layoutViewPath = await _mediator.Send(new GetBrandLayoutViewPath { LayoutId = brand.BrandLayoutId });
@@ -245,7 +245,7 @@ public class CatalogController : BasePublicController
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Collection = collection,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
 
         //template
         var layoutViewPath = await _mediator.Send(new GetCollectionLayoutViewPath
@@ -294,7 +294,7 @@ public class CatalogController : BasePublicController
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
         //review
         model.VendorReviewOverview = PrepareVendorReviewOverviewModel(vendor);
 
@@ -420,7 +420,7 @@ public class CatalogController : BasePublicController
             ProductTag = productTag,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
         return View(model);
     }
 
@@ -438,7 +438,7 @@ public class CatalogController : BasePublicController
             ProductTag = productTag,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
         return View("ProductsByTag", model);
     }
 
@@ -475,7 +475,7 @@ public class CatalogController : BasePublicController
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Model = model,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
         return View(searchModel);
     }
 
@@ -493,7 +493,7 @@ public class CatalogController : BasePublicController
             Store = _contextAccessor.StoreContext.CurrentStore,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Currency = _contextAccessor.WorkContext.WorkingCurrency
-        });
+        }, HttpContext.RequestAborted);
         return Json(result);
     }
 

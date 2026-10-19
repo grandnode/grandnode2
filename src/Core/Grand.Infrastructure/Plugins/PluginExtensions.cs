@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 
 namespace Grand.Infrastructure.Plugins;
@@ -33,7 +34,17 @@ public static class PluginExtensions
 {
     public static bool OnlyInstalledPlugins(Type type)
     {
-        var plugin = PluginManager.FindPlugin(type);
+        ArgumentNullException.ThrowIfNull(type);
+
+        return OnlyInstalledPlugins(type.Assembly);
+    }
+
+    /// <summary>
+    ///     Whether the assembly may contribute types: true unless it belongs to a plugin that is not installed
+    /// </summary>
+    public static bool OnlyInstalledPlugins(Assembly assembly)
+    {
+        var plugin = PluginManager.FindPlugin(assembly);
         return plugin == null || plugin.Installed;
     }
 

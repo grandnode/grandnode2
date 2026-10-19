@@ -77,4 +77,17 @@ public class GetSearchProductsQueryHandlerTests
         //Assert
         CollectionAssert.AreEquivalent(new[] { "open", "admins" }, result.products.Select(p => p.Id).ToList());
     }
+
+    [TestMethod]
+    public async Task Handle_WhenRequestCancelled_StopsTheProductQuery()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Product { Published = true, VisibleIndividually = true });
+        var searchProductsQuery = new GetSearchProductsQuery { Customer = new Customer() };
+        using var cancellation = new CancellationTokenSource();
+        await cancellation.CancelAsync();
+        //Act & Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            handler.Handle(searchProductsQuery, cancellation.Token));
+    }
 }

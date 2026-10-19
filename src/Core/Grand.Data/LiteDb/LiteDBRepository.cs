@@ -493,8 +493,11 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
         if (pageSize <= 0)
             pageSize = 1;
 
+        //LiteDB runs synchronously, so the token can only be honored between the two reads
+        cancellationToken.ThrowIfCancellationRequested();
         var skip = PagedQuery.Skip(pageIndex, pageSize);
         var items = query.Skip(skip).Take(pageSize).ToList();
+        cancellationToken.ThrowIfCancellationRequested();
         var totalCount = PagedQuery.TotalFromPage(skip, pageSize, items.Count) ?? query.Count();
 
         return Task.FromResult<IPagedList<TResult>>(new PagedList<TResult>(items, pageIndex, pageSize, totalCount));

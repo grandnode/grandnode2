@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Business.Messages.Services;
 using Grand.Domain;
 using Grand.Domain.Catalog;

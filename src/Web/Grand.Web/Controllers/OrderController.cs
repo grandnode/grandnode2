@@ -126,7 +126,8 @@ public class OrderController : BasePublicController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await pdfService.PrintOrdersToPdf(stream, orders, _contextAccessor.WorkContext.WorkingLanguage.Id);
+            await pdfService.PrintOrdersToPdf(stream, orders, _contextAccessor.WorkContext.WorkingLanguage.Id,
+                cancellationToken: HttpContext.RequestAborted);
             bytes = stream.ToArray();
         }
 

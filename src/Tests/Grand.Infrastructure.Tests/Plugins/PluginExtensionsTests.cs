@@ -47,4 +47,61 @@ public class PluginExtensionsTests
         var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
         Assert.HasCount(1, plugins);
     }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void OnlyInstalledPlugins_Assembly_NotAPlugin_ReturnsTrue()
+    {
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [];
+            Assert.IsTrue(PluginExtensions.OnlyInstalledPlugins(typeof(SampleBasePlugin).Assembly));
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void OnlyInstalledPlugins_Assembly_UninstalledPlugin_ReturnsFalse()
+    {
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [SamplePluginInfo(false)];
+            Assert.IsFalse(PluginExtensions.OnlyInstalledPlugins(typeof(SampleBasePlugin).Assembly));
+            Assert.IsFalse(PluginExtensions.OnlyInstalledPlugins(typeof(SampleBasePlugin)));
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void OnlyInstalledPlugins_Assembly_InstalledPlugin_ReturnsTrue()
+    {
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [SamplePluginInfo(true)];
+            Assert.IsTrue(PluginExtensions.OnlyInstalledPlugins(typeof(SampleBasePlugin).Assembly));
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+    }
+
+    private static PluginInfo SamplePluginInfo(bool installed)
+    {
+        return new PluginInfo(null, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
+            SystemName = "SamplePlugin",
+            Installed = installed
+        };
+    }
 }

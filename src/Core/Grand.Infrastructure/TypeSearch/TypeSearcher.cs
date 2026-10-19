@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.Roslyn;
+﻿using Grand.Infrastructure.Plugins;
+using Grand.Infrastructure.Roslyn;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -24,6 +25,8 @@ public class TypeSearcher : ITypeSearcher
             if (referencedAssemblies.All(x => x.FullName != currentAssem.FullName) &&
                 product?.Product != "grandnode") continue;
             if (addedAssemblyNames.Contains(assembly.FullName)) continue;
+            //an uninstalled plugin contributes no types to any scan
+            if (!PluginExtensions.OnlyInstalledPlugins(assembly)) continue;
             assemblies.Add(assembly);
             addedAssemblyNames.Add(assembly.FullName);
         }

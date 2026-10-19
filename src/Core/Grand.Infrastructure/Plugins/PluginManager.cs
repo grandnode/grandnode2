@@ -132,11 +132,12 @@ public static class PluginManager
                                 }
                         }
 
-                        //main plugin file
-                        AddApplicationPart(mvcCoreBuilder, plugin.ReferencedAssembly, plugin.SystemName,
-                            plugin.PluginFileName);
+                        //controllers and views only for an installed plugin - an uninstalled one must not be routable
+                        if (plugin.Installed)
+                            AddApplicationPart(mvcCoreBuilder, plugin.ReferencedAssembly, plugin.SystemName,
+                                plugin.PluginFileName);
 
-                        //register interface for IPlugin 
+                        //register interface for IPlugin - also when not installed, Install resolves it from DI
                         RegisterPluginInterface(mvcCoreBuilder, plugin.ReferencedAssembly);
 
                         //init plugin type
@@ -192,9 +193,21 @@ public static class PluginManager
     {
         ArgumentNullException.ThrowIfNull(typeAssembly);
 
+        return FindPlugin(typeAssembly.GetTypeInfo().Assembly);
+    }
+
+    /// <summary>
+    ///     Find the plugin an assembly belongs to
+    /// </summary>
+    /// <param name="assembly">Assembly</param>
+    /// <returns>Plugin descriptor if exists; otherwise null</returns>
+    public static PluginInfo FindPlugin(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
         return ReferencedPlugins?.FirstOrDefault(plugin => plugin.ReferencedAssembly != null
                                                            && plugin.ReferencedAssembly.FullName!.Equals(
-                                                               typeAssembly.GetTypeInfo().Assembly.FullName,
+                                                               assembly.FullName,
                                                                StringComparison.OrdinalIgnoreCase));
     }
 

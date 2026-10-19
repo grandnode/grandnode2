@@ -89,6 +89,8 @@ Use for business interfaces, commands, queries, utilities, and cross-business co
 
 Put interfaces here when implementations live in a feature-specific business project.
 
+Core holds contracts only: interfaces, commands, queries, events, and the data types they carry. Code with behavior (DotLiquid drops, builders, export/import helpers, handlers) goes to the feature project that owns it, even when another Business project needs the result; expose it through a Core interface instead, as `ICampaignMessageRenderer` does for campaign rendering. Plugins compile against Core, so every type added here is a type a plugin can bind to, and every later change to it is a binary break.
+
 ### Feature Business Projects
 Use these for implementations:
 - `Grand.Business.Authentication`
