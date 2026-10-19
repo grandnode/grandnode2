@@ -294,7 +294,7 @@ public class CatalogController : BasePublicController
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
         //review
         model.VendorReviewOverview = PrepareVendorReviewOverviewModel(vendor);
 

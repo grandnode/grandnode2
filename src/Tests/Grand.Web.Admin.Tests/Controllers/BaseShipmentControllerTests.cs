@@ -658,7 +658,8 @@ public class BaseShipmentControllerTests
             p => p.PrintPackagingSlipsToPdf(
                 It.IsAny<Stream>(),
                 It.Is<IList<Shipment>>(list => list.Count == 1 && list.Contains(accessibleShipment) && !list.Contains(deniedShipment)),
-                It.IsAny<string>()),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

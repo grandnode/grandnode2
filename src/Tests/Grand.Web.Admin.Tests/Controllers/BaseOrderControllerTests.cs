@@ -299,7 +299,7 @@ public class BaseOrderControllerTests
         Assert.IsInstanceOfType(result, typeof(FileContentResult));
         _pdfServiceMock.Verify(
             p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.Is<IList<Order>>(l => l.Count == 1 && l[0] == order),
-                "lang-1", "vendor-A"), Times.Once);
+                "lang-1", "vendor-A", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -314,7 +314,8 @@ public class BaseOrderControllerTests
 
         Assert.IsInstanceOfType(result, typeof(FileContentResult));
         _pdfServiceMock.Verify(
-            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.IsAny<IList<Order>>(), "lang-1", "vendor-A"),
+            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.IsAny<IList<Order>>(), "lang-1", "vendor-A",
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -350,7 +351,7 @@ public class BaseOrderControllerTests
         Assert.IsInstanceOfType(result, typeof(FileContentResult));
         _pdfServiceMock.Verify(
             p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.Is<IList<Order>>(l => l.Count == 1 && l[0] == order),
-                "lang-1", "vendor-A"), Times.Once);
+                "lang-1", "vendor-A", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -367,7 +368,8 @@ public class BaseOrderControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
         _pdfServiceMock.Verify(
-            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.IsAny<IList<Order>>(), It.IsAny<string>(), It.IsAny<string>()),
+            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.IsAny<IList<Order>>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

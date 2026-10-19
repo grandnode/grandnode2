@@ -103,7 +103,7 @@ public abstract class BaseOrderController(
         using (var stream = new MemoryStream())
         {
             await pdfService.PrintOrdersToPdf(stream, orders, contextAccessor.WorkContext.WorkingLanguage.Id,
-                scope.DefaultVendorId);
+                scope.DefaultVendorId, HttpContext.RequestAborted);
             bytes = stream.ToArray();
         }
 

@@ -447,7 +447,8 @@ public abstract class BaseShipmentController(
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await pdfService.PrintPackagingSlipsToPdf(stream, shipments, contextAccessor.WorkContext.WorkingLanguage.Id);
+            await pdfService.PrintPackagingSlipsToPdf(stream, shipments, contextAccessor.WorkContext.WorkingLanguage.Id,
+                cancellationToken: HttpContext.RequestAborted);
             bytes = stream.ToArray();
         }
 
