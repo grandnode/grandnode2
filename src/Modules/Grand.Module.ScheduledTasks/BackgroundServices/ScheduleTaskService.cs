@@ -68,14 +68,27 @@ public class ScheduleTaskService : IScheduleTaskService
     }
 
     /// <summary>
-    ///     Updates the task
+    ///     Updates the task, except its lease - that belongs to the instance running it
     /// </summary>
     /// <param name="task">Task</param>
     public virtual async Task UpdateTask(ScheduleTask task)
     {
         ArgumentNullException.ThrowIfNull(task);
 
-        await _taskRepository.UpdateAsync(task);
+        //the entity is read before an admin edit or a manual run, so its lease can be stale by the
+        //time it is saved - writing it back would release the lease of a run in progress, which
+        //then stops when its next renewal finds the lease gone
+        await _taskRepository.UpdateOneAsync(x => x.Id == task.Id,
+            UpdateBuilder<ScheduleTask>.Create()
+                .Set(x => x.ScheduleTaskName, task.ScheduleTaskName)
+                .Set(x => x.Enabled, task.Enabled)
+                .Set(x => x.StopOnError, task.StopOnError)
+                .Set(x => x.LastStartUtc, task.LastStartUtc)
+                .Set(x => x.LastNonSuccessEndUtc, task.LastNonSuccessEndUtc)
+                .Set(x => x.LastSuccessUtc, task.LastSuccessUtc)
+                .Set(x => x.LeasedByMachineName, task.LeasedByMachineName)
+                .Set(x => x.TimeInterval, task.TimeInterval)
+                .Set(x => x.StoreId, task.StoreId));
     }
 
     /// <summary>

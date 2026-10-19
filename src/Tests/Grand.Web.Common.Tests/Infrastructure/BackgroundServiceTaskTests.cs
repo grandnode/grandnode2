@@ -268,6 +268,7 @@ public class BackgroundServiceTaskTests
     [TestMethod]
     public async Task ExecuteAsync_LeaseLostDuringRun_CancelsTheRunningTask()
     {
+        _task.StopOnError = true;
         _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
                 It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -297,13 +298,55 @@ public class BackgroundServiceTaskTests
         cts.Cancel();
 
         Assert.IsTrue(taskCancelled);
+        //a lost lease is not a task error - even a StopOnError task stays enabled
         _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), false,
-            It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Once);
+            It.IsAny<DateTime>(), false), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ExecuteAsync_RenewalsKeepFailing_CancelsTheRunBeforeTheLeaseRunsOut()
+    {
+        DateTime? leasedUntilUtc = null;
+        _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
+            .Callback<string, DateTime?, DateTime, DateTime, string>((_, _, _, until, _) => leasedUntilUtc = until)
+            .ReturnsAsync(true);
+        _scheduleTaskServiceMock.Setup(s => s.RenewTaskLease(_task.Id, It.IsAny<string>(), It.IsAny<DateTime>()))
+            .ThrowsAsync(new TimeoutException("database unavailable"));
+        DateTime? cancelledUtc = null;
+        _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>()))
+            .Returns(async (CancellationToken cancellationToken) => {
+                try
+                {
+                    await Task.Delay(Timeout.Infinite, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    cancelledUtc = DateTime.UtcNow;
+                    throw;
+                }
+            });
+
+        var service = new BackgroundServiceTask(TaskName, _serviceProvider, TimeSpan.FromMilliseconds(200),
+            TimeSpan.FromSeconds(1));
+        using var cts = new CancellationTokenSource();
+        await service.StartAsync(cts.Token);
+
+        await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
+            i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
+        cts.Cancel();
+
+        //once the lease runs out another instance may claim the task - this run must be stopped by then
+        Assert.IsNotNull(cancelledUtc);
+        Assert.IsTrue(cancelledUtc < leasedUntilUtc, $"cancelled at {cancelledUtc:O}, lease until {leasedUntilUtc:O}");
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), false,
+            It.IsAny<DateTime>(), false), Times.Once);
     }
 
     [TestMethod]
     public async Task ExecuteAsync_ApplicationStopping_CancelsTheRunningTask()
     {
+        _task.StopOnError = true;
         _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
                 It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -330,6 +373,10 @@ public class BackgroundServiceTaskTests
         await service.StopAsync(CancellationToken.None);
 
         Assert.IsTrue(taskCancelled);
+        //the lease is released on the way out, so another instance need not wait for it to run out,
+        //and a shutdown is not a task error - even a StopOnError task stays enabled
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), false,
+            It.IsAny<DateTime>(), false), Times.Once);
     }
 
     private static async Task WaitFor(Func<bool> condition)

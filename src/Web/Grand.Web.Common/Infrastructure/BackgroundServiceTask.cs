@@ -18,6 +18,7 @@ public class BackgroundServiceTask : BackgroundService
     private static readonly string InstanceId = Guid.NewGuid().ToString("N");
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly TimeSpan _leaseDuration;
     private readonly TimeSpan _leaseRenewInterval;
     private readonly string Name;
 
@@ -26,11 +27,13 @@ public class BackgroundServiceTask : BackgroundService
     {
     }
 
-    internal BackgroundServiceTask(string name, IServiceProvider serviceProvider, TimeSpan leaseRenewInterval)
+    internal BackgroundServiceTask(string name, IServiceProvider serviceProvider, TimeSpan leaseRenewInterval,
+        TimeSpan? leaseDuration = null)
     {
         Name = name;
         _serviceProvider = serviceProvider;
         _leaseRenewInterval = leaseRenewInterval;
+        _leaseDuration = leaseDuration ?? LeaseDuration;
     }
 
     //how long a claimed run blocks other instances; the running instance renews it while the
@@ -155,16 +158,16 @@ public class BackgroundServiceTask : BackgroundService
             //only one wins and executes the task (no duplicated e-mails etc.)
             var runStartUtc = DateTime.UtcNow;
             var claimed = await scheduleTaskService.TryClaimTaskRun(task.Id, task.LastStartUtc,
-                runStartUtc, runStartUtc.Add(LeaseDuration), InstanceId);
+                runStartUtc, runStartUtc.Add(_leaseDuration), InstanceId);
             if (claimed)
             {
                 var succeeded = false;
-                var leaseLost = false;
+                var stopped = false;
 
                 //keeps other instances off the task while it runs, even past its next due time.
                 //Its token is also the task's: cancelled on shutdown and when the lease is lost
                 using var leaseCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
-                var leaseRenewal = RenewLease(task.Id, runStartUtc.Add(LeaseDuration), logger, leaseCts);
+                var leaseRenewal = RenewLease(task.Id, runStartUtc.Add(_leaseDuration), logger, leaseCts);
                 try
                 {
                     //assign current customer (background task) / current store (from task).
@@ -181,15 +184,17 @@ public class BackgroundServiceTask : BackgroundService
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
-                    //application shutdown - do not classify as a task failure
-                    throw;
+                    //application shutdown - not a task error. The run is still completed below, so its
+                    //lease is released and another instance need not wait for it to run out
+                    stopped = true;
+                    logger.LogInformation("Task {TaskName} stopped: the application is shutting down", Name);
                 }
-                catch (OperationCanceledException) when (leaseCts.IsCancellationRequested)
+                catch (OperationCanceledException exc) when (leaseCts.IsCancellationRequested)
                 {
                     //the lease was lost - another instance may run the task now, so this run stopped.
                     //Not a task error, so it never disables the task
-                    leaseLost = true;
-                    logger.LogWarning("Task {TaskName} stopped: its lease was lost", Name);
+                    stopped = true;
+                    logger.LogWarning(exc, "Task {TaskName} stopped: its lease was lost", Name);
                 }
                 catch (Exception exc)
                 {
@@ -208,7 +213,7 @@ public class BackgroundServiceTask : BackgroundService
                 //during the run, and - if the lease ran out and another instance took the task
                 //over - overwrite that instance's claim, letting a third one start
                 await scheduleTaskService.CompleteTaskRun(task.Id, InstanceId, succeeded, DateTime.UtcNow,
-                    !succeeded && !leaseLost && task.StopOnError);
+                    !succeeded && !stopped && task.StopOnError);
             }
             else
             {
@@ -230,8 +235,8 @@ public class BackgroundServiceTask : BackgroundService
     /// Extends the lease of the claimed run until cancelled. Uses its own scope: it runs alongside
     /// the task, which keeps using the iteration's scope. A renewal that throws is only logged - the
     /// lease is several renewals long. The run is cancelled when another instance holds the lease,
-    /// or when renewals kept failing until the lease ran out: from then on another instance may
-    /// claim the task, and the two must not run side by side.
+    /// or when renewals kept failing and the next one would come too late: once the lease runs out
+    /// another instance may claim the task, and the two must not run side by side.
     /// </summary>
     private async Task RenewLease(string taskId, DateTime leasedUntilUtc, ILogger logger,
         CancellationTokenSource leaseCts)
@@ -244,7 +249,7 @@ public class BackgroundServiceTask : BackgroundService
 
                 using var scope = _serviceProvider.CreateScope();
                 var scheduleTaskService = scope.ServiceProvider.GetRequiredService<IScheduleTaskService>();
-                var renewedUntilUtc = DateTime.UtcNow.Add(LeaseDuration);
+                var renewedUntilUtc = DateTime.UtcNow.Add(_leaseDuration);
                 if (await scheduleTaskService.RenewTaskLease(taskId, InstanceId, renewedUntilUtc))
                 {
                     leasedUntilUtc = renewedUntilUtc;
@@ -262,7 +267,10 @@ public class BackgroundServiceTask : BackgroundService
             catch (Exception exc)
             {
                 logger.LogWarning(exc, "Could not renew the lease of task {TaskName}", Name);
-                if (DateTime.UtcNow >= leasedUntilUtc)
+                //stop while the lease still holds, not once it has run out: the task only notices
+                //between units of work, and until then another instance could already be running it.
+                //A renewal whose outcome is unknown counts as failed - stopping early is the safe side
+                if (DateTime.UtcNow.Add(_leaseRenewInterval) >= leasedUntilUtc)
                     await leaseCts.CancelAsync();
             }
     }

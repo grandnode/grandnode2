@@ -31,7 +31,8 @@ public interface IScheduleTaskService
     Task<ScheduleTask> InsertTask(ScheduleTask task);
 
     /// <summary>
-    ///     Updates the task
+    ///     Updates the task, except its lease (LeasedUntilUtc, LeasedByInstance) - that is written only by
+    ///     claiming, renewing and completing a run
     /// </summary>
     /// <param name="task">Task</param>
     Task UpdateTask(ScheduleTask task);

@@ -41,7 +41,10 @@ public class EmailSender : IEmailSender
     ///     Otherwise, "AttachmentFilePath" name will be used.
     /// </param>
     /// <param name="attachedDownloads">Attachment download ID (another attachment)</param>
-    /// <param name="cancellationToken">Aborts connecting to and sending through the SMTP server</param>
+    /// <param name="cancellationToken">
+    ///     Aborts connecting to and authenticating with the SMTP server. Once the message is being sent it is
+    ///     not cancelled: the server may already have accepted it
+    /// </param>
     public virtual async Task SendEmail(EmailAccount emailAccount, string subject, string body,
         string fromAddress, string fromName, string toAddress, string toName,
         string replyToAddress = null, string replyToName = null,
@@ -123,7 +126,9 @@ public class EmailSender : IEmailSender
         await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port,
             (SecureSocketOptions)emailAccount.SecureSocketOptionsId, cancellationToken);
         await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password, cancellationToken);
-        await smtpClient.SendAsync(message, cancellationToken);
+        //not cancellable: the server may accept the message before its reply arrives, and a cancelled
+        //send would then be reported as not sent - and the message sent again on the next try
+        await smtpClient.SendAsync(message, CancellationToken.None);
         //not cancellable: the message is sent by now, and a cancelled QUIT would report it as not sent
         await smtpClient.DisconnectAsync(true, CancellationToken.None);
     }
