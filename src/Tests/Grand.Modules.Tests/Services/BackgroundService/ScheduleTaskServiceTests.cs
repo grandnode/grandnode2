@@ -122,8 +122,9 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(1), "instance-a");
 
-        await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(5));
+        var renewed = await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(5));
 
+        Assert.IsTrue(renewed);
         var updated = await _service.GetTaskById(task.Id);
         Assert.IsTrue(updated.LeasedUntilUtc > DateTime.UtcNow.AddMinutes(4));
     }
@@ -133,8 +134,10 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-b");
 
-        await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(30));
+        var renewed = await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(30));
 
+        //the run must learn it lost the lease - it stops instead of running beside the new holder
+        Assert.IsFalse(renewed);
         var updated = await _service.GetTaskById(task.Id);
         Assert.AreEqual("instance-b", updated.LeasedByInstance);
         Assert.IsTrue(updated.LeasedUntilUtc < DateTime.UtcNow.AddMinutes(6));
@@ -146,8 +149,9 @@ public class ScheduleTaskServiceTests
         //the run has finished and released the lease before a late renewal arrived
         var task = await InsertTask(DateTime.UtcNow, null, "instance-a");
 
-        await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(5));
+        var renewed = await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(5));
 
+        Assert.IsFalse(renewed);
         var updated = await _service.GetTaskById(task.Id);
         Assert.IsNull(updated.LeasedUntilUtc);
     }
@@ -208,6 +212,22 @@ public class ScheduleTaskServiceTests
         var updated = await _service.GetTaskById(task.Id);
         Assert.IsFalse(updated.Enabled);
         Assert.AreEqual(30, updated.TimeInterval);
+    }
+
+    [TestMethod]
+    public async Task UpdateTask_EntityReadBeforeAClaim_KeepsTheLeaseOfTheRunningInstance()
+    {
+        //the admin opens the task, then instance A claims a run before the admin saves
+        var task = await InsertTask(DateTime.UtcNow.AddMinutes(-10));
+        await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc, "instance-a");
+        task.TimeInterval = 30;
+        await _service.UpdateTask(task);
+
+        var updated = await _service.GetTaskById(task.Id);
+        Assert.AreEqual(30, updated.TimeInterval);
+        Assert.AreEqual("instance-a", updated.LeasedByInstance);
+        Assert.IsNotNull(updated.LeasedUntilUtc);
+        Assert.IsTrue(await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(5)));
     }
 
     [TestMethod]

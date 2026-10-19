@@ -17,13 +17,13 @@ public class CancelOrderScheduledTask : IScheduleTask
         _orderService = orderService;
     }
 
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         if (!_systemSettings.DaysToCancelUnpaidOrder.HasValue)
             return;
 
         var startCancelDate = CalculateStartCancelDate(_systemSettings.DaysToCancelUnpaidOrder.Value);
-        await _orderService.CancelExpiredOrders(startCancelDate);
+        await _orderService.CancelExpiredOrders(startCancelDate, cancellationToken);
     }
 
     private static DateTime CalculateStartCancelDate(int daysToCancelUnpaidOrder) => DateTime.UtcNow.Date.AddDays(-daysToCancelUnpaidOrder);

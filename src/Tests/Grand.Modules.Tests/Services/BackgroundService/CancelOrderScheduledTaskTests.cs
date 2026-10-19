@@ -25,15 +25,15 @@ public class CancelOrderScheduledTaskTests
     public async Task Execute_InvokeExpectedMethods()
     {
         _settings.DaysToCancelUnpaidOrder = 1;
-        await _task.Execute();
-        _orderServiceMock.Verify(c => c.CancelExpiredOrders(It.IsAny<DateTime>()), Times.Once);
+        await _task.Execute(CancellationToken.None);
+        _orderServiceMock.Verify(c => c.CancelExpiredOrders(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
     public async Task Execute_SettingsNotHaveValue_NotInvokeAnyMethods()
     {
         _settings.DaysToCancelUnpaidOrder = null;
-        await _task.Execute();
-        _orderServiceMock.Verify(c => c.CancelExpiredOrders(It.IsAny<DateTime>()), Times.Never);
+        await _task.Execute(CancellationToken.None);
+        _orderServiceMock.Verify(c => c.CancelExpiredOrders(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -27,13 +27,13 @@ public class UpdateExchangeRateScheduleTask : ScheduleTask, IScheduleTask
     /// <summary>
     ///     Executes a task
     /// </summary>
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         if (!_currencySettings.AutoUpdateEnabled)
             return;
 
         var primaryCurrencyCode = (await _currencyService.GetPrimaryExchangeRateCurrency()).CurrencyCode;
-        var exchangeRates = await _exchangeRateService.GetCurrencyLiveRates(primaryCurrencyCode);
+        var exchangeRates = await _exchangeRateService.GetCurrencyLiveRates(primaryCurrencyCode, cancellationToken);
 
         foreach (var exchangeRate in exchangeRates)
         {

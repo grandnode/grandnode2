@@ -52,7 +52,7 @@ public class EndAuctionsTaskTests
         _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product> { new() { Id = "id" } });
         _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(() => new PagedList<Bid>());
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
         _auctionMock.Verify(c => c.UpdateAuctionEnded(It.IsAny<Product>(), It.IsAny<bool>(), It.IsAny<bool>()),
             Times.Once);
         _messageProviderMock.Verify(
@@ -75,7 +75,7 @@ public class EndAuctionsTaskTests
                 It.IsAny<string>(),
                 It.IsAny<ShoppingCartValidatorOptions>()))
             .ReturnsAsync((new List<string> { "warning" }, null));
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
 
         //the warnings only reach the log, so they are written in the admin language
         _shoppingCartMock.Verify(c => c.AddToCart(It.IsAny<Customer>(),
@@ -105,7 +105,7 @@ public class EndAuctionsTaskTests
                 It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<ShoppingCartValidatorOptions>()))
             .ReturnsAsync((new List<string>(), null));
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
 
         _loggerMock.Verify(c => c.Log(
             It.IsAny<LogLevel>(),
@@ -143,7 +143,7 @@ public class EndAuctionsTaskTests
                 It.IsAny<string>(), It.IsAny<ShoppingCartValidatorOptions>()))
             .ReturnsAsync((new List<string>(), null));
 
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
 
         _shoppingCartMock.Verify(c => c.AddToCart(It.IsAny<Customer>(),
             It.Is<Language>(l => l.Id == "published-lang"), It.IsAny<string>(), It.IsAny<ShoppingCartType>(),
@@ -162,7 +162,7 @@ public class EndAuctionsTaskTests
         _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(() => new PagedList<Bid> { new() });
 
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
 
         _shoppingCartMock.VerifyNoOtherCalls();
         _auctionMock.Verify(c => c.UpdateAuctionEnded(It.IsAny<Product>(), It.IsAny<bool>(), It.IsAny<bool>()),

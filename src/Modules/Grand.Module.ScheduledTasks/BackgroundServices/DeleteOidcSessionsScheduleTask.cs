@@ -11,7 +11,7 @@ public class DeleteOidcSessionsScheduleTask(
     IOidcSessionService oidcSessionService,
     IOidcTokenRevocationService oidcTokenRevocationService) : IScheduleTask
 {
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         await oidcSessionService.DeleteExpired();
         await oidcTokenRevocationService.DeleteExpired();

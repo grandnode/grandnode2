@@ -194,7 +194,7 @@ public class CampaignServiceTests
         //Assert
         _emailSenderMock.Verify(
             c => c.SendEmail(It.IsAny<EmailAccount>(), "subject", "body", It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null, null, null, null, null, null, null),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null, null, null, null, null, null, null, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

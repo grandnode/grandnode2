@@ -155,7 +155,8 @@ public interface IOrderService
     ///     Cancel Expired UnPaid Orders
     /// </summary>
     /// <param name="expirationDateUtc">Date at which all unPaid  orders and has pending status Would be Canceled</param>
-    Task CancelExpiredOrders(DateTime expirationDateUtc);
+    /// <param name="cancellationToken">Checked between orders - an order is always cancelled completely</param>
+    Task CancelExpiredOrders(DateTime expirationDateUtc, CancellationToken cancellationToken = default);
 
     #endregion
 }

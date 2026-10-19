@@ -27,10 +27,14 @@ public interface IEmailSender
     ///     Otherwise, "AttachmentFilePath" name will be used.
     /// </param>
     /// <param name="attachedDownloads">Attachments download ID (another attachments)</param>
+    /// <param name="cancellationToken">
+    ///     Aborts connecting to and authenticating with the SMTP server. Once the message is being sent it is
+    ///     not cancelled: the server may already have accepted it
+    /// </param>
     Task SendEmail(EmailAccount emailAccount, string subject, string body,
         string fromAddress, string fromName, string toAddress, string toName,
         string replyToAddress = null, string replyToName = null,
         IEnumerable<string> bcc = null, IEnumerable<string> cc = null,
         string attachmentFilePath = null, string attachmentFileName = null,
-        IEnumerable<string> attachedDownloads = null);
+        IEnumerable<string> attachedDownloads = null, CancellationToken cancellationToken = default);
 }

@@ -36,7 +36,7 @@ public class BackgroundServiceTaskTests
             .Returns(Task.CompletedTask);
 
         _scheduleTaskMock = new Mock<IScheduleTask>();
-        _scheduleTaskMock.Setup(t => t.Execute()).Returns(Task.CompletedTask);
+        _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         var storeContextSetter = new Mock<IStoreContextSetter>();
         storeContextSetter.Setup(s => s.InitializeStoreContext(It.IsAny<string>()))
@@ -70,7 +70,7 @@ public class BackgroundServiceTaskTests
             i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
         cts.Cancel();
 
-        _scheduleTaskMock.Verify(t => t.Execute(), Times.Once);
+        _scheduleTaskMock.Verify(t => t.Execute(It.IsAny<CancellationToken>()), Times.Once);
         _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), true,
             It.IsAny<DateTime>(), false), Times.Once);
         //a write of the whole entity read before the run would revert admin edits made during it
@@ -112,7 +112,7 @@ public class BackgroundServiceTaskTests
         _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
                 It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
             .ReturnsAsync(true);
-        _scheduleTaskMock.Setup(t => t.Execute()).ThrowsAsync(new InvalidOperationException("task failure"));
+        _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("task failure"));
 
         var service = new BackgroundServiceTask(TaskName, _serviceProvider);
         using var cts = new CancellationTokenSource();
@@ -145,7 +145,7 @@ public class BackgroundServiceTaskTests
         var contextAccessor = new ContextAccessor();
         IWorkContext seenWorkContext = null;
         IStoreContext seenStoreContext = null;
-        _scheduleTaskMock.Setup(t => t.Execute()).Returns(async () => {
+        _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>())).Returns(async (CancellationToken _) => {
             await Task.Yield();
             seenWorkContext = contextAccessor.WorkContext;
             seenStoreContext = contextAccessor.StoreContext;
@@ -188,7 +188,7 @@ public class BackgroundServiceTaskTests
         await Task.Delay(200);
         cts.Cancel();
 
-        _scheduleTaskMock.Verify(t => t.Execute(), Times.Never);
+        _scheduleTaskMock.Verify(t => t.Execute(It.IsAny<CancellationToken>()), Times.Never);
         //losing instance must not overwrite the winner's data with a stale entity
         _scheduleTaskServiceMock.Verify(s => s.UpdateTask(It.IsAny<ScheduleTask>()), Times.Never);
         _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(It.IsAny<string>(), It.IsAny<string>(),
@@ -211,7 +211,7 @@ public class BackgroundServiceTaskTests
 
         _scheduleTaskServiceMock.Verify(s => s.TryClaimTaskRun(It.IsAny<string>(), It.IsAny<DateTime?>(),
             It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()), Times.Never);
-        _scheduleTaskMock.Verify(t => t.Execute(), Times.Never);
+        _scheduleTaskMock.Verify(t => t.Execute(It.IsAny<CancellationToken>()), Times.Never);
         _scheduleTaskServiceMock.Verify(s => s.UpdateTask(It.IsAny<ScheduleTask>()), Times.Never);
     }
 
@@ -229,7 +229,7 @@ public class BackgroundServiceTaskTests
         await Task.Delay(200);
         cts.Cancel();
 
-        _scheduleTaskMock.Verify(t => t.Execute(), Times.Never);
+        _scheduleTaskMock.Verify(t => t.Execute(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -263,6 +263,120 @@ public class BackgroundServiceTaskTests
             It.Is<Exception>(e => e is InvalidOperationException),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.AtLeastOnce);
+    }
+
+    [TestMethod]
+    public async Task ExecuteAsync_LeaseLostDuringRun_CancelsTheRunningTask()
+    {
+        _task.StopOnError = true;
+        _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
+            .ReturnsAsync(true);
+        //another instance took the task over after the lease ran out
+        _scheduleTaskServiceMock.Setup(s => s.RenewTaskLease(_task.Id, It.IsAny<string>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(false);
+        var taskCancelled = false;
+        _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>()))
+            .Returns(async (CancellationToken cancellationToken) => {
+                try
+                {
+                    await Task.Delay(Timeout.Infinite, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    taskCancelled = true;
+                    throw;
+                }
+            });
+
+        var service = new BackgroundServiceTask(TaskName, _serviceProvider, TimeSpan.FromMilliseconds(20));
+        using var cts = new CancellationTokenSource();
+        await service.StartAsync(cts.Token);
+
+        await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
+            i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
+        cts.Cancel();
+
+        Assert.IsTrue(taskCancelled);
+        //a lost lease is not a task error - even a StopOnError task stays enabled
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), false,
+            It.IsAny<DateTime>(), false), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ExecuteAsync_RenewalsKeepFailing_CancelsTheRunBeforeTheLeaseRunsOut()
+    {
+        DateTime? leasedUntilUtc = null;
+        _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
+            .Callback<string, DateTime?, DateTime, DateTime, string>((_, _, _, until, _) => leasedUntilUtc = until)
+            .ReturnsAsync(true);
+        _scheduleTaskServiceMock.Setup(s => s.RenewTaskLease(_task.Id, It.IsAny<string>(), It.IsAny<DateTime>()))
+            .ThrowsAsync(new TimeoutException("database unavailable"));
+        DateTime? cancelledUtc = null;
+        _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>()))
+            .Returns(async (CancellationToken cancellationToken) => {
+                try
+                {
+                    await Task.Delay(Timeout.Infinite, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    cancelledUtc = DateTime.UtcNow;
+                    throw;
+                }
+            });
+
+        var service = new BackgroundServiceTask(TaskName, _serviceProvider, TimeSpan.FromMilliseconds(200),
+            TimeSpan.FromSeconds(1));
+        using var cts = new CancellationTokenSource();
+        await service.StartAsync(cts.Token);
+
+        await WaitFor(() => _scheduleTaskServiceMock.Invocations.Any(i =>
+            i.Method.Name == nameof(IScheduleTaskService.CompleteTaskRun)));
+        cts.Cancel();
+
+        //once the lease runs out another instance may claim the task - this run must be stopped by then
+        Assert.IsNotNull(cancelledUtc);
+        Assert.IsTrue(cancelledUtc < leasedUntilUtc, $"cancelled at {cancelledUtc:O}, lease until {leasedUntilUtc:O}");
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), false,
+            It.IsAny<DateTime>(), false), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ExecuteAsync_ApplicationStopping_CancelsTheRunningTask()
+    {
+        _task.StopOnError = true;
+        _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
+            .ReturnsAsync(true);
+        var started = false;
+        var taskCancelled = false;
+        _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>()))
+            .Returns(async (CancellationToken cancellationToken) => {
+                started = true;
+                try
+                {
+                    await Task.Delay(Timeout.Infinite, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    taskCancelled = true;
+                    throw;
+                }
+            });
+
+        var service = new BackgroundServiceTask(TaskName, _serviceProvider);
+        await service.StartAsync(CancellationToken.None);
+        await WaitFor(() => started);
+
+        await service.StopAsync(CancellationToken.None);
+
+        Assert.IsTrue(taskCancelled);
+        //the lease is released on the way out, so another instance need not wait for it to run out,
+        //and a shutdown is not a task error - even a StopOnError task stays enabled
+        _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, It.IsAny<string>(), false,
+            It.IsAny<DateTime>(), false), Times.Once);
     }
 
     private static async Task WaitFor(Func<bool> condition)

@@ -21,7 +21,7 @@ public class ClearCacheScheduleTaskTests
     [TestMethod]
     public async Task Execute_InvokeExpectedMethod()
     {
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
         _cacheMock.Verify(c => c.Clear(It.IsAny<bool>()), Times.Once);
     }
 }

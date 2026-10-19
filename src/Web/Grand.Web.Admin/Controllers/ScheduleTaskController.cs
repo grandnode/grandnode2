@@ -10,6 +10,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Hosting;
 using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
@@ -23,12 +24,14 @@ public class ScheduleTaskController : BaseAdminController
         IScheduleTaskService scheduleTaskService,
         IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
-        IStoreService storeService)
+        IStoreService storeService,
+        IHostApplicationLifetime applicationLifetime)
     {
         _scheduleTaskService = scheduleTaskService;
         _translationService = translationService;
         _dateTimeService = dateTimeService;
         _storeService = storeService;
+        _applicationLifetime = applicationLifetime;
     }
 
     #endregion
@@ -39,6 +42,7 @@ public class ScheduleTaskController : BaseAdminController
     private readonly IRequestTranslationService _translationService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IStoreService _storeService;
+    private readonly IHostApplicationLifetime _applicationLifetime;
 
     #endregion
 
@@ -137,7 +141,9 @@ public class ScheduleTaskController : BaseAdminController
                 scheduleTask.LastStartUtc = DateTime.UtcNow;
                 try
                 {
-                    await task.Execute();
+                    //stopped only when the application stops - not when the browser or a proxy
+                    //gives up on a long request, which would leave the run half done
+                    await task.Execute(_applicationLifetime.ApplicationStopping);
                     scheduleTask.LastSuccessUtc = DateTime.UtcNow;
                     scheduleTask.LastNonSuccessEndUtc = null;
                     Success(_translationService.GetResource("Admin.System.ScheduleTasks.RunNow.Done"));

@@ -21,7 +21,7 @@ public class DeleteGuestsScheduleTask : IScheduleTask
     /// <summary>
     ///     Executes a task
     /// </summary>
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         var olderThanMinutes = _systemSettings.DeleteGuestTaskOlderThanMinutes;
         // Default value in case 0 is returned.  0 would effectively disable this service and harm performance.

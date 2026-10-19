@@ -31,7 +31,7 @@ public class GenerateSitemapXmlTask : IScheduleTask
     /// <summary>
     ///     Executes a task
     /// </summary>
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         var stores = await _storeService.GetAllStores();
         var languages = await _languageService.GetAllLanguages();
@@ -43,10 +43,12 @@ public class GenerateSitemapXmlTask : IScheduleTask
             var storeLanguages = await _languageService.GetAllLanguages(storeId: store.Id);
             foreach (var lang in storeLanguages)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var siteMap = await _mediator.Send(new GetSitemapXmlCommand {
                     Language = lang,
                     Store = store
-                });
+                }, cancellationToken);
 
                 if (!(stores.Count == 1 && languages.Count == 1))
                     file = $"sitemap-{store.Shortcut}-{lang.UniqueSeoCode}.xml";

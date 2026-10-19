@@ -18,7 +18,7 @@ public class ClearCacheScheduleTask : IScheduleTask
     /// <summary>
     ///     Executes a task
     /// </summary>
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         await _cacheBase.Clear();
     }

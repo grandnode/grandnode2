@@ -13,7 +13,7 @@ public class DeleteOidcSessionsScheduleTaskTests
     {
         var sessions = new Mock<IOidcSessionService>();
         var revocations = new Mock<IOidcTokenRevocationService>();
-        await new DeleteOidcSessionsScheduleTask(sessions.Object, revocations.Object).Execute();
+        await new DeleteOidcSessionsScheduleTask(sessions.Object, revocations.Object).Execute(CancellationToken.None);
         sessions.Verify(x => x.DeleteExpired(), Times.Once);
         revocations.Verify(x => x.DeleteExpired(), Times.Once);
     }
