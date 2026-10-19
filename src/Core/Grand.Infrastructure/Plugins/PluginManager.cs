@@ -192,9 +192,21 @@ public static class PluginManager
     {
         ArgumentNullException.ThrowIfNull(typeAssembly);
 
+        return FindPlugin(typeAssembly.GetTypeInfo().Assembly);
+    }
+
+    /// <summary>
+    ///     Find the plugin an assembly belongs to
+    /// </summary>
+    /// <param name="assembly">Assembly</param>
+    /// <returns>Plugin descriptor if exists; otherwise null</returns>
+    public static PluginInfo FindPlugin(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
         return ReferencedPlugins?.FirstOrDefault(plugin => plugin.ReferencedAssembly != null
                                                            && plugin.ReferencedAssembly.FullName!.Equals(
-                                                               typeAssembly.GetTypeInfo().Assembly.FullName,
+                                                               assembly.FullName,
                                                                StringComparison.OrdinalIgnoreCase));
     }
 
