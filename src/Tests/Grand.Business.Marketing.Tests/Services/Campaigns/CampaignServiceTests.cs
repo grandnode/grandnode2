@@ -46,9 +46,7 @@ public class CampaignServiceTests
         _storeServiceMock = new Mock<IStoreService>();
         _languageServiceMock = new Mock<ILanguageService>();
         _campaignMessageRendererMock = new Mock<ICampaignMessageRenderer>();
-        _campaignMessageRendererMock.Setup(x => x.Render(It.IsAny<Campaign>(), It.IsAny<Store>(), It.IsAny<Language>(),
-                It.IsAny<EmailAccount>(), It.IsAny<DomainHost>(), It.IsAny<Customer>(), It.IsAny<Currency>(),
-                It.IsAny<TaxDisplayType>(), It.IsAny<NewsLetterSubscription>(), It.IsAny<string>()))
+        _campaignMessageRendererMock.Setup(x => x.Render(It.IsAny<Campaign>(), It.IsAny<CampaignRecipient>()))
             .ReturnsAsync(new CampaignMessage("subject", "body"));
         _campaignService = new CampaignService(_campaignRepository, _campaignHistoryRepository,
             _newsLetterSubscriptionRepository, _customerRepository,
@@ -230,9 +228,11 @@ public class CampaignServiceTests
         Assert.IsNotNull(queuedEmail);
         Assert.AreEqual("subject", queuedEmail.Subject);
         Assert.AreEqual("body", queuedEmail.Body);
-        _campaignMessageRendererMock.Verify(x => x.Render(campaign, store, language, emailAccount, host,
-                It.Is<Customer>(c => c.Id == customer.Id), currency, TaxDisplayType.IncludingTax, subscription,
-                queuedEmail.Id),
+        _campaignMessageRendererMock.Verify(x => x.Render(campaign, It.Is<CampaignRecipient>(r =>
+                r.Store == store && r.Language == language && r.EmailAccount == emailAccount && r.Host == host &&
+                r.Customer.Id == customer.Id && r.Currency == currency &&
+                r.TaxDisplayType == TaxDisplayType.IncludingTax && r.Subscription == subscription &&
+                r.QueuedEmailId == queuedEmail.Id)),
             Times.Once);
     }
 }

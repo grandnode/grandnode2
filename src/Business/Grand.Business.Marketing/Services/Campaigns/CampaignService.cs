@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Messages;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Common;
@@ -257,8 +258,11 @@ public class CampaignService(
 
             var email = new QueuedEmail();
 
-            var (subject, body) = await campaignMessageRenderer.Render(campaign, store, language, emailAccount, host,
-                customer, currency, taxDisplayType, subscription, email.Id);
+            var (subject, body) = await campaignMessageRenderer.Render(campaign, new CampaignRecipient {
+                Store = store, Language = language, EmailAccount = emailAccount, Host = host, Customer = customer,
+                Currency = currency, TaxDisplayType = taxDisplayType, Subscription = subscription,
+                QueuedEmailId = email.Id
+            });
 
             email.PriorityId = QueuedEmailPriority.Low;
             email.From = emailAccount.Email;
@@ -304,8 +308,10 @@ public class CampaignService(
                     (await storeService.GetAllStores()).FirstOrDefault();
 
         var customer = customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
-        var (subject, body) = await campaignMessageRenderer.Render(campaign, store, language, emailAccount, host,
-            customer, currency, taxDisplayType);
+        var (subject, body) = await campaignMessageRenderer.Render(campaign, new CampaignRecipient {
+            Store = store, Language = language, EmailAccount = emailAccount, Host = host, Customer = customer,
+            Currency = currency, TaxDisplayType = taxDisplayType
+        });
 
         await emailSender.SendEmail(emailAccount, subject, body, emailAccount.Email, emailAccount.DisplayName, email,
             null);

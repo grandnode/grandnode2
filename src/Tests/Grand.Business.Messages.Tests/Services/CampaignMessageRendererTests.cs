@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Messages;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.Services;
 using Grand.Domain.Customers;
@@ -37,8 +38,11 @@ public class CampaignMessageRendererTests
         var subscription = new NewsLetterSubscription { Email = "subscriber@test.com" };
         var customer = new Customer { Email = "customer@test.com" };
 
-        var result = await _renderer.Render(campaign, _store, new Language(), new EmailAccount(), _host, customer,
-            new Currency(), TaxDisplayType.IncludingTax, subscription, "queued-email-id");
+        var result = await _renderer.Render(campaign, new CampaignRecipient {
+            Store = _store, Language = new Language(), EmailAccount = new EmailAccount(), Host = _host,
+            Customer = customer, Currency = new Currency(), TaxDisplayType = TaxDisplayType.IncludingTax,
+            Subscription = subscription, QueuedEmailId = "queued-email-id"
+        });
 
         Assert.AreEqual("Hi subscriber@test.com", result.Subject);
         Assert.AreEqual("customer@test.com queued-email-id", result.Body);
@@ -53,8 +57,9 @@ public class CampaignMessageRendererTests
             Body = "[{{NewsLetterSubscription.Email}}][{{Customer.Email}}][{{Email.Id}}]"
         };
 
-        var result = await _renderer.Render(campaign, _store, new Language(), new EmailAccount(), _host, null,
-            new Currency(), TaxDisplayType.IncludingTax);
+        var result = await _renderer.Render(campaign, new CampaignRecipient {
+            Store = _store, Language = new Language(), EmailAccount = new EmailAccount(), Host = _host
+        });
 
         Assert.AreEqual("Subject", result.Subject);
         Assert.AreEqual("[][][]", result.Body);
