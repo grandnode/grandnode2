@@ -70,8 +70,7 @@ public class MigrationProcess : IMigrationProcess
             return;
         }
 
-        var migrationManager = new MigrationManager();
-        foreach (var item in migrationManager.GetCurrentMigrations(installedVersion))
+        foreach (var item in GetCurrentMigrations(installedVersion))
         {
             if (migrationsDb.Any(x => x.Identity == item.Identity))
                 continue;
@@ -87,6 +86,11 @@ public class MigrationProcess : IMigrationProcess
         }
     }
 
+    protected virtual IEnumerable<IMigration> GetCurrentMigrations(DbVersion installedVersion)
+    {
+        return new MigrationManager().GetCurrentMigrations(installedVersion);
+    }
+
     private static DbVersion? ParseDbVersion(string? version)
     {
         var parts = version?.Split('.');
@@ -100,11 +104,22 @@ public class MigrationProcess : IMigrationProcess
 
     private async Task<MigrationResult> RunProcessInternal(IMigration migration)
     {
-        var model = new MigrationResult {
-            Success = await migration.UpgradeProcess(_serviceProvider),
+        bool success;
+        try
+        {
+            success = await migration.UpgradeProcess(_serviceProvider);
+        }
+        catch (Exception ex)
+        {
+            //a migration that throws counts as failed - it is not recorded and runs again on the next start
+            _logger.LogError(ex, "Migration {MigrationName} threw an exception", migration.Name);
+            success = false;
+        }
+
+        return new MigrationResult {
+            Success = success,
             Migration = migration
         };
-        return model;
     }
 
     private Task SaveMigration(MigrationResult migrationResult, bool install = false)

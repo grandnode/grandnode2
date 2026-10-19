@@ -25,9 +25,9 @@ public class MigrationSystemPermission : IMigration
         var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
         var customerGroupRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroup>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
-        var administrator = await customerGroupRepository.FirstOrDefaultAsync(customerGroupRepository.Table.Where(x => x.SystemName == SystemCustomerGroupNames.Administrators));
         try
         {
+            var administrator = await customerGroupRepository.FirstOrDefaultAsync(customerGroupRepository.Table.Where(x => x.SystemName == SystemCustomerGroupNames.Administrators));
             var permission = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == PermissionSystemName.System));
             if (permission == null)
             {

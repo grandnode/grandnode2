@@ -25,7 +25,8 @@ public class MigrationUpdateStore : IMigration
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateStore>>();
         try
         {
-            foreach (var store in repository.Table)
+            var stores = await repository.ToListAsync(repository.Table);
+            foreach (var store in stores)
                 if (!store.Domains.Any())
                 {
                     var storeUri = new Uri(store.Url);

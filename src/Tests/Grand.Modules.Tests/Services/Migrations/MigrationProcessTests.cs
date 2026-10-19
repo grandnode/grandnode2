@@ -64,10 +64,71 @@ public class MigrationProcessTests
     }
 
     [TestMethod]
+    public async Task RunProcess_MigrationThrows_ReportsFailureWithoutRecording()
+    {
+        var migration = Migration(true);
+        migration.Setup(x => x.UpgradeProcess(It.IsAny<IServiceProvider>()))
+            .ThrowsAsync(new InvalidOperationException("database unavailable"));
+
+        var result = await _migrationProcess.RunProcess(migration.Object);
+
+        Assert.IsFalse(result.Success);
+        Assert.IsFalse(_migrationRepository.Table.Any());
+    }
+
+    [TestMethod]
     public async Task RunMigrationProcess_NoVersionRecord_RunsNothing()
     {
         await _migrationProcess.RunMigrationProcess();
 
         Assert.IsFalse(_migrationRepository.Table.Any());
+    }
+
+    [TestMethod]
+    public async Task RunMigrationProcess_FailedMigration_StopsTheRun()
+    {
+        await _versionRepository.InsertAsync(new GrandNodeVersion { InstalledVersion = "2.4" });
+        var pending = new[] { Migration(true).Object, Migration(true).Object, Migration(true).Object };
+
+        var process = new RecordingMigrationProcess(_serviceProvider, _migrationRepository, _versionRepository,
+            pending, failing: pending[1]);
+        await process.RunMigrationProcess();
+
+        CollectionAssert.AreEqual(new[] { pending[0].Identity, pending[1].Identity }, process.Ran);
+    }
+
+    [TestMethod]
+    public async Task RunMigrationProcess_SkipsRecordedMigrations()
+    {
+        await _versionRepository.InsertAsync(new GrandNodeVersion { InstalledVersion = "2.4" });
+        var pending = new[] { Migration(true).Object, Migration(true).Object };
+        await _migrationRepository.InsertAsync(new MigrationDb { Identity = pending[0].Identity });
+
+        var process = new RecordingMigrationProcess(_serviceProvider, _migrationRepository, _versionRepository,
+            pending, failing: null);
+        await process.RunMigrationProcess();
+
+        CollectionAssert.AreEqual(new[] { pending[1].Identity }, process.Ran);
+    }
+
+    private class RecordingMigrationProcess(
+        IServiceProvider serviceProvider,
+        IRepository<MigrationDb> repositoryMigration,
+        IRepository<GrandNodeVersion> repositoryVersion,
+        IList<IMigration> pending,
+        IMigration failing)
+        : MigrationProcess(Mock.Of<IDatabaseContext>(), serviceProvider, NullLogger<MigrationProcess>.Instance,
+            repositoryMigration, repositoryVersion)
+    {
+        public List<Guid> Ran { get; } = [];
+
+        //MigrationManager scans every loaded assembly, Moq proxies of IMigration included
+        protected override IEnumerable<IMigration> GetCurrentMigrations(DbVersion installedVersion) => pending;
+
+        public override Task<MigrationResult> RunProcess(IMigration migration)
+        {
+            Ran.Add(migration.Identity);
+            return Task.FromResult(new MigrationResult { Migration = migration, Success = migration != failing });
+        }
     }
 }

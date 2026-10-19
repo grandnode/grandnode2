@@ -21,6 +21,12 @@ public static class MigrationUpdateResource
         {
             var language = await langRepository.FirstOrDefaultAsync(langRepository.Table.Where(l => l.Name == "English")) ??
                            await langRepository.FirstOrDefaultAsync(langRepository.Table);
+            if (language == null)
+            {
+                //no language to import into - nothing to do
+                logService.LogWarning("UpgradeProcess - ImportLanguageResourcesFromXml {Filename}: no language found", filename);
+                return true;
+            }
 
             var filePath = Path.Combine(hostingEnvironment.ContentRootPath, filename);
             var localesXml = await File.ReadAllTextAsync(filePath);
@@ -29,13 +35,22 @@ public static class MigrationUpdateResource
 
             var translateResources = XmlExtensions.ParseTranslationResources(xmlDoc);
 
+            //a failed run is retried on the next start - skip the resources it already inserted
+            var existingNames = (await lsrRepository.ToListAsync(lsrRepository.Table
+                    .Where(x => x.LanguageId == language.Id)
+                    .Select(x => x.Name)))
+                .ToHashSet();
+
             foreach (var item in translateResources)
             {
+                var name = item.Name.ToLowerInvariant();
+                if (!existingNames.Add(name)) continue;
+
                 _ = Enum.TryParse(item.Area, out TranslationResourceArea areaEnum);
 
                 await lsrRepository.InsertAsync(new TranslationResource {
-                    LanguageId = language!.Id,
-                    Name = item.Name.ToLowerInvariant(),
+                    LanguageId = language.Id,
+                    Name = name,
                     Value = item.Value,
                     Area = areaEnum,
                     CreatedBy = "System"
@@ -45,6 +60,7 @@ public static class MigrationUpdateResource
         catch (Exception ex)
         {
             logService.LogError(ex, "UpgradeProcess - ImportLanguageResourcesFromXml {Filename}", filename);
+            return false;
         }
 
         return true;

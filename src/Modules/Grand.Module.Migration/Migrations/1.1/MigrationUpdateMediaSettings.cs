@@ -24,11 +24,11 @@ public class MigrationUpdateMediaSettings : IMigration
     public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Setting>>();
-        var mediaSettings = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.Name == "mediasettings"));        
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateMediaSettings>>();
 
         try
         {
+            var mediaSettings = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.Name == "mediasettings"));
             if (mediaSettings != null)
             {
                 var metadata = mediaSettings.Metadata;
