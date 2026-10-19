@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Messages;
 using Grand.Business.Marketing.Services.Campaigns;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
@@ -24,6 +25,7 @@ public class CampaignServiceTests
     private IRepository<Campaign> _campaignRepository;
     private CampaignService _campaignService;
     private IRepository<Customer> _customerRepository;
+    private Mock<ICampaignMessageRenderer> _campaignMessageRendererMock;
     private Mock<IEmailSender> _emailSenderMock;
     private Mock<ILanguageService> _languageServiceMock;
     private Mock<IMediator> _mediatorMock;
@@ -43,10 +45,13 @@ public class CampaignServiceTests
         _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
         _storeServiceMock = new Mock<IStoreService>();
         _languageServiceMock = new Mock<ILanguageService>();
+        _campaignMessageRendererMock = new Mock<ICampaignMessageRenderer>();
+        _campaignMessageRendererMock.Setup(x => x.Render(It.IsAny<Campaign>(), It.IsAny<CampaignRecipient>()))
+            .ReturnsAsync(new CampaignMessage("subject", "body"));
         _campaignService = new CampaignService(_campaignRepository, _campaignHistoryRepository,
             _newsLetterSubscriptionRepository, _customerRepository,
             _emailSenderMock.Object, _queuedEmailServiceMock.Object, _storeServiceMock.Object, _mediatorMock.Object,
-            _languageServiceMock.Object);
+            _languageServiceMock.Object, _campaignMessageRendererMock.Object);
     }
 
     [TestMethod]
@@ -188,8 +193,46 @@ public class CampaignServiceTests
 
         //Assert
         _emailSenderMock.Verify(
-            c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            c => c.SendEmail(It.IsAny<EmailAccount>(), "subject", "body", It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null, null, null, null, null, null, null),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SendCampaign_ToSubscriptions_RendersEachRecipientWithItsQueuedEmail()
+    {
+        //Arrange
+        var campaign = new Campaign { Name = "test", StoreId = "1" };
+        var customer = new Customer { Email = "test@test.com", Active = true };
+        await _customerRepository.InsertAsync(customer);
+        var subscription = new NewsLetterSubscription
+            { StoreId = "1", Active = true, Email = "test@test.com", CustomerId = customer.Id };
+        var store = new Store { Id = "1" };
+        var language = new Language();
+        var emailAccount = new EmailAccount { Email = "from@test.com" };
+        var currency = new Currency();
+        var host = new DomainHost { Url = "https://localhost/" };
+
+        _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>())).ReturnsAsync(language);
+        _storeServiceMock.Setup(x => x.GetStoreById("1")).ReturnsAsync(store);
+        QueuedEmail queuedEmail = null;
+        _queuedEmailServiceMock.Setup(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()))
+            .Callback<QueuedEmail>(x => queuedEmail = x);
+
+        //Act
+        var sent = await _campaignService.SendCampaign(campaign, emailAccount, [subscription], currency,
+            TaxDisplayType.IncludingTax, host);
+
+        //Assert
+        Assert.AreEqual(1, sent);
+        Assert.IsNotNull(queuedEmail);
+        Assert.AreEqual("subject", queuedEmail.Subject);
+        Assert.AreEqual("body", queuedEmail.Body);
+        _campaignMessageRendererMock.Verify(x => x.Render(campaign, It.Is<CampaignRecipient>(r =>
+                r.Store == store && r.Language == language && r.EmailAccount == emailAccount && r.Host == host &&
+                r.Customer.Id == customer.Id && r.Currency == currency &&
+                r.TaxDisplayType == TaxDisplayType.IncludingTax && r.Subscription == subscription &&
+                r.QueuedEmailId == queuedEmail.Id)),
             Times.Once);
     }
 }

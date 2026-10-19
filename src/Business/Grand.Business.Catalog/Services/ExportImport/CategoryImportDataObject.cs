@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Configuration;

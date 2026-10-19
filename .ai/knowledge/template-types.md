@@ -117,7 +117,7 @@ Relevant files:
 - `src/Modules/Grand.Module.Installer/Services/InstallDataMessageTemplates.cs`
 - `src/Business/Grand.Business.Messages/Services/MessageTemplateNames.cs`
 - `src/Business/Grand.Business.Messages/Services/MessageTokenProvider.cs`
-- `src/Business/Grand.Business.Core/Utilities/Messages/DotLiquidDrops`
+- `src/Business/Grand.Business.Messages/DotLiquidDrops`
 
 Follow existing message patterns:
 - Use names like `OrderPlaced.CustomerNotification` or `Service.ContactUs`.

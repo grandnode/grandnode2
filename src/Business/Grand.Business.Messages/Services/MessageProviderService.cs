@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -18,8 +18,8 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
+using Grand.SharedKernel.Extensions;
 using System.Net;
 
 namespace Grand.Business.Messages.Services;

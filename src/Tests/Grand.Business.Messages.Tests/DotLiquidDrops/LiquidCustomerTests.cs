@@ -1,4 +1,4 @@
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;

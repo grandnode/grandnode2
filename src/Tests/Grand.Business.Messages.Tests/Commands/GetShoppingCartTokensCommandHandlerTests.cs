@@ -1,8 +1,8 @@
-using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Messages.Commands.Handlers.Messages;
+using Grand.Business.Messages.Commands.Tokens;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
