@@ -109,12 +109,16 @@ public class ScheduleTaskService : IScheduleTaskService
     /// <summary>
     ///     Extends the lease of a run, only while the given instance still holds it
     /// </summary>
-    public virtual async Task RenewTaskLease(string taskId, string instanceId, DateTime leasedUntilUtc)
+    public virtual async Task<bool> RenewTaskLease(string taskId, string instanceId, DateTime leasedUntilUtc)
     {
         await _taskRepository.UpdateOneAsync(
             x => x.Id == taskId && x.LeasedByInstance == instanceId && x.LeasedUntilUtc != null,
             UpdateBuilder<ScheduleTask>.Create()
                 .Set(x => x.LeasedUntilUtc, TruncateToMilliseconds(leasedUntilUtc)));
+
+        //UpdateOneAsync does not report whether the filter matched - read back the holder
+        var task = await GetTaskById(taskId);
+        return task != null && task.LeasedByInstance == instanceId && task.LeasedUntilUtc != null;
     }
 
     /// <summary>

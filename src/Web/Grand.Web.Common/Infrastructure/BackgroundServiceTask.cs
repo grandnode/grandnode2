@@ -18,12 +18,19 @@ public class BackgroundServiceTask : BackgroundService
     private static readonly string InstanceId = Guid.NewGuid().ToString("N");
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly TimeSpan _leaseRenewInterval;
     private readonly string Name;
 
     public BackgroundServiceTask(string name, IServiceProvider serviceProvider)
+        : this(name, serviceProvider, LeaseRenewInterval)
+    {
+    }
+
+    internal BackgroundServiceTask(string name, IServiceProvider serviceProvider, TimeSpan leaseRenewInterval)
     {
         Name = name;
         _serviceProvider = serviceProvider;
+        _leaseRenewInterval = leaseRenewInterval;
     }
 
     //how long a claimed run blocks other instances; the running instance renews it while the
@@ -152,10 +159,12 @@ public class BackgroundServiceTask : BackgroundService
             if (claimed)
             {
                 var succeeded = false;
+                var leaseLost = false;
 
-                //keeps other instances off the task while it runs, even past its next due time
+                //keeps other instances off the task while it runs, even past its next due time.
+                //Its token is also the task's: cancelled on shutdown and when the lease is lost
                 using var leaseCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
-                var leaseRenewal = RenewLease(task.Id, logger, leaseCts.Token);
+                var leaseRenewal = RenewLease(task.Id, runStartUtc.Add(LeaseDuration), logger, leaseCts);
                 try
                 {
                     //assign current customer (background task) / current store (from task).
@@ -167,13 +176,20 @@ public class BackgroundServiceTask : BackgroundService
                     contextAccessor.WorkContext = workContext;
 
                     logger.LogInformation("Task {TaskName} execute", Name);
-                    await scheduleTask.Execute();
+                    await scheduleTask.Execute(leaseCts.Token);
                     succeeded = true;
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
                     //application shutdown - do not classify as a task failure
                     throw;
+                }
+                catch (OperationCanceledException) when (leaseCts.IsCancellationRequested)
+                {
+                    //the lease was lost - another instance may run the task now, so this run stopped.
+                    //Not a task error, so it never disables the task
+                    leaseLost = true;
+                    logger.LogWarning("Task {TaskName} stopped: its lease was lost", Name);
                 }
                 catch (Exception exc)
                 {
@@ -192,7 +208,7 @@ public class BackgroundServiceTask : BackgroundService
                 //during the run, and - if the lease ran out and another instance took the task
                 //over - overwrite that instance's claim, letting a third one start
                 await scheduleTaskService.CompleteTaskRun(task.Id, InstanceId, succeeded, DateTime.UtcNow,
-                    !succeeded && task.StopOnError);
+                    !succeeded && !leaseLost && task.StopOnError);
             }
             else
             {
@@ -212,19 +228,32 @@ public class BackgroundServiceTask : BackgroundService
 
     /// <summary>
     /// Extends the lease of the claimed run until cancelled. Uses its own scope: it runs alongside
-    /// the task, which keeps using the iteration's scope. A failed renewal is only logged - the
-    /// lease is several renewals long, and the run itself must not fail because of it.
+    /// the task, which keeps using the iteration's scope. A renewal that throws is only logged - the
+    /// lease is several renewals long. The run is cancelled when another instance holds the lease,
+    /// or when renewals kept failing until the lease ran out: from then on another instance may
+    /// claim the task, and the two must not run side by side.
     /// </summary>
-    private async Task RenewLease(string taskId, ILogger logger, CancellationToken cancellationToken)
+    private async Task RenewLease(string taskId, DateTime leasedUntilUtc, ILogger logger,
+        CancellationTokenSource leaseCts)
     {
+        var cancellationToken = leaseCts.Token;
         while (!cancellationToken.IsCancellationRequested)
             try
             {
-                await Task.Delay(LeaseRenewInterval, cancellationToken);
+                await Task.Delay(_leaseRenewInterval, cancellationToken);
 
                 using var scope = _serviceProvider.CreateScope();
                 var scheduleTaskService = scope.ServiceProvider.GetRequiredService<IScheduleTaskService>();
-                await scheduleTaskService.RenewTaskLease(taskId, InstanceId, DateTime.UtcNow.Add(LeaseDuration));
+                var renewedUntilUtc = DateTime.UtcNow.Add(LeaseDuration);
+                if (await scheduleTaskService.RenewTaskLease(taskId, InstanceId, renewedUntilUtc))
+                {
+                    leasedUntilUtc = renewedUntilUtc;
+                }
+                else
+                {
+                    logger.LogWarning("Task {TaskName} lost its lease to another instance", Name);
+                    await leaseCts.CancelAsync();
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -233,6 +262,8 @@ public class BackgroundServiceTask : BackgroundService
             catch (Exception exc)
             {
                 logger.LogWarning(exc, "Could not renew the lease of task {TaskName}", Name);
+                if (DateTime.UtcNow >= leasedUntilUtc)
+                    await leaseCts.CancelAsync();
             }
     }
 

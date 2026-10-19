@@ -137,7 +137,7 @@ public class ScheduleTaskController : BaseAdminController
                 scheduleTask.LastStartUtc = DateTime.UtcNow;
                 try
                 {
-                    await task.Execute();
+                    await task.Execute(HttpContext.RequestAborted);
                     scheduleTask.LastSuccessUtc = DateTime.UtcNow;
                     scheduleTask.LastNonSuccessEndUtc = null;
                     Success(_translationService.GetResource("Admin.System.ScheduleTasks.RunNow.Done"));

@@ -1,6 +1,9 @@
 ﻿using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
+using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
 using Grand.SharedKernel;
@@ -136,5 +139,39 @@ public class OrderServiceTests
     public void DeleteOrderNote_NullArguments_ThrowException()
     {
         Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteOrderNote(null));
+    }
+
+    [TestMethod]
+    public async Task CancelExpiredOrders_CancelledAfterTheFirstOrder_LeavesTheRestPending()
+    {
+        var orders = new List<Order> {
+            NewExpiredOrder("1"),
+            NewExpiredOrder("2")
+        };
+        _orderRepositoryMock.Setup(c => c.Table).Returns(orders.AsQueryable());
+        using var cts = new CancellationTokenSource();
+        //the order being cancelled is cancelled completely - the token is not passed into it
+        _mediatorMock.Setup(c => c.Send(It.IsAny<CancelOrderCommand>(), CancellationToken.None))
+            .Callback(() => cts.Cancel())
+            .ReturnsAsync(true);
+
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() =>
+            _service.CancelExpiredOrders(DateTime.UtcNow, cts.Token));
+
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1"),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "2"),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static Order NewExpiredOrder(string id)
+    {
+        return new Order {
+            Id = id,
+            CreatedOnUtc = DateTime.UtcNow.AddDays(-10),
+            PaymentStatusId = PaymentStatus.Pending,
+            OrderStatusId = (int)OrderStatusSystem.Pending,
+            ShippingStatusId = ShippingStatus.Pending
+        };
     }
 }

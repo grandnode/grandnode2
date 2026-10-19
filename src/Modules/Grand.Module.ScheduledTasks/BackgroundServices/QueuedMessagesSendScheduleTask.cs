@@ -28,13 +28,15 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
     /// <summary>
     ///     Executes a task
     /// </summary>
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         const int maxTries = 3;
         var queuedEmails = await _queuedEmailService.SearchEmails(null, null, null, null, null, true, true, maxTries,
             false, -1, null, 0, 500);
         foreach (var queuedEmail in queuedEmails)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var bcc = string.IsNullOrWhiteSpace(queuedEmail.Bcc)
                 ? null
                 : queuedEmail.Bcc.Split([';'], StringSplitOptions.RemoveEmptyEntries);
@@ -58,19 +60,24 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
                     cc,
                     queuedEmail.AttachmentFilePath,
                     queuedEmail.AttachmentFileName,
-                    queuedEmail.AttachedDownloads);
+                    queuedEmail.AttachedDownloads,
+                    cancellationToken);
 
                 queuedEmail.SentOnUtc = DateTime.UtcNow;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                //the run was stopped mid-send - the e-mail stays queued for the next run
+                //and the interrupted attempt does not count as a try
+                throw;
             }
             catch (Exception exc)
             {
                 _logger.LogError(exc, "Error sending e-mail. {ExcMessage}", exc.Message);
             }
-            finally
-            {
-                queuedEmail.SentTries = queuedEmail.SentTries + 1;
-                await _queuedEmailService.UpdateQueuedEmail(queuedEmail);
-            }
+
+            queuedEmail.SentTries = queuedEmail.SentTries + 1;
+            await _queuedEmailService.UpdateQueuedEmail(queuedEmail);
         }
     }
 }

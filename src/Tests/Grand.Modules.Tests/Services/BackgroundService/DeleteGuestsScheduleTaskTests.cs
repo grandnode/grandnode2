@@ -25,7 +25,7 @@ public class DeleteGuestsScheduleTaskTests
     public async Task Execute_InovkeExpectedMethod()
     {
         _settings.DeleteGuestTaskOlderThanMinutes = 0;
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
         _customerServiceMock.Verify(
             c => c.DeleteGuestCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<bool>()), Times.Once);
     }

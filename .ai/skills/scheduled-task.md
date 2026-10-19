@@ -24,9 +24,9 @@ Do not use this skill as the primary review for MongoDB query safety or security
 ### Mandatory Rules
 
 #### Task Class
-1. Implement `IScheduleTask` from `Grand.Business.Core.Interfaces.System.ScheduleTasks` with a single `Task Execute()` method.
+1. Implement `IScheduleTask` from `Grand.Business.Core.Interfaces.System.ScheduleTasks` with a single `Task Execute(CancellationToken cancellationToken)` method.
 2. Place the task class in `src/Modules/Grand.Module.ScheduledTasks/BackgroundServices/`.
-3. Resolve all dependencies through constructor injection. `Execute()` takes no parameters and receives no `CancellationToken` from the caller.
+3. Resolve all dependencies through constructor injection. The runner cancels the token when the application stops and when the run loses its lease to another instance. Check it between units of work (one e-mail, one store/language, one auction, one order) with `cancellationToken.ThrowIfCancellationRequested()`, never inside one: cancelling an order or ending an auction must finish once started. Pass it on to calls that only read or talk to the network (mediator queries, SMTP, HTTP), not to commands that change data. A per-item `catch (Exception)` must let a cancellation through (`catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }` first) and must not count the interrupted attempt as a try.
 4. Keep `Execute()` idempotent: running it twice in a row must not corrupt data or duplicate side effects.
 5. For tasks that process a collection of items, wrap each item in its own `try-catch` block. Log the error and continue with the next item; do not let a single-item failure abort the whole run.
 6. Never call `Thread.Sleep`, `Task.Delay`, or any other wait inside `Execute()`. The runner controls the interval.
@@ -88,7 +88,7 @@ Do not use this skill as the primary review for MongoDB query safety or security
 ```csharp
 public interface IScheduleTask
 {
-    Task Execute();
+    Task Execute(CancellationToken cancellationToken);
 }
 ```
 
@@ -148,6 +148,7 @@ Include changed files, DI key, seed values, migration status, and remaining risk
 ## Validation Checklist
 - [ ] Task class implements `IScheduleTask` and lives in `BackgroundServices/`.
 - [ ] `Execute()` is idempotent and does not depend on execution order.
+- [ ] Loops check the token between items, not inside one, and a per-item catch rethrows a cancellation.
 - [ ] Per-item loops use individual `try-catch` blocks.
 - [ ] DI key in `AddKeyedScoped` exactly matches the `ScheduleTaskName` seed value.
 - [ ] Installer seed entry added with appropriate `Enabled` and `TimeInterval`.
@@ -164,7 +165,7 @@ Input: Add a task that deletes expired product reservations every 60 minutes.
 Output:
 1. Create `DeleteExpiredReservationsTask : IScheduleTask` in `BackgroundServices/`.
 2. Inject `IProductReservationService` and `ILogger<DeleteExpiredReservationsTask>`.
-3. In `Execute()`: query expired reservations, delete each inside a `try-catch`, log errors and continue.
+3. In `Execute()`: query expired reservations, delete each inside a `try-catch` after `cancellationToken.ThrowIfCancellationRequested()`, log errors and continue.
 4. Register: `AddKeyedScoped<IScheduleTask, DeleteExpiredReservationsTask>("Delete expired reservations")`.
 5. Seed: `new ScheduleTask { ScheduleTaskName = "Delete expired reservations", Enabled = false, StopOnError = false, TimeInterval = 60 }`.
 

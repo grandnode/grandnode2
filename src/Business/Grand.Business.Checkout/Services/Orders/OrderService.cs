@@ -255,7 +255,8 @@ public class OrderService : IOrderService
     ///     Cancel UnPaid Orders and has pending status
     /// </summary>
     /// <param name="expirationDateUtc">Date at which all unPaid orders and has pending status Would be Canceled</param>
-    public async Task CancelExpiredOrders(DateTime expirationDateUtc)
+    /// <param name="cancellationToken">Checked between orders - an order is always cancelled completely</param>
+    public async Task CancelExpiredOrders(DateTime expirationDateUtc, CancellationToken cancellationToken = default)
     {
         var orders = _orderRepository.Table
             .Where(o => o.CreatedOnUtc < expirationDateUtc && o.PaymentStatusId == PaymentStatus.Pending &&
@@ -265,7 +266,10 @@ public class OrderService : IOrderService
             .ToList();
 
         foreach (var order in orders)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
             await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
+        }
     }
 
     #endregion

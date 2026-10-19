@@ -42,7 +42,7 @@ public class EndAuctionsTask : IScheduleTask
     /// <summary>
     ///     Executes a task
     /// </summary>
-    public async Task Execute()
+    public async Task Execute(CancellationToken cancellationToken)
     {
         var auctionsToEnd = await _auctionService.GetAuctionsToEnd();
         if (!auctionsToEnd.Any()) return;
@@ -52,6 +52,9 @@ public class EndAuctionsTask : IScheduleTask
             await _languageService.GetLanguageOrStoreDefault(_languageSettings.DefaultAdminLanguageId, null);
         foreach (var auctionToEnd in auctionsToEnd)
         {
+            //between auctions only - ending one must finish once started
+            cancellationToken.ThrowIfCancellationRequested();
+
             var bid = (await _auctionService.GetBidsByProductId(auctionToEnd.Id)).MaxBy(x => x.Amount);
             if (bid == null)
             {

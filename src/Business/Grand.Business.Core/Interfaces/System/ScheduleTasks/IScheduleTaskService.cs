@@ -70,7 +70,8 @@ public interface IScheduleTaskService
     /// <param name="taskId">Task identifier</param>
     /// <param name="instanceId">Unique identifier of the application instance running the task</param>
     /// <param name="leasedUntilUtc">New end of the lease</param>
-    Task RenewTaskLease(string taskId, string instanceId, DateTime leasedUntilUtc);
+    /// <returns>False when the instance no longer holds the lease - its run should stop</returns>
+    Task<bool> RenewTaskLease(string taskId, string instanceId, DateTime leasedUntilUtc);
 
     /// <summary>
     ///     Records the result of a claimed run and releases its lease. Writes only the result fields,

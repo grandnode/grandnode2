@@ -41,12 +41,13 @@ public class EmailSender : IEmailSender
     ///     Otherwise, "AttachmentFilePath" name will be used.
     /// </param>
     /// <param name="attachedDownloads">Attachment download ID (another attachment)</param>
+    /// <param name="cancellationToken">Aborts connecting to and sending through the SMTP server</param>
     public virtual async Task SendEmail(EmailAccount emailAccount, string subject, string body,
         string fromAddress, string fromName, string toAddress, string toName,
         string replyToAddress = null, string replyToName = null,
         IEnumerable<string> bccAddresses = null, IEnumerable<string> ccAddresses = null,
         string attachmentFilePath = null, string attachmentFileName = null,
-        IEnumerable<string> attachedDownloads = null)
+        IEnumerable<string> attachedDownloads = null, CancellationToken cancellationToken = default)
 
     {
         var message = new MimeMessage();
@@ -120,9 +121,10 @@ public class EmailSender : IEmailSender
         smtpClient.ServerCertificateValidationCallback =
             (_, _, _, _) => emailAccount.UseServerCertificateValidation;
         await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port,
-            (SecureSocketOptions)emailAccount.SecureSocketOptionsId);
-        await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password);
-        await smtpClient.SendAsync(message);
-        await smtpClient.DisconnectAsync(true);
+            (SecureSocketOptions)emailAccount.SecureSocketOptionsId, cancellationToken);
+        await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password, cancellationToken);
+        await smtpClient.SendAsync(message, cancellationToken);
+        //not cancellable: the message is sent by now, and a cancelled QUIT would report it as not sent
+        await smtpClient.DisconnectAsync(true, CancellationToken.None);
     }
 }

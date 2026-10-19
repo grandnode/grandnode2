@@ -34,7 +34,7 @@ public class UpdateExchangeRateScheduleTaskTests
             .ReturnsAsync(new List<Grand.Domain.Directory.ExchangeRate> { new() { CurrencyCode = "PL", Rate = 10 } });
         _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>()))
             .ReturnsAsync(new Currency { Rate = 10 });
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
 
         _currencyServiceMock.Verify(c => c.UpdateCurrency(It.IsAny<Currency>()), Times.Once);
     }
@@ -43,7 +43,7 @@ public class UpdateExchangeRateScheduleTaskTests
     public async Task Execute_AutoUpdateNotEnable_NotInvokeMethods()
     {
         _settings.AutoUpdateEnabled = false;
-        await _task.Execute();
+        await _task.Execute(CancellationToken.None);
         _currencyServiceMock.Verify(c => c.GetPrimaryExchangeRateCurrency(), Times.Never);
         _exchangeRateServiceMock.Verify(c => c.GetCurrencyLiveRates(It.IsAny<string>()), Times.Never);
         _currencyServiceMock.Verify(c => c.UpdateCurrency(It.IsAny<Currency>()), Times.Never);
