@@ -233,4 +233,59 @@ public class MemoryCacheBaseTests
         cacheManager.Dispose();
         cacheManager.Dispose();
     }
+
+    [TestMethod]
+    public async Task GetAsync_MaxEntriesReached_KeepsAtMostMaxEntries()
+    {
+        var memoryCache = (MemoryCache)MemoryCacheBase.CreateMemoryCache(new CacheConfig { MaxEntries = 2 });
+        var cacheManager = new MemoryCacheBase(memoryCache, _mediatorMock.Object, _config);
+
+        for (var i = 0; i < 5; i++)
+        {
+            var value = await cacheManager.GetAsync($"key{i}", () => Task.FromResult($"value{i}"));
+            //an entry over the limit is not kept, but the caller still gets its value
+            Assert.AreEqual($"value{i}", value);
+        }
+
+        Assert.IsTrue(memoryCache.Count <= 2, $"Cache holds {memoryCache.Count} entries");
+    }
+
+    [TestMethod]
+    public async Task GetAsync_NoMaxEntries_KeepsEveryEntry()
+    {
+        var memoryCache = (MemoryCache)MemoryCacheBase.CreateMemoryCache(new CacheConfig { MaxEntries = 0 });
+        var cacheManager = new MemoryCacheBase(memoryCache, _mediatorMock.Object, _config);
+
+        for (var i = 0; i < 5; i++)
+            await cacheManager.GetAsync($"key{i}", () => Task.FromResult("value"));
+
+        Assert.AreEqual(5, memoryCache.Count);
+    }
+
+    [TestMethod]
+    public async Task RemoveByPrefix_EntryStoredAgainBeforeOldEvictionCallback_IsRemoved()
+    {
+        //MemoryCache runs eviction callbacks on the thread pool, so the callback of a removed entry
+        //usually runs after the same key has been stored again
+        for (var i = 0; i < 50; i++)
+        {
+            await _service.GetAsync($"race{i}", () => Task.FromResult("old"));
+            await _service.RemoveAsync($"race{i}", false);
+            await _service.GetAsync($"race{i}", () => Task.FromResult("new"));
+        }
+
+        await Task.Delay(500);
+        await _service.RemoveByPrefix("race", false);
+
+        for (var i = 0; i < 50; i++)
+            Assert.IsNull(_memoryCache.Get($"race{i}"), $"race{i} was not removed");
+    }
+
+    [TestMethod]
+    public void CreateMemoryCache_IsNotTheSharedCache()
+    {
+        var memoryCache = MemoryCacheBase.CreateMemoryCache(new CacheConfig { MaxEntries = 2 });
+
+        Assert.AreNotSame(_memoryCache, memoryCache);
+    }
 }

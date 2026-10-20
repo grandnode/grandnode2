@@ -52,7 +52,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
             if (!_cache.TryGetValue(key, out cacheEntry))
             {
                 cacheEntry = acquire();
-                _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
+                SetEntry(key, cacheEntry, cacheTime);
             }
         }
         finally
@@ -78,7 +78,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
             if (!_cache.TryGetValue(key, out cacheEntry))
             {
                 cacheEntry = await acquire();
-                _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
+                SetEntry(key, cacheEntry, cacheTime);
             }
         }
         finally
@@ -101,7 +101,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         try
         {
             var cacheEntry = await acquire();
-            _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
+            SetEntry(key, cacheEntry, cacheTime);
             return cacheEntry;
         }
         finally
@@ -158,13 +158,36 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         _resetCacheToken.Dispose();
     }
 
+    /// <summary>
+    ///     Creates the memory cache this manager stores into, holding at most <see cref="CacheConfig.MaxEntries" /> keys.
+    ///     It is not the shared <see cref="IMemoryCache" />: with a size limit there, every Set from other code
+    ///     that gives no size would throw.
+    /// </summary>
+    public static IMemoryCache CreateMemoryCache(CacheConfig cacheConfig)
+    {
+        return new MemoryCache(new MemoryCacheOptions {
+            SizeLimit = cacheConfig.MaxEntries > 0 ? cacheConfig.MaxEntries : null
+        });
+    }
+
     #endregion
 
     #region Utilities
 
+    private void SetEntry<T>(string key, T value, int cacheTime)
+    {
+        _cache.Set(key, value, GetMemoryCacheEntryOptions(cacheTime));
+
+        //the eviction callback of an older entry under this key may have dropped the key meanwhile;
+        //an entry refused at the size limit is not stored, so it is not tracked either
+        if (_cache.TryGetValue(key, out _))
+            CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+    }
+
     private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime)
     {
-        var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime) }
+        //each entry counts as one key against the size limit
+        var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime), Size = 1 }
             .AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
             .RegisterPostEvictionCallback(PostEvictionCallback);
 
@@ -173,8 +196,14 @@ public class MemoryCacheBase : ICacheBase, IDisposable
 
     private void PostEvictionCallback(object key, object value, EvictionReason reason, object state)
     {
-        if (reason != EvictionReason.Replaced)
-            CacheEntries.TryRemove(key.ToString(), out var _);
+        if (reason == EvictionReason.Replaced) return;
+
+        //MemoryCache runs this callback on the thread pool, often after the same key has been stored
+        //again; the newer entry must stay tracked, or RemoveByPrefix would never remove it
+        var cacheKey = key.ToString();
+        CacheEntries.TryRemove(cacheKey, out _);
+        if (_cache.TryGetValue(cacheKey, out _))
+            CacheEntries.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1, 1));
     }
 
     #endregion

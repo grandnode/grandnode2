@@ -120,11 +120,13 @@ public class SlugService : ISlugService
         slug = slug.ToLowerInvariant();
 
         var key = string.Format(CacheKey.URLEntity_BY_SLUG_KEY, slug);
-        return await _cacheBase.GetAsync(key, async () =>
-        {
-            var urlEntity = await GetBySlug(slug);
-            return urlEntity;
-        });
+        var urlEntity = await _cacheBase.GetAsync(key, () => GetBySlug(slug));
+
+        //an unknown slug is not kept: every random URL a crawler tries would stay in the cache
+        if (urlEntity == null)
+            await _cacheBase.RemoveAsync(key, false);
+
+        return urlEntity;
     }
 
     /// <summary>

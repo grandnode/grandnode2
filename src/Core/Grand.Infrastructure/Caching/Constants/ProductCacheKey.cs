@@ -100,19 +100,4 @@ public static partial class CacheKey
     ///     Key pattern to clear cache
     /// </summary>
     public static string PRODUCTTAG_PATTERN_KEY => "Grand.producttag.";
-
-    /// <summary>
-    ///     Key for caching
-    /// </summary>
-    /// <remarks>
-    ///     {0} : customer id
-    ///     {1} : number
-    /// </remarks>
-    public static string RECENTLY_VIEW_PRODUCTS_KEY => "Grand.recentlyviewedproducts-{0}-{1}";
-
-    /// <summary>
-    ///     Key pattern to clear cache
-    ///     {0} customer id
-    /// </summary>
-    public static string RECENTLY_VIEW_PRODUCTS_PATTERN_KEY => "Grand.recentlyviewedproducts-{0}";
 }
