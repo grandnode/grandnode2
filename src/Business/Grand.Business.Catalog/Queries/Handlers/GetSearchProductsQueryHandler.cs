@@ -94,17 +94,17 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         // Order the results
         query = OrderByQueryable(request, query);
 
+        // Get filterable specification attributes if needed; independent of the page, so both queries run at once
+        var filterableTask = ShouldLoadFilterableSpecifications(request)
+            ? GetFilterableSpecificationAttributeOptionIds(querySpecification, cancellationToken)
+            : Task.FromResult(filterableSpecificationAttributeOptionIds);
+
         // Create paged list
-        var products = await _productRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
+        var productsTask = _productRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
 
-        // Get filterable specification attributes if needed
-        if (ShouldLoadFilterableSpecifications(request))
-        {
-            filterableSpecificationAttributeOptionIds =
-                await GetFilterableSpecificationAttributeOptionIds(querySpecification, cancellationToken);
-        }
+        await Task.WhenAll(productsTask, filterableTask);
 
-        return (products, filterableSpecificationAttributeOptionIds);
+        return (await productsTask, await filterableTask);
     }
 
     private static void CleanupRequestParameters(GetSearchProductsQuery request)

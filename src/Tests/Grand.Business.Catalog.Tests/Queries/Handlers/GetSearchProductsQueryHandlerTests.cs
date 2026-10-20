@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -131,5 +132,42 @@ public class GetSearchProductsQueryHandlerTests
         //Assert
         CollectionAssert.AreEquivalent(new[] { "red", "large" },
             result.filterableSpecificationAttributeOptionIds.ToList());
+    }
+
+    [TestMethod]
+    public async Task Handle_WhenFilterableSpecificationsRequested_StartsBothQueriesBeforeAwaitingEither()
+    {
+        //Arrange
+        //each query completes only once the other one was started, so a sequential handler times out
+        var pageStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var optionsStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var repository = new Mock<IRepository<Product>>();
+        repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
+        repository.Setup(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(async () => {
+                pageStarted.TrySetResult();
+                await optionsStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                return new PagedList<Product>([new Product { Id = "1" }], 0, 10, 1);
+            });
+        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<string>>(), It.IsAny<CancellationToken>()))
+            .Returns(async () => {
+                optionsStarted.TrySetResult();
+                await pageStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                return new List<string> { "red" };
+            });
+        var filteringHandler = new GetSearchProductsQueryHandler(repository.Object,
+            new Mock<ISpecificationAttributeService>().Object,
+            new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig(),
+            new DatabaseConfig(), Mock.Of<IDatabaseContext>(),
+            NullLogger<GetSearchProductsQueryHandler>.Instance);
+        var searchProductsQuery = new GetSearchProductsQuery {
+            Customer = new Customer(), LoadFilterableSpecificationAttributeOptionIds = true
+        };
+        //Act
+        var result = await filteringHandler.Handle(searchProductsQuery, CancellationToken.None);
+        //Assert
+        Assert.AreEqual("1", result.products.Single().Id);
+        CollectionAssert.AreEqual(new[] { "red" }, result.filterableSpecificationAttributeOptionIds.ToList());
     }
 }
