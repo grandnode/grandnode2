@@ -12,8 +12,8 @@ namespace Grand.Business.Catalog.Queries.Handlers;
 
 public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQuery, (IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
 {
-    //the missing index is reported once per process, not on every search
-    private static int _missingTextIndexReported;
+    //the missing index is reported once per process, not on every search; a race may report it twice
+    private static bool _missingTextIndexReported;
 
     private readonly AccessControlConfig _accessControlConfig;
     private readonly CatalogSettings _catalogSettings;
@@ -60,10 +60,13 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 //no text index - not created, dropped or being built: scan as before
-                if (Interlocked.Exchange(ref _missingTextIndexReported, 1) == 0)
+                if (!_missingTextIndexReported)
+                {
+                    _missingTextIndexReported = true;
                     _logger.LogWarning(ex,
                         "Product keyword search through the text index {IndexName} failed and scans instead. Create the index - see UseProductTextSearch in appsettings.json",
                         ProductTextIndex.Name);
+                }
             }
 
         return await Search(request, allowedCustomerGroupsIds, null, cancellationToken);
