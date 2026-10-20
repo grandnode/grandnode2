@@ -22,11 +22,11 @@ public class GetPriceByCustomerProductQueryHandler : IRequestHandler<GetPriceByC
     public async Task<double?> Handle(GetPriceByCustomerProductQuery request, CancellationToken cancellationToken)
     {
         var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, request.CustomerId, request.ProductId);
-        var productPrice = await _cacheBase.GetAsync(key, async () => 
-        {
-            var pp = _customerProductPriceRepository.Table.FirstOrDefault(x => x.CustomerId == request.CustomerId && x.ProductId == request.ProductId);
-            return await Task.FromResult(pp);
-        });
+        var productPrice = await _cacheBase.GetAsync(key, () =>
+            _customerProductPriceRepository.FirstOrDefaultAsync(
+                _customerProductPriceRepository.Table.Where(x =>
+                    x.CustomerId == request.CustomerId && x.ProductId == request.ProductId),
+                cancellationToken));
 
         return productPrice?.Price;
     }

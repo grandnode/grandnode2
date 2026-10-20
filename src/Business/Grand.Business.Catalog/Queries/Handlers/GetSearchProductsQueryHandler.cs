@@ -40,7 +40,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     }
     public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Handle(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
-        var filterableSpecificationAttributeOptionIds = new List<string>();
+        IList<string> filterableSpecificationAttributeOptionIds = new List<string>();
 
         // Clean up request parameters
         CleanupRequestParameters(request);
@@ -70,7 +70,8 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         // Get filterable specification attributes if needed
         if (ShouldLoadFilterableSpecifications(request))
         {
-            filterableSpecificationAttributeOptionIds = GetFilterableSpecificationAttributeOptionIds(querySpecification);
+            filterableSpecificationAttributeOptionIds =
+                await GetFilterableSpecificationAttributeOptionIds(querySpecification, cancellationToken);
         }
 
         return (products, filterableSpecificationAttributeOptionIds);
@@ -160,7 +161,8 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
                !_catalogSettings.IgnoreFilterableSpecAttributeOption;
     }
 
-    private static List<string> GetFilterableSpecificationAttributeOptionIds(IQueryable<Product> querySpecification)
+    private async Task<IList<string>> GetFilterableSpecificationAttributeOptionIds(
+        IQueryable<Product> querySpecification, CancellationToken cancellationToken)
     {
         var filterSpecExists = querySpecification.Where(x =>
             x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
@@ -169,13 +171,12 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
                    from item in p.ProductSpecificationAttributes
                    select item;
 
-        var groupQuerySpec = spec.Where(x => x.AllowFiltering)
-            .GroupBy(x => new { x.SpecificationAttributeOptionId })
-            .ToList();
+        //only the option ids leave the database, not the grouped attributes
+        var optionIds = spec.Where(x => x.AllowFiltering)
+            .Select(x => x.SpecificationAttributeOptionId)
+            .Distinct();
 
-        return groupQuerySpec
-            .Select(item => item.Key.SpecificationAttributeOptionId)
-            .ToList();
+        return await _productRepository.ToListAsync(optionIds, cancellationToken);
     }
 
     private IQueryable<Product> FilterQueryable(GetSearchProductsQuery request, IQueryable<Product> query, string[] allowedCustomerGroupsIds)
