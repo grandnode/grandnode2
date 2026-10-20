@@ -4,20 +4,22 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
 public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQuery, (IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
 {
+    //the missing index is reported once per process, not on every search
+    private static int _missingTextIndexReported;
+
     private readonly AccessControlConfig _accessControlConfig;
-    private readonly ICacheBase _cacheBase;
     private readonly CatalogSettings _catalogSettings;
     private readonly IDatabaseContext _databaseContext;
     private readonly DatabaseConfig _databaseConfig;
+    private readonly ILogger<GetSearchProductsQueryHandler> _logger;
     private readonly IRepository<Product> _productRepository;
     private readonly ISpecificationAttributeService _specificationAttributeService;
 
@@ -28,7 +30,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         AccessControlConfig accessControlConfig,
         DatabaseConfig databaseConfig,
         IDatabaseContext databaseContext,
-        ICacheBase cacheBase)
+        ILogger<GetSearchProductsQueryHandler> logger)
     {
         _productRepository = productRepository;
         _specificationAttributeService = specificationAttributeService;
@@ -36,7 +38,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         _accessControlConfig = accessControlConfig;
         _databaseConfig = databaseConfig;
         _databaseContext = databaseContext;
-        _cacheBase = cacheBase;
+        _logger = logger;
     }
     public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Handle(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
@@ -49,7 +51,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
                                            ? []
                                            : request.Customer.GetCustomerGroupIds());
 
-        var search = await TextSearchTerms(request, cancellationToken);
+        var search = TextSearchTerms(request);
         if (search != null)
             try
             {
@@ -57,9 +59,11 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                //the index stopped answering after it was found ready - dropped or being rebuilt. Check it again
-                //on the next search and scan as before now
-                await _cacheBase.RemoveAsync(CacheKey.PRODUCTS_TEXT_INDEX_KEY);
+                //no text index - not created, dropped or being built: scan as before
+                if (Interlocked.Exchange(ref _missingTextIndexReported, 1) == 0)
+                    _logger.LogWarning(ex,
+                        "Product keyword search through the text index {IndexName} failed and scans instead. Create the index - see UseProductTextSearch in appsettings.json",
+                        ProductTextIndex.Name);
             }
 
         return await Search(request, allowedCustomerGroupsIds, null, cancellationToken);
@@ -330,7 +334,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         return query;
     }
 
-    private async Task<string> TextSearchTerms(GetSearchProductsQuery request, CancellationToken cancellationToken)
+    private string TextSearchTerms(GetSearchProductsQuery request)
     {
         //staff search by fragments and partial SKUs. The text index does not cover descriptions
         if (!_databaseConfig.UseProductTextSearch || request.ShowHidden || request.SearchDescriptions ||
@@ -341,14 +345,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         var search = request.Keywords.Replace('"', ' ').Replace('-', ' ');
 
         //$text finds no word in punctuation alone, nor a part of a text written without spaces between words
-        if (!search.Any(char.IsLetterOrDigit) || search.Any(IsUnspacedScript))
-            return null;
-
-        //until the index is built, or when it failed to build, keyword search scans as before
-        return await _cacheBase.GetAsync(CacheKey.PRODUCTS_TEXT_INDEX_KEY,
-            () => _databaseContext.TextIndexExists(_productRepository, ProductTextIndex.Name, cancellationToken), 1)
-            ? search
-            : null;
+        return search.Any(char.IsLetterOrDigit) && !search.Any(IsUnspacedScript) ? search : null;
     }
 
     private static bool IsUnspacedScript(char c)

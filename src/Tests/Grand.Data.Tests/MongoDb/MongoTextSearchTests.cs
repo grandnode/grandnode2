@@ -41,7 +41,7 @@ public class MongoTextSearchTests
         await Assert.ThrowsAsync<MongoCommandException>(() =>
             _context.CreateTextIndex(_repository, ["Name", "Phones"], IndexName));
 
-        Assert.IsTrue(await _context.TextIndexExists(_repository, IndexName));
+        Assert.AreEqual(1, (await TextIndexes()).Count(x => x["name"] == IndexName));
     }
 
     [TestMethod]
@@ -50,22 +50,22 @@ public class MongoTextSearchTests
         await Assert.ThrowsAsync<MongoCommandException>(() =>
             _context.CreateTextIndex(_repository, ["Name", "Phones"], IndexName + "_v2"));
 
-        Assert.IsTrue(await _context.TextIndexExists(_repository, IndexName));
-        Assert.IsFalse(await _context.TextIndexExists(_repository, IndexName + "_v2"));
+        CollectionAssert.AreEqual(new[] { IndexName },
+            (await TextIndexes()).Select(x => x["name"].AsString).ToArray());
     }
 
     [TestMethod]
-    public async Task TextIndexExists_Built_True()
-    {
-        Assert.IsTrue(await _context.TextIndexExists(_repository, IndexName));
-    }
-
-    [TestMethod]
-    public async Task TextIndexExists_NoSuchIndex_False()
+    public async Task TextSearch_NoIndex_Throws()
     {
         await _context.DeleteIndex(_repository, IndexName);
 
-        Assert.IsFalse(await _context.TextIndexExists(_repository, IndexName));
+        Assert.ThrowsExactly<MongoCommandException>(() => _context.TextSearch(_repository, "phone").ToList());
+    }
+
+    private async Task<List<MongoDB.Bson.BsonDocument>> TextIndexes()
+    {
+        return (await _repository.Collection.Indexes.ListAsync()).ToList()
+            .Where(x => x.Contains("weights")).ToList();
     }
 
     [TestMethod]

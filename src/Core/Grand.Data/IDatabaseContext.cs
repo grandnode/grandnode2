@@ -20,15 +20,9 @@ public interface IDatabaseContext
         CancellationToken cancellationToken = default) where T : BaseEntity;
 
     /// <summary>
-    ///     Whether the text index exists and answers queries - false while it is being built, when the check
-    ///     itself fails and where the provider has no text indexes
-    /// </summary>
-    Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName,
-        CancellationToken cancellationToken = default) where T : BaseEntity;
-
-    /// <summary>
     ///     Gets the repository's table narrowed to documents with a whole word of the search through the text
-    ///     index. Further filters go on top of it. Without text indexes the table comes back unchanged
+    ///     index. Further filters go on top of it. Without text indexes the table comes back unchanged; when the
+    ///     index is missing, executing the query fails
     /// </summary>
     IQueryable<T> TextSearch<T>(IRepository<T> repository, string search) where T : BaseEntity;
 }

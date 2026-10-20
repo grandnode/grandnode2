@@ -7,10 +7,8 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Customers;
-using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Tests.Caching;
-using Grand.Mediator;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -35,8 +33,7 @@ public class GetSearchProductsQueryHandlerTextSearchTests
         return new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object,
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
             new DatabaseConfig { UseProductTextSearch = textSearch }, _databaseContext,
-            new MemoryCacheBase(MemoryCacheTest.Get(), new Mock<IMediator>().Object,
-                new CacheConfig { DefaultCacheTimeMinutes = 1 }));
+            NullLogger<GetSearchProductsQueryHandler>.Instance);
     }
 
     private Task Insert(string id, string name, string sku = null, IList<TranslationEntity> locales = null,
@@ -140,7 +137,7 @@ public class GetSearchProductsQueryHandlerTextSearchTests
     }
 
     [TestMethod]
-    public async Task TextSearch_IndexDroppedWhileFoundReady_FallsBackToScan()
+    public async Task TextSearch_IndexDroppedAfterASearch_FallsBackToScan()
     {
         var handler = Handler();
         await Insert("smartphone", "Smartphone");

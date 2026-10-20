@@ -53,12 +53,6 @@ public class LiteDBContext : IDatabaseContext
         return Task.CompletedTask;
     }
 
-    public Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName,
-        CancellationToken cancellationToken = default) where T : BaseEntity
-    {
-        return Task.FromResult(false);
-    }
-
     public IQueryable<T> TextSearch<T>(IRepository<T> repository, string search) where T : BaseEntity
     {
         //no text index to narrow by; the caller's own filters decide the match

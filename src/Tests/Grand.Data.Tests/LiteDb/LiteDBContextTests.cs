@@ -61,7 +61,6 @@ public class LiteDBContextTests
 
         await _context.CreateTextIndex(_repository, ["Name"], "Name_Text");
 
-        Assert.IsFalse(await _context.TextIndexExists(_repository, "Name_Text"));
         Assert.AreEqual(1, _context.TextSearch(_repository, "phone").Count());
     }
 }

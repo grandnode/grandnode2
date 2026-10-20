@@ -11,8 +11,6 @@ public class MongoDBContext : IDatabaseContext
     private const int NamespaceNotFound = 26;
     private const int IndexNotFound = 27;
 
-    private static readonly TimeSpan ProbeMaxTime = TimeSpan.FromSeconds(1);
-
     private readonly IMongoDatabase _database;
 
     public MongoDBContext(IMongoDatabase mongodatabase)
@@ -87,30 +85,6 @@ public class MongoDBContext : IDatabaseContext
                 Builders<T>.IndexKeys.Combine(fieldNames.Select(x => Builders<T>.IndexKeys.Text(x))),
                 new CreateIndexOptions { Name = indexName, DefaultLanguage = "none" }),
             cancellationToken: cancellationToken);
-    }
-
-    public async Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName,
-        CancellationToken cancellationToken = default) where T : BaseEntity
-    {
-        ArgumentNullException.ThrowIfNullOrEmpty(indexName);
-
-        var collection = ((MongoRepository<T>)repository).Collection;
-        try
-        {
-            var indexes = await (await collection.Indexes.ListAsync(cancellationToken)).ToListAsync(cancellationToken);
-            if (!indexes.Any(x => x["name"] == indexName))
-                return false;
-
-            //listIndexes reports an index still being built; $text fails until the build is done
-            await collection.Find(Builders<T>.Filter.Text("probe"), new FindOptions { MaxTime = ProbeMaxTime })
-                .Limit(1).AnyAsync(cancellationToken);
-            return true;
-        }
-        catch (Exception ex) when (ex is MongoException or TimeoutException)
-        {
-            //unknown is not ready - the caller scans without the index
-            return false;
-        }
     }
 
     public IQueryable<T> TextSearch<T>(IRepository<T> repository, string search) where T : BaseEntity

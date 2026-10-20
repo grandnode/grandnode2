@@ -5,7 +5,7 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Infrastructure.Caching;
+using Microsoft.Extensions.Logging.Abstractions;
 using Grand.Infrastructure.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -24,7 +24,8 @@ public class GetSearchProductsQueryHandlerTests
         _repository = new MongoDBRepositoryTest<Product>();
         handler = new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object,
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
-            new DatabaseConfig(), Mock.Of<IDatabaseContext>(), Mock.Of<ICacheBase>());
+            new DatabaseConfig(), Mock.Of<IDatabaseContext>(),
+            NullLogger<GetSearchProductsQueryHandler>.Instance);
     }
 
 
@@ -100,7 +101,8 @@ public class GetSearchProductsQueryHandlerTests
         var filteringHandler = new GetSearchProductsQueryHandler(_repository,
             new Mock<ISpecificationAttributeService>().Object,
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig(),
-            new DatabaseConfig(), Mock.Of<IDatabaseContext>(), Mock.Of<ICacheBase>());
+            new DatabaseConfig(), Mock.Of<IDatabaseContext>(),
+            NullLogger<GetSearchProductsQueryHandler>.Instance);
         await _repository.InsertAsync(new Product {
             Published = true, VisibleIndividually = true,
             ProductSpecificationAttributes = {

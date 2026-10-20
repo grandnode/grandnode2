@@ -79,12 +79,6 @@ public static partial class CacheKey
     public static string PRODUCTS_SHOWONHOMEPAGE => "Grand.product.showonhomepage";
 
     /// <summary>
-    ///     Key for caching whether the product text index answers queries. Outside the product pattern: a
-    ///     product change does not touch the index
-    /// </summary>
-    public static string PRODUCTS_TEXT_INDEX_KEY => "Grand.producttextindex";
-
-    /// <summary>
     ///     Compare products cookie name
     /// </summary>
     public static string PRODUCTS_COMPARE_COOKIE_NAME => "Grand.CompareProduct";
