@@ -233,4 +233,40 @@ public class MemoryCacheBaseTests
         cacheManager.Dispose();
         cacheManager.Dispose();
     }
+
+    [TestMethod]
+    public async Task GetAsync_MaxEntriesReached_KeepsAtMostMaxEntries()
+    {
+        var memoryCache = (MemoryCache)MemoryCacheBase.CreateMemoryCache(new CacheConfig { MaxEntries = 2 });
+        var cacheManager = new MemoryCacheBase(memoryCache, _mediatorMock.Object, _config);
+
+        for (var i = 0; i < 5; i++)
+        {
+            var value = await cacheManager.GetAsync($"key{i}", () => Task.FromResult($"value{i}"));
+            //an entry over the limit is not kept, but the caller still gets its value
+            Assert.AreEqual($"value{i}", value);
+        }
+
+        Assert.IsTrue(memoryCache.Count <= 2, $"Cache holds {memoryCache.Count} entries");
+    }
+
+    [TestMethod]
+    public async Task GetAsync_NoMaxEntries_KeepsEveryEntry()
+    {
+        var memoryCache = (MemoryCache)MemoryCacheBase.CreateMemoryCache(new CacheConfig { MaxEntries = 0 });
+        var cacheManager = new MemoryCacheBase(memoryCache, _mediatorMock.Object, _config);
+
+        for (var i = 0; i < 5; i++)
+            await cacheManager.GetAsync($"key{i}", () => Task.FromResult("value"));
+
+        Assert.AreEqual(5, memoryCache.Count);
+    }
+
+    [TestMethod]
+    public void CreateMemoryCache_IsNotTheSharedCache()
+    {
+        var memoryCache = MemoryCacheBase.CreateMemoryCache(new CacheConfig { MaxEntries = 2 });
+
+        Assert.AreNotSame(_memoryCache, memoryCache);
+    }
 }

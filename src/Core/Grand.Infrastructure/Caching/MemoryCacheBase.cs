@@ -158,13 +158,26 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         _resetCacheToken.Dispose();
     }
 
+    /// <summary>
+    ///     Creates the memory cache this manager stores into, holding at most <see cref="CacheConfig.MaxEntries" /> keys.
+    ///     It is not the shared <see cref="IMemoryCache" />: with a size limit there, every Set from other code
+    ///     that gives no size would throw.
+    /// </summary>
+    public static IMemoryCache CreateMemoryCache(CacheConfig cacheConfig)
+    {
+        return new MemoryCache(new MemoryCacheOptions {
+            SizeLimit = cacheConfig.MaxEntries > 0 ? cacheConfig.MaxEntries : null
+        });
+    }
+
     #endregion
 
     #region Utilities
 
     private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime)
     {
-        var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime) }
+        //each entry counts as one key against the size limit
+        var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime), Size = 1 }
             .AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
             .RegisterPostEvictionCallback(PostEvictionCallback);
 

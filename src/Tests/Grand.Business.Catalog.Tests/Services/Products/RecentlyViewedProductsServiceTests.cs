@@ -5,10 +5,6 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Tests.Caching;
-using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -17,8 +13,6 @@ namespace Grand.Business.Catalog.Tests.Services.Products;
 [TestClass]
 public class RecentlyViewedProductsServiceTests
 {
-    private MemoryCacheBase _cacheBase;
-    private Mock<IMediator> _mediatorMock;
     private Mock<IProductService> _productServiceMock;
     private IRepository<RecentlyViewedProduct> _repository;
     private RecentlyViewedProductsService _service;
@@ -27,7 +21,6 @@ public class RecentlyViewedProductsServiceTests
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<RecentlyViewedProduct>();
-        _mediatorMock = new Mock<IMediator>();
         _productServiceMock = new Mock<IProductService>();
         _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(),
             It.IsAny<CatalogAccess>())).Returns(() =>
@@ -35,9 +28,7 @@ public class RecentlyViewedProductsServiceTests
                 new() { Id = "1", Published = true }, new() { Id = "2", Published = true },
                 new() { Id = "3", Published = true }
             }));
-        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
-            new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _service = new RecentlyViewedProductsService(_productServiceMock.Object, _cacheBase,
+        _service = new RecentlyViewedProductsService(_productServiceMock.Object,
             new CatalogSettings { RecentlyViewedProductsEnabled = true, RecentlyViewedProductsNumber = 10 },
             _repository);
     }
@@ -57,6 +48,23 @@ public class RecentlyViewedProductsServiceTests
 
         //Assert
         Assert.HasCount(3, result);
+    }
+
+    [TestMethod]
+    public async Task GetRecentlyViewedProducts_AfterAnotherView_ReadsTheNewList()
+    {
+        //Arrange
+        await _service.AddProductToRecentlyViewedList("1", "1");
+        await _service.GetRecentlyViewedProducts(new Customer { Id = "1" }, "", 10);
+        await _service.AddProductToRecentlyViewedList("1", "2");
+
+        //Act
+        await _service.GetRecentlyViewedProducts(new Customer { Id = "1" }, "", 10);
+
+        //Assert
+        _productServiceMock.Verify(a => a.GetProductsByIds(
+            It.Is<string[]>(ids => ids.Length == 2 && ids.Contains("1") && ids.Contains("2")),
+            It.IsAny<CatalogAccess>()), Times.Once);
     }
 
     [TestMethod]
@@ -122,7 +130,7 @@ public class RecentlyViewedProductsServiceTests
 
     private RecentlyViewedProductsService CreateService(int recentlyViewedProductsNumber)
     {
-        return new RecentlyViewedProductsService(_productServiceMock.Object, _cacheBase,
+        return new RecentlyViewedProductsService(_productServiceMock.Object,
             new CatalogSettings {
                 RecentlyViewedProductsEnabled = true, RecentlyViewedProductsNumber = recentlyViewedProductsNumber
             },

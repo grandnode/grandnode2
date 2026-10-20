@@ -105,6 +105,20 @@ public class SlugServiceTests
     }
 
     [TestMethod]
+    public async Task GetBySlugCached_UnknownSlug_IsNotCached()
+    {
+        //Arrange
+        var miss = await _slugService.GetBySlugCached("later");
+        //written straight to the repository, so nothing invalidates the cache
+        await _repository.InsertAsync(new EntityUrl { Slug = "later" });
+        //Act
+        var result = await _slugService.GetBySlugCached("later");
+        //Assert
+        Assert.IsNull(miss);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
     public async Task GetAllEntityUrlTest()
     {
         //Arrange

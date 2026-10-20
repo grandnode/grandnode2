@@ -25,6 +25,7 @@ using Grand.Web.Common.View;
 using Grand.Web.Common.ViewRender;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
@@ -76,11 +77,18 @@ public class StartupApplication : IStartupApplication
             serviceCollection.AddSingleton<RedisMessageBus>();
             serviceCollection.AddSingleton<IMessageBus>(sp => sp.GetRequiredService<RedisMessageBus>());
             serviceCollection.AddHostedService(sp => sp.GetRequiredService<RedisMessageBus>());
-            serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
+            serviceCollection.AddSingleton<ICacheBase>(sp =>
+                ActivatorUtilities.CreateInstance<RedisMessageCacheManager>(sp, CreateMemoryCache(sp)));
             return;
         }
 
-        serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
+        serviceCollection.AddSingleton<ICacheBase>(sp =>
+            ActivatorUtilities.CreateInstance<MemoryCacheBase>(sp, CreateMemoryCache(sp)));
+    }
+
+    private static IMemoryCache CreateMemoryCache(IServiceProvider serviceProvider)
+    {
+        return MemoryCacheBase.CreateMemoryCache(serviceProvider.GetRequiredService<CacheConfig>());
     }
 
     private static void RegisterContextService(IServiceCollection serviceCollection)
