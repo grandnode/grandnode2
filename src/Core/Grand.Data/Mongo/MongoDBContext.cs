@@ -1,6 +1,7 @@
 ﻿using Grand.Domain;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace Grand.Data.Mongo;
 
@@ -68,6 +69,29 @@ public class MongoDBContext : IDatabaseContext
         await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
             Builders<T>.IndexKeys.Combine(keys),
             new CreateIndexOptions { Name = indexName, Unique = unique }));
+    }
+
+    public async Task CreateTextIndex<T>(IRepository<T> repository, string[] fieldNames, string indexName,
+        CancellationToken cancellationToken = default) where T : BaseEntity
+    {
+        ArgumentNullException.ThrowIfNullOrEmpty(indexName);
+        ArgumentNullException.ThrowIfNull(fieldNames);
+
+        //no stemming or stop words - product names are in many languages
+        //an index of the same name and spec is a no-op for the server. A collection holds one text index, so
+        //another one - an older field list included - fails here and is left alone: dropping it is a migration's job,
+        //not every starting instance's
+        await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
+                Builders<T>.IndexKeys.Combine(fieldNames.Select(x => Builders<T>.IndexKeys.Text(x))),
+                new CreateIndexOptions { Name = indexName, DefaultLanguage = "none" }),
+            cancellationToken: cancellationToken);
+    }
+
+    public IQueryable<T> TextSearch<T>(IRepository<T> repository, string search) where T : BaseEntity
+    {
+        //the server accepts $text only in the first $match of a pipeline - the table is where it starts
+        var filter = Builders<T>.Filter.Text(search);
+        return repository.Table.Where(_ => filter.Inject());
     }
 
     public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity

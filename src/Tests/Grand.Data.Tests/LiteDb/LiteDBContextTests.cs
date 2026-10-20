@@ -53,4 +53,14 @@ public class LiteDBContextTests
 
         await _context.DeleteIndex(_repository, "Count");
     }
+
+    [TestMethod]
+    public async Task TextIndex_NotSupported_SearchKeepsTheTable()
+    {
+        await _repository.InsertAsync(new SampleCollection { Name = "Smartphone" });
+
+        await _context.CreateTextIndex(_repository, ["Name"], "Name_Text");
+
+        Assert.AreEqual(1, _context.TextSearch(_repository, "phone").Count());
+    }
 }

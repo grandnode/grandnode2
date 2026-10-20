@@ -6,13 +6,20 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
 public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQuery, (IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
 {
+    //the missing index is reported once per process, not on every search; a race may report it twice
+    private static bool _missingTextIndexReported;
+
     private readonly AccessControlConfig _accessControlConfig;
     private readonly CatalogSettings _catalogSettings;
+    private readonly IDatabaseContext _databaseContext;
+    private readonly DatabaseConfig _databaseConfig;
+    private readonly ILogger<GetSearchProductsQueryHandler> _logger;
     private readonly IRepository<Product> _productRepository;
     private readonly ISpecificationAttributeService _specificationAttributeService;
 
@@ -20,17 +27,21 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         IRepository<Product> productRepository,
         ISpecificationAttributeService specificationAttributeService,
         CatalogSettings catalogSettings,
-        AccessControlConfig accessControlConfig)
+        AccessControlConfig accessControlConfig,
+        DatabaseConfig databaseConfig,
+        IDatabaseContext databaseContext,
+        ILogger<GetSearchProductsQueryHandler> logger)
     {
         _productRepository = productRepository;
         _specificationAttributeService = specificationAttributeService;
         _catalogSettings = catalogSettings;
         _accessControlConfig = accessControlConfig;
+        _databaseConfig = databaseConfig;
+        _databaseContext = databaseContext;
+        _logger = logger;
     }
     public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Handle(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
-        IList<string> filterableSpecificationAttributeOptionIds = new List<string>();
-
         // Clean up request parameters
         CleanupRequestParameters(request);
 
@@ -40,8 +51,38 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
                                            ? []
                                            : request.Customer.GetCustomerGroupIds());
 
-        // Build base query
-        var query = _productRepository.Table.AsQueryable();
+        var search = TextSearchTerms(request);
+        if (search != null)
+            try
+            {
+                return await Search(request, allowedCustomerGroupsIds, search, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                //no text index - not created, dropped or being built: scan as before
+                if (!_missingTextIndexReported)
+                {
+                    _missingTextIndexReported = true;
+                    _logger.LogWarning(ex,
+                        "Product keyword search through the text index {IndexName} failed and scans instead. Create the index - see UseProductTextSearch in appsettings.json",
+                        ProductTextIndex.Name);
+                }
+            }
+
+        return await Search(request, allowedCustomerGroupsIds, null, cancellationToken);
+    }
+
+    private async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Search(
+        GetSearchProductsQuery request, string[] allowedCustomerGroupsIds, string search,
+        CancellationToken cancellationToken)
+    {
+        IList<string> filterableSpecificationAttributeOptionIds = new List<string>();
+
+        // Build base query; a text search narrows the candidates to products with a whole query word,
+        // ApplyKeywordFiltering still decides the match
+        var query = search == null
+            ? _productRepository.Table
+            : _databaseContext.TextSearch(_productRepository, search);
         query = FilterQueryable(request, query, allowedCustomerGroupsIds);
 
         // Keep a copy for specifications filtering
@@ -294,6 +335,30 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
             query = query.Where(p => (!p.MarkAsNewStartDateTimeUtc.HasValue || p.MarkAsNewStartDateTimeUtc.Value < nowUtc) && (!p.MarkAsNewEndDateTimeUtc.HasValue || p.MarkAsNewEndDateTimeUtc.Value > nowUtc));
         }
         return query;
+    }
+
+    private string TextSearchTerms(GetSearchProductsQuery request)
+    {
+        //staff search by fragments and partial SKUs. The text index does not cover descriptions
+        if (!_databaseConfig.UseProductTextSearch || request.ShowHidden || request.SearchDescriptions ||
+            string.IsNullOrWhiteSpace(request.Keywords))
+            return null;
+
+        //quotes and minus would be read as a phrase and a negation
+        var search = request.Keywords.Replace('"', ' ').Replace('-', ' ');
+
+        //$text finds no word in punctuation alone, nor a part of a text written without spaces between words
+        return search.Any(char.IsLetterOrDigit) && !search.Any(IsUnspacedScript) ? search : null;
+    }
+
+    private static bool IsUnspacedScript(char c)
+    {
+        return c is >= '\u0E00' and <= '\u0EFF' //Thai, Lao
+            or >= '\u1000' and <= '\u109F' //Myanmar
+            or >= '\u1780' and <= '\u17FF' //Khmer
+            or >= '\u2E80' and <= '\u9FFF' //CJK punctuation, kana, ideographs
+            or >= '\uF900' and <= '\uFAFF' //CJK compatibility ideographs
+            or >= '\uFF66' and <= '\uFF9F'; //halfwidth katakana
     }
 
     private static IQueryable<Product> ApplyKeywordFiltering(GetSearchProductsQuery request, IQueryable<Product> query)

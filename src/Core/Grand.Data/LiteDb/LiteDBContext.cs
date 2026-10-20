@@ -46,6 +46,19 @@ public class LiteDBContext : IDatabaseContext
         return Task.CompletedTask;
     }
 
+    public Task CreateTextIndex<T>(IRepository<T> repository, string[] fieldNames, string indexName,
+        CancellationToken cancellationToken = default) where T : BaseEntity
+    {
+        //Not supported by LiteDB
+        return Task.CompletedTask;
+    }
+
+    public IQueryable<T> TextSearch<T>(IRepository<T> repository, string search) where T : BaseEntity
+    {
+        //no text index to narrow by; the caller's own filters decide the match
+        return repository.Table;
+    }
+
     public Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
     {
         if (string.IsNullOrEmpty(indexName))
