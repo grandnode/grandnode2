@@ -36,19 +36,43 @@ public class MongoTextSearchTests
     }
 
     [TestMethod]
-    public void WhereText_FindsWholeWord_NotFragment()
+    public async Task CreateTextIndex_FieldsChanged_RebuildsTheIndex()
     {
-        var phone = _repository.Table.WhereText("phone").Select(x => x.Name).ToList();
-        var fragment = _repository.Table.WhereText("phon").ToList();
+        await _context.CreateTextIndex(_repository, ["Name", "Phones"], IndexName);
+
+        var index = (await _repository.Collection.Indexes.ListAsync()).ToList()
+            .Single(x => x["name"] == IndexName);
+        Assert.IsTrue(index["weights"].AsBsonDocument.Contains("Phones"));
+    }
+
+    [TestMethod]
+    public async Task TextIndexExists_Built_True()
+    {
+        Assert.IsTrue(await _context.TextIndexExists(_repository, IndexName));
+    }
+
+    [TestMethod]
+    public async Task TextIndexExists_NoSuchIndex_False()
+    {
+        await _context.DeleteIndex(_repository, IndexName);
+
+        Assert.IsFalse(await _context.TextIndexExists(_repository, IndexName));
+    }
+
+    [TestMethod]
+    public void TextSearch_FindsWholeWord_NotFragment()
+    {
+        var phone = _context.TextSearch(_repository, "phone").Select(x => x.Name).ToList();
+        var fragment = _context.TextSearch(_repository, "phon").ToList();
 
         CollectionAssert.AreEquivalent(new[] { "Phone case", "Phone holder" }, phone);
         Assert.AreEqual(0, fragment.Count);
     }
 
     [TestMethod]
-    public async Task WhereText_AsFirstFilter_WithFurtherWhereAndCount()
+    public async Task TextSearch_WithFurtherWhereAndCount()
     {
-        var query = _repository.Table.WhereText("phone").Where(x => x.Count > 0);
+        var query = _context.TextSearch(_repository, "phone").Where(x => x.Count > 0);
 
         var page = await _repository.PagedAsync(query, 0, 10);
 

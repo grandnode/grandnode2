@@ -5,6 +5,7 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,7 +24,7 @@ public class GetSearchProductsQueryHandlerTests
         _repository = new MongoDBRepositoryTest<Product>();
         handler = new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object,
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
-            new DatabaseConfig());
+            new DatabaseConfig(), Mock.Of<IDatabaseContext>(), Mock.Of<ICacheBase>());
     }
 
 

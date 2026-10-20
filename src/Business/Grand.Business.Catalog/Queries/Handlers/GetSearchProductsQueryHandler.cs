@@ -1,10 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Data;
-using Grand.Data.Mongo;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 
@@ -13,7 +14,9 @@ namespace Grand.Business.Catalog.Queries.Handlers;
 public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQuery, (IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
 {
     private readonly AccessControlConfig _accessControlConfig;
+    private readonly ICacheBase _cacheBase;
     private readonly CatalogSettings _catalogSettings;
+    private readonly IDatabaseContext _databaseContext;
     private readonly DatabaseConfig _databaseConfig;
     private readonly IRepository<Product> _productRepository;
     private readonly ISpecificationAttributeService _specificationAttributeService;
@@ -23,13 +26,17 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         ISpecificationAttributeService specificationAttributeService,
         CatalogSettings catalogSettings,
         AccessControlConfig accessControlConfig,
-        DatabaseConfig databaseConfig)
+        DatabaseConfig databaseConfig,
+        IDatabaseContext databaseContext,
+        ICacheBase cacheBase)
     {
         _productRepository = productRepository;
         _specificationAttributeService = specificationAttributeService;
         _catalogSettings = catalogSettings;
         _accessControlConfig = accessControlConfig;
         _databaseConfig = databaseConfig;
+        _databaseContext = databaseContext;
+        _cacheBase = cacheBase;
     }
     public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Handle(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
@@ -45,7 +52,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
                                            : request.Customer.GetCustomerGroupIds());
 
         // Build base query
-        var query = _productRepository.Table.AsQueryable();
+        var query = await BaseQuery(request);
         query = FilterQueryable(request, query, allowedCustomerGroupsIds);
 
         // Keep a copy for specifications filtering
@@ -173,8 +180,6 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
 
     private IQueryable<Product> FilterQueryable(GetSearchProductsQuery request, IQueryable<Product> query, string[] allowedCustomerGroupsIds)
     {
-        //$text is accepted only in the first stage of the pipeline
-        query = ApplyTextSearch(request, query);
         query = ApplyCategoryFiltering(request, query);
         query = ApplyBrandFiltering(request, query);
         query = ApplyCollectionFiltering(request, query);
@@ -301,17 +306,40 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         return query;
     }
 
-    private IQueryable<Product> ApplyTextSearch(GetSearchProductsQuery request, IQueryable<Product> query)
+    private async Task<IQueryable<Product>> BaseQuery(GetSearchProductsQuery request)
     {
-        //narrows the candidates to products with a whole query word; ApplyKeywordFiltering still decides the match.
-        //The text index does not cover descriptions
-        if (!_databaseConfig.UseProductTextSearch || _databaseConfig.UseLiteDb || request.SearchDescriptions ||
+        var search = TextSearchTerms(request);
+        //until the index is built, or when it failed to build, keyword search scans as before
+        if (search == null || !await _cacheBase.GetAsync(CacheKey.PRODUCTS_TEXT_INDEX_KEY,
+                () => _databaseContext.TextIndexExists(_productRepository, ProductTextIndex.Name), 1))
+            return _productRepository.Table;
+
+        //narrows the candidates to products with a whole query word; ApplyKeywordFiltering still decides the match
+        return _databaseContext.TextSearch(_productRepository, search);
+    }
+
+    private string TextSearchTerms(GetSearchProductsQuery request)
+    {
+        //staff search by fragments and partial SKUs. The text index does not cover descriptions
+        if (!_databaseConfig.UseProductTextSearch || request.ShowHidden || request.SearchDescriptions ||
             string.IsNullOrWhiteSpace(request.Keywords))
-            return query;
+            return null;
 
         //quotes and minus would be read as a phrase and a negation
         var search = request.Keywords.Replace('"', ' ').Replace('-', ' ');
-        return query.WhereText(search);
+
+        //$text finds no word in punctuation alone, nor a part of a text written without spaces between words
+        return search.Any(char.IsLetterOrDigit) && !search.Any(IsUnspacedScript) ? search : null;
+    }
+
+    private static bool IsUnspacedScript(char c)
+    {
+        return c is >= '\u0E00' and <= '\u0EFF' //Thai, Lao
+            or >= '\u1000' and <= '\u109F' //Myanmar
+            or >= '\u1780' and <= '\u17FF' //Khmer
+            or >= '\u2E80' and <= '\u9FFF' //CJK punctuation, kana, ideographs
+            or >= '\uF900' and <= '\uFAFF' //CJK compatibility ideographs
+            or >= '\uFF66' and <= '\uFF9F'; //halfwidth katakana
     }
 
     private static IQueryable<Product> ApplyKeywordFiltering(GetSearchProductsQuery request, IQueryable<Product> query)

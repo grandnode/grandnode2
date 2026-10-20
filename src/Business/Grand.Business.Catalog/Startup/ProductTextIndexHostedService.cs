@@ -9,10 +9,11 @@ using Microsoft.Extensions.Logging;
 namespace Grand.Business.Catalog.Startup;
 
 /// <summary>
-///     Creates the product text index when DatabaseConfig.UseProductTextSearch is on. Runs in the host's starting
-///     phase, so the index exists before Kestrel accepts a request - $text fails without it
+///     Creates the product text index when DatabaseConfig.UseProductTextSearch is on. Runs in the background, so a
+///     long first build on a large catalog does not hold the host's start; keyword search scans as before until the
+///     index answers queries
 /// </summary>
-public class ProductTextIndexHostedService : IHostedLifecycleService
+public class ProductTextIndexHostedService : BackgroundService
 {
     private readonly DatabaseConfig _databaseConfig;
     private readonly ILogger<ProductTextIndexHostedService> _logger;
@@ -28,9 +29,9 @@ public class ProductTextIndexHostedService : IHostedLifecycleService
         _logger = logger;
     }
 
-    public async Task StartingAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!_databaseConfig.UseProductTextSearch || _databaseConfig.UseLiteDb || !DatabaseIsInstalled())
+        if (!_databaseConfig.UseProductTextSearch || !DatabaseIsInstalled())
             return;
 
         try
@@ -38,24 +39,19 @@ public class ProductTextIndexHostedService : IHostedLifecycleService
             await using var scope = _serviceScopeFactory.CreateAsyncScope();
             var databaseContext = scope.ServiceProvider.GetRequiredService<IDatabaseContext>();
             var repository = scope.ServiceProvider.GetRequiredService<IRepository<Product>>();
-            await databaseContext.CreateTextIndex(repository, ProductTextIndex.Fields, ProductTextIndex.Name);
+            await databaseContext.CreateTextIndex(repository, ProductTextIndex.Fields, ProductTextIndex.Name,
+                stoppingToken);
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            //the host is stopping - the next start creates the index
         }
         catch (Exception ex)
         {
-            //a failed index build must not stop the store - keyword search reports the missing index instead
+            //a failed index build must not stop the store - keyword search keeps scanning without it
             _logger.LogError(ex, "Creating the product text index {IndexName} failed", ProductTextIndex.Name);
         }
     }
 
     protected virtual bool DatabaseIsInstalled() => DataSettingsManager.DatabaseIsInstalled();
-
-    public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-    public Task StartedAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-    public Task StoppingAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-    public Task StoppedAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

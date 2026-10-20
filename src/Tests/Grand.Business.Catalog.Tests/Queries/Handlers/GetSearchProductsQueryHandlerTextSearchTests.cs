@@ -7,7 +7,10 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Tests.Caching;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -17,20 +20,23 @@ namespace Grand.Business.Catalog.Tests.Queries.Handlers;
 public class GetSearchProductsQueryHandlerTextSearchTests
 {
     private CapturingRepository _repository;
+    private MongoDBContext _databaseContext;
 
     [TestInitialize]
     public async Task Init()
     {
         _repository = new CapturingRepository();
-        await new MongoDBContext(_repository.Collection.Database)
-            .CreateTextIndex(_repository, ProductTextIndex.Fields, ProductTextIndex.Name);
+        _databaseContext = new MongoDBContext(_repository.Collection.Database);
+        await _databaseContext.CreateTextIndex(_repository, ProductTextIndex.Fields, ProductTextIndex.Name);
     }
 
-    private GetSearchProductsQueryHandler Handler(bool textSearch = true, bool liteDb = false)
+    private GetSearchProductsQueryHandler Handler(bool textSearch = true)
     {
         return new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object,
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
-            new DatabaseConfig { UseProductTextSearch = textSearch, UseLiteDb = liteDb });
+            new DatabaseConfig { UseProductTextSearch = textSearch }, _databaseContext,
+            new MemoryCacheBase(MemoryCacheTest.Get(), new Mock<IMediator>().Object,
+                new CacheConfig { DefaultCacheTimeMinutes = 1 }));
     }
 
     private Task Insert(string id, string name, string sku = null, IList<TranslationEntity> locales = null,
@@ -43,10 +49,11 @@ public class GetSearchProductsQueryHandlerTextSearchTests
     }
 
     private async Task<List<string>> Search(string keywords, bool searchDescriptions = false,
-        GetSearchProductsQueryHandler handler = null)
+        GetSearchProductsQueryHandler handler = null, bool showHidden = false)
     {
         var result = await (handler ?? Handler()).Handle(new GetSearchProductsQuery {
-            Customer = new Customer(), Keywords = keywords, SearchDescriptions = searchDescriptions
+            Customer = new Customer(), Keywords = keywords, SearchDescriptions = searchDescriptions,
+            ShowHidden = showHidden
         }, CancellationToken.None);
         return result.products.Select(x => x.Id).ToList();
     }
@@ -123,11 +130,38 @@ public class GetSearchProductsQueryHandlerTextSearchTests
     }
 
     [TestMethod]
-    public async Task TextSearch_LiteDb_Ignored()
+    public async Task TextSearch_NoIndex_FragmentStillMatches()
     {
+        await _databaseContext.DeleteIndex(_repository, ProductTextIndex.Name);
         await Insert("smartphone", "Smartphone");
 
-        CollectionAssert.AreEquivalent(new[] { "smartphone" }, await Search("phone", handler: Handler(liteDb: true)));
+        CollectionAssert.AreEquivalent(new[] { "smartphone" }, await Search("phone"));
+        Assert.IsFalse(_repository.Pipeline.Contains("$text"));
+    }
+
+    [TestMethod]
+    public async Task TextSearch_ShowHidden_FragmentStillMatches()
+    {
+        await Insert("smartphone", "Smartphone", "AB778X");
+
+        CollectionAssert.AreEquivalent(new[] { "smartphone" }, await Search("phone", showHidden: true));
+        CollectionAssert.AreEquivalent(new[] { "smartphone" }, await Search("778", showHidden: true));
+    }
+
+    [TestMethod]
+    public async Task TextSearch_OnlyPunctuation_UsesOldPath()
+    {
+        await Insert("router", "Wi-Fi router");
+
+        CollectionAssert.AreEquivalent(new[] { "router" }, await Search("-"));
+    }
+
+    [TestMethod]
+    public async Task TextSearch_ScriptWithoutSpaces_UsesOldPath()
+    {
+        await Insert("phone", "华为手机");
+
+        CollectionAssert.AreEquivalent(new[] { "phone" }, await Search("手机"));
     }
 
     [TestMethod]

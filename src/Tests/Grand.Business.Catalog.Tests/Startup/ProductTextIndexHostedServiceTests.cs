@@ -28,61 +28,72 @@ public class ProductTextIndexHostedServiceTests
         _scopeFactory = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
     }
 
-    private Task Start(bool textSearch, bool liteDb = false, bool installed = true)
+    private Task Run(bool textSearch, bool installed = true, CancellationToken stoppingToken = default)
     {
-        var service = new TestableService(_scopeFactory,
-            new DatabaseConfig { UseProductTextSearch = textSearch, UseLiteDb = liteDb }, _logger.Object, installed);
-        return service.StartingAsync(CancellationToken.None);
+        var service = new TestableService(_scopeFactory, new DatabaseConfig { UseProductTextSearch = textSearch },
+            _logger.Object, installed);
+        return service.Run(stoppingToken);
     }
 
     private void VerifyCreated(Times times)
     {
         _databaseContext.Verify(x => x.CreateTextIndex(It.IsAny<IRepository<Product>>(),
-            ProductTextIndex.Fields, ProductTextIndex.Name), times);
+            ProductTextIndex.Fields, ProductTextIndex.Name, It.IsAny<CancellationToken>()), times);
+    }
+
+    private void VerifyErrorLogged(Times times)
+    {
+        _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), times);
     }
 
     [TestMethod]
-    public async Task StartingAsync_SwitchOff_DoesNotCreateIndex()
+    public async Task Execute_SwitchOff_DoesNotCreateIndex()
     {
-        await Start(false);
+        await Run(false);
 
         VerifyCreated(Times.Never());
     }
 
     [TestMethod]
-    public async Task StartingAsync_SwitchOn_CreatesIndex()
+    public async Task Execute_SwitchOn_CreatesIndex()
     {
-        await Start(true);
+        await Run(true);
 
         VerifyCreated(Times.Once());
     }
 
     [TestMethod]
-    public async Task StartingAsync_LiteDb_DoesNotCreateIndex()
+    public async Task Execute_NotInstalled_DoesNotCreateIndex()
     {
-        await Start(true, liteDb: true);
+        await Run(true, installed: false);
 
         VerifyCreated(Times.Never());
     }
 
     [TestMethod]
-    public async Task StartingAsync_NotInstalled_DoesNotCreateIndex()
-    {
-        await Start(true, installed: false);
-
-        VerifyCreated(Times.Never());
-    }
-
-    [TestMethod]
-    public async Task StartingAsync_CreationFails_LogsErrorAndCompletes()
+    public async Task Execute_CreationFails_LogsErrorAndCompletes()
     {
         _databaseContext.Setup(x => x.CreateTextIndex(It.IsAny<IRepository<Product>>(), It.IsAny<string[]>(),
-            It.IsAny<string>())).ThrowsAsync(new InvalidOperationException("index"));
+            It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("index"));
 
-        await Start(true);
+        await Run(true);
 
-        _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<InvalidOperationException>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+        VerifyErrorLogged(Times.Once());
+    }
+
+    [TestMethod]
+    public async Task Execute_HostStopping_PassesTokenAndLogsNothing()
+    {
+        using var stopping = new CancellationTokenSource();
+        await stopping.CancelAsync();
+        _databaseContext.Setup(x => x.CreateTextIndex(It.IsAny<IRepository<Product>>(), It.IsAny<string[]>(),
+                It.IsAny<string>(), stopping.Token))
+            .ThrowsAsync(new OperationCanceledException(stopping.Token));
+
+        await Run(true, stoppingToken: stopping.Token);
+
+        VerifyErrorLogged(Times.Never());
     }
 
     private class TestableService(
@@ -93,5 +104,7 @@ public class ProductTextIndexHostedServiceTests
         : ProductTextIndexHostedService(serviceScopeFactory, databaseConfig, logger)
     {
         protected override bool DatabaseIsInstalled() => installed;
+
+        public Task Run(CancellationToken stoppingToken) => ExecuteAsync(stoppingToken);
     }
 }
