@@ -35,8 +35,6 @@ public class StartupApplication : IStartupApplication
         RegisterDiscountsService(services);
         RegisterTaxService(services);
         RegisterExportImport(services);
-
-        services.AddHostedService<ProductTextIndexHostedService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

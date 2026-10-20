@@ -28,6 +28,7 @@ using Grand.Domain.Tasks;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.TypeSearch;
 using Grand.Module.Installer.Interfaces;
 using Grand.Module.Installer.Utilities;
@@ -696,6 +697,9 @@ public partial class InstallationService : IInstallationService
         await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.Viewed),
             "Viewed");
         await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.Sold), "Sold");
+        //keyword search; a no-op on LiteDB
+        if (_serviceProvider.GetRequiredService<DatabaseConfig>().UseProductTextSearch)
+            await dbContext.CreateTextIndex(_productRepository, ProductTextIndex.Fields, ProductTextIndex.Name);
 
         //product attribute
         await dbContext.CreateIndex(_productAttributeRepository,
