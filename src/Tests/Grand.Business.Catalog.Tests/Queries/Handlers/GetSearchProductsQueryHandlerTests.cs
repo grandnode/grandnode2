@@ -99,7 +99,8 @@ public class GetSearchProductsQueryHandlerTests
         //Arrange
         var filteringHandler = new GetSearchProductsQueryHandler(_repository,
             new Mock<ISpecificationAttributeService>().Object,
-            new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig());
+            new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig(),
+            new DatabaseConfig(), Mock.Of<IDatabaseContext>(), Mock.Of<ICacheBase>());
         await _repository.InsertAsync(new Product {
             Published = true, VisibleIndividually = true,
             ProductSpecificationAttributes = {

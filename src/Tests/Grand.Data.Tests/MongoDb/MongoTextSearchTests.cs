@@ -36,13 +36,22 @@ public class MongoTextSearchTests
     }
 
     [TestMethod]
-    public async Task CreateTextIndex_FieldsChanged_RebuildsTheIndex()
+    public async Task CreateTextIndex_FieldsChanged_ThrowsAndKeepsTheIndex()
     {
-        await _context.CreateTextIndex(_repository, ["Name", "Phones"], IndexName);
+        await Assert.ThrowsAsync<MongoCommandException>(() =>
+            _context.CreateTextIndex(_repository, ["Name", "Phones"], IndexName));
 
-        var index = (await _repository.Collection.Indexes.ListAsync()).ToList()
-            .Single(x => x["name"] == IndexName);
-        Assert.IsTrue(index["weights"].AsBsonDocument.Contains("Phones"));
+        Assert.IsTrue(await _context.TextIndexExists(_repository, IndexName));
+    }
+
+    [TestMethod]
+    public async Task CreateTextIndex_AnotherTextIndex_ThrowsAndKeepsIt()
+    {
+        await Assert.ThrowsAsync<MongoCommandException>(() =>
+            _context.CreateTextIndex(_repository, ["Name", "Phones"], IndexName + "_v2"));
+
+        Assert.IsTrue(await _context.TextIndexExists(_repository, IndexName));
+        Assert.IsFalse(await _context.TextIndexExists(_repository, IndexName + "_v2"));
     }
 
     [TestMethod]

@@ -53,7 +53,8 @@ public class LiteDBContext : IDatabaseContext
         return Task.CompletedTask;
     }
 
-    public Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+    public Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName,
+        CancellationToken cancellationToken = default) where T : BaseEntity
     {
         return Task.FromResult(false);
     }

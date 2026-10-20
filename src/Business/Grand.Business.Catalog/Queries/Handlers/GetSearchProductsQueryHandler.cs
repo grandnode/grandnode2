@@ -40,8 +40,6 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     }
     public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Handle(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
-        IList<string> filterableSpecificationAttributeOptionIds = new List<string>();
-
         // Clean up request parameters
         CleanupRequestParameters(request);
 
@@ -51,8 +49,33 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
                                            ? []
                                            : request.Customer.GetCustomerGroupIds());
 
-        // Build base query
-        var query = await BaseQuery(request);
+        var search = await TextSearchTerms(request, cancellationToken);
+        if (search != null)
+            try
+            {
+                return await Search(request, allowedCustomerGroupsIds, search, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                //the index stopped answering after it was found ready - dropped or being rebuilt. Check it again
+                //on the next search and scan as before now
+                await _cacheBase.RemoveAsync(CacheKey.PRODUCTS_TEXT_INDEX_KEY);
+            }
+
+        return await Search(request, allowedCustomerGroupsIds, null, cancellationToken);
+    }
+
+    private async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Search(
+        GetSearchProductsQuery request, string[] allowedCustomerGroupsIds, string search,
+        CancellationToken cancellationToken)
+    {
+        IList<string> filterableSpecificationAttributeOptionIds = new List<string>();
+
+        // Build base query; a text search narrows the candidates to products with a whole query word,
+        // ApplyKeywordFiltering still decides the match
+        var query = search == null
+            ? _productRepository.Table
+            : _databaseContext.TextSearch(_productRepository, search);
         query = FilterQueryable(request, query, allowedCustomerGroupsIds);
 
         // Keep a copy for specifications filtering
@@ -307,19 +330,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         return query;
     }
 
-    private async Task<IQueryable<Product>> BaseQuery(GetSearchProductsQuery request)
-    {
-        var search = TextSearchTerms(request);
-        //until the index is built, or when it failed to build, keyword search scans as before
-        if (search == null || !await _cacheBase.GetAsync(CacheKey.PRODUCTS_TEXT_INDEX_KEY,
-                () => _databaseContext.TextIndexExists(_productRepository, ProductTextIndex.Name), 1))
-            return _productRepository.Table;
-
-        //narrows the candidates to products with a whole query word; ApplyKeywordFiltering still decides the match
-        return _databaseContext.TextSearch(_productRepository, search);
-    }
-
-    private string TextSearchTerms(GetSearchProductsQuery request)
+    private async Task<string> TextSearchTerms(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
         //staff search by fragments and partial SKUs. The text index does not cover descriptions
         if (!_databaseConfig.UseProductTextSearch || request.ShowHidden || request.SearchDescriptions ||
@@ -330,7 +341,14 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         var search = request.Keywords.Replace('"', ' ').Replace('-', ' ');
 
         //$text finds no word in punctuation alone, nor a part of a text written without spaces between words
-        return search.Any(char.IsLetterOrDigit) && !search.Any(IsUnspacedScript) ? search : null;
+        if (!search.Any(char.IsLetterOrDigit) || search.Any(IsUnspacedScript))
+            return null;
+
+        //until the index is built, or when it failed to build, keyword search scans as before
+        return await _cacheBase.GetAsync(CacheKey.PRODUCTS_TEXT_INDEX_KEY,
+            () => _databaseContext.TextIndexExists(_productRepository, ProductTextIndex.Name, cancellationToken), 1)
+            ? search
+            : null;
     }
 
     private static bool IsUnspacedScript(char c)

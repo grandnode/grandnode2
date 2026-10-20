@@ -10,8 +10,8 @@ public class MongoDBContext : IDatabaseContext
     //server error codes
     private const int NamespaceNotFound = 26;
     private const int IndexNotFound = 27;
-    private const int IndexOptionsConflict = 85;
-    private const int IndexKeySpecsConflict = 86;
+
+    private static readonly TimeSpan ProbeMaxTime = TimeSpan.FromSeconds(1);
 
     private readonly IMongoDatabase _database;
 
@@ -80,38 +80,35 @@ public class MongoDBContext : IDatabaseContext
         ArgumentNullException.ThrowIfNull(fieldNames);
 
         //no stemming or stop words - product names are in many languages
-        var model = new CreateIndexModel<T>(
-            Builders<T>.IndexKeys.Combine(fieldNames.Select(x => Builders<T>.IndexKeys.Text(x))),
-            new CreateIndexOptions { Name = indexName, DefaultLanguage = "none" });
-        var indexes = ((MongoRepository<T>)repository).Collection.Indexes;
-        try
-        {
-            await indexes.CreateOneAsync(model, cancellationToken: cancellationToken);
-        }
-        catch (MongoCommandException ex) when (ex.Code is IndexOptionsConflict or IndexKeySpecsConflict)
-        {
-            //the fields changed since the index was built - rebuild it. A text index of another name still fails
-            await DeleteIndex(repository, indexName);
-            await indexes.CreateOneAsync(model, cancellationToken: cancellationToken);
-        }
+        //an index of the same name and spec is a no-op for the server. A collection holds one text index, so
+        //another one - an older field list included - fails here and is left alone: dropping it is a migration's job,
+        //not every starting instance's
+        await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
+                Builders<T>.IndexKeys.Combine(fieldNames.Select(x => Builders<T>.IndexKeys.Text(x))),
+                new CreateIndexOptions { Name = indexName, DefaultLanguage = "none" }),
+            cancellationToken: cancellationToken);
     }
 
-    public async Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+    public async Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName,
+        CancellationToken cancellationToken = default) where T : BaseEntity
     {
         ArgumentNullException.ThrowIfNullOrEmpty(indexName);
 
         var collection = ((MongoRepository<T>)repository).Collection;
-        var indexes = await (await collection.Indexes.ListAsync()).ToListAsync();
-        if (!indexes.Any(x => x["name"] == indexName))
-            return false;
         try
         {
+            var indexes = await (await collection.Indexes.ListAsync(cancellationToken)).ToListAsync(cancellationToken);
+            if (!indexes.Any(x => x["name"] == indexName))
+                return false;
+
             //listIndexes reports an index still being built; $text fails until the build is done
-            await collection.Find(Builders<T>.Filter.Text("probe")).Limit(1).AnyAsync();
+            await collection.Find(Builders<T>.Filter.Text("probe"), new FindOptions { MaxTime = ProbeMaxTime })
+                .Limit(1).AnyAsync(cancellationToken);
             return true;
         }
-        catch (MongoCommandException)
+        catch (Exception ex) when (ex is MongoException or TimeoutException)
         {
+            //unknown is not ready - the caller scans without the index
             return false;
         }
     }

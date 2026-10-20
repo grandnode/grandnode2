@@ -12,17 +12,19 @@ public interface IDatabaseContext
     Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity;
 
     /// <summary>
-    ///     Creates the text index, or rebuilds it when its fields changed. A no-op where the provider has no
-    ///     text indexes
+    ///     Creates the text index. A collection holds one text index: a different one, under another name or with
+    ///     other fields, makes it fail, so a changed field list takes a new name and a migration dropping the old
+    ///     index. A no-op where the provider has no text indexes
     /// </summary>
     Task CreateTextIndex<T>(IRepository<T> repository, string[] fieldNames, string indexName,
         CancellationToken cancellationToken = default) where T : BaseEntity;
 
     /// <summary>
-    ///     Whether the text index exists and answers queries - false while it is being built and where the
-    ///     provider has no text indexes
+    ///     Whether the text index exists and answers queries - false while it is being built, when the check
+    ///     itself fails and where the provider has no text indexes
     /// </summary>
-    Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName) where T : BaseEntity;
+    Task<bool> TextIndexExists<T>(IRepository<T> repository, string indexName,
+        CancellationToken cancellationToken = default) where T : BaseEntity;
 
     /// <summary>
     ///     Gets the repository's table narrowed to documents with a whole word of the search through the text

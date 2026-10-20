@@ -140,6 +140,19 @@ public class GetSearchProductsQueryHandlerTextSearchTests
     }
 
     [TestMethod]
+    public async Task TextSearch_IndexDroppedWhileFoundReady_FallsBackToScan()
+    {
+        var handler = Handler();
+        await Insert("smartphone", "Smartphone");
+        await Search("phone", handler: handler);
+
+        await _databaseContext.DeleteIndex(_repository, ProductTextIndex.Name);
+
+        CollectionAssert.AreEquivalent(new[] { "smartphone" }, await Search("phone", handler: handler));
+        Assert.IsFalse(_repository.Pipeline.Contains("$text"));
+    }
+
+    [TestMethod]
     public async Task TextSearch_ShowHidden_FragmentStillMatches()
     {
         await Insert("smartphone", "Smartphone", "AB778X");
