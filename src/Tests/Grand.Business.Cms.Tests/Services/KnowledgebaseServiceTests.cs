@@ -321,6 +321,60 @@ public class KnowledgebaseServiceTests
     }
 
     [TestMethod]
+    public async Task GetRelatedKnowledgebaseArticles_KeepsRelationOrderAndSkipsDeleted()
+    {
+        //Arrange
+        var first = new KnowledgebaseArticle { Name = "first" };
+        var second = new KnowledgebaseArticle { Name = "second" };
+        await _knowledgebaseService.InsertKnowledgebaseArticle(first);
+        await _knowledgebaseService.InsertKnowledgebaseArticle(second);
+        var article = new KnowledgebaseArticle();
+        article.RelatedArticles.Add(second.Id);
+        article.RelatedArticles.Add("deleted");
+        article.RelatedArticles.Add(first.Id);
+        await _knowledgebaseService.InsertKnowledgebaseArticle(article);
+        //Act
+        var result = await _knowledgebaseService.GetRelatedKnowledgebaseArticles(article.Id, 0, 1);
+        //Assert
+        Assert.AreEqual("second", result.Single().Name);
+        Assert.AreEqual(2, result.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task GetKnowledgebaseArticlesByCategoryId_ReturnsRequestedPageAndTotal()
+    {
+        //Arrange
+        for (var i = 0; i < 3; i++)
+            await _knowledgebaseService.InsertKnowledgebaseArticle(new KnowledgebaseArticle {
+                Name = $"article {i}", ParentCategoryId = "1", DisplayOrder = i
+            });
+        await _knowledgebaseService.InsertKnowledgebaseArticle(new KnowledgebaseArticle { ParentCategoryId = "2" });
+        //Act
+        var result = await _knowledgebaseService.GetKnowledgebaseArticlesByCategoryId("1", 1, 2);
+        //Assert
+        Assert.AreEqual("article 2", result.Single().Name);
+        Assert.AreEqual(3, result.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task GetKnowledgebaseArticlesByName_ReturnsRequestedPageAndTotal()
+    {
+        //Arrange
+        for (var i = 0; i < 3; i++)
+            await _knowledgebaseService.InsertKnowledgebaseArticle(new KnowledgebaseArticle {
+                Name = $"Shipping {i}", Published = true, DisplayOrder = i
+            });
+        await _knowledgebaseService.InsertKnowledgebaseArticle(new KnowledgebaseArticle {
+            Name = "Returns", Published = true
+        });
+        //Act
+        var result = await _knowledgebaseService.GetKnowledgebaseArticlesByName("shipping", 0, 2);
+        //Assert
+        CollectionAssert.AreEqual(new[] { "Shipping 0", "Shipping 1" }, result.Select(x => x.Name).ToArray());
+        Assert.AreEqual(3, result.TotalCount);
+    }
+
+    [TestMethod]
     public async Task InsertArticleCommentTest()
     {
         //Arrange

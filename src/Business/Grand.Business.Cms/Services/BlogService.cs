@@ -72,6 +72,13 @@ public class BlogService : IBlogService
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string tag = null,
         string blogPostName = "", string categoryId = "")
     {
+        var query = await BuildBlogPostQuery(storeId, dateFrom, dateTo, showHidden, tag, blogPostName, categoryId);
+        return await _blogPostRepository.PagedAsync(query, pageIndex, pageSize);
+    }
+
+    private async Task<IQueryable<BlogPost>> BuildBlogPostQuery(string storeId, DateTime? dateFrom,
+        DateTime? dateTo, bool showHidden, string tag, string blogPostName, string categoryId)
+    {
         var query = from p in _blogPostRepository.Table
             select p;
 
@@ -108,9 +115,7 @@ public class BlogService : IBlogService
 
         if (!string.IsNullOrEmpty(tag)) query = query.Where(x => x.Tags.Contains(tag));
 
-        query = query.OrderByDescending(b => b.CreatedOnUtc);
-
-        return await _blogPostRepository.PagedAsync(query, pageIndex, pageSize);
+        return query.OrderByDescending(b => b.CreatedOnUtc);
     }
 
 
@@ -127,17 +132,32 @@ public class BlogService : IBlogService
         string tag = "",
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
-        tag = tag.Trim();
+        tag = tag?.Trim();
+        if (string.IsNullOrEmpty(tag))
+            return new PagedList<BlogPost>([], pageIndex, pageSize);
 
-        //we load all records and only then filter them by tag
-        var blogPostsAll = await GetAllBlogPosts(storeId, showHidden: showHidden, tag: tag);
-        var taggedBlogPosts = (from blogPost in blogPostsAll
-            let tags = blogPost.ParseTags()
-            where !string.IsNullOrEmpty(tags.FirstOrDefault(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)))
-            select blogPost).ToList();
+        //Tags is one comma separated string, so the database can only narrow it down to posts containing
+        //the text; the whole-tag match runs on the identifiers and tags alone, and only the page is loaded
+        var query = await BuildBlogPostQuery(storeId, null, null, showHidden, tag, "", "");
+        var candidates = await _blogPostRepository.ToListAsync(
+            query.Select(x => new BlogPost { Id = x.Id, Tags = x.Tags }));
+        var taggedIds = candidates
+            .Where(x => x.ParseTags().Any(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+            .Select(x => x.Id)
+            .ToList();
 
-        //server-side paging
-        return new PagedList<BlogPost>(taggedBlogPosts, pageIndex, pageSize);
+        if (pageSize <= 0)
+            pageSize = 1;
+        var skip = (int)Math.Clamp((long)pageIndex * pageSize, 0, int.MaxValue);
+        var pageIds = taggedIds.Skip(skip).Take(pageSize).ToList();
+        var blogPosts = pageIds.Count == 0
+            ? []
+            : (await _blogPostRepository.ToListAsync(_blogPostRepository.Table.Where(x => pageIds.Contains(x.Id))))
+            .ToDictionary(x => x.Id);
+
+        //keep the order of the query
+        var page = pageIds.Select(blogPosts.GetValueOrDefault).Where(x => x != null);
+        return new PagedList<BlogPost>(page, pageIndex, pageSize, taggedIds.Count);
     }
 
     /// <summary>

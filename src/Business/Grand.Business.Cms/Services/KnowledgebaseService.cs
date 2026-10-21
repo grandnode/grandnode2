@@ -242,10 +242,9 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByCategoryId(string id,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var articles = await _knowledgebaseArticleRepository.ToListAsync(
-            _knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id)
-                .OrderBy(x => x.DisplayOrder));
-        return new PagedList<KnowledgebaseArticle>(articles, pageIndex, pageSize);
+        var query = _knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id)
+            .OrderBy(x => x.DisplayOrder);
+        return await _knowledgebaseArticleRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -446,9 +445,7 @@ public class KnowledgebaseService : IKnowledgebaseService
                 || p.Name.ToLower().Contains(name.ToLower()));
 
         query = query.OrderBy(x => x.DisplayOrder);
-        var toReturn = await _knowledgebaseArticleRepository.ToListAsync(query);
-
-        return new PagedList<KnowledgebaseArticle>(toReturn, pageIndex, pageSize);
+        return await _knowledgebaseArticleRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -458,16 +455,16 @@ public class KnowledgebaseService : IKnowledgebaseService
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var article = await GetKnowledgebaseArticle(articleId);
-        var toReturn = new List<KnowledgebaseArticle>();
+        var relatedIds = article.RelatedArticles.Distinct().ToList();
+        var related = relatedIds.Count == 0
+            ? []
+            : (await _knowledgebaseArticleRepository.ToListAsync(
+                _knowledgebaseArticleRepository.Table.Where(x => relatedIds.Contains(x.Id))))
+            .ToDictionary(x => x.Id);
 
-        foreach (var id in article.RelatedArticles)
-        {
-            var relatedArticle = await GetKnowledgebaseArticle(id);
-            if (relatedArticle != null)
-                toReturn.Add(relatedArticle);
-        }
-
-        return new PagedList<KnowledgebaseArticle>(toReturn.ToList(), pageIndex, pageSize);
+        //keep the order the articles were related in; ids of deleted articles are skipped
+        var toReturn = relatedIds.Select(related.GetValueOrDefault).Where(x => x != null);
+        return new PagedList<KnowledgebaseArticle>(toReturn, pageIndex, pageSize);
     }
 
     /// <summary>
