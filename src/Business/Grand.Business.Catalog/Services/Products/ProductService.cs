@@ -42,6 +42,8 @@ public class ProductService : IProductService
 
     #region Fields
 
+    private const int MaxProductIdsPerQuery = 500;
+
     private readonly IRepository<Product> _productRepository;
     private readonly ICacheBase _cacheBase;
     private readonly IAclService _aclService;
@@ -125,32 +127,41 @@ public class ProductService : IProductService
         if (productIds == null || productIds.Length == 0)
             return new List<Product>();
 
-        //the first cache miss loads every product not resolved yet with one query, so a cold cache
-        //costs one round trip instead of one per identifier; a warm cache costs none
-        Dictionary<string, Product> loaded = null;
-
-        async Task<Product> LoadProduct(int index)
+        //cached products are taken as they are; only the misses are read from the database, with one
+        //query per batch, so a cold cache costs one round trip instead of one per identifier
+        var resolved = new Dictionary<string, Product>();
+        var missing = new List<string>();
+        foreach (var id in productIds)
         {
-            if (loaded == null)
-            {
-                var ids = productIds.Skip(index).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray();
-                var query = _productRepository.Table.Where(x => ids.Contains(x.Id));
-                loaded = (await _productRepository.ToListAsync(query)).ToDictionary(x => x.Id);
-            }
+            if (string.IsNullOrEmpty(id) || resolved.ContainsKey(id))
+                continue;
 
-            return loaded.GetValueOrDefault(productIds[index]);
+            if (_cacheBase.TryGet(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id), out Product cached))
+                resolved[id] = cached;
+            else
+            {
+                resolved[id] = null;
+                missing.Add(id);
+            }
+        }
+
+        foreach (var batch in missing.Chunk(MaxProductIdsPerQuery))
+        {
+            var query = _productRepository.Table.Where(x => batch.Contains(x.Id));
+            var loaded = (await _productRepository.ToListAsync(query)).ToDictionary(x => x.Id);
+            //an entry stored meanwhile by another request wins over the copy just read
+            foreach (var id in batch)
+                resolved[id] = await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id),
+                    () => Task.FromResult(loaded.GetValueOrDefault(id)));
         }
 
         var products = new List<Product>();
-        for (var i = 0; i < productIds.Length; i++)
+        foreach (var id in productIds)
         {
-            var id = productIds[i];
             if (string.IsNullOrEmpty(id))
                 continue;
 
-            var index = i;
-            var product = await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id),
-                () => LoadProduct(index));
+            var product = resolved[id];
             if (product != null &&
                 (access.ShowHidden || (_aclService.Authorize(product, access.Customer) && product.IsAvailable())) &&
                 _aclService.Authorize(product, access.StoreId))

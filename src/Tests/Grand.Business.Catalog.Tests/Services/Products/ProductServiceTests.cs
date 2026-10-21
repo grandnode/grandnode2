@@ -112,6 +112,37 @@ public class ProductServiceTests
     }
 
     [TestMethod]
+    public async Task GetProductsByIds_MissAfterHits_QueriesOnlyTheMisses()
+    {
+        //Arrange
+        var stored = new List<Product> {
+            new() { Id = "p1", Published = true }, new() { Id = "p2", Published = true },
+            new() { Id = "p3", Published = true }
+        };
+        var queried = new List<string>();
+        var repositoryMock = new Mock<IRepository<Product>>();
+        repositoryMock.Setup(x => x.Table).Returns(stored.AsQueryable());
+        repositoryMock.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IQueryable<Product> query, CancellationToken _) => {
+                var result = query.ToList();
+                queried.AddRange(result.Select(x => x.Id));
+                return result;
+            });
+        var productService = new ProductService(_cacheBase, repositoryMock.Object, _mediatorMock.Object,
+            _aclServiceMock);
+        var access = CatalogAccess.For(new Customer(), "");
+        await productService.GetProductsByIds(["p1", "p3"], access);
+        queried.Clear();
+
+        //Act
+        var products = await productService.GetProductsByIds(["p1", "p2", "p3", "p2"], access);
+
+        //Assert
+        CollectionAssert.AreEqual(new[] { "p1", "p2", "p3", "p2" }, products.Select(x => x.Id).ToArray());
+        CollectionAssert.AreEqual(new[] { "p2" }, queried);
+    }
+
+    [TestMethod]
     public async Task GetProductsByIds_PartlyCached_KeepsOrderDuplicatesAndSkipsMissing()
     {
         //Arrange

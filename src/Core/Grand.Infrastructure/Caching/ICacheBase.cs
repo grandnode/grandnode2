@@ -5,6 +5,11 @@ namespace Grand.Infrastructure.Caching;
 /// </summary>
 public interface ICacheBase
 {
+    /// <summary>
+    ///     Gets a cached value without loading it on a miss
+    /// </summary>
+    bool TryGet<T>(string key, out T value);
+
     T Get<T>(string key, Func<T> acquire);
     T Get<T>(string key, Func<T> acquire, int cacheTime);
     Task<T> GetAsync<T>(string key, Func<Task<T>> acquire);
