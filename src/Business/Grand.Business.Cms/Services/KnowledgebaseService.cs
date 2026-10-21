@@ -455,6 +455,9 @@ public class KnowledgebaseService : IKnowledgebaseService
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var article = await GetKnowledgebaseArticle(articleId);
+        if (article == null)
+            return new PagedList<KnowledgebaseArticle>([], pageIndex, pageSize);
+
         var relatedIds = article.RelatedArticles.Distinct().ToList();
         var related = relatedIds.Count == 0
             ? []
@@ -463,7 +466,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             .ToDictionary(x => x.Id);
 
         //keep the order the articles were related in; ids of deleted articles are skipped
-        var toReturn = relatedIds.Select(related.GetValueOrDefault).Where(x => x != null);
+        var toReturn = article.RelatedArticles.Select(related.GetValueOrDefault).Where(x => x != null);
         return new PagedList<KnowledgebaseArticle>(toReturn, pageIndex, pageSize);
     }
 

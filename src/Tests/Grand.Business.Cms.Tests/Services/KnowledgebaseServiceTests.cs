@@ -341,6 +341,31 @@ public class KnowledgebaseServiceTests
     }
 
     [TestMethod]
+    public async Task GetRelatedKnowledgebaseArticles_KeepsDuplicateRelations()
+    {
+        //Arrange
+        var related = new KnowledgebaseArticle { Name = "related" };
+        await _knowledgebaseService.InsertKnowledgebaseArticle(related);
+        var article = new KnowledgebaseArticle();
+        article.RelatedArticles.Add(related.Id);
+        article.RelatedArticles.Add(related.Id);
+        await _knowledgebaseService.InsertKnowledgebaseArticle(article);
+        //Act
+        var result = await _knowledgebaseService.GetRelatedKnowledgebaseArticles(article.Id);
+        //Assert
+        Assert.AreEqual(2, result.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task GetRelatedKnowledgebaseArticles_UnknownArticle_ReturnsEmpty()
+    {
+        //Act
+        var result = await _knowledgebaseService.GetRelatedKnowledgebaseArticles("unknown");
+        //Assert
+        Assert.AreEqual(0, result.TotalCount);
+    }
+
+    [TestMethod]
     public async Task GetKnowledgebaseArticlesByCategoryId_ReturnsRequestedPageAndTotal()
     {
         //Arrange
