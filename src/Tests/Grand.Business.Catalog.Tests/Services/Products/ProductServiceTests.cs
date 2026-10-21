@@ -84,6 +84,81 @@ public class ProductServiceTests
     }
 
     [TestMethod]
+    public async Task GetProductsByIds_ColdCache_LoadsMissesWithOneQueryAndFillsCache()
+    {
+        //Arrange
+        var stored = new List<Product> {
+            new() { Id = "p1", Published = true }, new() { Id = "p2", Published = true },
+            new() { Id = "p3", Published = true }
+        };
+        var repositoryMock = new Mock<IRepository<Product>>();
+        repositoryMock.Setup(x => x.Table).Returns(stored.AsQueryable());
+        repositoryMock.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IQueryable<Product> query, CancellationToken _) => query.ToList());
+        var productService = new ProductService(_cacheBase, repositoryMock.Object, _mediatorMock.Object,
+            _aclServiceMock);
+        var access = CatalogAccess.For(new Customer(), "");
+
+        //Act
+        var first = await productService.GetProductsByIds(["p1", "p2", "p3"], access);
+        var second = await productService.GetProductsByIds(["p3", "p1"], access);
+
+        //Assert
+        Assert.HasCount(3, first);
+        CollectionAssert.AreEqual(new[] { "p3", "p1" }, second.Select(x => x.Id).ToArray());
+        repositoryMock.Verify(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        repositoryMock.Verify(x => x.GetByIdAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GetProductsByIds_MissAfterHits_QueriesOnlyTheMisses()
+    {
+        //Arrange
+        var stored = new List<Product> {
+            new() { Id = "p1", Published = true }, new() { Id = "p2", Published = true },
+            new() { Id = "p3", Published = true }
+        };
+        var queried = new List<string>();
+        var repositoryMock = new Mock<IRepository<Product>>();
+        repositoryMock.Setup(x => x.Table).Returns(stored.AsQueryable());
+        repositoryMock.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IQueryable<Product> query, CancellationToken _) => {
+                var result = query.ToList();
+                queried.AddRange(result.Select(x => x.Id));
+                return result;
+            });
+        var productService = new ProductService(_cacheBase, repositoryMock.Object, _mediatorMock.Object,
+            _aclServiceMock);
+        var access = CatalogAccess.For(new Customer(), "");
+        await productService.GetProductsByIds(["p1", "p3"], access);
+        queried.Clear();
+
+        //Act
+        var products = await productService.GetProductsByIds(["p1", "p2", "p3", "p2"], access);
+
+        //Assert
+        CollectionAssert.AreEqual(new[] { "p1", "p2", "p3", "p2" }, products.Select(x => x.Id).ToArray());
+        CollectionAssert.AreEqual(new[] { "p2" }, queried);
+    }
+
+    [TestMethod]
+    public async Task GetProductsByIds_PartlyCached_KeepsOrderDuplicatesAndSkipsMissing()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product { Id = "p1", Published = true });
+        await _productRepository.InsertAsync(new Product { Id = "p2", Published = true });
+        await _productService.GetProductById("p2");
+
+        //Act
+        var products = await _productService.GetProductsByIds(["p2", "", "x", "p1", "p2", null],
+            CatalogAccess.For(new Customer(), ""));
+
+        //Assert
+        CollectionAssert.AreEqual(new[] { "p2", "p1", "p2" }, products.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
     public async Task SearchProducts_SendsGivenCustomerInQuery()
     {
         //Arrange
