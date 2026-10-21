@@ -24,6 +24,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Localization;
@@ -46,7 +47,8 @@ public class ProductController : BasePublicController
         IMediator mediator,
         CatalogSettings catalogSettings,
         CaptchaSettings captchaSettings,
-        IGuestCustomerPersistence guestCustomerPersistence
+        IGuestCustomerPersistence guestCustomerPersistence,
+        ILogger<ProductController> logger
     )
     {
         _productService = productService;
@@ -60,6 +62,7 @@ public class ProductController : BasePublicController
         _catalogSettings = catalogSettings;
         _captchaSettings = captchaSettings;
         _guestCustomerPersistence = guestCustomerPersistence;
+        _logger = logger;
     }
 
     #endregion
@@ -269,6 +272,24 @@ public class ProductController : BasePublicController
     private readonly CatalogSettings _catalogSettings;
     private readonly CaptchaSettings _captchaSettings;
     private readonly IGuestCustomerPersistence _guestCustomerPersistence;
+    private readonly ILogger<ProductController> _logger;
+
+    #endregion
+
+    #region Utilities
+
+    //the view counter is statistics only - a failed write must not fail the page
+    private async Task CountProductView(Product product)
+    {
+        try
+        {
+            await _productService.IncrementProductField(product, x => x.Viewed, 1);
+        }
+        catch (Exception exc)
+        {
+            _logger.LogWarning(exc, "Could not count the view of product {ProductId}", product.Id);
+        }
+    }
 
     #endregion
 
@@ -337,7 +358,7 @@ public class ProductController : BasePublicController
             //a vendor should have access only to his products
             if (_contextAccessor.WorkContext.CurrentVendor == null || _contextAccessor.WorkContext.CurrentVendor.Id == product.VendorId)
                 DisplayEditLink(Url.Action("Edit", "Product", new { id = product.Id, area = "Admin" }));
-        _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
+        await CountProductView(product);
 
         return View(productLayoutViewPath, model);
     }
@@ -547,7 +568,7 @@ public class ProductController : BasePublicController
         if (!_guestCustomerPersistence.IsTransient(customer.Id))
             await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
 
-        _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
+        await CountProductView(product);
 
         return Json(new {
             success = true,

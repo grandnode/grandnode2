@@ -14,9 +14,11 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
+using System.Linq.Expressions;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -79,7 +81,8 @@ public class ProductControllerPreviewTests
             _mediatorMock.Object,
             new CatalogSettings { AllowViewUnpublishedProductPage = false },
             new CaptchaSettings(),
-            _guestPersistenceMock.Object) {
+            _guestPersistenceMock.Object,
+            new Mock<ILogger<ProductController>>().Object) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext { Request = { Method = "GET" } }
             }
@@ -165,5 +168,29 @@ public class ProductControllerPreviewTests
         await _controller.ProductDetails("p1");
 
         _recentlyViewedMock.Verify(x => x.AddProductToRecentlyViewedList(_customer.Id, "p1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductDetails_CountsTheViewOnce()
+    {
+        GivenProduct(new Product { Id = "p1", Published = true, VisibleIndividually = true });
+
+        await _controller.ProductDetails("p1");
+
+        _productServiceMock.Verify(x => x.IncrementProductField(It.Is<Product>(p => p.Id == "p1"),
+            It.IsAny<Expression<Func<Product, long>>>(), 1L), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductDetails_ViewCounterFails_StillReturnsThePage()
+    {
+        GivenProduct(new Product { Id = "p1", Published = true, VisibleIndividually = true });
+        _productServiceMock.Setup(x => x.IncrementProductField(It.IsAny<Product>(),
+                It.IsAny<Expression<Func<Product, long>>>(), It.IsAny<long>()))
+            .ThrowsAsync(new InvalidOperationException("view counter"));
+
+        var result = await _controller.ProductDetails("p1");
+
+        Assert.IsInstanceOfType<ViewResult>(result.Result);
     }
 }
