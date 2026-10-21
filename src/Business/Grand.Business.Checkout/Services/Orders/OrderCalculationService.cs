@@ -507,7 +507,9 @@ public class OrderCalculationService : IOrderCalculationService
             var shippingTotalExcl = await GetShoppingCartShippingTotal(cart, context, false);
             var shippingExclTax = shippingTotalExcl.ShippingTotal;
 
-            var (shippingInclTax, taxRate, _) = await GetShoppingCartShippingTotal(cart, context, true);
+            var shippingTotalIncl = await GetShoppingCartShippingTotal(cart, context, true);
+            var shippingInclTax = shippingTotalIncl.ShippingTotal;
+            var taxRate = shippingTotalIncl.TaxRate;
 
             if (shippingExclTax.HasValue && shippingInclTax.HasValue)
             {

@@ -47,9 +47,8 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
                 context.AddFailure(translationService.GetResource("Checkout.MinMaxOrderTotalAmount", value.Language.Id));
 
             //subtotal
-            var (_, _, subTotalWithoutDiscount, _, _) =
-                await orderTotalCalculationService.GetShoppingCartSubTotal(value.Cart, value.Context, false);
-            if (subTotalWithoutDiscount < orderSettings.MinOrderSubtotalAmount)
+            var subTotal = await orderTotalCalculationService.GetShoppingCartSubTotal(value.Cart, value.Context, false);
+            if (subTotal.SubTotalWithoutDiscount < orderSettings.MinOrderSubtotalAmount)
             {
                 var minOrderSubtotalAmount =
                     await currencyService.ConvertFromPrimaryStoreCurrency(orderSettings.MinOrderSubtotalAmount,

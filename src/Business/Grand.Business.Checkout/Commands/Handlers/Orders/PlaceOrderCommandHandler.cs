@@ -564,15 +564,16 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //shipping total
 
-        var (orderShippingTotalInclTax, _, shippingTotalDiscounts) =
+        var shippingTotalInclTax =
             await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, true);
+        var orderShippingTotalInclTax = shippingTotalInclTax.ShippingTotal;
         var orderShippingTotalExclTax =
             (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, false))
             .ShippingTotal;
         if (!orderShippingTotalInclTax.HasValue || !orderShippingTotalExclTax.HasValue)
             throw new GrandException("Shipping total couldn't be calculated");
 
-        foreach (var disc in shippingTotalDiscounts.Where(disc =>
+        foreach (var disc in shippingTotalInclTax.AppliedDiscounts.Where(disc =>
                      details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
             details.AppliedDiscounts.Add(disc);
         details.OrderShippingTotalInclTax = orderShippingTotalInclTax.Value;
@@ -594,30 +595,29 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //tax total
         //tax amount
-        var (taxTotal, taxRates) = await _orderTotalCalculationService.GetTaxTotal(details.Cart, details.Context);
-        details.OrderTaxTotal = taxTotal;
+        var taxTotal = await _orderTotalCalculationService.GetTaxTotal(details.Cart, details.Context);
+        details.OrderTaxTotal = taxTotal.TaxTotal;
 
         //tax rates
-        foreach (var kvp in taxRates)
+        foreach (var kvp in taxTotal.TaxRates)
             details.Taxes.Add(new OrderTax {
                 Percent = Math.Round(kvp.Key, 2),
                 Amount = kvp.Value
             });
 
         //order total (and applied discounts, gift vouchers, loyalty points)
-        var (orderTotal, orderDiscountAmount, orderAppliedDiscounts, appliedGiftVouchers, redeemedLoyaltyPoints,
-            redeemedLoyaltyPointsAmount) = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart, details.Context);
-        if (!orderTotal.HasValue)
+        var orderTotal = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart, details.Context);
+        if (!orderTotal.Total.HasValue)
             throw new GrandException("Order total couldn't be calculated");
 
-        details.OrderDiscountAmount = orderDiscountAmount;
-        details.RedeemedLoyaltyPoints = redeemedLoyaltyPoints;
-        details.RedeemedLoyaltyPointsAmount = redeemedLoyaltyPointsAmount;
-        details.AppliedGiftVouchers = appliedGiftVouchers;
-        details.OrderTotal = orderTotal.Value;
+        details.OrderDiscountAmount = orderTotal.DiscountAmount;
+        details.RedeemedLoyaltyPoints = orderTotal.RedeemedLoyaltyPoints;
+        details.RedeemedLoyaltyPointsAmount = orderTotal.RedeemedLoyaltyPointsAmount;
+        details.AppliedGiftVouchers = orderTotal.AppliedGiftVouchers;
+        details.OrderTotal = orderTotal.Total.Value;
 
         //discount history
-        foreach (var disc in orderAppliedDiscounts.Where(disc =>
+        foreach (var disc in orderTotal.AppliedDiscounts.Where(disc =>
                      details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
             details.AppliedDiscounts.Add(disc);
 
