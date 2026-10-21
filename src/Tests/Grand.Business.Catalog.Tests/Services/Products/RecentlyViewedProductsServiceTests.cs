@@ -117,19 +117,16 @@ public class RecentlyViewedProductsServiceTests
     }
 
     [TestMethod]
-    public async Task AddProductToRecentlyViewedList_ProductViewedAgain_KeepsOneRowAndItsId()
+    public async Task AddProductToRecentlyViewedList_ProductViewedAgain_KeepsOneRow()
     {
         //Arrange
         await _service.AddProductToRecentlyViewedList("1", "1");
-        var id = _repository.Table.Single(x => x.CustomerId == "1" && x.ProductId == "1").Id;
 
         //Act
         await _service.AddProductToRecentlyViewedList("1", "1");
 
         //Assert
-        var rows = _repository.Table.Where(x => x.CustomerId == "1" && x.ProductId == "1").ToList();
-        Assert.HasCount(1, rows);
-        Assert.AreEqual(id, rows[0].Id);
+        Assert.AreEqual(1, _repository.Table.Count(x => x.CustomerId == "1" && x.ProductId == "1"));
     }
 
     [TestMethod]
@@ -165,6 +162,22 @@ public class RecentlyViewedProductsServiceTests
 
         //Assert
         CollectionAssert.AreEquivalent(new[] { "5", "6" },
+            _repository.Table.Where(x => x.CustomerId == "1").Select(x => x.ProductId).ToList());
+    }
+
+    [TestMethod]
+    public async Task AddProductToRecentlyViewedList_ListOverTheLimit_ProductViewedAgain_TrimsToTheLimit()
+    {
+        //Arrange
+        var service = CreateService(5);
+        for (var i = 1; i <= 5; i++)
+            await service.AddProductToRecentlyViewedList("1", i.ToString());
+
+        //Act
+        await CreateService(2).AddProductToRecentlyViewedList("1", "3");
+
+        //Assert
+        CollectionAssert.AreEquivalent(new[] { "3", "5" },
             _repository.Table.Where(x => x.CustomerId == "1").Select(x => x.ProductId).ToList());
     }
 

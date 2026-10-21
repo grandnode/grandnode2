@@ -89,37 +89,29 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
         if (!_catalogSettings.RecentlyViewedProductsEnabled)
             return;
 
-        //one read of the customer's list (kept at the limit) decides everything below
+        var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
+        if (maxProducts <= 0)
+            maxProducts = 10;
+
+        //one read of the customer's list decides which rows go
         var query = from p in _recentlyViewedProducts.Table
             where p.CustomerId == customerId
             orderby p.CreatedOnUtc descending, p.Id descending
             select new { p.Id, p.ProductId };
         var rows = await _recentlyViewedProducts.ToListAsync(query);
 
-        //a product viewed again moves to the top; the list does not grow, so nothing to trim
-        var viewedAgainIds = rows.Where(x => x.ProductId == productId).Select(x => x.Id).ToList();
-        if (viewedAgainIds.Any())
-        {
-            //two concurrent first views can insert the product twice - keep only the newest row
-            var duplicateIds = viewedAgainIds.Skip(1).ToList();
-            if (duplicateIds.Any())
-                await _recentlyViewedProducts.DeleteManyAsync(x => duplicateIds.Contains(x.Id));
-
-            await _recentlyViewedProducts.UpdateManyAsync(
-                x => x.CustomerId == customerId && x.ProductId == productId,
-                UpdateBuilder<RecentlyViewedProduct>.Create().Set(x => x.CreatedOnUtc, DateTime.UtcNow));
-            return;
-        }
-
+        //a product viewed again is inserted anew, so it moves to the top of the list and keeps its creation date
+        //meaning; inserting before deleting means the viewed product is never missing from the list
         await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct
             { CustomerId = customerId, ProductId = productId });
 
-        var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
-        if (maxProducts <= 0)
-            maxProducts = 10;
-
-        //the new row takes one place, so the oldest rows beyond the limit go
-        var staleIds = rows.Skip(maxProducts - 1).Select(x => x.Id).ToList();
+        //the earlier rows of this product (two concurrent first views can leave more than one) and the oldest rows
+        //beyond the limit go; trimming on every view also shrinks a list that grew past the limit - after the limit
+        //was lowered or when concurrent views of new products deleted the same oldest row
+        var staleIds = rows.Where(x => x.ProductId == productId)
+            .Concat(rows.Where(x => x.ProductId != productId).Skip(maxProducts - 1))
+            .Select(x => x.Id)
+            .ToList();
         if (staleIds.Any())
             await _recentlyViewedProducts.DeleteManyAsync(x => staleIds.Contains(x.Id));
     }
