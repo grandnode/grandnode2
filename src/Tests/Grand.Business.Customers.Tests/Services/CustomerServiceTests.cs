@@ -472,6 +472,26 @@ public class CustomerServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateCustomerLastActivityTest()
+    {
+        //Arrange
+        var customer = new Customer { Email = "email@email.com", AdminComment = "keep" };
+        await _repository.InsertAsync(customer);
+        //Act
+        var date = DateTime.UtcNow;
+        customer.LastActivityDateUtc = date;
+        customer.LastIpAddress = "10.0.0.1";
+        customer.LastVisitedPage = "https://shop.test/product";
+        await _customerService.UpdateCustomerLastActivity(customer);
+        //Assert
+        var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
+        Assert.AreEqual(date.ToString(), updated.LastActivityDateUtc.ToString());
+        Assert.AreEqual("10.0.0.1", updated.LastIpAddress);
+        Assert.AreEqual("https://shop.test/product", updated.LastVisitedPage);
+        Assert.AreEqual("keep", updated.AdminComment);
+    }
+
+    [TestMethod]
     public async Task UpdateCustomerinAdminPanelTest()
     {
         //Assert

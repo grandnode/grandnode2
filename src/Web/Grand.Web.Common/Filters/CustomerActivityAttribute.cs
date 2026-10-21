@@ -61,10 +61,14 @@ public class CustomerActivityAttribute : TypeFilterAttribute
             if (customer.IsSystemAccount || guestCustomerPersistence.IsTransient(customer.Id))
                 return;
 
+            var changed = false;
+
             //update last activity date
             if (customer.LastActivityDateUtc.AddMinutes(3.0) < DateTime.UtcNow)
-                await customerService.UpdateCustomerField(customer, x => x.LastActivityDateUtc,
-                    DateTime.UtcNow);
+            {
+                customer.LastActivityDateUtc = DateTime.UtcNow;
+                changed = true;
+            }
 
             //get current IP address
             var currentIpAddress = context.HttpContext?.Connection?.RemoteIpAddress?.ToString();
@@ -75,21 +79,21 @@ public class CustomerActivityAttribute : TypeFilterAttribute
                     StringComparison.OrdinalIgnoreCase))
             {
                 customer.LastIpAddress = currentIpAddress;
-                await customerService.UpdateCustomerField(customer, x => x.LastIpAddress,
-                    currentIpAddress);
+                changed = true;
             }
 
-            //get current page
+            //get current page; save new one if don't match
             var pageUrl = context.HttpContext?.Request?.GetDisplayUrl();
-            if (string.IsNullOrEmpty(pageUrl))
-                return;
-
-            //save new one if don't match
-            if (!pageUrl.Equals(customer.LastVisitedPage, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(pageUrl) &&
+                !pageUrl.Equals(customer.LastVisitedPage, StringComparison.OrdinalIgnoreCase))
             {
                 customer.LastVisitedPage = pageUrl;
-                await customerService.UpdateCustomerField(customer, x => x.LastVisitedPage, pageUrl);
+                changed = true;
             }
+
+            //one write for all changed fields
+            if (changed)
+                await customerService.UpdateCustomerLastActivity(customer);
         }
 
         #endregion
