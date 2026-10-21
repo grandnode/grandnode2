@@ -107,7 +107,8 @@ public class PluginDependencyCycleTests
         AddMocks(services, typeof(IContextAccessor), typeof(IProductService), typeof(IMediator),
             typeof(ICurrencyService), typeof(IDiscountService), typeof(ICategoryService), typeof(IBrandService),
             typeof(ICollectionService), typeof(IVendorService), typeof(IRepository<DiscountCoupon>),
-            typeof(IOrderService), typeof(ITranslationService), typeof(IRequestTranslationService));
+            typeof(IRepository<DiscountUsageHistory>), typeof(IOrderService), typeof(ITranslationService),
+            typeof(IRequestTranslationService));
         services.AddSingleton(new ShoppingCartSettings());
         services.AddSingleton(new CatalogSettings());
 
@@ -134,7 +135,8 @@ public class PluginDependencyCycleTests
             typeof(IShippingMethodService), typeof(IShippingByWeightService), typeof(ICheckoutAttributeParser),
             typeof(IContextAccessor), typeof(IProductService), typeof(IMediator), typeof(ICurrencyService),
             typeof(IDiscountService), typeof(ICategoryService), typeof(IBrandService), typeof(ICollectionService),
-            typeof(IVendorService), typeof(IRepository<DiscountCoupon>), typeof(IOrderService),
+            typeof(IVendorService), typeof(IRepository<DiscountCoupon>), typeof(IRepository<DiscountUsageHistory>),
+            typeof(IOrderService),
             typeof(ITranslationService), typeof(IRequestTranslationService));
         services.AddSingleton(new ShippingProviderSettings());
         services.AddSingleton(new ShippingSettings());
