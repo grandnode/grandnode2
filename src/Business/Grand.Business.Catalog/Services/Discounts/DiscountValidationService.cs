@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Customers;
@@ -8,23 +7,22 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
-using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Discounts;
 
 public class DiscountValidationService : IDiscountValidationService
 {
     private readonly IRepository<DiscountCoupon> _discountCouponRepository;
+    private readonly IRepository<DiscountUsageHistory> _discountUsageHistoryRepository;
     private readonly IDiscountProviderLoader _discountProviderLoader;
-    private readonly IMediator _mediator;
 
     public DiscountValidationService(
         IDiscountProviderLoader discountProviderLoader,
         IRepository<DiscountCoupon> discountCouponRepository,
-        IMediator mediator)
+        IRepository<DiscountUsageHistory> discountUsageHistoryRepository)
     {
         _discountCouponRepository = discountCouponRepository;
-        _mediator = mediator;
+        _discountUsageHistoryRepository = discountUsageHistoryRepository;
         _discountProviderLoader = discountProviderLoader;
     }
 
@@ -163,17 +161,15 @@ public class DiscountValidationService : IDiscountValidationService
         {
             case DiscountLimitationType.NTimes:
             {
-                var usedTimes = await _mediator.Send(new GetDiscountUsageHistoryQuery
-                    { DiscountId = discount.Id, PageSize = 1 });
-                if (usedTimes.TotalCount >= discount.LimitationTimes)
+                var usedTimes = await GetUsedTimes(discount.Id, null);
+                if (usedTimes >= discount.LimitationTimes)
                     return result;
             }
                 break;
             case DiscountLimitationType.NTimesPerUser:
             {
-                var usedTimes = await _mediator.Send(new GetDiscountUsageHistoryQuery
-                    { DiscountId = discount.Id, CustomerId = customer.Id, PageSize = 1 });
-                if (usedTimes.TotalCount >= discount.LimitationTimes)
+                var usedTimes = await GetUsedTimes(discount.Id, customer.Id);
+                if (usedTimes >= discount.LimitationTimes)
                 {
                     result.UserErrorResource = "ShoppingCart.Discount.CannotBeUsedAnymore";
                     return result;
@@ -220,6 +216,18 @@ public class DiscountValidationService : IDiscountValidationService
     }
 
     /// <summary>
+    ///     Counts the usage history of a discount, of one customer when customerId is set
+    /// </summary>
+    private Task<int> GetUsedTimes(string discountId, string customerId)
+    {
+        var query = _discountUsageHistoryRepository.Table.Where(x => x.DiscountId == discountId);
+        if (!string.IsNullOrEmpty(customerId))
+            query = query.Where(x => x.CustomerId == customerId);
+
+        return _discountUsageHistoryRepository.CountAsync(query);
+    }
+
+    /// <summary>
     ///     Exist coupon code in discount
     /// </summary>
     /// <param name="couponCode"></param>
@@ -237,7 +245,6 @@ public class DiscountValidationService : IDiscountValidationService
         if (used.HasValue)
             query = query.Where(x => x.Used == used.Value);
 
-        var result = await _discountCouponRepository.ToListAsync(query);
-        return result.Count != 0;
+        return await _discountCouponRepository.AnyAsync(query);
     }
 }

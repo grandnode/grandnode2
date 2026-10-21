@@ -57,7 +57,8 @@ public class DiscountServiceTests
         _discountAmountProviders = new List<IDiscountAmountProvider> { new DiscountAmountProviderTests() };
         _discountProviderLoader = new DiscountProviderLoader(_discountProviders, _discountAmountProviders);
         _discountValidationService =
-            new DiscountValidationService(_discountProviderLoader, _discountCouponRepository, _mediatorMock.Object);
+            new DiscountValidationService(_discountProviderLoader, _discountCouponRepository,
+                _discountUsageHistoryRepository);
         _dicountService = new DiscountService(_cacheBase, _repository, _discountCouponRepository,
             _discountUsageHistoryRepository, _mediatorMock.Object, new AccessControlConfig());
         handler = new GetDiscountUsageHistoryQueryHandler(_discountUsageHistoryRepository);
@@ -849,5 +850,101 @@ public class DiscountServiceTests
         var discountProviders = _discountProviderLoader.LoadDiscountAmountProviders();
         //Assert
         Assert.HasCount(1, discountProviders);
+    }
+
+    [TestMethod]
+    public async Task ValidateDiscountTest_NTimes_InValid_WhenLimitReached()
+    {
+        //Arrange
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 2);
+        await InsertUsage(discount.Id, "customer1");
+        await InsertUsage(discount.Id, "customer2");
+        //Act
+        var result = await _discountValidationService.ValidateDiscount(discount, new Customer(), new Store(),
+            new Currency { CurrencyCode = "USD" });
+        //Assert
+        Assert.IsFalse(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task ValidateDiscountTest_NTimes_Valid_BelowLimit()
+    {
+        //Arrange
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 2);
+        await InsertUsage(discount.Id, "customer1");
+        await InsertUsage("otherDiscount", "customer1");
+        //Act
+        var result = await _discountValidationService.ValidateDiscount(discount, new Customer(), new Store(),
+            new Currency { CurrencyCode = "USD" });
+        //Assert
+        Assert.IsTrue(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task ValidateDiscountTest_NTimesPerUser_CountsOnlyTheCustomer()
+    {
+        //Arrange
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimesPerUser, 1);
+        var customer = new Customer();
+        await InsertUsage(discount.Id, "otherCustomer");
+        //Act
+        var valid = await _discountValidationService.ValidateDiscount(discount, customer, new Store(),
+            new Currency { CurrencyCode = "USD" });
+        await InsertUsage(discount.Id, customer.Id);
+        var used = await _discountValidationService.ValidateDiscount(discount, customer, new Store(),
+            new Currency { CurrencyCode = "USD" });
+        //Assert
+        Assert.IsTrue(valid.IsValid);
+        Assert.IsFalse(used.IsValid);
+        Assert.AreEqual("ShoppingCart.Discount.CannotBeUsedAnymore", used.UserErrorResource);
+    }
+
+    [TestMethod]
+    public async Task ValidateDiscountTest_NTimes_SeesUsageRecordedInTheScope()
+    {
+        //Arrange
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
+        //Act - order placement validates, records the usage, and the next order validates again
+        var first = await _discountValidationService.ValidateDiscount(discount, new Customer(), new Store(),
+            new Currency { CurrencyCode = "USD" });
+        await InsertUsage(discount.Id, "customer1");
+        var second = await _discountValidationService.ValidateDiscount(discount, new Customer(), new Store(),
+            new Currency { CurrencyCode = "USD" });
+        //Assert
+        Assert.IsTrue(first.IsValid);
+        Assert.IsFalse(second.IsValid);
+    }
+
+    [TestMethod]
+    public async Task ExistsCodeInDiscountTest()
+    {
+        //Arrange
+        await _discountCouponRepository.InsertAsync(new DiscountCoupon
+            { CouponCode = "USED1", DiscountId = "discount1", Used = true });
+        //Act & Assert
+        Assert.IsTrue(await _discountValidationService.ExistsCodeInDiscount("USED1", "discount1", null));
+        Assert.IsTrue(await _discountValidationService.ExistsCodeInDiscount("USED1", "discount1", true));
+        Assert.IsFalse(await _discountValidationService.ExistsCodeInDiscount("USED1", "discount1", false));
+        Assert.IsFalse(await _discountValidationService.ExistsCodeInDiscount("USED1", "discount2", null));
+        Assert.IsFalse(await _discountValidationService.ExistsCodeInDiscount("", "discount1", null));
+    }
+
+    private async Task<Discount> InsertLimitedDiscount(DiscountLimitationType limitation, int times)
+    {
+        var discount = new Discount {
+            Name = "limited",
+            IsEnabled = true,
+            CurrencyCode = "USD",
+            DiscountLimitationId = limitation,
+            LimitationTimes = times
+        };
+        await _dicountService.InsertDiscount(discount);
+        return discount;
+    }
+
+    private Task InsertUsage(string discountId, string customerId)
+    {
+        return _discountUsageHistoryRepository.InsertAsync(new DiscountUsageHistory
+            { DiscountId = discountId, CustomerId = customerId, OrderId = "order" });
     }
 }
