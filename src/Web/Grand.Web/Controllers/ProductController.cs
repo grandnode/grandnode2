@@ -337,7 +337,7 @@ public class ProductController : BasePublicController
             //a vendor should have access only to his products
             if (_contextAccessor.WorkContext.CurrentVendor == null || _contextAccessor.WorkContext.CurrentVendor.Id == product.VendorId)
                 DisplayEditLink(Url.Action("Edit", "Product", new { id = product.Id, area = "Admin" }));
-        _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
+        await _productService.IncrementProductField(product, x => x.Viewed, 1);
 
         return View(productLayoutViewPath, model);
     }
@@ -547,7 +547,7 @@ public class ProductController : BasePublicController
         if (!_guestCustomerPersistence.IsTransient(customer.Id))
             await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
 
-        _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
+        await _productService.IncrementProductField(product, x => x.Viewed, 1);
 
         return Json(new {
             success = true,

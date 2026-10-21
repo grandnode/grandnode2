@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
+using System.Linq.Expressions;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -165,5 +166,27 @@ public class ProductControllerPreviewTests
         await _controller.ProductDetails("p1");
 
         _recentlyViewedMock.Verify(x => x.AddProductToRecentlyViewedList(_customer.Id, "p1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductDetails_CountsTheViewOnce()
+    {
+        GivenProduct(new Product { Id = "p1", Published = true, VisibleIndividually = true });
+
+        await _controller.ProductDetails("p1");
+
+        _productServiceMock.Verify(x => x.IncrementProductField(It.Is<Product>(p => p.Id == "p1"),
+            It.IsAny<Expression<Func<Product, long>>>(), 1L), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductDetails_ViewCounterFails_ErrorIsNotSwallowed()
+    {
+        GivenProduct(new Product { Id = "p1", Published = true, VisibleIndividually = true });
+        _productServiceMock.Setup(x => x.IncrementProductField(It.IsAny<Product>(),
+                It.IsAny<Expression<Func<Product, long>>>(), It.IsAny<long>()))
+            .ThrowsAsync(new InvalidOperationException("view counter"));
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => _controller.ProductDetails("p1"));
     }
 }
