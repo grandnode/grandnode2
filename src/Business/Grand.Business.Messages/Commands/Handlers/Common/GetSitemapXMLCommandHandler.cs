@@ -50,6 +50,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     //so the audience is passed explicitly instead of coming from the (absent) work context
     private string[] _guestGroupIds;
     private GetSitemapXmlCommand _request;
+    private CancellationToken _cancellationToken;
 
     public GetSitemapXmlCommandHandler(
         ICategoryService categoryService,
@@ -88,6 +89,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     public async Task<string> Handle(GetSitemapXmlCommand request, CancellationToken cancellationToken)
     {
         _request = request;
+        _cancellationToken = cancellationToken;
         var guests = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
         _guestGroupIds = guests != null ? [guests.Id] : [];
         return await Generate(request.Language, request.Store);
@@ -300,13 +302,14 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         string afterId = null;
         do
         {
+            _cancellationToken.ThrowIfCancellationRequested();
             batch = await _mediator.Send(new GetSitemapProductsQuery {
                 StoreId = store.Id,
                 CustomerGroupIds = _guestGroupIds,
                 LanguageId = language.Id,
                 AfterId = afterId,
                 PageSize = ProductBatchSize
-            });
+            }, _cancellationToken);
 
             foreach (var product in batch)
             {

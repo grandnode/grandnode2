@@ -1,6 +1,7 @@
 using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Data;
+using Grand.Data.Tests.LiteDb;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
@@ -122,5 +123,41 @@ public class GetSitemapProductsQueryHandlerTests
         CollectionAssert.AreEqual(new[] { "a", "b" }, first.Select(p => p.Id).ToList());
         CollectionAssert.AreEqual(new[] { "c", "d" }, second.Select(p => p.Id).ToList());
         CollectionAssert.AreEqual(new[] { "e" }, last.Select(p => p.Id).ToList());
+    }
+
+    [TestMethod]
+    public async Task Handle_NoCustomerGroups_ReturnsOnlyProductsNotLimitedToGroups()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Product { Id = "open", Published = true, VisibleIndividually = true });
+        await _repository.InsertAsync(new Product {
+            Id = "guests", Published = true, VisibleIndividually = true, LimitedToGroups = true,
+            CustomerGroups = [GuestsGroupId]
+        });
+
+        //Act
+        var result = await _handler.Handle(new GetSitemapProductsQuery { StoreId = StoreId, CustomerGroupIds = null },
+            CancellationToken.None);
+
+        //Assert
+        CollectionAssert.AreEqual(new[] { "open" }, result.Select(p => p.Id).ToList());
+    }
+
+    [TestMethod]
+    public async Task Handle_LiteDB_ReturnsTheRestOfTheCatalogInOneBatch()
+    {
+        //Arrange
+        var repository = new LiteDBRepositoryMock<Product>();
+        var handler = new GetSitemapProductsQueryHandler(repository, new CatalogSettings(), new AccessControlConfig());
+        foreach (var id in new[] { "c", "a", "e", "b", "d" })
+            await repository.InsertAsync(new Product { Id = id, Published = true, VisibleIndividually = true });
+
+        //Act
+        var result = await handler.Handle(new GetSitemapProductsQuery {
+            StoreId = StoreId, CustomerGroupIds = [GuestsGroupId], AfterId = "a", PageSize = 2
+        }, CancellationToken.None);
+
+        //Assert
+        CollectionAssert.AreEqual(new[] { "b", "c", "d", "e" }, result.Select(p => p.Id).ToList());
     }
 }

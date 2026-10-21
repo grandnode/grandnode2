@@ -1,5 +1,6 @@
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Data;
+using Grand.Data.LiteDb;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
@@ -38,7 +39,7 @@ public class GetSitemapProductsQueryHandler : IRequestHandler<GetSitemapProducts
 
         if (!_accessControlConfig.IgnoreAcl)
         {
-            var groupIds = request.CustomerGroupIds.ToArray();
+            var groupIds = request.CustomerGroupIds?.ToArray() ?? [];
             query = query.Where(p => !p.LimitedToGroups || groupIds.Any(x => p.CustomerGroups.Contains(x)));
         }
 
@@ -49,9 +50,15 @@ public class GetSitemapProductsQueryHandler : IRequestHandler<GetSitemapProducts
         if (!string.IsNullOrEmpty(request.AfterId))
             query = query.Where(p => string.Compare(p.Id, request.AfterId) > 0);
 
+        //LiteDB materialises the whole collection on every query, so batching there would read the catalog
+        //once per batch: the rest of the catalog comes back in one go instead
+        IQueryable<Product> ordered = query.OrderBy(p => p.Id);
+        if (_productRepository is not LiteDBRepository<Product>)
+            ordered = ordered.Take(request.PageSize);
+
         //only the fields of a sitemap entry leave the database, not the whole product
         var languageId = request.LanguageId;
-        var batch = query.OrderBy(p => p.Id).Take(request.PageSize).Select(p => new {
+        var batch = ordered.Select(p => new {
             p.Id,
             p.SeName,
             TranslatedSeName = p.Locales.Where(l => l.LanguageId == languageId && l.LocaleKey == "SeName")
