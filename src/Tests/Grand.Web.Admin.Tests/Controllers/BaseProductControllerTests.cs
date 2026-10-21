@@ -31,11 +31,11 @@ using System.Linq.Expressions;
 namespace Grand.Web.Admin.Tests.Controllers;
 
 [TestClass]
-public class BaseProductControllerTests
+public class BaseProductControllerTests : ProductControllerTestsBase<BaseProductControllerTests.TestProductController>
 {
     // BaseProductController is abstract - it has no host until Task 11 subclasses it. This
     // minimal subclass exists only so the actions under test can be invoked directly.
-    private class TestProductController(
+    public class TestProductController(
         IProductViewModelService productViewModelService,
         IProductService productService,
         IInventoryManageService inventoryManageService,
@@ -51,76 +51,18 @@ public class BaseProductControllerTests
             languageService, translationService, productReservationService, auctionService,
             dateTimeService, permissionService, enumTranslationService, scope);
 
-    private TestProductController _controller;
-    private Mock<IProductService> _productServiceMock;
-    private Mock<IProductViewModelService> _productViewModelServiceMock;
-    private Mock<IRequestTranslationService> _translationServiceMock;
-    private Mock<IAdminDataScope<Product>> _scopeMock;
-    private Mock<IRequestPermissionService> _permissionServiceMock;
-    private Mock<IProductReservationService> _productReservationServiceMock;
-    private Mock<IAuctionService> _auctionServiceMock;
-
-    [TestInitialize]
-    public void Setup()
-    {
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ProductProfile>();
-            cfg.AddProfile<ProductSpecificationProfile>();
-        });
-        AutoMapperConfig.Init(mapperConfig);
-
-        _productServiceMock = new Mock<IProductService>();
-        _productViewModelServiceMock = new Mock<IProductViewModelService>();
-        _translationServiceMock = new Mock<IRequestTranslationService>();
-        _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
-
-        _scopeMock = new Mock<IAdminDataScope<Product>>();
-        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-
-        _permissionServiceMock = new Mock<IRequestPermissionService>();
-        _permissionServiceMock.Setup(p => p.Authorize(It.IsAny<Permission>())).ReturnsAsync(true);
-
-        var languageServiceMock = new Mock<ILanguageService>();
-        languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>())).ReturnsAsync(new List<Domain.Localization.Language>());
-
-        _productReservationServiceMock = new Mock<IProductReservationService>();
-        _auctionServiceMock = new Mock<IAuctionService>();
-
-        _controller = new TestProductController(
-            _productViewModelServiceMock.Object,
-            _productServiceMock.Object,
-            new Mock<IInventoryManageService>().Object,
-            languageServiceMock.Object,
-            _translationServiceMock.Object,
-            _productReservationServiceMock.Object,
-            _auctionServiceMock.Object,
-            new Mock<IDateTimeService>().Object,
-            _permissionServiceMock.Object,
-            new Mock<IEnumTranslationService>().Object,
-            _scopeMock.Object);
-
-        var httpContext = new DefaultHttpContext();
-        // Needed for actions whose catch (Exception) block calls Error(exc), which logs via
-        // HttpContext.RequestServices.GetRequiredService<ILoggerFactory>() (see Export / Import below).
-        // Once RequestServices is non-null, ControllerBase.Url's own
-        // HttpContext.RequestServices.GetRequiredService<IUrlHelperFactory>() call (used by every
-        // RedirectToAction(action, controller) - e.g. GoToSku above) stops being short-circuited by the
-        // null-conditional it uses when RequestServices itself is null, so IUrlHelperFactory must resolve
-        // too or those pre-existing tests start throwing.
-        var loggerFactoryMock = new Mock<ILoggerFactory>();
-        loggerFactoryMock.Setup(l => l.CreateLogger(It.IsAny<string>())).Returns(new Mock<ILogger>().Object);
-        var urlHelperFactoryMock = new Mock<IUrlHelperFactory>();
-        urlHelperFactoryMock.Setup(f => f.GetUrlHelper(It.IsAny<ActionContext>()))
-            .Returns(new Mock<IUrlHelper>().Object);
-        var requestServicesMock = new Mock<IServiceProvider>();
-        requestServicesMock.Setup(s => s.GetService(typeof(ILoggerFactory))).Returns(loggerFactoryMock.Object);
-        requestServicesMock.Setup(s => s.GetService(typeof(IUrlHelperFactory))).Returns(urlHelperFactoryMock.Object);
-        httpContext.RequestServices = requestServicesMock.Object;
-        _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
-        _controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
-    }
+    protected override TestProductController CreateController() => new(
+        _productViewModelServiceMock.Object,
+        _productServiceMock.Object,
+        _inventoryManageServiceMock.Object,
+        _languageServiceMock.Object,
+        _translationServiceMock.Object,
+        _productReservationServiceMock.Object,
+        _auctionServiceMock.Object,
+        _dateTimeServiceMock.Object,
+        _permissionServiceMock.Object,
+        _enumTranslationServiceMock.Object,
+        _scopeMock.Object);
 
     // --- Edit (GET) --------------------------------------------------------------------------------
 
