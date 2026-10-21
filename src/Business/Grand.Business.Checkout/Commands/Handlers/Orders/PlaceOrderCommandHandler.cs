@@ -988,7 +988,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             await _inventoryManageService.AdjustReserved(product, -sc.Quantity, sc.Attributes, orderItem.WarehouseId);
 
             //update sold
-            _ = _productService.IncrementProductField(product, x => x.Sold, sc.Quantity);
+            await _productService.IncrementProductField(product, x => x.Sold, sc.Quantity);
         }
 
         //insert order
