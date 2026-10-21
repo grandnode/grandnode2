@@ -518,6 +518,22 @@ public class CustomerService : ICustomerService
         await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
     }
 
+    /// <summary>
+    ///     Updates the customer - last activity date, last IP address and last visited page in one write
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    public virtual async Task UpdateCustomerLastActivity(Customer customer)
+    {
+        ArgumentNullException.ThrowIfNull(customer);
+
+        var update = UpdateBuilder<Customer>.Create()
+            .Set(x => x.LastActivityDateUtc, customer.LastActivityDateUtc)
+            .Set(x => x.LastIpAddress, customer.LastIpAddress)
+            .Set(x => x.LastVisitedPage, customer.LastVisitedPage);
+
+        await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
+    }
+
     public virtual async Task UpdateCustomerInAdminPanel(Customer customer)
     {
         ArgumentNullException.ThrowIfNull(customer);

@@ -203,6 +203,12 @@ public interface ICustomerService
     Task UpdateCustomerLastLoginDate(Customer customer);
 
     /// <summary>
+    ///     Updates the customer - last activity date, last IP address and last visited page in one write
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    Task UpdateCustomerLastActivity(Customer customer);
+
+    /// <summary>
     ///     Updates the customer in admin panel
     /// </summary>
     /// <param name="customer">Customer</param>

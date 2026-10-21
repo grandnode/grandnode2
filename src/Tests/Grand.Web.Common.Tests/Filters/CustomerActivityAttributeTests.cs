@@ -61,19 +61,39 @@ public class CustomerActivityAttributeTests
     {
         await RunGet(new Customer { Id = "searchengine", IsSystemAccount = true });
 
-        _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
-            It.IsAny<Expression<Func<Customer, DateTime>>>(), It.IsAny<DateTime>()), Times.Never);
-        _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
-            It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.Never);
+        _customerService.Verify(c => c.UpdateCustomerLastActivity(It.IsAny<Customer>()), Times.Never);
     }
 
     [TestMethod]
     public async Task Guest_ActivityWritten()
     {
-        await RunGet(new Customer { Id = "guest", Active = true });
+        var customer = new Customer { Id = "guest", Active = true };
 
+        await RunGet(customer);
+
+        //activity date, IP address and visited page all changed, and go to the database in one write
+        _customerService.Verify(c => c.UpdateCustomerLastActivity(customer), Times.Once);
         _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
-            It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.AtLeastOnce);
+            It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.Never);
+        _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
+            It.IsAny<Expression<Func<Customer, DateTime>>>(), It.IsAny<DateTime>()), Times.Never);
+        Assert.AreEqual("10.0.0.1", customer.LastIpAddress);
+        Assert.AreEqual("https://shop.test/product", customer.LastVisitedPage);
+        Assert.IsTrue(customer.LastActivityDateUtc > DateTime.UtcNow.AddMinutes(-1));
+    }
+
+    [TestMethod]
+    public async Task NothingChanged_NothingWritten()
+    {
+        await RunGet(new Customer {
+            Id = "guest",
+            Active = true,
+            LastActivityDateUtc = DateTime.UtcNow,
+            LastIpAddress = "10.0.0.1",
+            LastVisitedPage = "https://shop.test/product"
+        });
+
+        _customerService.Verify(c => c.UpdateCustomerLastActivity(It.IsAny<Customer>()), Times.Never);
     }
 
     [TestMethod]
@@ -83,7 +103,6 @@ public class CustomerActivityAttributeTests
 
         await RunGet(new Customer { Id = "unsaved", Active = true });
 
-        _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
-            It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.Never);
+        _customerService.Verify(c => c.UpdateCustomerLastActivity(It.IsAny<Customer>()), Times.Never);
     }
 }
