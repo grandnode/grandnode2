@@ -125,10 +125,32 @@ public class ProductService : IProductService
         if (productIds == null || productIds.Length == 0)
             return new List<Product>();
 
-        var products = new List<Product>();
-        foreach (var id in productIds)
+        //the first cache miss loads every product not resolved yet with one query, so a cold cache
+        //costs one round trip instead of one per identifier; a warm cache costs none
+        Dictionary<string, Product> loaded = null;
+
+        async Task<Product> LoadProduct(int index)
         {
-            var product = await GetProductById(id);
+            if (loaded == null)
+            {
+                var ids = productIds.Skip(index).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray();
+                var query = _productRepository.Table.Where(x => ids.Contains(x.Id));
+                loaded = (await _productRepository.ToListAsync(query)).ToDictionary(x => x.Id);
+            }
+
+            return loaded.GetValueOrDefault(productIds[index]);
+        }
+
+        var products = new List<Product>();
+        for (var i = 0; i < productIds.Length; i++)
+        {
+            var id = productIds[i];
+            if (string.IsNullOrEmpty(id))
+                continue;
+
+            var index = i;
+            var product = await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id),
+                () => LoadProduct(index));
             if (product != null &&
                 (access.ShowHidden || (_aclService.Authorize(product, access.Customer) && product.IsAvailable())) &&
                 _aclService.Authorize(product, access.StoreId))
