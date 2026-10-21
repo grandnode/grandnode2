@@ -103,28 +103,36 @@ public class OrderReportService : IOrderReportService
                     SumOrders = r.SumOrders
                 });
 
-            return await Task.FromResult(report.ToList());
+            return await _orderRepository.ToListAsync(report);
         }
 
         var vendorQuery = from p in query
             from item in p.OrderItems
             select new {
-                item.VendorId, OrderCode = p.Code,
+                item.VendorId, OrderId = p.Id,
                 p.BillingAddress.CountryId,
-                item.Quantity,
                 item.PriceInclTax,
-                p.Rate
+                p.CurrencyRate
             };
 
         vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
 
-        var vendorReport = (from oq in vendorQuery
-                group oq by oq.CountryId
+        //one row per order first, so an order with several vendor items is counted once
+        var vendorOrders = from oq in vendorQuery
+            group oq by new { oq.OrderId, oq.CountryId }
+            into result
+            select new {
+                result.Key.CountryId,
+                Amount = result.Sum(y => y.PriceInclTax / y.CurrencyRate)
+            };
+
+        var vendorReport = (from vo in vendorOrders
+                group vo by vo.CountryId
                 into result
                 select new {
                     CountryId = result.Key,
                     TotalOrders = result.Count(),
-                    SumOrders = result.Sum(y => y.PriceInclTax / y.Rate)
+                    SumOrders = result.Sum(y => y.Amount)
                 }
             )
             .OrderByDescending(x => x.SumOrders)
@@ -133,7 +141,7 @@ public class OrderReportService : IOrderReportService
                 TotalOrders = r.TotalOrders,
                 SumOrders = r.SumOrders
             });
-        return await Task.FromResult(vendorReport.ToList());
+        return await _orderRepository.ToListAsync(vendorReport);
     }
 
 
@@ -149,31 +157,31 @@ public class OrderReportService : IOrderReportService
         DateTime? endTimeUtc = null)
     {
         var report = new List<OrderByTimeReportLine>();
-        startTimeUtc ??= DateTime.MinValue;
-        endTimeUtc ??= DateTime.UtcNow;
+        var startTime = startTimeUtc ?? DateTime.MinValue;
+        var endDate = endTimeUtc ?? DateTime.UtcNow;
 
-        var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
+        var endTime = endDate.Date.AddDays(1);
 
         var builderquery = from p in _orderRepository.Table
             select p;
 
         builderquery = builderquery.Where(o => !o.Deleted);
-        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
+        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTime && o.CreatedOnUtc < endTime);
 
         if (!string.IsNullOrEmpty(storeId))
             builderquery = builderquery.Where(o => o.StoreId == storeId);
 
-        var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
+        var daydiff = (endDate - startTime).TotalDays;
         if (daydiff > 31)
         {
-            var query = builderquery.GroupBy(x =>
+            var query = await _orderRepository.ToListAsync(builderquery.GroupBy(x =>
                     new { x.CreatedOnUtc.Year, x.CreatedOnUtc.Month })
                 .Select(g => new OrderStats {
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     Count = g.Count(),
-                    Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
-                }).ToList();
+                    Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate)
+                }));
 
             foreach (var item in query)
                 report.Add(new OrderByTimeReportLine {
@@ -184,15 +192,15 @@ public class OrderReportService : IOrderReportService
         }
         else
         {
-            var query = builderquery.GroupBy(x =>
+            var query = await _orderRepository.ToListAsync(builderquery.GroupBy(x =>
                     new { x.CreatedOnUtc.Year, x.CreatedOnUtc.Month, x.CreatedOnUtc.Day })
                 .Select(g => new OrderStats {
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     Day = g.Key.Day,
                     Count = g.Count(),
-                    Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
-                }).ToList();
+                    Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate)
+                }));
 
             foreach (var item in query)
                 report.Add(new OrderByTimeReportLine {
@@ -203,7 +211,7 @@ public class OrderReportService : IOrderReportService
                 });
         }
 
-        return await Task.FromResult(report);
+        return report.OrderBy(x => x.Time).ToList();
     }
 
     /// <summary>
@@ -299,18 +307,14 @@ public class OrderReportService : IOrderReportService
                 SumShippingExclTax = g.Sum(o => o.OrderShippingExclTax / o.CurrencyRate),
                 SumTax = g.Sum(o => o.OrderTax / o.CurrencyRate),
                 SumOrders = g.Sum(o => o.OrderTotal / o.CurrencyRate)
-            }).ToList();
+            });
 
-
-        var item2 = query.Count > 0
-            ? query.FirstOrDefault()
-            : new OrderAverageReportLine {
-                CountOrders = 0,
-                SumShippingExclTax = 0,
-                SumTax = 0,
-                SumOrders = 0
-            };
-        return await Task.FromResult(item2);
+        return await _orderRepository.FirstOrDefaultAsync(query) ?? new OrderAverageReportLine {
+            CountOrders = 0,
+            SumShippingExclTax = 0,
+            SumTax = 0,
+            SumOrders = 0
+        };
     }
 
     /// <summary>
@@ -446,23 +450,22 @@ public class OrderReportService : IOrderReportService
                 item.ProductId,
                 item.Quantity,
                 item.PriceInclTax,
-                p.Rate
+                p.CurrencyRate
             };
 
         if (!string.IsNullOrEmpty(vendorId)) query = query.Where(x => x.VendorId == vendorId);
 
         var queryItem = query.GroupBy(x => new { x.ProductId }).Select(x => new BestsellersReportLine {
             ProductId = x.Key.ProductId,
-            TotalAmount = x.Sum(y => y.PriceInclTax / y.Rate),
+            TotalAmount = x.Sum(y => y.PriceInclTax / y.CurrencyRate),
             TotalQuantity = x.Sum(y => y.Quantity)
         });
 
         var queryItemOrdered = orderBy == 1
-            ? queryItem.OrderByDescending(x => x.TotalQuantity).ToList()
-            : queryItem.OrderByDescending(x => x.TotalAmount).ToList();
+            ? queryItem.OrderByDescending(x => x.TotalQuantity).ThenBy(x => x.ProductId)
+            : queryItem.OrderByDescending(x => x.TotalAmount).ThenBy(x => x.ProductId);
 
-        var result = new PagedList<BestsellersReportLine>(queryItemOrdered, pageIndex, pageSize);
-        return await Task.FromResult(result);
+        return await _orderRepository.PagedAsync(queryItemOrdered, pageIndex, pageSize);
     }
 
 
@@ -489,9 +492,9 @@ public class OrderReportService : IOrderReportService
             into g
             select new ReportPeriodOrder { Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() };
 
-        var report = query.FirstOrDefault() ?? new ReportPeriodOrder();
+        var report = await _orderRepository.FirstOrDefaultAsync(query) ?? new ReportPeriodOrder();
         report.Date = date;
-        return await Task.FromResult(report);
+        return report;
     }
 
 
@@ -518,9 +521,9 @@ public class OrderReportService : IOrderReportService
         if (recordsToReturn > 0)
             product = product.Take(recordsToReturn);
 
-        var report = product.ToList();
+        var report = await _productAlsoPurchasedRepository.ToListAsync(product.Select(x => x.ProductId));
 
-        return await Task.FromResult(report.Select(reportLine => reportLine.ProductId).ToArray());
+        return report.ToArray();
     }
 
     /// <summary>
@@ -548,11 +551,12 @@ public class OrderReportService : IOrderReportService
                 createdToUtc.Value >= order.CreatedOnUtc &&
                 !order.Deleted
             from orderItem in order.OrderItems
-            select new { orderItem.ProductId }).ToList().Distinct().Select(x => x.ProductId);
+            select orderItem.ProductId).Distinct();
+        var soldProductIds = await _orderRepository.ToListAsync(query);
 
         var qproducts = from p in _productRepository.Table
             orderby p.Name
-            where !query.Contains(p.Id) &&
+            where !soldProductIds.Contains(p.Id) &&
                   //include only simple products
                   p.ProductTypeId == ProductType.SimpleProduct &&
                   (vendorId == "" || p.VendorId == vendorId) &&
