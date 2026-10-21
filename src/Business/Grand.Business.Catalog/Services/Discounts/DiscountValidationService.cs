@@ -7,7 +7,6 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
-using System.Collections.Concurrent;
 
 namespace Grand.Business.Catalog.Services.Discounts;
 
@@ -16,10 +15,6 @@ public class DiscountValidationService : IDiscountValidationService
     private readonly IRepository<DiscountCoupon> _discountCouponRepository;
     private readonly IRepository<DiscountUsageHistory> _discountUsageHistoryRepository;
     private readonly IDiscountProviderLoader _discountProviderLoader;
-
-    //usage counts read in this scope; a listing validates the same discount for every product, concurrently
-    //Lazy, because GetOrAdd may run the value factory once per racing thread
-    private readonly ConcurrentDictionary<(string discountId, string customerId), Lazy<Task<int>>> _usageCounts = new();
 
     public DiscountValidationService(
         IDiscountProviderLoader discountProviderLoader,
@@ -223,27 +218,13 @@ public class DiscountValidationService : IDiscountValidationService
     /// <summary>
     ///     Counts the usage history of a discount, of one customer when customerId is set
     /// </summary>
-    private async Task<int> GetUsedTimes(string discountId, string customerId)
+    private Task<int> GetUsedTimes(string discountId, string customerId)
     {
-        var key = (discountId, customerId);
-        var usedTimes = _usageCounts.GetOrAdd(key, k => new Lazy<Task<int>>(() =>
-        {
-            var query = _discountUsageHistoryRepository.Table.Where(x => x.DiscountId == k.discountId);
-            if (!string.IsNullOrEmpty(k.customerId))
-                query = query.Where(x => x.CustomerId == k.customerId);
+        var query = _discountUsageHistoryRepository.Table.Where(x => x.DiscountId == discountId);
+        if (!string.IsNullOrEmpty(customerId))
+            query = query.Where(x => x.CustomerId == customerId);
 
-            return _discountUsageHistoryRepository.CountAsync(query);
-        }));
-        try
-        {
-            return await usedTimes.Value;
-        }
-        catch
-        {
-            //a failed count is not kept, the next validation in the scope queries again
-            _usageCounts.TryRemove(new KeyValuePair<(string, string), Lazy<Task<int>>>(key, usedTimes));
-            throw;
-        }
+        return _discountUsageHistoryRepository.CountAsync(query);
     }
 
     /// <summary>

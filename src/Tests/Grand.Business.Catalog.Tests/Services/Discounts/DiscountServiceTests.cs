@@ -891,9 +891,8 @@ public class DiscountServiceTests
         var valid = await _discountValidationService.ValidateDiscount(discount, customer, new Store(),
             new Currency { CurrencyCode = "USD" });
         await InsertUsage(discount.Id, customer.Id);
-        var used = await new DiscountValidationService(_discountProviderLoader, _discountCouponRepository,
-                _discountUsageHistoryRepository)
-            .ValidateDiscount(discount, customer, new Store(), new Currency { CurrencyCode = "USD" });
+        var used = await _discountValidationService.ValidateDiscount(discount, customer, new Store(),
+            new Currency { CurrencyCode = "USD" });
         //Assert
         Assert.IsTrue(valid.IsValid);
         Assert.IsFalse(used.IsValid);
@@ -901,71 +900,19 @@ public class DiscountServiceTests
     }
 
     [TestMethod]
-    public async Task ValidateDiscountTest_NTimes_CountsUsageOncePerScope()
+    public async Task ValidateDiscountTest_NTimes_SeesUsageRecordedInTheScope()
     {
         //Arrange
         var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
-        //Act
+        //Act - order placement validates, records the usage, and the next order validates again
         var first = await _discountValidationService.ValidateDiscount(discount, new Customer(), new Store(),
             new Currency { CurrencyCode = "USD" });
         await InsertUsage(discount.Id, "customer1");
         var second = await _discountValidationService.ValidateDiscount(discount, new Customer(), new Store(),
             new Currency { CurrencyCode = "USD" });
-        //Assert - the count read for the first product is reused for the rest of the scope
+        //Assert
         Assert.IsTrue(first.IsValid);
-        Assert.IsTrue(second.IsValid);
-    }
-
-    [TestMethod]
-    public async Task ValidateDiscountTest_NTimes_ConcurrentProductsShareTheCount()
-    {
-        //Arrange - product overviews of a listing are prepared concurrently in one scope
-        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
-        var counts = 0;
-        var usageHistoryRepository = new Mock<IRepository<DiscountUsageHistory>>();
-        usageHistoryRepository.Setup(r => r.Table)
-            .Returns(new List<DiscountUsageHistory>().AsQueryable());
-        usageHistoryRepository
-            .Setup(r => r.CountAsync(It.IsAny<IQueryable<DiscountUsageHistory>>(), It.IsAny<CancellationToken>()))
-            .Returns(async () =>
-            {
-                Interlocked.Increment(ref counts);
-                await Task.Delay(50);
-                return 1;
-            });
-        var service = new DiscountValidationService(_discountProviderLoader, _discountCouponRepository,
-            usageHistoryRepository.Object);
-        //Act
-        var results = await Task.WhenAll(Enumerable.Range(0, 20).Select(_ =>
-            Task.Run(() => service.ValidateDiscount(discount, new Customer(), new Store(),
-                new Currency { CurrencyCode = "USD" }))));
-        //Assert
-        Assert.IsTrue(results.All(x => !x.IsValid));
-        Assert.AreEqual(1, counts);
-    }
-
-    [TestMethod]
-    public async Task ValidateDiscountTest_NTimes_FailedCountIsQueriedAgain()
-    {
-        //Arrange
-        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
-        var usageHistoryRepository = new Mock<IRepository<DiscountUsageHistory>>();
-        usageHistoryRepository.Setup(r => r.Table)
-            .Returns(new List<DiscountUsageHistory>().AsQueryable());
-        usageHistoryRepository
-            .SetupSequence(r => r.CountAsync(It.IsAny<IQueryable<DiscountUsageHistory>>(),
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new TimeoutException())
-            .ReturnsAsync(0);
-        var service = new DiscountValidationService(_discountProviderLoader, _discountCouponRepository,
-            usageHistoryRepository.Object);
-        //Act
-        await Assert.ThrowsExactlyAsync<TimeoutException>(() => service.ValidateDiscount(discount,
-            new Customer(), new Store(), new Currency { CurrencyCode = "USD" }));
-        var result = await service.ValidateDiscount(discount, new Customer(), new Store(),
-            new Currency { CurrencyCode = "USD" });
-        //Assert
-        Assert.IsTrue(result.IsValid);
+        Assert.IsFalse(second.IsValid);
     }
 
     [TestMethod]
