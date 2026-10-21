@@ -72,7 +72,7 @@ public class OrderReportServiceTests
     public async Task BestSellersReport_ReturnsRequestedPage_WithTotalOverAllGroups()
     {
         for (var i = 1; i <= 5; i++)
-            await InsertOrder("store", Item($"p{i}", i, i * 10));
+            await InsertOrder("store", Item($"p{i}", i, i * 10d));
 
         var result = await _service.BestSellersReport(orderBy: 1, pageIndex: 1, pageSize: 2);
 

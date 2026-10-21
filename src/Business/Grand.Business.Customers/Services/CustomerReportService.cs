@@ -186,10 +186,10 @@ public class CustomerReportService : ICustomerReportService
 
     {
         var report = new List<CustomerByTimeReportLine>();
-        startTimeUtc ??= DateTime.MinValue;
-        endTimeUtc ??= DateTime.UtcNow;
+        var startTime = startTimeUtc ?? DateTime.MinValue;
+        var endDate = endTimeUtc ?? DateTime.UtcNow;
 
-        var endTime = endTimeUtc.Value.Date.AddDays(1);
+        var endTime = endDate.Date.AddDays(1);
         var builderquery = from p in _customerRepository.Table
             select p;
 
@@ -199,12 +199,12 @@ public class CustomerReportService : ICustomerReportService
 
         var customerGroupRegister = customergroup.Id;
         builderquery = builderquery.Where(o => !o.Deleted);
-        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc < endTime);
+        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTime && o.CreatedOnUtc < endTime);
         builderquery = builderquery.Where(o => o.Groups.Any(y => y == customerGroupRegister));
         if (!string.IsNullOrEmpty(storeId))
             builderquery = builderquery.Where(o => o.StoreId == storeId);
 
-        var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
+        var daydiff = (endDate - startTime).TotalDays;
         if (daydiff > 31)
         {
             var query = await _customerRepository.ToListAsync(builderquery.GroupBy(x => new {
