@@ -70,8 +70,8 @@ public class GetSitemapXmlCommandHandlerTests
         _knowledgebaseServiceMock.Setup(x => x.GetPublicKnowledgebaseArticles(StoreId,
                 It.Is<IList<string>>(g => g.SequenceEqual(new[] { GuestsGroupId }))))
             .ReturnsAsync(new List<KnowledgebaseArticle>());
-        _mediatorMock.Setup(x => x.Send(It.IsAny<GetSearchProductsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new PagedList<Product>(), (IList<string>)new List<string>()));
+        _mediatorMock.Setup(x => x.Send(It.IsAny<GetSitemapProductsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<SitemapProduct>());
 
         _commonSettings = new CommonSettings {
             SitemapIncludeCategories = true,
@@ -131,9 +131,32 @@ public class GetSitemapXmlCommandHandlerTests
         _brandServiceMock.Verify(x => x.GetAllBrands("",
             CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue), Times.Once);
         _pageServiceMock.Verify(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId)), Times.Once);
-        _mediatorMock.Verify(x => x.Send(It.Is<GetSearchProductsQuery>(q =>
-            q.Customer == null && q.StoreId == StoreId && q.VisibleIndividuallyOnly &&
+        _mediatorMock.Verify(x => x.Send(It.Is<GetSitemapProductsQuery>(q =>
+            q.StoreId == StoreId && q.LanguageId == "lang1" && q.AfterId == null &&
             q.CustomerGroupIds.SequenceEqual(new[] { GuestsGroupId })), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WhenABatchIsFull_ReadsTheNextOneAfterItsLastProduct()
+    {
+        //Arrange
+        var firstBatch = Enumerable.Range(0, 1000)
+            .Select(i => new SitemapProduct($"p{i:D4}", $"product-{i}", null, DateTime.UtcNow)).ToList();
+        var lastBatch = new List<SitemapProduct> { new("p1000", "last-product", null, DateTime.UtcNow) };
+        _mediatorMock.Setup(x => x.Send(It.Is<GetSitemapProductsQuery>(q => q.AfterId == null),
+            It.IsAny<CancellationToken>())).ReturnsAsync(firstBatch);
+        _mediatorMock.Setup(x => x.Send(It.Is<GetSitemapProductsQuery>(q => q.AfterId == "p0999"),
+            It.IsAny<CancellationToken>())).ReturnsAsync(lastBatch);
+
+        //Act
+        var locations = Locations(await Generate());
+
+        //Assert
+        CollectionAssert.Contains(locations, "https://shop.example.com/product-0");
+        CollectionAssert.Contains(locations, "https://shop.example.com/product-999");
+        CollectionAssert.Contains(locations, "https://shop.example.com/last-product");
+        _mediatorMock.Verify(x => x.Send(It.IsAny<GetSitemapProductsQuery>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
     }
 
     [TestMethod]
