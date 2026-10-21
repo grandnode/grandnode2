@@ -89,8 +89,22 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
         if (!_catalogSettings.RecentlyViewedProductsEnabled)
             return;
 
-        //a product viewed again is inserted anew, so it moves to the top of the list
-        await _recentlyViewedProducts.DeleteManyAsync(x => x.CustomerId == customerId && x.ProductId == productId);
+        //one read of the customer's list (kept at the limit) decides everything below
+        var query = from p in _recentlyViewedProducts.Table
+            where p.CustomerId == customerId
+            orderby p.CreatedOnUtc descending, p.Id descending
+            select new { p.Id, p.ProductId };
+        var rows = await _recentlyViewedProducts.ToListAsync(query);
+
+        //a product viewed again moves to the top; the list does not grow, so nothing to trim
+        if (rows.Any(x => x.ProductId == productId))
+        {
+            await _recentlyViewedProducts.UpdateManyAsync(
+                x => x.CustomerId == customerId && x.ProductId == productId,
+                UpdateBuilder<RecentlyViewedProduct>.Create().Set(x => x.CreatedOnUtc, DateTime.UtcNow));
+            return;
+        }
+
         await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct
             { CustomerId = customerId, ProductId = productId });
 
@@ -98,12 +112,8 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
         if (maxProducts <= 0)
             maxProducts = 10;
 
-        //only the ids of the rows beyond the limit leave the database
-        var query = from p in _recentlyViewedProducts.Table
-            where p.CustomerId == customerId
-            orderby p.CreatedOnUtc descending, p.Id descending
-            select p.Id;
-        var staleIds = await _recentlyViewedProducts.ToListAsync(query.Skip(maxProducts));
+        //the new row takes one place, so the oldest rows beyond the limit go
+        var staleIds = rows.Skip(maxProducts - 1).Select(x => x.Id).ToList();
         if (staleIds.Any())
             await _recentlyViewedProducts.DeleteManyAsync(x => staleIds.Contains(x.Id));
     }
