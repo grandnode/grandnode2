@@ -760,6 +760,9 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<RecentlyViewedProduct>.Create().Ascending(x => x.CustomerId).Ascending(x => x.ProductId)
                 .Descending(x => x.CreatedOnUtc), "CustomerId.ProductId");
         await dbContext.CreateIndex(_recentlyViewedProductRepository,
+            OrderBuilder<RecentlyViewedProduct>.Create().Ascending(x => x.CustomerId).Descending(x => x.CreatedOnUtc)
+                .Descending(x => x.Id), "CustomerId.CreatedOnUtc");
+        await dbContext.CreateIndex(_recentlyViewedProductRepository,
             OrderBuilder<RecentlyViewedProduct>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
         //Product also purchased
