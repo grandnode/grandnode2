@@ -97,8 +97,14 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
         var rows = await _recentlyViewedProducts.ToListAsync(query);
 
         //a product viewed again moves to the top; the list does not grow, so nothing to trim
-        if (rows.Any(x => x.ProductId == productId))
+        var viewedAgainIds = rows.Where(x => x.ProductId == productId).Select(x => x.Id).ToList();
+        if (viewedAgainIds.Any())
         {
+            //two concurrent first views can insert the product twice - keep only the newest row
+            var duplicateIds = viewedAgainIds.Skip(1).ToList();
+            if (duplicateIds.Any())
+                await _recentlyViewedProducts.DeleteManyAsync(x => duplicateIds.Contains(x.Id));
+
             await _recentlyViewedProducts.UpdateManyAsync(
                 x => x.CustomerId == customerId && x.ProductId == productId,
                 UpdateBuilder<RecentlyViewedProduct>.Create().Set(x => x.CreatedOnUtc, DateTime.UtcNow));

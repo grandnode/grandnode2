@@ -133,7 +133,7 @@ public class RecentlyViewedProductsServiceTests
     }
 
     [TestMethod]
-    public async Task AddProductToRecentlyViewedList_DuplicateRows_AllMoveToTheTop()
+    public async Task AddProductToRecentlyViewedList_DuplicateRows_CollapseToOneRowOnTheTop()
     {
         //Arrange
         await _repository.InsertAsync(new RecentlyViewedProduct { CustomerId = "1", ProductId = "1" });
@@ -148,8 +148,8 @@ public class RecentlyViewedProductsServiceTests
         //Assert
         var other = _repository.Table.Single(x => x.CustomerId == "1" && x.ProductId == "2").CreatedOnUtc;
         var viewedAgain = _repository.Table.Where(x => x.CustomerId == "1" && x.ProductId == "1").ToList();
-        Assert.HasCount(2, viewedAgain);
-        Assert.IsTrue(viewedAgain.All(x => x.CreatedOnUtc > other));
+        Assert.HasCount(1, viewedAgain);
+        Assert.IsTrue(viewedAgain[0].CreatedOnUtc > other);
     }
 
     [TestMethod]
