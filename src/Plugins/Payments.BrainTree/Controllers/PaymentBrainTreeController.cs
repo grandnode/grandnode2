@@ -64,7 +64,7 @@ public class PaymentBrainTreeController : BasePaymentController
             ViewBag.ClientToken = await gateway.ClientToken.GenerateAsync();
             ViewBag.OrderTotal = (await _orderTotalCalculationService.GetShoppingCartTotal(cart,
                 new CalculationContext(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
-                _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType))).shoppingCartTotal;
+                _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType))).Total;
 
             return View("PaymentInfo_3DS", model);
         }

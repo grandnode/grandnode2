@@ -163,11 +163,11 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                         request.CalculationContext(), subTotalIncludingTax);
                 model.SubTotalIncludingTax = subTotalIncludingTax;
                 model.SubTotal =
-                    _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
-                model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
-                if (shoppingCartSubTotal.discountAmount > 0)
+                    _priceFormatter.FormatPrice(shoppingCartSubTotal.SubTotalWithoutDiscount, request.Currency);
+                model.DecimalSubTotal = shoppingCartSubTotal.SubTotalWithoutDiscount;
+                if (shoppingCartSubTotal.DiscountAmount > 0)
                     model.SubTotalDiscount =
-                        _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency);
+                        _priceFormatter.FormatPrice(-shoppingCartSubTotal.DiscountAmount, request.Currency);
 
                 break;
             }

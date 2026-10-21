@@ -238,7 +238,7 @@ public class BrainTreePaymentProvider : IPaymentProvider
             var subtotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart,
                 new CalculationContext(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
                 _contextAccessor.WorkContext.WorkingCurrency, _contextAccessor.WorkContext.TaxDisplayType), true);
-            return (float)subtotal.subTotalWithDiscount * (float)_brainTreePaymentSettings.AdditionalFee / 100f;
+            return (float)subtotal.SubTotalWithDiscount * (float)_brainTreePaymentSettings.AdditionalFee / 100f;
         }
 
         //fixed value, kept in the primary store currency

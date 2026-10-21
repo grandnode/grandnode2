@@ -65,7 +65,8 @@ public class BrainTreePaymentProviderTests
         _settings.AdditionalFeePercentage = true;
         var cart = new List<ShoppingCartItem> { new() };
         _subTotalService.Setup(s => s.GetShoppingCartSubTotal(cart, It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), true))
-            .ReturnsAsync((0d, new List<ApplyDiscount>(), 500d, 500d, new SortedDictionary<double, double>()));
+            .ReturnsAsync(new Grand.Business.Core.Utilities.Checkout.ShoppingCartSubTotal(0d, new List<ApplyDiscount>(),
+                500d, 500d, new SortedDictionary<double, double>()));
 
         var provider = _scope.ServiceProvider.GetRequiredService<IPaymentProvider>();
         var fee = await provider.GetAdditionalHandlingFee(cart);

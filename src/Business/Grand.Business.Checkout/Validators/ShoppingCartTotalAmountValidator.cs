@@ -38,7 +38,7 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
                                       !(orderSettings.MinOrderTotalAmount > 0))) return;
 
             var shoppingCartTotalBase =
-                (await orderTotalCalculationService.GetShoppingCartTotal(value.Cart, value.Context)).shoppingCartTotal;
+                (await orderTotalCalculationService.GetShoppingCartTotal(value.Cart, value.Context)).Total;
 
             if (shoppingCartTotalBase.HasValue && (shoppingCartTotalBase.Value < minOrderAmount ||
                                                    shoppingCartTotalBase.Value > maxOrderAmount))

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,9 +37,8 @@ public class ValidateMinShoppingCartSubtotalAmountCommandHandlerTests
 
         _orderTotalCalculationServiceMock
             .Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), false)).Returns(() =>
-                Task.FromResult<(double discountAmount, List<ApplyDiscount> appliedDiscounts, double
-                    subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>((
-                    20, null, 100, 100, null)));
+                Task.FromResult(new Grand.Business.Core.Utilities.Checkout.ShoppingCartSubTotal(20, null, 100, 100,
+                    null)));
         //Act
         var result = await _handler.Handle(command, CancellationToken.None);
         //Assert

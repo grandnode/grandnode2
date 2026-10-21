@@ -75,7 +75,8 @@ public class CashOnDeliveryPaymentProviderTests
         _settings.AdditionalFeePercentage = true;
         var cart = new List<ShoppingCartItem> { new() };
         _subTotalService.Setup(s => s.GetShoppingCartSubTotal(cart, It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), true))
-            .ReturnsAsync((0d, new List<ApplyDiscount>(), 200d, 180d, new SortedDictionary<double, double>()));
+            .ReturnsAsync(new Grand.Business.Core.Utilities.Checkout.ShoppingCartSubTotal(0d, new List<ApplyDiscount>(),
+                200d, 180d, new SortedDictionary<double, double>()));
 
         var fee = await Provider.GetAdditionalHandlingFee(cart);
 

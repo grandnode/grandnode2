@@ -80,7 +80,7 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
                     //calculate discounted and taxed rate
                     var total = await _orderTotalCalculationService.AdjustShippingRate(shippingOption.Rate,
                         request.Cart, _contextAccessor.CalculationContext());
-                    var shippingTotal = total.shippingRate;
+                    var shippingTotal = total.ShippingRate;
 
                     var rate = (await _taxService.GetShippingPrice(shippingTotal,
                         _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store)).shippingPrice;

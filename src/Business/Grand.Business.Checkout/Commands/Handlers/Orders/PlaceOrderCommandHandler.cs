@@ -498,9 +498,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //sub total
         //sub total (incl tax)
         var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, details.Context, true);
-        var orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
-        var orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
-        var subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
+        var orderSubTotalDiscountAmount = shoppingCartSubTotal.DiscountAmount;
+        var orderSubTotalAppliedDiscounts = shoppingCartSubTotal.AppliedDiscounts;
+        var subTotalWithoutDiscountBase = shoppingCartSubTotal.SubTotalWithoutDiscount;
 
         details.OrderSubTotalInclTax = subTotalWithoutDiscountBase;
         details.OrderSubTotalDiscountInclTax = orderSubTotalDiscountAmount;
@@ -511,8 +511,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //sub total (excl tax)
         shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, details.Context, false);
-        orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
-        subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
+        orderSubTotalDiscountAmount = shoppingCartSubTotal.DiscountAmount;
+        subTotalWithoutDiscountBase = shoppingCartSubTotal.SubTotalWithoutDiscount;
 
         details.OrderSubTotalExclTax = subTotalWithoutDiscountBase;
         details.OrderSubTotalDiscountExclTax = orderSubTotalDiscountAmount;
@@ -568,7 +568,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, true);
         var orderShippingTotalExclTax =
             (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, false))
-            .shoppingCartShippingTotal;
+            .ShippingTotal;
         if (!orderShippingTotalInclTax.HasValue || !orderShippingTotalExclTax.HasValue)
             throw new GrandException("Shipping total couldn't be calculated");
 

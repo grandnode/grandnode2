@@ -117,7 +117,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
             await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, subTotalIncludingTax);
 
         model.SubTotalIncludingTax = subTotalIncludingTax;
-        model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
+        model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.SubTotalWithoutDiscount, request.Currency);
 
         var requiresShipping = cart.RequiresShipping();
         var checkoutAttributesExist =

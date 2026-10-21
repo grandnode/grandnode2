@@ -68,7 +68,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
                 var shoppingCartTotalBase =
                     (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart,
                         new CalculationContext(request.Customer, request.Store, request.Currency,
-                            request.TaxDisplayType), true)).shoppingCartTotal;
+                            request.TaxDisplayType), true)).Total;
                 model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase is 0;
             }
         }
