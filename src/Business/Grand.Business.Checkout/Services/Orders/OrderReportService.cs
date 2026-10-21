@@ -109,22 +109,30 @@ public class OrderReportService : IOrderReportService
         var vendorQuery = from p in query
             from item in p.OrderItems
             select new {
-                item.VendorId, OrderCode = p.Code,
+                item.VendorId, OrderId = p.Id,
                 p.BillingAddress.CountryId,
-                item.Quantity,
                 item.PriceInclTax,
-                p.Rate
+                p.CurrencyRate
             };
 
         vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
 
-        var vendorReport = (from oq in vendorQuery
-                group oq by oq.CountryId
+        //one row per order first, so an order with several vendor items is counted once
+        var vendorOrders = from oq in vendorQuery
+            group oq by new { oq.OrderId, oq.CountryId }
+            into result
+            select new {
+                result.Key.CountryId,
+                Amount = result.Sum(y => y.PriceInclTax / y.CurrencyRate)
+            };
+
+        var vendorReport = (from vo in vendorOrders
+                group vo by vo.CountryId
                 into result
                 select new {
                     CountryId = result.Key,
                     TotalOrders = result.Count(),
-                    SumOrders = result.Sum(y => y.PriceInclTax / y.Rate)
+                    SumOrders = result.Sum(y => y.Amount)
                 }
             )
             .OrderByDescending(x => x.SumOrders)
@@ -152,13 +160,13 @@ public class OrderReportService : IOrderReportService
         startTimeUtc ??= DateTime.MinValue;
         endTimeUtc ??= DateTime.UtcNow;
 
-        var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
+        var endTime = endTimeUtc.Value.Date.AddDays(1);
 
         var builderquery = from p in _orderRepository.Table
             select p;
 
         builderquery = builderquery.Where(o => !o.Deleted);
-        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
+        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc < endTime);
 
         if (!string.IsNullOrEmpty(storeId))
             builderquery = builderquery.Where(o => o.StoreId == storeId);
@@ -172,7 +180,7 @@ public class OrderReportService : IOrderReportService
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     Count = g.Count(),
-                    Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
+                    Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate)
                 }));
 
             foreach (var item in query)
@@ -191,7 +199,7 @@ public class OrderReportService : IOrderReportService
                     Month = g.Key.Month,
                     Day = g.Key.Day,
                     Count = g.Count(),
-                    Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
+                    Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate)
                 }));
 
             foreach (var item in query)
@@ -203,7 +211,7 @@ public class OrderReportService : IOrderReportService
                 });
         }
 
-        return report;
+        return report.OrderBy(x => x.Time).ToList();
     }
 
     /// <summary>
@@ -442,20 +450,20 @@ public class OrderReportService : IOrderReportService
                 item.ProductId,
                 item.Quantity,
                 item.PriceInclTax,
-                p.Rate
+                p.CurrencyRate
             };
 
         if (!string.IsNullOrEmpty(vendorId)) query = query.Where(x => x.VendorId == vendorId);
 
         var queryItem = query.GroupBy(x => new { x.ProductId }).Select(x => new BestsellersReportLine {
             ProductId = x.Key.ProductId,
-            TotalAmount = x.Sum(y => y.PriceInclTax / y.Rate),
+            TotalAmount = x.Sum(y => y.PriceInclTax / y.CurrencyRate),
             TotalQuantity = x.Sum(y => y.Quantity)
         });
 
         var queryItemOrdered = orderBy == 1
-            ? queryItem.OrderByDescending(x => x.TotalQuantity)
-            : queryItem.OrderByDescending(x => x.TotalAmount);
+            ? queryItem.OrderByDescending(x => x.TotalQuantity).ThenBy(x => x.ProductId)
+            : queryItem.OrderByDescending(x => x.TotalAmount).ThenBy(x => x.ProductId);
 
         return await _orderRepository.PagedAsync(queryItemOrdered, pageIndex, pageSize);
     }

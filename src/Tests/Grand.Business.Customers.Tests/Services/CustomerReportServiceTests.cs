@@ -13,7 +13,7 @@ namespace Grand.Business.Customers.Tests.Services;
 public class CustomerReportServiceTests
 {
     private readonly CustomerGroup _registered = new() { SystemName = SystemCustomerGroupNames.Registered };
-    private IRepository<Customer> _customerRepository;
+    private MongoDBRepositoryTest<Customer> _customerRepository;
     private IRepository<Order> _orderRepository;
     private CustomerReportService _service;
 
@@ -26,18 +26,19 @@ public class CustomerReportServiceTests
         var groupServiceMock = new Mock<IGroupService>();
         groupServiceMock.Setup(x => x.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
             .ReturnsAsync(_registered);
-        var dateTimeServiceMock = new Mock<IDateTimeService>();
-        dateTimeServiceMock.Setup(x => x.ConvertToUserTime(It.IsAny<DateTime>())).Returns<DateTime>(x => x);
-
-        _service = new CustomerReportService(_customerRepository, _orderRepository, groupServiceMock.Object,
-            dateTimeServiceMock.Object);
+        _service = new CustomerReportService(_customerRepository, _orderRepository, groupServiceMock.Object);
     }
 
-    private Task InsertRegistered(string storeId)
+    private Task InsertRegistered(string storeId, DateTime? createdOnUtc = null)
     {
         var customer = new Customer { StoreId = storeId };
         customer.Groups.Add(_registered.Id);
-        return _customerRepository.InsertAsync(customer);
+        if (createdOnUtc == null)
+            return _customerRepository.InsertAsync(customer);
+
+        //written to the collection directly, InsertAsync overwrites CreatedOnUtc
+        customer.CreatedOnUtc = createdOnUtc.Value;
+        return _customerRepository.Collection.InsertOneAsync(customer);
     }
 
     [TestMethod]
@@ -56,14 +57,42 @@ public class CustomerReportServiceTests
     [TestMethod]
     public async Task GetCustomerByTimeReport_GroupsRegisteredByDay()
     {
-        await InsertRegistered("store");
-        await InsertRegistered("store");
+        var end = new DateTime(2026, 3, 10, 0, 0, 0, DateTimeKind.Utc);
+        await InsertRegistered("store", end.AddHours(23).AddMinutes(59).AddSeconds(30));
+        await InsertRegistered("store", end.AddHours(1));
+        await InsertRegistered("store", end.AddDays(-2));
+        await InsertRegistered("store", end.AddDays(1));
 
-        var result = await _service.GetCustomerByTimeReport("", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow);
+        var result = await _service.GetCustomerByTimeReport("", end.AddDays(-5), end);
+
+        CollectionAssert.AreEqual(new[] { "2026-03-08", "2026-03-10" }, result.Select(x => x.Time).ToArray());
+        Assert.AreEqual(2, result[1].Registered);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByTimeReport_NoRegisteredGroup_ReturnsEmpty()
+    {
+        var service = new CustomerReportService(_customerRepository, _orderRepository, new Mock<IGroupService>().Object);
+
+        var result = await service.GetCustomerByTimeReport("");
+
+        Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public async Task GetBestCustomersReport_Vendor_CountsOrdersNotItems()
+    {
+        var order = new Order { CustomerId = "c1", CurrencyRate = 2 };
+        order.OrderItems.Add(new OrderItem { VendorId = "v1", PriceInclTax = 10 });
+        order.OrderItems.Add(new OrderItem { VendorId = "v1", PriceInclTax = 30 });
+        order.OrderItems.Add(new OrderItem { VendorId = "v2", PriceInclTax = 99 });
+        await _orderRepository.InsertAsync(order);
+
+        var result = await _service.GetBestCustomersReport(vendorId: "v1", orderBy: 1);
 
         Assert.AreEqual(1, result.Count);
-        Assert.AreEqual(2, result[0].Registered);
-        Assert.AreEqual(DateTime.UtcNow.ToString("yyyy-MM-dd"), result[0].Time);
+        Assert.AreEqual(1, result[0].OrderCount);
+        Assert.AreEqual(20, result[0].OrderTotal);
     }
 
     [TestMethod]

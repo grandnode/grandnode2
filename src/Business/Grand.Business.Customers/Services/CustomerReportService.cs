@@ -22,17 +22,14 @@ public class CustomerReportService : ICustomerReportService
     /// </summary>
     /// <param name="customerRepository">Customer repository</param>
     /// <param name="orderRepository">Order repository</param>
-    /// <param name="dateTimeService">Date time helper</param>
     /// <param name="groupService">group service</param>
     public CustomerReportService(IRepository<Customer> customerRepository,
         IRepository<Order> orderRepository,
-        IGroupService groupService,
-        IDateTimeService dateTimeService)
+        IGroupService groupService)
     {
         _customerRepository = customerRepository;
         _orderRepository = orderRepository;
         _groupService = groupService;
-        _dateTimeService = dateTimeService;
     }
 
     #endregion
@@ -42,7 +39,6 @@ public class CustomerReportService : ICustomerReportService
     private readonly IRepository<Customer> _customerRepository;
     private readonly IRepository<Order> _orderRepository;
     private readonly IGroupService _groupService;
-    private readonly IDateTimeService _dateTimeService;
 
     #endregion
 
@@ -96,8 +92,8 @@ public class CustomerReportService : ICustomerReportService
                     OrderCount = g.Count()
                 };
             query2 = orderBy switch {
-                1 => query2.OrderByDescending(x => x.OrderTotal),
-                2 => query2.OrderByDescending(x => x.OrderCount),
+                1 => query2.OrderByDescending(x => x.OrderTotal).ThenBy(x => x.CustomerId),
+                2 => query2.OrderByDescending(x => x.OrderCount).ThenBy(x => x.CustomerId),
                 _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
             };
 
@@ -113,25 +109,33 @@ public class CustomerReportService : ICustomerReportService
             from item in p.OrderItems
             select new {
                 item.VendorId,
-                p.CustomerId, OrderCode = p.Code,
-                item.Quantity,
+                p.CustomerId, OrderId = p.Id,
                 item.PriceInclTax,
-                p.Rate
+                p.CurrencyRate
             };
 
         vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
 
-        var vendorQueryGroup = from co in vendorQuery
-            group co by co.CustomerId
+        //one row per order first, so an order with several vendor items is counted once
+        var vendorOrders = from co in vendorQuery
+            group co by new { co.OrderId, co.CustomerId }
+            into g
+            select new {
+                g.Key.CustomerId,
+                Amount = g.Sum(x => x.PriceInclTax / x.CurrencyRate)
+            };
+
+        var vendorQueryGroup = from vo in vendorOrders
+            group vo by vo.CustomerId
             into g
             select new {
                 CustomerId = g.Key,
-                OrderTotal = g.Sum(x => x.PriceInclTax / x.Rate),
+                OrderTotal = g.Sum(x => x.Amount),
                 OrderCount = g.Count()
             };
         vendorQueryGroup = orderBy switch {
-            1 => vendorQueryGroup.OrderByDescending(x => x.OrderTotal),
-            2 => vendorQueryGroup.OrderByDescending(x => x.OrderCount),
+            1 => vendorQueryGroup.OrderByDescending(x => x.OrderTotal).ThenBy(x => x.CustomerId),
+            2 => vendorQueryGroup.OrderByDescending(x => x.OrderCount).ThenBy(x => x.CustomerId),
             _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
         };
 
@@ -151,7 +155,7 @@ public class CustomerReportService : ICustomerReportService
     /// <returns>Number of registered customers</returns>
     public virtual async Task<int> GetRegisteredCustomersReport(string storeId, int days)
     {
-        var date = _dateTimeService.ConvertToUserTime(DateTime.Now).AddDays(-days);
+        var date = DateTime.UtcNow.AddDays(-days);
 
         var registeredCustomerGroup =
             await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
@@ -185,14 +189,17 @@ public class CustomerReportService : ICustomerReportService
         startTimeUtc ??= DateTime.MinValue;
         endTimeUtc ??= DateTime.UtcNow;
 
-        var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
+        var endTime = endTimeUtc.Value.Date.AddDays(1);
         var builderquery = from p in _customerRepository.Table
             select p;
 
         var customergroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
+        if (customergroup == null)
+            return report;
+
         var customerGroupRegister = customergroup.Id;
         builderquery = builderquery.Where(o => !o.Deleted);
-        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
+        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc < endTime);
         builderquery = builderquery.Where(o => o.Groups.Any(y => y == customerGroupRegister));
         if (!string.IsNullOrEmpty(storeId))
             builderquery = builderquery.Where(o => o.StoreId == storeId);
