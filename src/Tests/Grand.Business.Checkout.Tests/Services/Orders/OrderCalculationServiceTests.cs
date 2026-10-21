@@ -143,7 +143,7 @@ public class OrderCalculationServiceTests
         var shoppingCartItem = new List<ShoppingCartItem> { new() { Quantity = 1 } };
         var result = await _service.GetShoppingCartSubTotal(shoppingCartItem, _context, false);
         
-        Assert.IsTrue(result.subTotalWithDiscount >= 0);
+        Assert.IsTrue(result.SubTotalWithDiscount >= 0);
     }
 
     [TestMethod]
@@ -193,7 +193,7 @@ public class OrderCalculationServiceTests
         var result = await _service.AdjustShippingRate(10, shoppingCartItem, _context);
 
         //Assert
-        Assert.AreEqual(20, result.shippingRate);
+        Assert.AreEqual(20, result.ShippingRate);
     }
 
     [TestMethod]
@@ -222,7 +222,7 @@ public class OrderCalculationServiceTests
         var result = await _service.GetShoppingCartShippingTotal(shoppingCartItem, _context);
 
         //Assert
-        Assert.AreEqual(0, result.shoppingCartShippingTotal);
+        Assert.AreEqual(0, result.ShippingTotal);
     }
 
     [TestMethod]
@@ -251,7 +251,7 @@ public class OrderCalculationServiceTests
         //Act
         var result = await _service.GetTaxTotal(shoppingCartItem, _context, false);
         //Assert
-        Assert.AreEqual(0, result.taxtotal);
+        Assert.AreEqual(0, result.TaxTotal);
     }
 
     [TestMethod]
@@ -280,7 +280,7 @@ public class OrderCalculationServiceTests
         //Act
         var result = await _service.GetShoppingCartTotal(shoppingCartItem, _context, false, false);
         //Assert
-        Assert.AreEqual(0, result.shoppingCartTotal);
+        Assert.AreEqual(0, result.Total);
     }
 
     [TestMethod]

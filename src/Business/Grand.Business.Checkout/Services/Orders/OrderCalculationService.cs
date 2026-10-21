@@ -241,9 +241,8 @@ public class OrderCalculationService : IOrderCalculationService
     ///     so an override here would make the order total and the payment fee disagree.
     ///     Customize the subtotal (and its discount) in <see cref="ShoppingCartSubTotalService" /> instead.
     /// </remarks>
-    public Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts,
-            double subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>
-        GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool includingTax)
+    public Task<ShoppingCartSubTotal> GetShoppingCartSubTotal(IList<ShoppingCartItem> cart,
+        CalculationContext context, bool includingTax)
     {
         return _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, context, includingTax);
     }
@@ -300,10 +299,9 @@ public class OrderCalculationService : IOrderCalculationService
         //free shipping over $X
         if (!_shippingSettings.FreeShippingOverXEnabled) return false;
         //check whether we have subtotal enough to have free shipping
-        var (_, _, _, subTotalWithDiscount, _) =
-            await GetShoppingCartSubTotal(cart, context, _shippingSettings.FreeShippingOverXIncludingTax);
+        var subTotal = await GetShoppingCartSubTotal(cart, context, _shippingSettings.FreeShippingOverXIncludingTax);
 
-        return subTotalWithDiscount > _shippingSettings.FreeShippingOverXValue;
+        return subTotal.SubTotalWithDiscount > _shippingSettings.FreeShippingOverXValue;
         //otherwise, return false
     }
 
@@ -314,14 +312,14 @@ public class OrderCalculationService : IOrderCalculationService
     /// <param name="cart">Cart</param>
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>Adjusted shipping rate</returns>
-    public virtual async Task<(double shippingRate, List<ApplyDiscount> appliedDiscounts)> AdjustShippingRate(
+    public virtual async Task<ShippingRateAdjustment> AdjustShippingRate(
         double shippingRate, IList<ShoppingCartItem> cart, CalculationContext context)
     {
         var appliedDiscounts = new List<ApplyDiscount>();
 
         //free shipping
         if (await IsFreeShipping(cart, context))
-            return (0, appliedDiscounts);
+            return new ShippingRateAdjustment(0, appliedDiscounts);
 
         //additional shipping charges
         var additionalShippingCharge = await GetShoppingCartAdditionalShippingCharge(cart, context);
@@ -342,7 +340,7 @@ public class OrderCalculationService : IOrderCalculationService
         if (_shoppingCartSettings.RoundPrices)
             adjustedRate = RoundingHelper.RoundPrice(adjustedRate, context.Currency);
 
-        return (adjustedRate, appliedDiscounts);
+        return new ShippingRateAdjustment(adjustedRate, appliedDiscounts);
     }
 
     /// <summary>
@@ -351,9 +349,8 @@ public class OrderCalculationService : IOrderCalculationService
     /// <param name="cart">Cart</param>
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>Shipping total</returns>
-    public virtual async
-        Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)>
-        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, CalculationContext context)
+    public virtual async Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart,
+        CalculationContext context)
     {
         var includingTax = context.IncludingTax;
         return await GetShoppingCartShippingTotal(cart, context, includingTax);
@@ -367,9 +364,8 @@ public class OrderCalculationService : IOrderCalculationService
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <returns>Shipping total</returns>
-    public virtual async
-        Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)>
-        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool includingTax)
+    public virtual async Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart,
+        CalculationContext context, bool includingTax)
     {
         double? shippingTotal = null;
         var appliedDiscounts = new List<ApplyDiscount>();
@@ -381,7 +377,7 @@ public class OrderCalculationService : IOrderCalculationService
 
         var isFreeShipping = await IsFreeShipping(cart, context);
         if (isFreeShipping)
-            return (0, taxRate, appliedDiscounts);
+            return new ShoppingCartShippingTotal(0, taxRate, appliedDiscounts);
 
         ShippingOption shippingOption = null;
         if (customer != null)
@@ -393,8 +389,8 @@ public class OrderCalculationService : IOrderCalculationService
         {
             var rate = shippingOption.Rate;
             var adjustShippingRate = await AdjustShippingRate(rate, cart, context);
-            shippingTotal = adjustShippingRate.shippingRate;
-            appliedDiscounts = adjustShippingRate.appliedDiscounts;
+            shippingTotal = adjustShippingRate.ShippingRate;
+            appliedDiscounts = adjustShippingRate.AppliedDiscounts;
         }
         else
         {
@@ -431,8 +427,8 @@ public class OrderCalculationService : IOrderCalculationService
                 {
                     //adjust shipping rate
                     var adjustShippingRate = await AdjustShippingRate(fixedRate.Value, cart, context);
-                    shippingTotal = adjustShippingRate.shippingRate;
-                    appliedDiscounts = adjustShippingRate.appliedDiscounts;
+                    shippingTotal = adjustShippingRate.ShippingRate;
+                    appliedDiscounts = adjustShippingRate.AppliedDiscounts;
                 }
             }
         }
@@ -440,7 +436,7 @@ public class OrderCalculationService : IOrderCalculationService
         switch (shippingTotal)
         {
             case null:
-                return (null, taxRate, appliedDiscounts);
+                return new ShoppingCartShippingTotal(null, taxRate, appliedDiscounts);
             case < 0:
                 shippingTotal = 0;
                 break;
@@ -458,7 +454,7 @@ public class OrderCalculationService : IOrderCalculationService
         if (_shoppingCartSettings.RoundPrices)
             shippingTotalTaxed = RoundingHelper.RoundPrice(shippingTotalTaxed.Value, currency);
 
-        return (shippingTotalTaxed, taxRate, appliedDiscounts);
+        return new ShoppingCartShippingTotal(shippingTotalTaxed, taxRate, appliedDiscounts);
     }
 
     /// <summary>
@@ -471,7 +467,7 @@ public class OrderCalculationService : IOrderCalculationService
     ///     calculating tax
     /// </param>
     /// <returns>Tax total</returns>
-    public virtual async Task<(double taxtotal, SortedDictionary<double, double> taxRates)> GetTaxTotal(
+    public virtual async Task<ShoppingCartTaxTotal> GetTaxTotal(
         IList<ShoppingCartItem> cart, CalculationContext context, bool usePaymentMethodAdditionalFee = true)
     {
         ArgumentNullException.ThrowIfNull(cart);
@@ -491,7 +487,7 @@ public class OrderCalculationService : IOrderCalculationService
         double subTotalTaxTotal = 0;
 
         var shoppingCartSubTotal = await GetShoppingCartSubTotal(cart, context, false);
-        var orderSubTotalTaxRates = shoppingCartSubTotal.taxRates;
+        var orderSubTotalTaxRates = shoppingCartSubTotal.TaxRates;
 
         foreach (var (taxRate, taxValue) in orderSubTotalTaxRates)
         {
@@ -509,9 +505,11 @@ public class OrderCalculationService : IOrderCalculationService
         if (_taxSettings.ShippingIsTaxable)
         {
             var shippingTotalExcl = await GetShoppingCartShippingTotal(cart, context, false);
-            var shippingExclTax = shippingTotalExcl.shoppingCartShippingTotal;
+            var shippingExclTax = shippingTotalExcl.ShippingTotal;
 
-            var (shippingInclTax, taxRate, _) = await GetShoppingCartShippingTotal(cart, context, true);
+            var shippingTotalIncl = await GetShoppingCartShippingTotal(cart, context, true);
+            var shippingInclTax = shippingTotalIncl.ShippingTotal;
+            var taxRate = shippingTotalIncl.TaxRate;
 
             if (shippingExclTax.HasValue && shippingInclTax.HasValue)
             {
@@ -572,7 +570,7 @@ public class OrderCalculationService : IOrderCalculationService
         if (_shoppingCartSettings.RoundPrices)
             taxTotal = RoundingHelper.RoundPrice(taxTotal, context.Currency);
 
-        return (taxTotal, taxRates);
+        return new ShoppingCartTaxTotal(taxTotal, taxRates);
     }
 
 
@@ -584,11 +582,8 @@ public class OrderCalculationService : IOrderCalculationService
     /// <param name="useLoyaltyPoints">Use Loyalty Points</param>
     /// <param name="usePaymentMethodAdditionalFee">A value indicating whether we should use payment method additional fee</param>
     /// <returns>Shopping cart total, discount amount, applied discounts, gift vouchers, loyalty point/amount</returns>
-    public virtual async Task<(double? shoppingCartTotal, double discountAmount, List<ApplyDiscount>
-            appliedDiscounts, List<AppliedGiftVoucher> appliedGiftVouchers,
-            int redeemedLoyaltyPoints, double redeemedLoyaltyPointsAmount)>
-        GetShoppingCartTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool? useLoyaltyPoints = null,
-            bool usePaymentMethodAdditionalFee = true)
+    public virtual async Task<ShoppingCartTotal> GetShoppingCartTotal(IList<ShoppingCartItem> cart,
+        CalculationContext context, bool? useLoyaltyPoints = null, bool usePaymentMethodAdditionalFee = true)
     {
         var redeemedLoyaltyPoints = 0;
         double redeemedLoyaltyPointsAmount = 0;
@@ -599,11 +594,11 @@ public class OrderCalculationService : IOrderCalculationService
 
         //subtotal without tax
         var subTotal = await GetShoppingCartSubTotal(cart, context, false);
-        var subTotalWithDiscountBase = subTotal.subTotalWithDiscount;
+        var subTotalWithDiscountBase = subTotal.SubTotalWithDiscount;
 
         //shipping without tax
         var shippingTotal = await GetShoppingCartShippingTotal(cart, context, false);
-        var shoppingCartShipping = shippingTotal.shoppingCartShippingTotal;
+        var shoppingCartShipping = shippingTotal.ShippingTotal;
 
         //payment method additional fee without tax
         double paymentMethodAdditionalFeeWithoutTax = 0;
@@ -618,7 +613,7 @@ public class OrderCalculationService : IOrderCalculationService
         }
 
         //tax
-        var shoppingCartTax = (await GetTaxTotal(cart, context, usePaymentMethodAdditionalFee)).taxtotal;
+        var shoppingCartTax = (await GetTaxTotal(cart, context, usePaymentMethodAdditionalFee)).TaxTotal;
 
         //order total
         double resultTemp = 0;
@@ -684,8 +679,8 @@ public class OrderCalculationService : IOrderCalculationService
 
         if (!shoppingCartShipping.HasValue)
             //we have errors
-            return (null, discountAmount, appliedDiscounts, appliedGiftVouchers, redeemedLoyaltyPoints,
-                redeemedLoyaltyPointsAmount);
+            return new ShoppingCartTotal(null, discountAmount, appliedDiscounts, appliedGiftVouchers,
+                redeemedLoyaltyPoints, redeemedLoyaltyPointsAmount);
 
         var orderTotal = resultTemp;
 
@@ -732,8 +727,8 @@ public class OrderCalculationService : IOrderCalculationService
         if (_shoppingCartSettings.RoundPrices)
             orderTotal = RoundingHelper.RoundPrice(orderTotal, context.Currency);
 
-        return (orderTotal, discountAmount, appliedDiscounts, appliedGiftVouchers, redeemedLoyaltyPoints,
-            redeemedLoyaltyPointsAmount);
+        return new ShoppingCartTotal(orderTotal, discountAmount, appliedDiscounts, appliedGiftVouchers,
+            redeemedLoyaltyPoints, redeemedLoyaltyPointsAmount);
     }
 
     /// <summary>

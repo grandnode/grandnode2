@@ -42,8 +42,7 @@ public class
         if (!(_orderSettings.MinOrderSubtotalAmount > 0)) return true;
 
         //subtotal
-        var (_, _, subTotalWithoutDiscount, _, _) =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, false);
-        return !(subTotalWithoutDiscount < _orderSettings.MinOrderSubtotalAmount);
+        var subTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, false);
+        return !(subTotal.SubTotalWithoutDiscount < _orderSettings.MinOrderSubtotalAmount);
     }
 }

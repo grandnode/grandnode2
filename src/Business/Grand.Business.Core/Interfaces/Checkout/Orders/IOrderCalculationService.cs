@@ -1,4 +1,3 @@
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 
@@ -15,10 +14,8 @@ public interface IOrderCalculationService
     /// <param name="cart">Cart</param>
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
-    Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts, double subTotalWithoutDiscount, double
-            subTotalWithDiscount, SortedDictionary<double, double> taxRates)>
-        GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, CalculationContext context,
-            bool includingTax);
+    Task<ShoppingCartSubTotal> GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, CalculationContext context,
+        bool includingTax);
 
     /// <summary>
     ///     Adjust shipping rate (free shipping, additional charges, discounts)
@@ -27,7 +24,7 @@ public interface IOrderCalculationService
     /// <param name="cart">Cart</param>
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>Adjusted shipping rate</returns>
-    Task<(double shippingRate, List<ApplyDiscount> appliedDiscounts)> AdjustShippingRate(double shippingRate,
+    Task<ShippingRateAdjustment> AdjustShippingRate(double shippingRate,
         IList<ShoppingCartItem> cart, CalculationContext context);
 
     /// <summary>
@@ -52,8 +49,8 @@ public interface IOrderCalculationService
     /// <param name="cart">Cart</param>
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <returns>Shipping total</returns>
-    Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)>
-        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, CalculationContext context);
+    Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart,
+        CalculationContext context);
 
     /// <summary>
     ///     Gets shopping cart shipping total
@@ -62,8 +59,8 @@ public interface IOrderCalculationService
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
     /// <returns>Shipping total</returns>
-    Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)>
-        GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool includingTax);
+    Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart,
+        CalculationContext context, bool includingTax);
 
 
     /// <summary>
@@ -76,7 +73,7 @@ public interface IOrderCalculationService
     ///     calculating tax
     /// </param>
     /// <returns>Tax total</returns>
-    Task<(double taxtotal, SortedDictionary<double, double> taxRates)> GetTaxTotal(IList<ShoppingCartItem> cart,
+    Task<ShoppingCartTaxTotal> GetTaxTotal(IList<ShoppingCartItem> cart,
         CalculationContext context, bool usePaymentMethodAdditionalFee = true);
 
     /// <summary>
@@ -93,11 +90,8 @@ public interface IOrderCalculationService
     ///     calculating order total
     /// </param>
     /// <returns>Shopping cart total;Null if shopping cart total couldn't be calculated now</returns>
-    Task<(double? shoppingCartTotal, double discountAmount, List<ApplyDiscount> appliedDiscounts,
-            List<AppliedGiftVoucher> appliedGiftVouchers,
-            int redeemedLoyaltyPoints, double redeemedLoyaltyPointsAmount)>
-        GetShoppingCartTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool? useLoyaltyPoints = null,
-            bool usePaymentMethodAdditionalFee = true);
+    Task<ShoppingCartTotal> GetShoppingCartTotal(IList<ShoppingCartItem> cart, CalculationContext context,
+        bool? useLoyaltyPoints = null, bool usePaymentMethodAdditionalFee = true);
 
     /// <summary>
     ///     Converts existing loyalty points to amount

@@ -120,9 +120,8 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
     /// <param name="cart">Cart</param>
     /// <param name="context">Customer, store, currency and tax display the calculation is for</param>
     /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
-    public virtual async Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts,
-            double subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>
-        GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, CalculationContext context, bool includingTax)
+    public virtual async Task<ShoppingCartSubTotal> GetShoppingCartSubTotal(IList<ShoppingCartItem> cart,
+        CalculationContext context, bool includingTax)
     {
         double discountAmount = 0;
         var appliedDiscounts = new List<ApplyDiscount>();
@@ -131,7 +130,8 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
         var taxRates = new SortedDictionary<double, double>();
 
         if (!cart.Any())
-            return (discountAmount, appliedDiscounts, subTotalWithoutDiscount, subTotalWithDiscount, taxRates);
+            return new ShoppingCartSubTotal(discountAmount, appliedDiscounts, subTotalWithoutDiscount,
+                subTotalWithDiscount, taxRates);
 
         //get the customer 
         var customer = context.Customer;
@@ -268,7 +268,8 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
             subTotalWithDiscount = RoundingHelper.RoundPrice(subTotalWithDiscount,
                 context.Currency);
 
-        return (discountAmount, appliedDiscounts, subTotalWithoutDiscount, subTotalWithDiscount, taxRates);
+        return new ShoppingCartSubTotal(discountAmount, appliedDiscounts, subTotalWithoutDiscount,
+            subTotalWithDiscount, taxRates);
     }
 
     #endregion

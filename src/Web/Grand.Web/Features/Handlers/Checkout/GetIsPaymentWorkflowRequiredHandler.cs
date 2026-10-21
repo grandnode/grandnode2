@@ -28,7 +28,7 @@ public class GetIsPaymentWorkflowRequiredHandler : IRequestHandler<GetIsPaymentW
         //check whether order total equals zero
         var shoppingCartTotalBase =
             (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, _contextAccessor.CalculationContext(), request.UseLoyaltyPoints))
-            .shoppingCartTotal;
+            .Total;
         if (shoppingCartTotalBase is 0 && !_paymentSettings.ShowPaymentIfCartIsZero)
             result = false;
         return result;

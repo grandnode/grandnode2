@@ -83,14 +83,14 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         var shoppingCartSubTotal =
             await _orderTotalCalculationService.GetShoppingCartSubTotal(request.Cart, context, subTotalIncludingTax);
         model.SubTotalIncludingTax = subTotalIncludingTax;
-        model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
-        model.SubTotalValue = shoppingCartSubTotal.subTotalWithoutDiscount;
-        if (shoppingCartSubTotal.discountAmount > 0)
+        model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.SubTotalWithoutDiscount, request.Currency);
+        model.SubTotalValue = shoppingCartSubTotal.SubTotalWithoutDiscount;
+        if (shoppingCartSubTotal.DiscountAmount > 0)
         {
             model.SubTotalDiscount =
-                _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency);
-            model.SubTotalDiscountValue = -shoppingCartSubTotal.discountAmount;
-            shoppingCartSubTotal.appliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
+                _priceFormatter.FormatPrice(-shoppingCartSubTotal.DiscountAmount, request.Currency);
+            model.SubTotalDiscountValue = -shoppingCartSubTotal.DiscountAmount;
+            shoppingCartSubTotal.AppliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
         }
     }
 
@@ -102,7 +102,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         {
             var shoppingCartShippingBase =
                 (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, context))
-                .shoppingCartShippingTotal;
+                .ShippingTotal;
             if (shoppingCartShippingBase.HasValue)
             {
                 model.Shipping = _priceFormatter.FormatPrice(shoppingCartShippingBase.Value, request.Currency);
@@ -147,9 +147,9 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         else
         {
             var taxtotal = await _orderTotalCalculationService.GetTaxTotal(request.Cart, context);
-            var taxRates = taxtotal.taxRates;
+            var taxRates = taxtotal.TaxRates;
 
-            if (taxtotal.taxtotal == 0 && _taxSettings.HideZeroTax)
+            if (taxtotal.TaxTotal == 0 && _taxSettings.HideZeroTax)
             {
                 displayTax = false;
                 displayTaxRates = false;
@@ -159,7 +159,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
                 displayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Any();
                 displayTax = !displayTaxRates;
 
-                model.Tax = _priceFormatter.FormatPrice(taxtotal.taxtotal, request.Currency);
+                model.Tax = _priceFormatter.FormatPrice(taxtotal.TaxTotal, request.Currency);
                 foreach (var tr in taxRates)
                     model.TaxRates.Add(new OrderTotalsModel.TaxRate {
                         Rate = _priceFormatter.FormatTaxRate(tr.Key),
@@ -175,11 +175,11 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
     private async Task PrepareTotal(OrderTotalsModel model, GetOrderTotals request, CalculationContext context)
     {
         var carttotal = await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, context);
-        var shoppingCartTotalBase = carttotal.shoppingCartTotal;
-        var orderTotalDiscountAmountBase = carttotal.discountAmount;
-        var appliedGiftVouchers = carttotal.appliedGiftVouchers;
-        var redeemedLoyaltyPoints = carttotal.redeemedLoyaltyPoints;
-        var redeemedLoyaltyPointsAmount = carttotal.redeemedLoyaltyPointsAmount;
+        var shoppingCartTotalBase = carttotal.Total;
+        var orderTotalDiscountAmountBase = carttotal.DiscountAmount;
+        var appliedGiftVouchers = carttotal.AppliedGiftVouchers;
+        var redeemedLoyaltyPoints = carttotal.RedeemedLoyaltyPoints;
+        var redeemedLoyaltyPointsAmount = carttotal.RedeemedLoyaltyPointsAmount;
         if (shoppingCartTotalBase.HasValue)
         {
             model.OrderTotal = _priceFormatter.FormatPrice(shoppingCartTotalBase.Value, request.Currency);
@@ -191,7 +191,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         {
             model.OrderTotalDiscount = _priceFormatter.FormatPrice(-orderTotalDiscountAmountBase, request.Currency);
             model.OrderTotalDiscountValue = -orderTotalDiscountAmountBase;
-            carttotal.appliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
+            carttotal.AppliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
         }
 
         //gift vouchers
@@ -214,7 +214,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         {
             var shippingBaseInclTax = model.RequiresShipping
                 ? (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, context, true))
-                .shoppingCartShippingTotal
+                .ShippingTotal
                 : 0;
             var earnLoyaltyPoints = shoppingCartTotalBase.Value - shippingBaseInclTax ?? 0;
             if (earnLoyaltyPoints > 0)

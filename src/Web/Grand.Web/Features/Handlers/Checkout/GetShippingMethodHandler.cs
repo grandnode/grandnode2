@@ -68,7 +68,7 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
 
                 //adjust rate
                 var shippingTotal = (await _orderTotalCalculationService.AdjustShippingRate(
-                    shippingOption.Rate, request.Cart, _contextAccessor.CalculationContext())).shippingRate;
+                    shippingOption.Rate, request.Cart, _contextAccessor.CalculationContext())).ShippingRate;
 
                 var rateBase = (await _taxService.GetShippingPrice(shippingTotal,
                     _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax, request.Customer, request.Store)).shippingPrice;
