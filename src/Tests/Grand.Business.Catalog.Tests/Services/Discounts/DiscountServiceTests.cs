@@ -921,13 +921,51 @@ public class DiscountServiceTests
     {
         //Arrange - product overviews of a listing are prepared concurrently in one scope
         var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
-        await InsertUsage(discount.Id, "customer1");
+        var counts = 0;
+        var usageHistoryRepository = new Mock<IRepository<DiscountUsageHistory>>();
+        usageHistoryRepository.Setup(r => r.Table)
+            .Returns(new List<DiscountUsageHistory>().AsQueryable());
+        usageHistoryRepository
+            .Setup(r => r.CountAsync(It.IsAny<IQueryable<DiscountUsageHistory>>(), It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                Interlocked.Increment(ref counts);
+                await Task.Delay(50);
+                return 1;
+            });
+        var service = new DiscountValidationService(_discountProviderLoader, _discountCouponRepository,
+            usageHistoryRepository.Object);
         //Act
         var results = await Task.WhenAll(Enumerable.Range(0, 20).Select(_ =>
-            Task.Run(() => _discountValidationService.ValidateDiscount(discount, new Customer(), new Store(),
+            Task.Run(() => service.ValidateDiscount(discount, new Customer(), new Store(),
                 new Currency { CurrencyCode = "USD" }))));
         //Assert
         Assert.IsTrue(results.All(x => !x.IsValid));
+        Assert.AreEqual(1, counts);
+    }
+
+    [TestMethod]
+    public async Task ValidateDiscountTest_NTimes_FailedCountIsQueriedAgain()
+    {
+        //Arrange
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
+        var usageHistoryRepository = new Mock<IRepository<DiscountUsageHistory>>();
+        usageHistoryRepository.Setup(r => r.Table)
+            .Returns(new List<DiscountUsageHistory>().AsQueryable());
+        usageHistoryRepository
+            .SetupSequence(r => r.CountAsync(It.IsAny<IQueryable<DiscountUsageHistory>>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new TimeoutException())
+            .ReturnsAsync(0);
+        var service = new DiscountValidationService(_discountProviderLoader, _discountCouponRepository,
+            usageHistoryRepository.Object);
+        //Act
+        await Assert.ThrowsExactlyAsync<TimeoutException>(() => service.ValidateDiscount(discount,
+            new Customer(), new Store(), new Currency { CurrencyCode = "USD" }));
+        var result = await service.ValidateDiscount(discount, new Customer(), new Store(),
+            new Currency { CurrencyCode = "USD" });
+        //Assert
+        Assert.IsTrue(result.IsValid);
     }
 
     [TestMethod]
