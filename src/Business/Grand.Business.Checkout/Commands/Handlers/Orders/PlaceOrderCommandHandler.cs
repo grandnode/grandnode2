@@ -987,8 +987,15 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             //inventory
             await _inventoryManageService.AdjustReserved(product, -sc.Quantity, sc.Attributes, orderItem.WarehouseId);
 
-            //update sold
-            await _productService.IncrementProductField(product, x => x.Sold, sc.Quantity);
+            //update sold - statistics only: the payment is already processed, so a failed write must not stop the order
+            try
+            {
+                await _productService.IncrementProductField(product, x => x.Sold, sc.Quantity);
+            }
+            catch (Exception exc)
+            {
+                _logger.LogWarning(exc, "Could not update the sold count of product {ProductId}", product.Id);
+            }
         }
 
         //insert order
