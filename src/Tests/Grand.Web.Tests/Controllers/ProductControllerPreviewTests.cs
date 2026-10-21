@@ -14,6 +14,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
@@ -80,7 +81,8 @@ public class ProductControllerPreviewTests
             _mediatorMock.Object,
             new CatalogSettings { AllowViewUnpublishedProductPage = false },
             new CaptchaSettings(),
-            _guestPersistenceMock.Object) {
+            _guestPersistenceMock.Object,
+            new Mock<ILogger<ProductController>>().Object) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext { Request = { Method = "GET" } }
             }
@@ -180,13 +182,15 @@ public class ProductControllerPreviewTests
     }
 
     [TestMethod]
-    public async Task ProductDetails_ViewCounterFails_ErrorIsNotSwallowed()
+    public async Task ProductDetails_ViewCounterFails_StillReturnsThePage()
     {
         GivenProduct(new Product { Id = "p1", Published = true, VisibleIndividually = true });
         _productServiceMock.Setup(x => x.IncrementProductField(It.IsAny<Product>(),
                 It.IsAny<Expression<Func<Product, long>>>(), It.IsAny<long>()))
             .ThrowsAsync(new InvalidOperationException("view counter"));
 
-        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => _controller.ProductDetails("p1"));
+        var result = await _controller.ProductDetails("p1");
+
+        Assert.IsInstanceOfType<ViewResult>(result.Result);
     }
 }
