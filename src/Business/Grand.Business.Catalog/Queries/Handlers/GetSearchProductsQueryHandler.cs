@@ -76,8 +76,6 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         GetSearchProductsQuery request, string[] allowedCustomerGroupsIds, string search,
         CancellationToken cancellationToken)
     {
-        IList<string> filterableSpecificationAttributeOptionIds = new List<string>();
-
         // Build base query; a text search narrows the candidates to products with a whole query word,
         // ApplyKeywordFiltering still decides the match
         var query = search == null
@@ -94,17 +92,47 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         // Order the results
         query = OrderByQueryable(request, query);
 
-        // Create paged list
-        var products = await _productRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
+        // The page and the filterable specification option ids are independent, so both queries run at once;
+        // the first failure cancels the other one instead of waiting for it
+        using var queriesCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        // Create paged list first - LiteDB completes synchronously, so the page still runs before the options there
+        var productsTask = CancelOnFailure(
+            _productRepository.PagedAsync(query, request.PageIndex, request.PageSize, queriesCancellation.Token),
+            queriesCancellation);
 
         // Get filterable specification attributes if needed
-        if (ShouldLoadFilterableSpecifications(request))
+        var filterableTask = ShouldLoadFilterableSpecifications(request)
+            ? CancelOnFailure(GetFilterableSpecificationAttributeOptionIds(querySpecification, queriesCancellation.Token),
+                queriesCancellation)
+            : Task.FromResult<IList<string>>(new List<string>());
+
+        try
         {
-            filterableSpecificationAttributeOptionIds =
-                await GetFilterableSpecificationAttributeOptionIds(querySpecification, cancellationToken);
+            await Task.WhenAll(productsTask, filterableTask);
+        }
+        catch when (cancellationToken.IsCancellationRequested)
+        {
+            //an aborted request may surface as a driver fault of the other query; report it as cancelled
+            //so Handle does not mistake it for a missing text index
+            cancellationToken.ThrowIfCancellationRequested();
+            throw;
         }
 
-        return (products, filterableSpecificationAttributeOptionIds);
+        return (await productsTask, await filterableTask);
+    }
+
+    private static async Task<T> CancelOnFailure<T>(Task<T> task, CancellationTokenSource cancellation)
+    {
+        try
+        {
+            return await task;
+        }
+        catch
+        {
+            await cancellation.CancelAsync();
+            throw;
+        }
     }
 
     private static void CleanupRequestParameters(GetSearchProductsQuery request)
