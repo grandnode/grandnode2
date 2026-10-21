@@ -165,8 +165,7 @@ public class CustomerReportService : ICustomerReportService
                   c.CreatedOnUtc >= date
             //&& c.CreatedOnUtc <= DateTime.UtcNow
             select c;
-        var count = query.Count();
-        return count;
+        return await _customerRepository.CountAsync(query);
     }
 
 
@@ -201,7 +200,7 @@ public class CustomerReportService : ICustomerReportService
         var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
         if (daydiff > 31)
         {
-            var query = builderquery.GroupBy(x => new {
+            var query = await _customerRepository.ToListAsync(builderquery.GroupBy(x => new {
                     x.CreatedOnUtc.Year,
                     x.CreatedOnUtc.Month
                 })
@@ -209,7 +208,7 @@ public class CustomerReportService : ICustomerReportService
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     Count = g.Count()
-                }).ToList();
+                }));
             foreach (var item in query)
                 report.Add(new CustomerByTimeReportLine {
                     Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0'),
@@ -218,14 +217,14 @@ public class CustomerReportService : ICustomerReportService
         }
         else
         {
-            var query = builderquery.GroupBy(x =>
+            var query = await _customerRepository.ToListAsync(builderquery.GroupBy(x =>
                     new { x.CreatedOnUtc.Year, x.CreatedOnUtc.Month, x.CreatedOnUtc.Day })
                 .Select(g => new CustomerStats {
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     Day = g.Key.Day,
                     Count = g.Count()
-                }).ToList();
+                }));
             foreach (var item in query)
                 report.Add(new CustomerByTimeReportLine {
                     Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0') + "-" +
