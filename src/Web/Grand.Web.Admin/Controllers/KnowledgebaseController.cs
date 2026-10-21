@@ -152,7 +152,7 @@ public class KnowledgebaseController : BaseAdminController
         if (knowledgebaseCategory == null)
             return RedirectToAction("List");
 
-        if ((await _knowledgebaseService.GetKnowledgebaseArticlesByCategoryId(id)).Any())
+        if ((await _knowledgebaseService.GetKnowledgebaseArticlesByCategoryId(id, 0, 1)).Any())
         {
             Error(_translationService.GetResource(
                 "Admin.Content.Knowledgebase.KnowledgebaseCategory.Cannotdeletewitharticles"));

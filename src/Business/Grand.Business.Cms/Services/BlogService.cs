@@ -5,6 +5,7 @@ using Grand.Domain.Blogs;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
+using System.Text.RegularExpressions;
 
 namespace Grand.Business.Cms.Services;
 
@@ -72,6 +73,15 @@ public class BlogService : IBlogService
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string tag = null,
         string blogPostName = "", string categoryId = "")
     {
+        var query = await BuildBlogPostQuery(storeId, dateFrom, dateTo, showHidden, blogPostName, categoryId);
+        if (!string.IsNullOrEmpty(tag)) query = query.Where(x => x.Tags != null && x.Tags.Contains(tag));
+
+        return await _blogPostRepository.PagedAsync(query.OrderByDescending(b => b.CreatedOnUtc), pageIndex, pageSize);
+    }
+
+    private async Task<IQueryable<BlogPost>> BuildBlogPostQuery(string storeId, DateTime? dateFrom,
+        DateTime? dateTo, bool showHidden, string blogPostName, string categoryId)
+    {
         var query = from p in _blogPostRepository.Table
             select p;
 
@@ -106,11 +116,7 @@ public class BlogService : IBlogService
                     where !p.LimitedToStores || p.Stores.Contains(storeId)
                     select p;
 
-        if (!string.IsNullOrEmpty(tag)) query = query.Where(x => x.Tags.Contains(tag));
-
-        query = query.OrderByDescending(b => b.CreatedOnUtc);
-
-        return await _blogPostRepository.PagedAsync(query, pageIndex, pageSize);
+        return query;
     }
 
 
@@ -127,17 +133,16 @@ public class BlogService : IBlogService
         string tag = "",
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
-        tag = tag.Trim();
+        tag = tag?.Trim();
+        if (string.IsNullOrEmpty(tag))
+            return new PagedList<BlogPost>([], pageIndex, pageSize);
 
-        //we load all records and only then filter them by tag
-        var blogPostsAll = await GetAllBlogPosts(storeId, showHidden: showHidden, tag: tag);
-        var taggedBlogPosts = (from blogPost in blogPostsAll
-            let tags = blogPost.ParseTags()
-            where !string.IsNullOrEmpty(tags.FirstOrDefault(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)))
-            select blogPost).ToList();
+        //Tags is one comma separated string; match the whole tag, ignoring case and the spaces around it
+        var tagRegex = new Regex(@"(^|,)\s*" + Regex.Escape(tag) + @"\s*(,|$)", RegexOptions.IgnoreCase);
+        var query = await BuildBlogPostQuery(storeId, null, null, showHidden, "", "");
+        query = query.Where(x => x.Tags != null && tagRegex.IsMatch(x.Tags));
 
-        //server-side paging
-        return new PagedList<BlogPost>(taggedBlogPosts, pageIndex, pageSize);
+        return await _blogPostRepository.PagedAsync(query.OrderByDescending(b => b.CreatedOnUtc), pageIndex, pageSize);
     }
 
     /// <summary>

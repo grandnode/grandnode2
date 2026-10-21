@@ -1,5 +1,7 @@
 ﻿using Grand.Business.Cms.Services;
 using Grand.Data;
+using Grand.Data.Tests.LiteDb;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Configuration;
@@ -191,5 +193,59 @@ public class BlogServiceTests
         await _blogService.InsertBlogComment(new BlogComment());
         _blogCommentRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<BlogComment>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<BlogComment>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetAllBlogPostsByTag_MatchesWholeTagIgnoringCase()
+    {
+        var repository = new MongoDBRepositoryTest<BlogPost>();
+        var blogService = new BlogService(repository, _blogCommentRepositoryMock.Object,
+            _blogCategoryRepositoryMock.Object, _blogProductRepositoryMock.Object, _mediatorMock.Object,
+            new AccessControlConfig());
+        await repository.InsertAsync(new BlogPost { Title = "tagged", Tags = "news, Net" });
+        await repository.InsertAsync(new BlogPost { Title = "substring only", Tags = "DotNet" });
+        await repository.InsertAsync(new BlogPost { Title = "untagged" });
+
+        var result = await blogService.GetAllBlogPostsByTag("", "net");
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("tagged", result[0].Title);
+        Assert.AreEqual(1, result.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task GetAllBlogPostsByTag_LiteDb_SkipsUntaggedPosts()
+    {
+        var repository = new LiteDBRepositoryMock<BlogPost>();
+        var blogService = new BlogService(repository, _blogCommentRepositoryMock.Object,
+            _blogCategoryRepositoryMock.Object, _blogProductRepositoryMock.Object, _mediatorMock.Object,
+            new AccessControlConfig());
+        await repository.InsertAsync(new BlogPost { Title = "untagged" });
+        await repository.InsertAsync(new BlogPost { Title = "tagged", Tags = "news, Net" });
+        await repository.InsertAsync(new BlogPost { Title = "substring only", Tags = "DotNet" });
+
+        var result = await blogService.GetAllBlogPostsByTag("", "net");
+
+        Assert.AreEqual("tagged", result.Single().Title);
+        Assert.AreEqual(1, result.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task GetAllBlogPostsByTag_LoadsOnlyTheRequestedPageNewestFirst()
+    {
+        var repository = new MongoDBRepositoryTest<BlogPost>();
+        var blogService = new BlogService(repository, _blogCommentRepositoryMock.Object,
+            _blogCategoryRepositoryMock.Object, _blogProductRepositoryMock.Object, _mediatorMock.Object,
+            new AccessControlConfig());
+        for (var i = 0; i < 5; i++)
+            await repository.InsertAsync(new BlogPost {
+                Title = $"post {i}", Tags = "news", CreatedOnUtc = new DateTime(2026, 1, 1 + i, 0, 0, 0, DateTimeKind.Utc)
+            });
+
+        var result = await blogService.GetAllBlogPostsByTag("", "news", 1, 2);
+
+        CollectionAssert.AreEqual(new[] { "post 2", "post 1" }, result.Select(x => x.Title).ToArray());
+        Assert.AreEqual(5, result.TotalCount);
+        Assert.AreEqual(3, result.TotalPages);
     }
 }
