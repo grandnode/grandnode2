@@ -47,6 +47,7 @@ public class ProductControllerTests
 
         _controller = new ProductController(
             productViewModelServiceMock.Object,
+            new Mock<IProductAddPopupViewModelService>().Object,
             _productServiceMock.Object,
             languageServiceMock.Object,
             translationServiceMock.Object,

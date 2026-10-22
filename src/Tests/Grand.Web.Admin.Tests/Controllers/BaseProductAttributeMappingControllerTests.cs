@@ -24,16 +24,16 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     // BaseProductAttributeMappingController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductAttributeMappingController(
-        IProductViewModelService productViewModelService,
+        IProductAddPopupViewModelService productAddPopupViewModelService,
         IProductAttributeMappingViewModelService productAttributeMappingViewModelService,
         IProductService productService,
         ILanguageService languageService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductAttributeMappingController(productViewModelService, productAttributeMappingViewModelService, productService, languageService, translationService, scope);
+        : BaseProductAttributeMappingController(productAddPopupViewModelService, productAttributeMappingViewModelService, productService, languageService, translationService, scope);
 
     protected override TestProductAttributeMappingController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productAddPopupViewModelServiceMock.Object,
         _productAttributeMappingViewModelServiceMock.Object,
         _productServiceMock.Object,
         _languageServiceMock.Object,
@@ -1065,13 +1065,13 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     public async Task AssociateProductToAttributeValuePopup_Get_CallsPrepareAssociateProductToAttributeValueModel()
     {
         // PrepareAssociateProductToAttributeValueModel() now reads scope internally (Task 9).
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociateProductToAttributeValueModel())
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareAssociateProductToAttributeValueModel())
             .ReturnsAsync(new ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel());
 
         var result = await _controller.AssociateProductToAttributeValuePopup();
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareAssociateProductToAttributeValueModel(),
+        _productAddPopupViewModelServiceMock.Verify(s => s.PrepareAssociateProductToAttributeValueModel(),
             Times.Once);
     }
 
@@ -1082,7 +1082,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
         var model = new ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareProductModel(model, 1, 10))
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareProductModel(model, 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var result = await _controller.AssociateProductToAttributeValuePopupList(
@@ -1097,7 +1097,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     {
         var model = new ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel
             { SearchStoreId = "preset" };
-        _productViewModelServiceMock.Setup(s => s.PrepareProductModel(model, 1, 10))
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareProductModel(model, 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var result = await _controller.AssociateProductToAttributeValuePopupList(

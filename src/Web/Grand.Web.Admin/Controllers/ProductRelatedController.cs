@@ -14,9 +14,9 @@ namespace Grand.Web.Admin.Controllers;
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
 public class ProductRelatedController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
     IProductRelatedViewModelService productRelatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductRelatedController(productViewModelService, productRelatedViewModelService, productService, translationService, scope);
+    : BaseProductRelatedController(productAddPopupViewModelService, productRelatedViewModelService, productService, translationService, scope);

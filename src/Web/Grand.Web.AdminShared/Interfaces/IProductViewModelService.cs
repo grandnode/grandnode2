@@ -24,17 +24,6 @@ public interface IProductViewModelService
     Task<Product> UpdateProductModel(Product product, ProductModel model);
     Task DeleteProduct(Product product);
     Task DeleteSelected(IEnumerable<string> selectedIds);
-    Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel();
-
-    Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddProductModel model,
-        int pageIndex, int pageSize);
-
-    Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel();
-    Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel();
-    Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel();
-    Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel();
-    Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel();
-    Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel();
     Task<BulkEditListModel> PrepareBulkEditListModel();
 
     Task<(IEnumerable<BulkEditProductModel> bulkEditProductModels, int totalCount)> PrepareBulkEditProductModel(
@@ -45,8 +34,4 @@ public interface IProductViewModelService
     Task InsertBulkEdit(IEnumerable<BulkEditProductModel> products);
 
     Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products);
-
-    Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>
-        PrepareAssociateProductToAttributeValueModel();
-
 }

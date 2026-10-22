@@ -364,44 +364,6 @@ public class ProductViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareProductModel_AddProductModel_VendorScope_OverridesModelVendorId()
-    {
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
-        SetupSearchProducts();
-
-        var model = new ProductModel.AddRelatedProductModel { SearchVendorId = "vendor2" };
-        await _productViewModelService.PrepareProductModel(model, 1, 10);
-
-        VerifySearchProductsCalledWithVendorId("vendor1");
-    }
-
-    [TestMethod]
-    public async Task PrepareRelatedProductModel_VendorScope_HidesVendorDropdown()
-    {
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
-
-        var model = await _productViewModelService.PrepareRelatedProductModel();
-
-        Assert.IsFalse(model.AvailableVendors.Any(),
-            "Vendor's original PrepareAddProductModel<T> never populated a vendor picker - the search is always forced to the current vendor.");
-        _vendorServiceMock.Verify(v => v.GetAllVendors(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()),
-            Times.Never);
-    }
-
-    [TestMethod]
-    public async Task PrepareRelatedProductModel_GlobalScope_IncludesVendorDropdown()
-    {
-        // Default Setup() scope: Admin's Global scope (DefaultVendorId null).
-        _vendorServiceMock.Setup(v => v.GetAllVendors(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), true))
-            .ReturnsAsync(new PagedList<Vendor> { new() { Id = "vendor1", Name = "Vendor 1" } });
-
-        var model = await _productViewModelService.PrepareRelatedProductModel();
-
-        Assert.IsTrue(model.AvailableVendors.Any(x => x.Value == "vendor1"),
-            "Admin/Store should keep offering a vendor picker.");
-    }
-
-    [TestMethod]
     public async Task InsertProductModel_VendorScope_ForcesVendorId()
     {
         _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");

@@ -18,7 +18,8 @@ public class ProductBundleViewModelService(
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
-            // scope.HasAccess: see InsertRelatedProductModel above.
+            // scope.HasAccess: the popup's search is already scoped, but the posted ids are not - skip any
+            // product the current panel (Store, Vendor) has no access to, so it cannot be bundled by id.
             if (product == null || !await scope.HasAccess(product)) continue;
 
             var existingBundleProducts = productId1.BundleProducts;

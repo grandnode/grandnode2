@@ -23,15 +23,15 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
     // BaseProductAssociatedController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductAssociatedController(
-        IProductViewModelService productViewModelService,
+        IProductAddPopupViewModelService productAddPopupViewModelService,
         IProductAssociatedViewModelService productAssociatedViewModelService,
         IProductService productService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductAssociatedController(productViewModelService, productAssociatedViewModelService, productService, translationService, scope);
+        : BaseProductAssociatedController(productAddPopupViewModelService, productAssociatedViewModelService, productService, translationService, scope);
 
     protected override TestProductAssociatedController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productAddPopupViewModelServiceMock.Object,
         _productAssociatedViewModelServiceMock.Object,
         _productServiceMock.Object,
         _translationServiceMock.Object,
@@ -159,7 +159,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
     public async Task AssociatedProductAddPopupGet_CallsPrepareAssociatedProductModel()
     {
         // PrepareAssociatedProductModel() now reads scope internally (Task 9).
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel())
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel())
             .ReturnsAsync(new ProductModel.AddAssociatedProductModel());
 
         var result = await _controller.AssociatedProductAddPopup("p1") as ViewResult;
@@ -168,7 +168,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
         var model = result.Model as ProductModel.AddAssociatedProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareAssociatedProductModel(), Times.Once);
+        _productAddPopupViewModelServiceMock.Verify(s => s.PrepareAssociatedProductModel(), Times.Once);
     }
 
     // --- AssociatedProductAddPopupList ---------------------------------------------------------------
@@ -177,7 +177,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
     public async Task AssociatedProductAddPopupList_UsesScopeDefaultStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddAssociatedProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -193,7 +193,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
     public async Task AssociatedProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddAssociatedProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -297,7 +297,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(parent);
         _scopeMock.Setup(s => s.HasAccess(parent)).ReturnsAsync(true);
         var reprepared = new ProductModel.AddAssociatedProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel()).ReturnsAsync(reprepared);
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddAssociatedProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 

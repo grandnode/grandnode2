@@ -16,7 +16,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductBundleController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
     IProductBundleViewModelService productBundleViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
@@ -101,7 +101,7 @@ public abstract class BaseProductBundleController(
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
         // ties access to a specific product. PrepareBundleProductModel() now reads scope
         // internally (Task 9).
-        var model = await productViewModelService.PrepareBundleProductModel();
+        var model = await productAddPopupViewModelService.PrepareBundleProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -114,7 +114,7 @@ public abstract class BaseProductBundleController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount
@@ -152,7 +152,7 @@ public abstract class BaseProductBundleController(
     protected virtual async Task<IActionResult> InvalidBundleProductAddPopupResult(ProductModel.AddBundleProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareBundleProductModel();
+        model = await productAddPopupViewModelService.PrepareBundleProductModel();
         return View(model);
     }
 

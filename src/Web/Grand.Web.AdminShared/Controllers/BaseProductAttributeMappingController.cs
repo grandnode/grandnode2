@@ -19,7 +19,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductAttributeMappingController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
     IProductAttributeMappingViewModelService productAttributeMappingViewModelService,
     IProductService productService,
     ILanguageService languageService,
@@ -471,7 +471,7 @@ public abstract class BaseProductAttributeMappingController(
         // PrepareAssociateProductToAttributeValueModel() now reads scope internally (Task 9):
         // StaffStoreId for Store; null for Admin/Vendor (no store concept).
         var model =
-            await productViewModelService.PrepareAssociateProductToAttributeValueModel();
+            await productAddPopupViewModelService.PrepareAssociateProductToAttributeValueModel();
         return View(model);
     }
 
@@ -483,7 +483,7 @@ public abstract class BaseProductAttributeMappingController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount

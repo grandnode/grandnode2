@@ -14,9 +14,9 @@ namespace Grand.Web.Admin.Controllers;
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
 public class ProductBundleController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
     IProductBundleViewModelService productBundleViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductBundleController(productViewModelService, productBundleViewModelService, productService, translationService, scope);
+    : BaseProductBundleController(productAddPopupViewModelService, productBundleViewModelService, productService, translationService, scope);
