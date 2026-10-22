@@ -4,9 +4,14 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
@@ -15,7 +20,11 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     //the missing index is reported once per process, not on every search; a race may report it twice
     private static bool _missingTextIndexReported;
 
+    //how long a listing total and its filter options may lag behind writes that do not clear them
+    private const int ListingSummaryCacheMinutes = 5;
+
     private readonly AccessControlConfig _accessControlConfig;
+    private readonly ICacheBase _cacheBase;
     private readonly CatalogSettings _catalogSettings;
     private readonly IDatabaseContext _databaseContext;
     private readonly DatabaseConfig _databaseConfig;
@@ -26,6 +35,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     public GetSearchProductsQueryHandler(
         IRepository<Product> productRepository,
         ISpecificationAttributeService specificationAttributeService,
+        ICacheBase cacheBase,
         CatalogSettings catalogSettings,
         AccessControlConfig accessControlConfig,
         DatabaseConfig databaseConfig,
@@ -34,6 +44,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     {
         _productRepository = productRepository;
         _specificationAttributeService = specificationAttributeService;
+        _cacheBase = cacheBase;
         _catalogSettings = catalogSettings;
         _accessControlConfig = accessControlConfig;
         _databaseConfig = databaseConfig;
@@ -89,6 +100,12 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         // Apply specification filters
         (query, querySpecification) = await ApplySpecificationFilters(request, query, querySpecification);
 
+        // Staff lists stay live. A storefront listing reads its total and filter options from a short-lived cache:
+        // both depend on the filters only, not on the page or the order, and each costs a pass over every match
+        if (!request.ShowHidden)
+            return await SearchWithCachedSummary(request, allowedCustomerGroupsIds, search, query, querySpecification,
+                cancellationToken);
+
         // Order the results
         query = OrderByQueryable(request, query);
 
@@ -121,6 +138,85 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
 
         return (await productsTask, await filterableTask);
     }
+
+    private async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
+        SearchWithCachedSummary(GetSearchProductsQuery request, string[] allowedCustomerGroupsIds, string search,
+            IQueryable<Product> query, IQueryable<Product> querySpecification, CancellationToken cancellationToken)
+    {
+        var key = string.Format(CacheKey.PRODUCTS_LISTING_SUMMARY_KEY,
+            ListingSummaryHash(request, allowedCustomerGroupsIds, search));
+
+        //same normalization as IRepository.PagedAsync
+        var pageSize = request.PageSize <= 0 ? 1 : request.PageSize;
+        var skip = (int)Math.Clamp((long)request.PageIndex * pageSize, 0, int.MaxValue);
+
+        using var queriesCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        var itemsTask = CancelOnFailure(
+            _productRepository.ToListAsync(OrderByQueryable(request, query).Skip(skip).Take(pageSize),
+                queriesCancellation.Token),
+            queriesCancellation);
+
+        //a miss is computed once; concurrent requests for the same listing wait for it instead of repeating the scan
+        var summaryTask = CancelOnFailure(
+            _cacheBase.GetAsync(key,
+                () => LoadListingSummary(request, query, querySpecification, queriesCancellation.Token),
+                ListingSummaryCacheMinutes),
+            queriesCancellation);
+
+        try
+        {
+            await Task.WhenAll(itemsTask, summaryTask);
+        }
+        catch when (cancellationToken.IsCancellationRequested)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            throw;
+        }
+
+        var items = await itemsTask;
+        var summary = await summaryTask;
+
+        //a short page is the last one and gives the exact total; otherwise the cached total may lag up to its lifetime
+        var totalCount = items.Count < pageSize && (items.Count > 0 || skip == 0)
+            ? skip + items.Count
+            : summary.TotalCount;
+
+        return (new PagedList<Product>(items, request.PageIndex, pageSize, totalCount),
+            summary.FilterableSpecificationAttributeOptionIds.ToList());
+    }
+
+    private async Task<ListingSummary> LoadListingSummary(GetSearchProductsQuery request, IQueryable<Product> query,
+        IQueryable<Product> querySpecification, CancellationToken cancellationToken)
+    {
+        var countTask = _productRepository.CountAsync(query, cancellationToken);
+        var filterableTask = ShouldLoadFilterableSpecifications(request)
+            ? GetFilterableSpecificationAttributeOptionIds(querySpecification, cancellationToken)
+            : Task.FromResult<IList<string>>(new List<string>());
+
+        await Task.WhenAll(countTask, filterableTask);
+
+        return new ListingSummary(await countTask, (await filterableTask).ToArray());
+    }
+
+    /// <summary>
+    ///     Hash of every request value that changes which products match; page and order are left out on purpose
+    /// </summary>
+    private string ListingSummaryHash(GetSearchProductsQuery request, string[] allowedCustomerGroupsIds, string search)
+    {
+        static string Set(IEnumerable<string> values)
+        {
+            return values == null ? "" : string.Join(",", values.Order(StringComparer.Ordinal));
+        }
+
+        //invariant culture: the request culture follows the customer's language and would split one listing in two
+        var filters = string.Create(CultureInfo.InvariantCulture,
+            $"{Set(request.CategoryIds)}|{request.FeaturedProducts}|{request.BrandId}|{request.CollectionId}|{request.StoreId}|{request.VendorId}|{request.WarehouseId}|{request.ProductType}|{request.VisibleIndividuallyOnly}|{request.MarkedAsNewOnly}|{request.ShowOnHomePage}|{request.OverridePublished}|{request.PriceMin}|{request.PriceMax}|{request.Rating}|{request.ProductTag}|{Set(allowedCustomerGroupsIds)}|{Set(request.FilteredSpecs)}|{Set(request.SpecificationOptions)}|{ShouldLoadFilterableSpecifications(request)}|{request.SearchDescriptions}|{request.SearchSku}|{search != null}|{request.Keywords}");
+
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(filters)));
+    }
+
+    private sealed record ListingSummary(int TotalCount, string[] FilterableSpecificationAttributeOptionIds);
 
     private static async Task<T> CancelOnFailure<T>(Task<T> task, CancellationTokenSource cancellation)
     {

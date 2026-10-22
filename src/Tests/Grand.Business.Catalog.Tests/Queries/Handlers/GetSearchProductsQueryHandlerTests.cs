@@ -6,6 +6,10 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Tests.Caching;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging.Abstractions;
 using Grand.Infrastructure.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +20,7 @@ namespace Grand.Business.Catalog.Tests.Queries.Handlers;
 [TestClass]
 public class GetSearchProductsQueryHandlerTests
 {
+    private ICacheBase _cache;
     private IRepository<Product> _repository;
     private GetSearchProductsQueryHandler handler;
 
@@ -23,7 +28,8 @@ public class GetSearchProductsQueryHandlerTests
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<Product>();
-        handler = new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object,
+        _cache = Cache();
+        handler = new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object, _cache,
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
             new DatabaseConfig(), Mock.Of<IDatabaseContext>(),
             NullLogger<GetSearchProductsQueryHandler>.Instance);
@@ -100,7 +106,7 @@ public class GetSearchProductsQueryHandlerTests
     {
         //Arrange
         var filteringHandler = new GetSearchProductsQueryHandler(_repository,
-            new Mock<ISpecificationAttributeService>().Object,
+            new Mock<ISpecificationAttributeService>().Object, Cache(),
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig(),
             new DatabaseConfig(), Mock.Of<IDatabaseContext>(),
             NullLogger<GetSearchProductsQueryHandler>.Instance);
@@ -143,13 +149,14 @@ public class GetSearchProductsQueryHandlerTests
         var optionsStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var repository = new Mock<IRepository<Product>>();
         repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
-        repository.Setup(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<CancellationToken>()))
+        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
             .Returns(async () => {
                 pageStarted.TrySetResult();
                 await optionsStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
-                return new PagedList<Product>([new Product { Id = "1" }], 0, 10, 1);
+                return new List<Product> { new() { Id = "1" } };
             });
+        repository.Setup(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
         repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(async () => {
                 optionsStarted.TrySetResult();
@@ -157,7 +164,7 @@ public class GetSearchProductsQueryHandlerTests
                 return new List<string> { "red" };
             });
         var filteringHandler = new GetSearchProductsQueryHandler(repository.Object,
-            new Mock<ISpecificationAttributeService>().Object,
+            new Mock<ISpecificationAttributeService>().Object, Cache(),
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig(),
             new DatabaseConfig(), Mock.Of<IDatabaseContext>(),
             NullLogger<GetSearchProductsQueryHandler>.Instance);
@@ -178,8 +185,7 @@ public class GetSearchProductsQueryHandlerTests
         var optionsToken = new TaskCompletionSource<CancellationToken>(TaskCreationOptions.RunContinuationsAsynchronously);
         var repository = new Mock<IRepository<Product>>();
         repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
-        repository.Setup(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<CancellationToken>()))
+        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
             .Returns(async () => {
                 //fail once the options query is running
                 await optionsToken.Task.WaitAsync(TimeSpan.FromSeconds(5));
@@ -212,12 +218,11 @@ public class GetSearchProductsQueryHandlerTests
         using var cancellation = new CancellationTokenSource();
         var repository = new Mock<IRepository<Product>>();
         repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
-        repository.Setup(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(async (IQueryable<Product> _, int _, int _, CancellationToken token) => {
+        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .Returns(async (IQueryable<Product> _, CancellationToken token) => {
                 if (Interlocked.Increment(ref started) == 2) await cancellation.CancelAsync();
                 await Task.Delay(Timeout.Infinite, token);
-                return new PagedList<Product>([], 0, 10, 0);
+                return new List<Product>();
             });
         repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(async (IQueryable<string> _, CancellationToken token) => {
@@ -237,15 +242,127 @@ public class GetSearchProductsQueryHandlerTests
         //Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
             filteringHandler.Handle(searchProductsQuery, cancellation.Token).WaitAsync(TimeSpan.FromSeconds(5)));
-        repository.Verify(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+        repository.Verify(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_StorefrontListingWithFullPage_ReusesTheCachedTotal()
+    {
+        //Arrange
+        await InsertVisibleProducts(3);
+        await handler.Handle(Listing(pageSize: 2), CancellationToken.None);
+        await InsertVisibleProducts(1);
+        //Act
+        var result = await handler.Handle(Listing(pageSize: 2), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(3, result.products.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_StorefrontListingWithShortPage_ReturnsTheExactTotal()
+    {
+        //Arrange
+        await InsertVisibleProducts(3);
+        await handler.Handle(Listing(pageSize: 10), CancellationToken.None);
+        await InsertVisibleProducts(1);
+        //Act
+        var result = await handler.Handle(Listing(pageSize: 10), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(4, result.products.TotalCount);
+        Assert.AreEqual(4, result.products.Count);
+    }
+
+    [TestMethod]
+    public async Task Handle_ListingPatternCleared_CountsAgain()
+    {
+        //Arrange
+        await InsertVisibleProducts(3);
+        await handler.Handle(Listing(pageSize: 2), CancellationToken.None);
+        await InsertVisibleProducts(1);
+        await _cache.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        //Act
+        var result = await handler.Handle(Listing(pageSize: 2), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(4, result.products.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_ShowHidden_CountsLive()
+    {
+        //Arrange
+        await InsertVisibleProducts(3);
+        await handler.Handle(new GetSearchProductsQuery { ShowHidden = true, PageSize = 2 }, CancellationToken.None);
+        await InsertVisibleProducts(1);
+        //Act
+        var result = await handler.Handle(new GetSearchProductsQuery { ShowHidden = true, PageSize = 2 },
+            CancellationToken.None);
+        //Assert
+        Assert.AreEqual(4, result.products.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_DifferentCustomerGroups_DoNotShareTheCachedTotal()
+    {
+        //Arrange
+        await InsertVisibleProducts(2);
+        await _repository.InsertAsync(new Product {
+            Published = true, VisibleIndividually = true, LimitedToGroups = true, CustomerGroups = ["members"]
+        });
+        //Act
+        var members = await handler.Handle(
+            new GetSearchProductsQuery { CustomerGroupIds = ["members"], PageSize = 1 }, CancellationToken.None);
+        var guests = await handler.Handle(
+            new GetSearchProductsQuery { CustomerGroupIds = ["guests"], PageSize = 1 }, CancellationToken.None);
+        //Assert
+        Assert.AreEqual(3, members.products.TotalCount);
+        Assert.AreEqual(2, guests.products.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_DifferentCategories_DoNotShareTheCachedTotal()
+    {
+        //Arrange
+        await InsertVisibleProducts(2, "shoes");
+        await InsertVisibleProducts(3, "bags");
+        //Act
+        var shoes = await handler.Handle(Listing(pageSize: 1, categoryId: "shoes"), CancellationToken.None);
+        var bags = await handler.Handle(Listing(pageSize: 1, categoryId: "bags"), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(2, shoes.products.TotalCount);
+        Assert.AreEqual(3, bags.products.TotalCount);
+    }
+
+    private static GetSearchProductsQuery Listing(int pageSize, string categoryId = null)
+    {
+        return new GetSearchProductsQuery {
+            Customer = new Customer(), PageSize = pageSize,
+            CategoryIds = categoryId == null ? null : [categoryId]
+        };
+    }
+
+    private async Task InsertVisibleProducts(int count, string categoryId = null)
+    {
+        for (var i = 0; i < count; i++)
+        {
+            var product = new Product { Published = true, VisibleIndividually = true };
+            if (categoryId != null)
+                product.ProductCategories.Add(new ProductCategory { CategoryId = categoryId });
+            await _repository.InsertAsync(product);
+        }
     }
 
     private static GetSearchProductsQueryHandler FilteringHandler(IRepository<Product> repository,
         DatabaseConfig databaseConfig, IDatabaseContext databaseContext)
     {
-        return new GetSearchProductsQueryHandler(repository, new Mock<ISpecificationAttributeService>().Object,
+        return new GetSearchProductsQueryHandler(repository, new Mock<ISpecificationAttributeService>().Object, Cache(),
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = false }, new AccessControlConfig(),
             databaseConfig, databaseContext, NullLogger<GetSearchProductsQueryHandler>.Instance);
+    }
+
+    private static ICacheBase Cache()
+    {
+        return new MemoryCacheBase(MemoryCacheTest.Get(), Mock.Of<IMediator>(),
+            new CacheConfig { DefaultCacheTimeMinutes = 1 });
     }
 }
