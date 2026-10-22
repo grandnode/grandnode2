@@ -43,18 +43,6 @@ public class ProductController(
     // Vendor's original AddPopup(POST) actions returned Content(ModelState.GetErrors()) on an invalid
     // model, instead of Admin/Store's re-prepare-and-View. Overriding the base's Admin/Store default,
     // per each hook's own doc comment.
-    protected override Task<IActionResult> InvalidRelatedProductAddPopupResult(ProductModel.AddRelatedProductModel model)
-        => Task.FromResult<IActionResult>(Content(ModelState.GetErrors()));
-
-    protected override Task<IActionResult> InvalidSimilarProductAddPopupResult(ProductModel.AddSimilarProductModel model)
-        => Task.FromResult<IActionResult>(Content(ModelState.GetErrors()));
-
     protected override Task<IActionResult> InvalidBundleProductAddPopupResult(ProductModel.AddBundleProductModel model)
-        => Task.FromResult<IActionResult>(Content(ModelState.GetErrors()));
-
-    protected override Task<IActionResult> InvalidCrossSellProductAddPopupResult(ProductModel.AddCrossSellProductModel model)
-        => Task.FromResult<IActionResult>(Content(ModelState.GetErrors()));
-
-    protected override Task<IActionResult> InvalidRecommendedProductAddPopupResult(ProductModel.AddRecommendedProductModel model)
         => Task.FromResult<IActionResult>(Content(ModelState.GetErrors()));
 }

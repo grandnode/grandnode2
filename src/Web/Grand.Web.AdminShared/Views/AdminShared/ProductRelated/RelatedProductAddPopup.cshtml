@@ -5,7 +5,7 @@
     //page title
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.RelatedProducts.AddNew"];
 }
-<form id="RelatedProductAddPopup" asp-area="@area" asp-controller="Product" asp-action="RelatedProductAddPopup"
+<form id="RelatedProductAddPopup" asp-area="@area" asp-controller="ProductRelated" asp-action="RelatedProductAddPopup"
       asp-route-productId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
@@ -28,7 +28,7 @@
         </admin-filters>
         <admin-card flush>
             <admin-grid id="products-grid"
-                        read-url="@Url.Action("RelatedProductAddPopupList", "Product", new { area = area })"
+                        read-url="@Url.Action("RelatedProductAddPopupList", "ProductRelated", new { area = area })"
                         additional-data="additionalData"
                         selectable="Checkbox"
                         selection-name="SelectedProductIds">

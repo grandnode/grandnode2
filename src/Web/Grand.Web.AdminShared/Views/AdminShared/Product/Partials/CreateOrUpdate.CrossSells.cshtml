@@ -12,15 +12,15 @@
             <h2 class="grand-card__title">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells"]</h2>
             @if (!readOnly)
             {
-                <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
+                <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "ProductRelated", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
                 <input type="submit" id="btnRefreshCrossSellProducts" style="display: none"/>
             }
         </div>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="crosssellproducts-grid"
                         read-only="@readOnly"
-                        read-url="@Url.Action("CrossSellProductList", "Product", new { productId = Model.Id, area = area })"
-                        destroy-url="@Url.Action("CrossSellProductDelete", "Product", new { productId = Model.Id, area = area })"
+                        read-url="@Url.Action("CrossSellProductList", "ProductRelated", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("CrossSellProductDelete", "ProductRelated", new { productId = Model.Id, area = area })"
                         pager="Compact"
                         auto-bind="false">
                 <grid-column field="Product2Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.Fields.Product"]">

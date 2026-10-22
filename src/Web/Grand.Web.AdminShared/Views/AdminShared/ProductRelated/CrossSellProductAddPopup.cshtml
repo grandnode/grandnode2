@@ -5,7 +5,7 @@
     //page title
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"];
 }
-<form id="CrossSellProductAddPopup" asp-area="@area" asp-controller="Product" asp-action="CrossSellProductAddPopup"
+<form id="CrossSellProductAddPopup" asp-area="@area" asp-controller="ProductRelated" asp-action="CrossSellProductAddPopup"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
@@ -28,7 +28,7 @@
         </admin-filters>
         <admin-card flush>
             <admin-grid id="products-grid"
-                        read-url="@Url.Action("CrossSellProductAddPopupList", "Product", new { area = area })"
+                        read-url="@Url.Action("CrossSellProductAddPopupList", "ProductRelated", new { area = area })"
                         additional-data="additionalData"
                         selectable="Checkbox"
                         selection-name="SelectedProductIds">
