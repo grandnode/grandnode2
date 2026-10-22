@@ -20,7 +20,6 @@ using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 namespace Grand.Web.AdminShared.Services;
 
 public class ProductAttributeCombinationViewModelService(
-    IProductService productService,
     IInventoryManageService inventoryManageService,
     IPictureService pictureService,
     IProductAttributeService productAttributeService,
@@ -359,6 +358,7 @@ public class ProductAttributeCombinationViewModelService(
                 }
 
                 await productAttributeService.InsertProductAttributeCombination(combination, product.Id);
+                product.ProductAttributeCombinations.Add(combination);
 
                 if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
                 {
@@ -371,7 +371,13 @@ public class ProductAttributeCombinationViewModelService(
         else
         {
             var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == model.Id);
-            var prevCombination = (ProductAttributeCombination)combination!.Clone();
+            if (combination == null)
+            {
+                warnings.Add("This combination doesn't exist!");
+                return warnings;
+            }
+
+            var prevCombination = (ProductAttributeCombination)combination.Clone();
 
             combination.StockQuantity = model.StockQuantity;
             combination.ReservedQuantity = model.ReservedQuantity;
@@ -388,6 +394,7 @@ public class ProductAttributeCombinationViewModelService(
             {
                 await PrepareCombinationWarehouseInventory(combination);
                 combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
+                combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
             }
 
             //notification - out of stock
@@ -398,10 +405,9 @@ public class ProductAttributeCombinationViewModelService(
 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var pr = await productService.GetProductById(model.ProductId);
-                pr.StockQuantity = pr.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-                pr.ReservedQuantity = pr.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                await inventoryManageService.UpdateStockProduct(pr, false);
+                product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
+                product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
+                await inventoryManageService.UpdateStockProduct(product, false);
             }
         }
 
@@ -438,6 +444,7 @@ public class ProductAttributeCombinationViewModelService(
                 NotifyAdminForQuantityBelow = 1
             };
             await productAttributeService.InsertProductAttributeCombination(combination, product.Id);
+            product.ProductAttributeCombinations.Add(combination);
         }
 
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
