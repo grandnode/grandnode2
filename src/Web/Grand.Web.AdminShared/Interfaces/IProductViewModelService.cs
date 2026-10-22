@@ -36,10 +36,6 @@ public interface IProductViewModelService
     Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddProductModel model,
         int pageIndex, int pageSize);
 
-    Task<IList<ProductModel.ProductCategoryModel>> PrepareProductCategoryModel(Product product);
-    Task InsertProductCategoryModel(ProductModel.ProductCategoryModel model);
-    Task UpdateProductCategoryModel(ProductModel.ProductCategoryModel model);
-    Task DeleteProductCategory(string id, string productId);
     Task<IList<ProductModel.ProductCollectionModel>> PrepareProductCollectionModel(Product product);
     Task InsertProductCollection(ProductModel.ProductCollectionModel model);
     Task UpdateProductCollection(ProductModel.ProductCollectionModel model);
