@@ -98,6 +98,7 @@ public class GetCollectionHandler : IRequestHandler<GetCollection, CollectionMod
                 (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
         var products = await _mediator.Send(new GetSearchProductsQuery {
+            CacheListingSummary = true,
             LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
             CollectionId = request.Collection.Id,
             Customer = request.Customer,

@@ -52,6 +52,7 @@ public class GetBrandHandler : IRequestHandler<GetBrand, BrandModel>
                 (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
         var products = await _mediator.Send(new GetSearchProductsQuery {
+            CacheListingSummary = true,
             LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
             BrandId = request.Brand.Id,
             Customer = request.Customer,

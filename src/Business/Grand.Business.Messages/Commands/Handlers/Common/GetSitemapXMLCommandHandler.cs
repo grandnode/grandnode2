@@ -28,6 +28,7 @@ namespace Grand.Business.Messages.Commands.Handlers.Common;
 public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand, string>
 {
     private const string DateFormat = "yyyy-MM-dd";
+    private const int ProductBatchSize = 1000;
     private readonly AppConfig _appConfig;
     private readonly IBlogService _blogService;
     private readonly BlogSettings _blogSettings;
@@ -49,6 +50,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     //so the audience is passed explicitly instead of coming from the (absent) work context
     private string[] _guestGroupIds;
     private GetSitemapXmlCommand _request;
+    private CancellationToken _cancellationToken;
 
     public GetSitemapXmlCommandHandler(
         ICategoryService categoryService,
@@ -87,6 +89,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     public async Task<string> Handle(GetSitemapXmlCommand request, CancellationToken cancellationToken)
     {
         _request = request;
+        _cancellationToken = cancellationToken;
         var guests = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
         _guestGroupIds = guests != null ? [guests.Id] : [];
         return await Generate(request.Language, request.Store);
@@ -292,35 +295,43 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
     private async Task<IEnumerable<SitemapUrl>> GetProductUrls(Language language, Store store)
     {
-        var search = await _mediator.Send(new GetSearchProductsQuery {
-            CustomerGroupIds = _guestGroupIds,
-            StoreId = store.Id,
-            VisibleIndividuallyOnly = true,
-            OrderBy = ProductSortingEnum.CreatedOn
-        });
         var storeLocation = GetStoreLocation();
         var products = new List<SitemapUrl>();
-        foreach (var product in search.products)
+        //a large catalog is read in batches of the few fields an entry needs, never as whole documents at once
+        IList<SitemapProduct> batch;
+        string afterId = null;
+        do
         {
-            var url =
-                _appConfig.SeoFriendlyUrlsForLanguagesEnabled
-                    ? _linkGenerator.GetUriByRouteValues("Product",
-                        new { SeName = product.GetSeName(language.Id), language = language.UniqueSeoCode },
-                        GetHttpProtocol(), GetHost())
-                    : _linkGenerator.GetUriByRouteValues("Product", new { SeName = product.GetSeName(language.Id) },
-                        GetHttpProtocol(), GetHost());
+            _cancellationToken.ThrowIfCancellationRequested();
+            batch = await _mediator.Send(new GetSitemapProductsQuery {
+                StoreId = store.Id,
+                CustomerGroupIds = _guestGroupIds,
+                LanguageId = language.Id,
+                AfterId = afterId,
+                PageSize = ProductBatchSize
+            }, _cancellationToken);
 
-            var imageUrl = string.Empty;
-            if (_commonSettings.SitemapIncludeImage)
-                if (!string.IsNullOrEmpty(product.ProductPictures.FirstOrDefault()?.PictureId))
-                {
-                    imageUrl = await _pictureService.GetPictureUrl(product.ProductPictures.FirstOrDefault()?.PictureId,
-                        showDefaultPicture: false, storeLocation: storeLocation);
-                }
+            foreach (var product in batch)
+            {
+                var url =
+                    _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                        ? _linkGenerator.GetUriByRouteValues("Product",
+                            new { product.SeName, language = language.UniqueSeoCode },
+                            GetHttpProtocol(), GetHost())
+                        : _linkGenerator.GetUriByRouteValues("Product", new { product.SeName },
+                            GetHttpProtocol(), GetHost());
 
-            products.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly,
-                product.UpdatedOnUtc ?? product.CreatedOnUtc));
-        }
+                var imageUrl = string.Empty;
+                if (_commonSettings.SitemapIncludeImage && !string.IsNullOrEmpty(product.PictureId))
+                    imageUrl = await _pictureService.GetPictureUrl(product.PictureId, showDefaultPicture: false,
+                        storeLocation: storeLocation);
+
+                products.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly, product.UpdatedOnUtc));
+            }
+
+            if (batch.Count > 0)
+                afterId = batch[^1].Id;
+        } while (batch.Count == ProductBatchSize);
 
         return products;
     }

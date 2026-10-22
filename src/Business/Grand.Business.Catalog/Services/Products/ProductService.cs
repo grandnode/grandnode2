@@ -363,6 +363,7 @@ public class ProductService : IProductService
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_PATTERN);
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_GROUP_PATTERN);
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_HOMEPAGE_PATTERN);
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
 
         //event notification
@@ -429,6 +430,7 @@ public class ProductService : IProductService
         await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event
         await _mediator.Publish(new ProductUnPublishEvent(product));

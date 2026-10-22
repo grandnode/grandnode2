@@ -4,9 +4,14 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
@@ -15,7 +20,11 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     //the missing index is reported once per process, not on every search; a race may report it twice
     private static bool _missingTextIndexReported;
 
+    //how long a listing total and its filter options may lag behind writes that do not clear them
+    private const int ListingSummaryCacheMinutes = 5;
+
     private readonly AccessControlConfig _accessControlConfig;
+    private readonly ICacheBase _cacheBase;
     private readonly CatalogSettings _catalogSettings;
     private readonly IDatabaseContext _databaseContext;
     private readonly DatabaseConfig _databaseConfig;
@@ -26,6 +35,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     public GetSearchProductsQueryHandler(
         IRepository<Product> productRepository,
         ISpecificationAttributeService specificationAttributeService,
+        ICacheBase cacheBase,
         CatalogSettings catalogSettings,
         AccessControlConfig accessControlConfig,
         DatabaseConfig databaseConfig,
@@ -34,6 +44,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     {
         _productRepository = productRepository;
         _specificationAttributeService = specificationAttributeService;
+        _cacheBase = cacheBase;
         _catalogSettings = catalogSettings;
         _accessControlConfig = accessControlConfig;
         _databaseConfig = databaseConfig;
@@ -89,27 +100,108 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         // Apply specification filters
         (query, querySpecification) = await ApplySpecificationFilters(request, query, querySpecification);
 
+        // A listing page reads its total and filter options from a short-lived cache: both depend on the filters
+        // only, not on the page or the order, and each costs a pass over every match
+        if (request.CacheListingSummary && !request.ShowHidden)
+            return await SearchWithCachedSummary(request, allowedCustomerGroupsIds, query, querySpecification,
+                cancellationToken);
+
         // Order the results
         query = OrderByQueryable(request, query);
 
-        // The page and the filterable specification option ids are independent, so both queries run at once;
-        // the first failure cancels the other one instead of waiting for it
+        // The page and the filterable specification option ids are independent, so both queries run at once
+        return await WhenBoth(
+            token => _productRepository.PagedAsync(query, request.PageIndex, request.PageSize, token),
+            token => ShouldLoadFilterableSpecifications(request)
+                ? GetFilterableSpecificationAttributeOptionIds(querySpecification, token)
+                : Task.FromResult<IList<string>>(new List<string>()),
+            cancellationToken);
+    }
+
+    private async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
+        SearchWithCachedSummary(GetSearchProductsQuery request, string[] allowedCustomerGroupsIds,
+            IQueryable<Product> query, IQueryable<Product> querySpecification, CancellationToken cancellationToken)
+    {
+        var key = string.Format(CacheKey.PRODUCTS_LISTING_SUMMARY_KEY,
+            ListingSummaryHash(request, allowedCustomerGroupsIds));
+
+        //same normalization as IRepository.PagedAsync
+        var pageSize = request.PageSize <= 0 ? 1 : request.PageSize;
+        var skip = (int)Math.Clamp((long)request.PageIndex * pageSize, 0, int.MaxValue);
+
+        var (items, summary) = await WhenBoth(
+            token => _productRepository.ToListAsync(OrderByQueryable(request, query).Skip(skip).Take(pageSize), token),
+            //a miss is computed once for all waiting requests, so it does not stop when the first of them is aborted
+            token => _cacheBase.GetAsync(key,
+                    () => LoadListingSummary(request, query, querySpecification, CancellationToken.None),
+                    ListingSummaryCacheMinutes)
+                .WaitAsync(token),
+            cancellationToken);
+
+        //a short page is the last one and gives the exact total; a full page proves skip + pageSize products and
+        //an empty one past the end proves at most skip, so a lagging cached total never contradicts the page shown
+        var totalCount = items.Count == pageSize
+            ? Math.Max(summary.TotalCount, skip + pageSize)
+            : items.Count > 0 || skip == 0 ? skip + items.Count : Math.Min(summary.TotalCount, skip);
+
+        return (new PagedList<Product>(items, request.PageIndex, pageSize, totalCount),
+            summary.FilterableSpecificationAttributeOptionIds.ToList());
+    }
+
+    private async Task<ListingSummary> LoadListingSummary(GetSearchProductsQuery request, IQueryable<Product> query,
+        IQueryable<Product> querySpecification, CancellationToken cancellationToken)
+    {
+        var countTask = _productRepository.CountAsync(query, cancellationToken);
+        var filterableTask = ShouldLoadFilterableSpecifications(request)
+            ? GetFilterableSpecificationAttributeOptionIds(querySpecification, cancellationToken)
+            : Task.FromResult<IList<string>>(new List<string>());
+
+        await Task.WhenAll(countTask, filterableTask);
+
+        return new ListingSummary(await countTask, (await filterableTask).ToArray());
+    }
+
+    /// <summary>
+    ///     Hash of every request value that changes which products match; page and order are left out on purpose
+    /// </summary>
+    private string ListingSummaryHash(GetSearchProductsQuery request, string[] allowedCustomerGroupsIds)
+    {
+        static string[] Set(IEnumerable<string> values)
+        {
+            return values?.Order(StringComparer.Ordinal).ToArray() ?? [];
+        }
+
+        //JSON keeps the fields apart - a separator inside a tag or an id is escaped - and formats numbers invariantly
+        var filters = JsonSerializer.Serialize(new object[] {
+            Set(request.CategoryIds), request.FeaturedProducts, request.BrandId, request.CollectionId,
+            request.StoreId, request.VendorId, request.WarehouseId, request.ProductType,
+            request.VisibleIndividuallyOnly, request.MarkedAsNewOnly, request.ShowOnHomePage,
+            request.OverridePublished, request.PriceMin, request.PriceMax, request.Rating, request.ProductTag,
+            Set(allowedCustomerGroupsIds), Set(request.FilteredSpecs), Set(request.SpecificationOptions),
+            ShouldLoadFilterableSpecifications(request), request.SearchDescriptions, request.SearchSku,
+            request.Keywords
+        });
+
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(filters)));
+    }
+
+    private sealed record ListingSummary(int TotalCount, string[] FilterableSpecificationAttributeOptionIds);
+
+    /// <summary>
+    ///     Runs two independent queries at once; the first failure cancels the other one instead of waiting for it
+    /// </summary>
+    private static async Task<(T1, T2)> WhenBoth<T1, T2>(Func<CancellationToken, Task<T1>> first,
+        Func<CancellationToken, Task<T2>> second, CancellationToken cancellationToken)
+    {
         using var queriesCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-        // Create paged list first - LiteDB completes synchronously, so the page still runs before the options there
-        var productsTask = CancelOnFailure(
-            _productRepository.PagedAsync(query, request.PageIndex, request.PageSize, queriesCancellation.Token),
-            queriesCancellation);
-
-        // Get filterable specification attributes if needed
-        var filterableTask = ShouldLoadFilterableSpecifications(request)
-            ? CancelOnFailure(GetFilterableSpecificationAttributeOptionIds(querySpecification, queriesCancellation.Token),
-                queriesCancellation)
-            : Task.FromResult<IList<string>>(new List<string>());
+        // The first one starts first - LiteDB completes synchronously, so there it still runs before the second
+        var firstTask = CancelOnFailure(first(queriesCancellation.Token), queriesCancellation);
+        var secondTask = CancelOnFailure(second(queriesCancellation.Token), queriesCancellation);
 
         try
         {
-            await Task.WhenAll(productsTask, filterableTask);
+            await Task.WhenAll(firstTask, secondTask);
         }
         catch when (cancellationToken.IsCancellationRequested)
         {
@@ -119,7 +211,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
             throw;
         }
 
-        return (await productsTask, await filterableTask);
+        return (await firstTask, await secondTask);
     }
 
     private static async Task<T> CancelOnFailure<T>(Task<T> task, CancellationTokenSource cancellation)
