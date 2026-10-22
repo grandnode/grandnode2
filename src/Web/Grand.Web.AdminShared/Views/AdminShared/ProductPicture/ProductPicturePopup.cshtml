@@ -4,7 +4,7 @@
     Layout = "";
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form id="ProductPicturePopup" asp-area="@area" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
+<form id="ProductPicturePopup" asp-area="@area" asp-controller="ProductPicture" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-Id="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"

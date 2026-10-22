@@ -11,8 +11,8 @@
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="productpictures-grid"
                         read-only="@readOnly"
-                        read-url="@Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = area })"
-                        destroy-url="@Url.Action("ProductPictureDelete", "Product", new { area = area })"
+                        read-url="@Url.Action("ProductPictureList", "ProductPicture", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("ProductPictureDelete", "ProductPicture", new { area = area })"
                         pager="Compact"
                         auto-bind="false"
                         confirm-destroy="true"
@@ -25,7 +25,7 @@
                         }
                         else
                         {
-                            <a class='text-decoration-none editpicture' href="@Url.Action("ProductPicturePopup", "Product", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
+                            <a class='text-decoration-none editpicture' href="@Url.Action("ProductPicturePopup", "ProductPicture", new { area = area })/?productId=@(Model.Id)&Id={{ Id }}&btnId=btnRefreshProductPictures&formId=product-form"><img alt='{{ PictureId }}' src='{{ PictureUrl }}' width='150' /></a>
                         }
                     </cell-template>
                 </grid-column>
@@ -69,7 +69,7 @@
             @{
                 ViewData["Reference"] = "Product";
                 ViewData["ObjectId"] = Model.Id;
-                ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = area });
+                ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "ProductPicture", new { area = area });
                 ViewData["Click"] = "btnRefreshProductPictures";
             }
             <admin-input asp-for="AddPictureModel.PictureId"/>
