@@ -272,38 +272,6 @@ public class ProductViewModelServiceTests
             "Vendor doesn't pick stores - no dropdown should be populated at all.");
     }
 
-    [TestMethod]
-    public async Task PrepareTierPriceModel_VendorScope_HidesStoreDropdown()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
-        _scopeMock.Setup(s => s.ShowStoreSelector).Returns(false);
-        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
-            new() { Id = "store1", Shortcut = "Store 1" }
-        });
-
-        var model = new ProductModel.TierPriceModel();
-        await _productViewModelService.PrepareTierPriceModel(model);
-
-        Assert.IsFalse(model.AvailableStores.Any(),
-            "Vendor doesn't pick stores - no dropdown should be populated at all, matching the original Vendor service's PrepareTierPriceModel.");
-    }
-
-    [TestMethod]
-    public async Task PrepareTierPriceModel_GlobalScope_IncludesStoreDropdown()
-    {
-        // Default Setup() scope: Admin's Global scope (DefaultStoreId null, ShowStoreSelector true).
-        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
-            new() { Id = "store1", Shortcut = "Store 1" }
-        });
-
-        var model = new ProductModel.TierPriceModel();
-        await _productViewModelService.PrepareTierPriceModel(model);
-
-        Assert.IsTrue(model.AvailableStores.Any(x => x.Value == "store1"),
-            "Admin should offer a store dropdown for tier prices.");
-    }
-
     private void SetupSearchProducts()
     {
         _productServiceMock.Setup(p => p.SearchProducts(

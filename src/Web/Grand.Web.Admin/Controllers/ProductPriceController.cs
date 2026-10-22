@@ -15,9 +15,9 @@ namespace Grand.Web.Admin.Controllers;
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
 public class ProductPriceController(
-    IProductViewModelService productViewModelService,
+    IProductPriceViewModelService productPriceViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IAdminDataScope<Product> scope)
-    : BaseProductPriceController(productViewModelService, productService, translationService, dateTimeService, scope);
+    : BaseProductPriceController(productPriceViewModelService, productService, translationService, dateTimeService, scope);

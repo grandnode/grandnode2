@@ -23,15 +23,15 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
     // BaseProductPriceController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductPriceController(
-        IProductViewModelService productViewModelService,
+        IProductPriceViewModelService productPriceViewModelService,
         IProductService productService,
         IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         IAdminDataScope<Product> scope)
-        : BaseProductPriceController(productViewModelService, productService, translationService, dateTimeService, scope);
+        : BaseProductPriceController(productPriceViewModelService, productService, translationService, dateTimeService, scope);
 
     protected override TestProductPriceController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productPriceViewModelServiceMock.Object,
         _productServiceMock.Object,
         _translationServiceMock.Object,
         _dateTimeServiceMock.Object,
@@ -208,7 +208,7 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productPriceViewModelServiceMock.Verify(
             s => s.PrepareTierPriceModel(It.IsAny<Product>()), Times.Never);
     }
 
@@ -235,7 +235,7 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
         var tierPrices = new List<ProductModel.TierPriceModel> { new() { Id = "tp1" } };
-        _productViewModelServiceMock.Setup(s => s.PrepareTierPriceModel(product)).ReturnsAsync(tierPrices);
+        _productPriceViewModelServiceMock.Setup(s => s.PrepareTierPriceModel(product)).ReturnsAsync(tierPrices);
 
         var result = await _controller.TierPriceList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
 
@@ -255,7 +255,7 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
         var result = await _controller.TierPriceCreatePopup("p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productPriceViewModelServiceMock.Verify(
             s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1")),
             Times.Once);
     }
@@ -316,7 +316,7 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("This is not your product", content.Content);
-        _productViewModelServiceMock.Verify(
+        _productPriceViewModelServiceMock.Verify(
             s => s.PrepareTierPriceModel(It.IsAny<ProductModel.TierPriceModel>()), Times.Never);
     }
 
@@ -346,7 +346,7 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
         var result = await _controller.TierPriceEditPopup("tp1", "p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productPriceViewModelServiceMock.Verify(
             s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1")),
             Times.Once);
     }

@@ -19,7 +19,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductPriceController(
-    IProductViewModelService productViewModelService,
+    IProductPriceViewModelService productPriceViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
@@ -184,7 +184,7 @@ public abstract class BaseProductPriceController(
 
         // PrepareTierPriceModel(product) now reads scope internally (Task 9); scope.DefaultStoreId
         // is null for Admin/Vendor (Global/VendorProduct scopes) and the staff store for Store.
-        var tierPricesModel = await productViewModelService.PrepareTierPriceModel(product);
+        var tierPricesModel = await productPriceViewModelService.PrepareTierPriceModel(product);
         var gridModel = new DataSourceResult {
             Data = tierPricesModel,
             Total = tierPricesModel.Count
@@ -198,7 +198,7 @@ public abstract class BaseProductPriceController(
         var model = new ProductModel.TierPriceModel {
             ProductId = productId
         };
-        await productViewModelService.PrepareTierPriceModel(model);
+        await productPriceViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -225,7 +225,7 @@ public abstract class BaseProductPriceController(
 
         Error(ModelState);
         //If we got this far, something failed, redisplay form
-        await productViewModelService.PrepareTierPriceModel(model);
+        await productPriceViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -249,7 +249,7 @@ public abstract class BaseProductPriceController(
 
         var model = tierPrice.ToModel(dateTimeService);
         model.ProductId = productId;
-        await productViewModelService.PrepareTierPriceModel(model);
+        await productPriceViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -279,7 +279,7 @@ public abstract class BaseProductPriceController(
 
         Error(ModelState);
         //stores
-        await productViewModelService.PrepareTierPriceModel(model);
+        await productPriceViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 

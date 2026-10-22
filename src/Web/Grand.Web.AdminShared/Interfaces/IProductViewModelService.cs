@@ -19,7 +19,6 @@ public interface IProductViewModelService
 
     Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model, Product product);
     Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model);
-    Task PrepareTierPriceModel(ProductModel.TierPriceModel model);
     Task PrepareProductAttributeValueModel(Product product, ProductModel.ProductAttributeValueModel model);
     Task<ProductListModel> PrepareProductListModel();
 
@@ -67,9 +66,6 @@ public interface IProductViewModelService
     Task InsertBulkEdit(IEnumerable<BulkEditProductModel> products);
 
     Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products);
-
-    //tierprices
-    Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product);
 
     Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product);
 
