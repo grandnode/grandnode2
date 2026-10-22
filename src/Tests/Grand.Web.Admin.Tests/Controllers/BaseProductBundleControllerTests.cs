@@ -23,13 +23,15 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
     // can be invoked directly.
     public class TestProductBundleController(
         IProductViewModelService productViewModelService,
+        IProductBundleViewModelService productBundleViewModelService,
         IProductService productService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductBundleController(productViewModelService, productService, translationService, scope);
+        : BaseProductBundleController(productViewModelService, productBundleViewModelService, productService, translationService, scope);
 
     protected override TestProductBundleController CreateController() => new(
         _productViewModelServiceMock.Object,
+        _productBundleViewModelServiceMock.Object,
         _productServiceMock.Object,
         _translationServiceMock.Object,
         _scopeMock.Object);
@@ -82,7 +84,7 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.UpdateBundleProductModel(It.IsAny<ProductModel.BundleProductModel>()), Times.Never);
+        _productBundleViewModelServiceMock.Verify(s => s.UpdateBundleProductModel(It.IsAny<ProductModel.BundleProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -96,7 +98,7 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
         var result = await _controller.BundleProductUpdate(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateBundleProductModel(model), Times.Once);
+        _productBundleViewModelServiceMock.Verify(s => s.UpdateBundleProductModel(model), Times.Once);
     }
 
     // --- BundleProductDelete ----------------------------------------------------------------------
@@ -113,7 +115,7 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.DeleteBundleProductModel(It.IsAny<ProductModel.BundleProductModel>()), Times.Never);
+        _productBundleViewModelServiceMock.Verify(s => s.DeleteBundleProductModel(It.IsAny<ProductModel.BundleProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -127,7 +129,7 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
         var result = await _controller.BundleProductDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteBundleProductModel(model), Times.Once);
+        _productBundleViewModelServiceMock.Verify(s => s.DeleteBundleProductModel(model), Times.Once);
     }
 
     // --- BundleProductAddPopup (GET) --------------------------------------------------------------
@@ -199,7 +201,7 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.InsertBundleProductModel(It.IsAny<ProductModel.AddBundleProductModel>()), Times.Never);
+        _productBundleViewModelServiceMock.Verify(s => s.InsertBundleProductModel(It.IsAny<ProductModel.AddBundleProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -215,7 +217,7 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
-        _productViewModelServiceMock.Verify(s => s.InsertBundleProductModel(model), Times.Once);
+        _productBundleViewModelServiceMock.Verify(s => s.InsertBundleProductModel(model), Times.Once);
     }
 
     [TestMethod]
@@ -234,6 +236,6 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
         var view = result as ViewResult;
         Assert.IsNotNull(view);
         Assert.AreSame(reprepared, view.Model);
-        _productViewModelServiceMock.Verify(s => s.InsertBundleProductModel(It.IsAny<ProductModel.AddBundleProductModel>()), Times.Never);
+        _productBundleViewModelServiceMock.Verify(s => s.InsertBundleProductModel(It.IsAny<ProductModel.AddBundleProductModel>()), Times.Never);
     }
 }

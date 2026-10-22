@@ -16,10 +16,11 @@ namespace Grand.Web.Vendor.Controllers;
 [AuthorizeMenu]
 public class ProductRelatedController(
     IProductViewModelService productViewModelService,
+    IProductRelatedViewModelService productRelatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductRelatedController(productViewModelService, productService, translationService, scope)
+    : BaseProductRelatedController(productViewModelService, productRelatedViewModelService, productService, translationService, scope)
 {
     // Vendor's original AddPopup(POST) actions returned Content(ModelState.GetErrors()) on an invalid
     // model, instead of Admin/Store's re-prepare-and-View. Overriding the base's Admin/Store default,

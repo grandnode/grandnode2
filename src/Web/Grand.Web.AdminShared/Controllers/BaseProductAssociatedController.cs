@@ -19,6 +19,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductAssociatedController(
     IProductViewModelService productViewModelService,
+    IProductAssociatedViewModelService productAssociatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -104,7 +105,7 @@ public abstract class BaseProductAssociatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteAssociatedProduct(product);
+            await productAssociatedViewModelService.DeleteAssociatedProduct(product);
             return new JsonResult("");
         }
 
@@ -178,7 +179,7 @@ public abstract class BaseProductAssociatedController(
                 }
 
                 model.SelectedProductIds = validIds.ToArray();
-                if (validIds.Count > 0) await productViewModelService.InsertAssociatedProductModel(model);
+                if (validIds.Count > 0) await productAssociatedViewModelService.InsertAssociatedProductModel(model);
             }
 
             return Content("");

@@ -16,11 +16,12 @@ namespace Grand.Web.Vendor.Controllers;
 [AuthorizeMenu]
 public class ProductAssociatedController(
     IProductViewModelService productViewModelService,
+    IProductAssociatedViewModelService productAssociatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope,
     IContextAccessor contextAccessor)
-    : BaseProductAssociatedController(productViewModelService, productService, translationService, scope)
+    : BaseProductAssociatedController(productViewModelService, productAssociatedViewModelService, productService, translationService, scope)
 {
     // Vendor's original passed CurrentVendor.Id into GetAssociatedProducts(vendorId:) so a vendor only
     // sees the subset of a grouped product's associated products that they themselves own. Overriding

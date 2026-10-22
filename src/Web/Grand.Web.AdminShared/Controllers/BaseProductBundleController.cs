@@ -17,6 +17,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductBundleController(
     IProductViewModelService productViewModelService,
+    IProductBundleViewModelService productBundleViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -69,7 +70,7 @@ public abstract class BaseProductBundleController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.UpdateBundleProductModel(model);
+            await productBundleViewModelService.UpdateBundleProductModel(model);
             return new JsonResult("");
         }
 
@@ -86,7 +87,7 @@ public abstract class BaseProductBundleController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteBundleProductModel(model);
+            await productBundleViewModelService.DeleteBundleProductModel(model);
             return new JsonResult("");
         }
 
@@ -136,7 +137,7 @@ public abstract class BaseProductBundleController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertBundleProductModel(model);
+            if (model.SelectedProductIds != null) await productBundleViewModelService.InsertBundleProductModel(model);
             return Content("");
         }
 

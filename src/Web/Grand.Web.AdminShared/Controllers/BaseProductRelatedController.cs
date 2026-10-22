@@ -17,6 +17,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductRelatedController(
     IProductViewModelService productViewModelService,
+    IProductRelatedViewModelService productRelatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -70,7 +71,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.UpdateRelatedProductModel(model);
+            await productRelatedViewModelService.UpdateRelatedProductModel(model);
             return new JsonResult("");
         }
 
@@ -87,7 +88,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteRelatedProductModel(model);
+            await productRelatedViewModelService.DeleteRelatedProductModel(model);
             return new JsonResult("");
         }
 
@@ -137,7 +138,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertRelatedProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertRelatedProductModel(model);
             return Content("");
         }
 
@@ -205,7 +206,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.UpdateSimilarProductModel(model);
+            await productRelatedViewModelService.UpdateSimilarProductModel(model);
             return new JsonResult("");
         }
 
@@ -222,7 +223,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteSimilarProductModel(model);
+            await productRelatedViewModelService.DeleteSimilarProductModel(model);
             return new JsonResult("");
         }
 
@@ -272,7 +273,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertSimilarProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertSimilarProductModel(model);
             return Content("");
         }
 
@@ -346,7 +347,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteCrossSellProduct(product.Id, crossSellProduct);
+            await productRelatedViewModelService.DeleteCrossSellProduct(product.Id, crossSellProduct);
             return new JsonResult("");
         }
 
@@ -396,7 +397,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertCrossSellProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertCrossSellProductModel(model);
             return Content("");
         }
 
@@ -470,7 +471,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteRecommendedProduct(product.Id, recommendedProduct);
+            await productRelatedViewModelService.DeleteRecommendedProduct(product.Id, recommendedProduct);
             return new JsonResult("");
         }
 
@@ -520,7 +521,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertRecommendedProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertRecommendedProductModel(model);
             return Content("");
         }
 

@@ -73,6 +73,9 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IProductCollectionViewModelService, ProductCollectionViewModelService>();
         services.AddScoped<IProductBidViewModelService, ProductBidViewModelService>();
         services.AddScoped<IProductPriceViewModelService, ProductPriceViewModelService>();
+        services.AddScoped<IProductRelatedViewModelService, ProductRelatedViewModelService>();
+        services.AddScoped<IProductBundleViewModelService, ProductBundleViewModelService>();
+        services.AddScoped<IProductAssociatedViewModelService, ProductAssociatedViewModelService>();
         services.AddScoped<IPictureViewModelService, PictureViewModelService>();
         services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
         services.AddScoped<IMenuViewModelService, MenuViewModelService>();
