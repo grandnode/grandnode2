@@ -157,14 +157,4 @@ public interface IProductViewModelService
     Task UpdateProductPicture(ProductModel.ProductPictureModel model);
     Task DeleteProductPicture(ProductModel.ProductPictureModel model);
 
-    //Product specification
-    Task<IList<ProductSpecificationAttributeModel>> PrepareProductSpecificationAttributeModel(Product product);
-
-    Task InsertProductSpecificationAttributeModel(ProductModel.AddProductSpecificationAttributeModel model,
-        Product product);
-
-    Task UpdateProductSpecificationAttributeModel(ProductSpecificationAttribute psa,
-        ProductModel.AddProductSpecificationAttributeModel model);
-
-    Task DeleteProductSpecificationAttribute(Product product, ProductSpecificationAttribute psa);
 }

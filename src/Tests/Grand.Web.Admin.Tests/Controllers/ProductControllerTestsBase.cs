@@ -28,6 +28,7 @@ public abstract class ProductControllerTestsBase<TController> where TController 
     protected TController _controller;
     protected Mock<IProductService> _productServiceMock;
     protected Mock<IProductViewModelService> _productViewModelServiceMock;
+    protected Mock<IProductSpecificationViewModelService> _productSpecificationViewModelServiceMock;
     protected Mock<IRequestTranslationService> _translationServiceMock;
     protected Mock<IAdminDataScope<Product>> _scopeMock;
     protected Mock<IRequestPermissionService> _permissionServiceMock;
@@ -52,6 +53,7 @@ public abstract class ProductControllerTestsBase<TController> where TController 
 
         _productServiceMock = new Mock<IProductService>();
         _productViewModelServiceMock = new Mock<IProductViewModelService>();
+        _productSpecificationViewModelServiceMock = new Mock<IProductSpecificationViewModelService>();
         _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
