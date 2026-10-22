@@ -1,6 +1,6 @@
-namespace Authentication.OpenIdConnect.Models;
+namespace Grand.Web.Models.Customer;
 
-public class LinkModel
+public class OidcLinkModel
 {
     public string Email { get; set; }
     public string LoginUrl { get; set; }

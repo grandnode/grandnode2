@@ -2,7 +2,7 @@ using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Authentication.OpenIdConnect.Components;
+namespace Grand.Web.Components;
 
 [ViewComponent(Name = "OidcLogin")]
 public class OidcLoginViewComponent(IAuthenticationSchemeProvider authenticationSchemeProvider) : ViewComponent

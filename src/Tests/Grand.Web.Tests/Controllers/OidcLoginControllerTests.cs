@@ -1,21 +1,20 @@
-using Authentication.OpenIdConnect;
-using Authentication.OpenIdConnect.Controllers;
-using Authentication.OpenIdConnect.Models;
-using Grand.Business.Core.Interfaces.Customers;
-using Grand.Infrastructure.Configuration;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Common.Security.Oidc;
+using Grand.Web.Controllers;
+using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +26,7 @@ using Moq;
 using System.Globalization;
 using System.Security.Claims;
 
-namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
+namespace Grand.Web.Tests.Controllers;
 
 [TestClass]
 public class OidcLoginControllerTests
@@ -90,7 +89,7 @@ public class OidcLoginControllerTests
         work.Setup(x => x.CurrentCustomer).Returns(() => _current);
         work.Setup(x => x.WorkingLanguage).Returns(Language);
         var store = new Mock<IStoreContext>();
-        store.Setup(x => x.CurrentStore).Returns(new Store { Id = "s1" });
+        store.Setup(x => x.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = "s1" });
         var ctx = new Mock<IContextAccessor>();
         ctx.Setup(x => x.WorkContext).Returns(work.Object);
         ctx.Setup(x => x.StoreContext).Returns(store.Object);
@@ -146,7 +145,7 @@ public class OidcLoginControllerTests
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Login("/")).RouteName);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(
-                "or the application was not restarted after the plugin was installed")),
+                "or the application was not restarted after the settings changed")),
             It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
@@ -282,7 +281,7 @@ public class OidcLoginControllerTests
     [TestMethod]
     public void Failed_IdentityTaken_InModel()
     {
-        var model = (FailedModel)((ViewResult)_controller.Failed(null, taken: true)).Model!;
+        var model = (OidcFailedModel)((ViewResult)_controller.Failed(null, taken: true)).Model!;
         Assert.IsTrue(model.IdentityTaken);
     }
 
@@ -414,7 +413,7 @@ public class OidcLoginControllerTests
     [TestMethod]
     public void Failed_SignedIn_InModel()
     {
-        var model = (FailedModel)((ViewResult)_controller.Failed(null, signedIn: true)).Model!;
+        var model = (OidcFailedModel)((ViewResult)_controller.Failed(null, signedIn: true)).Model!;
         Assert.IsTrue(model.SignedInAsOtherAccount);
     }
 
@@ -496,7 +495,7 @@ public class OidcLoginControllerTests
     [TestMethod]
     public void Failed_SessionUnavailable_Model()
     {
-        var model = (FailedModel)((ViewResult)_controller.Failed(null, session: true)).Model!;
+        var model = (OidcFailedModel)((ViewResult)_controller.Failed(null, session: true)).Model!;
         Assert.IsTrue(model.SessionUnavailable);
     }
 
@@ -654,7 +653,7 @@ public class OidcLoginControllerTests
     [TestMethod]
     public void Failed_EmailNotVerified_ShowsText()
     {
-        var model = (FailedModel)((ViewResult)_controller.Failed((int)OidcLoginRefusal.EmailNotVerified)).Model!;
+        var model = (OidcFailedModel)((ViewResult)_controller.Failed((int)OidcLoginRefusal.EmailNotVerified)).Model!;
         Assert.AreEqual(OidcLoginRefusal.EmailNotVerified, model.Reason);
     }
 }

@@ -37,7 +37,6 @@
   <Folder Name="/Plugins/">
     <Project Path="src/Plugins/Authentication.Facebook/Authentication.Facebook.csproj" />
     <Project Path="src/Plugins/Authentication.Google/Authentication.Google.csproj" />
-    <Project Path="src/Plugins/Authentication.OpenIdConnect/Authentication.OpenIdConnect.csproj" />
     <Project Path="src/Plugins/DiscountRules.Standard/DiscountRules.Standard.csproj" />
     <Project Path="src/Plugins/ExchangeRate.McExchange/ExchangeRate.McExchange.csproj" />
     <Project Path="src/Plugins/Payments.BrainTree/Payments.BrainTree.csproj" />

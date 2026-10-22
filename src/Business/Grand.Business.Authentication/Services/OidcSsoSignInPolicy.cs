@@ -81,7 +81,7 @@ public class OidcSsoSignInPolicy(
         if (memoryCache.TryGetValue(UnavailableLogKey, out _))
             return;
         memoryCache.Set(UnavailableLogKey, true, TimeSpan.FromMinutes(5));
-        logger.LogError("ProviderOnly sign-in mode without a working OpenID Connect login (plugin not installed, " +
-                        "not active or not configured): only break-glass accounts can sign in");
+        logger.LogError("ProviderOnly sign-in mode without a working OpenID Connect login (not configured or not " +
+                        "active): only break-glass accounts can sign in");
     }
 }

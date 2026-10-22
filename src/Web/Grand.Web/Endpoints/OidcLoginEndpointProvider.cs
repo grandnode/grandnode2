@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Authentication.OpenIdConnect;
+namespace Grand.Web.Endpoints;
 
-public class EndpointProvider : IEndpointProvider
+/// <summary>
+///     OpenID Connect sign-in: fixed addresses registered at the identity providers, never prefixed with a language
+/// </summary>
+public class OidcLoginEndpointProvider : IEndpointProvider
 {
     public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
     {

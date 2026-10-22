@@ -1,4 +1,3 @@
-using Authentication.OpenIdConnect.Models;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -10,15 +9,16 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Common.Security.Oidc;
+using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
-namespace Authentication.OpenIdConnect.Controllers;
+namespace Grand.Web.Controllers;
 
-public class OidcLoginController : BasePluginController
+public class OidcLoginController : BaseController
 {
     #region Ctor
 
@@ -82,7 +82,7 @@ public class OidcLoginController : BasePluginController
         if (await _authenticationSchemeProvider.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
         {
             _logger.LogWarning("OpenID Connect login has no sign-in scheme: OidcResourceServer:Authority or " +
-                               "OidcLogin:ClientId is empty, or the application was not restarted after the plugin was installed");
+                               "OidcLogin:ClientId is empty, or the application was not restarted after the settings changed");
             return RedirectToRoute("OidcLoginFailed");
         }
 
@@ -188,7 +188,7 @@ public class OidcLoginController : BasePluginController
 
         returnUrl = LocalOrNull(returnUrl);
         var completeUrl = Url.RouteUrl("OidcLoginLinkComplete", new { returnUrl });
-        return View(new LinkModel {
+        return View(new OidcLinkModel {
             Email = pending.Email,
             LoginUrl = Url.RouteUrl("Login", new { returnUrl = completeUrl })
         });
@@ -242,7 +242,7 @@ public class OidcLoginController : BasePluginController
 
     public IActionResult Failed(int? reason, bool mismatch = false, bool taken = false, bool signedIn = false,
         bool session = false) =>
-        View(new FailedModel {
+        View(new OidcFailedModel {
             Reason = (OidcLoginRefusal)(reason ?? 0), Mismatch = mismatch, IdentityTaken = taken,
             SignedInAsOtherAccount = signedIn, SessionUnavailable = session
         });

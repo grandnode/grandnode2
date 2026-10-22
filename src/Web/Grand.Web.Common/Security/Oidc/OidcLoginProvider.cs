@@ -20,7 +20,7 @@ public class OidcLoginProvider(OidcLoginConfig config, IAuthenticationSchemeProv
     public IList<string> LimitedToGroups => new List<string>();
 
     /// <summary>
-    ///     Gets a view component for displaying plugin in public store
+    ///     Gets a view component for displaying the sign-in button in public store
     /// </summary>
     public Task<string> GetPublicViewComponentName() => Task.FromResult("OidcLogin");
 

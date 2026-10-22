@@ -1,8 +1,8 @@
 using Grand.Business.Core.Utilities.Authentication;
 
-namespace Authentication.OpenIdConnect.Models;
+namespace Grand.Web.Models.Customer;
 
-public class FailedModel
+public class OidcFailedModel
 {
     public OidcLoginRefusal Reason { get; set; }
     public bool Mismatch { get; set; }
