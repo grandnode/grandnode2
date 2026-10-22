@@ -1,26 +1,20 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
-using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
-using Grand.Domain.Localization;
-using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
@@ -32,7 +26,6 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
-using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -46,16 +39,11 @@ public class ProductViewModelService(
     IMeasureService measureService,
     IDateTimeService dateTimeService,
     IBrandService brandService,
-    ICollectionService collectionService,
-    IProductCollectionService productCollectionService,
     ICategoryService categoryService,
-    IProductCategoryService productCategoryService,
     IVendorService vendorService,
     IRequestTranslationService translationService,
     IProductLayoutService productLayoutService,
-    ISpecificationAttributeService specificationAttributeService,
     IContextAccessor contextAccessor,
-    IGroupService groupService,
     IWarehouseService warehouseService,
     IDeliveryDateService deliveryDateService,
     ITaxCategoryService taxCategoryService,
@@ -64,15 +52,11 @@ public class ProductViewModelService(
     IStoreService storeService,
     IOutOfStockSubscriptionService outOfStockSubscriptionService,
     IDownloadService downloadService,
-    ILanguageService languageService,
-    IProductAttributeFormatter productAttributeFormatter,
     IStockQuantityService stockQuantityService,
     CurrencySettings currencySettings,
     MeasureSettings measureSettings,
     TaxSettings taxSettings,
     SeoSettings seoSettings,
-    IAuctionService auctionService,
-    IPriceFormatter priceFormatter,
     ISeNameService seNameService,
     IEnumTranslationService enumTranslationService,
     IAdminDataScope<Product> scope)

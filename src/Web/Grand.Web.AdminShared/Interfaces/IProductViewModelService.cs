@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Catalog;
-using Grand.Domain.Media;
 using Grand.Web.AdminShared.Models.Catalog;
 
 namespace Grand.Web.AdminShared.Interfaces;

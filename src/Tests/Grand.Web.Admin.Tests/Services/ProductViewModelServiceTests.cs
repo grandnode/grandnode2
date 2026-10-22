@@ -1,14 +1,11 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -46,7 +43,6 @@ public class ProductViewModelServiceTests
 
     private Mock<IDiscountService> _discountServiceMock;
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
-    private Mock<IGroupService> _groupServiceMock;
     private Mock<IMeasureService> _measureServiceMock;
     private Mock<IProductService> _productServiceMock;
     private ProductViewModelService _productViewModelService;
@@ -65,7 +61,6 @@ public class ProductViewModelServiceTests
 
         _discountServiceMock = new Mock<IDiscountService>();
         _enumTranslationServiceMock = new Mock<IEnumTranslationService>();
-        _groupServiceMock = new Mock<IGroupService>();
         _measureServiceMock = new Mock<IMeasureService>();
         _productServiceMock = new Mock<IProductService>();
         _storeServiceMock = new Mock<IStoreService>();
@@ -111,9 +106,6 @@ public class ProductViewModelServiceTests
 
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
 
-        _groupServiceMock.Setup(g => g.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
-            .ReturnsAsync(new PagedList<CustomerGroup>());
-
         _enumTranslationServiceMock
             .Setup(e => e.ToSelectList(It.IsAny<ProductType>(), It.IsAny<bool>(), It.IsAny<int[]>()))
             .Returns(new SelectList(Enumerable.Empty<SelectListItem>()));
@@ -136,16 +128,11 @@ public class ProductViewModelServiceTests
             _measureServiceMock.Object,
             new Mock<IDateTimeService>().Object,
             new Mock<IBrandService>().Object,
-            new Mock<ICollectionService>().Object,
-            new Mock<IProductCollectionService>().Object,
             new Mock<ICategoryService>().Object,
-            new Mock<IProductCategoryService>().Object,
             _vendorServiceMock.Object,
             _translationServiceMock.Object,
             productLayoutServiceMock.Object,
-            new Mock<ISpecificationAttributeService>().Object,
             contextAccessorMock.Object,
-            _groupServiceMock.Object,
             _warehouseServiceMock.Object,
             deliveryDateServiceMock.Object,
             _taxCategoryServiceMock.Object,
@@ -154,15 +141,11 @@ public class ProductViewModelServiceTests
             _storeServiceMock.Object,
             new Mock<IOutOfStockSubscriptionService>().Object,
             new Mock<IDownloadService>().Object,
-            new Mock<ILanguageService>().Object,
-            new Mock<IProductAttributeFormatter>().Object,
             new Mock<IStockQuantityService>().Object,
             new CurrencySettings(),
             new MeasureSettings(),
             new TaxSettings(),
             new SeoSettings(),
-            new Mock<IAuctionService>().Object,
-            new Mock<IPriceFormatter>().Object,
             new Mock<ISeNameService>().Object,
             _enumTranslationServiceMock.Object,
             _scopeMock.Object);
