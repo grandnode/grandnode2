@@ -3,7 +3,7 @@
     Layout = "";
     ViewBag.Title = string.IsNullOrEmpty(Model.Id) ? Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"] : Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Update"];
 }
-<form id="AttributeCombinationPopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="AttributeCombinationPopup" enctype="multipart/form-data"
+<form id="AttributeCombinationPopup" asp-area="@Constants.AreaVendor" asp-controller="ProductAttributeCombination" asp-action="AttributeCombinationPopup" enctype="multipart/form-data"
       asp-route-productId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productId"])"
       asp-route-Id="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
@@ -137,10 +137,10 @@
     {
         <admin-card title="@($"{Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices"]} [{Model.PrimaryStoreCurrencyCode}]")" icon="bi-tags" flush>
             <admin-grid id="tierprices-grid"
-                        read-url="@Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
-                        create-url="@Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
-                        update-url="@Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
-                        destroy-url="@Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                        read-url="@Url.Action("ProductAttributeCombinationTierPriceList", "ProductAttributeCombination", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                        create-url="@Url.Action("ProductAttributeCombinationTierPriceInsert", "ProductAttributeCombination", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                        update-url="@Url.Action("ProductAttributeCombinationTierPriceUpdate", "ProductAttributeCombination", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
+                        destroy-url="@Url.Action("ProductAttributeCombinationTierPriceDelete", "ProductAttributeCombination", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor })"
                         pager="Compact"
                         edit-mode="Inline">
                 <grid-toolbar-create text="@Loc["Vendor.Common.AddNewRecord"]"/>
