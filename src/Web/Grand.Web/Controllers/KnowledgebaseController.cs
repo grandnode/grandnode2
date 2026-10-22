@@ -35,7 +35,7 @@ public class KnowledgebaseController : BasePublicController
     private readonly IKnowledgebaseService _knowledgebaseService;
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
     private readonly LanguageSettings _languageSettings;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICmsMessageProviderService _cmsMessageProviderService;
     private readonly IRequestPermissionService _permissionService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
@@ -47,7 +47,7 @@ public class KnowledgebaseController : BasePublicController
         ICacheBase cacheBase,
         IAclService aclService,
         IRequestTranslationService translationService,
-        IMessageProviderService messageProviderService,
+        ICmsMessageProviderService cmsMessageProviderService,
         IDateTimeService dateTimeService,
         IRequestPermissionService permissionService,
         CustomerSettings customerSettings,
@@ -62,7 +62,7 @@ public class KnowledgebaseController : BasePublicController
         _translationService = translationService;
         _captchaSettings = captchaSettings;
         _languageSettings = languageSettings;
-        _messageProviderService = messageProviderService;
+        _cmsMessageProviderService = cmsMessageProviderService;
         _dateTimeService = dateTimeService;
         _customerSettings = customerSettings;
         _permissionService = permissionService;
@@ -314,7 +314,7 @@ public class KnowledgebaseController : BasePublicController
 
             //notify a store owner
             if (_knowledgebaseSettings.NotifyAboutNewArticleComments)
-                await _messageProviderService.SendArticleCommentMessage(article, comment,
+                await _cmsMessageProviderService.SendArticleCommentMessage(article, comment,
                     _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
             //The text boxes should be cleared after a comment has been posted

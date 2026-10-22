@@ -16,7 +16,7 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
     private readonly LanguageSettings _languageSettings;
     private readonly ILogger<RefundCommandHandler> _logger;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
@@ -26,7 +26,7 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
         IOrderService orderService,
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         ILogger<RefundCommandHandler> logger,
         LanguageSettings languageSettings)
     {
@@ -34,7 +34,7 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
         _orderService = orderService;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _logger = logger;
         _languageSettings = languageSettings;
     }
@@ -75,11 +75,11 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
                 await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
                 //notifications for store owner
-                await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, request.AmountToRefund,
+                await _orderMessageProviderService.SendOrderRefundedStoreOwnerMessage(order, request.AmountToRefund,
                     _languageSettings.DefaultAdminLanguageId);
 
                 //notifications for customer
-                await _messageProviderService.SendOrderRefundedCustomerMessage(order, request.AmountToRefund,
+                await _orderMessageProviderService.SendOrderRefundedCustomerMessage(order, request.AmountToRefund,
                     order.CustomerLanguageId);
 
                 //raise event       

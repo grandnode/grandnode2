@@ -23,7 +23,7 @@ public class CustomerController(
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeService customerAttributeService,
     Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser addressAttributeParser,
     Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService addressAttributeService,
-    Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
+    Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService customerMessageProviderService,
     Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService,
     Grand.Web.Common.Localization.IRequestTranslationService translationService,
     Grand.Infrastructure.IContextAccessor contextAccessor,
@@ -34,5 +34,5 @@ public class CustomerController(
     : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
         customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-        messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
+        customerMessageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
         permissionService, exportManager);

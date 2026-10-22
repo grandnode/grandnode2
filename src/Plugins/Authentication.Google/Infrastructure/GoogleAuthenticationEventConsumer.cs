@@ -17,7 +17,7 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
     #region Fields
 
     private readonly ICustomerService _customerService;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly IContextAccessor _contextAccessor;
     private readonly CustomerSettings _customerSettings;
     private string WorkingLanguageId => _contextAccessor.WorkContext.WorkingLanguage.Id;
@@ -29,13 +29,13 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
 
     public GoogleAuthenticationEventConsumer(
         ICustomerService customerService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings
     )
     {
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
         _contextAccessor = contextAccessor;
         _customerSettings = customerSettings;
     }
@@ -67,11 +67,11 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
 
         //notifications for admin
         if (_customerSettings.NotifyNewCustomerRegistration)
-            await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId,
+            await _customerMessageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId,
                 CurrentHost);
 
         //send welcome message 
-        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId,
+        await _customerMessageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId,
             CurrentHost);
     }
 

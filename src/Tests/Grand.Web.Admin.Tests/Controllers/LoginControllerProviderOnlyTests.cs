@@ -45,7 +45,7 @@ public class LoginControllerProviderOnlyTests
         var controller = new LoginController(new CustomerSettings(), new CaptchaSettings(),
             new Mock<IRequestTranslationService>().Object, _customerManagerService.Object,
             new Mock<ICustomerService>().Object, new Mock<IGrandAuthenticationService>().Object,
-            new Mock<IMessageProviderService>().Object, _contextAccessor.Object,
+            new Mock<ICustomerMessageProviderService>().Object, _contextAccessor.Object,
             new Mock<IMediator>().Object);
         var httpContext = new DefaultHttpContext();
         httpContext.Request.PathBase = "/shop";

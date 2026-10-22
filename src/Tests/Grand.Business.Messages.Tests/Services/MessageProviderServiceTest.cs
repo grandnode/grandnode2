@@ -7,11 +7,13 @@ using Grand.Business.Core.Queries.Messages;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Business.Messages.Services;
 using Grand.Domain;
+using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Messages;
+using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Mediator;
@@ -30,6 +32,13 @@ public class MessageProviderServiceTest
     private Mock<ILanguageService> _languageServiceMock;
     private Mock<IMediator> _mediatorMock;
     private MessageProviderService _messageService;
+    private CustomerMessageProviderService _customerMessageService;
+    private CatalogMessageProviderService _catalogMessageService;
+    private VendorMessageProviderService _vendorMessageService;
+    private OrderMessageProviderService _orderMessageService;
+    private NewsletterMessageProviderService _newsletterMessageService;
+    private MerchandiseReturnMessageProviderService _merchandiseReturnMessageService;
+    private CmsMessageProviderService _cmsMessageService;
     private Mock<IMessageTemplateService> _messageTemplateServiceMock;
     private Mock<IMessageTokenProvider> _messageTokenProviderMock;
     private Product _product;
@@ -70,37 +79,48 @@ public class MessageProviderServiceTest
         _emailAccountSettingsMock = new Mock<EmailAccountSettings>();
         _commonSetting = new Mock<CommonSettings>();
 
-        _messageService = new MessageProviderService(
+        _messageService = new MessageProviderService(_queuedEmailServiceMock.Object);
+        var messageLookupService = new MessageLookupService(
             _messageTemplateServiceMock.Object,
-            _queuedEmailServiceMock.Object,
             _languageServiceMock.Object,
             _emailAccountServiceMock.Object,
             _storeServiceMock.Object,
-            _groupService.Object,
-            _mediatorMock.Object,
-            _emailAccountSettingsMock.Object,
-            _commonSetting.Object);
+            _emailAccountSettingsMock.Object);
+        _customerMessageService = new CustomerMessageProviderService(messageLookupService, _messageService,
+            _mediatorMock.Object, _commonSetting.Object);
+        _catalogMessageService = new CatalogMessageProviderService(messageLookupService, _messageService,
+            _mediatorMock.Object, _storeServiceMock.Object, _commonSetting.Object);
+        _vendorMessageService = new VendorMessageProviderService(messageLookupService, _messageService,
+            _mediatorMock.Object, _commonSetting.Object);
+        _orderMessageService = new OrderMessageProviderService(messageLookupService, _messageService,
+            _mediatorMock.Object, _storeServiceMock.Object);
+        _newsletterMessageService = new NewsletterMessageProviderService(messageLookupService, _messageService,
+            _mediatorMock.Object);
+        _merchandiseReturnMessageService = new MerchandiseReturnMessageProviderService(messageLookupService,
+            _messageService, _mediatorMock.Object);
+        _cmsMessageService = new CmsMessageProviderService(messageLookupService, _messageService,
+            _mediatorMock.Object, _groupService.Object);
         _product = new Product();
     }
 
     [TestMethod]
     public async Task CallInsertQueuedEmailMethod()
     {
-        var result = await _messageService.SendOutBidCustomerMessage(new Product(), "123", new Bid());
+        var result = await _catalogMessageService.SendOutBidCustomerMessage(new Product(), "123", new Bid());
         _queuedEmailServiceMock.Verify(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()), Times.Once());
     }
 
     [TestMethod]
     public async Task SendOutBidCustomerNotificationMethodReturnCorrectResult()
     {
-        var result = await _messageService.SendOutBidCustomerMessage(new Product(), "123", new Bid());
+        var result = await _catalogMessageService.SendOutBidCustomerMessage(new Product(), "123", new Bid());
         Assert.AreEqual(1, result);
     }
 
     [TestMethod]
     public async Task SendNewVendorAccountApplyStoreOwnerNotificationRetunsCorrectResult()
     {
-        var result = await _messageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(),
+        var result = await _vendorMessageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(),
             new Store { Url = "https://localhost:44350/" }, "123");
         Assert.AreEqual(1, result);
     }
@@ -116,6 +136,44 @@ public class MessageProviderServiceTest
             toEmailAddress: null);
 
         Assert.AreEqual(0, result);
+    }
+
+    [TestMethod]
+    public async Task SendOrderPaidStoreOwnerMessage_QueuesEmail()
+    {
+        var result = await _orderMessageService.SendOrderPaidStoreOwnerMessage(new Order(), new Customer(), "123");
+
+        Assert.AreEqual(1, result);
+        _queuedEmailServiceMock.Verify(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()), Times.Once());
+    }
+
+    [TestMethod]
+    public async Task SendNewsLetterSubscriptionActivationMessage_QueuesEmail()
+    {
+        var result = await _newsletterMessageService.SendNewsLetterSubscriptionActivationMessage(
+            new NewsLetterSubscription { Email = "a@b.c" }, "123");
+
+        Assert.AreEqual(1, result);
+        _queuedEmailServiceMock.Verify(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()), Times.Once());
+    }
+
+    [TestMethod]
+    public async Task SendNewMerchandiseReturnStoreOwnerMessage_QueuesEmail()
+    {
+        var result = await _merchandiseReturnMessageService.SendNewMerchandiseReturnStoreOwnerMessage(
+            new MerchandiseReturn(), new Order(), "123");
+
+        Assert.AreEqual(1, result);
+        _queuedEmailServiceMock.Verify(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()), Times.Once());
+    }
+
+    [TestMethod]
+    public async Task SendBlogCommentMessage_QueuesEmail()
+    {
+        var result = await _cmsMessageService.SendBlogCommentMessage(new BlogPost(), new BlogComment(), "123");
+
+        Assert.AreEqual(1, result);
+        _queuedEmailServiceMock.Verify(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()), Times.Once());
     }
 
     [TestMethod]
@@ -149,7 +207,7 @@ public class MessageProviderServiceTest
             .Callback<EntityTokensAddedEvent<Customer>, CancellationToken>((e, _) =>
                 liquidCustomer = (LiquidCustomer)e.LiquidDrop);
 
-        await _messageService.SendCustomerPasswordRecoveryMessage(new Customer { Email = "a@b.c" }, store, "");
+        await _customerMessageService.SendCustomerPasswordRecoveryMessage(new Customer { Email = "a@b.c" }, store, "");
 
         Assert.IsNotNull(liquidCustomer);
         return liquidCustomer.PasswordRecoveryURL;

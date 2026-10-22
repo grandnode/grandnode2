@@ -15,7 +15,7 @@ public class RefundOfflineCommandHandler : IRequestHandler<RefundOfflineCommand,
 {
     private readonly LanguageSettings _languageSettings;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
 
@@ -23,13 +23,13 @@ public class RefundOfflineCommandHandler : IRequestHandler<RefundOfflineCommand,
         IMediator mediator,
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         LanguageSettings languageSettings)
     {
         _mediator = mediator;
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _languageSettings = languageSettings;
     }
 
@@ -73,11 +73,11 @@ public class RefundOfflineCommandHandler : IRequestHandler<RefundOfflineCommand,
         await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
         //notifications for store owner
-        await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
+        await _orderMessageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
             _languageSettings.DefaultAdminLanguageId);
 
         //notifications for customer
-        await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
+        await _orderMessageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
 
         //raise event       
         await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund),

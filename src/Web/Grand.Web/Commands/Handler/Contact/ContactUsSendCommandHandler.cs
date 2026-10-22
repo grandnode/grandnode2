@@ -15,18 +15,18 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
 {
     private readonly CommonSettings _commonSettings;
     private readonly IContactAttributeParser _contactAttributeParser;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly ITranslationService _translationService;
 
     public ContactUsSendCommandHandler(
         IContactAttributeParser contactAttributeParser,
         ITranslationService translationService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         CommonSettings commonSettings)
     {
         _contactAttributeParser = contactAttributeParser;
         _translationService = translationService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
         _commonSettings = commonSettings;
     }
 
@@ -50,7 +50,7 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
         var subject = _commonSettings.SubjectFieldOnContactUsForm ? request.Model.Subject : null;
         var body = FormatText.ConvertText(request.Model.Enquiry);
 
-        await _messageProviderService.SendContactUsMessage
+        await _customerMessageProviderService.SendContactUsMessage
         (request.Customer, request.Store, request.Language.Id, request.Model.Email.Trim(),
             request.Model.FullName, subject,
             body, request.Model.ContactAttributeInfo, request.Model.ContactAttribute, request.IpAddress,

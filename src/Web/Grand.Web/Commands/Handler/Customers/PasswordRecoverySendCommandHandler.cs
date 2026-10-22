@@ -9,18 +9,18 @@ namespace Grand.Web.Commands.Handler.Customers;
 
 public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecoverySendCommand, bool>
 {
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly ICustomerService _customerService;
     private readonly IExternalSignInPolicy _externalSignInPolicy;
 
     public PasswordRecoverySendCommandHandler(
         ICustomerService customerService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         IExternalSignInPolicy externalSignInPolicy)
     {
         _externalSignInPolicy = externalSignInPolicy;
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
     }
 
     public async Task<bool> Handle(PasswordRecoverySendCommand request, CancellationToken cancellationToken)
@@ -41,7 +41,7 @@ public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecove
             null);
 
         //send email
-        await _messageProviderService.SendCustomerPasswordRecoveryMessage(request.Customer, request.Store,
+        await _customerMessageProviderService.SendCustomerPasswordRecoveryMessage(request.Customer, request.Store,
             request.Language.Id, host: request.Host);
 
         return true;

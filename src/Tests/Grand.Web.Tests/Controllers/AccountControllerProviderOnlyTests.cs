@@ -73,7 +73,7 @@ public class AccountControllerProviderOnlyTests
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object,
             new Mock<IRequestTranslationService>().Object, context.Object, _customers.Object,
             _groups.Object, _customerManager.Object, new Mock<ICountryService>().Object,
-            mediator.Object, new Mock<IMessageProviderService>().Object, new CaptchaSettings(),
+            mediator.Object, new Mock<ICustomerMessageProviderService>().Object, new CaptchaSettings(),
             _customerSettings = new CustomerSettings {
                 UserRegistrationType = UserRegistrationType.Standard, TwoFactorAuthenticationEnabled = true,
                 AllowUsersToDeleteAccount = true

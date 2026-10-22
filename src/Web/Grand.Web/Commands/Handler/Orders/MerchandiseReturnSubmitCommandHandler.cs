@@ -16,7 +16,7 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     private readonly IGroupService _groupService;
     private readonly LanguageSettings _languageSettings;
     private readonly IMerchandiseReturnService _merchandiseReturnService;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IMerchandiseReturnMessageProviderService _merchandiseReturnMessageProviderService;
     private readonly IProductService _productService;
     private readonly IContextAccessor _contextAccessor;
 
@@ -24,14 +24,14 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
         IProductService productService,
         IMerchandiseReturnService merchandiseReturnService,
-        IMessageProviderService messageProviderService,
+        IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
         IGroupService groupService,
         LanguageSettings languageSettings)
     {
         _contextAccessor = contextAccessor;
         _productService = productService;
         _merchandiseReturnService = merchandiseReturnService;
-        _messageProviderService = messageProviderService;
+        _merchandiseReturnMessageProviderService = merchandiseReturnMessageProviderService;
         _groupService = groupService;
         _languageSettings = languageSettings;
     }
@@ -85,10 +85,10 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
         await _merchandiseReturnService.InsertMerchandiseReturn(rr);
 
         //notify store owner here (email)
-        await _messageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
+        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
             _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
         //notify customer
-        await _messageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
+        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
             request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return rr;

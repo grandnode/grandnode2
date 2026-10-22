@@ -1161,9 +1161,9 @@ public class CustomerViewModelService : ICustomerViewModelService
         if (displayToCustomer)
         {
             //email
-            var messageProviderService = _httpContextAccessor.HttpContext!.RequestServices
-                .GetRequiredService<IMessageProviderService>();
-            await messageProviderService.SendNewCustomerNoteMessage(customerNote,
+            var customerMessageProviderService = _httpContextAccessor.HttpContext!.RequestServices
+                .GetRequiredService<ICustomerMessageProviderService>();
+            await customerMessageProviderService.SendNewCustomerNoteMessage(customerNote,
                 await _customerService.GetCustomerById(customerId), _contextAccessor.StoreContext.CurrentStore,
                 _contextAccessor.WorkContext.WorkingLanguage.Id);
         }

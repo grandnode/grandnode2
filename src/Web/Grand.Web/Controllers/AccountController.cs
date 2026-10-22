@@ -48,7 +48,7 @@ public class AccountController : BasePublicController
         ICustomerManagerService customerManagerService,
         ICountryService countryService,
         IMediator mediator,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         CaptchaSettings captchaSettings,
         CustomerSettings customerSettings,
         CustomerConfig customerConfig)
@@ -61,7 +61,7 @@ public class AccountController : BasePublicController
         _customerManagerService = customerManagerService;
         _customerSettings = customerSettings;
         _countryService = countryService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
         _captchaSettings = captchaSettings;
         _mediator = mediator;
         _customerConfig = customerConfig;
@@ -173,7 +173,7 @@ public class AccountController : BasePublicController
     private readonly ICustomerManagerService _customerManagerService;
     private readonly ICountryService _countryService;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly CustomerSettings _customerSettings;
     private readonly CustomerConfig _customerConfig;
     private readonly CaptchaSettings _captchaSettings;
@@ -629,7 +629,7 @@ public class AccountController : BasePublicController
                     //email validation message
                     await _customerService.UpdateUserField(_contextAccessor.WorkContext.CurrentCustomer,
                         SystemCustomerFieldNames.AccountActivationToken, Guid.NewGuid().ToString());
-                    await _messageProviderService.SendCustomerEmailValidationMessage(
+                    await _customerMessageProviderService.SendCustomerEmailValidationMessage(
                         _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
                         _contextAccessor.WorkContext.WorkingLanguage.Id,
                         host: _contextAccessor.StoreContext.CurrentHost);
@@ -648,7 +648,7 @@ public class AccountController : BasePublicController
                 case UserRegistrationType.Standard:
                 {
                     //send customer welcome message
-                    await _messageProviderService.SendCustomerWelcomeMessage(_contextAccessor.WorkContext.CurrentCustomer,
+                    await _customerMessageProviderService.SendCustomerWelcomeMessage(_contextAccessor.WorkContext.CurrentCustomer,
                         _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id,
                         host: _contextAccessor.StoreContext.CurrentHost);
 
@@ -796,7 +796,7 @@ public class AccountController : BasePublicController
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken, "");
 
         //send welcome message
-        await _messageProviderService.SendCustomerWelcomeMessage(customer, _contextAccessor.StoreContext.CurrentStore,
+        await _customerMessageProviderService.SendCustomerWelcomeMessage(customer, _contextAccessor.StoreContext.CurrentStore,
             _contextAccessor.WorkContext.WorkingLanguage.Id, host: _contextAccessor.StoreContext.CurrentHost);
 
         var model = new AccountActivationModel {

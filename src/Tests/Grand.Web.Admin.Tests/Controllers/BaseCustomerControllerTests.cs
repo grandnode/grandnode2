@@ -41,7 +41,7 @@ public class BaseCustomerControllerTests
         ICustomerAttributeService customerAttributeService,
         IAddressAttributeParser addressAttributeParser,
         IAddressAttributeService addressAttributeService,
-        Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
+        Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService customerMessageProviderService,
         IGroupService groupService,
         IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
@@ -50,7 +50,7 @@ public class BaseCustomerControllerTests
         : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
             customerProductService, productReviewService, productReviewViewModelService,
             productViewModelService, customerAttributeParser, customerAttributeService,
-            addressAttributeParser, addressAttributeService, messageProviderService, groupService,
+            addressAttributeParser, addressAttributeService, customerMessageProviderService, groupService,
             translationService, contextAccessor, customerSettings, scope)
     {
         public Task<(Customer, IActionResult)> LoadAuthorizedCustomerPublic(string id) => LoadAuthorizedCustomer(id);
@@ -98,7 +98,7 @@ public class BaseCustomerControllerTests
             new Mock<ICustomerAttributeService>().Object,
             new Mock<IAddressAttributeParser>().Object,
             AddressAttributeServiceMock.Object,
-            new Mock<Grand.Business.Core.Interfaces.Messages.IMessageProviderService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService>().Object,
             GroupServiceMock.Object,
             TranslationServiceMock.Object,
             contextAccessorMock.Object,
@@ -361,7 +361,7 @@ public class BaseCustomerControllerTests
             new Mock<Grand.Web.AdminShared.Interfaces.IProductViewModelService>().Object,
             new Mock<ICustomerAttributeParser>().Object, new Mock<ICustomerAttributeService>().Object,
             new Mock<IAddressAttributeParser>().Object, new Mock<IAddressAttributeService>().Object,
-            new Mock<Grand.Business.Core.Interfaces.Messages.IMessageProviderService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService>().Object,
             GroupServiceMock.Object, TranslationServiceMock.Object, contextAccessorMock.Object,
             new CustomerSettings(), ScopeMock.Object)
         {

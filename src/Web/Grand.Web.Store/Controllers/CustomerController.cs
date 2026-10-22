@@ -38,7 +38,7 @@ public class CustomerController(
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeService customerAttributeService,
     Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser addressAttributeParser,
     Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService addressAttributeService,
-    Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
+    Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService customerMessageProviderService,
     IGroupService groupService,
     Grand.Web.Common.Localization.IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
@@ -48,7 +48,7 @@ public class CustomerController(
     : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
         customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-        messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope)
+        customerMessageProviderService, groupService, translationService, contextAccessor, customerSettings, scope)
 {
     //managing customers from the store panel only makes sense when customer identity is scoped per
     //store (Customer:RegisterCustomersPerStore). When it's off the whole controller is disabled and

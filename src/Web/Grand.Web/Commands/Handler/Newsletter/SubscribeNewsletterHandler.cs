@@ -13,7 +13,7 @@ namespace Grand.Web.Commands.Handler.Newsletter;
 
 public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCommand, SubscribeNewsletterResultModel>
 {
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly INewsletterMessageProviderService _newsletterMessageProviderService;
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly IRequestTranslationService _translationService;
@@ -22,12 +22,12 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
 
     public SubscribeNewsletterHandler(INewsLetterSubscriptionService newsLetterSubscriptionService,
         IRequestTranslationService translationService,
-        IMessageProviderService messageProviderService, IContextAccessor contextAccessor,
+        INewsletterMessageProviderService newsletterMessageProviderService, IContextAccessor contextAccessor,
         INewsletterCategoryService newsletterCategoryService)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _translationService = translationService;
-        _messageProviderService = messageProviderService;
+        _newsletterMessageProviderService = newsletterMessageProviderService;
         _contextAccessor = contextAccessor;
         _newsletterCategoryService = newsletterCategoryService;
     }
@@ -54,7 +54,7 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
                 if (request.Subscribe)
                 {
                     if (!subscription.Active)
-                        await _messageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
+                        await _newsletterMessageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
                             _contextAccessor.WorkContext.WorkingLanguage.Id,
                             host: _contextAccessor.StoreContext.CurrentHost);
                     model.Result = _translationService.GetResource("Newsletter.SubscribeEmailSent");
@@ -62,7 +62,7 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
                 else
                 {
                     if (subscription.Active)
-                        await _messageProviderService.SendNewsLetterSubscriptionDeactivationMessage(subscription,
+                        await _newsletterMessageProviderService.SendNewsLetterSubscriptionDeactivationMessage(subscription,
                             _contextAccessor.WorkContext.WorkingLanguage.Id,
                             host: _contextAccessor.StoreContext.CurrentHost);
                     model.Result = _translationService.GetResource("Newsletter.UnsubscribeEmailSent");
@@ -79,7 +79,7 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
                 };
                 await _newsLetterSubscriptionService.InsertNewsLetterSubscription(subscription);
 
-                await _messageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
+                await _newsletterMessageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
                     _contextAccessor.WorkContext.WorkingLanguage.Id, host: _contextAccessor.StoreContext.CurrentHost);
 
                 model.Result = _translationService.GetResource("Newsletter.SubscribeEmailSent");

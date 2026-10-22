@@ -15,7 +15,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Shipping;
 public class ShipCommandHandlerTests
 {
     private Mock<IMediator> _mediatorMock;
-    private Mock<IMessageProviderService> _messageProviderServiceMock;
+    private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private ShipCommandHandler _shipCommandHandler;
     private Mock<IShipmentService> _shipmentServiceMock;
@@ -26,10 +26,10 @@ public class ShipCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _shipmentServiceMock = new Mock<IShipmentService>();
-        _messageProviderServiceMock = new Mock<IMessageProviderService>();
+        _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
 
         _shipCommandHandler = new ShipCommandHandler(_mediatorMock.Object, _orderServiceMock.Object,
-            _shipmentServiceMock.Object, _messageProviderServiceMock.Object);
+            _shipmentServiceMock.Object, _orderMessageProviderServiceMock.Object);
     }
 
     [TestMethod]

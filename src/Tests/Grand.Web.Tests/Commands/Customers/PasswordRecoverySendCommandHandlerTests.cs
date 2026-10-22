@@ -18,7 +18,7 @@ public class PasswordRecoverySendCommandHandlerTests
     public async Task ExternalSignInRequired_NoMessage_NoToken()
     {
         var customerService = new Mock<ICustomerService>();
-        var messages = new Mock<IMessageProviderService>();
+        var messages = new Mock<ICustomerMessageProviderService>();
         var policy = new Mock<IExternalSignInPolicy>();
         var customer = new Customer { Id = "c1" };
         policy.Setup(x => x.PasswordSignIn(customer, It.IsAny<SignInSurface>())).ReturnsAsync(new PasswordSignInDecision(false, new Mock<IExternalAuthenticationProvider>().Object));
@@ -35,7 +35,7 @@ public class PasswordRecoverySendCommandHandlerTests
     [TestMethod]
     public async Task NullCustomer_NoMessage()
     {
-        var messages = new Mock<IMessageProviderService>();
+        var messages = new Mock<ICustomerMessageProviderService>();
         var handler = new PasswordRecoverySendCommandHandler(new Mock<ICustomerService>().Object, messages.Object,
             new Mock<IExternalSignInPolicy>().Object);
 
@@ -49,7 +49,7 @@ public class PasswordRecoverySendCommandHandlerTests
     [TestMethod]
     public async Task PasswordAllowed_MessageSent()
     {
-        var messages = new Mock<IMessageProviderService>();
+        var messages = new Mock<ICustomerMessageProviderService>();
         var policy = new Mock<IExternalSignInPolicy>();
         policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
             .ReturnsAsync(PasswordSignInDecision.Password);

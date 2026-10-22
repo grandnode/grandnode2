@@ -11,12 +11,12 @@ namespace Grand.Modules.Tests.Commands;
 public class SendOutBidCustomerNotificationCommandHandlerTests
 {
     private SendOutBidCustomerNotificationCommandHandler _handler;
-    private Mock<IMessageProviderService> _messageProviderMock;
+    private Mock<ICatalogMessageProviderService> _messageProviderMock;
 
     [TestInitialize]
     public void Init()
     {
-        _messageProviderMock = new Mock<IMessageProviderService>();
+        _messageProviderMock = new Mock<ICatalogMessageProviderService>();
         _handler = new SendOutBidCustomerNotificationCommandHandler(_messageProviderMock.Object);
     }
 

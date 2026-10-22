@@ -79,7 +79,7 @@ public class CustomerControllerTests
         ICustomerAttributeService customerAttributeService,
         IAddressAttributeParser addressAttributeParser,
         IAddressAttributeService addressAttributeService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         IGroupService groupService,
         IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
@@ -89,7 +89,7 @@ public class CustomerControllerTests
         : CustomerController(customerService, customerViewModelService, customerManagerService,
             customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
             customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-            messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
+            customerMessageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
             customerConfig)
     {
         public Task ApplyPostConstraintsPublic(CustomerModel model) => ApplyPostConstraints(model);
@@ -110,7 +110,7 @@ public class CustomerControllerTests
             _customerAttributeServiceMock.Object,
             new Mock<IAddressAttributeParser>().Object,
             new Mock<IAddressAttributeService>().Object,
-            new Mock<IMessageProviderService>().Object,
+            new Mock<ICustomerMessageProviderService>().Object,
             groupService ?? _groupServiceMock.Object,
             _translationServiceMock.Object,
             _contextAccessorMock.Object,

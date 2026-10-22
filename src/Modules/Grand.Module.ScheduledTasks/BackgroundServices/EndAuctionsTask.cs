@@ -22,17 +22,17 @@ public class EndAuctionsTask : IScheduleTask
     private readonly ILanguageService _languageService;
     private readonly LanguageSettings _languageSettings;
     private readonly ILogger<EndAuctionsTask> _logger;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICatalogMessageProviderService _catalogMessageProviderService;
     private readonly IShoppingCartService _shoppingCartService;
 
     public EndAuctionsTask(IAuctionService auctionService,
-        IMessageProviderService messageProviderService, LanguageSettings translationService,
+        ICatalogMessageProviderService catalogMessageProviderService, LanguageSettings translationService,
         IShoppingCartService shoppingCartService,
         ICustomerService customerService, ILanguageService languageService, ILogger<EndAuctionsTask> logger)
     {
         _languageService = languageService;
         _auctionService = auctionService;
-        _messageProviderService = messageProviderService;
+        _catalogMessageProviderService = catalogMessageProviderService;
         _languageSettings = translationService;
         _shoppingCartService = shoppingCartService;
         _customerService = customerService;
@@ -59,7 +59,7 @@ public class EndAuctionsTask : IScheduleTask
             if (bid == null)
             {
                 await _auctionService.UpdateAuctionEnded(auctionToEnd, true);
-                await _messageProviderService.SendAuctionEndedStoreOwnerMessage(auctionToEnd,
+                await _catalogMessageProviderService.SendAuctionEndedStoreOwnerMessage(auctionToEnd,
                     _languageSettings.DefaultAdminLanguageId, null);
                 continue;
             }
@@ -81,10 +81,10 @@ public class EndAuctionsTask : IScheduleTask
             {
                 bid.Win = true;
                 await _auctionService.UpdateBid(bid);
-                await _messageProviderService.SendAuctionEndedStoreOwnerMessage(auctionToEnd,
+                await _catalogMessageProviderService.SendAuctionEndedStoreOwnerMessage(auctionToEnd,
                     _languageSettings.DefaultAdminLanguageId, bid);
-                await _messageProviderService.SendAuctionWinEndedCustomerMessage(auctionToEnd, null, bid);
-                await _messageProviderService.SendAuctionEndedLostCustomerMessage(auctionToEnd, null, bid);
+                await _catalogMessageProviderService.SendAuctionWinEndedCustomerMessage(auctionToEnd, null, bid);
+                await _catalogMessageProviderService.SendAuctionEndedLostCustomerMessage(auctionToEnd, null, bid);
                 await _auctionService.UpdateAuctionEnded(auctionToEnd, true);
             }
             else

@@ -56,7 +56,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly ICountryService _countryService;
     private readonly IProductService _productService;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IProductAttributeService _productAttributeService;
     private readonly IGiftVoucherService _giftVoucherService;
     private readonly IDownloadService _downloadService;
@@ -99,7 +99,7 @@ public class OrderViewModelService : IOrderViewModelService
         IPaymentTransactionService paymentTransactionService,
         ICountryService countryService,
         IProductService productService,
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         IProductAttributeService productAttributeService,
         IGiftVoucherService giftVoucherService,
         IDownloadService downloadService,
@@ -137,7 +137,7 @@ public class OrderViewModelService : IOrderViewModelService
         _paymentTransactionService = paymentTransactionService;
         _countryService = countryService;
         _productService = productService;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _productAttributeService = productAttributeService;
         _giftVoucherService = giftVoucherService;
         _downloadService = downloadService;
@@ -1025,7 +1025,7 @@ public class OrderViewModelService : IOrderViewModelService
         //new order notification
         if (displayToCustomer)
             //email
-            await _messageProviderService.SendNewOrderNoteAddedCustomerMessage(order, orderNote);
+            await _orderMessageProviderService.SendNewOrderNoteAddedCustomerMessage(order, orderNote);
     }
 
     public virtual async Task DeleteOrderNote(Order order, string id)

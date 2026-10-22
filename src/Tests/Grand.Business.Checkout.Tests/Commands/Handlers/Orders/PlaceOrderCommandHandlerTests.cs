@@ -50,7 +50,7 @@ public class PlaceOrderCommandHandlerTests
             new Mock<IPricingService>().Object, new Mock<IProductAttributeFormatter>().Object,
             new Mock<IGiftVoucherService>().Object, _checkoutAttributeFormatterMock.Object,
             new Mock<ITaxService>().Object, new Mock<ICustomerService>().Object, new Mock<IDiscountService>().Object,
-            new Mock<IGroupService>().Object, new Mock<IMessageProviderService>().Object,
+            new Mock<IGroupService>().Object, new Mock<ICatalogMessageProviderService>().Object,
             new Mock<IVendorService>().Object, new Mock<ISalesEmployeeService>().Object, currencyService.Object,
             new Mock<IAffiliateService>().Object, new Mock<IMediator>().Object,
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,

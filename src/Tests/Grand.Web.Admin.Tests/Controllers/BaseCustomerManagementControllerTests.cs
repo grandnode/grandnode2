@@ -33,14 +33,14 @@ public class BaseCustomerManagementControllerTests
         IProductReviewService productReviewService, IProductReviewViewModelService productReviewViewModelService,
         IProductViewModelService productViewModelService, ICustomerAttributeParser customerAttributeParser,
         ICustomerAttributeService customerAttributeService, IAddressAttributeParser addressAttributeParser,
-        IAddressAttributeService addressAttributeService, IMessageProviderService messageProviderService,
+        IAddressAttributeService addressAttributeService, ICustomerMessageProviderService customerMessageProviderService,
         IGroupService groupService, IRequestTranslationService translationService, IContextAccessor contextAccessor,
         CustomerSettings customerSettings, IAdminDataScope<Customer> scope,
         IRequestPermissionService permissionService, IExportManager<Customer> exportManager)
         : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
             customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
             customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-            messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
+            customerMessageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
             permissionService, exportManager)
     {
         public void CheckTwoFactorEnabledWarningPublic(Customer existingCustomer, CustomerModel model) =>
@@ -75,7 +75,7 @@ public class BaseCustomerManagementControllerTests
             new Mock<IProductReviewViewModelService>().Object, new Mock<IProductViewModelService>().Object,
             new Mock<ICustomerAttributeParser>().Object, new Mock<ICustomerAttributeService>().Object,
             new Mock<IAddressAttributeParser>().Object, new Mock<IAddressAttributeService>().Object,
-            new Mock<IMessageProviderService>().Object, _groupServiceMock.Object, translationServiceMock.Object,
+            new Mock<ICustomerMessageProviderService>().Object, _groupServiceMock.Object, translationServiceMock.Object,
             _contextAccessorMock.Object, new CustomerSettings(), scopeMock.Object,
             _permissionServiceMock.Object, new Mock<IExportManager<Customer>>().Object);
 

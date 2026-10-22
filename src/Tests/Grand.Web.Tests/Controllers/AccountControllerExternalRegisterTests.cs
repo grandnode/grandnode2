@@ -32,7 +32,7 @@ public class AccountControllerExternalRegisterTests
         new("ExternalAuth.OpenIdConnect", "sub-1", "john@example.com", true, "John", "Doe");
 
     private Mock<ICustomerManagerService> _manager;
-    private Mock<IMessageProviderService> _messages;
+    private Mock<ICustomerMessageProviderService> _messages;
     private Mock<IExternalRegistrationContext> _external;
     private Mock<IExternalAuthenticationService> _externalAuth;
     private CustomerSettings _settings;
@@ -43,7 +43,7 @@ public class AccountControllerExternalRegisterTests
     public void Init()
     {
         _manager = new Mock<ICustomerManagerService>();
-        _messages = new Mock<IMessageProviderService>();
+        _messages = new Mock<ICustomerMessageProviderService>();
         _external = new Mock<IExternalRegistrationContext>();
         _externalAuth = new Mock<IExternalAuthenticationService>();
         _settings = new CustomerSettings { UserRegistrationType = UserRegistrationType.Standard };

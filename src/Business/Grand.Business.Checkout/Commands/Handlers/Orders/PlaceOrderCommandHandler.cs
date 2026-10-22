@@ -47,7 +47,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly ILanguageService _languageService;
     private readonly ILogger<PlaceOrderCommandHandler> _logger;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICatalogMessageProviderService _catalogMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
@@ -84,7 +84,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         ICustomerService customerService,
         IDiscountService discountService,
         IGroupService groupService,
-        IMessageProviderService messageProviderService,
+        ICatalogMessageProviderService catalogMessageProviderService,
         IVendorService vendorService,
         ISalesEmployeeService salesEmployeeService,
         ICurrencyService currencyService,
@@ -117,7 +117,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _customerService = customerService;
         _groupService = groupService;
         _discountService = discountService;
-        _messageProviderService = messageProviderService;
+        _catalogMessageProviderService = catalogMessageProviderService;
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;
         _currencyService = currencyService;
@@ -812,7 +812,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         {
             await _auctionService.UpdateAuctionEnded(product, true, true);
             await _auctionService.UpdateHighestBid(product, product.Price, order.CustomerId);
-            await _messageProviderService.SendAuctionEndedBinCustomerMessage(product, order.CustomerId,
+            await _catalogMessageProviderService.SendAuctionEndedBinCustomerMessage(product, order.CustomerId,
                 order.CustomerLanguageId, order.StoreId);
             await _auctionService.InsertBid(new Bid {
                 CustomerId = order.CustomerId,

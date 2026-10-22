@@ -15,7 +15,7 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
 {
     private readonly LanguageSettings _languageSettings;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
 
@@ -23,13 +23,13 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
         IMediator mediator,
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         LanguageSettings languageSettings)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _mediator = mediator;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _languageSettings = languageSettings;
         _orderService = orderService;
     }
@@ -72,10 +72,10 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
         await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
         //notifications
-        _ = await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
+        _ = await _orderMessageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
             _languageSettings.DefaultAdminLanguageId);
 
-        _ = await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund,
+        _ = await _orderMessageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund,
             order.CustomerLanguageId);
 
         //raise event       

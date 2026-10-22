@@ -21,7 +21,7 @@ public class RefundCommandHandlerTests
     private RefundCommandHandler _handler;
     private Mock<ILogger<RefundCommandHandler>> _loggerMock;
     private Mock<IMediator> _mediatorMock;
-    private Mock<IMessageProviderService> _messageProviderServiceMock;
+    private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
@@ -32,12 +32,12 @@ public class RefundCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
-        _messageProviderServiceMock = new Mock<IMessageProviderService>();
+        _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
         _paymentServiceMock = new Mock<IPaymentService>();
         _loggerMock = new Mock<ILogger<RefundCommandHandler>>();
 
         _handler = new RefundCommandHandler(_mediatorMock.Object, _paymentServiceMock.Object,
-            _paymentTransactionMock.Object, _orderServiceMock.Object, _messageProviderServiceMock.Object,
+            _paymentTransactionMock.Object, _orderServiceMock.Object, _orderMessageProviderServiceMock.Object,
             _loggerMock.Object, new LanguageSettings());
     }
 

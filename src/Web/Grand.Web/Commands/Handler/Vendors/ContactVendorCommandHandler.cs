@@ -12,14 +12,14 @@ namespace Grand.Web.Commands.Handler.Vendors;
 public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendCommand, ContactVendorModel>
 {
     private readonly CommonSettings _commonSettings;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IVendorMessageProviderService _vendorMessageProviderService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
-    public ContactVendorCommandHandler(IMessageProviderService messageProviderService, IContextAccessor contextAccessor,
+    public ContactVendorCommandHandler(IVendorMessageProviderService vendorMessageProviderService, IContextAccessor contextAccessor,
         IRequestTranslationService translationService, CommonSettings commonSettings)
     {
-        _messageProviderService = messageProviderService;
+        _vendorMessageProviderService = vendorMessageProviderService;
         _contextAccessor = contextAccessor;
         _translationService = translationService;
         _commonSettings = commonSettings;
@@ -30,7 +30,7 @@ public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendComm
         var subject = _commonSettings.SubjectFieldOnContactUsForm ? request.Model.Subject : null;
         var body = FormatText.ConvertText(request.Model.Enquiry);
 
-        await _messageProviderService.SendContactVendorMessage(_contextAccessor.WorkContext.CurrentCustomer, request.Store,
+        await _vendorMessageProviderService.SendContactVendorMessage(_contextAccessor.WorkContext.CurrentCustomer, request.Store,
             request.Vendor, _contextAccessor.WorkContext.WorkingLanguage.Id,
             request.Model.Email.Trim(), request.Model.FullName, subject, body, request.IpAddress,
             host: _contextAccessor.StoreContext.CurrentHost);

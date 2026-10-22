@@ -32,7 +32,7 @@ public abstract class BaseCustomerManagementController(
     ICustomerAttributeService customerAttributeService,
     IAddressAttributeParser addressAttributeParser,
     IAddressAttributeService addressAttributeService,
-    IMessageProviderService messageProviderService,
+    ICustomerMessageProviderService customerMessageProviderService,
     IGroupService groupService,
     IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
@@ -43,7 +43,7 @@ public abstract class BaseCustomerManagementController(
     : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
         customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-        messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope)
+        customerMessageProviderService, groupService, translationService, contextAccessor, customerSettings, scope)
 {
     protected override void CheckTwoFactorEnabledWarning(Customer? existingCustomer, CustomerModel model)
     {

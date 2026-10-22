@@ -15,19 +15,19 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
     private readonly ICustomerService _customerService;
     private readonly LanguageSettings _languageSettings;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly OrderSettings _orderSettings;
     private readonly IPdfService _pdfService;
 
     public ProcessOrderPaidCommandHandler(
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         ICustomerService customerService,
         IMediator mediator,
         IPdfService pdfService,
         OrderSettings orderSettings,
         LanguageSettings languageSettings)
     {
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _customerService = customerService;
         _mediator = mediator;
         _pdfService = pdfService;
@@ -73,16 +73,16 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
                     ]
                     : new List<string>();
 
-            await _messageProviderService.SendOrderPaidCustomerMessage(order, customer, order.CustomerLanguageId,
+            await _orderMessageProviderService.SendOrderPaidCustomerMessage(order, customer, order.CustomerLanguageId,
                 orderPaidAttachmentFilePath, orderPaidAttachmentFileName, orderPaidAttachments);
 
-            await _messageProviderService.SendOrderPaidStoreOwnerMessage(order, customer,
+            await _orderMessageProviderService.SendOrderPaidStoreOwnerMessage(order, customer,
                 _languageSettings.DefaultAdminLanguageId);
             if (order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
             {
                 var vendors = await _mediator.Send(new GetVendorsInOrderQuery { Order = order });
                 foreach (var vendor in vendors)
-                    await _messageProviderService.SendOrderPaidVendorMessage(order, vendor,
+                    await _orderMessageProviderService.SendOrderPaidVendorMessage(order, vendor,
                         _languageSettings.DefaultAdminLanguageId);
             }
         }
