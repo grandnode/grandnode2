@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Authentication.OpenIdConnect.Infrastructure;
+namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
 ///     Browser sign-in with the identity provider of the resource server (authorization code + PKCE)

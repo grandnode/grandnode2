@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Text.Json;
 
-namespace Authentication.OpenIdConnect.Infrastructure;
+namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
 ///     Confirms a session signed in through the provider at the identity provider by exchanging its refresh token (RFC 6749, section 6)

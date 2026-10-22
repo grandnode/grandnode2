@@ -1,9 +1,10 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Authentication.OpenIdConnect;
+namespace Grand.Web.Common.Security.Oidc;
 
-public class OidcLoginProvider(OidcLoginSettings settings, IAuthenticationSchemeProvider authenticationSchemeProvider)
+public class OidcLoginProvider(OidcLoginConfig config, IAuthenticationSchemeProvider authenticationSchemeProvider)
     : IExternalSignInPathProvider
 {
     public string ConfigurationUrl => OidcLoginDefaults.ConfigurationUrl;
@@ -12,7 +13,7 @@ public class OidcLoginProvider(OidcLoginSettings settings, IAuthenticationScheme
 
     public string FriendlyName => "OpenID Connect";
 
-    public int Priority => settings.DisplayOrder;
+    public int Priority => config.DisplayOrder;
 
     public IList<string> LimitedToStores => new List<string>();
 

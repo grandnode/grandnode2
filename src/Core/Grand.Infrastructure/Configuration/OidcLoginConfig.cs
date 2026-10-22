@@ -21,6 +21,9 @@ public class OidcLoginConfig
     public string ClientSecret { get; set; }
     public string Scopes { get; set; } = "openid profile email offline_access";
 
+    /// <summary>Order of the sign-in button among the external authentication methods</summary>
+    public int DisplayOrder { get; set; }
+
     /// <summary>A back-office session ends after this much inactivity (sliding)</summary>
     public int StaffIdleTimeoutMinutes { get; set; } = DefaultStaffIdleTimeoutMinutes;
 

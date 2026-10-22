@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Security.Claims;
 
-namespace Authentication.OpenIdConnect.Infrastructure;
+namespace Grand.Web.Common.Security.Oidc;
 
 public static class OidcLoginIdentityMapper
 {

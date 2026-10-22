@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Plugins;
+using Grand.Web.Common.Security.Oidc;
 
 namespace Authentication.OpenIdConnect;
 

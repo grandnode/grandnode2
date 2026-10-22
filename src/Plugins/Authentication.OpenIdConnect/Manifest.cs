@@ -1,4 +1,4 @@
-using Authentication.OpenIdConnect;
+using Grand.Web.Common.Security.Oidc;
 using Grand.Infrastructure.Plugins;
 
 [assembly: PluginInfo(

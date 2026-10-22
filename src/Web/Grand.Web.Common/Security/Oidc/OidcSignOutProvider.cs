@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Authentication.OpenIdConnect.Infrastructure;
+namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
 ///     Ends the session at the identity provider (OpenID Connect RP-Initiated Logout 1.0) through the end-session endpoint of its metadata.

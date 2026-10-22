@@ -1,8 +1,7 @@
-using Authentication.OpenIdConnect;
-using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,7 +10,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
+namespace Grand.Web.Common.Tests.Security.Oidc;
 
 [TestClass]
 public class OidcSignOutProviderTests

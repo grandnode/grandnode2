@@ -1,15 +1,15 @@
-using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.ExternalRegistration;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Linq.Expressions;
 
-namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
+namespace Grand.Web.Common.Tests.Security.Oidc;
 
 [TestClass]
 public class OidcProfileSynchronizerTests

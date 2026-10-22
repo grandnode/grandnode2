@@ -1,4 +1,3 @@
-using Authentication.OpenIdConnect.Infrastructure;
 using Authentication.OpenIdConnect.Models;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
@@ -10,6 +9,7 @@ using Grand.Mediator;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

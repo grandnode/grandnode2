@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Authentication.OpenIdConnect.Infrastructure;
+namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
 ///     OpenID Connect Back-Channel Logout 1.0: the identity provider tells the store that a provider session ended; the

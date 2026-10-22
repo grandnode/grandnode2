@@ -1,6 +1,6 @@
-using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Infrastructure.Endpoints;
 using Grand.Web.Common.Middleware;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

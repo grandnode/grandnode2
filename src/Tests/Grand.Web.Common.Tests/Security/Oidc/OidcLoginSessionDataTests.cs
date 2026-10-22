@@ -1,4 +1,4 @@
-using Authentication.OpenIdConnect.Infrastructure;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security.Claims;
 using System.Text;
 
-namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
+namespace Grand.Web.Common.Tests.Security.Oidc;
 
 [TestClass]
 public class OidcLoginSessionDataTests

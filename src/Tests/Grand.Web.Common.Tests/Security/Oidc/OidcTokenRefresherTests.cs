@@ -1,7 +1,7 @@
-using Authentication.OpenIdConnect;
-using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Oidc;
+using Grand.Web.Common.Startup;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +14,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Net;
 
-namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
+namespace Grand.Web.Common.Tests.Security.Oidc;
 
 [TestClass]
 public class OidcTokenRefresherTests
@@ -164,7 +164,7 @@ public class OidcTokenRefresherTests
     public void HttpClient_DoesNotFollowRedirects()
     {
         var services = new ServiceCollection();
-        new StartupApplication().ConfigureServices(services, new ConfigurationBuilder().Build());
+        new OidcLoginStartup().ConfigureServices(services, new ConfigurationBuilder().Build());
         using var provider = services.BuildServiceProvider();
 
         var builder = provider.GetRequiredService<HttpMessageHandlerBuilder>();

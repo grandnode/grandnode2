@@ -15,20 +15,4 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
-	</ItemGroup>
-
-	<!--
-		The handler package pulls in Microsoft.IdentityModel.*, System.IdentityModel.Tokens.Jwt and
-		Microsoft.Bcl.Cryptography, which the host already ships (JwtBearer). Plugin assemblies are
-		loaded by path, so a second copy that drifts from the host's could break plugin discovery.
-		Only the handler package itself is copied to the plugin folder.
-	-->
-	<Target Name="KeepOnlyHandlerPackage" BeforeTargets="_CopyFilesMarkedCopyLocal;GenerateBuildDependencyFile">
-		<ItemGroup>
-			<ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != 'Microsoft.AspNetCore.Authentication.OpenIdConnect'" />
-		</ItemGroup>
-	</Target>
-
 </Project>

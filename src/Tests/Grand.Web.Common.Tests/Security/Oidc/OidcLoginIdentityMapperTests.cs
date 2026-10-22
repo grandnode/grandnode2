@@ -1,10 +1,10 @@
-using Authentication.OpenIdConnect.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security.Claims;
 
-namespace Grand.Modules.Tests.Plugins.OpenIdConnect;
+namespace Grand.Web.Common.Tests.Security.Oidc;
 
 [TestClass]
 public class OidcLoginIdentityMapperTests

@@ -1,4 +1,4 @@
-namespace Authentication.OpenIdConnect.Infrastructure;
+namespace Grand.Web.Common.Security.Oidc;
 
 /// <param name="SigningKeyNotFound">The token is signed with a key the metadata does not list (yet): the provider may have rotated its keys</param>
 public sealed record OidcLogoutToken(bool IsValid, string Subject, string Sid, string Error, string ReplayKey = null,

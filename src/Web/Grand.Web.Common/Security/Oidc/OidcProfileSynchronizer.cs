@@ -5,7 +5,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.Extensions.Logging;
 
-namespace Authentication.OpenIdConnect.Infrastructure;
+namespace Grand.Web.Common.Security.Oidc;
 
 /// <summary>
 ///     ProviderOnly: the identity provider owns the name and the e-mail, so a provider sign-in copies them onto the
