@@ -80,7 +80,7 @@ Do not use this skill as the primary review for MongoDB query safety or security
 - Never register a task with a DI key that differs from its `ScheduleTaskName` in the database.
 - Never add a seed entry without also adding a DI registration, and vice versa.
 - Never introduce locking, semaphores, or static shared state inside a task class.
-- Never call `IEmailSender` directly from a task; use `IMessageProviderService` or queue via `IQueuedEmailService` following the message-notification pattern.
+- Never call `IEmailSender` directly from a task; use a message provider service or queue via `IQueuedEmailService` following the message-notification pattern.
 
 ## Key Contracts
 

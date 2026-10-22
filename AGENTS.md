@@ -73,7 +73,7 @@ A change that crosses domains loads every skill it touches.
 | `.ai/skills/admin-area-changes.md` | anything admin-facing that may reach Main Admin, Store Owner or Vendor: shared models, permissions, navigation, validation, scoped data |
 | `.ai/skills/admin-ui-component-layer.md` | building or converting an admin screen, tab or popup: `<admin-page>`, `<admin-card>`, `<admin-field>`, `<admin-filters>`, `<admin-popup>`, button hierarchy, Add new placement, known CSS traps |
 | `.ai/skills/settings-and-localization.md` | settings classes, store-scoped overrides, `ISettingService`, translation resources, `ITranslationService`, `IPluginTranslateResource`, translated entities and admin models |
-| `.ai/skills/message-notification.md` | message templates, DotLiquid tokens and drops, `IMessageProviderService`, queued email lifecycle, `LiquidObjectBuilder`, `MessageTokensAddedEvent`, notification handlers |
+| `.ai/skills/message-notification.md` | message templates, DotLiquid tokens and drops, message provider services (`I<Area>MessageProviderService`, `IMessageProviderService`), queued email lifecycle, `LiquidObjectBuilder`, `MessageTokensAddedEvent`, notification handlers |
 | `.ai/skills/scheduled-task.md` | `IScheduleTask`, `AddKeyedScoped` registration, `ScheduleTask` seed, distributed locking across instances, error handling, task migrations |
 | `.ai/skills/permission-navigation.md` | `PermissionSystemName`, `PermissionActionName`, `StandardPermission`, `PermissionProvider`, controller authorization attributes, `AdminSiteMap` entries and their migrations |
 
