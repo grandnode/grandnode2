@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Common.Security.Oidc;
@@ -8,9 +7,7 @@ namespace Authentication.OpenIdConnect;
 /// <summary>
 ///     Sign-in with an OpenID Connect identity provider
 /// </summary>
-public class OidcLoginPlugin(
-    ISettingService settingService,
-    IPluginTranslateResource pluginTranslateResource)
+public class OidcLoginPlugin(IPluginTranslateResource pluginTranslateResource)
     : BasePlugin, IPlugin
 {
     private const string Prefix = "Plugins.ExternalAuth.OpenIdConnect.";
@@ -39,21 +36,7 @@ public class OidcLoginPlugin(
         ("Failed.EmailNotVerified",
             "Your identity provider has not verified your e-mail address. Verify it there, then sign in again."),
         ("Failed.ProviderChanged",
-            "Signing in with the identity provider is paused while the administrator updates the store's connection to it. Try again later."),
-        ("DisplayOrder", "Display order"),
-        ("ClientId", "Client ID"),
-        ("ClientSecret", "Client secret"),
-        ("ClientSecret.Set", "set"),
-        ("ClientSecret.NotSet", "not set"),
-        ("Authority", "Identity provider (Authority)"),
-        ("Description",
-            "<p>The identity provider and the client are configured in the application settings file (appsettings), not here: " +
-            "section <code>OidcResourceServer</code> holds the identity provider (Authority), " +
-            "section <code>OidcLogin</code> holds the client of this store (ClientId, ClientSecret, Scopes).</p>" +
-            "<p>Register this redirect URI at the identity provider for every URL of the store: " +
-            "<code>https://&lt;store-url&gt;/signin-oidc</code>.</p>" +
-            "<p>Restart the application after changing the settings. Staff accounts connect once with their password; " +
-            "use the multi-factor authentication of the identity provider for them.</p>")
+            "Signing in with the identity provider is paused while the administrator updates the store's connection to it. Try again later.")
     ];
 
     /// <summary>
@@ -66,9 +49,6 @@ public class OidcLoginPlugin(
 
     public override async Task Install()
     {
-        //settings
-        await settingService.SaveSetting(new OidcLoginSettings());
-
         //locales
         foreach (var (key, value) in Resources)
             await pluginTranslateResource.AddOrUpdatePluginTranslateResource(Prefix + key, value);
@@ -78,9 +58,6 @@ public class OidcLoginPlugin(
 
     public override async Task Uninstall()
     {
-        //settings
-        await settingService.DeleteSetting<OidcLoginSettings>();
-
         //locales
         foreach (var (key, _) in Resources)
             await pluginTranslateResource.DeletePluginTranslationResource(Prefix + key);

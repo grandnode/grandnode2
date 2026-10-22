@@ -66,4 +66,22 @@
 	<Resource Name="Account.AssociatedExternalAuth.RegistrationDisabled" Area="Front">
 		<Value>Registration of new customers is disabled, so this external account cannot be used to create one.</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Authority" Area="Admin">
+		<Value>Identity provider (Authority)</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientId" Area="Admin">
+		<Value>Client ID</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret" Area="Admin">
+		<Value>Client secret</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret.Set" Area="Admin">
+		<Value>set</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret.NotSet" Area="Admin">
+		<Value>not set</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Description" Area="Admin">
+		<Value>&lt;p&gt;The identity provider and the client are configured in the application settings file (appsettings), not here: section &lt;code&gt;OidcResourceServer&lt;/code&gt; holds the identity provider (Authority), section &lt;code&gt;OidcLogin&lt;/code&gt; holds the client of this store (ClientId, ClientSecret, Scopes).&lt;/p&gt;&lt;p&gt;Register this redirect URI at the identity provider for every URL of the store: &lt;code&gt;https://&amp;lt;store-url&amp;gt;/signin-oidc&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;Restart the application after changing the settings. Staff accounts connect once with their password; use the multi-factor authentication of the identity provider for them.&lt;/p&gt;&lt;p&gt;The order of the button is set by &lt;code&gt;OidcLogin:DisplayOrder&lt;/code&gt;.&lt;/p&gt;</Value>
+	</Resource>
 </Language>

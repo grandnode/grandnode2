@@ -38,6 +38,31 @@
         </admin-grid>
     </admin-card>
 
+    @* the identity provider and the client come from appsettings and are shown read-only; the secret is never shown *@
+    @if (Model != null)
+    {
+        <admin-card title="OpenID Connect">
+            <div class="note note-info">
+                @Html.Raw(Loc["Admin.Plugins.ExternalAuthenticationMethods.Oidc.Description"])
+            </div>
+            <div class="grand-fields grand-fields--2col">
+                <div class="form-group">
+                    <label class="col-form-label" for="oidc-authority">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Oidc.Authority"]</label>
+                    <input id="oidc-authority" type="text" disabled class="form-control" value="@Model.ConfiguredAuthority"/>
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label" for="oidc-clientid">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientId"]</label>
+                    <input id="oidc-clientid" type="text" disabled class="form-control" value="@Model.ClientId"/>
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label" for="oidc-clientsecret">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret"]</label>
+                    <input id="oidc-clientsecret" type="text" disabled class="form-control"
+                           value="@(Model.ClientSecretSet ? Loc["Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret.Set"] : Loc["Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret.NotSet"])"/>
+                </div>
+            </div>
+        </admin-card>
+    }
+
     @* the OpenID Connect account links belong to one identity provider: a subject is unique only there *@
     @if (Model != null)
     {

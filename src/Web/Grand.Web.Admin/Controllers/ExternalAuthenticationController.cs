@@ -44,9 +44,9 @@ public class ExternalAuthenticationController : BaseAdminController
     #region Methods
 
     public async Task<IActionResult> Methods([FromServices] OidcResourceServerConfig resourceServerConfig,
-        [FromServices] IOidcLinkService linkService)
+        [FromServices] OidcLoginConfig loginConfig, [FromServices] IOidcLinkService linkService)
     {
-        //the account links of the OpenID Connect provider, only while it is configured
+        //the OpenID Connect sign-in and its account links, only while the provider is configured
         if (!ResourceServerConfigured(resourceServerConfig))
             return View();
 
@@ -56,7 +56,9 @@ public class ExternalAuthenticationController : BaseAdminController
             LinkedAuthority = state.LinkedAuthority,
             LinkCount = state.LinkCount,
             ProviderChanged = state.ProviderChanged,
-            ProviderUnknown = state.ProviderUnknown
+            ProviderUnknown = state.ProviderUnknown,
+            ClientId = loginConfig.ClientId,
+            ClientSecretSet = !string.IsNullOrWhiteSpace(loginConfig.ClientSecret)
         });
     }
 
