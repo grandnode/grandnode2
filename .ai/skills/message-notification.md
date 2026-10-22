@@ -41,7 +41,7 @@ Do not use this skill as the primary review for MongoDB queries or security; com
    2. Return 0 when it returns null (missing or inactive template).
    3. Resolve `EmailAccount` with `IMessageLookupService.GetEmailAccountOfMessageTemplate`, and the language with `EnsureLanguageIsActive`.
    4. Build tokens with `LiquidObjectBuilder` using the appropriate `AddXxxTokens()` methods.
-   5. Call `await builder.Build()` to get the populated `LiquidObject`.
+   5. Call `await builder.BuildAsync()` to get the populated `LiquidObject`.
    6. Call `await _messageProviderService.SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName)`.
 9. Use the generic `IMessageProviderService.SendNotification` directly when a one-off or plugin-triggered send does not justify a dedicated typed method.
 
@@ -116,7 +116,7 @@ var liquidObject = await new LiquidObjectBuilder(_mediator)
     .AddStoreTokens(store, language, emailAccount)
     .AddOrderTokens(order, customer, store, host)
     .AddCustomerTokens(customer, store, host, language)
-    .Build();
+    .BuildAsync();
 ```
 
 The drops, the builder and the token commands belong to `Grand.Business.Messages`, not to `Grand.Business.Core`. Other Business projects and plugins compile against Core only, so they never use them directly: a campaign renders through `ICampaignMessageRenderer`, and a plugin adds tokens through `MessageTokensAddedEvent` / `EntityTokensAddedEvent<T>` and `LiquidObject.AdditionalTokens`, which expose drops only as `DotLiquid.Drop`.
@@ -205,7 +205,7 @@ Output:
 2. Seed the template in `InstallDataMessageTemplates` with subject `"Your order {{Order.OrderNumber}} is ready"` and a body using `{{Order.*}}` and `{{Store.*}}` tokens.
 3. Add `Task<int> SendOrderReadyForPickupCustomerMessage(Order order, Customer customer, Store store, string languageId)` to `IOrderMessageProviderService`.
 4. Implement the method in `OrderMessageProviderService`: load template by name, return 0 if inactive, build `LiquidObjectBuilder` with `AddStoreTokens` + `AddOrderTokens` + `AddCustomerTokens`, call `SendNotification` with the customer's email.
-5. Publish `OrderReadyForPickupEvent` from the order status-change service and handle it in a `INotificationHandler<OrderReadyForPickupEvent>` that calls `_messageProviderService.SendOrderReadyForPickupCustomerMessage(...)`.
+5. Publish `OrderReadyForPickupEvent` from the order status-change service and handle it in a `INotificationHandler<OrderReadyForPickupEvent>` that calls `_orderMessageProviderService.SendOrderReadyForPickupCustomerMessage(...)` on the injected `IOrderMessageProviderService`.
 
 ### Example 2: Plugin Token Extension
 Input: A loyalty plugin needs to include a customer's loyalty points balance in existing order emails.

@@ -145,6 +145,8 @@ public class VendorMessageProviderService : IVendorMessageProviderService
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = vendorReview.CustomerId });
         //vendor
         var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = vendorReview.VendorId });
+        if (vendor == null)
+            return 0;
 
         host = store.LinkHost(host);
         var builder = new LiquidObjectBuilder(_mediator);

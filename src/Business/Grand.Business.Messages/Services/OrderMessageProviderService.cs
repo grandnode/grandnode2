@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
 using Grand.Business.Messages.DotLiquidDrops;
@@ -21,13 +20,11 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     public OrderMessageProviderService(
         IMessageLookupService messageLookupService,
         IMessageProviderService messageProviderService,
-        IMediator mediator,
-        IStoreService storeService)
+        IMediator mediator)
     {
         _messageLookupService = messageLookupService;
         _messageProviderService = messageProviderService;
         _mediator = mediator;
-        _storeService = storeService;
     }
 
     #endregion
@@ -37,7 +34,6 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     private readonly IMessageLookupService _messageLookupService;
     private readonly IMessageProviderService _messageProviderService;
     private readonly IMediator _mediator;
-    private readonly IStoreService _storeService;
 
     #endregion
 
@@ -492,9 +488,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     {
         ArgumentNullException.ThrowIfNull(giftVoucher);
 
-        Store store = null;
-        if (order != null) store = await _storeService.GetStoreById(order.StoreId);
-        store ??= (await _storeService.GetAllStores()).FirstOrDefault();
+        var store = await _messageLookupService.GetStore(order?.StoreId);
 
         var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store?.Id);
 

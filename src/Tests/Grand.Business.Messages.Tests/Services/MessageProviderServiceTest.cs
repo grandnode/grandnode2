@@ -89,11 +89,11 @@ public class MessageProviderServiceTest
         _customerMessageService = new CustomerMessageProviderService(messageLookupService, _messageService,
             _mediatorMock.Object, _commonSetting.Object);
         _catalogMessageService = new CatalogMessageProviderService(messageLookupService, _messageService,
-            _mediatorMock.Object, _storeServiceMock.Object, _commonSetting.Object);
+            _mediatorMock.Object, _commonSetting.Object);
         _vendorMessageService = new VendorMessageProviderService(messageLookupService, _messageService,
             _mediatorMock.Object, _commonSetting.Object);
         _orderMessageService = new OrderMessageProviderService(messageLookupService, _messageService,
-            _mediatorMock.Object, _storeServiceMock.Object);
+            _mediatorMock.Object);
         _newsletterMessageService = new NewsletterMessageProviderService(messageLookupService, _messageService,
             _mediatorMock.Object);
         _merchandiseReturnMessageService = new MerchandiseReturnMessageProviderService(messageLookupService,

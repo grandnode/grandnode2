@@ -191,7 +191,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     {
         ArgumentNullException.ThrowIfNull(customer);
 
-        var store = await _messageLookupService.GetStore("");
+        var store = await _messageLookupService.GetStore(customer.StoreId);
         var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
 
         var messageTemplate = await _messageLookupService.GetMessageTemplate("CustomerDelete.StoreOwnerNotification", store.Id);
@@ -207,6 +207,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
             .AddCustomerTokens(customer, store, host, language);
 
         var liquidObject = await builder.BuildAsync();
+        //event notification
+        await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
         var toEmail = emailAccount.Email;
         var toName = emailAccount.DisplayName;

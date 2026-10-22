@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
 using Grand.Business.Messages.DotLiquidDrops;
@@ -22,13 +21,11 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         IMessageLookupService messageLookupService,
         IMessageProviderService messageProviderService,
         IMediator mediator,
-        IStoreService storeService,
         CommonSettings commonSettings)
     {
         _messageLookupService = messageLookupService;
         _messageProviderService = messageProviderService;
         _mediator = mediator;
-        _storeService = storeService;
         _commonSettings = commonSettings;
     }
 
@@ -39,7 +36,6 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     private readonly IMessageLookupService _messageLookupService;
     private readonly IMessageProviderService _messageProviderService;
     private readonly IMediator _mediator;
-    private readonly IStoreService _storeService;
     private readonly CommonSettings _commonSettings;
 
     #endregion
@@ -367,7 +363,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
         var toEmail = customer?.Email;
-        var toName = customer.GetFullName();
+        var toName = customer?.GetFullName();
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
             toEmail, toName,
@@ -441,8 +437,12 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         {
             var builder2 = new LiquidObjectBuilder(_mediator, liquidObject);
             var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = item.Key });
-            if (string.IsNullOrEmpty(languageId))
-                languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
+            if (customer == null)
+                continue;
+
+            var customerLanguageId = string.IsNullOrEmpty(languageId)
+                ? customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId)
+                : languageId;
             builder2.AddCustomerTokens(customer, store, host, language);
             var liquidObject2 = await builder2.BuildAsync();
 
@@ -452,7 +452,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
             var toEmail = customer.Email;
             var toName = customer.GetFullName();
             await _messageProviderService.SendNotification(messageTemplate, emailAccount,
-                languageId, liquidObject2,
+                customerLanguageId, liquidObject2,
                 toEmail, toName,
                 reference: Reference.Customer, objectId: customer.Id);
         }
@@ -520,7 +520,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         {
             var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = bid.CustomerId });
             if (string.IsNullOrEmpty(languageId))
-                languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
+                languageId = customer?.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
 
             var store = await _messageLookupService.GetStore(bid.StoreId);
 
@@ -532,13 +532,13 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
 
             emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
             builder.AddAuctionTokens(product, bid)
-                .AddCustomerTokens(customer, store, store.PrimaryHost(), language)
                 .AddStoreTokens(store, language, emailAccount);
+            builder.AddCustomerTokensIfNotNull(customer, store, store.PrimaryHost(), language);
         }
         else
         {
-            var store = (await _storeService.GetAllStores()).FirstOrDefault();
-            var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store?.Id);
+            var store = await _messageLookupService.GetStore("");
+            var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
             messageTemplate = await _messageLookupService.GetMessageTemplate("AuctionExpired.StoreOwnerNotification", "");
             if (messageTemplate == null)
                 return 0;
@@ -570,6 +570,9 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         ArgumentNullException.ThrowIfNull(product);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = bid.CustomerId });
+        if (customer == null)
+            return 0;
+
         if (string.IsNullOrEmpty(languageId))
             languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
 
