@@ -7,13 +7,9 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Domain.Media;
 using Grand.Domain.Permissions;
-using Grand.Infrastructure.Mapper;
-using Grand.Mapping;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
@@ -38,30 +34,21 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     public class TestProductController(
         IProductViewModelService productViewModelService,
         IProductService productService,
-        IInventoryManageService inventoryManageService,
         ILanguageService languageService,
         IRequestTranslationService translationService,
-        IProductReservationService productReservationService,
-        IAuctionService auctionService,
         IDateTimeService dateTimeService,
         IRequestPermissionService permissionService,
-        IEnumTranslationService enumTranslationService,
         IAdminDataScope<Product> scope)
-        : BaseProductController(productViewModelService, productService, inventoryManageService,
-            languageService, translationService, productReservationService, auctionService,
-            dateTimeService, permissionService, enumTranslationService, scope);
+        : BaseProductController(productViewModelService, productService, languageService, translationService,
+            dateTimeService, permissionService, scope);
 
     protected override TestProductController CreateController() => new(
         _productViewModelServiceMock.Object,
         _productServiceMock.Object,
-        _inventoryManageServiceMock.Object,
         _languageServiceMock.Object,
         _translationServiceMock.Object,
-        _productReservationServiceMock.Object,
-        _auctionServiceMock.Object,
         _dateTimeServiceMock.Object,
         _permissionServiceMock.Object,
-        _enumTranslationServiceMock.Object,
         _scopeMock.Object);
 
     // --- Edit (GET) --------------------------------------------------------------------------------

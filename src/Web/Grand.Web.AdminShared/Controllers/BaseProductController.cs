@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Media;
 using Grand.Domain.Permissions;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -19,13 +18,10 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Web.AdminShared.Controllers;
 
@@ -34,14 +30,10 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseProductController(
     IProductViewModelService productViewModelService,
     IProductService productService,
-    IInventoryManageService inventoryManageService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
-    IProductReservationService productReservationService,
-    IAuctionService auctionService,
     IDateTimeService dateTimeService,
     IRequestPermissionService permissionService,
-    IEnumTranslationService enumTranslationService,
     IAdminDataScope<Product> scope)
     : BaseController
 {

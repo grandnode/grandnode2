@@ -48,14 +48,10 @@ public class ProductControllerTests
         _controller = new ProductController(
             productViewModelServiceMock.Object,
             _productServiceMock.Object,
-            new Mock<IInventoryManageService>().Object,
             languageServiceMock.Object,
             translationServiceMock.Object,
-            new Mock<IProductReservationService>().Object,
-            new Mock<IAuctionService>().Object,
             new Mock<IDateTimeService>().Object,
             new Mock<IRequestPermissionService>().Object,
-            new Mock<IEnumTranslationService>().Object,
             _scopeMock.Object);
 
         var httpContext = new DefaultHttpContext();

@@ -1,8 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.ExportImport;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
@@ -21,18 +19,13 @@ namespace Grand.Web.Store.Controllers;
 public class ProductController(
     IProductViewModelService productViewModelService,
     IProductService productService,
-    IInventoryManageService inventoryManageService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
-    IProductReservationService productReservationService,
-    IAuctionService auctionService,
     IDateTimeService dateTimeService,
     IRequestPermissionService permissionService,
-    IEnumTranslationService enumTranslationService,
     IAdminDataScope<Product> scope)
-    : BaseProductController(productViewModelService, productService, inventoryManageService, languageService,
-        translationService, productReservationService, auctionService, dateTimeService, permissionService,
-        enumTranslationService, scope)
+    : BaseProductController(productViewModelService, productService, languageService, translationService,
+        dateTimeService, permissionService, scope)
 {
     // Re-derived from the original Store ProductController.Edit(GET) (pre-Task-11:
     // src/Web/Grand.Web.Store/Controllers/ProductController.cs:184-189), not retyped from memory - the

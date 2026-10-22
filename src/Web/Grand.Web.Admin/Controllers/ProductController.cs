@@ -19,15 +19,10 @@ namespace Grand.Web.Admin.Controllers;
 public class ProductController(
     IProductViewModelService productViewModelService,
     IProductService productService,
-    IInventoryManageService inventoryManageService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
-    IProductReservationService productReservationService,
-    IAuctionService auctionService,
     IDateTimeService dateTimeService,
     IRequestPermissionService permissionService,
-    IEnumTranslationService enumTranslationService,
     IAdminDataScope<Product> scope)
-    : BaseProductController(productViewModelService, productService, inventoryManageService, languageService,
-        translationService, productReservationService, auctionService, dateTimeService, permissionService,
-        enumTranslationService, scope);
+    : BaseProductController(productViewModelService, productService, languageService, translationService,
+        dateTimeService, permissionService, scope);
