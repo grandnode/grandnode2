@@ -20,8 +20,8 @@ namespace Grand.Business.Catalog.Tests.Queries.Handlers;
 [TestClass]
 public class GetSearchProductsQueryHandlerTests
 {
-    private ICacheBase _cache;
     private IRepository<Product> _repository;
+    private ICacheBase _cache;
     private GetSearchProductsQueryHandler handler;
 
     [TestInitialize]
@@ -149,14 +149,13 @@ public class GetSearchProductsQueryHandlerTests
         var optionsStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var repository = new Mock<IRepository<Product>>();
         repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
-        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+        repository.Setup(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .Returns(async () => {
                 pageStarted.TrySetResult();
                 await optionsStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
-                return new List<Product> { new() { Id = "1" } };
+                return new PagedList<Product>([new Product { Id = "1" }], 0, 10, 1);
             });
-        repository.Setup(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
         repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(async () => {
                 optionsStarted.TrySetResult();
@@ -185,7 +184,8 @@ public class GetSearchProductsQueryHandlerTests
         var optionsToken = new TaskCompletionSource<CancellationToken>(TaskCreationOptions.RunContinuationsAsynchronously);
         var repository = new Mock<IRepository<Product>>();
         repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
-        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+        repository.Setup(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .Returns(async () => {
                 //fail once the options query is running
                 await optionsToken.Task.WaitAsync(TimeSpan.FromSeconds(5));
@@ -218,11 +218,12 @@ public class GetSearchProductsQueryHandlerTests
         using var cancellation = new CancellationTokenSource();
         var repository = new Mock<IRepository<Product>>();
         repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
-        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
-            .Returns(async (IQueryable<Product> _, CancellationToken token) => {
+        repository.Setup(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(async (IQueryable<Product> _, int _, int _, CancellationToken token) => {
                 if (Interlocked.Increment(ref started) == 2) await cancellation.CancelAsync();
                 await Task.Delay(Timeout.Infinite, token);
-                return new List<Product>();
+                return new PagedList<Product>([], 0, 10, 0);
             });
         repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<string>>(), It.IsAny<CancellationToken>()))
             .Returns(async (IQueryable<string> _, CancellationToken token) => {
@@ -242,12 +243,12 @@ public class GetSearchProductsQueryHandlerTests
         //Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
             filteringHandler.Handle(searchProductsQuery, cancellation.Token).WaitAsync(TimeSpan.FromSeconds(5)));
-        repository.Verify(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()),
-            Times.Once);
+        repository.Verify(x => x.PagedAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
-    public async Task Handle_StorefrontListingWithFullPage_ReusesTheCachedTotal()
+    public async Task Handle_ListingWithFullPage_ReusesTheCachedTotal()
     {
         //Arrange
         await InsertVisibleProducts(3);
@@ -260,7 +261,7 @@ public class GetSearchProductsQueryHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_StorefrontListingWithShortPage_ReturnsTheExactTotal()
+    public async Task Handle_ListingWithShortPage_ReturnsTheExactTotal()
     {
         //Arrange
         await InsertVisibleProducts(3);
@@ -271,6 +272,21 @@ public class GetSearchProductsQueryHandlerTests
         //Assert
         Assert.AreEqual(4, result.products.TotalCount);
         Assert.AreEqual(4, result.products.Count);
+    }
+
+    [TestMethod]
+    public async Task Handle_ListingWithFullPagePastTheCachedTotal_KeepsThePageWithinTheTotal()
+    {
+        //Arrange
+        await InsertVisibleProducts(2);
+        await handler.Handle(Listing(pageSize: 2), CancellationToken.None);
+        await InsertVisibleProducts(2);
+        //Act
+        var result = await handler.Handle(Listing(pageSize: 2, pageIndex: 1), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(2, result.products.Count);
+        Assert.AreEqual(4, result.products.TotalCount);
+        Assert.AreEqual(2, result.products.TotalPages);
     }
 
     [TestMethod]
@@ -288,15 +304,129 @@ public class GetSearchProductsQueryHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_ShowHidden_CountsLive()
+    public async Task Handle_ListingPatternClearedWhileCounting_DoesNotKeepTheOldTotal()
+    {
+        //Arrange
+        var countStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseCount = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var counts = 0;
+        var repository = PagedRepository();
+        repository.Setup(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .Returns(async () => {
+                if (Interlocked.Increment(ref counts) > 1) return 5;
+                countStarted.TrySetResult();
+                await releaseCount.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                return 3;
+            });
+        var cachingHandler = CachingHandler(repository.Object, _cache);
+        //Act
+        var first = cachingHandler.Handle(Listing(pageSize: 1), CancellationToken.None);
+        await countStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await _cache.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        releaseCount.SetResult();
+        await first;
+        var second = await cachingHandler.Handle(Listing(pageSize: 1), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(5, second.products.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_FirstListingRequestAborted_StillCachesTheSharedTotal()
+    {
+        //Arrange
+        var countStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseCount = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var repository = PagedRepository();
+        repository.Setup(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .Returns(async (IQueryable<Product> _, CancellationToken token) => {
+                countStarted.TrySetResult();
+                await releaseCount.Task.WaitAsync(TimeSpan.FromSeconds(5), token);
+                return 3;
+            });
+        var cachingHandler = CachingHandler(repository.Object, _cache);
+        using var cancellation = new CancellationTokenSource();
+        //Act
+        var aborted = cachingHandler.Handle(Listing(pageSize: 1), cancellation.Token);
+        await countStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await cancellation.CancelAsync();
+        await Assert.ThrowsAsync<OperationCanceledException>(() => aborted.WaitAsync(TimeSpan.FromSeconds(5)));
+        releaseCount.SetResult();
+        var result = await cachingHandler.Handle(Listing(pageSize: 1), CancellationToken.None)
+            .WaitAsync(TimeSpan.FromSeconds(5));
+        //Assert
+        Assert.AreEqual(3, result.products.TotalCount);
+        repository.Verify(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_TagRunningIntoTheCustomerGroups_DoesNotShareTheCachedTotal()
+    {
+        //Arrange
+        var repository = PagedRepository();
+        repository.Setup(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(3);
+        var cachingHandler = CachingHandler(repository.Object, _cache);
+        var tagged = Listing(pageSize: 1);
+        tagged.ProductTag = "sale|members";
+        tagged.CustomerGroupIds = [];
+        var member = Listing(pageSize: 1);
+        member.ProductTag = "sale";
+        member.CustomerGroupIds = ["members"];
+        //Act
+        await cachingHandler.Handle(tagged, CancellationToken.None);
+        await cachingHandler.Handle(member, CancellationToken.None);
+        //Assert
+        repository.Verify(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [TestMethod]
+    public async Task Handle_NotOptedIn_CountsLive()
     {
         //Arrange
         await InsertVisibleProducts(3);
-        await handler.Handle(new GetSearchProductsQuery { ShowHidden = true, PageSize = 2 }, CancellationToken.None);
+        var query = () => new GetSearchProductsQuery { Customer = new Customer(), PageSize = 2 };
+        await handler.Handle(query(), CancellationToken.None);
         await InsertVisibleProducts(1);
         //Act
-        var result = await handler.Handle(new GetSearchProductsQuery { ShowHidden = true, PageSize = 2 },
-            CancellationToken.None);
+        var result = await handler.Handle(query(), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(4, result.products.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_ListingWithKeywords_CountsLive()
+    {
+        //Arrange
+        await InsertVisibleProducts(3);
+        var query = () => {
+            var listing = Listing(pageSize: 2);
+            listing.Keywords = "item";
+            return listing;
+        };
+        await handler.Handle(query(), CancellationToken.None);
+        await InsertVisibleProducts(1);
+        //Act
+        var result = await handler.Handle(query(), CancellationToken.None);
+        //Assert
+        Assert.AreEqual(4, result.products.TotalCount);
+    }
+
+    [TestMethod]
+    public async Task Handle_ListingWithShowHidden_CountsLive()
+    {
+        //Arrange
+        await InsertVisibleProducts(3);
+        var query = () => {
+            var listing = Listing(pageSize: 2);
+            listing.ShowHidden = true;
+            return listing;
+        };
+        await handler.Handle(query(), CancellationToken.None);
+        await InsertVisibleProducts(1);
+        //Act
+        var result = await handler.Handle(query(), CancellationToken.None);
         //Assert
         Assert.AreEqual(4, result.products.TotalCount);
     }
@@ -307,16 +437,19 @@ public class GetSearchProductsQueryHandlerTests
         //Arrange
         await InsertVisibleProducts(2);
         await _repository.InsertAsync(new Product {
-            Published = true, VisibleIndividually = true, LimitedToGroups = true, CustomerGroups = ["members"]
+            Name = "item", Published = true, VisibleIndividually = true, LimitedToGroups = true,
+            CustomerGroups = ["members"]
         });
+        var members = Listing(pageSize: 1);
+        members.CustomerGroupIds = ["members"];
+        var guests = Listing(pageSize: 1);
+        guests.CustomerGroupIds = ["guests"];
         //Act
-        var members = await handler.Handle(
-            new GetSearchProductsQuery { CustomerGroupIds = ["members"], PageSize = 1 }, CancellationToken.None);
-        var guests = await handler.Handle(
-            new GetSearchProductsQuery { CustomerGroupIds = ["guests"], PageSize = 1 }, CancellationToken.None);
+        var membersResult = await handler.Handle(members, CancellationToken.None);
+        var guestsResult = await handler.Handle(guests, CancellationToken.None);
         //Assert
-        Assert.AreEqual(3, members.products.TotalCount);
-        Assert.AreEqual(2, guests.products.TotalCount);
+        Assert.AreEqual(3, membersResult.products.TotalCount);
+        Assert.AreEqual(2, guestsResult.products.TotalCount);
     }
 
     [TestMethod]
@@ -333,10 +466,10 @@ public class GetSearchProductsQueryHandlerTests
         Assert.AreEqual(3, bags.products.TotalCount);
     }
 
-    private static GetSearchProductsQuery Listing(int pageSize, string categoryId = null)
+    private static GetSearchProductsQuery Listing(int pageSize, int pageIndex = 0, string categoryId = null)
     {
         return new GetSearchProductsQuery {
-            Customer = new Customer(), PageSize = pageSize,
+            Customer = new Customer(), CacheListingSummary = true, PageSize = pageSize, PageIndex = pageIndex,
             CategoryIds = categoryId == null ? null : [categoryId]
         };
     }
@@ -345,11 +478,28 @@ public class GetSearchProductsQueryHandlerTests
     {
         for (var i = 0; i < count; i++)
         {
-            var product = new Product { Published = true, VisibleIndividually = true };
+            var product = new Product { Name = "item", Published = true, VisibleIndividually = true };
             if (categoryId != null)
                 product.ProductCategories.Add(new ProductCategory { CategoryId = categoryId });
             await _repository.InsertAsync(product);
         }
+    }
+
+    //a repository whose every page is full, so the listing total always comes from the summary
+    private static Mock<IRepository<Product>> PagedRepository()
+    {
+        var repository = new Mock<IRepository<Product>>();
+        repository.Setup(x => x.Table).Returns(new List<Product>().AsQueryable());
+        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { new() { Id = "1" } });
+        return repository;
+    }
+
+    private static GetSearchProductsQueryHandler CachingHandler(IRepository<Product> repository, ICacheBase cache)
+    {
+        return new GetSearchProductsQueryHandler(repository, new Mock<ISpecificationAttributeService>().Object, cache,
+            new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
+            new DatabaseConfig(), Mock.Of<IDatabaseContext>(), NullLogger<GetSearchProductsQueryHandler>.Instance);
     }
 
     private static GetSearchProductsQueryHandler FilteringHandler(IRepository<Product> repository,
@@ -362,7 +512,6 @@ public class GetSearchProductsQueryHandlerTests
 
     private static ICacheBase Cache()
     {
-        return new MemoryCacheBase(MemoryCacheTest.Get(), Mock.Of<IMediator>(),
-            new CacheConfig { DefaultCacheTimeMinutes = 1 });
+        return new MemoryCacheBase(MemoryCacheTest.Get(), Mock.Of<IMediator>(), new CacheConfig());
     }
 }

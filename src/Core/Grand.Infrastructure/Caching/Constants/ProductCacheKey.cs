@@ -19,10 +19,17 @@ public static partial class CacheKey
     ///     Key for caching the total count and the filterable specification option ids of a storefront product listing
     /// </summary>
     /// <remarks>
-    ///     {0} : hash of every listing filter - categories, brand, collection, store, customer groups, specifications,
-    ///     price, rating, keywords, flags
+    ///     {0} : listing version, see <see cref="PRODUCTS_LISTING_VERSION_KEY" />
+    ///     {1} : hash of every listing filter - categories, brand, collection, store, customer groups, specifications,
+    ///     rating, flags
     /// </remarks>
-    public static string PRODUCTS_LISTING_SUMMARY_KEY => "Grand.product.listing-{0}";
+    public static string PRODUCTS_LISTING_SUMMARY_KEY => "Grand.product.listing-{0}-{1}";
+
+    /// <summary>
+    ///     Key for caching the version every listing summary key carries. Clearing the pattern drops it too, so a
+    ///     summary still being computed from older data is stored under a version no request reads any more
+    /// </summary>
+    public static string PRODUCTS_LISTING_VERSION_KEY => "Grand.product.listing.version";
 
     /// <summary>
     ///     Key pattern to clear cache

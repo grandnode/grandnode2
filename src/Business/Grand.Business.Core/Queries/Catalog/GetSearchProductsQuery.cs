@@ -44,4 +44,12 @@ public class GetSearchProductsQuery : IRequest<(IPagedList<Product> products, IL
     public ProductSortingEnum OrderBy { get; set; } = ProductSortingEnum.Position;
     public bool ShowHidden { get; set; }
     public bool? OverridePublished { get; set; }
+
+    /// <summary>
+    ///     Reads the total and the filterable specification option ids from a short-lived cache shared by every
+    ///     request with the same filters, so they may lag behind writes for a few minutes. For storefront listing pages;
+    ///     ignored with <see cref="ShowHidden" />, keywords, specification options, a price range or a rating that is
+    ///     not a whole star
+    /// </summary>
+    public bool CacheListingSummary { get; set; }
 }

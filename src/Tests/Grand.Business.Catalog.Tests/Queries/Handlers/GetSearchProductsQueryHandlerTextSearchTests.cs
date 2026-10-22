@@ -33,7 +33,8 @@ public class GetSearchProductsQueryHandlerTextSearchTests
 
     private GetSearchProductsQueryHandler Handler(bool textSearch = true)
     {
-        return new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object, Cache(),
+        return new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object,
+            new MemoryCacheBase(MemoryCacheTest.Get(), Mock.Of<IMediator>(), new CacheConfig()),
             new CatalogSettings { IgnoreFilterableSpecAttributeOption = true }, new AccessControlConfig(),
             new DatabaseConfig { UseProductTextSearch = textSearch }, _databaseContext,
             NullLogger<GetSearchProductsQueryHandler>.Instance);
@@ -197,20 +198,5 @@ public class GetSearchProductsQueryHandlerTextSearchTests
             Pipeline = query.ToString();
             return base.PagedAsync(query, pageIndex, pageSize, cancellationToken);
         }
-
-        //a storefront search reads its page through ToListAsync; the total comes from the listing summary
-        public override Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
-            CancellationToken cancellationToken = default)
-        {
-            if (typeof(TResult) == typeof(Product))
-                Pipeline = query.ToString();
-            return base.ToListAsync(query, cancellationToken);
-        }
-    }
-
-    private static ICacheBase Cache()
-    {
-        return new MemoryCacheBase(MemoryCacheTest.Get(), Mock.Of<IMediator>(),
-            new CacheConfig { DefaultCacheTimeMinutes = 1 });
     }
 }
