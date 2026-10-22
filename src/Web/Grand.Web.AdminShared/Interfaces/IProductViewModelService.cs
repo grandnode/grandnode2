@@ -19,7 +19,6 @@ public interface IProductViewModelService
 
     Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model, Product product);
     Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model);
-    Task PrepareProductAttributeValueModel(Product product, ProductModel.ProductAttributeValueModel model);
     Task<ProductListModel> PrepareProductListModel();
 
     Task<(IEnumerable<ProductModel> productModels, int totalCount)> PrepareProductsModel(ProductListModel model,
@@ -51,42 +50,6 @@ public interface IProductViewModelService
     Task InsertBulkEdit(IEnumerable<BulkEditProductModel> products);
 
     Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products);
-
-    Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product);
-
-    Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
-        ProductModel.ProductAttributeMappingModel model);
-
-    Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product,
-        ProductAttributeMapping productAttributeMapping);
-
-    Task<IList<ProductModel.ProductAttributeMappingModel>> PrepareProductAttributeMappingModels(Product product);
-    Task InsertProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model);
-    Task UpdateProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model);
-
-    Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
-        ProductAttributeMapping productAttributeMapping);
-
-    Task UpdateProductAttributeValidationRulesModel(ProductAttributeMapping productAttributeMapping,
-        ProductModel.ProductAttributeMappingModel model);
-
-    Task<ProductAttributeConditionModel> PrepareProductAttributeConditionModel(Product product,
-        ProductAttributeMapping productAttributeMapping);
-
-    Task UpdateProductAttributeConditionModel(Product product, ProductAttributeMapping productAttributeMapping,
-        ProductAttributeConditionModel model);
-
-    Task<ProductModel.ProductAttributeValueModel> PrepareProductAttributeValueModel(Product product,
-        ProductAttributeMapping productAttributeMapping);
-
-    Task<IList<ProductModel.ProductAttributeValueModel>> PrepareProductAttributeValueModels(Product product,
-        ProductAttributeMapping productAttributeMapping);
-
-    Task<ProductModel.ProductAttributeValueModel> PrepareProductAttributeValueModel(ProductAttributeMapping pa,
-        ProductAttributeValue pav);
-
-    Task InsertProductAttributeValueModel(ProductModel.ProductAttributeValueModel model);
-    Task UpdateProductAttributeValueModel(ProductAttributeValue pav, ProductModel.ProductAttributeValueModel model);
 
     Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>
         PrepareAssociateProductToAttributeValueModel();

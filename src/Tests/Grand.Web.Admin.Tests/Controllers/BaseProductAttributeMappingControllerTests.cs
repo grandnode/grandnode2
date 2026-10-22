@@ -25,14 +25,16 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     // can be invoked directly.
     public class TestProductAttributeMappingController(
         IProductViewModelService productViewModelService,
+        IProductAttributeMappingViewModelService productAttributeMappingViewModelService,
         IProductService productService,
         ILanguageService languageService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductAttributeMappingController(productViewModelService, productService, languageService, translationService, scope);
+        : BaseProductAttributeMappingController(productViewModelService, productAttributeMappingViewModelService, productService, languageService, translationService, scope);
 
     protected override TestProductAttributeMappingController CreateController() => new(
         _productViewModelServiceMock.Object,
+        _productAttributeMappingViewModelServiceMock.Object,
         _productServiceMock.Object,
         _languageServiceMock.Object,
         _translationServiceMock.Object,
@@ -57,7 +59,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeMappingModels(It.IsAny<Product>()), Times.Never);
     }
 
@@ -83,7 +85,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
         var attributes = new List<ProductModel.ProductAttributeMappingModel> { new() { Id = "pam1" } };
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModels(product))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModels(product))
             .ReturnsAsync(attributes);
 
         var result = await _controller.ProductAttributeMappingList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
@@ -109,7 +111,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeMappingModel(It.IsAny<Product>()), Times.Never);
     }
 
@@ -119,13 +121,13 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(product))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(product))
             .ReturnsAsync(new ProductModel.ProductAttributeMappingModel());
 
         var result = await _controller.ProductAttributeMappingPopup("p1", null);
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(product), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(product), Times.Once);
     }
 
     [TestMethod]
@@ -136,13 +138,13 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         product.ProductAttributeMappings.Add(mapping);
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(product, mapping))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(product, mapping))
             .ReturnsAsync(new ProductModel.ProductAttributeMappingModel());
 
         var result = await _controller.ProductAttributeMappingPopup("p1", "pam1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(product, mapping), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(product, mapping), Times.Once);
     }
 
     // --- ProductAttributeMappingPopup (POST) -----------------------------------------------------
@@ -161,10 +163,10 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.InsertProductAttributeMappingModel(It.IsAny<ProductModel.ProductAttributeMappingModel>()),
             Times.Never);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeMappingModel(It.IsAny<ProductModel.ProductAttributeMappingModel>()),
             Times.Never);
     }
@@ -180,8 +182,8 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeMappingPopup(model);
 
         Assert.IsInstanceOfType<ContentResult>(result);
-        _productViewModelServiceMock.Verify(s => s.InsertProductAttributeMappingModel(model), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.InsertProductAttributeMappingModel(model), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeMappingModel(It.IsAny<ProductModel.ProductAttributeMappingModel>()),
             Times.Never);
     }
@@ -197,7 +199,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeMappingPopup(model);
 
         Assert.IsInstanceOfType<ContentResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateProductAttributeMappingModel(model), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.UpdateProductAttributeMappingModel(model), Times.Once);
     }
 
     [TestMethod]
@@ -214,7 +216,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     {
         _controller.ModelState.AddModelError("x", "err");
         var model = new ProductModel.ProductAttributeMappingModel { ProductId = "p1" };
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(model)).ReturnsAsync(model);
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(model)).ReturnsAsync(model);
 
         var result = await _controller.ProductAttributeMappingPopup(model);
 
@@ -319,13 +321,13 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         product.ProductAttributeMappings.Add(mapping);
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(mapping))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(mapping))
             .ReturnsAsync(new ProductModel.ProductAttributeMappingModel());
 
         var result = await _controller.ProductAttributeValidationRulesPopup("pam1", "p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(mapping), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(mapping), Times.Once);
     }
 
     // --- ProductAttributeValidationRulesPopup (POST) ----------------------------------------------
@@ -369,7 +371,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeValidationRulesModel(It.IsAny<ProductAttributeMapping>(),
                 It.IsAny<ProductModel.ProductAttributeMappingModel>()), Times.Never);
     }
@@ -387,7 +389,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeValidationRulesPopup(model);
 
         Assert.IsInstanceOfType<ContentResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeValidationRulesModel(mapping, model), Times.Once);
     }
 
@@ -401,12 +403,12 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         _controller.ModelState.AddModelError("x", "err");
         var model = new ProductModel.ProductAttributeMappingModel { Id = "pam1", ProductId = "p1" };
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(mapping)).ReturnsAsync(model);
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(mapping)).ReturnsAsync(model);
 
         var result = await _controller.ProductAttributeValidationRulesPopup(model);
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeValidationRulesModel(It.IsAny<ProductAttributeMapping>(),
                 It.IsAny<ProductModel.ProductAttributeMappingModel>()), Times.Never);
     }
@@ -427,7 +429,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeConditionModel(It.IsAny<Product>(), It.IsAny<ProductAttributeMapping>()),
             Times.Never);
     }
@@ -459,7 +461,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("No attribute value found with the specified id", content.Content);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeConditionModel(It.IsAny<Product>(), It.IsAny<ProductAttributeMapping>()),
             Times.Never);
     }
@@ -472,13 +474,13 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         product.ProductAttributeMappings.Add(mapping);
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeConditionModel(product, mapping))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeConditionModel(product, mapping))
             .ReturnsAsync(new ProductAttributeConditionModel());
 
         var result = await _controller.ProductAttributeConditionPopup("p1", "pam1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeConditionModel(product, mapping),
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeConditionModel(product, mapping),
             Times.Once);
     }
 
@@ -527,7 +529,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeConditionModel(It.IsAny<Product>(), It.IsAny<ProductAttributeMapping>(),
                 It.IsAny<ProductAttributeConditionModel>()), Times.Never);
     }
@@ -545,7 +547,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeConditionPopup(model);
 
         Assert.IsInstanceOfType<ContentResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateProductAttributeConditionModel(product, mapping, model),
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.UpdateProductAttributeConditionModel(product, mapping, model),
             Times.Once);
     }
 
@@ -626,7 +628,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeValueModels(It.IsAny<Product>(), It.IsAny<ProductAttributeMapping>()),
             Times.Never);
     }
@@ -651,7 +653,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var values = new List<ProductModel.ProductAttributeValueModel> { new() { Id = "pav1" } };
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeValueModels(product, mapping))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeValueModels(product, mapping))
             .ReturnsAsync(values);
 
         var result = await _controller.ProductAttributeValueList("pam1", "p1", new Grand.Web.Common.DataSource.DataSourceRequest());
@@ -677,7 +679,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeValueModel(It.IsAny<Product>(), It.IsAny<ProductAttributeMapping>()),
             Times.Never);
     }
@@ -701,13 +703,13 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         product.ProductAttributeMappings.Add(mapping);
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeValueModel(product, mapping))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeValueModel(product, mapping))
             .ReturnsAsync(new ProductModel.ProductAttributeValueModel());
 
         var result = await _controller.ProductAttributeValueCreatePopup("pam1", "p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, mapping), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, mapping), Times.Once);
     }
 
     // --- ProductAttributeValueCreatePopup (POST) ----------------------------------------------------
@@ -741,7 +743,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.InsertProductAttributeValueModel(It.IsAny<ProductModel.ProductAttributeValueModel>()),
             Times.Never);
     }
@@ -764,7 +766,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Vendor.Catalog.Products.Permissions"), Times.Once);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Never);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.InsertProductAttributeValueModel(It.IsAny<ProductModel.ProductAttributeValueModel>()),
             Times.Never);
     }
@@ -798,7 +800,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeValueCreatePopup(model);
 
         Assert.IsInstanceOfType<ContentResult>(result);
-        _productViewModelServiceMock.Verify(s => s.InsertProductAttributeValueModel(model), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.InsertProductAttributeValueModel(model), Times.Once);
     }
 
     [TestMethod]
@@ -815,10 +817,10 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeValueCreatePopup(model);
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.InsertProductAttributeValueModel(It.IsAny<ProductModel.ProductAttributeValueModel>()),
             Times.Never);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, model), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, model), Times.Once);
     }
 
     // --- ProductAttributeValueEditPopup (GET) -------------------------------------------------------
@@ -878,14 +880,14 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var model = new ProductModel.ProductAttributeValueModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeValueModel(mapping, pav))
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeValueModel(mapping, pav))
             .ReturnsAsync(model);
 
         var result = await _controller.ProductAttributeValueEditPopup("pav1", "p1", "pam1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(mapping, pav), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, model), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(mapping, pav), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, model), Times.Once);
     }
 
     // --- ProductAttributeValueEditPopup (POST) ------------------------------------------------------
@@ -915,7 +917,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeValueModel(It.IsAny<ProductAttributeValue>(),
                 It.IsAny<ProductModel.ProductAttributeValueModel>()), Times.Never);
     }
@@ -950,7 +952,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeValueEditPopup("p1", model);
 
         Assert.IsInstanceOfType<ContentResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateProductAttributeValueModel(pav, model), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.UpdateProductAttributeValueModel(pav, model), Times.Once);
     }
 
     [TestMethod]
@@ -969,10 +971,10 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var result = await _controller.ProductAttributeValueEditPopup("p1", model);
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeMappingViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeValueModel(It.IsAny<ProductAttributeValue>(),
                 It.IsAny<ProductModel.ProductAttributeValueModel>()), Times.Never);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, model), Times.Once);
+        _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeValueModel(product, model), Times.Once);
     }
 
     // --- ProductAttributeValueDelete -----------------------------------------------------------------
