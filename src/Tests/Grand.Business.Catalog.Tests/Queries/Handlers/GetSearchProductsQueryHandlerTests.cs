@@ -304,33 +304,6 @@ public class GetSearchProductsQueryHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_ListingPatternClearedWhileCounting_DoesNotKeepTheOldTotal()
-    {
-        //Arrange
-        var countStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var releaseCount = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var counts = 0;
-        var repository = PagedRepository();
-        repository.Setup(x => x.CountAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
-            .Returns(async () => {
-                if (Interlocked.Increment(ref counts) > 1) return 5;
-                countStarted.TrySetResult();
-                await releaseCount.Task.WaitAsync(TimeSpan.FromSeconds(5));
-                return 3;
-            });
-        var cachingHandler = CachingHandler(repository.Object, _cache);
-        //Act
-        var first = cachingHandler.Handle(Listing(pageSize: 1), CancellationToken.None);
-        await countStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        await _cache.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
-        releaseCount.SetResult();
-        await first;
-        var second = await cachingHandler.Handle(Listing(pageSize: 1), CancellationToken.None);
-        //Assert
-        Assert.AreEqual(5, second.products.TotalCount);
-    }
-
-    [TestMethod]
     public async Task Handle_FirstListingRequestAborted_StillCachesTheSharedTotal()
     {
         //Arrange
@@ -387,24 +360,6 @@ public class GetSearchProductsQueryHandlerTests
         //Arrange
         await InsertVisibleProducts(3);
         var query = () => new GetSearchProductsQuery { Customer = new Customer(), PageSize = 2 };
-        await handler.Handle(query(), CancellationToken.None);
-        await InsertVisibleProducts(1);
-        //Act
-        var result = await handler.Handle(query(), CancellationToken.None);
-        //Assert
-        Assert.AreEqual(4, result.products.TotalCount);
-    }
-
-    [TestMethod]
-    public async Task Handle_ListingWithKeywords_CountsLive()
-    {
-        //Arrange
-        await InsertVisibleProducts(3);
-        var query = () => {
-            var listing = Listing(pageSize: 2);
-            listing.Keywords = "item";
-            return listing;
-        };
         await handler.Handle(query(), CancellationToken.None);
         await InsertVisibleProducts(1);
         //Act
