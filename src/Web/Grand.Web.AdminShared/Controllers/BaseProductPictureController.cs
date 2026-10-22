@@ -24,7 +24,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductPictureController(
-    IProductViewModelService productViewModelService,
+    IProductPictureViewModelService productPictureViewModelService,
     IProductService productService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
@@ -86,7 +86,7 @@ public abstract class BaseProductPictureController(
 
                 values.Add((pictureUrl, picture.Id));
                 //assign picture to the product
-                await productViewModelService.InsertProductPicture(product, picture, 0);
+                await productPictureViewModelService.InsertProductPicture(product, picture, 0);
             }
         }
 
@@ -109,7 +109,7 @@ public abstract class BaseProductPictureController(
         if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var productPicturesModel = await productViewModelService.PrepareProductPicturesModel(product);
+        var productPicturesModel = await productPictureViewModelService.PrepareProductPicturesModel(product);
         var gridModel = new DataSourceResult {
             Data = productPicturesModel,
             Total = productPicturesModel.Count
@@ -134,7 +134,7 @@ public abstract class BaseProductPictureController(
         if (pp == null)
             return Content("Product picture not exist");
 
-        var (model, picture) = await productViewModelService.PrepareProductPictureModel(product, pp);
+        var (model, picture) = await productPictureViewModelService.PrepareProductPictureModel(product, pp);
         //locales
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
@@ -165,7 +165,7 @@ public abstract class BaseProductPictureController(
             if (product.ProductPictures.FirstOrDefault(x => x.Id == model.Id) == null)
                 throw new ArgumentException("No product picture found with the specified id");
 
-            await productViewModelService.UpdateProductPicture(model);
+            await productPictureViewModelService.UpdateProductPicture(model);
 
             return Content("");
         }
@@ -190,7 +190,7 @@ public abstract class BaseProductPictureController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteProductPicture(model);
+            await productPictureViewModelService.DeleteProductPicture(model);
             return new JsonResult("");
         }
 

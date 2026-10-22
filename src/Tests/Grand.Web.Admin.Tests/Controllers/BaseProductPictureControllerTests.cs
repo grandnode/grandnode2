@@ -25,16 +25,16 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
     // BaseProductPictureController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductPictureController(
-        IProductViewModelService productViewModelService,
+        IProductPictureViewModelService productPictureViewModelService,
         IProductService productService,
         ILanguageService languageService,
         IRequestTranslationService translationService,
         IRequestPermissionService permissionService,
         IAdminDataScope<Product> scope)
-        : BaseProductPictureController(productViewModelService, productService, languageService, translationService, permissionService, scope);
+        : BaseProductPictureController(productPictureViewModelService, productService, languageService, translationService, permissionService, scope);
 
     protected override TestProductPictureController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productPictureViewModelServiceMock.Object,
         _productServiceMock.Object,
         _languageServiceMock.Object,
         _translationServiceMock.Object,
@@ -54,7 +54,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductPicturesModel(It.IsAny<Product>()), Times.Never);
+        _productPictureViewModelServiceMock.Verify(s => s.PrepareProductPicturesModel(It.IsAny<Product>()), Times.Never);
     }
 
     [TestMethod]
@@ -63,7 +63,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductPicturesModel(product))
+        _productPictureViewModelServiceMock.Setup(s => s.PrepareProductPicturesModel(product))
             .ReturnsAsync(new List<ProductModel.ProductPictureModel> { new() { Id = "pic1" } });
 
         var result = await _controller.ProductPictureList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
@@ -126,7 +126,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var model = new ProductModel.ProductPictureModel { Id = "pic1" };
-        _productViewModelServiceMock.Setup(s => s.PrepareProductPictureModel(product, pp))
+        _productPictureViewModelServiceMock.Setup(s => s.PrepareProductPictureModel(product, pp))
             .ReturnsAsync((model, (Picture)null));
 
         var result = await _controller.ProductPicturePopup("p1", "pic1");
@@ -159,7 +159,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
         // letting any vendor rename/re-alt-text another vendor's product picture by posting its
         // productId/model.Id.
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductPicturePopup(model));
-        _productViewModelServiceMock.Verify(s => s.UpdateProductPicture(It.IsAny<ProductModel.ProductPictureModel>()), Times.Never);
+        _productPictureViewModelServiceMock.Verify(s => s.UpdateProductPicture(It.IsAny<ProductModel.ProductPictureModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -188,7 +188,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
-        _productViewModelServiceMock.Verify(s => s.UpdateProductPicture(model), Times.Once);
+        _productPictureViewModelServiceMock.Verify(s => s.UpdateProductPicture(model), Times.Once);
     }
 
     [TestMethod]
@@ -221,7 +221,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.DeleteProductPicture(It.IsAny<ProductModel.ProductPictureModel>()), Times.Never);
+        _productPictureViewModelServiceMock.Verify(s => s.DeleteProductPicture(It.IsAny<ProductModel.ProductPictureModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -235,7 +235,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.ProductPictureDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteProductPicture(model), Times.Once);
+        _productPictureViewModelServiceMock.Verify(s => s.DeleteProductPicture(model), Times.Once);
     }
 
     [TestMethod]
@@ -250,6 +250,6 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.ProductPictureDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteProductPicture(It.IsAny<ProductModel.ProductPictureModel>()), Times.Never);
+        _productPictureViewModelServiceMock.Verify(s => s.DeleteProductPicture(It.IsAny<ProductModel.ProductPictureModel>()), Times.Never);
     }
 }
