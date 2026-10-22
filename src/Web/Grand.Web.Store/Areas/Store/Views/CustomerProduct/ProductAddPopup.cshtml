@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Customers.Products.AddNew"];
 }
 
-<form id="ProductAddPopup" asp-area="@Constants.AreaStore" asp-controller="Customer" asp-action="ProductAddPopup" method="post"
+<form id="ProductAddPopup" asp-area="@Constants.AreaStore" asp-controller="CustomerProduct" asp-action="ProductAddPopup" method="post"
       asp-route-CustomerId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["CustomerId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])"
@@ -20,7 +20,7 @@
         </admin-filters>
         <admin-card flush>
             <admin-grid id="products-grid"
-                        read-url="@Url.Action("ProductAddPopupList", "Customer", new { area = Constants.AreaStore })"
+                        read-url="@Url.Action("ProductAddPopupList", "CustomerProduct", new { area = Constants.AreaStore })"
                         additional-data="additionalData"
                         selectable="Checkbox"
                         selection-name="SelectedProductIds">

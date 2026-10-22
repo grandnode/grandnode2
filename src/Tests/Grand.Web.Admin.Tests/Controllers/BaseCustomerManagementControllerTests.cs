@@ -1,9 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
@@ -29,28 +26,14 @@ public class BaseCustomerManagementControllerTests
 {
     private class TestManagementController(
         ICustomerService customerService, ICustomerViewModelService customerViewModelService,
-        ICustomerAddressViewModelService customerAddressViewModelService,
-        ICustomerLoyaltyPointsViewModelService customerLoyaltyPointsViewModelService,
-        ICustomerShoppingCartViewModelService customerShoppingCartViewModelService,
-        ICustomerProductViewModelService customerProductViewModelService,
-        ICustomerOutOfStockSubscriptionViewModelService customerOutOfStockSubscriptionViewModelService,
-        ICustomerNoteViewModelService customerNoteViewModelService,
-        ICustomerContactFormViewModelService customerContactFormViewModelService,
-        ICustomerManagerService customerManagerService, ICustomerProductService customerProductService,
-        IProductReviewService productReviewService, IProductReviewViewModelService productReviewViewModelService,
-        IProductViewModelService productViewModelService, ICustomerAttributeParser customerAttributeParser,
-        ICustomerAttributeService customerAttributeService, IAddressAttributeParser addressAttributeParser,
-        IAddressAttributeService addressAttributeService, IMessageProviderService messageProviderService,
+        ICustomerManagerService customerManagerService, ICustomerAttributeParser customerAttributeParser,
+        ICustomerAttributeService customerAttributeService, IMessageProviderService messageProviderService,
         IGroupService groupService, IRequestTranslationService translationService, IContextAccessor contextAccessor,
         CustomerSettings customerSettings, IAdminDataScope<Customer> scope,
         IRequestPermissionService permissionService, IExportManager<Customer> exportManager)
-        : BaseCustomerManagementController(customerService, customerViewModelService, customerAddressViewModelService,
-            customerLoyaltyPointsViewModelService, customerShoppingCartViewModelService, customerProductViewModelService,
-            customerOutOfStockSubscriptionViewModelService, customerNoteViewModelService,
-            customerContactFormViewModelService, customerManagerService, customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
-            customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-            messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
-            permissionService, exportManager)
+        : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
+            customerAttributeParser, customerAttributeService, messageProviderService, groupService,
+            translationService, contextAccessor, customerSettings, scope, permissionService, exportManager)
     {
         public void CheckTwoFactorEnabledWarningPublic(Customer existingCustomer, CustomerModel model) =>
             CheckTwoFactorEnabledWarning(existingCustomer, model);
@@ -79,16 +62,8 @@ public class BaseCustomerManagementControllerTests
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestManagementController(_customerServiceMock.Object,
-            new Mock<ICustomerViewModelService>().Object, new Mock<ICustomerAddressViewModelService>().Object,
-            new Mock<ICustomerLoyaltyPointsViewModelService>().Object,
-            new Mock<ICustomerShoppingCartViewModelService>().Object, new Mock<ICustomerProductViewModelService>().Object,
-            new Mock<ICustomerOutOfStockSubscriptionViewModelService>().Object,
-            new Mock<ICustomerNoteViewModelService>().Object, new Mock<ICustomerContactFormViewModelService>().Object,
-            new Mock<ICustomerManagerService>().Object,
-            new Mock<ICustomerProductService>().Object, new Mock<IProductReviewService>().Object,
-            new Mock<IProductReviewViewModelService>().Object, new Mock<IProductViewModelService>().Object,
+            new Mock<ICustomerViewModelService>().Object, new Mock<ICustomerManagerService>().Object,
             new Mock<ICustomerAttributeParser>().Object, new Mock<ICustomerAttributeService>().Object,
-            new Mock<IAddressAttributeParser>().Object, new Mock<IAddressAttributeService>().Object,
             new Mock<IMessageProviderService>().Object, _groupServiceMock.Object, translationServiceMock.Object,
             _contextAccessorMock.Object, new CustomerSettings(), scopeMock.Object,
             _permissionServiceMock.Object, new Mock<IExportManager<Customer>>().Object);

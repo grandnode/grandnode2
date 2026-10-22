@@ -4,15 +4,15 @@
     <div class="grand-card">
         <div class="grand-card__header">
             <h2 class="grand-card__title">@Loc["Admin.Customers.Customers.ProductPrice"]</h2>
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.ProductPrice.AddNew"]</a>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "CustomerProduct", new { customerId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.ProductPrice.AddNew"]</a>
             <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
         <partial name="Partials/WidgetZone.ProductPriceTop" model="Model"/>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="productprice-grid"
-                        read-url="@Url.Action("ProductsPrice", "Customer", new { customerId = Model.Id, area = area })"
-                        update-url="@Url.Action("UpdateProductPrice", "Customer", new { area = area })"
-                        destroy-url="@Url.Action("DeleteProductPrice", "Customer", new { area = area })"
+                        read-url="@Url.Action("ProductsPrice", "CustomerProduct", new { customerId = Model.Id, area = area })"
+                        update-url="@Url.Action("UpdateProductPrice", "CustomerProduct", new { area = area })"
+                        destroy-url="@Url.Action("DeleteProductPrice", "CustomerProduct", new { area = area })"
                         auto-bind="false"
                         edit-mode="Inline"
                         reload-after-save="false">

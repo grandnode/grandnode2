@@ -12,8 +12,8 @@
     <div class="grand-card__body grand-card__body--flush">
         <partial name="Partials/WidgetZone.WishlistTop" model="Model"/>
         <admin-grid id="currentwishlist-grid"
-                    read-url="@Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.Wishlist, area = area })"
-                    destroy-url="@Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area })"
+                    read-url="@Url.Action("GetCartList", "CustomerShoppingCart", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.Wishlist, area = area })"
+                    destroy-url="@Url.Action("DeleteCart", "CustomerShoppingCart", new { customerId = Model.Id, area = area })"
                     pager="Compact"
                     auto-bind="false"
                     confirm-destroy="true">

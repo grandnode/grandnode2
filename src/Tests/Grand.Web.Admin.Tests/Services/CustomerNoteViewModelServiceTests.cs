@@ -54,7 +54,7 @@ public class CustomerNoteViewModelServiceTests
     [TestMethod]
     public async Task DeleteCustomerNote_DeletesNoteAndAttachment()
     {
-        var note = new CustomerNote { Id = "n1", DownloadId = "d1" };
+        var note = new CustomerNote { Id = "n1", CustomerId = "c1", DownloadId = "d1" };
         var download = new Download { Id = "d1" };
         _customerNoteServiceMock.Setup(c => c.GetCustomerNote("n1")).ReturnsAsync(note);
         _customerNoteServiceMock.Setup(c => c.DeleteCustomerNote(It.IsAny<CustomerNote>())).Returns(Task.CompletedTask);
@@ -75,5 +75,17 @@ public class CustomerNoteViewModelServiceTests
 
         await Assert.ThrowsAsync<ArgumentException>(
             () => _customerNoteViewModelService.DeleteCustomerNote("missing", "c1"));
+    }
+
+    [TestMethod]
+    public async Task DeleteCustomerNote_NoteOfAnotherCustomer_Throws_NothingDeleted()
+    {
+        var note = new CustomerNote { Id = "n1", CustomerId = "c2", DownloadId = "d1" };
+        _customerNoteServiceMock.Setup(c => c.GetCustomerNote("n1")).ReturnsAsync(note);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _customerNoteViewModelService.DeleteCustomerNote("n1", "c1"));
+        _customerNoteServiceMock.Verify(c => c.DeleteCustomerNote(It.IsAny<CustomerNote>()), Times.Never);
+        _downloadServiceMock.Verify(d => d.DeleteDownload(It.IsAny<Download>()), Times.Never);
     }
 }

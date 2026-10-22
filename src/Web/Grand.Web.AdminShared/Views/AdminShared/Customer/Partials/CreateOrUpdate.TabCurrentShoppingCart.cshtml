@@ -14,9 +14,9 @@
         @*unit prices are edited in the cells and sent with Save changes, one request per changed item*@
         <admin-grid id="currentshoppingcart-grid"
                     confirm-destroy="true"
-                    read-url="@Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.ShoppingCart, area = area })"
-                    update-url="@Url.Action("UpdateCart", "Customer", new { customerId = Model.Id, area = area })"
-                    destroy-url="@Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area })"
+                    read-url="@Url.Action("GetCartList", "CustomerShoppingCart", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.ShoppingCart, area = area })"
+                    update-url="@Url.Action("UpdateCart", "CustomerShoppingCart", new { customerId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("DeleteCart", "CustomerShoppingCart", new { customerId = Model.Id, area = area })"
                     pager="Compact"
                     auto-bind="false"
                     edit-mode="Batch">
@@ -56,7 +56,7 @@
         var dataItem = grid.dataSource.get(id);
         var tokenInput = $('input[name=__RequestVerificationToken]');
         $.ajax({
-            url: "@Html.Raw(Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = area }))",
+            url: "@Html.Raw(Url.Action("DeleteCart", "CustomerShoppingCart", new { customerId = Model.Id, area = area }))",
             type: "POST",
             data: {
                 id: dataItem.Id,

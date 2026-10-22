@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -29,10 +29,9 @@ public class CustomerShoppingCartViewModelService(
     IShoppingCartService shoppingCartService)
     : ICustomerShoppingCartViewModelService
 {
-    public virtual async Task<IList<ShoppingCartItemModel>> PrepareShoppingCartItemModel(string customerId,
+    public virtual async Task<IList<ShoppingCartItemModel>> PrepareShoppingCartItemModel(Customer customer,
         int cartTypeId)
     {
-        var customer = await customerService.GetCustomerById(customerId);
         var cart = customer.ShoppingCartItems.Where(x => x.ShoppingCartTypeId == (ShoppingCartType)cartTypeId).ToList();
         var items = new List<ShoppingCartItemModel>();
         if (cart.Any())

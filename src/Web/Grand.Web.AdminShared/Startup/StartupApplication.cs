@@ -1,4 +1,4 @@
-﻿using elFinder.Net.AspNetCore.Extensions;
+using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;

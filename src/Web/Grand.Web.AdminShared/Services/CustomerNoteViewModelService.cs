@@ -69,7 +69,7 @@ public class CustomerNoteViewModelService(
     public virtual async Task DeleteCustomerNote(string id, string customerId)
     {
         var customerNote = await customerNoteService.GetCustomerNote(id);
-        if (customerNote == null)
+        if (customerNote == null || customerNote.CustomerId != customerId)
             throw new ArgumentException("No customer note found with the specified id");
 
         await customerNoteService.DeleteCustomerNote(customerNote);
