@@ -9,15 +9,15 @@
         <h2 class="grand-card__title"></h2>
         @if (!readOnly)
         {
-            <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
+            <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "ProductAttributeMapping", new { productId = Model.Id, area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
         }
     </div>
     <partial name="Partials/WidgetZone.ProductAttributes.Top" model="Model"/>
     <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="productattributemappings-grid"
                     read-only="@readOnly"
-                    read-url="@Url.Action("ProductAttributeMappingList", "Product", new { productId = Model.Id, area = area })"
-                    destroy-url="@Url.Action("ProductAttributeMappingDelete", "Product", new { area = area })"
+                    read-url="@Url.Action("ProductAttributeMappingList", "ProductAttributeMapping", new { productId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("ProductAttributeMappingDelete", "ProductAttributeMapping", new { area = area })"
                     pager="Compact"
                     auto-bind="false"
                     confirm-destroy="true"
@@ -33,7 +33,7 @@
                     }
                     else
                     {
-                        <a class="text-decoration-none btnMagnificPopup" href="@Url.Action("ProductAttributeMappingPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}">{{ ProductAttribute }}<br/></a>
+                        <a class="text-decoration-none btnMagnificPopup" href="@Url.Action("ProductAttributeMappingPopup", "ProductAttributeMapping", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}">{{ ProductAttribute }}<br/></a>
                     }
                 </cell-template>
             </grid-column>
@@ -54,7 +54,7 @@
                     }
                     else
                     {
-                        <span data-if="ValidationRulesAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = area })/{{ Id }}?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.validationRulesLink }}</a><br/>{{{ ValidationRulesString }}}</span>
+                        <span data-if="ValidationRulesAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeValidationRulesPopup", "ProductAttributeMapping", new { area = area })/{{ Id }}?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.validationRulesLink }}</a><br/>{{{ ValidationRulesString }}}</span>
                     }
                 </cell-template>
             </grid-column>
@@ -62,13 +62,13 @@
             {
                 <grid-column field="ConditionAllowed" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Condition"]" width="80">
                     <cell-template>
-                        <span data-if="ConditionAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeConditionPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.edit }}</a><br/></span>
+                        <span data-if="ConditionAllowed"><a class="btnMagnificPopup" href="@Url.Action("ProductAttributeConditionPopup", "ProductAttributeMapping", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId={{ Id }}&btnId=btnRefreshProductAttributes&formId=product-form">{{ $texts.edit }}</a><br/></span>
                     </cell-template>
                 </grid-column>
             }
             @*attribute values: drop-down list, radio list, checkboxes, color and image squares; text controls have none*@
-            <grid-detail read-url="@Url.Action("ProductAttributeValueList", "Product", new { productId = Model.Id, area = area })"
-                         destroy-url="@Url.Action("ProductAttributeValueDelete", "Product", new { productId = Model.Id, area = area })"
+            <grid-detail read-url="@Url.Action("ProductAttributeValueList", "ProductAttributeMapping", new { productId = Model.Id, area = area })"
+                         destroy-url="@Url.Action("ProductAttributeValueDelete", "ProductAttributeMapping", new { productId = Model.Id, area = area })"
                          param="productAttributeMappingId:Id,pam:Id"
                          confirm-destroy="true"
                          visible-if="AttributeControlTypeId != 4 && AttributeControlTypeId != 10 && AttributeControlTypeId != 30"
@@ -81,7 +81,7 @@
                         }
                         else
                         {
-                            <a class="text-decoration-none btnProductAttributeValueEditPopup" data-id="{{ Id }}" onclick="this.classList.add('active')" href="@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = area })/{{ Id }}?productId=@(Model.Id)&productAttributeMappingId={{ ProductAttributeMappingId }}&btnId=btnRefreshProductAttributesValues&formId=product-form">{{ Name }}</a>
+                            <a class="text-decoration-none btnProductAttributeValueEditPopup" data-id="{{ Id }}" onclick="this.classList.add('active')" href="@Url.Action("ProductAttributeValueEditPopup", "ProductAttributeMapping", new { area = area })/{{ Id }}?productId=@(Model.Id)&productAttributeMappingId={{ ProductAttributeMappingId }}&btnId=btnRefreshProductAttributesValues&formId=product-form">{{ Name }}</a>
                         }
                     </cell-template>
                 </grid-column>
@@ -133,7 +133,7 @@
         $(e.detailElement).attr('data-id', mappingId);
         var button = $('<a class="btn btn-default btn-sm btnProductAttributeValueEditPopup" onclick="this.classList.add(\'active\')"></a>')
             .attr('data-id', mappingId)
-            .attr('href', '@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = area })/?productAttributeMappingId=' + encodeURIComponent(mappingId) + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues')
+            .attr('href', '@Url.Action("ProductAttributeValueCreatePopup", "ProductAttributeMapping", new { area = area })/?productAttributeMappingId=' + encodeURIComponent(mappingId) + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues')
             .html('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AddNew"]');
         $('<div class="grand-grid-toolbar"></div>').append(button).prependTo(e.detailElement);
     }

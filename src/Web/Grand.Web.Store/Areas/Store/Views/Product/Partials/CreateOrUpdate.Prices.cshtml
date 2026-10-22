@@ -71,7 +71,7 @@
         @if (!readOnly)
         {
             <card-actions>
-                <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaStore }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
+                <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "ProductPrice", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaStore }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
                 <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
             </card-actions>
         }
@@ -79,8 +79,8 @@
            fields TierPriceDeleteModel binds *@
         <admin-grid id="tierprices-grid"
                     read-only="@readOnly"
-                    read-url="@Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaStore })"
-                    destroy-url="@Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaStore })"
+                    read-url="@Url.Action("TierPriceList", "ProductPrice", new { productId = Model.Id, area = Constants.AreaStore })"
+                    destroy-url="@Url.Action("TierPriceDelete", "ProductPrice", new { area = Constants.AreaStore })"
                     pager="Compact"
                     auto-bind="false"
                     on-data-bound="onTierPricesGridDataBound">
@@ -104,7 +104,7 @@
             {
                 <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
                     <cell-template>
-                        <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaStore })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
+                        <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "ProductPrice", new { area = Constants.AreaStore })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
                     </cell-template>
                 </grid-column>
             }

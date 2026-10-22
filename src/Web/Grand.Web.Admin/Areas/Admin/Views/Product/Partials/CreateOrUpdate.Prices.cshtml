@@ -63,14 +63,14 @@
 {
     <admin-card title="@Loc["Admin.Catalog.Products.TierPrices"]" flush>
         <card-actions>
-            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
+            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "ProductPrice", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
             <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
         </card-actions>
         @* Delete posts the whole row; the Kendo parameterMap posted only Id and ProductId, which are the
            fields TierPriceDeleteModel binds *@
         <admin-grid id="tierprices-grid"
-                    read-url="@Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin })"
-                    destroy-url="@Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaAdmin })"
+                    read-url="@Url.Action("TierPriceList", "ProductPrice", new { productId = Model.Id, area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("TierPriceDelete", "ProductPrice", new { area = Constants.AreaAdmin })"
                     pager="Compact"
                     auto-bind="false"
                     on-data-bound="onTierPricesGridDataBound">
@@ -92,7 +92,7 @@
             <grid-column field="EndDateTime" title="@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]" format="{0:G}"/>
             <grid-column field="Id" title="@Loc["Admin.Common.Edit"]">
                 <cell-template>
-                    <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaAdmin })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
+                    <a class="tierpriceedit" href="@Url.Action("TierPriceEditPopup", "ProductPrice", new { area = Constants.AreaAdmin })/{{ Id }}?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form"><span class="bi bi-pencil"></span>&nbsp;{{ $texts.edit }}</a>
                 </cell-template>
             </grid-column>
             <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]"/>

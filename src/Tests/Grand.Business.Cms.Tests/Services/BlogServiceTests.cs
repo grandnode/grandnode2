@@ -238,9 +238,12 @@ public class BlogServiceTests
             _blogCategoryRepositoryMock.Object, _blogProductRepositoryMock.Object, _mediatorMock.Object,
             new AccessControlConfig());
         for (var i = 0; i < 5; i++)
-            await repository.InsertAsync(new BlogPost {
-                Title = $"post {i}", Tags = "news", CreatedOnUtc = new DateTime(2026, 1, 1 + i, 0, 0, 0, DateTimeKind.Utc)
-            });
+        {
+            //InsertAsync stamps CreatedOnUtc with the current time, so set the date afterwards
+            var post = await repository.InsertAsync(new BlogPost { Title = $"post {i}", Tags = "news" });
+            post.CreatedOnUtc = new DateTime(2026, 1, 1 + i, 0, 0, 0, DateTimeKind.Utc);
+            await repository.UpdateAsync(post);
+        }
 
         var result = await blogService.GetAllBlogPostsByTag("", "news", 1, 2);
 

@@ -13,16 +13,16 @@
             <h2 class="grand-card__title">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts"]</h2>
             @if (!readOnly)
             {
-                <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
+                <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "ProductRelated", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
                 <input type="submit" id="btnRefreshSimilarProducts" style="display: none"/>
             }
         </div>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="similarproducts-grid"
                         read-only="@readOnly"
-                        read-url="@Url.Action("SimilarProductList", "Product", new { productId = Model.Id, area = area })"
-                        update-url="@Url.Action("SimilarProductUpdate", "Product", new { area = area })"
-                        destroy-url="@Url.Action("SimilarProductDelete", "Product", new { area = area })"
+                        read-url="@Url.Action("SimilarProductList", "ProductRelated", new { productId = Model.Id, area = area })"
+                        update-url="@Url.Action("SimilarProductUpdate", "ProductRelated", new { area = area })"
+                        destroy-url="@Url.Action("SimilarProductDelete", "ProductRelated", new { area = area })"
                         pager="Compact"
                         auto-bind="false"
                         edit-mode="Inline">
