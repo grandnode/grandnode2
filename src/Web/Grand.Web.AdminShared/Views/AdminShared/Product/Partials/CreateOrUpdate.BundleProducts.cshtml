@@ -12,7 +12,7 @@
             <h2 class="grand-card__title"></h2>
             @if (!readOnly)
             {
-                <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.AddNew"]</a>
+                <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "ProductBundle", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.AddNew"]</a>
                 <input type="submit" id="btnRefreshBundleProducts" style="display: none"/>
             }
         </div>
@@ -20,9 +20,9 @@
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="bundleproducts-grid"
                         read-only="@readOnly"
-                        read-url="@Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = area })"
-                        update-url="@Url.Action("BundleProductUpdate", "Product", new { area = area })"
-                        destroy-url="@Url.Action("BundleProductDelete", "Product", new { area = area })"
+                        read-url="@Url.Action("BundleProductList", "ProductBundle", new { productId = Model.Id, area = area })"
+                        update-url="@Url.Action("BundleProductUpdate", "ProductBundle", new { area = area })"
+                        destroy-url="@Url.Action("BundleProductDelete", "ProductBundle", new { area = area })"
                         pager="Compact"
                         auto-bind="false"
                         edit-mode="Inline">
