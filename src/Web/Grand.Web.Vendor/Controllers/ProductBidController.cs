@@ -14,9 +14,9 @@ namespace Grand.Web.Vendor.Controllers;
 [AuthorizeVendor]
 [AuthorizeMenu]
 public class ProductBidController(
-    IProductViewModelService productViewModelService,
+    IProductBidViewModelService productBidViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAuctionService auctionService,
     IAdminDataScope<Product> scope)
-    : BaseProductBidController(productViewModelService, productService, translationService, auctionService, scope);
+    : BaseProductBidController(productBidViewModelService, productService, translationService, auctionService, scope);

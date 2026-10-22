@@ -14,8 +14,8 @@ namespace Grand.Web.Admin.Controllers;
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
 public class ProductSpecificationController(
-    IProductViewModelService productViewModelService,
+    IProductSpecificationViewModelService productSpecificationViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductSpecificationController(productViewModelService, productService, translationService, scope);
+    : BaseProductSpecificationController(productSpecificationViewModelService, productService, translationService, scope);

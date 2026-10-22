@@ -1,14 +1,11 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -19,7 +16,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
-using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
@@ -47,7 +43,6 @@ public class ProductViewModelServiceTests
 
     private Mock<IDiscountService> _discountServiceMock;
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
-    private Mock<IGroupService> _groupServiceMock;
     private Mock<IMeasureService> _measureServiceMock;
     private Mock<IProductService> _productServiceMock;
     private ProductViewModelService _productViewModelService;
@@ -66,7 +61,6 @@ public class ProductViewModelServiceTests
 
         _discountServiceMock = new Mock<IDiscountService>();
         _enumTranslationServiceMock = new Mock<IEnumTranslationService>();
-        _groupServiceMock = new Mock<IGroupService>();
         _measureServiceMock = new Mock<IMeasureService>();
         _productServiceMock = new Mock<IProductService>();
         _storeServiceMock = new Mock<IStoreService>();
@@ -112,9 +106,6 @@ public class ProductViewModelServiceTests
 
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
 
-        _groupServiceMock.Setup(g => g.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
-            .ReturnsAsync(new PagedList<CustomerGroup>());
-
         _enumTranslationServiceMock
             .Setup(e => e.ToSelectList(It.IsAny<ProductType>(), It.IsAny<bool>(), It.IsAny<int[]>()))
             .Returns(new SelectList(Enumerable.Empty<SelectListItem>()));
@@ -137,16 +128,11 @@ public class ProductViewModelServiceTests
             _measureServiceMock.Object,
             new Mock<IDateTimeService>().Object,
             new Mock<IBrandService>().Object,
-            new Mock<ICollectionService>().Object,
-            new Mock<IProductCollectionService>().Object,
             new Mock<ICategoryService>().Object,
-            new Mock<IProductCategoryService>().Object,
             _vendorServiceMock.Object,
             _translationServiceMock.Object,
             productLayoutServiceMock.Object,
-            new Mock<ISpecificationAttributeService>().Object,
             contextAccessorMock.Object,
-            _groupServiceMock.Object,
             _warehouseServiceMock.Object,
             deliveryDateServiceMock.Object,
             _taxCategoryServiceMock.Object,
@@ -155,15 +141,11 @@ public class ProductViewModelServiceTests
             _storeServiceMock.Object,
             new Mock<IOutOfStockSubscriptionService>().Object,
             new Mock<IDownloadService>().Object,
-            new Mock<ILanguageService>().Object,
-            new Mock<IProductAttributeFormatter>().Object,
             new Mock<IStockQuantityService>().Object,
             new CurrencySettings(),
             new MeasureSettings(),
             new TaxSettings(),
             new SeoSettings(),
-            new Mock<IAuctionService>().Object,
-            new Mock<IPriceFormatter>().Object,
             new Mock<ISeNameService>().Object,
             _enumTranslationServiceMock.Object,
             _scopeMock.Object);
@@ -270,38 +252,6 @@ public class ProductViewModelServiceTests
             "Vendor can't feature products on the homepage.");
         Assert.IsFalse(model.AvailableStores.Any(),
             "Vendor doesn't pick stores - no dropdown should be populated at all.");
-    }
-
-    [TestMethod]
-    public async Task PrepareTierPriceModel_VendorScope_HidesStoreDropdown()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
-        _scopeMock.Setup(s => s.ShowStoreSelector).Returns(false);
-        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
-            new() { Id = "store1", Shortcut = "Store 1" }
-        });
-
-        var model = new ProductModel.TierPriceModel();
-        await _productViewModelService.PrepareTierPriceModel(model);
-
-        Assert.IsFalse(model.AvailableStores.Any(),
-            "Vendor doesn't pick stores - no dropdown should be populated at all, matching the original Vendor service's PrepareTierPriceModel.");
-    }
-
-    [TestMethod]
-    public async Task PrepareTierPriceModel_GlobalScope_IncludesStoreDropdown()
-    {
-        // Default Setup() scope: Admin's Global scope (DefaultStoreId null, ShowStoreSelector true).
-        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
-            new() { Id = "store1", Shortcut = "Store 1" }
-        });
-
-        var model = new ProductModel.TierPriceModel();
-        await _productViewModelService.PrepareTierPriceModel(model);
-
-        Assert.IsTrue(model.AvailableStores.Any(x => x.Value == "store1"),
-            "Admin should offer a store dropdown for tier prices.");
     }
 
     private void SetupSearchProducts()
@@ -414,44 +364,6 @@ public class ProductViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareProductModel_AddProductModel_VendorScope_OverridesModelVendorId()
-    {
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
-        SetupSearchProducts();
-
-        var model = new ProductModel.AddRelatedProductModel { SearchVendorId = "vendor2" };
-        await _productViewModelService.PrepareProductModel(model, 1, 10);
-
-        VerifySearchProductsCalledWithVendorId("vendor1");
-    }
-
-    [TestMethod]
-    public async Task PrepareRelatedProductModel_VendorScope_HidesVendorDropdown()
-    {
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
-
-        var model = await _productViewModelService.PrepareRelatedProductModel();
-
-        Assert.IsFalse(model.AvailableVendors.Any(),
-            "Vendor's original PrepareAddProductModel<T> never populated a vendor picker - the search is always forced to the current vendor.");
-        _vendorServiceMock.Verify(v => v.GetAllVendors(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()),
-            Times.Never);
-    }
-
-    [TestMethod]
-    public async Task PrepareRelatedProductModel_GlobalScope_IncludesVendorDropdown()
-    {
-        // Default Setup() scope: Admin's Global scope (DefaultVendorId null).
-        _vendorServiceMock.Setup(v => v.GetAllVendors(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), true))
-            .ReturnsAsync(new PagedList<Vendor> { new() { Id = "vendor1", Name = "Vendor 1" } });
-
-        var model = await _productViewModelService.PrepareRelatedProductModel();
-
-        Assert.IsTrue(model.AvailableVendors.Any(x => x.Value == "vendor1"),
-            "Admin/Store should keep offering a vendor picker.");
-    }
-
-    [TestMethod]
     public async Task InsertProductModel_VendorScope_ForcesVendorId()
     {
         _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
@@ -503,119 +415,5 @@ public class ProductViewModelServiceTests
 
         Assert.AreEqual("vendor2", result.VendorId,
             "Admin should keep being able to reassign a product's vendor ownership via the edit form.");
-    }
-
-    private void SetupOwnershipForInsertTests(Product ownedProduct, Product notOwnedProduct)
-    {
-        _productServiceMock.Setup(p => p.GetProductById(ownedProduct.Id, It.IsAny<bool>())).ReturnsAsync(ownedProduct);
-        _productServiceMock.Setup(p => p.GetProductById(notOwnedProduct.Id, It.IsAny<bool>())).ReturnsAsync(notOwnedProduct);
-        _scopeMock.Setup(s => s.HasAccess(ownedProduct)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.HasAccess(notOwnedProduct)).ReturnsAsync(false);
-    }
-
-    [TestMethod]
-    public async Task InsertRelatedProductModel_DropsNotOwnedSelectedId()
-    {
-        var mainProduct = new Product { Id = "main" };
-        var owned = new Product { Id = "owned" };
-        var notOwned = new Product { Id = "not-owned" };
-        _productServiceMock.Setup(p => p.GetProductById("main", It.IsAny<bool>())).ReturnsAsync(mainProduct);
-        SetupOwnershipForInsertTests(owned, notOwned);
-
-        var model = new ProductModel.AddRelatedProductModel {
-            ProductId = "main",
-            SelectedProductIds = ["owned", "not-owned"]
-        };
-        await _productViewModelService.InsertRelatedProductModel(model);
-
-        Assert.IsTrue(mainProduct.RelatedProducts.Any(x => x.ProductId2 == "owned"),
-            "The owned selected product should be inserted.");
-        Assert.IsFalse(mainProduct.RelatedProducts.Any(x => x.ProductId2 == "not-owned"),
-            "A not-owned selected product must be silently dropped, not inserted.");
-        _productServiceMock.Verify(p => p.InsertRelatedProduct(It.Is<RelatedProduct>(r => r.ProductId2 == "not-owned"), It.IsAny<string>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task InsertSimilarProductModel_DropsNotOwnedSelectedId()
-    {
-        var mainProduct = new Product { Id = "main" };
-        var owned = new Product { Id = "owned" };
-        var notOwned = new Product { Id = "not-owned" };
-        _productServiceMock.Setup(p => p.GetProductById("main", It.IsAny<bool>())).ReturnsAsync(mainProduct);
-        SetupOwnershipForInsertTests(owned, notOwned);
-
-        var model = new ProductModel.AddSimilarProductModel {
-            ProductId = "main",
-            SelectedProductIds = ["owned", "not-owned"]
-        };
-        await _productViewModelService.InsertSimilarProductModel(model);
-
-        Assert.IsTrue(mainProduct.SimilarProducts.Any(x => x.ProductId2 == "owned"),
-            "The owned selected product should be inserted.");
-        Assert.IsFalse(mainProduct.SimilarProducts.Any(x => x.ProductId2 == "not-owned"),
-            "A not-owned selected product must be silently dropped, not inserted.");
-        _productServiceMock.Verify(p => p.InsertSimilarProduct(It.Is<SimilarProduct>(r => r.ProductId2 == "not-owned")), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task InsertBundleProductModel_DropsNotOwnedSelectedId()
-    {
-        var mainProduct = new Product { Id = "main" };
-        var owned = new Product { Id = "owned" };
-        var notOwned = new Product { Id = "not-owned" };
-        _productServiceMock.Setup(p => p.GetProductById("main", It.IsAny<bool>())).ReturnsAsync(mainProduct);
-        SetupOwnershipForInsertTests(owned, notOwned);
-
-        var model = new ProductModel.AddBundleProductModel {
-            ProductId = "main",
-            SelectedProductIds = ["owned", "not-owned"]
-        };
-        await _productViewModelService.InsertBundleProductModel(model);
-
-        Assert.IsTrue(mainProduct.BundleProducts.Any(x => x.ProductId == "owned"),
-            "The owned selected product should be inserted.");
-        Assert.IsFalse(mainProduct.BundleProducts.Any(x => x.ProductId == "not-owned"),
-            "A not-owned selected product must be silently dropped, not inserted.");
-        _productServiceMock.Verify(p => p.InsertBundleProduct(It.Is<BundleProduct>(r => r.ProductId == "not-owned"), It.IsAny<string>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task InsertCrossSellProductModel_DropsNotOwnedSelectedId()
-    {
-        var mainProduct = new Product { Id = "main" };
-        var owned = new Product { Id = "owned" };
-        var notOwned = new Product { Id = "not-owned" };
-        _productServiceMock.Setup(p => p.GetProductById("main", It.IsAny<bool>())).ReturnsAsync(mainProduct);
-        SetupOwnershipForInsertTests(owned, notOwned);
-
-        var model = new ProductModel.AddCrossSellProductModel {
-            ProductId = "main",
-            SelectedProductIds = ["owned", "not-owned"]
-        };
-        await _productViewModelService.InsertCrossSellProductModel(model);
-
-        _productServiceMock.Verify(p => p.InsertCrossSellProduct(It.Is<CrossSellProduct>(r => r.ProductId2 == "owned")), Times.Once);
-        _productServiceMock.Verify(p => p.InsertCrossSellProduct(It.Is<CrossSellProduct>(r => r.ProductId2 == "not-owned")), Times.Never,
-            "A not-owned selected product must be silently dropped, not inserted.");
-    }
-
-    [TestMethod]
-    public async Task InsertRecommendedProductModel_DropsNotOwnedSelectedId()
-    {
-        var mainProduct = new Product { Id = "main" };
-        var owned = new Product { Id = "owned" };
-        var notOwned = new Product { Id = "not-owned" };
-        _productServiceMock.Setup(p => p.GetProductById("main", It.IsAny<bool>())).ReturnsAsync(mainProduct);
-        SetupOwnershipForInsertTests(owned, notOwned);
-
-        var model = new ProductModel.AddRecommendedProductModel {
-            ProductId = "main",
-            SelectedProductIds = ["owned", "not-owned"]
-        };
-        await _productViewModelService.InsertRecommendedProductModel(model);
-
-        _productServiceMock.Verify(p => p.InsertRecommendedProduct("main", "owned"), Times.Once);
-        _productServiceMock.Verify(p => p.InsertRecommendedProduct("main", "not-owned"), Times.Never,
-            "A not-owned selected product must be silently dropped, not inserted.");
     }
 }

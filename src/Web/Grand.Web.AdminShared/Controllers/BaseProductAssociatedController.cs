@@ -18,7 +18,8 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductAssociatedController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
+    IProductAssociatedViewModelService productAssociatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -104,7 +105,7 @@ public abstract class BaseProductAssociatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteAssociatedProduct(product);
+            await productAssociatedViewModelService.DeleteAssociatedProduct(product);
             return new JsonResult("");
         }
 
@@ -117,7 +118,7 @@ public abstract class BaseProductAssociatedController(
         // No access check here in any of the three original hosts (all open this popup unconditionally
         // once the Edit permission is satisfied) - only the mutating actions below tie access to a
         // specific product. PrepareAssociatedProductModel() now reads scope internally (Task 9).
-        var model = await productViewModelService.PrepareAssociatedProductModel();
+        var model = await productAddPopupViewModelService.PrepareAssociatedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -130,7 +131,7 @@ public abstract class BaseProductAssociatedController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount
@@ -159,15 +160,11 @@ public abstract class BaseProductAssociatedController(
             // ParentGroupedProductId directly onto that product's own record - unlike
             // Related/Similar/Bundle/Cross-sell/Recommended, whose Insert*ProductModel only adds a mapping
             // entry that references the selected product's id from the parent's own list; the selected
-            // product's record is never itself modified there. So here, unlike those simpler regions,
-            // every selected id must independently pass HasAccess too - the same per-id filtering Store's
-            // controller-level original already did, and which Vendor's original also had, but only at the
-            // service layer (Grand.Web.Vendor/Services/ProductViewModelService.cs InsertAssociatedProductModel:
-            // `if (product == null || !HasAccessToProduct(product)) continue;`). BaseProductController
-            // injects AdminShared's IProductViewModelService - the unfiltered variant - not Vendor's own, so
-            // once Vendor is subclassed onto this base (Task 11) it loses that service-layer filter
-            // entirely. Enforcing the per-id check here at the controller level is what preserves the
-            // invariant going forward.
+            // product's record is never itself modified there. So here every selected id must independently
+            // pass HasAccess too - the per-id filtering Store's and Vendor's originals both had.
+            // IProductAssociatedViewModelService.InsertAssociatedProductModel does not check scope itself
+            // (unlike the Related and Bundle services), so this filter is the only guard against reparenting
+            // another vendor's or store's products.
             if (model.SelectedProductIds != null)
             {
                 var validIds = new List<string>();
@@ -178,7 +175,7 @@ public abstract class BaseProductAssociatedController(
                 }
 
                 model.SelectedProductIds = validIds.ToArray();
-                if (validIds.Count > 0) await productViewModelService.InsertAssociatedProductModel(model);
+                if (validIds.Count > 0) await productAssociatedViewModelService.InsertAssociatedProductModel(model);
             }
 
             return Content("");
@@ -189,7 +186,7 @@ public abstract class BaseProductAssociatedController(
         // AssociatedProductAddPopup(POST) does not use the Content(ModelState.GetErrors()) shortcut it
         // uses in those other regions, so no host-specific hook is needed for this action.
         Error(ModelState);
-        model = await productViewModelService.PrepareAssociatedProductModel();
+        model = await productAddPopupViewModelService.PrepareAssociatedProductModel();
         return View(model);
     }
 

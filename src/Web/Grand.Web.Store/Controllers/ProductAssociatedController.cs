@@ -14,8 +14,9 @@ namespace Grand.Web.Store.Controllers;
 [AuthorizeStore]
 [AuthorizeMenu]
 public class ProductAssociatedController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
+    IProductAssociatedViewModelService productAssociatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductAssociatedController(productViewModelService, productService, translationService, scope);
+    : BaseProductAssociatedController(productAddPopupViewModelService, productAssociatedViewModelService, productService, translationService, scope);

@@ -22,15 +22,15 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     // BaseProductAttributeCombinationController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductAttributeCombinationController(
-        IProductViewModelService productViewModelService,
+        IProductAttributeCombinationViewModelService productAttributeCombinationViewModelService,
         IProductService productService,
         IInventoryManageService inventoryManageService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductAttributeCombinationController(productViewModelService, productService, inventoryManageService, translationService, scope);
+        : BaseProductAttributeCombinationController(productAttributeCombinationViewModelService, productService, inventoryManageService, translationService, scope);
 
     protected override TestProductAttributeCombinationController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productAttributeCombinationViewModelServiceMock.Object,
         _productServiceMock.Object,
         _inventoryManageServiceMock.Object,
         _translationServiceMock.Object,
@@ -49,7 +49,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeCombinationModel(It.IsAny<Product>()), Times.Never);
     }
 
@@ -59,7 +59,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeCombinationModel(product))
+        _productAttributeCombinationViewModelServiceMock.Setup(s => s.PrepareProductAttributeCombinationModel(product))
             .ReturnsAsync(new List<ProductModel.ProductAttributeCombinationModel> { new() });
 
         var result = await _controller.ProductAttributeCombinationList(new DataSourceRequest(), "p1");
@@ -142,7 +142,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeCombinationModel(It.IsAny<Product>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -153,7 +153,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var model = new ProductAttributeCombinationModel { Id = "c1" };
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeCombinationModel(product, "c1"))
+        _productAttributeCombinationViewModelServiceMock.Setup(s => s.PrepareProductAttributeCombinationModel(product, "c1"))
             .ReturnsAsync(model);
 
         var result = await _controller.AttributeCombinationPopup("p1", "c1");
@@ -161,7 +161,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var view = result as ViewResult;
         Assert.IsNotNull(view);
         Assert.AreSame(model, view.Model);
-        _productViewModelServiceMock.Verify(s => s.PrepareAddProductAttributeCombinationModel(model, product),
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.PrepareAddProductAttributeCombinationModel(model, product),
             Times.Once);
     }
 
@@ -194,7 +194,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.InsertOrUpdateProductAttributeCombinationPopup(It.IsAny<Product>(),
                 It.IsAny<ProductAttributeCombinationModel>()), Times.Never);
     }
@@ -206,7 +206,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var model = new ProductAttributeCombinationModel();
-        _productViewModelServiceMock.Setup(s => s.InsertOrUpdateProductAttributeCombinationPopup(product, model))
+        _productAttributeCombinationViewModelServiceMock.Setup(s => s.InsertOrUpdateProductAttributeCombinationPopup(product, model))
             .ReturnsAsync(new List<string>());
 
         var result = await _controller.AttributeCombinationPopup("p1", model);
@@ -223,7 +223,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var model = new ProductAttributeCombinationModel();
-        _productViewModelServiceMock.Setup(s => s.InsertOrUpdateProductAttributeCombinationPopup(product, model))
+        _productAttributeCombinationViewModelServiceMock.Setup(s => s.InsertOrUpdateProductAttributeCombinationPopup(product, model))
             .ReturnsAsync(new List<string> { "warning" });
 
         var result = await _controller.AttributeCombinationPopup("p1", model);
@@ -232,7 +232,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         Assert.IsNotNull(view);
         Assert.AreSame(model, view.Model);
         CollectionAssert.Contains(model.Warnings.ToList(), "warning");
-        _productViewModelServiceMock.Verify(s => s.PrepareAddProductAttributeCombinationModel(model, product),
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.PrepareAddProductAttributeCombinationModel(model, product),
             Times.Once);
     }
 
@@ -258,7 +258,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.GenerateAllAttributeCombinations(It.IsAny<Product>()),
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.GenerateAllAttributeCombinations(It.IsAny<Product>()),
             Times.Never);
     }
 
@@ -272,7 +272,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var result = await _controller.GenerateAllAttributeCombinations("p1");
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.GenerateAllAttributeCombinations(product), Times.Once);
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.GenerateAllAttributeCombinations(product), Times.Once);
     }
 
     // --- ClearAllAttributeCombinations -----------------------------------------------------------------
@@ -297,7 +297,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(It.IsAny<Product>()), Times.Never);
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(It.IsAny<Product>()), Times.Never);
     }
 
     [TestMethod]
@@ -311,7 +311,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var result = await _controller.ClearAllAttributeCombinations("p1");
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(product), Times.Once);
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(product), Times.Once);
     }
 
     [TestMethod]
@@ -325,7 +325,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var result = await _controller.ClearAllAttributeCombinations("p1");
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(It.IsAny<Product>()), Times.Never);
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(It.IsAny<Product>()), Times.Never);
     }
 
     // --- ProductAttributeCombinationTierPriceList (POST) -----------------------------------------------
@@ -341,7 +341,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.PrepareProductAttributeCombinationTierPricesModel(It.IsAny<Product>(), It.IsAny<string>()),
             Times.Never);
     }
@@ -352,7 +352,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeCombinationTierPricesModel(product, "c1"))
+        _productAttributeCombinationViewModelServiceMock.Setup(s => s.PrepareProductAttributeCombinationTierPricesModel(product, "c1"))
             .ReturnsAsync(new List<ProductModel.ProductAttributeCombinationTierPricesModel> { new() });
 
         var result = await _controller.ProductAttributeCombinationTierPriceList(new DataSourceRequest(), "p1", "c1");
@@ -388,7 +388,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.InsertProductAttributeCombinationTierPricesModel(It.IsAny<Product>(),
                 It.IsAny<ProductAttributeCombination>(),
                 It.IsAny<ProductModel.ProductAttributeCombinationTierPricesModel>()), Times.Never);
@@ -405,7 +405,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
             new ProductModel.ProductAttributeCombinationTierPricesModel());
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.InsertProductAttributeCombinationTierPricesModel(It.IsAny<Product>(),
                 It.IsAny<ProductAttributeCombination>(),
                 It.IsAny<ProductModel.ProductAttributeCombinationTierPricesModel>()), Times.Never);
@@ -424,7 +424,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var result = await _controller.ProductAttributeCombinationTierPriceInsert("p1", "c1", model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.InsertProductAttributeCombinationTierPricesModel(product, combination, model), Times.Once);
     }
 
@@ -453,7 +453,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeCombinationTierPricesModel(It.IsAny<Product>(),
                 It.IsAny<ProductAttributeCombination>(),
                 It.IsAny<ProductModel.ProductAttributeCombinationTierPricesModel>()), Times.Never);
@@ -472,7 +472,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var result = await _controller.ProductAttributeCombinationTierPriceUpdate("p1", "c1", model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.UpdateProductAttributeCombinationTierPricesModel(product, combination, model), Times.Once);
     }
 
@@ -499,7 +499,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.DeleteProductAttributeCombinationTierPrices(It.IsAny<Product>(),
                 It.IsAny<ProductAttributeCombination>(),
                 It.IsAny<ProductCombinationTierPrices>()), Times.Never);
@@ -516,7 +516,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var result = await _controller.ProductAttributeCombinationTierPriceDelete("p1", "c1", "missing-tp");
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.DeleteProductAttributeCombinationTierPrices(It.IsAny<Product>(),
                 It.IsAny<ProductAttributeCombination>(),
                 It.IsAny<ProductCombinationTierPrices>()), Times.Never);
@@ -536,7 +536,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var result = await _controller.ProductAttributeCombinationTierPriceDelete("p1", "c1", "tp1");
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(
+        _productAttributeCombinationViewModelServiceMock.Verify(
             s => s.DeleteProductAttributeCombinationTierPrices(product, combination, tierPrice), Times.Once);
     }
 }

@@ -23,14 +23,16 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     // BaseProductRelatedController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductRelatedController(
-        IProductViewModelService productViewModelService,
+        IProductAddPopupViewModelService productAddPopupViewModelService,
+        IProductRelatedViewModelService productRelatedViewModelService,
         IProductService productService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductRelatedController(productViewModelService, productService, translationService, scope);
+        : BaseProductRelatedController(productAddPopupViewModelService, productRelatedViewModelService, productService, translationService, scope);
 
     protected override TestProductRelatedController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productAddPopupViewModelServiceMock.Object,
+        _productRelatedViewModelServiceMock.Object,
         _productServiceMock.Object,
         _translationServiceMock.Object,
         _scopeMock.Object);
@@ -83,7 +85,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.UpdateRelatedProductModel(It.IsAny<ProductModel.RelatedProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.UpdateRelatedProductModel(It.IsAny<ProductModel.RelatedProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -97,7 +99,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.RelatedProductUpdate(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateRelatedProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.UpdateRelatedProductModel(model), Times.Once);
     }
 
     // --- RelatedProductDelete ----------------------------------------------------------------------
@@ -114,7 +116,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.DeleteRelatedProductModel(It.IsAny<ProductModel.RelatedProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteRelatedProductModel(It.IsAny<ProductModel.RelatedProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -128,7 +130,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.RelatedProductDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteRelatedProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteRelatedProductModel(model), Times.Once);
     }
 
     // --- RelatedProductAddPopup (GET) --------------------------------------------------------------
@@ -137,7 +139,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task RelatedProductAddPopupGet_CallsPrepareRelatedProductModel()
     {
         // PrepareRelatedProductModel() now reads scope internally (Task 9).
-        _productViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel())
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel())
             .ReturnsAsync(new ProductModel.AddRelatedProductModel());
 
         var result = await _controller.RelatedProductAddPopup("p1") as ViewResult;
@@ -146,7 +148,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var model = result.Model as ProductModel.AddRelatedProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareRelatedProductModel(), Times.Once);
+        _productAddPopupViewModelServiceMock.Verify(s => s.PrepareRelatedProductModel(), Times.Once);
     }
 
     // --- RelatedProductAddPopupList -----------------------------------------------------------------
@@ -155,7 +157,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task RelatedProductAddPopupList_UsesScopeDefaultStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRelatedProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -171,7 +173,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task RelatedProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRelatedProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -200,7 +202,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.InsertRelatedProductModel(It.IsAny<ProductModel.AddRelatedProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertRelatedProductModel(It.IsAny<ProductModel.AddRelatedProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -216,7 +218,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
-        _productViewModelServiceMock.Verify(s => s.InsertRelatedProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertRelatedProductModel(model), Times.Once);
     }
 
     [TestMethod]
@@ -226,7 +228,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var reprepared = new ProductModel.AddRelatedProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel()).ReturnsAsync(reprepared);
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddRelatedProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -235,7 +237,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var view = result as ViewResult;
         Assert.IsNotNull(view);
         Assert.AreSame(reprepared, view.Model);
-        _productViewModelServiceMock.Verify(s => s.InsertRelatedProductModel(It.IsAny<ProductModel.AddRelatedProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertRelatedProductModel(It.IsAny<ProductModel.AddRelatedProductModel>()), Times.Never);
     }
 
     // --- SimilarProductList ------------------------------------------------------------------------
@@ -286,7 +288,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.UpdateSimilarProductModel(It.IsAny<ProductModel.SimilarProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.UpdateSimilarProductModel(It.IsAny<ProductModel.SimilarProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -300,7 +302,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.SimilarProductUpdate(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateSimilarProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.UpdateSimilarProductModel(model), Times.Once);
     }
 
     // --- SimilarProductDelete ----------------------------------------------------------------------
@@ -317,7 +319,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.DeleteSimilarProductModel(It.IsAny<ProductModel.SimilarProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteSimilarProductModel(It.IsAny<ProductModel.SimilarProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -331,7 +333,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.SimilarProductDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteSimilarProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteSimilarProductModel(model), Times.Once);
     }
 
     // --- SimilarProductAddPopup (GET) --------------------------------------------------------------
@@ -340,7 +342,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task SimilarProductAddPopupGet_CallsPrepareSimilarProductModel()
     {
         // PrepareSimilarProductModel() now reads scope internally (Task 9).
-        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel())
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel())
             .ReturnsAsync(new ProductModel.AddSimilarProductModel());
 
         var result = await _controller.SimilarProductAddPopup("p1") as ViewResult;
@@ -349,7 +351,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var model = result.Model as ProductModel.AddSimilarProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareSimilarProductModel(), Times.Once);
+        _productAddPopupViewModelServiceMock.Verify(s => s.PrepareSimilarProductModel(), Times.Once);
     }
 
     // --- SimilarProductAddPopupList -----------------------------------------------------------------
@@ -358,7 +360,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task SimilarProductAddPopupList_UsesScopeDefaultStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -374,7 +376,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task SimilarProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -403,7 +405,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(It.IsAny<ProductModel.AddSimilarProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(It.IsAny<ProductModel.AddSimilarProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -419,7 +421,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
-        _productViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(model), Times.Once);
     }
 
     [TestMethod]
@@ -429,7 +431,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var reprepared = new ProductModel.AddSimilarProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel()).ReturnsAsync(reprepared);
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddSimilarProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -438,7 +440,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var view = result as ViewResult;
         Assert.IsNotNull(view);
         Assert.AreSame(reprepared, view.Model);
-        _productViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(It.IsAny<ProductModel.AddSimilarProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(It.IsAny<ProductModel.AddSimilarProductModel>()), Times.Never);
     }
 
     // --- CrossSellProductList ---------------------------------------------------------------------
@@ -502,7 +504,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.DeleteCrossSellProduct(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteCrossSellProduct(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -528,7 +530,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.CrossSellProductDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteCrossSellProduct("p1", "p2"), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteCrossSellProduct("p1", "p2"), Times.Once);
     }
 
     // --- CrossSellProductAddPopup (GET) -------------------------------------------------------------
@@ -537,7 +539,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task CrossSellProductAddPopupGet_CallsPrepareCrossSellProductModel()
     {
         // PrepareCrossSellProductModel() now reads scope internally (Task 9).
-        _productViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel())
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel())
             .ReturnsAsync(new ProductModel.AddCrossSellProductModel());
 
         var result = await _controller.CrossSellProductAddPopup("p1") as ViewResult;
@@ -546,7 +548,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var model = result.Model as ProductModel.AddCrossSellProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareCrossSellProductModel(), Times.Once);
+        _productAddPopupViewModelServiceMock.Verify(s => s.PrepareCrossSellProductModel(), Times.Once);
     }
 
     // --- CrossSellProductAddPopupList ---------------------------------------------------------------
@@ -555,7 +557,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task CrossSellProductAddPopupList_UsesScopeDefaultStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -571,7 +573,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task CrossSellProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -600,7 +602,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.InsertCrossSellProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertCrossSellProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -616,7 +618,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
-        _productViewModelServiceMock.Verify(s => s.InsertCrossSellProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertCrossSellProductModel(model), Times.Once);
     }
 
     [TestMethod]
@@ -626,7 +628,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var reprepared = new ProductModel.AddCrossSellProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel()).ReturnsAsync(reprepared);
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddCrossSellProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -635,7 +637,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var view = result as ViewResult;
         Assert.IsNotNull(view);
         Assert.AreSame(reprepared, view.Model);
-        _productViewModelServiceMock.Verify(s => s.InsertCrossSellProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertCrossSellProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>()), Times.Never);
     }
 
     // --- RecommendedProductList ---------------------------------------------------------------------
@@ -700,7 +702,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.DeleteRecommendedProduct(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteRecommendedProduct(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -726,7 +728,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var result = await _controller.RecommendedProductDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteRecommendedProduct("p1", "p2"), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.DeleteRecommendedProduct("p1", "p2"), Times.Once);
     }
 
     // --- RecommendedProductAddPopup (GET) -------------------------------------------------------------
@@ -735,7 +737,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task RecommendedProductAddPopupGet_CallsPrepareRecommendedProductModel()
     {
         // PrepareRecommendedProductModel() now reads scope internally (Task 9).
-        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel())
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel())
             .ReturnsAsync(new ProductModel.AddRecommendedProductModel());
 
         var result = await _controller.RecommendedProductAddPopup("p1") as ViewResult;
@@ -744,7 +746,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var model = result.Model as ProductModel.AddRecommendedProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareRecommendedProductModel(), Times.Once);
+        _productAddPopupViewModelServiceMock.Verify(s => s.PrepareRecommendedProductModel(), Times.Once);
     }
 
     // --- RecommendedProductAddPopupList ---------------------------------------------------------------
@@ -753,7 +755,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task RecommendedProductAddPopupList_UsesScopeDefaultStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -769,7 +771,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     public async Task RecommendedProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -798,7 +800,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -814,7 +816,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
-        _productViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(model), Times.Once);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(model), Times.Once);
     }
 
     [TestMethod]
@@ -824,7 +826,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var reprepared = new ProductModel.AddRecommendedProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel()).ReturnsAsync(reprepared);
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddRecommendedProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -833,6 +835,6 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
         var view = result as ViewResult;
         Assert.IsNotNull(view);
         Assert.AreSame(reprepared, view.Model);
-        _productViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>()), Times.Never);
+        _productRelatedViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>()), Times.Never);
     }
 }

@@ -15,7 +15,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductCollectionController(
-    IProductViewModelService productViewModelService,
+    IProductCollectionViewModelService productCollectionViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -40,7 +40,7 @@ public abstract class BaseProductCollectionController(
         if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var productCollectionsModel = await productViewModelService.PrepareProductCollectionModel(product);
+        var productCollectionsModel = await productCollectionViewModelService.PrepareProductCollectionModel(product);
         var gridModel = new DataSourceResult {
             Data = productCollectionsModel,
             Total = productCollectionsModel.Count
@@ -60,7 +60,7 @@ public abstract class BaseProductCollectionController(
         if (ModelState.IsValid)
             try
             {
-                await productViewModelService.InsertProductCollection(model);
+                await productCollectionViewModelService.InsertProductCollection(model);
                 return new JsonResult("");
             }
             catch (Exception ex)
@@ -82,7 +82,7 @@ public abstract class BaseProductCollectionController(
         if (ModelState.IsValid)
             try
             {
-                await productViewModelService.UpdateProductCollection(model);
+                await productCollectionViewModelService.UpdateProductCollection(model);
                 return new JsonResult("");
             }
             catch (Exception ex)
@@ -103,7 +103,7 @@ public abstract class BaseProductCollectionController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteProductCollection(model.Id, model.ProductId);
+            await productCollectionViewModelService.DeleteProductCollection(model.Id, model.ProductId);
             return new JsonResult("");
         }
 

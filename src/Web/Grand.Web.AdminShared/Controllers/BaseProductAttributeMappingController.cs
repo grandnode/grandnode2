@@ -19,7 +19,8 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductAttributeMappingController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
+    IProductAttributeMappingViewModelService productAttributeMappingViewModelService,
     IProductService productService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
@@ -45,7 +46,7 @@ public abstract class BaseProductAttributeMappingController(
         if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var attributesModel = await productViewModelService.PrepareProductAttributeMappingModels(product);
+        var attributesModel = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModels(product);
         var gridModel = new DataSourceResult {
             Data = attributesModel,
             Total = attributesModel.Count
@@ -65,13 +66,13 @@ public abstract class BaseProductAttributeMappingController(
 
         if (string.IsNullOrEmpty(productAttributeMappingId))
         {
-            var model = await productViewModelService.PrepareProductAttributeMappingModel(product);
+            var model = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModel(product);
             return View(model);
         }
 
         var productAttributeMapping =
             product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
-        var editModel = await productViewModelService.PrepareProductAttributeMappingModel(product,
+        var editModel = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModel(product,
             productAttributeMapping);
         return View(editModel);
     }
@@ -93,15 +94,15 @@ public abstract class BaseProductAttributeMappingController(
                 return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
             if (string.IsNullOrEmpty(model.Id))
-                await productViewModelService.InsertProductAttributeMappingModel(model);
+                await productAttributeMappingViewModelService.InsertProductAttributeMappingModel(model);
             else
-                await productViewModelService.UpdateProductAttributeMappingModel(model);
+                await productAttributeMappingViewModelService.UpdateProductAttributeMappingModel(model);
 
             return Content("");
         }
 
         Error(ModelState);
-        model = await productViewModelService.PrepareProductAttributeMappingModel(model);
+        model = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModel(model);
         return View(model);
     }
 
@@ -142,7 +143,7 @@ public abstract class BaseProductAttributeMappingController(
         if (productAttributeMapping == null)
             return Content("No attribute value found with the specified id");
 
-        var model = await productViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
+        var model = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
         return View(model);
     }
 
@@ -167,12 +168,12 @@ public abstract class BaseProductAttributeMappingController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.UpdateProductAttributeValidationRulesModel(productAttributeMapping, model);
+            await productAttributeMappingViewModelService.UpdateProductAttributeValidationRulesModel(productAttributeMapping, model);
             return Content("");
         }
 
         Error(ModelState);
-        model = await productViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
+        model = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
         return View(model);
     }
 
@@ -197,7 +198,7 @@ public abstract class BaseProductAttributeMappingController(
             //No attribute value found with the specified id
             return Content("No attribute value found with the specified id");
 
-        var model = await productViewModelService.PrepareProductAttributeConditionModel(product,
+        var model = await productAttributeMappingViewModelService.PrepareProductAttributeConditionModel(product,
             productAttributeMapping);
         return View(model);
     }
@@ -232,7 +233,7 @@ public abstract class BaseProductAttributeMappingController(
         if (!await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        await productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model);
+        await productAttributeMappingViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model);
         return Content("");
     }
 
@@ -289,7 +290,7 @@ public abstract class BaseProductAttributeMappingController(
             throw new ArgumentException("No product attribute mapping found with the specified id");
 
         var values =
-            await productViewModelService.PrepareProductAttributeValueModels(product, productAttributeMapping);
+            await productAttributeMappingViewModelService.PrepareProductAttributeValueModels(product, productAttributeMapping);
         var gridModel = new DataSourceResult {
             Data = values,
             Total = values.Count
@@ -317,7 +318,7 @@ public abstract class BaseProductAttributeMappingController(
             throw new ArgumentException("No product attribute mapping found with the specified id");
 
         var model =
-            await productViewModelService.PrepareProductAttributeValueModel(product, productAttributeMapping);
+            await productAttributeMappingViewModelService.PrepareProductAttributeValueModel(product, productAttributeMapping);
         //locales
         await AddLocales(languageService, model.Locales);
 
@@ -358,12 +359,12 @@ public abstract class BaseProductAttributeMappingController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.InsertProductAttributeValueModel(model);
+            await productAttributeMappingViewModelService.InsertProductAttributeValueModel(model);
             return Content("");
         }
 
         //If we got this far, something failed, redisplay form
-        await productViewModelService.PrepareProductAttributeValueModel(product, model);
+        await productAttributeMappingViewModelService.PrepareProductAttributeValueModel(product, model);
         return View(model);
     }
 
@@ -387,14 +388,14 @@ public abstract class BaseProductAttributeMappingController(
             //No attribute value found with the specified id
             return RedirectToAction("List", "Product");
 
-        var model = await productViewModelService.PrepareProductAttributeValueModel(pa, pav);
+        var model = await productAttributeMappingViewModelService.PrepareProductAttributeValueModel(pa, pav);
         //locales
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
             locale.Name = pav.GetTranslation(x => x.Name, languageId, false);
         });
         //pictures
-        await productViewModelService.PrepareProductAttributeValueModel(product, model);
+        await productAttributeMappingViewModelService.PrepareProductAttributeValueModel(product, model);
         return View(model);
     }
 
@@ -424,12 +425,12 @@ public abstract class BaseProductAttributeMappingController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.UpdateProductAttributeValueModel(pav, model);
+            await productAttributeMappingViewModelService.UpdateProductAttributeValueModel(pav, model);
             return Content("");
         }
 
         //If we got this far, something failed, redisplay form
-        await productViewModelService.PrepareProductAttributeValueModel(product, model);
+        await productAttributeMappingViewModelService.PrepareProductAttributeValueModel(product, model);
         return View(model);
     }
 
@@ -470,7 +471,7 @@ public abstract class BaseProductAttributeMappingController(
         // PrepareAssociateProductToAttributeValueModel() now reads scope internally (Task 9):
         // StaffStoreId for Store; null for Admin/Vendor (no store concept).
         var model =
-            await productViewModelService.PrepareAssociateProductToAttributeValueModel();
+            await productAddPopupViewModelService.PrepareAssociateProductToAttributeValueModel();
         return View(model);
     }
 
@@ -482,7 +483,7 @@ public abstract class BaseProductAttributeMappingController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount

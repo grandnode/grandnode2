@@ -16,10 +16,10 @@ namespace Grand.Web.Admin.Controllers;
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
 public class ProductPictureController(
-    IProductViewModelService productViewModelService,
+    IProductPictureViewModelService productPictureViewModelService,
     IProductService productService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
     IRequestPermissionService permissionService,
     IAdminDataScope<Product> scope)
-    : BaseProductPictureController(productViewModelService, productService, languageService, translationService, permissionService, scope);
+    : BaseProductPictureController(productPictureViewModelService, productService, languageService, translationService, permissionService, scope);

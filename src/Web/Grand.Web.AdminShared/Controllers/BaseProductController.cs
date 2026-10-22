@@ -29,6 +29,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductController(
     IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
     IProductService productService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
@@ -328,7 +329,7 @@ public abstract class BaseProductController(
         // PrepareAddRequiredProductModel() now reads scope internally (Task 9) - the injected
         // IAdminDataScope<Product> already encodes the per-host default exactly: null for Admin
         // (global) and Vendor (not store-scoped), StaffStoreId for Store.
-        var model = await productViewModelService.PrepareAddRequiredProductModel();
+        var model = await productAddPopupViewModelService.PrepareAddRequiredProductModel();
         // Unused by any of the three views (all three read productIdsInput straight off the query string
         // via Context.Request.Query, not ViewBag), but Admin and Vendor both set it and Store silently
         // drops its own parameter - kept here for parity; it is inert either way.
@@ -344,7 +345,7 @@ public abstract class BaseProductController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount

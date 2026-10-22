@@ -33,17 +33,19 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     // minimal subclass exists only so the actions under test can be invoked directly.
     public class TestProductController(
         IProductViewModelService productViewModelService,
+        IProductAddPopupViewModelService productAddPopupViewModelService,
         IProductService productService,
         ILanguageService languageService,
         IRequestTranslationService translationService,
         IDateTimeService dateTimeService,
         IRequestPermissionService permissionService,
         IAdminDataScope<Product> scope)
-        : BaseProductController(productViewModelService, productService, languageService, translationService,
+        : BaseProductController(productViewModelService, productAddPopupViewModelService, productService, languageService, translationService,
             dateTimeService, permissionService, scope);
 
     protected override TestProductController CreateController() => new(
         _productViewModelServiceMock.Object,
+        _productAddPopupViewModelServiceMock.Object,
         _productServiceMock.Object,
         _languageServiceMock.Object,
         _translationServiceMock.Object,
@@ -503,13 +505,13 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     public async Task RequiredProductAddPopup_CallsPrepareAddRequiredProductModel()
     {
         // PrepareAddRequiredProductModel() now reads scope internally (Task 9).
-        _productViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel())
+        _productAddPopupViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel())
             .ReturnsAsync(new ProductModel.AddRequiredProductModel());
 
         var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
 
         Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(), Times.Once);
+        _productAddPopupViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(), Times.Once);
         Assert.AreEqual("input1", _controller.ViewBag.productIdsInput);
     }
 
@@ -519,7 +521,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     public async Task RequiredProductAddPopupList_UsesScopeDefaultStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRequiredProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
@@ -535,7 +537,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     public async Task RequiredProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock
+        _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRequiredProductModel>(), 0, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 

@@ -16,7 +16,8 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductRelatedController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
+    IProductRelatedViewModelService productRelatedViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -70,7 +71,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.UpdateRelatedProductModel(model);
+            await productRelatedViewModelService.UpdateRelatedProductModel(model);
             return new JsonResult("");
         }
 
@@ -87,7 +88,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteRelatedProductModel(model);
+            await productRelatedViewModelService.DeleteRelatedProductModel(model);
             return new JsonResult("");
         }
 
@@ -101,7 +102,7 @@ public abstract class BaseProductRelatedController(
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
         // ties access to a specific product. PrepareRelatedProductModel() now reads scope
         // internally (Task 9).
-        var model = await productViewModelService.PrepareRelatedProductModel();
+        var model = await productAddPopupViewModelService.PrepareRelatedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -114,7 +115,7 @@ public abstract class BaseProductRelatedController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount
@@ -137,7 +138,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertRelatedProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertRelatedProductModel(model);
             return Content("");
         }
 
@@ -152,7 +153,7 @@ public abstract class BaseProductRelatedController(
     protected virtual async Task<IActionResult> InvalidRelatedProductAddPopupResult(ProductModel.AddRelatedProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareRelatedProductModel();
+        model = await productAddPopupViewModelService.PrepareRelatedProductModel();
         return View(model);
     }
 
@@ -205,7 +206,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.UpdateSimilarProductModel(model);
+            await productRelatedViewModelService.UpdateSimilarProductModel(model);
             return new JsonResult("");
         }
 
@@ -222,7 +223,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteSimilarProductModel(model);
+            await productRelatedViewModelService.DeleteSimilarProductModel(model);
             return new JsonResult("");
         }
 
@@ -236,7 +237,7 @@ public abstract class BaseProductRelatedController(
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
         // ties access to a specific product. PrepareSimilarProductModel() now reads scope
         // internally (Task 9).
-        var model = await productViewModelService.PrepareSimilarProductModel();
+        var model = await productAddPopupViewModelService.PrepareSimilarProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -249,7 +250,7 @@ public abstract class BaseProductRelatedController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount
@@ -272,7 +273,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertSimilarProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertSimilarProductModel(model);
             return Content("");
         }
 
@@ -287,7 +288,7 @@ public abstract class BaseProductRelatedController(
     protected virtual async Task<IActionResult> InvalidSimilarProductAddPopupResult(ProductModel.AddSimilarProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareSimilarProductModel();
+        model = await productAddPopupViewModelService.PrepareSimilarProductModel();
         return View(model);
     }
 
@@ -346,7 +347,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteCrossSellProduct(product.Id, crossSellProduct);
+            await productRelatedViewModelService.DeleteCrossSellProduct(product.Id, crossSellProduct);
             return new JsonResult("");
         }
 
@@ -360,7 +361,7 @@ public abstract class BaseProductRelatedController(
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
         // ties access to a specific product. PrepareCrossSellProductModel() now reads scope
         // internally (Task 9).
-        var model = await productViewModelService.PrepareCrossSellProductModel();
+        var model = await productAddPopupViewModelService.PrepareCrossSellProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -373,7 +374,7 @@ public abstract class BaseProductRelatedController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount
@@ -396,7 +397,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertCrossSellProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertCrossSellProductModel(model);
             return Content("");
         }
 
@@ -411,7 +412,7 @@ public abstract class BaseProductRelatedController(
     protected virtual async Task<IActionResult> InvalidCrossSellProductAddPopupResult(ProductModel.AddCrossSellProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareCrossSellProductModel();
+        model = await productAddPopupViewModelService.PrepareCrossSellProductModel();
         return View(model);
     }
 
@@ -470,7 +471,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteRecommendedProduct(product.Id, recommendedProduct);
+            await productRelatedViewModelService.DeleteRecommendedProduct(product.Id, recommendedProduct);
             return new JsonResult("");
         }
 
@@ -484,7 +485,7 @@ public abstract class BaseProductRelatedController(
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
         // ties access to a specific product. PrepareRecommendedProductModel() now reads scope
         // internally (Task 9).
-        var model = await productViewModelService.PrepareRecommendedProductModel();
+        var model = await productAddPopupViewModelService.PrepareRecommendedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -497,7 +498,7 @@ public abstract class BaseProductRelatedController(
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
         var (products, totalCount) =
-            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.ToList(),
             Total = totalCount
@@ -520,7 +521,7 @@ public abstract class BaseProductRelatedController(
 
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await productViewModelService.InsertRecommendedProductModel(model);
+            if (model.SelectedProductIds != null) await productRelatedViewModelService.InsertRecommendedProductModel(model);
             return Content("");
         }
 
@@ -535,7 +536,7 @@ public abstract class BaseProductRelatedController(
     protected virtual async Task<IActionResult> InvalidRecommendedProductAddPopupResult(ProductModel.AddRecommendedProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareRecommendedProductModel();
+        model = await productAddPopupViewModelService.PrepareRecommendedProductModel();
         return View(model);
     }
 

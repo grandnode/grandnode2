@@ -14,8 +14,8 @@ namespace Grand.Web.Vendor.Controllers;
 [AuthorizeVendor]
 [AuthorizeMenu]
 public class ProductCategoryController(
-    IProductViewModelService productViewModelService,
+    IProductCategoryViewModelService productCategoryViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductCategoryController(productViewModelService, productService, translationService, scope);
+    : BaseProductCategoryController(productCategoryViewModelService, productService, translationService, scope);

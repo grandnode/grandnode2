@@ -16,7 +16,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductAttributeCombinationController(
-    IProductViewModelService productViewModelService,
+    IProductAttributeCombinationViewModelService productAttributeCombinationViewModelService,
     IProductService productService,
     IInventoryManageService inventoryManageService,
     IRequestTranslationService translationService,
@@ -43,7 +43,7 @@ public abstract class BaseProductAttributeCombinationController(
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var combinationsModel = await productViewModelService.PrepareProductAttributeCombinationModel(product);
+        var combinationsModel = await productAttributeCombinationViewModelService.PrepareProductAttributeCombinationModel(product);
         var gridModel = new DataSourceResult {
             Data = combinationsModel,
             Total = combinationsModel.Count
@@ -99,8 +99,8 @@ public abstract class BaseProductAttributeCombinationController(
         if (!await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var model = await productViewModelService.PrepareProductAttributeCombinationModel(product, id);
-        await productViewModelService.PrepareAddProductAttributeCombinationModel(model, product);
+        var model = await productAttributeCombinationViewModelService.PrepareProductAttributeCombinationModel(product, id);
+        await productAttributeCombinationViewModelService.PrepareAddProductAttributeCombinationModel(model, product);
         return View(model);
     }
 
@@ -123,10 +123,10 @@ public abstract class BaseProductAttributeCombinationController(
         if (!await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var warnings = await productViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+        var warnings = await productAttributeCombinationViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model);
         if (!warnings.Any()) return Content("");
         //If we got this far, something failed, redisplay form
-        await productViewModelService.PrepareAddProductAttributeCombinationModel(model, product);
+        await productAttributeCombinationViewModelService.PrepareAddProductAttributeCombinationModel(model, product);
         model.Warnings = warnings;
         return View(model);
     }
@@ -155,7 +155,7 @@ public abstract class BaseProductAttributeCombinationController(
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        await productViewModelService.GenerateAllAttributeCombinations(product);
+        await productAttributeCombinationViewModelService.GenerateAllAttributeCombinations(product);
 
         return Json(new { Success = true });
     }
@@ -175,7 +175,7 @@ public abstract class BaseProductAttributeCombinationController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.ClearAllAttributeCombinations(product);
+            await productAttributeCombinationViewModelService.ClearAllAttributeCombinations(product);
 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
@@ -216,7 +216,7 @@ public abstract class BaseProductAttributeCombinationController(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var tierPriceModel =
-            await productViewModelService.PrepareProductAttributeCombinationTierPricesModel(product,
+            await productAttributeCombinationViewModelService.PrepareProductAttributeCombinationTierPricesModel(product,
                 productAttributeCombinationId);
         var gridModel = new DataSourceResult {
             Data = tierPriceModel,
@@ -243,7 +243,7 @@ public abstract class BaseProductAttributeCombinationController(
         var combination =
             product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
         if (combination != null)
-            await productViewModelService.InsertProductAttributeCombinationTierPricesModel(product, combination,
+            await productAttributeCombinationViewModelService.InsertProductAttributeCombinationTierPricesModel(product, combination,
                 model);
 
         return new JsonResult("");
@@ -264,7 +264,7 @@ public abstract class BaseProductAttributeCombinationController(
 
         var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
         if (combination != null)
-            await productViewModelService.UpdateProductAttributeCombinationTierPricesModel(product, combination,
+            await productAttributeCombinationViewModelService.UpdateProductAttributeCombinationTierPricesModel(product, combination,
                 model);
 
         return new JsonResult("");
@@ -289,7 +289,7 @@ public abstract class BaseProductAttributeCombinationController(
         {
             var tierPrice = combination.TierPrices.FirstOrDefault(x => x.Id == id);
             if (tierPrice != null)
-                await productViewModelService.DeleteProductAttributeCombinationTierPrices(product, combination,
+                await productAttributeCombinationViewModelService.DeleteProductAttributeCombinationTierPrices(product, combination,
                     tierPrice);
         }
 

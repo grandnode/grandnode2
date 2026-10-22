@@ -23,14 +23,14 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
     // BaseProductCategoryController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductCategoryController(
-        IProductViewModelService productViewModelService,
+        IProductCategoryViewModelService productCategoryViewModelService,
         IProductService productService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductCategoryController(productViewModelService, productService, translationService, scope);
+        : BaseProductCategoryController(productCategoryViewModelService, productService, translationService, scope);
 
     protected override TestProductCategoryController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productCategoryViewModelServiceMock.Object,
         _productServiceMock.Object,
         _translationServiceMock.Object,
         _scopeMock.Object);
@@ -51,7 +51,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductCategoryModel(It.IsAny<Product>()), Times.Never);
+        _productCategoryViewModelServiceMock.Verify(s => s.PrepareProductCategoryModel(It.IsAny<Product>()), Times.Never);
     }
 
     // Guards against a real regression found in review: the denial message must be templated via
@@ -80,7 +80,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductCategoryModel(product))
+        _productCategoryViewModelServiceMock.Setup(s => s.PrepareProductCategoryModel(product))
             .ReturnsAsync(new List<ProductModel.ProductCategoryModel> { new() { Id = "c1", ProductId = "p1" } });
 
         var result = await _controller.ProductCategoryList(
@@ -102,7 +102,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
-        _productViewModelServiceMock.Setup(s => s.PrepareProductCategoryModel(product))
+        _productCategoryViewModelServiceMock.Setup(s => s.PrepareProductCategoryModel(product))
             .ReturnsAsync(new List<ProductModel.ProductCategoryModel> { new() { Id = "c1", ProductId = "p1" } });
 
         var result = await _controller.ProductCategoryList(
@@ -125,7 +125,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productCategoryViewModelServiceMock.Verify(
             s => s.InsertProductCategoryModel(It.IsAny<ProductModel.ProductCategoryModel>()), Times.Never);
     }
 
@@ -143,7 +143,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.InsertProductCategoryModel(It.IsAny<ProductModel.ProductCategoryModel>()), Times.Never);
+        _productCategoryViewModelServiceMock.Verify(s => s.InsertProductCategoryModel(It.IsAny<ProductModel.ProductCategoryModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -157,7 +157,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
         var result = await _controller.ProductCategoryInsert(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.InsertProductCategoryModel(model), Times.Once);
+        _productCategoryViewModelServiceMock.Verify(s => s.InsertProductCategoryModel(model), Times.Once);
     }
 
     // --- ProductCategoryUpdate ---------------------------------------------------------------------
@@ -174,7 +174,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.UpdateProductCategoryModel(It.IsAny<ProductModel.ProductCategoryModel>()), Times.Never);
+        _productCategoryViewModelServiceMock.Verify(s => s.UpdateProductCategoryModel(It.IsAny<ProductModel.ProductCategoryModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -188,7 +188,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
         var result = await _controller.ProductCategoryUpdate(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateProductCategoryModel(model), Times.Once);
+        _productCategoryViewModelServiceMock.Verify(s => s.UpdateProductCategoryModel(model), Times.Once);
     }
 
     // --- ProductCategoryDelete ---------------------------------------------------------------------
@@ -205,7 +205,7 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(s => s.DeleteProductCategory(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _productCategoryViewModelServiceMock.Verify(s => s.DeleteProductCategory(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -219,6 +219,6 @@ public class BaseProductCategoryControllerTests : ProductControllerTestsBase<Bas
         var result = await _controller.ProductCategoryDelete(model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.DeleteProductCategory("c1", "p1"), Times.Once);
+        _productCategoryViewModelServiceMock.Verify(s => s.DeleteProductCategory("c1", "p1"), Times.Once);
     }
 }

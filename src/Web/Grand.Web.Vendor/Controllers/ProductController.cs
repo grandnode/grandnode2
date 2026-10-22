@@ -18,11 +18,12 @@ namespace Grand.Web.Vendor.Controllers;
 [AuthorizeMenu]
 public class ProductController(
     IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
     IProductService productService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
     IDateTimeService dateTimeService,
     IRequestPermissionService permissionService,
     IAdminDataScope<Product> scope)
-    : BaseProductController(productViewModelService, productService, languageService, translationService,
+    : BaseProductController(productViewModelService, productAddPopupViewModelService, productService, languageService, translationService,
         dateTimeService, permissionService, scope);

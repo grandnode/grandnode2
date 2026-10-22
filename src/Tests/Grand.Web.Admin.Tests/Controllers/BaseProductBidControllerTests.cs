@@ -23,15 +23,15 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
     // BaseProductBidController is abstract. This minimal subclass exists only so the actions under test
     // can be invoked directly.
     public class TestProductBidController(
-        IProductViewModelService productViewModelService,
+        IProductBidViewModelService productBidViewModelService,
         IProductService productService,
         IRequestTranslationService translationService,
         IAuctionService auctionService,
         IAdminDataScope<Product> scope)
-        : BaseProductBidController(productViewModelService, productService, translationService, auctionService, scope);
+        : BaseProductBidController(productBidViewModelService, productService, translationService, auctionService, scope);
 
     protected override TestProductBidController CreateController() => new(
-        _productViewModelServiceMock.Object,
+        _productBidViewModelServiceMock.Object,
         _productServiceMock.Object,
         _translationServiceMock.Object,
         _auctionServiceMock.Object,
@@ -62,7 +62,7 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
-        _productViewModelServiceMock.Verify(
+        _productBidViewModelServiceMock.Verify(
             s => s.PrepareBidMode(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
@@ -73,7 +73,7 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
         _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareBidMode("p1", 0, 10))
+        _productBidViewModelServiceMock.Setup(s => s.PrepareBidMode("p1", 0, 10))
             .ReturnsAsync((Enumerable.Empty<ProductModel.BidModel>(), 0));
 
         var result = await _controller.ListBids(
@@ -102,7 +102,7 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
         Assert.IsNotNull(gridModel);
         Assert.AreEqual(0, gridModel.Total);
         _translationServiceMock.Verify(t => t.GetResource(It.IsAny<string>()), Times.Never);
-        _productViewModelServiceMock.Verify(
+        _productBidViewModelServiceMock.Verify(
             s => s.PrepareBidMode(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 

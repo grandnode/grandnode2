@@ -15,11 +15,12 @@ namespace Grand.Web.Vendor.Controllers;
 [AuthorizeVendor]
 [AuthorizeMenu]
 public class ProductBundleController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
+    IProductBundleViewModelService productBundleViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductBundleController(productViewModelService, productService, translationService, scope)
+    : BaseProductBundleController(productAddPopupViewModelService, productBundleViewModelService, productService, translationService, scope)
 {
     // Vendor's original AddPopup(POST) actions returned Content(ModelState.GetErrors()) on an invalid
     // model, instead of Admin/Store's re-prepare-and-View. Overriding the base's Admin/Store default,

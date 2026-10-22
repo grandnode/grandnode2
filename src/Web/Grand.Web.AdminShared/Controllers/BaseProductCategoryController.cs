@@ -16,7 +16,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductCategoryController(
-    IProductViewModelService productViewModelService,
+    IProductCategoryViewModelService productCategoryViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -47,7 +47,7 @@ public abstract class BaseProductCategoryController(
             // narrower than "Admin-only" - don't cite it as precedent for skipping templating elsewhere.
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var productCategoriesModel = await productViewModelService.PrepareProductCategoryModel(product);
+        var productCategoriesModel = await productCategoryViewModelService.PrepareProductCategoryModel(product);
         var gridModel = new DataSourceResult {
             Data = productCategoriesModel,
             Total = productCategoriesModel.Count
@@ -67,7 +67,7 @@ public abstract class BaseProductCategoryController(
         if (ModelState.IsValid)
             try
             {
-                await productViewModelService.InsertProductCategoryModel(model);
+                await productCategoryViewModelService.InsertProductCategoryModel(model);
                 return new JsonResult("");
             }
             catch (Exception ex)
@@ -89,7 +89,7 @@ public abstract class BaseProductCategoryController(
         if (ModelState.IsValid)
             try
             {
-                await productViewModelService.UpdateProductCategoryModel(model);
+                await productCategoryViewModelService.UpdateProductCategoryModel(model);
                 return new JsonResult("");
             }
             catch (Exception ex)
@@ -110,7 +110,7 @@ public abstract class BaseProductCategoryController(
 
         if (ModelState.IsValid)
         {
-            await productViewModelService.DeleteProductCategory(model.Id, model.ProductId);
+            await productCategoryViewModelService.DeleteProductCategory(model.Id, model.ProductId);
             return new JsonResult("");
         }
 

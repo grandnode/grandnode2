@@ -15,9 +15,10 @@ namespace Grand.Web.Store.Controllers;
 [AuthorizeStore]
 [AuthorizeMenu]
 public class ProductAttributeMappingController(
-    IProductViewModelService productViewModelService,
+    IProductAddPopupViewModelService productAddPopupViewModelService,
+    IProductAttributeMappingViewModelService productAttributeMappingViewModelService,
     IProductService productService,
     ILanguageService languageService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductAttributeMappingController(productViewModelService, productService, languageService, translationService, scope);
+    : BaseProductAttributeMappingController(productAddPopupViewModelService, productAttributeMappingViewModelService, productService, languageService, translationService, scope);

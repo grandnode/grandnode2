@@ -28,6 +28,18 @@ public abstract class ProductControllerTestsBase<TController> where TController 
     protected TController _controller;
     protected Mock<IProductService> _productServiceMock;
     protected Mock<IProductViewModelService> _productViewModelServiceMock;
+    protected Mock<IProductAddPopupViewModelService> _productAddPopupViewModelServiceMock;
+    protected Mock<IProductAttributeCombinationViewModelService> _productAttributeCombinationViewModelServiceMock;
+    protected Mock<IProductAttributeMappingViewModelService> _productAttributeMappingViewModelServiceMock;
+    protected Mock<IProductAssociatedViewModelService> _productAssociatedViewModelServiceMock;
+    protected Mock<IProductBundleViewModelService> _productBundleViewModelServiceMock;
+    protected Mock<IProductRelatedViewModelService> _productRelatedViewModelServiceMock;
+    protected Mock<IProductPriceViewModelService> _productPriceViewModelServiceMock;
+    protected Mock<IProductBidViewModelService> _productBidViewModelServiceMock;
+    protected Mock<IProductCollectionViewModelService> _productCollectionViewModelServiceMock;
+    protected Mock<IProductCategoryViewModelService> _productCategoryViewModelServiceMock;
+    protected Mock<IProductPictureViewModelService> _productPictureViewModelServiceMock;
+    protected Mock<IProductSpecificationViewModelService> _productSpecificationViewModelServiceMock;
     protected Mock<IRequestTranslationService> _translationServiceMock;
     protected Mock<IAdminDataScope<Product>> _scopeMock;
     protected Mock<IRequestPermissionService> _permissionServiceMock;
@@ -52,6 +64,18 @@ public abstract class ProductControllerTestsBase<TController> where TController 
 
         _productServiceMock = new Mock<IProductService>();
         _productViewModelServiceMock = new Mock<IProductViewModelService>();
+        _productAddPopupViewModelServiceMock = new Mock<IProductAddPopupViewModelService>();
+        _productAttributeCombinationViewModelServiceMock = new Mock<IProductAttributeCombinationViewModelService>();
+        _productAttributeMappingViewModelServiceMock = new Mock<IProductAttributeMappingViewModelService>();
+        _productAssociatedViewModelServiceMock = new Mock<IProductAssociatedViewModelService>();
+        _productBundleViewModelServiceMock = new Mock<IProductBundleViewModelService>();
+        _productRelatedViewModelServiceMock = new Mock<IProductRelatedViewModelService>();
+        _productPriceViewModelServiceMock = new Mock<IProductPriceViewModelService>();
+        _productBidViewModelServiceMock = new Mock<IProductBidViewModelService>();
+        _productCollectionViewModelServiceMock = new Mock<IProductCollectionViewModelService>();
+        _productCategoryViewModelServiceMock = new Mock<IProductCategoryViewModelService>();
+        _productPictureViewModelServiceMock = new Mock<IProductPictureViewModelService>();
+        _productSpecificationViewModelServiceMock = new Mock<IProductSpecificationViewModelService>();
         _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 

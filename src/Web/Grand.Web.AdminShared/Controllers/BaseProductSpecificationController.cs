@@ -18,7 +18,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductSpecificationController(
-    IProductViewModelService productViewModelService,
+    IProductSpecificationViewModelService productSpecificationViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
@@ -59,7 +59,7 @@ public abstract class BaseProductSpecificationController(
         if (!await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        var productrSpecsModel = await productViewModelService.PrepareProductSpecificationAttributeModel(product);
+        var productrSpecsModel = await productSpecificationViewModelService.PrepareProductSpecificationAttributeModel(product);
         var gridModel = new DataSourceResult {
             Data = productrSpecsModel,
             Total = productrSpecsModel.Count
@@ -113,9 +113,9 @@ public abstract class BaseProductSpecificationController(
 
             var psa = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == model.Id);
             if (psa == null)
-                await productViewModelService.InsertProductSpecificationAttributeModel(model, product);
+                await productSpecificationViewModelService.InsertProductSpecificationAttributeModel(model, product);
             else
-                await productViewModelService.UpdateProductSpecificationAttributeModel(psa, model);
+                await productSpecificationViewModelService.UpdateProductSpecificationAttributeModel(psa, model);
 
             return new JsonResult("");
         }
@@ -162,7 +162,7 @@ public abstract class BaseProductSpecificationController(
             if (psa == null)
                 throw new ArgumentException("No specification attribute found with the specified id");
 
-            await productViewModelService.DeleteProductSpecificationAttribute(product, psa);
+            await productSpecificationViewModelService.DeleteProductSpecificationAttribute(product, psa);
             return new JsonResult("");
         }
 
