@@ -1353,24 +1353,6 @@ public class ProductViewModelService(
         return items;
     }
 
-    public virtual async Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(
-        string productId, int pageIndex, int pageSize)
-    {
-        var bids = await auctionService.GetBidsByProductId(productId, pageIndex - 1, pageSize);
-        var bidsModel = new List<ProductModel.BidModel>();
-        foreach (var x in bids)
-            bidsModel.Add(new ProductModel.BidModel {
-                BidId = x.Id,
-                ProductId = x.ProductId,
-                Amount = priceFormatter.FormatPrice(x.Amount, contextAccessor.WorkContext.WorkingCurrency),
-                Date = dateTimeService.ConvertToUserTime(x.Date, DateTimeKind.Utc),
-                CustomerId = x.CustomerId,
-                Email = (await customerService.GetCustomerById(x.CustomerId))?.Email,
-                OrderId = x.OrderId
-            });
-        return (bidsModel, bids.TotalCount);
-    }
-
     public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
         Product product)
     {

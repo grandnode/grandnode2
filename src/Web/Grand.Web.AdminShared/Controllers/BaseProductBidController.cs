@@ -16,7 +16,7 @@ namespace Grand.Web.AdminShared.Controllers;
 [PermissionAuthorize(PermissionSystemName.Products)]
 [AutoValidateAntiforgeryToken]
 public abstract class BaseProductBidController(
-    IProductViewModelService productViewModelService,
+    IProductBidViewModelService productBidViewModelService,
     IProductService productService,
     IRequestTranslationService translationService,
     IAuctionService auctionService,
@@ -46,7 +46,7 @@ public abstract class BaseProductBidController(
             return Json(new DataSourceResult { Data = Array.Empty<object>(), Total = 0 });
 
         var (bidModels, totalCount) =
-            await productViewModelService.PrepareBidMode(productId, command.Page, command.PageSize);
+            await productBidViewModelService.PrepareBidMode(productId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = bidModels.ToList(),
             Total = totalCount

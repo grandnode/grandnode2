@@ -71,9 +71,6 @@ public interface IProductViewModelService
     //tierprices
     Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product);
 
-    Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(string productId, int pageIndex,
-        int pageSize);
-
     Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product);
 
     Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
