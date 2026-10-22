@@ -6,7 +6,7 @@
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"];
 }
 
-<form asp-area="@area" asp-controller="Product" asp-action="AssociateProductToAttributeValuePopup"
+<form asp-area="@area" asp-controller="ProductAttributeMapping" asp-action="AssociateProductToAttributeValuePopup"
       asp-route-productIdInput="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productIdInput"])"
       asp-route-productNameInput="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productNameInput"])" id="associateproduct">
     <admin-popup title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]" icon="bi-boxes">
@@ -26,7 +26,7 @@
         </admin-filters>
         <admin-card flush>
             <admin-grid id="products-grid"
-                        read-url="@Url.Action("AssociateProductToAttributeValuePopupList", "Product", new { area = area })"
+                        read-url="@Url.Action("AssociateProductToAttributeValuePopupList", "ProductAttributeMapping", new { area = area })"
                         additional-data="additionalData">
                 <grid-text name="select" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]"/>
                 <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]" width="50">

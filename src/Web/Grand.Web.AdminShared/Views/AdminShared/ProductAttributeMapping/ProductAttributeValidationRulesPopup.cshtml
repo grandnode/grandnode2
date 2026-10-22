@@ -9,7 +9,7 @@
 
     var attributeControlType = Model.AttributeControlTypeId;
 }
-<form id="ProductAttributeValidationRulesPopup" asp-area="@area" asp-controller="Product" asp-action="ProductAttributeValidationRulesPopup" enctype="multipart/form-data" method="post"
+<form id="ProductAttributeValidationRulesPopup" asp-area="@area" asp-controller="ProductAttributeMapping" asp-action="ProductAttributeValidationRulesPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
