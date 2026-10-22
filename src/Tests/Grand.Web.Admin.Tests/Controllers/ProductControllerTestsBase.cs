@@ -28,6 +28,7 @@ public abstract class ProductControllerTestsBase<TController> where TController 
     protected TController _controller;
     protected Mock<IProductService> _productServiceMock;
     protected Mock<IProductViewModelService> _productViewModelServiceMock;
+    protected Mock<IProductAttributeCombinationViewModelService> _productAttributeCombinationViewModelServiceMock;
     protected Mock<IProductAttributeMappingViewModelService> _productAttributeMappingViewModelServiceMock;
     protected Mock<IProductAssociatedViewModelService> _productAssociatedViewModelServiceMock;
     protected Mock<IProductBundleViewModelService> _productBundleViewModelServiceMock;
@@ -62,6 +63,7 @@ public abstract class ProductControllerTestsBase<TController> where TController 
 
         _productServiceMock = new Mock<IProductService>();
         _productViewModelServiceMock = new Mock<IProductViewModelService>();
+        _productAttributeCombinationViewModelServiceMock = new Mock<IProductAttributeCombinationViewModelService>();
         _productAttributeMappingViewModelServiceMock = new Mock<IProductAttributeMappingViewModelService>();
         _productAssociatedViewModelServiceMock = new Mock<IProductAssociatedViewModelService>();
         _productBundleViewModelServiceMock = new Mock<IProductBundleViewModelService>();

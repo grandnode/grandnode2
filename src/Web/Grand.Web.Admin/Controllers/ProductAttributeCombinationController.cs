@@ -14,9 +14,9 @@ namespace Grand.Web.Admin.Controllers;
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
 public class ProductAttributeCombinationController(
-    IProductViewModelService productViewModelService,
+    IProductAttributeCombinationViewModelService productAttributeCombinationViewModelService,
     IProductService productService,
     IInventoryManageService inventoryManageService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductAttributeCombinationController(productViewModelService, productService, inventoryManageService, translationService, scope);
+    : BaseProductAttributeCombinationController(productAttributeCombinationViewModelService, productService, inventoryManageService, translationService, scope);
