@@ -13,8 +13,8 @@
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="bids-grid"
                         read-only="@readOnly"
-                        read-url="@Url.Action("ListBids", "Product", new { productId = Model.Id, area = area })"
-                        destroy-url="@Url.Action("BidDelete", "Product", new { area = area })"
+                        read-url="@Url.Action("ListBids", "ProductBid", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("BidDelete", "ProductBid", new { area = area })"
                         auto-bind="false">
                 <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
                 <grid-column field="Date" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.Date"]" width="200" format="{0:MM/dd/yyyy  h:mm tt}"/>
