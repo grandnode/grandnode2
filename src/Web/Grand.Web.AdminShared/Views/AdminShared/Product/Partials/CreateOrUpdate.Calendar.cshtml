@@ -72,8 +72,8 @@
         }
         <admin-grid id="reservations-grid"
                     read-only="@readOnly"
-                    read-url="@Url.Action("ListReservations", "Product", new { productId = Model.Id, area = area })"
-                    destroy-url="@Url.Action("ProductReservationDelete", "Product", new { area = area })"
+                    read-url="@Url.Action("ListReservations", "ProductReservation", new { productId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("ProductReservationDelete", "ProductReservation", new { area = area })"
                     auto-bind="false">
             <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
             <grid-column field="Date" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Date"]" width="200" format="{0:G}"/>
@@ -174,7 +174,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("GenerateCalendar", "Product", new { area = area }))",
+                    url: "@(Url.Action("GenerateCalendar", "ProductReservation", new { area = area }))",
                     dataType: 'json',
                     data: postData,
                     success: function (data) {
@@ -207,7 +207,7 @@
                     $.ajax({
                         cache: false,
                         type: "POST",
-                        url: "@(Url.Action("ClearCalendar", "Product", new { area = area }))",
+                        url: "@(Url.Action("ClearCalendar", "ProductReservation", new { area = area }))",
                         dataType: 'json',
                         data: postData,
                         success: function (data) {
@@ -231,7 +231,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("ClearOld", "Product", new { area = area }))",
+                    url: "@(Url.Action("ClearOld", "ProductReservation", new { area = area }))",
                     dataType: 'json',
                     data: postData,
                     success: function (data) {
