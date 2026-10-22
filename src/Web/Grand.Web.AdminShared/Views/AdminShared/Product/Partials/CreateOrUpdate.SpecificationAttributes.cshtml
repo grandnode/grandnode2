@@ -12,15 +12,15 @@
             <h2 class="grand-card__title"></h2>
             @if (!readOnly)
             {
-                <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddButton"]</a>
+                <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "ProductSpecification", new { productId = Model.Id, area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddButton"]</a>
             }
         </div>
         <partial name="Partials/WidgetZone.SpecificationAttributes.Top" model="Model"/>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="specificationattributes-grid"
                         read-only="@readOnly"
-                        read-url="@Url.Action("ProductSpecAttrList", "Product", new { productId = Model.Id, area = area })"
-                        destroy-url="@Url.Action("ProductSpecAttrDelete", "Product", new { area = area })"
+                        read-url="@Url.Action("ProductSpecAttrList", "ProductSpecification", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("ProductSpecAttrDelete", "ProductSpecification", new { area = area })"
                         pager="Compact"
                         auto-bind="false"
                         on-data-bound="bindSpecificationAttributePopups">
@@ -32,7 +32,7 @@
                         }
                         else
                         {
-                            <a class='text-decoration-none btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = area })/?productId=@(Model.Id)&id={{ Id }}'>{{ AttributeTypeName }}</a>
+                            <a class='text-decoration-none btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "ProductSpecification", new { area = area })/?productId=@(Model.Id)&id={{ Id }}'>{{ AttributeTypeName }}</a>
                         }
                     </cell-template>
                 </grid-column>
@@ -45,7 +45,7 @@
                         }
                         else
                         {
-                            <a class='text-decoration-none btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = area })/?productId=@(Model.Id)&id={{ Id }}'>{{ AttributeName }} : {{{ ValueRaw }}} </a>
+                            <a class='text-decoration-none btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "ProductSpecification", new { area = area })/?productId=@(Model.Id)&id={{ Id }}'>{{ AttributeName }} : {{{ ValueRaw }}} </a>
                         }
                     </cell-template>
                 </grid-column>
