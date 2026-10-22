@@ -101,6 +101,7 @@ public class GetVendorHandler : IRequestHandler<GetVendor, VendorModel>
 
         //products
         var products = await _mediator.Send(new GetSearchProductsQuery {
+            CacheListingSummary = true,
             LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
             Customer = request.Customer,
             VendorId = request.Vendor.Id,

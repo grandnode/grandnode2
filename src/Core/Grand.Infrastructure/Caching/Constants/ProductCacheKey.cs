@@ -16,6 +16,20 @@ public static partial class CacheKey
     public static string PRODUCTS_BY_ID_KEY => "Grand.product.id-{0}";
 
     /// <summary>
+    ///     Key for caching the total count and the filterable specification option ids of a storefront product listing
+    /// </summary>
+    /// <remarks>
+    ///     {0} : hash of every listing filter - categories, brand, collection, store, customer groups, specifications,
+    ///     price, rating, keywords, flags
+    /// </remarks>
+    public static string PRODUCTS_LISTING_SUMMARY_KEY => "Grand.product.listing-{0}";
+
+    /// <summary>
+    ///     Key pattern to clear cache
+    /// </summary>
+    public static string PRODUCTS_LISTING_PATTERN_KEY => "Grand.product.listing";
+
+    /// <summary>
     ///     Key for caching
     /// </summary>
     /// <remarks>

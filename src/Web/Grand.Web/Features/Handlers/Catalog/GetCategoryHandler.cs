@@ -192,6 +192,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
             await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(
                 _httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
         var products = await _mediator.Send(new GetSearchProductsQuery {
+            CacheListingSummary = true,
             LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
             CategoryIds = categoryIds,
             Customer = request.Customer,

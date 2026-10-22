@@ -42,6 +42,7 @@ public class GetProductsByTagHandler : IRequestHandler<GetProductsByTag, Product
 
         //products
         var products = (await _mediator.Send(new GetSearchProductsQuery {
+            CacheListingSummary = true,
             Customer = request.Customer,
             StoreId = request.Store.Id,
             ProductTag = request.ProductTag.Name,

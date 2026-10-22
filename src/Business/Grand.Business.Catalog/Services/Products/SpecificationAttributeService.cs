@@ -230,6 +230,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityInserted(productSpecificationAttribute);
@@ -249,6 +250,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(productSpecificationAttribute);
@@ -268,6 +270,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         //clear cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(productSpecificationAttribute);

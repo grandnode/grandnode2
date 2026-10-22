@@ -103,6 +103,7 @@ public class ProductCategoryService : IProductCategoryService
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityInserted(productCategory);
@@ -123,6 +124,7 @@ public class ProductCategoryService : IProductCategoryService
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(productCategory);
@@ -142,6 +144,7 @@ public class ProductCategoryService : IProductCategoryService
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(productCategory);
