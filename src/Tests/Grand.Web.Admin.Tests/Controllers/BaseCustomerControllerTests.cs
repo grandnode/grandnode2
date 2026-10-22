@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Addresses;
+﻿using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
@@ -27,11 +27,16 @@ namespace Grand.Web.Admin.Tests.Controllers;
 public class BaseCustomerControllerTests
 {
     // BaseCustomerController is abstract; minimal subclass so actions can be invoked directly.
-    // The full 17-dependency constructor is declared once here; every later task's tests reuse
+    // The full 22-dependency constructor is declared once here; every later task's tests reuse
     // this same TestCustomerController and Setup().
     protected class TestCustomerController(
         ICustomerService customerService,
         ICustomerViewModelService customerViewModelService,
+        ICustomerAddressViewModelService customerAddressViewModelService,
+        ICustomerLoyaltyPointsViewModelService customerLoyaltyPointsViewModelService,
+        ICustomerShoppingCartViewModelService customerShoppingCartViewModelService,
+        ICustomerProductViewModelService customerProductViewModelService,
+        ICustomerOutOfStockSubscriptionViewModelService customerOutOfStockSubscriptionViewModelService,
         ICustomerManagerService customerManagerService,
         ICustomerProductService customerProductService,
         Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService productReviewService,
@@ -47,7 +52,9 @@ public class BaseCustomerControllerTests
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings,
         IAdminDataScope<Customer> scope)
-        : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
+        : BaseCustomerController(customerService, customerViewModelService, customerAddressViewModelService,
+            customerLoyaltyPointsViewModelService, customerShoppingCartViewModelService,
+            customerProductViewModelService, customerOutOfStockSubscriptionViewModelService, customerManagerService,
             customerProductService, productReviewService, productReviewViewModelService,
             productViewModelService, customerAttributeParser, customerAttributeService,
             addressAttributeParser, addressAttributeService, messageProviderService, groupService,
@@ -59,6 +66,11 @@ public class BaseCustomerControllerTests
     protected TestCustomerController Controller;
     protected Mock<ICustomerService> CustomerServiceMock;
     protected Mock<ICustomerViewModelService> CustomerViewModelServiceMock;
+    protected Mock<ICustomerAddressViewModelService> CustomerAddressViewModelServiceMock;
+    protected Mock<ICustomerLoyaltyPointsViewModelService> CustomerLoyaltyPointsViewModelServiceMock;
+    protected Mock<ICustomerShoppingCartViewModelService> CustomerShoppingCartViewModelServiceMock;
+    protected Mock<ICustomerProductViewModelService> CustomerProductViewModelServiceMock;
+    protected Mock<ICustomerOutOfStockSubscriptionViewModelService> CustomerOutOfStockSubscriptionViewModelServiceMock;
     protected Mock<ICustomerManagerService> CustomerManagerServiceMock;
     protected Mock<IGroupService> GroupServiceMock;
     protected Mock<IAdminDataScope<Customer>> ScopeMock;
@@ -72,6 +84,11 @@ public class BaseCustomerControllerTests
     {
         CustomerServiceMock = new Mock<ICustomerService>();
         CustomerViewModelServiceMock = new Mock<ICustomerViewModelService>();
+        CustomerAddressViewModelServiceMock = new Mock<ICustomerAddressViewModelService>();
+        CustomerLoyaltyPointsViewModelServiceMock = new Mock<ICustomerLoyaltyPointsViewModelService>();
+        CustomerShoppingCartViewModelServiceMock = new Mock<ICustomerShoppingCartViewModelService>();
+        CustomerProductViewModelServiceMock = new Mock<ICustomerProductViewModelService>();
+        CustomerOutOfStockSubscriptionViewModelServiceMock = new Mock<ICustomerOutOfStockSubscriptionViewModelService>();
         CustomerManagerServiceMock = new Mock<ICustomerManagerService>();
         GroupServiceMock = new Mock<IGroupService>();
         ScopeMock = new Mock<IAdminDataScope<Customer>>();
@@ -89,6 +106,11 @@ public class BaseCustomerControllerTests
         Controller = new TestCustomerController(
             CustomerServiceMock.Object,
             CustomerViewModelServiceMock.Object,
+            CustomerAddressViewModelServiceMock.Object,
+            CustomerLoyaltyPointsViewModelServiceMock.Object,
+            CustomerShoppingCartViewModelServiceMock.Object,
+            CustomerProductViewModelServiceMock.Object,
+            CustomerOutOfStockSubscriptionViewModelServiceMock.Object,
             CustomerManagerServiceMock.Object,
             CustomerProductServiceMock.Object,
             ProductReviewServiceMock.Object,
@@ -355,6 +377,9 @@ public class BaseCustomerControllerTests
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
         // Rebuild controller with a context accessor whose CurrentCustomer matches the target id.
         var controller = new TestCustomerController(CustomerServiceMock.Object, CustomerViewModelServiceMock.Object,
+            CustomerAddressViewModelServiceMock.Object, CustomerLoyaltyPointsViewModelServiceMock.Object,
+            CustomerShoppingCartViewModelServiceMock.Object, CustomerProductViewModelServiceMock.Object,
+            CustomerOutOfStockSubscriptionViewModelServiceMock.Object,
             CustomerManagerServiceMock.Object, new Mock<ICustomerProductService>().Object,
             new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService>().Object,
             new Mock<Grand.Web.AdminShared.Interfaces.IProductReviewViewModelService>().Object,
@@ -386,14 +411,14 @@ public class BaseCustomerControllerTests
         CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
         ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        CustomerViewModelServiceMock
+        CustomerLoyaltyPointsViewModelServiceMock
             .Setup(v => v.InsertLoyaltyPointsHistory(customer, "store-1", 10, "msg"))
             .ReturnsAsync(new Grand.Domain.Orders.LoyaltyPointsHistory());
 
         // Caller submits a different, attacker-controlled storeId — must be ignored under Store scope.
         await Controller.LoyaltyPointsHistoryAdd("c1", "attacker-store", 10, "msg");
 
-        CustomerViewModelServiceMock.Verify(v => v.InsertLoyaltyPointsHistory(customer, "store-1", 10, "msg"), Times.Once);
+        CustomerLoyaltyPointsViewModelServiceMock.Verify(v => v.InsertLoyaltyPointsHistory(customer, "store-1", 10, "msg"), Times.Once);
     }
 
     [TestMethod]
@@ -403,13 +428,13 @@ public class BaseCustomerControllerTests
         CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
         ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        CustomerViewModelServiceMock
+        CustomerLoyaltyPointsViewModelServiceMock
             .Setup(v => v.InsertLoyaltyPointsHistory(customer, "admin-submitted-store", 10, "msg"))
             .ReturnsAsync(new Grand.Domain.Orders.LoyaltyPointsHistory());
 
         await Controller.LoyaltyPointsHistoryAdd("c1", "admin-submitted-store", 10, "msg");
 
-        CustomerViewModelServiceMock.Verify(v => v.InsertLoyaltyPointsHistory(customer, "admin-submitted-store", 10, "msg"), Times.Once);
+        CustomerLoyaltyPointsViewModelServiceMock.Verify(v => v.InsertLoyaltyPointsHistory(customer, "admin-submitted-store", 10, "msg"), Times.Once);
     }
 
     [TestMethod]
@@ -429,7 +454,7 @@ public class BaseCustomerControllerTests
         ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
         var model = new CustomerAddressModel { CustomerId = "c1", Address = new AddressModel() };
         var inserted = new Grand.Domain.Common.Address { Id = "a1" };
-        CustomerViewModelServiceMock
+        CustomerAddressViewModelServiceMock
             .Setup(v => v.InsertAddressModel(customer, model, It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
             .ReturnsAsync(inserted);
 
@@ -475,7 +500,7 @@ public class BaseCustomerControllerTests
     public async Task GetCartList_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        CustomerViewModelServiceMock.Setup(v => v.PrepareShoppingCartItemModel("any-customer-id", 1))
+        CustomerShoppingCartViewModelServiceMock.Setup(v => v.PrepareShoppingCartItemModel("any-customer-id", 1))
             .ReturnsAsync(new List<Grand.Web.AdminShared.Models.ShoppingCart.ShoppingCartItemModel>());
 
         var result = await Controller.GetCartList("any-customer-id", 1);
@@ -495,7 +520,7 @@ public class BaseCustomerControllerTests
         var json = result as JsonResult;
         var data = json.Value as DataSourceResult;
         Assert.AreEqual(0, data.Total);
-        CustomerViewModelServiceMock.Verify(v => v.PrepareShoppingCartItemModel(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+        CustomerShoppingCartViewModelServiceMock.Verify(v => v.PrepareShoppingCartItemModel(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
     }
 
     [TestMethod]
@@ -512,12 +537,12 @@ public class BaseCustomerControllerTests
     public async Task DeleteProductPrice_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        CustomerViewModelServiceMock.Setup(v => v.DeleteProductPrice("pp1")).Returns(Task.CompletedTask);
+        CustomerProductViewModelServiceMock.Setup(v => v.DeleteProductPrice("pp1")).Returns(Task.CompletedTask);
 
         var result = await Controller.DeleteProductPrice("pp1");
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
-        CustomerViewModelServiceMock.Verify(v => v.DeleteProductPrice("pp1"), Times.Once);
+        CustomerProductViewModelServiceMock.Verify(v => v.DeleteProductPrice("pp1"), Times.Once);
     }
 
     [TestMethod]
@@ -530,7 +555,7 @@ public class BaseCustomerControllerTests
         var result = await Controller.DeleteProductPrice("pp1");
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
-        CustomerViewModelServiceMock.Verify(v => v.DeleteProductPrice(It.IsAny<string>()), Times.Never);
+        CustomerProductViewModelServiceMock.Verify(v => v.DeleteProductPrice(It.IsAny<string>()), Times.Never);
         CustomerProductServiceMock.Verify(s => s.DeleteCustomerProductPrice(It.IsAny<Grand.Domain.Customers.CustomerProductPrice>()), Times.Never);
     }
 
@@ -549,7 +574,7 @@ public class BaseCustomerControllerTests
         var result = await Controller.DeleteProductPrice("pp1");
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
-        CustomerViewModelServiceMock.Verify(v => v.DeleteProductPrice(It.IsAny<string>()), Times.Never);
+        CustomerProductViewModelServiceMock.Verify(v => v.DeleteProductPrice(It.IsAny<string>()), Times.Never);
         CustomerProductServiceMock.Verify(s => s.DeleteCustomerProductPrice(It.IsAny<Grand.Domain.Customers.CustomerProductPrice>()), Times.Never);
     }
 
@@ -577,7 +602,7 @@ public class BaseCustomerControllerTests
         var json = result as JsonResult;
         var data = json.Value as DataSourceResult;
         Assert.AreEqual(0, data.Total);
-        CustomerViewModelServiceMock.Verify(
+        CustomerProductViewModelServiceMock.Verify(
             v => v.PrepareProductPriceModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
@@ -585,14 +610,14 @@ public class BaseCustomerControllerTests
     public async Task ProductsPrice_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        CustomerViewModelServiceMock.Setup(v => v.PrepareProductPriceModel("c1", 1, 10))
+        CustomerProductViewModelServiceMock.Setup(v => v.PrepareProductPriceModel("c1", 1, 10))
             .ReturnsAsync((Enumerable.Empty<CustomerModel.ProductPriceModel>(), 0));
 
         var result = await Controller.ProductsPrice(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
-        CustomerViewModelServiceMock.Verify(v => v.PrepareProductPriceModel("c1", 1, 10), Times.Once);
+        CustomerProductViewModelServiceMock.Verify(v => v.PrepareProductPriceModel("c1", 1, 10), Times.Once);
     }
 
     [TestMethod]
@@ -606,7 +631,7 @@ public class BaseCustomerControllerTests
         var json = result as JsonResult;
         var data = json.Value as DataSourceResult;
         Assert.AreEqual(0, data.Total);
-        CustomerViewModelServiceMock.Verify(
+        CustomerProductViewModelServiceMock.Verify(
             v => v.PreparePersonalizedProducts(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
@@ -614,14 +639,14 @@ public class BaseCustomerControllerTests
     public async Task PersonalizedProducts_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        CustomerViewModelServiceMock.Setup(v => v.PreparePersonalizedProducts("c1", 1, 10))
+        CustomerProductViewModelServiceMock.Setup(v => v.PreparePersonalizedProducts("c1", 1, 10))
             .ReturnsAsync((Enumerable.Empty<CustomerModel.ProductModel>(), 0));
 
         var result = await Controller.PersonalizedProducts(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
-        CustomerViewModelServiceMock.Verify(v => v.PreparePersonalizedProducts("c1", 1, 10), Times.Once);
+        CustomerProductViewModelServiceMock.Verify(v => v.PreparePersonalizedProducts("c1", 1, 10), Times.Once);
     }
 
     [TestMethod]
@@ -659,7 +684,7 @@ public class BaseCustomerControllerTests
     public async Task OutOfStockSubscriptionList_GlobalScope_NoOwnershipCheck()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        CustomerViewModelServiceMock
+        CustomerOutOfStockSubscriptionViewModelServiceMock
             .Setup(v => v.PrepareOutOfStockSubscriptionModel("c1", 1, 10))
             .ReturnsAsync((Enumerable.Empty<CustomerModel.OutOfStockSubscriptionModel>(), 0));
 

@@ -1,4 +1,4 @@
-using Grand.Web.Admin.Extensions;
+﻿using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +14,13 @@ namespace Grand.Web.Admin.Controllers;
 public class CustomerController(
     Grand.Business.Core.Interfaces.Customers.ICustomerService customerService,
     Grand.Web.AdminShared.Interfaces.ICustomerViewModelService customerViewModelService,
+    Grand.Web.AdminShared.Interfaces.ICustomerAddressViewModelService customerAddressViewModelService,
+    Grand.Web.AdminShared.Interfaces.ICustomerLoyaltyPointsViewModelService customerLoyaltyPointsViewModelService,
+    Grand.Web.AdminShared.Interfaces.ICustomerShoppingCartViewModelService customerShoppingCartViewModelService,
+    Grand.Web.AdminShared.Interfaces.ICustomerProductViewModelService customerProductViewModelService,
+    Grand.Web.AdminShared.Interfaces.ICustomerOutOfStockSubscriptionViewModelService customerOutOfStockSubscriptionViewModelService,
+    Grand.Web.AdminShared.Interfaces.ICustomerNoteViewModelService customerNoteViewModelService,
+    Grand.Web.AdminShared.Interfaces.ICustomerContactFormViewModelService customerContactFormViewModelService,
     Grand.Business.Core.Interfaces.Customers.ICustomerManagerService customerManagerService,
     Grand.Business.Core.Interfaces.Marketing.Customers.ICustomerProductService customerProductService,
     Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService productReviewService,
@@ -31,7 +38,10 @@ public class CustomerController(
     Grand.Web.AdminShared.Interfaces.IAdminDataScope<Grand.Domain.Customers.Customer> scope,
     IRequestPermissionService permissionService,
     Grand.Business.Core.Interfaces.ExportImport.IExportManager<Grand.Domain.Customers.Customer> exportManager)
-    : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
+    : BaseCustomerManagementController(customerService, customerViewModelService, customerAddressViewModelService,
+        customerLoyaltyPointsViewModelService, customerShoppingCartViewModelService, customerProductViewModelService,
+        customerOutOfStockSubscriptionViewModelService, customerNoteViewModelService, customerContactFormViewModelService,
+        customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
         customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
         messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,

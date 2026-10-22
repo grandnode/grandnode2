@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
@@ -23,6 +23,13 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseCustomerManagementController(
     ICustomerService customerService,
     ICustomerViewModelService customerViewModelService,
+    ICustomerAddressViewModelService customerAddressViewModelService,
+    ICustomerLoyaltyPointsViewModelService customerLoyaltyPointsViewModelService,
+    ICustomerShoppingCartViewModelService customerShoppingCartViewModelService,
+    ICustomerProductViewModelService customerProductViewModelService,
+    ICustomerOutOfStockSubscriptionViewModelService customerOutOfStockSubscriptionViewModelService,
+    ICustomerNoteViewModelService customerNoteViewModelService,
+    ICustomerContactFormViewModelService customerContactFormViewModelService,
     ICustomerManagerService customerManagerService,
     ICustomerProductService customerProductService,
     IProductReviewService productReviewService,
@@ -40,7 +47,9 @@ public abstract class BaseCustomerManagementController(
     IAdminDataScope<Customer> scope,
     IRequestPermissionService permissionService,
     IExportManager<Customer> exportManager)
-    : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
+    : BaseCustomerController(customerService, customerViewModelService, customerAddressViewModelService,
+        customerLoyaltyPointsViewModelService, customerShoppingCartViewModelService, customerProductViewModelService,
+        customerOutOfStockSubscriptionViewModelService, customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
         customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
         messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope)
@@ -60,7 +69,7 @@ public abstract class BaseCustomerManagementController(
     public async Task<IActionResult> ContactFormList(DataSourceRequest command, string customerId)
     {
         var (contactFormModels, totalCount) =
-            await CustomerViewModelService.PrepareContactFormModel(customerId, command.Page, command.PageSize);
+            await customerContactFormViewModelService.PrepareContactFormModel(customerId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult { Data = contactFormModels.ToList(), Total = totalCount };
         return Json(gridModel);
     }
@@ -124,7 +133,7 @@ public abstract class BaseCustomerManagementController(
         var (_, denied) = await LoadAuthorizedCustomer(customerId);
         if (denied != null) throw new ArgumentException("No customer found with the specified id");
 
-        var customerNoteModels = await CustomerViewModelService.PrepareCustomerNoteList(customerId);
+        var customerNoteModels = await customerNoteViewModelService.PrepareCustomerNoteList(customerId);
         var gridModel = new DataSourceResult { Data = customerNoteModels, Total = customerNoteModels.Count };
         return Json(gridModel);
     }
@@ -136,7 +145,7 @@ public abstract class BaseCustomerManagementController(
         var (_, denied) = await LoadAuthorizedCustomer(customerId);
         if (denied != null) return Json(new { Result = false });
 
-        await CustomerViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title, message);
+        await customerNoteViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title, message);
         return Json(new { Result = true });
     }
 
@@ -147,7 +156,7 @@ public abstract class BaseCustomerManagementController(
         var (_, denied) = await LoadAuthorizedCustomer(customerId);
         if (denied != null) throw new ArgumentException("No customer found with the specified id");
 
-        await CustomerViewModelService.DeleteCustomerNote(id, customerId);
+        await customerNoteViewModelService.DeleteCustomerNote(id, customerId);
         return new JsonResult("");
     }
 

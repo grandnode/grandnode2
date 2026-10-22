@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
@@ -70,6 +70,11 @@ public class CustomerControllerTests
     private class TestableCustomerController(
         ICustomerService customerService,
         ICustomerViewModelService customerViewModelService,
+        ICustomerAddressViewModelService customerAddressViewModelService,
+        ICustomerLoyaltyPointsViewModelService customerLoyaltyPointsViewModelService,
+        ICustomerShoppingCartViewModelService customerShoppingCartViewModelService,
+        ICustomerProductViewModelService customerProductViewModelService,
+        ICustomerOutOfStockSubscriptionViewModelService customerOutOfStockSubscriptionViewModelService,
         ICustomerManagerService customerManagerService,
         ICustomerProductService customerProductService,
         IProductReviewService productReviewService,
@@ -86,7 +91,9 @@ public class CustomerControllerTests
         CustomerSettings customerSettings,
         IAdminDataScope<Customer> scope,
         CustomerConfig customerConfig)
-        : CustomerController(customerService, customerViewModelService, customerManagerService,
+        : CustomerController(customerService, customerViewModelService, customerAddressViewModelService,
+            customerLoyaltyPointsViewModelService, customerShoppingCartViewModelService,
+            customerProductViewModelService, customerOutOfStockSubscriptionViewModelService, customerManagerService,
             customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
             customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
             messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
@@ -101,6 +108,11 @@ public class CustomerControllerTests
         var controller = new TestableCustomerController(
             _customerServiceMock.Object,
             _customerViewModelServiceMock.Object,
+            new Mock<ICustomerAddressViewModelService>().Object,
+            new Mock<ICustomerLoyaltyPointsViewModelService>().Object,
+            new Mock<ICustomerShoppingCartViewModelService>().Object,
+            new Mock<ICustomerProductViewModelService>().Object,
+            new Mock<ICustomerOutOfStockSubscriptionViewModelService>().Object,
             _customerManagerServiceMock.Object,
             new Mock<ICustomerProductService>().Object,
             new Mock<IProductReviewService>().Object,

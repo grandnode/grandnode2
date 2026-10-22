@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -32,6 +32,11 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseCustomerController(
     ICustomerService customerService,
     ICustomerViewModelService customerViewModelService,
+    ICustomerAddressViewModelService customerAddressViewModelService,
+    ICustomerLoyaltyPointsViewModelService customerLoyaltyPointsViewModelService,
+    ICustomerShoppingCartViewModelService customerShoppingCartViewModelService,
+    ICustomerProductViewModelService customerProductViewModelService,
+    ICustomerOutOfStockSubscriptionViewModelService customerOutOfStockSubscriptionViewModelService,
     ICustomerManagerService customerManagerService,
     ICustomerProductService customerProductService,
     IProductReviewService productReviewService,
@@ -427,7 +432,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(customerId);
         if (customer is null) throw new ArgumentException("No customer found with the specified id");
 
-        var model = (await customerViewModelService.PrepareLoyaltyPointsHistoryModel(customerId)).ToList();
+        var model = (await customerLoyaltyPointsViewModelService.PrepareLoyaltyPointsHistoryModel(customerId)).ToList();
         var gridModel = new DataSourceResult { Data = model, Total = model.Count };
         return Json(gridModel);
     }
@@ -444,7 +449,7 @@ public abstract class BaseCustomerController(
         // and keeps using whatever the caller (its own store picker) submitted.
         var effectiveStoreId = scope.DefaultStoreId ?? storeId;
 
-        await customerViewModelService.InsertLoyaltyPointsHistory(customer, effectiveStoreId,
+        await customerLoyaltyPointsViewModelService.InsertLoyaltyPointsHistory(customer, effectiveStoreId,
             addLoyaltyPointsValue, addLoyaltyPointsMessage);
         return Json(new { Result = true });
     }
@@ -460,7 +465,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(customerId);
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
-        var addresses = (await customerViewModelService.PrepareAddressModel(customer)).ToList();
+        var addresses = (await customerAddressViewModelService.PrepareAddressModel(customer)).ToList();
         var gridModel = new DataSourceResult { Data = addresses, Total = addresses.Count };
         return Json(gridModel);
     }
@@ -493,7 +498,7 @@ public abstract class BaseCustomerController(
         if (address == null) return Content("No customer found with the specified id");
         if (ModelState.IsValid)
         {
-            await customerViewModelService.DeleteAddress(customer, address);
+            await customerAddressViewModelService.DeleteAddress(customer, address);
             return new JsonResult("");
         }
 
@@ -507,7 +512,7 @@ public abstract class BaseCustomerController(
         if (customer is null) return denied!;
 
         var model = new CustomerAddressModel();
-        await customerViewModelService.PrepareAddressModel(model, null, customer, false);
+        await customerAddressViewModelService.PrepareAddressModel(model, null, customer, false);
         return View(model);
     }
 
@@ -522,12 +527,12 @@ public abstract class BaseCustomerController(
         {
             var customAttributes =
                 await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            var address = await customerViewModelService.InsertAddressModel(customer, model, customAttributes);
+            var address = await customerAddressViewModelService.InsertAddressModel(customer, model, customAttributes);
             Success(translationService.GetResource("Admin.Customers.Customers.Addresses.Added"));
             return RedirectToAction("AddressEdit", new { addressId = address.Id, customerId = model.CustomerId });
         }
 
-        await customerViewModelService.PrepareAddressModel(model, null, customer, true);
+        await customerAddressViewModelService.PrepareAddressModel(model, null, customer, true);
         return View(model);
     }
 
@@ -541,7 +546,7 @@ public abstract class BaseCustomerController(
         if (address == null) return RedirectToAction("Edit", new { id = customer.Id });
 
         var model = new CustomerAddressModel();
-        await customerViewModelService.PrepareAddressModel(model, address, customer, false);
+        await customerAddressViewModelService.PrepareAddressModel(model, address, customer, false);
         return View(model);
     }
 
@@ -559,12 +564,12 @@ public abstract class BaseCustomerController(
         {
             var customAttributes =
                 await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            await customerViewModelService.UpdateAddressModel(customer, address, model, customAttributes);
+            await customerAddressViewModelService.UpdateAddressModel(customer, address, model, customAttributes);
             Success(translationService.GetResource("Admin.Customers.Customers.Addresses.Updated"));
             return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, customerId = model.CustomerId });
         }
 
-        await customerViewModelService.PrepareAddressModel(model, address, customer, true);
+        await customerAddressViewModelService.PrepareAddressModel(model, address, customer, true);
         return View(model);
     }
 
@@ -682,7 +687,7 @@ public abstract class BaseCustomerController(
             if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
 
-        var cart = await customerViewModelService.PrepareShoppingCartItemModel(customerId, cartTypeId);
+        var cart = await customerShoppingCartViewModelService.PrepareShoppingCartItemModel(customerId, cartTypeId);
         var gridModel = new DataSourceResult { Data = cart, Total = cart.Count };
         return Json(gridModel);
     }
@@ -694,7 +699,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(customerId);
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
-        var warnings = await customerViewModelService.UpdateCart(customer, id, unitPriceValue);
+        var warnings = await customerShoppingCartViewModelService.UpdateCart(customer, id, unitPriceValue);
         if (warnings.Any()) return ErrorForKendoGridJson(string.Join(",", warnings));
         return new JsonResult("");
     }
@@ -706,7 +711,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(customerId);
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
-        await customerViewModelService.DeleteCart(customer, id);
+        await customerShoppingCartViewModelService.DeleteCart(customer, id);
         return new JsonResult("");
     }
 
@@ -733,7 +738,7 @@ public abstract class BaseCustomerController(
         }
 
         var (productPriceModels, totalCount) =
-            await customerViewModelService.PrepareProductPriceModel(customerId, command.Page, command.PageSize);
+            await customerProductViewModelService.PrepareProductPriceModel(customerId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult { Data = productPriceModels.ToList(), Total = totalCount };
         return Json(gridModel);
     }
@@ -749,7 +754,7 @@ public abstract class BaseCustomerController(
         }
 
         var (productModels, totalCount) =
-            await customerViewModelService.PreparePersonalizedProducts(customerId, command.Page, command.PageSize);
+            await customerProductViewModelService.PreparePersonalizedProducts(customerId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult { Data = productModels.ToList(), Total = totalCount };
         return Json(gridModel);
     }
@@ -763,7 +768,7 @@ public abstract class BaseCustomerController(
             if (denied != null) return denied;
         }
 
-        var model = await customerViewModelService.PrepareCustomerModelAddProductModel();
+        var model = await customerProductViewModelService.PrepareCustomerModelAddProductModel();
         return View(model);
     }
 
@@ -771,7 +776,7 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, CustomerModel.AddProductModel model)
     {
-        var products = await customerViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var products = await customerProductViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult { Data = products.products.ToList(), Total = products.totalCount };
         return Json(gridModel);
     }
@@ -788,7 +793,7 @@ public abstract class BaseCustomerController(
         }
 
         if (model.SelectedProductIds != null)
-            await customerViewModelService.InsertCustomerAddProductModel(customerId, personalized, model);
+            await customerProductViewModelService.InsertCustomerAddProductModel(customerId, personalized, model);
         return Content("");
     }
 
@@ -803,7 +808,7 @@ public abstract class BaseCustomerController(
                 return new JsonResult("");
         }
 
-        await customerViewModelService.UpdateProductPrice(model);
+        await customerProductViewModelService.UpdateProductPrice(model);
         return new JsonResult("");
     }
 
@@ -821,7 +826,7 @@ public abstract class BaseCustomerController(
             return new JsonResult("");
         }
 
-        await customerViewModelService.DeleteProductPrice(id);
+        await customerProductViewModelService.DeleteProductPrice(id);
         return new JsonResult("");
     }
 
@@ -836,7 +841,7 @@ public abstract class BaseCustomerController(
                 return new JsonResult("");
         }
 
-        await customerViewModelService.UpdatePersonalizedProduct(model);
+        await customerProductViewModelService.UpdatePersonalizedProduct(model);
         return new JsonResult("");
     }
 
@@ -855,8 +860,8 @@ public abstract class BaseCustomerController(
         }
 
         // Admin's original convenience method, preserved for the global-scope branch (still present
-        // on ICustomerViewModelService — no need to fall back to a two-step Get+Delete).
-        await customerViewModelService.DeletePersonalizedProduct(id);
+        // on ICustomerProductViewModelService — no need to fall back to a two-step Get+Delete).
+        await customerProductViewModelService.DeletePersonalizedProduct(id);
         return new JsonResult("");
     }
 
@@ -875,7 +880,7 @@ public abstract class BaseCustomerController(
         }
 
         var (outOfStockSubscriptionModels, totalCount) =
-            await customerViewModelService.PrepareOutOfStockSubscriptionModel(customerId, command.Page, command.PageSize);
+            await customerOutOfStockSubscriptionViewModelService.PrepareOutOfStockSubscriptionModel(customerId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult { Data = outOfStockSubscriptionModels.ToList(), Total = totalCount };
         return Json(gridModel);
     }

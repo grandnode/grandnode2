@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
@@ -29,6 +29,11 @@ namespace Grand.Web.Store.Controllers;
 public class CustomerController(
     Grand.Business.Core.Interfaces.Customers.ICustomerService customerService,
     ICustomerViewModelService customerViewModelService,
+    ICustomerAddressViewModelService customerAddressViewModelService,
+    ICustomerLoyaltyPointsViewModelService customerLoyaltyPointsViewModelService,
+    ICustomerShoppingCartViewModelService customerShoppingCartViewModelService,
+    ICustomerProductViewModelService customerProductViewModelService,
+    ICustomerOutOfStockSubscriptionViewModelService customerOutOfStockSubscriptionViewModelService,
     Grand.Business.Core.Interfaces.Customers.ICustomerManagerService customerManagerService,
     Grand.Business.Core.Interfaces.Marketing.Customers.ICustomerProductService customerProductService,
     Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService productReviewService,
@@ -45,7 +50,9 @@ public class CustomerController(
     CustomerSettings customerSettings,
     IAdminDataScope<Customer> scope,
     CustomerConfig customerConfig)
-    : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
+    : BaseCustomerController(customerService, customerViewModelService, customerAddressViewModelService,
+        customerLoyaltyPointsViewModelService, customerShoppingCartViewModelService, customerProductViewModelService,
+        customerOutOfStockSubscriptionViewModelService, customerManagerService,
         customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
         customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
         messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope)
