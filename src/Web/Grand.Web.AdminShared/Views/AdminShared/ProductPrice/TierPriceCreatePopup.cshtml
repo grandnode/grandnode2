@@ -8,7 +8,7 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<form id="TierPriceCreatePopup" asp-area="@area" asp-controller="Product" asp-action="TierPriceCreatePopup"
+<form id="TierPriceCreatePopup" asp-area="@area" asp-controller="ProductPrice" asp-action="TierPriceCreatePopup"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
