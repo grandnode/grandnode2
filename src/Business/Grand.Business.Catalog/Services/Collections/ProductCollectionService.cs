@@ -98,6 +98,7 @@ public class ProductCollectionService : IProductCollectionService
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityInserted(productCollection);
@@ -118,6 +119,7 @@ public class ProductCollectionService : IProductCollectionService
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(productCollection);
@@ -137,6 +139,7 @@ public class ProductCollectionService : IProductCollectionService
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(productCollection);
