@@ -39,25 +39,29 @@ public class StripeCheckoutService : IStripeCheckoutService
 
     public async Task<bool> WebHookProcessPayment(string stripeSignature, string json)
     {
+        Event stripeEvent;
         try
         {
-            var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature,
-                _stripeCheckoutPaymentSettings.WebhookEndpointSecret);
-            // Handle the event
-            if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
-            {
-                var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                await CreatePaymentTransaction(paymentIntent);
-                return true;
-            }
+            //the account's default API version (the one the webhook endpoint sends events in) rarely
+            //matches the version pinned by Stripe.net - the fields read below are stable across versions,
+            //so a mismatch must not reject the event
+            stripeEvent = EventUtility.ConstructEvent(json, stripeSignature,
+                _stripeCheckoutPaymentSettings.WebhookEndpointSecret, throwOnApiVersionMismatch: false);
         }
         catch (StripeException e)
         {
-            _logger.LogError(e, "StripeException");
-            return false;
+            //rethrown so the webhook answers with an error and Stripe shows the failure and retries
+            _logger.LogError(e, "Stripe webhook event could not be verified");
+            throw;
         }
 
-        return false;
+        // Handle the event
+        if (stripeEvent.Type != EventTypes.PaymentIntentSucceeded)
+            return false;
+
+        var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+        await CreatePaymentTransaction(paymentIntent);
+        return true;
     }
 
     private async Task CreatePaymentTransaction(PaymentIntent paymentIntent)
